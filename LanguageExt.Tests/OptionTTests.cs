@@ -84,26 +84,25 @@ namespace LanguageExtTests
             return OptionT.Bind<MOption<Lst<B>>, Option<Lst<B>>, MLst<B>, Lst<B>, B>(list, bind);
         }
 
-        // TODO: RESTORE WHEN NEW TRANSFORMER SYSTEM IS IN PLACE
-        //[Fact]
-        //public void WrappedListTest()
-        //{
-        //    var opt = Some(List(1, 2, 3, 4, 5));
-        //    var res = opt.FoldT(0, (s, v) => s + v);
-        //    var mopt = opt.MapT(x => x * 2);
-        //    var mres = mopt.FoldT(0, (s, v) => s + v);
+        [Fact]
+        public void WrappedListTest()
+        {
+            var opt = Some(List(1, 2, 3, 4, 5));
+            var res = opt.FoldT(0, (s, v) => s + v);
+            var mopt = opt.MapT(x => x * 2);
+            var mres = mopt.FoldT(0, (s, v) => s + v);
 
-        //    Assert.True(res == 15, "Expected 15, but got " + res);
-        //    Assert.True(mres == 30, "Expected 30, but got " + mres);
-        //    Assert.True(opt.CountT() == 5, "opt != 5, (" + opt.CountT() + ")");
-        //    Assert.True(mopt.CountT() == 5, "mopt != 5, (" + mopt.CountT() + ")");
+            Assert.True(res == 15, "Expected 15, but got " + res);
+            Assert.True(mres == 30, "Expected 30, but got " + mres);
+            Assert.True(opt.CountT() == 5, "opt != 5, (" + opt.CountT() + ")");
+            Assert.True(mopt.CountT() == 5, "mopt != 5, (" + mopt.CountT() + ")");
 
-        //    opt = None;
-        //    res = opt.FoldT(0, (s, v) => s + v);
+            opt = None;
+            res = opt.FoldT(0, (s, v) => s + v);
 
-        //    Assert.True(res == 0, "res != 0, got " + res);
-        //    Assert.True(opt.CountT() == 0, "opt.Count() != 0, got " + opt.CountT());
-        //}
+            Assert.True(res == 0, "res != 0, got " + res);
+            Assert.True(opt.CountT() == 0, "opt.Count() != 0, got " + opt.CountT());
+        }
 
         //[Fact]
         //public void WrappedMapTest()
@@ -201,26 +200,23 @@ namespace LanguageExtTests
             Assert.True(res.Map(x => x == 1).IfNone(true));
         }
 
-        // TODO: RESTORE WHEN NEW TRANSFORMER SYSTEM IS IN PLACE
-        //[Fact]
-        //public void WrappedTryOptionLinqTest()
-        //{
-        //    var opt = Some(TryOption(() => Some(100)));
+        [Fact]
+        public void WrappedTryOptionLinqTest()
+        {
+            var opt = Some(TryOption(() => Some(100)));
 
-        //    var res = from x in opt
-        //              from y in x
-        //              select y * 2;
+            var res = from x in opt
+                      select x * 2;
 
-        //    Assert.True(res.LiftT() == 200);
+            Assert.True(res.EqualsT<TInt, int>(Some(TryOption(200))));
 
-        //    opt = Some(TryOption<int>(() => None));
+            opt = Some(TryOption<int>(() => None));
 
-        //    res = from x in opt
-        //          from y in x
-        //          select y * 2;
+            res = from x in opt
+                  select x * 2;
 
-        //    Assert.True(res.LiftT() == 0);
-        //}
+            Assert.True(res.EqualsT<TInt, int>(Some(TryOption<int>(None))));
+        }
 
         //[Fact]
         //public void WrappedEitherLinqTest()
@@ -242,55 +238,52 @@ namespace LanguageExtTests
         //    Assert.True(res.LiftT() == 0);
         //}
 
-        // TODO: Restore when type-classes complete
-        //[Fact]
-        //public void WrappedListOfOptionsTest1()
-        //{
-        //    var opt = List(Some(1), Some(2), Some(3), Some(4), Some(5));
+        [Fact]
+        public void WrappedListOfOptionsTest1()
+        {
+            var opt = List(Some(1), Some(2), Some(3), Some(4), Some(5));
 
-        //    opt = from x in opt
-        //          from y in x
-        //          where y > 2
-        //          select y;
+            opt = from x in opt
+                  where x > 2
+                  select x;
 
-        //    Assert.True(opt.Count() == 5, "Count should be 5, is: " + opt.Count());
-        //    Assert.True(equals<EqInt, int>(opt[0], None), "opt[1] != None. Is: " + opt[0]);
-        //    Assert.True(equals<EqInt, int>(opt[1], None), "opt[2] != None. Is : " + opt[1]);
-        //    Assert.True(equals<EqInt, int>(opt[2], Some(3)), "opt[3] != Some(3)");
-        //    Assert.True(equals<EqInt, int>(opt[3], Some(4)), "opt[4] != Some(4)");
-        //    Assert.True(equals<EqInt, int>(opt[4], Some(5)), "opt[5] != Some(5)");
+            Assert.True(opt.Count() == 5, "Count should be 5, is: " + opt.Count());
+            Assert.True(equals<EqInt, int>(opt[0], None), "opt[1] != None. Is: " + opt[0]);
+            Assert.True(equals<EqInt, int>(opt[1], None), "opt[2] != None. Is : " + opt[1]);
+            Assert.True(equals<EqInt, int>(opt[2], Some(3)), "opt[3] != Some(3)");
+            Assert.True(equals<EqInt, int>(opt[3], Some(4)), "opt[4] != Some(4)");
+            Assert.True(equals<EqInt, int>(opt[4], Some(5)), "opt[5] != Some(5)");
 
-        //    opt = opt.Filter(isSome);
+            opt = opt.Filter(isSome);
 
-        //    Assert.True(opt.Count() == 3, "Count should be 3, is: " + opt.Count());
-        //    Assert.True(equals<EqInt, int>(opt[0], Some(3)), "opt[0] != Some(3)");
-        //    Assert.True(equals<EqInt, int>(opt[1], Some(4)), "opt[1] != Some(4)");
-        //    Assert.True(equals<EqInt, int>(opt[2], Some(5)), "opt[2] != Some(5)");
+            Assert.True(opt.Count() == 3, "Count should be 3, is: " + opt.Count());
+            Assert.True(equals<EqInt, int>(opt[0], Some(3)), "opt[0] != Some(3)");
+            Assert.True(equals<EqInt, int>(opt[1], Some(4)), "opt[1] != Some(4)");
+            Assert.True(equals<EqInt, int>(opt[2], Some(5)), "opt[2] != Some(5)");
 
-        //}
+        }
 
-        // TODO: RESTORE WHEN NEW TRANSFORMER SYSTEM IS IN PLACE
-        //[Fact]
-        //public void WrappedListOfOptionsTest2()
-        //{
-        //    var opt = List(Some(1), Some(2), Some(3), Some(4), Some(5));
+        [Fact]
+        public void WrappedListOfOptionsTest2()
+        {
+            var opt = List(Some(1), Some(2), Some(3), Some(4), Some(5));
 
-        //    opt = opt.FilterT(x => x > 2);
+            opt = opt.FilterT(x => x > 2);
 
-        //    Assert.True(opt.Count() == 5, "Count should be 5, is: " + opt.Count());
-        //    Assert.True(equals<TInt, int>(opt[0], Option<int>.None), "opt[0] != None. Is: " + opt[0]);
-        //    Assert.True(equals<TInt, int>(opt[1], Option<int>.None), "opt[1] != None. Is: " + opt[1]);
-        //    Assert.True(equals<TInt, int>(opt[2], Some(3)), "opt[2] != Some(3), Is: " + opt[2]);
-        //    Assert.True(equals<TInt, int>(opt[3], Some(4)), "opt[3] != Some(4), Is: " + opt[3]);
-        //    Assert.True(equals<TInt, int>(opt[4], Some(5)), "opt[4] != Some(5), Is: " + opt[4]);
+            Assert.True(opt.Count() == 5, "Count should be 5, is: " + opt.Count());
+            Assert.True(equals<TInt, int>(opt[0], Option<int>.None), "opt[0] != None. Is: " + opt[0]);
+            Assert.True(equals<TInt, int>(opt[1], Option<int>.None), "opt[1] != None. Is: " + opt[1]);
+            Assert.True(equals<TInt, int>(opt[2], Some(3)), "opt[2] != Some(3), Is: " + opt[2]);
+            Assert.True(equals<TInt, int>(opt[3], Some(4)), "opt[3] != Some(4), Is: " + opt[3]);
+            Assert.True(equals<TInt, int>(opt[4], Some(5)), "opt[4] != Some(5), Is: " + opt[4]);
 
-        //    opt = opt.Filter(isSome);
+            opt = opt.Filter(isSome);
 
-        //    Assert.True(opt.Count() == 3, "Count should be 3, is: " + opt.Count());
-        //    Assert.True(equals<TInt, int>(opt[0], Some(3)), "opt[0] != Some(3)");
-        //    Assert.True(equals<TInt, int>(opt[1], Some(4)), "opt[1] != Some(4)");
-        //    Assert.True(equals<TInt, int>(opt[2], Some(5)), "opt[2] != Some(5)");
+            Assert.True(opt.Count() == 3, "Count should be 3, is: " + opt.Count());
+            Assert.True(equals<TInt, int>(opt[0], Some(3)), "opt[0] != Some(3)");
+            Assert.True(equals<TInt, int>(opt[1], Some(4)), "opt[1] != Some(4)");
+            Assert.True(equals<TInt, int>(opt[2], Some(5)), "opt[2] != Some(5)");
 
-        //}
+        }
     }
 }

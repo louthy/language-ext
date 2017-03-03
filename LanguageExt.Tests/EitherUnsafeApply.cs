@@ -43,22 +43,21 @@ namespace LanguageExtTests
             Assert.Equal(RightUnsafe<string, int>(7), either);
         }
 
-        // TODO: Restore when type-class work complete
-        //[Fact]
-        //public void ApplyLeftArgs()
-        //{
-        //    var opt = Some(add)
-        //        .Apply(None)
-        //        .Apply(Some(4));
+        [Fact]
+        public void ApplyLeftArgs()
+        {
+            var opt = Some(add)
+                .Apply(None)
+                .Apply(Some(4));
 
-        //    Assert.Equal(None, opt);
+            Assert.Equal(None, opt);
 
-        //    var either = RightUnsafe<string, Func<int, int, int>>(add)
-        //        .Apply(LeftUnsafe<string, int>("left"))
-        //        .Apply(RightUnsafe<string, int>(4));
+            var either = RightUnsafe<string, Func<int, int, int>>(add)
+                .Apply(LeftUnsafe<string, int>("left"))
+                .Apply(RightUnsafe<string, int>(4));
 
-        //    Assert.Equal(LeftUnsafe<string, int>("left"), either);
-        //}
+            Assert.Equal(LeftUnsafe<string, int>("left"), either);
+        }
 
         [Fact]
         public void ApplyLeftArgsF()

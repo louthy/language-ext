@@ -31,12 +31,22 @@ namespace LanguageExt
                 .Inst.Map<MArr<Arr<B>>, Arr<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Arr<Arr<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Arr<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<Arr<A>>, Arr<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Arr<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<Arr<A>>, Arr<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Arr<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MArr<Arr<A>>, Arr<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Arr<Arr<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Arr<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MArr<Arr<A>>, Arr<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -106,12 +116,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Arr<Arr<int>> CompareT<ORD,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Arr<Arr<bool>> EqualsT<EQ,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Arr<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<Arr<A>> fa) =>
@@ -153,12 +163,22 @@ namespace LanguageExt
                 .Inst.Map<MArr<HashSet<B>>, Arr<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Arr<HashSet<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Arr<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<HashSet<A>>, Arr<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Arr<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<HashSet<A>>, Arr<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Arr<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MArr<HashSet<A>>, Arr<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Arr<HashSet<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Arr<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MArr<HashSet<A>>, Arr<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -228,12 +248,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Arr<HashSet<int>> CompareT<ORD,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Arr<HashSet<bool>> EqualsT<EQ,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Arr<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<HashSet<A>> fa) =>
@@ -275,12 +295,22 @@ namespace LanguageExt
                 .Inst.Map<MArr<Lst<B>>, Arr<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Arr<Lst<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<Lst<A>>, Arr<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<Lst<A>>, Arr<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Arr<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MArr<Lst<A>>, Arr<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Arr<Lst<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Arr<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MArr<Lst<A>>, Arr<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -350,12 +380,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Arr<Lst<int>> CompareT<ORD,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Arr<Lst<bool>> EqualsT<EQ,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Arr<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<Lst<A>> fa) =>
@@ -397,12 +427,22 @@ namespace LanguageExt
                 .Inst.Map<MArr<Option<B>>, Arr<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Arr<Option<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Arr<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<Option<A>>, Arr<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Arr<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<Option<A>>, Arr<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Arr<Option<A>> ma, Func<A, bool> f) =>
             Trans<MArr<Option<A>>, Arr<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Arr<Option<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Arr<Option<A>> ma, Func<A, bool> f) =>
             Trans<MArr<Option<A>>, Arr<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -472,12 +512,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Arr<Option<int>> CompareT<ORD,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Arr<Option<bool>> EqualsT<EQ,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Arr<Option<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<Option<A>> fa) =>
@@ -519,12 +559,22 @@ namespace LanguageExt
                 .Inst.Map<MArr<OptionUnsafe<B>>, Arr<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Arr<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Arr<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<OptionUnsafe<A>>, Arr<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Arr<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<OptionUnsafe<A>>, Arr<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Arr<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MArr<OptionUnsafe<A>>, Arr<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Arr<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Arr<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MArr<OptionUnsafe<A>>, Arr<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -594,12 +644,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Arr<OptionUnsafe<int>> CompareT<ORD,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Arr<OptionUnsafe<bool>> EqualsT<EQ,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Arr<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<OptionUnsafe<A>> fa) =>
@@ -641,12 +691,22 @@ namespace LanguageExt
                 .Inst.Map<MArr<Either<L, B>>, Arr<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Arr<Either<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Arr<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<Either<L, A>>, Arr<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Arr<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<Either<L, A>>, Arr<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Arr<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MArr<Either<L, A>>, Arr<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Arr<Either<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Arr<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MArr<Either<L, A>>, Arr<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -716,12 +776,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Arr<Either<L, int>> CompareT<ORD, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Arr<Either<L, bool>> EqualsT<EQ, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Arr<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Arr<Either<L, A>> fa) =>
@@ -763,12 +823,22 @@ namespace LanguageExt
                 .Inst.Map<MArr<EitherUnsafe<L, B>>, Arr<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Arr<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Arr<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<EitherUnsafe<L, A>>, Arr<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Arr<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<EitherUnsafe<L, A>>, Arr<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Arr<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MArr<EitherUnsafe<L, A>>, Arr<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Arr<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Arr<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MArr<EitherUnsafe<L, A>>, Arr<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -838,12 +908,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Arr<EitherUnsafe<L, int>> CompareT<ORD, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Arr<EitherUnsafe<L, bool>> EqualsT<EQ, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Arr<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Arr<EitherUnsafe<L, A>> fa) =>
@@ -885,12 +955,22 @@ namespace LanguageExt
                 .Inst.Map<MArr<Task<B>>, Arr<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Arr<Task<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Arr<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<Task<A>>, Arr<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Arr<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<Task<A>>, Arr<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Arr<Task<A>> ma, Func<A, bool> f) =>
             Trans<MArr<Task<A>>, Arr<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Arr<Task<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Arr<Task<A>> ma, Func<A, bool> f) =>
             Trans<MArr<Task<A>>, Arr<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -960,12 +1040,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Arr<Task<int>> CompareT<ORD,  A>(this Arr<Task<A>> x, Arr<Task<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Arr<Task<A>> x, Arr<Task<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Arr<Task<bool>> EqualsT<EQ,  A>(this Arr<Task<A>> x, Arr<Task<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Arr<Task<A>> x, Arr<Task<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Arr<Task<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<Task<A>> fa) =>
@@ -1007,12 +1087,22 @@ namespace LanguageExt
                 .Inst.Map<MArr<Try<B>>, Arr<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Arr<Try<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Arr<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<Try<A>>, Arr<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Arr<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<Try<A>>, Arr<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Arr<Try<A>> ma, Func<A, bool> f) =>
             Trans<MArr<Try<A>>, Arr<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Arr<Try<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Arr<Try<A>> ma, Func<A, bool> f) =>
             Trans<MArr<Try<A>>, Arr<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -1082,12 +1172,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Arr<Try<int>> CompareT<ORD,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Arr<Try<bool>> EqualsT<EQ,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Arr<Try<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<Try<A>> fa) =>
@@ -1129,12 +1219,22 @@ namespace LanguageExt
                 .Inst.Map<MArr<TryAsync<B>>, Arr<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Arr<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Arr<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<TryAsync<A>>, Arr<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Arr<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<TryAsync<A>>, Arr<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Arr<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MArr<TryAsync<A>>, Arr<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Arr<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Arr<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MArr<TryAsync<A>>, Arr<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -1204,12 +1304,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Arr<TryAsync<int>> CompareT<ORD,  A>(this Arr<TryAsync<A>> x, Arr<TryAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Arr<TryAsync<A>> x, Arr<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Arr<TryAsync<bool>> EqualsT<EQ,  A>(this Arr<TryAsync<A>> x, Arr<TryAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Arr<TryAsync<A>> x, Arr<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Arr<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<TryAsync<A>> fa) =>
@@ -1251,12 +1351,22 @@ namespace LanguageExt
                 .Inst.Map<MArr<TryOption<B>>, Arr<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Arr<TryOption<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Arr<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<TryOption<A>>, Arr<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Arr<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<TryOption<A>>, Arr<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Arr<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MArr<TryOption<A>>, Arr<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Arr<TryOption<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Arr<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MArr<TryOption<A>>, Arr<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -1326,12 +1436,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Arr<TryOption<int>> CompareT<ORD,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Arr<TryOption<bool>> EqualsT<EQ,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Arr<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<TryOption<A>> fa) =>
@@ -1373,12 +1483,22 @@ namespace LanguageExt
                 .Inst.Map<MArr<TryOptionAsync<B>>, Arr<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Arr<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Arr<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<TryOptionAsync<A>>, Arr<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Arr<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<TryOptionAsync<A>>, Arr<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Arr<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MArr<TryOptionAsync<A>>, Arr<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Arr<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Arr<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MArr<TryOptionAsync<A>>, Arr<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -1448,12 +1568,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Arr<TryOptionAsync<int>> CompareT<ORD,  A>(this Arr<TryOptionAsync<A>> x, Arr<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Arr<TryOptionAsync<A>> x, Arr<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Arr<TryOptionAsync<bool>> EqualsT<EQ,  A>(this Arr<TryOptionAsync<A>> x, Arr<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Arr<TryOptionAsync<A>> x, Arr<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Arr<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<TryOptionAsync<A>> fa) =>
@@ -1495,12 +1615,22 @@ namespace LanguageExt
                 .Inst.Map<MArr<IEnumerable<B>>, Arr<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Arr<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Arr<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<IEnumerable<A>>, Arr<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Arr<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<IEnumerable<A>>, Arr<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Arr<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MArr<IEnumerable<A>>, Arr<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Arr<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Arr<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MArr<IEnumerable<A>>, Arr<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -1570,12 +1700,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Arr<IEnumerable<int>> CompareT<ORD,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Arr<IEnumerable<bool>> EqualsT<EQ,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Arr<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<IEnumerable<A>> fa) =>
@@ -1617,12 +1747,22 @@ namespace LanguageExt
                 .Inst.Map<MArr<Set<B>>, Arr<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Arr<Set<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Arr<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<Set<A>>, Arr<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Arr<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<Set<A>>, Arr<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Arr<Set<A>> ma, Func<A, bool> f) =>
             Trans<MArr<Set<A>>, Arr<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Arr<Set<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Arr<Set<A>> ma, Func<A, bool> f) =>
             Trans<MArr<Set<A>>, Arr<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -1692,12 +1832,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Arr<Set<int>> CompareT<ORD,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Arr<Set<bool>> EqualsT<EQ,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Arr<Set<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<Set<A>> fa) =>
@@ -1739,12 +1879,22 @@ namespace LanguageExt
                 .Inst.Map<MHashSet<Arr<B>>, HashSet<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this HashSet<Arr<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this HashSet<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<Arr<A>>, HashSet<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this HashSet<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<Arr<A>>, HashSet<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this HashSet<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<Arr<A>>, HashSet<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this HashSet<Arr<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this HashSet<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<Arr<A>>, HashSet<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -1814,12 +1964,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static HashSet<Arr<int>> CompareT<ORD,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static HashSet<Arr<bool>> EqualsT<EQ,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static HashSet<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<Arr<A>> fa) =>
@@ -1861,12 +2011,22 @@ namespace LanguageExt
                 .Inst.Map<MHashSet<HashSet<B>>, HashSet<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this HashSet<HashSet<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this HashSet<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<HashSet<A>>, HashSet<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this HashSet<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<HashSet<A>>, HashSet<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this HashSet<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<HashSet<A>>, HashSet<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this HashSet<HashSet<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this HashSet<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<HashSet<A>>, HashSet<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -1936,12 +2096,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static HashSet<HashSet<int>> CompareT<ORD,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static HashSet<HashSet<bool>> EqualsT<EQ,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static HashSet<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<HashSet<A>> fa) =>
@@ -1983,12 +2143,22 @@ namespace LanguageExt
                 .Inst.Map<MHashSet<Lst<B>>, HashSet<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this HashSet<Lst<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this HashSet<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<Lst<A>>, HashSet<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this HashSet<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<Lst<A>>, HashSet<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this HashSet<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<Lst<A>>, HashSet<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this HashSet<Lst<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this HashSet<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<Lst<A>>, HashSet<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -2058,12 +2228,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static HashSet<Lst<int>> CompareT<ORD,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static HashSet<Lst<bool>> EqualsT<EQ,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static HashSet<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<Lst<A>> fa) =>
@@ -2105,12 +2275,22 @@ namespace LanguageExt
                 .Inst.Map<MHashSet<Option<B>>, HashSet<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this HashSet<Option<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this HashSet<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<Option<A>>, HashSet<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this HashSet<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<Option<A>>, HashSet<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this HashSet<Option<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<Option<A>>, HashSet<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this HashSet<Option<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this HashSet<Option<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<Option<A>>, HashSet<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -2180,12 +2360,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static HashSet<Option<int>> CompareT<ORD,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static HashSet<Option<bool>> EqualsT<EQ,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static HashSet<Option<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<Option<A>> fa) =>
@@ -2227,12 +2407,22 @@ namespace LanguageExt
                 .Inst.Map<MHashSet<OptionUnsafe<B>>, HashSet<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this HashSet<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this HashSet<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<OptionUnsafe<A>>, HashSet<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this HashSet<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<OptionUnsafe<A>>, HashSet<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this HashSet<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<OptionUnsafe<A>>, HashSet<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this HashSet<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this HashSet<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<OptionUnsafe<A>>, HashSet<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -2302,12 +2492,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static HashSet<OptionUnsafe<int>> CompareT<ORD,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static HashSet<OptionUnsafe<bool>> EqualsT<EQ,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static HashSet<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<OptionUnsafe<A>> fa) =>
@@ -2349,12 +2539,22 @@ namespace LanguageExt
                 .Inst.Map<MHashSet<Either<L, B>>, HashSet<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this HashSet<Either<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this HashSet<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<Either<L, A>>, HashSet<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this HashSet<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<Either<L, A>>, HashSet<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this HashSet<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<Either<L, A>>, HashSet<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this HashSet<Either<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this HashSet<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<Either<L, A>>, HashSet<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -2424,12 +2624,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static HashSet<Either<L, int>> CompareT<ORD, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static HashSet<Either<L, bool>> EqualsT<EQ, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static HashSet<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, HashSet<Either<L, A>> fa) =>
@@ -2471,12 +2671,22 @@ namespace LanguageExt
                 .Inst.Map<MHashSet<EitherUnsafe<L, B>>, HashSet<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this HashSet<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this HashSet<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<EitherUnsafe<L, A>>, HashSet<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this HashSet<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<EitherUnsafe<L, A>>, HashSet<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this HashSet<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<EitherUnsafe<L, A>>, HashSet<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this HashSet<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this HashSet<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<EitherUnsafe<L, A>>, HashSet<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -2546,12 +2756,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static HashSet<EitherUnsafe<L, int>> CompareT<ORD, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static HashSet<EitherUnsafe<L, bool>> EqualsT<EQ, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static HashSet<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, HashSet<EitherUnsafe<L, A>> fa) =>
@@ -2593,12 +2803,22 @@ namespace LanguageExt
                 .Inst.Map<MHashSet<Task<B>>, HashSet<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this HashSet<Task<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this HashSet<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<Task<A>>, HashSet<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this HashSet<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<Task<A>>, HashSet<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this HashSet<Task<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<Task<A>>, HashSet<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this HashSet<Task<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this HashSet<Task<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<Task<A>>, HashSet<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -2668,12 +2888,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static HashSet<Task<int>> CompareT<ORD,  A>(this HashSet<Task<A>> x, HashSet<Task<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this HashSet<Task<A>> x, HashSet<Task<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static HashSet<Task<bool>> EqualsT<EQ,  A>(this HashSet<Task<A>> x, HashSet<Task<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this HashSet<Task<A>> x, HashSet<Task<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static HashSet<Task<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<Task<A>> fa) =>
@@ -2715,12 +2935,22 @@ namespace LanguageExt
                 .Inst.Map<MHashSet<Try<B>>, HashSet<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this HashSet<Try<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this HashSet<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<Try<A>>, HashSet<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this HashSet<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<Try<A>>, HashSet<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this HashSet<Try<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<Try<A>>, HashSet<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this HashSet<Try<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this HashSet<Try<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<Try<A>>, HashSet<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -2790,12 +3020,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static HashSet<Try<int>> CompareT<ORD,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static HashSet<Try<bool>> EqualsT<EQ,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static HashSet<Try<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<Try<A>> fa) =>
@@ -2837,12 +3067,22 @@ namespace LanguageExt
                 .Inst.Map<MHashSet<TryAsync<B>>, HashSet<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this HashSet<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this HashSet<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<TryAsync<A>>, HashSet<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this HashSet<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<TryAsync<A>>, HashSet<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this HashSet<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<TryAsync<A>>, HashSet<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this HashSet<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this HashSet<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<TryAsync<A>>, HashSet<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -2912,12 +3152,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static HashSet<TryAsync<int>> CompareT<ORD,  A>(this HashSet<TryAsync<A>> x, HashSet<TryAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this HashSet<TryAsync<A>> x, HashSet<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static HashSet<TryAsync<bool>> EqualsT<EQ,  A>(this HashSet<TryAsync<A>> x, HashSet<TryAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this HashSet<TryAsync<A>> x, HashSet<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static HashSet<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<TryAsync<A>> fa) =>
@@ -2959,12 +3199,22 @@ namespace LanguageExt
                 .Inst.Map<MHashSet<TryOption<B>>, HashSet<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this HashSet<TryOption<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this HashSet<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<TryOption<A>>, HashSet<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this HashSet<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<TryOption<A>>, HashSet<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this HashSet<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<TryOption<A>>, HashSet<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this HashSet<TryOption<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this HashSet<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<TryOption<A>>, HashSet<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -3034,12 +3284,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static HashSet<TryOption<int>> CompareT<ORD,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static HashSet<TryOption<bool>> EqualsT<EQ,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static HashSet<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<TryOption<A>> fa) =>
@@ -3081,12 +3331,22 @@ namespace LanguageExt
                 .Inst.Map<MHashSet<TryOptionAsync<B>>, HashSet<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this HashSet<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this HashSet<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<TryOptionAsync<A>>, HashSet<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this HashSet<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<TryOptionAsync<A>>, HashSet<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this HashSet<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<TryOptionAsync<A>>, HashSet<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this HashSet<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this HashSet<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<TryOptionAsync<A>>, HashSet<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -3156,12 +3416,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static HashSet<TryOptionAsync<int>> CompareT<ORD,  A>(this HashSet<TryOptionAsync<A>> x, HashSet<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this HashSet<TryOptionAsync<A>> x, HashSet<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static HashSet<TryOptionAsync<bool>> EqualsT<EQ,  A>(this HashSet<TryOptionAsync<A>> x, HashSet<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this HashSet<TryOptionAsync<A>> x, HashSet<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static HashSet<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<TryOptionAsync<A>> fa) =>
@@ -3203,12 +3463,22 @@ namespace LanguageExt
                 .Inst.Map<MHashSet<IEnumerable<B>>, HashSet<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this HashSet<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this HashSet<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<IEnumerable<A>>, HashSet<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this HashSet<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<IEnumerable<A>>, HashSet<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this HashSet<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<IEnumerable<A>>, HashSet<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this HashSet<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this HashSet<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<IEnumerable<A>>, HashSet<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -3278,12 +3548,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static HashSet<IEnumerable<int>> CompareT<ORD,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static HashSet<IEnumerable<bool>> EqualsT<EQ,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static HashSet<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<IEnumerable<A>> fa) =>
@@ -3325,12 +3595,22 @@ namespace LanguageExt
                 .Inst.Map<MHashSet<Set<B>>, HashSet<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this HashSet<Set<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this HashSet<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<Set<A>>, HashSet<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this HashSet<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<Set<A>>, HashSet<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this HashSet<Set<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<Set<A>>, HashSet<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this HashSet<Set<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this HashSet<Set<A>> ma, Func<A, bool> f) =>
             Trans<MHashSet<Set<A>>, HashSet<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -3400,12 +3680,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static HashSet<Set<int>> CompareT<ORD,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static HashSet<Set<bool>> EqualsT<EQ,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static HashSet<Set<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<Set<A>> fa) =>
@@ -3447,12 +3727,22 @@ namespace LanguageExt
                 .Inst.Map<MLst<Arr<B>>, Lst<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Lst<Arr<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Lst<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<Arr<A>>, Lst<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Lst<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<Arr<A>>, Lst<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Lst<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MLst<Arr<A>>, Lst<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Lst<Arr<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Lst<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MLst<Arr<A>>, Lst<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -3522,12 +3812,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Lst<Arr<int>> CompareT<ORD,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Lst<Arr<bool>> EqualsT<EQ,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Lst<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<Arr<A>> fa) =>
@@ -3569,12 +3859,22 @@ namespace LanguageExt
                 .Inst.Map<MLst<HashSet<B>>, Lst<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Lst<HashSet<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Lst<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<HashSet<A>>, Lst<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Lst<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<HashSet<A>>, Lst<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Lst<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MLst<HashSet<A>>, Lst<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Lst<HashSet<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Lst<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MLst<HashSet<A>>, Lst<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -3644,12 +3944,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Lst<HashSet<int>> CompareT<ORD,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Lst<HashSet<bool>> EqualsT<EQ,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Lst<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<HashSet<A>> fa) =>
@@ -3691,12 +3991,22 @@ namespace LanguageExt
                 .Inst.Map<MLst<Lst<B>>, Lst<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Lst<Lst<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Lst<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<Lst<A>>, Lst<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Lst<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<Lst<A>>, Lst<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Lst<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MLst<Lst<A>>, Lst<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Lst<Lst<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Lst<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MLst<Lst<A>>, Lst<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -3766,12 +4076,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Lst<Lst<int>> CompareT<ORD,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Lst<Lst<bool>> EqualsT<EQ,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Lst<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<Lst<A>> fa) =>
@@ -3813,12 +4123,22 @@ namespace LanguageExt
                 .Inst.Map<MLst<Option<B>>, Lst<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Lst<Option<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Lst<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<Option<A>>, Lst<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Lst<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<Option<A>>, Lst<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Lst<Option<A>> ma, Func<A, bool> f) =>
             Trans<MLst<Option<A>>, Lst<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Lst<Option<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Lst<Option<A>> ma, Func<A, bool> f) =>
             Trans<MLst<Option<A>>, Lst<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -3888,12 +4208,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Lst<Option<int>> CompareT<ORD,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Lst<Option<bool>> EqualsT<EQ,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Lst<Option<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<Option<A>> fa) =>
@@ -3935,12 +4255,22 @@ namespace LanguageExt
                 .Inst.Map<MLst<OptionUnsafe<B>>, Lst<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Lst<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Lst<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<OptionUnsafe<A>>, Lst<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Lst<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<OptionUnsafe<A>>, Lst<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Lst<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MLst<OptionUnsafe<A>>, Lst<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Lst<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Lst<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MLst<OptionUnsafe<A>>, Lst<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -4010,12 +4340,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Lst<OptionUnsafe<int>> CompareT<ORD,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Lst<OptionUnsafe<bool>> EqualsT<EQ,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Lst<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<OptionUnsafe<A>> fa) =>
@@ -4057,12 +4387,22 @@ namespace LanguageExt
                 .Inst.Map<MLst<Either<L, B>>, Lst<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Lst<Either<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Lst<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<Either<L, A>>, Lst<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Lst<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<Either<L, A>>, Lst<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Lst<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MLst<Either<L, A>>, Lst<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Lst<Either<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Lst<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MLst<Either<L, A>>, Lst<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -4132,12 +4472,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Lst<Either<L, int>> CompareT<ORD, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Lst<Either<L, bool>> EqualsT<EQ, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Lst<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Lst<Either<L, A>> fa) =>
@@ -4179,12 +4519,22 @@ namespace LanguageExt
                 .Inst.Map<MLst<EitherUnsafe<L, B>>, Lst<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Lst<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Lst<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<EitherUnsafe<L, A>>, Lst<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Lst<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<EitherUnsafe<L, A>>, Lst<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Lst<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MLst<EitherUnsafe<L, A>>, Lst<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Lst<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Lst<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MLst<EitherUnsafe<L, A>>, Lst<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -4254,12 +4604,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Lst<EitherUnsafe<L, int>> CompareT<ORD, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Lst<EitherUnsafe<L, bool>> EqualsT<EQ, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Lst<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Lst<EitherUnsafe<L, A>> fa) =>
@@ -4301,12 +4651,22 @@ namespace LanguageExt
                 .Inst.Map<MLst<Task<B>>, Lst<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Lst<Task<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Lst<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<Task<A>>, Lst<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Lst<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<Task<A>>, Lst<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Lst<Task<A>> ma, Func<A, bool> f) =>
             Trans<MLst<Task<A>>, Lst<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Lst<Task<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Lst<Task<A>> ma, Func<A, bool> f) =>
             Trans<MLst<Task<A>>, Lst<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -4376,12 +4736,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Lst<Task<int>> CompareT<ORD,  A>(this Lst<Task<A>> x, Lst<Task<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Lst<Task<A>> x, Lst<Task<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Lst<Task<bool>> EqualsT<EQ,  A>(this Lst<Task<A>> x, Lst<Task<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Lst<Task<A>> x, Lst<Task<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Lst<Task<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<Task<A>> fa) =>
@@ -4423,12 +4783,22 @@ namespace LanguageExt
                 .Inst.Map<MLst<Try<B>>, Lst<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Lst<Try<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Lst<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<Try<A>>, Lst<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Lst<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<Try<A>>, Lst<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Lst<Try<A>> ma, Func<A, bool> f) =>
             Trans<MLst<Try<A>>, Lst<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Lst<Try<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Lst<Try<A>> ma, Func<A, bool> f) =>
             Trans<MLst<Try<A>>, Lst<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -4498,12 +4868,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Lst<Try<int>> CompareT<ORD,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Lst<Try<bool>> EqualsT<EQ,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Lst<Try<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<Try<A>> fa) =>
@@ -4545,12 +4915,22 @@ namespace LanguageExt
                 .Inst.Map<MLst<TryAsync<B>>, Lst<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Lst<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Lst<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<TryAsync<A>>, Lst<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Lst<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<TryAsync<A>>, Lst<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Lst<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MLst<TryAsync<A>>, Lst<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Lst<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Lst<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MLst<TryAsync<A>>, Lst<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -4620,12 +5000,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Lst<TryAsync<int>> CompareT<ORD,  A>(this Lst<TryAsync<A>> x, Lst<TryAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Lst<TryAsync<A>> x, Lst<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Lst<TryAsync<bool>> EqualsT<EQ,  A>(this Lst<TryAsync<A>> x, Lst<TryAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Lst<TryAsync<A>> x, Lst<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Lst<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<TryAsync<A>> fa) =>
@@ -4667,12 +5047,22 @@ namespace LanguageExt
                 .Inst.Map<MLst<TryOption<B>>, Lst<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Lst<TryOption<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Lst<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<TryOption<A>>, Lst<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Lst<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<TryOption<A>>, Lst<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Lst<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MLst<TryOption<A>>, Lst<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Lst<TryOption<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Lst<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MLst<TryOption<A>>, Lst<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -4742,12 +5132,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Lst<TryOption<int>> CompareT<ORD,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Lst<TryOption<bool>> EqualsT<EQ,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Lst<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<TryOption<A>> fa) =>
@@ -4789,12 +5179,22 @@ namespace LanguageExt
                 .Inst.Map<MLst<TryOptionAsync<B>>, Lst<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Lst<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Lst<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<TryOptionAsync<A>>, Lst<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Lst<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<TryOptionAsync<A>>, Lst<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Lst<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MLst<TryOptionAsync<A>>, Lst<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Lst<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Lst<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MLst<TryOptionAsync<A>>, Lst<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -4864,12 +5264,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Lst<TryOptionAsync<int>> CompareT<ORD,  A>(this Lst<TryOptionAsync<A>> x, Lst<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Lst<TryOptionAsync<A>> x, Lst<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Lst<TryOptionAsync<bool>> EqualsT<EQ,  A>(this Lst<TryOptionAsync<A>> x, Lst<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Lst<TryOptionAsync<A>> x, Lst<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Lst<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<TryOptionAsync<A>> fa) =>
@@ -4911,12 +5311,22 @@ namespace LanguageExt
                 .Inst.Map<MLst<IEnumerable<B>>, Lst<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Lst<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Lst<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<IEnumerable<A>>, Lst<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Lst<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<IEnumerable<A>>, Lst<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Lst<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MLst<IEnumerable<A>>, Lst<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Lst<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Lst<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MLst<IEnumerable<A>>, Lst<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -4986,12 +5396,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Lst<IEnumerable<int>> CompareT<ORD,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Lst<IEnumerable<bool>> EqualsT<EQ,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Lst<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<IEnumerable<A>> fa) =>
@@ -5033,12 +5443,22 @@ namespace LanguageExt
                 .Inst.Map<MLst<Set<B>>, Lst<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Lst<Set<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Lst<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<Set<A>>, Lst<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Lst<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<Set<A>>, Lst<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Lst<Set<A>> ma, Func<A, bool> f) =>
             Trans<MLst<Set<A>>, Lst<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Lst<Set<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Lst<Set<A>> ma, Func<A, bool> f) =>
             Trans<MLst<Set<A>>, Lst<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -5108,12 +5528,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Lst<Set<int>> CompareT<ORD,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Lst<Set<bool>> EqualsT<EQ,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Lst<Set<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<Set<A>> fa) =>
@@ -5155,12 +5575,22 @@ namespace LanguageExt
                 .Inst.Map<MOption<Arr<B>>, Option<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Option<Arr<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Option<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Arr<A>>, Option<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Option<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Arr<A>>, Option<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Option<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MOption<Arr<A>>, Option<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Option<Arr<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Option<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MOption<Arr<A>>, Option<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -5230,12 +5660,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Option<Arr<int>> CompareT<ORD,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Option<Arr<bool>> EqualsT<EQ,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Option<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, Option<Arr<A>> fa) =>
@@ -5277,12 +5707,22 @@ namespace LanguageExt
                 .Inst.Map<MOption<HashSet<B>>, Option<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Option<HashSet<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Option<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<HashSet<A>>, Option<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Option<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<HashSet<A>>, Option<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Option<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MOption<HashSet<A>>, Option<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Option<HashSet<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Option<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MOption<HashSet<A>>, Option<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -5352,12 +5792,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Option<HashSet<int>> CompareT<ORD,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Option<HashSet<bool>> EqualsT<EQ,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Option<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, Option<HashSet<A>> fa) =>
@@ -5399,12 +5839,22 @@ namespace LanguageExt
                 .Inst.Map<MOption<Lst<B>>, Option<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Option<Lst<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Option<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Lst<A>>, Option<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Option<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Lst<A>>, Option<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Option<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MOption<Lst<A>>, Option<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Option<Lst<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Option<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MOption<Lst<A>>, Option<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -5474,12 +5924,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Option<Lst<int>> CompareT<ORD,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Option<Lst<bool>> EqualsT<EQ,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Option<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, Option<Lst<A>> fa) =>
@@ -5521,12 +5971,22 @@ namespace LanguageExt
                 .Inst.Map<MOption<Option<B>>, Option<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Option<Option<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Option<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Option<A>>, Option<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Option<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Option<A>>, Option<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Option<Option<A>> ma, Func<A, bool> f) =>
             Trans<MOption<Option<A>>, Option<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Option<Option<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Option<Option<A>> ma, Func<A, bool> f) =>
             Trans<MOption<Option<A>>, Option<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -5596,12 +6056,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Option<Option<int>> CompareT<ORD,  A>(this Option<Option<A>> x, Option<Option<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Option<Option<A>> x, Option<Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Option<Option<bool>> EqualsT<EQ,  A>(this Option<Option<A>> x, Option<Option<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Option<Option<A>> x, Option<Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Option<Option<B>> ApplyT< A, B>(this Func<A, B> fab, Option<Option<A>> fa) =>
@@ -5643,12 +6103,22 @@ namespace LanguageExt
                 .Inst.Map<MOption<OptionUnsafe<B>>, Option<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Option<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Option<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<OptionUnsafe<A>>, Option<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Option<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<OptionUnsafe<A>>, Option<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Option<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MOption<OptionUnsafe<A>>, Option<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Option<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Option<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MOption<OptionUnsafe<A>>, Option<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -5718,12 +6188,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Option<OptionUnsafe<int>> CompareT<ORD,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Option<OptionUnsafe<bool>> EqualsT<EQ,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Option<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, Option<OptionUnsafe<A>> fa) =>
@@ -5765,12 +6235,22 @@ namespace LanguageExt
                 .Inst.Map<MOption<Either<L, B>>, Option<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Option<Either<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Option<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Either<L, A>>, Option<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Option<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Either<L, A>>, Option<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Option<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MOption<Either<L, A>>, Option<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Option<Either<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Option<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MOption<Either<L, A>>, Option<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -5840,12 +6320,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Option<Either<L, int>> CompareT<ORD, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Option<Either<L, bool>> EqualsT<EQ, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Option<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Option<Either<L, A>> fa) =>
@@ -5887,12 +6367,22 @@ namespace LanguageExt
                 .Inst.Map<MOption<EitherUnsafe<L, B>>, Option<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Option<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Option<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<EitherUnsafe<L, A>>, Option<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Option<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<EitherUnsafe<L, A>>, Option<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Option<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MOption<EitherUnsafe<L, A>>, Option<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Option<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Option<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MOption<EitherUnsafe<L, A>>, Option<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -5962,12 +6452,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Option<EitherUnsafe<L, int>> CompareT<ORD, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Option<EitherUnsafe<L, bool>> EqualsT<EQ, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Option<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Option<EitherUnsafe<L, A>> fa) =>
@@ -6009,12 +6499,22 @@ namespace LanguageExt
                 .Inst.Map<MOption<Task<B>>, Option<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Option<Task<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Option<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Task<A>>, Option<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Option<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Task<A>>, Option<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Option<Task<A>> ma, Func<A, bool> f) =>
             Trans<MOption<Task<A>>, Option<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Option<Task<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Option<Task<A>> ma, Func<A, bool> f) =>
             Trans<MOption<Task<A>>, Option<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -6084,12 +6584,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Option<Task<int>> CompareT<ORD,  A>(this Option<Task<A>> x, Option<Task<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Option<Task<A>> x, Option<Task<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Option<Task<bool>> EqualsT<EQ,  A>(this Option<Task<A>> x, Option<Task<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Option<Task<A>> x, Option<Task<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Option<Task<B>> ApplyT< A, B>(this Func<A, B> fab, Option<Task<A>> fa) =>
@@ -6131,12 +6631,22 @@ namespace LanguageExt
                 .Inst.Map<MOption<Try<B>>, Option<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Option<Try<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Option<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Try<A>>, Option<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Option<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Try<A>>, Option<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Option<Try<A>> ma, Func<A, bool> f) =>
             Trans<MOption<Try<A>>, Option<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Option<Try<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Option<Try<A>> ma, Func<A, bool> f) =>
             Trans<MOption<Try<A>>, Option<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -6206,12 +6716,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Option<Try<int>> CompareT<ORD,  A>(this Option<Try<A>> x, Option<Try<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Option<Try<A>> x, Option<Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Option<Try<bool>> EqualsT<EQ,  A>(this Option<Try<A>> x, Option<Try<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Option<Try<A>> x, Option<Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Option<Try<B>> ApplyT< A, B>(this Func<A, B> fab, Option<Try<A>> fa) =>
@@ -6253,12 +6763,22 @@ namespace LanguageExt
                 .Inst.Map<MOption<TryAsync<B>>, Option<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Option<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Option<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<TryAsync<A>>, Option<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Option<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<TryAsync<A>>, Option<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Option<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MOption<TryAsync<A>>, Option<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Option<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Option<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MOption<TryAsync<A>>, Option<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -6328,12 +6848,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Option<TryAsync<int>> CompareT<ORD,  A>(this Option<TryAsync<A>> x, Option<TryAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Option<TryAsync<A>> x, Option<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Option<TryAsync<bool>> EqualsT<EQ,  A>(this Option<TryAsync<A>> x, Option<TryAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Option<TryAsync<A>> x, Option<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Option<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Option<TryAsync<A>> fa) =>
@@ -6375,12 +6895,22 @@ namespace LanguageExt
                 .Inst.Map<MOption<TryOption<B>>, Option<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Option<TryOption<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Option<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<TryOption<A>>, Option<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Option<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<TryOption<A>>, Option<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Option<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MOption<TryOption<A>>, Option<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Option<TryOption<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Option<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MOption<TryOption<A>>, Option<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -6450,12 +6980,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Option<TryOption<int>> CompareT<ORD,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Option<TryOption<bool>> EqualsT<EQ,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Option<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, Option<TryOption<A>> fa) =>
@@ -6497,12 +7027,22 @@ namespace LanguageExt
                 .Inst.Map<MOption<TryOptionAsync<B>>, Option<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Option<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Option<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<TryOptionAsync<A>>, Option<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Option<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<TryOptionAsync<A>>, Option<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Option<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MOption<TryOptionAsync<A>>, Option<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Option<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Option<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MOption<TryOptionAsync<A>>, Option<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -6572,12 +7112,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Option<TryOptionAsync<int>> CompareT<ORD,  A>(this Option<TryOptionAsync<A>> x, Option<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Option<TryOptionAsync<A>> x, Option<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Option<TryOptionAsync<bool>> EqualsT<EQ,  A>(this Option<TryOptionAsync<A>> x, Option<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Option<TryOptionAsync<A>> x, Option<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Option<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Option<TryOptionAsync<A>> fa) =>
@@ -6619,12 +7159,22 @@ namespace LanguageExt
                 .Inst.Map<MOption<IEnumerable<B>>, Option<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Option<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Option<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<IEnumerable<A>>, Option<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Option<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<IEnumerable<A>>, Option<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Option<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MOption<IEnumerable<A>>, Option<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Option<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Option<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MOption<IEnumerable<A>>, Option<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -6694,12 +7244,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Option<IEnumerable<int>> CompareT<ORD,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Option<IEnumerable<bool>> EqualsT<EQ,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Option<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, Option<IEnumerable<A>> fa) =>
@@ -6741,12 +7291,22 @@ namespace LanguageExt
                 .Inst.Map<MOption<Set<B>>, Option<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Option<Set<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Option<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Set<A>>, Option<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Option<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Set<A>>, Option<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Option<Set<A>> ma, Func<A, bool> f) =>
             Trans<MOption<Set<A>>, Option<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Option<Set<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Option<Set<A>> ma, Func<A, bool> f) =>
             Trans<MOption<Set<A>>, Option<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -6816,12 +7376,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Option<Set<int>> CompareT<ORD,  A>(this Option<Set<A>> x, Option<Set<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Option<Set<A>> x, Option<Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Option<Set<bool>> EqualsT<EQ,  A>(this Option<Set<A>> x, Option<Set<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Option<Set<A>> x, Option<Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Option<Set<B>> ApplyT< A, B>(this Func<A, B> fab, Option<Set<A>> fa) =>
@@ -6863,12 +7423,22 @@ namespace LanguageExt
                 .Inst.Map<MOptionUnsafe<Arr<B>>, OptionUnsafe<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this OptionUnsafe<Arr<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this OptionUnsafe<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Arr<A>>, OptionUnsafe<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this OptionUnsafe<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Arr<A>>, OptionUnsafe<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this OptionUnsafe<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<Arr<A>>, OptionUnsafe<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this OptionUnsafe<Arr<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this OptionUnsafe<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<Arr<A>>, OptionUnsafe<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -6938,12 +7508,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OptionUnsafe<Arr<int>> CompareT<ORD,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OptionUnsafe<Arr<bool>> EqualsT<EQ,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OptionUnsafe<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<Arr<A>> fa) =>
@@ -6985,12 +7555,22 @@ namespace LanguageExt
                 .Inst.Map<MOptionUnsafe<HashSet<B>>, OptionUnsafe<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this OptionUnsafe<HashSet<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this OptionUnsafe<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<HashSet<A>>, OptionUnsafe<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this OptionUnsafe<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<HashSet<A>>, OptionUnsafe<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this OptionUnsafe<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<HashSet<A>>, OptionUnsafe<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this OptionUnsafe<HashSet<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this OptionUnsafe<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<HashSet<A>>, OptionUnsafe<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -7060,12 +7640,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OptionUnsafe<HashSet<int>> CompareT<ORD,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OptionUnsafe<HashSet<bool>> EqualsT<EQ,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OptionUnsafe<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<HashSet<A>> fa) =>
@@ -7107,12 +7687,22 @@ namespace LanguageExt
                 .Inst.Map<MOptionUnsafe<Lst<B>>, OptionUnsafe<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this OptionUnsafe<Lst<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this OptionUnsafe<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Lst<A>>, OptionUnsafe<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this OptionUnsafe<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Lst<A>>, OptionUnsafe<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this OptionUnsafe<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<Lst<A>>, OptionUnsafe<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this OptionUnsafe<Lst<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this OptionUnsafe<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<Lst<A>>, OptionUnsafe<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -7182,12 +7772,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OptionUnsafe<Lst<int>> CompareT<ORD,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OptionUnsafe<Lst<bool>> EqualsT<EQ,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OptionUnsafe<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<Lst<A>> fa) =>
@@ -7229,12 +7819,22 @@ namespace LanguageExt
                 .Inst.Map<MOptionUnsafe<Option<B>>, OptionUnsafe<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this OptionUnsafe<Option<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this OptionUnsafe<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Option<A>>, OptionUnsafe<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this OptionUnsafe<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Option<A>>, OptionUnsafe<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this OptionUnsafe<Option<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<Option<A>>, OptionUnsafe<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this OptionUnsafe<Option<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this OptionUnsafe<Option<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<Option<A>>, OptionUnsafe<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -7304,12 +7904,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OptionUnsafe<Option<int>> CompareT<ORD,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OptionUnsafe<Option<bool>> EqualsT<EQ,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OptionUnsafe<Option<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<Option<A>> fa) =>
@@ -7351,12 +7951,22 @@ namespace LanguageExt
                 .Inst.Map<MOptionUnsafe<OptionUnsafe<B>>, OptionUnsafe<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this OptionUnsafe<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this OptionUnsafe<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<OptionUnsafe<A>>, OptionUnsafe<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this OptionUnsafe<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<OptionUnsafe<A>>, OptionUnsafe<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this OptionUnsafe<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<OptionUnsafe<A>>, OptionUnsafe<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this OptionUnsafe<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this OptionUnsafe<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<OptionUnsafe<A>>, OptionUnsafe<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -7426,12 +8036,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OptionUnsafe<OptionUnsafe<int>> CompareT<ORD,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OptionUnsafe<OptionUnsafe<bool>> EqualsT<EQ,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OptionUnsafe<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<OptionUnsafe<A>> fa) =>
@@ -7473,12 +8083,22 @@ namespace LanguageExt
                 .Inst.Map<MOptionUnsafe<Either<L, B>>, OptionUnsafe<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this OptionUnsafe<Either<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this OptionUnsafe<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Either<L, A>>, OptionUnsafe<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this OptionUnsafe<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Either<L, A>>, OptionUnsafe<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this OptionUnsafe<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<Either<L, A>>, OptionUnsafe<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this OptionUnsafe<Either<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this OptionUnsafe<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<Either<L, A>>, OptionUnsafe<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -7548,12 +8168,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OptionUnsafe<Either<L, int>> CompareT<ORD, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OptionUnsafe<Either<L, bool>> EqualsT<EQ, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OptionUnsafe<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, OptionUnsafe<Either<L, A>> fa) =>
@@ -7595,12 +8215,22 @@ namespace LanguageExt
                 .Inst.Map<MOptionUnsafe<EitherUnsafe<L, B>>, OptionUnsafe<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this OptionUnsafe<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<EitherUnsafe<L, A>>, OptionUnsafe<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<EitherUnsafe<L, A>>, OptionUnsafe<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this OptionUnsafe<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<EitherUnsafe<L, A>>, OptionUnsafe<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this OptionUnsafe<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this OptionUnsafe<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<EitherUnsafe<L, A>>, OptionUnsafe<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -7670,12 +8300,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OptionUnsafe<EitherUnsafe<L, int>> CompareT<ORD, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OptionUnsafe<EitherUnsafe<L, bool>> EqualsT<EQ, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OptionUnsafe<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, OptionUnsafe<EitherUnsafe<L, A>> fa) =>
@@ -7717,12 +8347,22 @@ namespace LanguageExt
                 .Inst.Map<MOptionUnsafe<Task<B>>, OptionUnsafe<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this OptionUnsafe<Task<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this OptionUnsafe<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Task<A>>, OptionUnsafe<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this OptionUnsafe<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Task<A>>, OptionUnsafe<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this OptionUnsafe<Task<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<Task<A>>, OptionUnsafe<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this OptionUnsafe<Task<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this OptionUnsafe<Task<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<Task<A>>, OptionUnsafe<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -7792,12 +8432,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OptionUnsafe<Task<int>> CompareT<ORD,  A>(this OptionUnsafe<Task<A>> x, OptionUnsafe<Task<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this OptionUnsafe<Task<A>> x, OptionUnsafe<Task<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OptionUnsafe<Task<bool>> EqualsT<EQ,  A>(this OptionUnsafe<Task<A>> x, OptionUnsafe<Task<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Task<A>> x, OptionUnsafe<Task<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OptionUnsafe<Task<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<Task<A>> fa) =>
@@ -7839,12 +8479,22 @@ namespace LanguageExt
                 .Inst.Map<MOptionUnsafe<Try<B>>, OptionUnsafe<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this OptionUnsafe<Try<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this OptionUnsafe<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Try<A>>, OptionUnsafe<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this OptionUnsafe<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Try<A>>, OptionUnsafe<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this OptionUnsafe<Try<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<Try<A>>, OptionUnsafe<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this OptionUnsafe<Try<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this OptionUnsafe<Try<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<Try<A>>, OptionUnsafe<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -7914,12 +8564,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OptionUnsafe<Try<int>> CompareT<ORD,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OptionUnsafe<Try<bool>> EqualsT<EQ,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OptionUnsafe<Try<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<Try<A>> fa) =>
@@ -7961,12 +8611,22 @@ namespace LanguageExt
                 .Inst.Map<MOptionUnsafe<TryAsync<B>>, OptionUnsafe<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this OptionUnsafe<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this OptionUnsafe<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<TryAsync<A>>, OptionUnsafe<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this OptionUnsafe<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<TryAsync<A>>, OptionUnsafe<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this OptionUnsafe<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<TryAsync<A>>, OptionUnsafe<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this OptionUnsafe<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this OptionUnsafe<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<TryAsync<A>>, OptionUnsafe<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -8036,12 +8696,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OptionUnsafe<TryAsync<int>> CompareT<ORD,  A>(this OptionUnsafe<TryAsync<A>> x, OptionUnsafe<TryAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this OptionUnsafe<TryAsync<A>> x, OptionUnsafe<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OptionUnsafe<TryAsync<bool>> EqualsT<EQ,  A>(this OptionUnsafe<TryAsync<A>> x, OptionUnsafe<TryAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<TryAsync<A>> x, OptionUnsafe<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OptionUnsafe<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<TryAsync<A>> fa) =>
@@ -8083,12 +8743,22 @@ namespace LanguageExt
                 .Inst.Map<MOptionUnsafe<TryOption<B>>, OptionUnsafe<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this OptionUnsafe<TryOption<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this OptionUnsafe<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<TryOption<A>>, OptionUnsafe<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this OptionUnsafe<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<TryOption<A>>, OptionUnsafe<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this OptionUnsafe<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<TryOption<A>>, OptionUnsafe<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this OptionUnsafe<TryOption<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this OptionUnsafe<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<TryOption<A>>, OptionUnsafe<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -8158,12 +8828,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OptionUnsafe<TryOption<int>> CompareT<ORD,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OptionUnsafe<TryOption<bool>> EqualsT<EQ,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OptionUnsafe<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<TryOption<A>> fa) =>
@@ -8205,12 +8875,22 @@ namespace LanguageExt
                 .Inst.Map<MOptionUnsafe<TryOptionAsync<B>>, OptionUnsafe<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this OptionUnsafe<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this OptionUnsafe<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<TryOptionAsync<A>>, OptionUnsafe<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this OptionUnsafe<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<TryOptionAsync<A>>, OptionUnsafe<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this OptionUnsafe<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<TryOptionAsync<A>>, OptionUnsafe<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this OptionUnsafe<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this OptionUnsafe<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<TryOptionAsync<A>>, OptionUnsafe<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -8280,12 +8960,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OptionUnsafe<TryOptionAsync<int>> CompareT<ORD,  A>(this OptionUnsafe<TryOptionAsync<A>> x, OptionUnsafe<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this OptionUnsafe<TryOptionAsync<A>> x, OptionUnsafe<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OptionUnsafe<TryOptionAsync<bool>> EqualsT<EQ,  A>(this OptionUnsafe<TryOptionAsync<A>> x, OptionUnsafe<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<TryOptionAsync<A>> x, OptionUnsafe<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OptionUnsafe<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<TryOptionAsync<A>> fa) =>
@@ -8327,12 +9007,22 @@ namespace LanguageExt
                 .Inst.Map<MOptionUnsafe<IEnumerable<B>>, OptionUnsafe<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this OptionUnsafe<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this OptionUnsafe<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<IEnumerable<A>>, OptionUnsafe<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this OptionUnsafe<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<IEnumerable<A>>, OptionUnsafe<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this OptionUnsafe<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<IEnumerable<A>>, OptionUnsafe<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this OptionUnsafe<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this OptionUnsafe<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<IEnumerable<A>>, OptionUnsafe<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -8402,12 +9092,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OptionUnsafe<IEnumerable<int>> CompareT<ORD,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OptionUnsafe<IEnumerable<bool>> EqualsT<EQ,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OptionUnsafe<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<IEnumerable<A>> fa) =>
@@ -8449,12 +9139,22 @@ namespace LanguageExt
                 .Inst.Map<MOptionUnsafe<Set<B>>, OptionUnsafe<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this OptionUnsafe<Set<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this OptionUnsafe<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Set<A>>, OptionUnsafe<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this OptionUnsafe<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Set<A>>, OptionUnsafe<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this OptionUnsafe<Set<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<Set<A>>, OptionUnsafe<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this OptionUnsafe<Set<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this OptionUnsafe<Set<A>> ma, Func<A, bool> f) =>
             Trans<MOptionUnsafe<Set<A>>, OptionUnsafe<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -8524,12 +9224,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OptionUnsafe<Set<int>> CompareT<ORD,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OptionUnsafe<Set<bool>> EqualsT<EQ,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OptionUnsafe<Set<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<Set<A>> fa) =>
@@ -8571,12 +9271,22 @@ namespace LanguageExt
                 .Inst.Map<MEither<L, Arr<B>>, Either<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Either<L, Arr<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Either<L, Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Arr<A>>, Either<L, Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Either<L, Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Arr<A>>, Either<L, Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Either<L, Arr<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, Arr<A>>, Either<L, Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Either<L, Arr<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Either<L, Arr<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, Arr<A>>, Either<L, Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -8646,12 +9356,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Either<L, Arr<int>> CompareT<ORD, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Either<L, Arr<bool>> EqualsT<EQ, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Either<L, Arr<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, Arr<A>> fa) =>
@@ -8693,12 +9403,22 @@ namespace LanguageExt
                 .Inst.Map<MEither<L, HashSet<B>>, Either<L, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Either<L, HashSet<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Either<L, HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, HashSet<A>>, Either<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Either<L, HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, HashSet<A>>, Either<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Either<L, HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, HashSet<A>>, Either<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Either<L, HashSet<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Either<L, HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, HashSet<A>>, Either<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -8768,12 +9488,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Either<L, HashSet<int>> CompareT<ORD, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Either<L, HashSet<bool>> EqualsT<EQ, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Either<L, HashSet<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, HashSet<A>> fa) =>
@@ -8815,12 +9535,22 @@ namespace LanguageExt
                 .Inst.Map<MEither<L, Lst<B>>, Either<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Either<L, Lst<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Either<L, Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Lst<A>>, Either<L, Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Either<L, Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Lst<A>>, Either<L, Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Either<L, Lst<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, Lst<A>>, Either<L, Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Either<L, Lst<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Either<L, Lst<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, Lst<A>>, Either<L, Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -8890,12 +9620,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Either<L, Lst<int>> CompareT<ORD, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Either<L, Lst<bool>> EqualsT<EQ, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Either<L, Lst<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, Lst<A>> fa) =>
@@ -8937,12 +9667,22 @@ namespace LanguageExt
                 .Inst.Map<MEither<L, Option<B>>, Either<L, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Either<L, Option<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Either<L, Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Option<A>>, Either<L, Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Either<L, Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Option<A>>, Either<L, Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Either<L, Option<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, Option<A>>, Either<L, Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Either<L, Option<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Either<L, Option<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, Option<A>>, Either<L, Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -9012,12 +9752,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Either<L, Option<int>> CompareT<ORD, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Either<L, Option<bool>> EqualsT<EQ, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Either<L, Option<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, Option<A>> fa) =>
@@ -9059,12 +9799,22 @@ namespace LanguageExt
                 .Inst.Map<MEither<L, OptionUnsafe<B>>, Either<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Either<L, OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Either<L, OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, OptionUnsafe<A>>, Either<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Either<L, OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, OptionUnsafe<A>>, Either<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Either<L, OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, OptionUnsafe<A>>, Either<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Either<L, OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Either<L, OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, OptionUnsafe<A>>, Either<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -9134,12 +9884,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Either<L, OptionUnsafe<int>> CompareT<ORD, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Either<L, OptionUnsafe<bool>> EqualsT<EQ, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Either<L, OptionUnsafe<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, OptionUnsafe<A>> fa) =>
@@ -9181,12 +9931,22 @@ namespace LanguageExt
                 .Inst.Map<MEither<L, Either<L, B>>, Either<L, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Either<L, Either<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Either<L, Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Either<L, A>>, Either<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Either<L, Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Either<L, A>>, Either<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Either<L, Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, Either<L, A>>, Either<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Either<L, Either<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Either<L, Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, Either<L, A>>, Either<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -9256,12 +10016,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Either<L, Either<L, int>> CompareT<ORD, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Either<L, Either<L, bool>> EqualsT<EQ, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Either<L, Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, Either<L, A>> fa) =>
@@ -9303,12 +10063,22 @@ namespace LanguageExt
                 .Inst.Map<MEither<L, EitherUnsafe<L, B>>, Either<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Either<L, EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Either<L, EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, EitherUnsafe<L, A>>, Either<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Either<L, EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, EitherUnsafe<L, A>>, Either<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Either<L, EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, EitherUnsafe<L, A>>, Either<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Either<L, EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Either<L, EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, EitherUnsafe<L, A>>, Either<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -9378,12 +10148,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Either<L, EitherUnsafe<L, int>> CompareT<ORD, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Either<L, EitherUnsafe<L, bool>> EqualsT<EQ, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Either<L, EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, EitherUnsafe<L, A>> fa) =>
@@ -9425,12 +10195,22 @@ namespace LanguageExt
                 .Inst.Map<MEither<L, Task<B>>, Either<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Either<L, Task<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Either<L, Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Task<A>>, Either<L, Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Either<L, Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Task<A>>, Either<L, Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Either<L, Task<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, Task<A>>, Either<L, Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Either<L, Task<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Either<L, Task<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, Task<A>>, Either<L, Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -9500,12 +10280,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Either<L, Task<int>> CompareT<ORD, L, A>(this Either<L, Task<A>> x, Either<L, Task<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Either<L, Task<A>> x, Either<L, Task<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Either<L, Task<bool>> EqualsT<EQ, L, A>(this Either<L, Task<A>> x, Either<L, Task<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Either<L, Task<A>> x, Either<L, Task<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Either<L, Task<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, Task<A>> fa) =>
@@ -9547,12 +10327,22 @@ namespace LanguageExt
                 .Inst.Map<MEither<L, Try<B>>, Either<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Either<L, Try<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Either<L, Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Try<A>>, Either<L, Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Either<L, Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Try<A>>, Either<L, Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Either<L, Try<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, Try<A>>, Either<L, Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Either<L, Try<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Either<L, Try<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, Try<A>>, Either<L, Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -9622,12 +10412,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Either<L, Try<int>> CompareT<ORD, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Either<L, Try<bool>> EqualsT<EQ, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Either<L, Try<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, Try<A>> fa) =>
@@ -9669,12 +10459,22 @@ namespace LanguageExt
                 .Inst.Map<MEither<L, TryAsync<B>>, Either<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Either<L, TryAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Either<L, TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, TryAsync<A>>, Either<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Either<L, TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, TryAsync<A>>, Either<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Either<L, TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, TryAsync<A>>, Either<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Either<L, TryAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Either<L, TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, TryAsync<A>>, Either<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -9744,12 +10544,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Either<L, TryAsync<int>> CompareT<ORD, L, A>(this Either<L, TryAsync<A>> x, Either<L, TryAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Either<L, TryAsync<A>> x, Either<L, TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Either<L, TryAsync<bool>> EqualsT<EQ, L, A>(this Either<L, TryAsync<A>> x, Either<L, TryAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Either<L, TryAsync<A>> x, Either<L, TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Either<L, TryAsync<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, TryAsync<A>> fa) =>
@@ -9791,12 +10591,22 @@ namespace LanguageExt
                 .Inst.Map<MEither<L, TryOption<B>>, Either<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Either<L, TryOption<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Either<L, TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, TryOption<A>>, Either<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Either<L, TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, TryOption<A>>, Either<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Either<L, TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, TryOption<A>>, Either<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Either<L, TryOption<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Either<L, TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, TryOption<A>>, Either<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -9866,12 +10676,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Either<L, TryOption<int>> CompareT<ORD, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Either<L, TryOption<bool>> EqualsT<EQ, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Either<L, TryOption<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, TryOption<A>> fa) =>
@@ -9913,12 +10723,22 @@ namespace LanguageExt
                 .Inst.Map<MEither<L, TryOptionAsync<B>>, Either<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Either<L, TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Either<L, TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, TryOptionAsync<A>>, Either<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Either<L, TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, TryOptionAsync<A>>, Either<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Either<L, TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, TryOptionAsync<A>>, Either<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Either<L, TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Either<L, TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, TryOptionAsync<A>>, Either<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -9988,12 +10808,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Either<L, TryOptionAsync<int>> CompareT<ORD, L, A>(this Either<L, TryOptionAsync<A>> x, Either<L, TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Either<L, TryOptionAsync<A>> x, Either<L, TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Either<L, TryOptionAsync<bool>> EqualsT<EQ, L, A>(this Either<L, TryOptionAsync<A>> x, Either<L, TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Either<L, TryOptionAsync<A>> x, Either<L, TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Either<L, TryOptionAsync<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, TryOptionAsync<A>> fa) =>
@@ -10035,12 +10855,22 @@ namespace LanguageExt
                 .Inst.Map<MEither<L, IEnumerable<B>>, Either<L, IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Either<L, IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Either<L, IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, IEnumerable<A>>, Either<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Either<L, IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, IEnumerable<A>>, Either<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Either<L, IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, IEnumerable<A>>, Either<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Either<L, IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Either<L, IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, IEnumerable<A>>, Either<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -10110,12 +10940,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Either<L, IEnumerable<int>> CompareT<ORD, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Either<L, IEnumerable<bool>> EqualsT<EQ, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Either<L, IEnumerable<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, IEnumerable<A>> fa) =>
@@ -10157,12 +10987,22 @@ namespace LanguageExt
                 .Inst.Map<MEither<L, Set<B>>, Either<L, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Either<L, Set<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Either<L, Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Set<A>>, Either<L, Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Either<L, Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Set<A>>, Either<L, Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Either<L, Set<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, Set<A>>, Either<L, Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Either<L, Set<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Either<L, Set<A>> ma, Func<A, bool> f) =>
             Trans<MEither<L, Set<A>>, Either<L, Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -10232,12 +11072,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Either<L, Set<int>> CompareT<ORD, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Either<L, Set<bool>> EqualsT<EQ, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Either<L, Set<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, Set<A>> fa) =>
@@ -10279,12 +11119,22 @@ namespace LanguageExt
                 .Inst.Map<MEitherUnsafe<L, Arr<B>>, EitherUnsafe<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this EitherUnsafe<L, Arr<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this EitherUnsafe<L, Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Arr<A>>, EitherUnsafe<L, Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this EitherUnsafe<L, Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Arr<A>>, EitherUnsafe<L, Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this EitherUnsafe<L, Arr<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, Arr<A>>, EitherUnsafe<L, Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this EitherUnsafe<L, Arr<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this EitherUnsafe<L, Arr<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, Arr<A>>, EitherUnsafe<L, Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -10354,12 +11204,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static EitherUnsafe<L, Arr<int>> CompareT<ORD, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static EitherUnsafe<L, Arr<bool>> EqualsT<EQ, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static EitherUnsafe<L, Arr<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, Arr<A>> fa) =>
@@ -10401,12 +11251,22 @@ namespace LanguageExt
                 .Inst.Map<MEitherUnsafe<L, HashSet<B>>, EitherUnsafe<L, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this EitherUnsafe<L, HashSet<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this EitherUnsafe<L, HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, HashSet<A>>, EitherUnsafe<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this EitherUnsafe<L, HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, HashSet<A>>, EitherUnsafe<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this EitherUnsafe<L, HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, HashSet<A>>, EitherUnsafe<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this EitherUnsafe<L, HashSet<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this EitherUnsafe<L, HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, HashSet<A>>, EitherUnsafe<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -10476,12 +11336,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static EitherUnsafe<L, HashSet<int>> CompareT<ORD, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static EitherUnsafe<L, HashSet<bool>> EqualsT<EQ, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static EitherUnsafe<L, HashSet<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, HashSet<A>> fa) =>
@@ -10523,12 +11383,22 @@ namespace LanguageExt
                 .Inst.Map<MEitherUnsafe<L, Lst<B>>, EitherUnsafe<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this EitherUnsafe<L, Lst<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this EitherUnsafe<L, Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Lst<A>>, EitherUnsafe<L, Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this EitherUnsafe<L, Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Lst<A>>, EitherUnsafe<L, Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this EitherUnsafe<L, Lst<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, Lst<A>>, EitherUnsafe<L, Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this EitherUnsafe<L, Lst<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this EitherUnsafe<L, Lst<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, Lst<A>>, EitherUnsafe<L, Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -10598,12 +11468,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static EitherUnsafe<L, Lst<int>> CompareT<ORD, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static EitherUnsafe<L, Lst<bool>> EqualsT<EQ, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static EitherUnsafe<L, Lst<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, Lst<A>> fa) =>
@@ -10645,12 +11515,22 @@ namespace LanguageExt
                 .Inst.Map<MEitherUnsafe<L, Option<B>>, EitherUnsafe<L, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this EitherUnsafe<L, Option<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this EitherUnsafe<L, Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Option<A>>, EitherUnsafe<L, Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this EitherUnsafe<L, Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Option<A>>, EitherUnsafe<L, Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this EitherUnsafe<L, Option<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, Option<A>>, EitherUnsafe<L, Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this EitherUnsafe<L, Option<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this EitherUnsafe<L, Option<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, Option<A>>, EitherUnsafe<L, Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -10720,12 +11600,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static EitherUnsafe<L, Option<int>> CompareT<ORD, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static EitherUnsafe<L, Option<bool>> EqualsT<EQ, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static EitherUnsafe<L, Option<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, Option<A>> fa) =>
@@ -10767,12 +11647,22 @@ namespace LanguageExt
                 .Inst.Map<MEitherUnsafe<L, OptionUnsafe<B>>, EitherUnsafe<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this EitherUnsafe<L, OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, OptionUnsafe<A>>, EitherUnsafe<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, OptionUnsafe<A>>, EitherUnsafe<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this EitherUnsafe<L, OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, OptionUnsafe<A>>, EitherUnsafe<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this EitherUnsafe<L, OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this EitherUnsafe<L, OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, OptionUnsafe<A>>, EitherUnsafe<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -10842,12 +11732,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static EitherUnsafe<L, OptionUnsafe<int>> CompareT<ORD, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static EitherUnsafe<L, OptionUnsafe<bool>> EqualsT<EQ, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static EitherUnsafe<L, OptionUnsafe<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, OptionUnsafe<A>> fa) =>
@@ -10889,12 +11779,22 @@ namespace LanguageExt
                 .Inst.Map<MEitherUnsafe<L, Either<L, B>>, EitherUnsafe<L, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this EitherUnsafe<L, Either<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this EitherUnsafe<L, Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Either<L, A>>, EitherUnsafe<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this EitherUnsafe<L, Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Either<L, A>>, EitherUnsafe<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this EitherUnsafe<L, Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, Either<L, A>>, EitherUnsafe<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this EitherUnsafe<L, Either<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this EitherUnsafe<L, Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, Either<L, A>>, EitherUnsafe<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -10964,12 +11864,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static EitherUnsafe<L, Either<L, int>> CompareT<ORD, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static EitherUnsafe<L, Either<L, bool>> EqualsT<EQ, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static EitherUnsafe<L, Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, Either<L, A>> fa) =>
@@ -11011,12 +11911,22 @@ namespace LanguageExt
                 .Inst.Map<MEitherUnsafe<L, EitherUnsafe<L, B>>, EitherUnsafe<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this EitherUnsafe<L, EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, EitherUnsafe<L, A>>, EitherUnsafe<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, EitherUnsafe<L, A>>, EitherUnsafe<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, EitherUnsafe<L, A>>, EitherUnsafe<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this EitherUnsafe<L, EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, EitherUnsafe<L, A>>, EitherUnsafe<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -11086,12 +11996,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static EitherUnsafe<L, EitherUnsafe<L, int>> CompareT<ORD, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static EitherUnsafe<L, EitherUnsafe<L, bool>> EqualsT<EQ, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static EitherUnsafe<L, EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, EitherUnsafe<L, A>> fa) =>
@@ -11133,12 +12043,22 @@ namespace LanguageExt
                 .Inst.Map<MEitherUnsafe<L, Task<B>>, EitherUnsafe<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this EitherUnsafe<L, Task<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this EitherUnsafe<L, Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Task<A>>, EitherUnsafe<L, Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this EitherUnsafe<L, Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Task<A>>, EitherUnsafe<L, Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this EitherUnsafe<L, Task<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, Task<A>>, EitherUnsafe<L, Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this EitherUnsafe<L, Task<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this EitherUnsafe<L, Task<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, Task<A>>, EitherUnsafe<L, Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -11208,12 +12128,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static EitherUnsafe<L, Task<int>> CompareT<ORD, L, A>(this EitherUnsafe<L, Task<A>> x, EitherUnsafe<L, Task<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Task<A>> x, EitherUnsafe<L, Task<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static EitherUnsafe<L, Task<bool>> EqualsT<EQ, L, A>(this EitherUnsafe<L, Task<A>> x, EitherUnsafe<L, Task<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Task<A>> x, EitherUnsafe<L, Task<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static EitherUnsafe<L, Task<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, Task<A>> fa) =>
@@ -11255,12 +12175,22 @@ namespace LanguageExt
                 .Inst.Map<MEitherUnsafe<L, Try<B>>, EitherUnsafe<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this EitherUnsafe<L, Try<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this EitherUnsafe<L, Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Try<A>>, EitherUnsafe<L, Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this EitherUnsafe<L, Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Try<A>>, EitherUnsafe<L, Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this EitherUnsafe<L, Try<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, Try<A>>, EitherUnsafe<L, Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this EitherUnsafe<L, Try<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this EitherUnsafe<L, Try<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, Try<A>>, EitherUnsafe<L, Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -11330,12 +12260,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static EitherUnsafe<L, Try<int>> CompareT<ORD, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static EitherUnsafe<L, Try<bool>> EqualsT<EQ, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static EitherUnsafe<L, Try<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, Try<A>> fa) =>
@@ -11377,12 +12307,22 @@ namespace LanguageExt
                 .Inst.Map<MEitherUnsafe<L, TryAsync<B>>, EitherUnsafe<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this EitherUnsafe<L, TryAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this EitherUnsafe<L, TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, TryAsync<A>>, EitherUnsafe<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this EitherUnsafe<L, TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, TryAsync<A>>, EitherUnsafe<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this EitherUnsafe<L, TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, TryAsync<A>>, EitherUnsafe<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this EitherUnsafe<L, TryAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this EitherUnsafe<L, TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, TryAsync<A>>, EitherUnsafe<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -11452,12 +12392,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static EitherUnsafe<L, TryAsync<int>> CompareT<ORD, L, A>(this EitherUnsafe<L, TryAsync<A>> x, EitherUnsafe<L, TryAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, TryAsync<A>> x, EitherUnsafe<L, TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static EitherUnsafe<L, TryAsync<bool>> EqualsT<EQ, L, A>(this EitherUnsafe<L, TryAsync<A>> x, EitherUnsafe<L, TryAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, TryAsync<A>> x, EitherUnsafe<L, TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static EitherUnsafe<L, TryAsync<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, TryAsync<A>> fa) =>
@@ -11499,12 +12439,22 @@ namespace LanguageExt
                 .Inst.Map<MEitherUnsafe<L, TryOption<B>>, EitherUnsafe<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this EitherUnsafe<L, TryOption<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this EitherUnsafe<L, TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, TryOption<A>>, EitherUnsafe<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this EitherUnsafe<L, TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, TryOption<A>>, EitherUnsafe<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this EitherUnsafe<L, TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, TryOption<A>>, EitherUnsafe<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this EitherUnsafe<L, TryOption<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this EitherUnsafe<L, TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, TryOption<A>>, EitherUnsafe<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -11574,12 +12524,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static EitherUnsafe<L, TryOption<int>> CompareT<ORD, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static EitherUnsafe<L, TryOption<bool>> EqualsT<EQ, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static EitherUnsafe<L, TryOption<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, TryOption<A>> fa) =>
@@ -11621,12 +12571,22 @@ namespace LanguageExt
                 .Inst.Map<MEitherUnsafe<L, TryOptionAsync<B>>, EitherUnsafe<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this EitherUnsafe<L, TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this EitherUnsafe<L, TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, TryOptionAsync<A>>, EitherUnsafe<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this EitherUnsafe<L, TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, TryOptionAsync<A>>, EitherUnsafe<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this EitherUnsafe<L, TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, TryOptionAsync<A>>, EitherUnsafe<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this EitherUnsafe<L, TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this EitherUnsafe<L, TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, TryOptionAsync<A>>, EitherUnsafe<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -11696,12 +12656,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static EitherUnsafe<L, TryOptionAsync<int>> CompareT<ORD, L, A>(this EitherUnsafe<L, TryOptionAsync<A>> x, EitherUnsafe<L, TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, TryOptionAsync<A>> x, EitherUnsafe<L, TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static EitherUnsafe<L, TryOptionAsync<bool>> EqualsT<EQ, L, A>(this EitherUnsafe<L, TryOptionAsync<A>> x, EitherUnsafe<L, TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, TryOptionAsync<A>> x, EitherUnsafe<L, TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static EitherUnsafe<L, TryOptionAsync<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, TryOptionAsync<A>> fa) =>
@@ -11743,12 +12703,22 @@ namespace LanguageExt
                 .Inst.Map<MEitherUnsafe<L, IEnumerable<B>>, EitherUnsafe<L, IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this EitherUnsafe<L, IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this EitherUnsafe<L, IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, IEnumerable<A>>, EitherUnsafe<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this EitherUnsafe<L, IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, IEnumerable<A>>, EitherUnsafe<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this EitherUnsafe<L, IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, IEnumerable<A>>, EitherUnsafe<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this EitherUnsafe<L, IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this EitherUnsafe<L, IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, IEnumerable<A>>, EitherUnsafe<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -11818,12 +12788,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static EitherUnsafe<L, IEnumerable<int>> CompareT<ORD, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static EitherUnsafe<L, IEnumerable<bool>> EqualsT<EQ, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static EitherUnsafe<L, IEnumerable<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, IEnumerable<A>> fa) =>
@@ -11865,12 +12835,22 @@ namespace LanguageExt
                 .Inst.Map<MEitherUnsafe<L, Set<B>>, EitherUnsafe<L, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this EitherUnsafe<L, Set<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this EitherUnsafe<L, Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Set<A>>, EitherUnsafe<L, Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this EitherUnsafe<L, Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Set<A>>, EitherUnsafe<L, Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this EitherUnsafe<L, Set<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, Set<A>>, EitherUnsafe<L, Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this EitherUnsafe<L, Set<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this EitherUnsafe<L, Set<A>> ma, Func<A, bool> f) =>
             Trans<MEitherUnsafe<L, Set<A>>, EitherUnsafe<L, Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -11940,12 +12920,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static EitherUnsafe<L, Set<int>> CompareT<ORD, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static EitherUnsafe<L, Set<bool>> EqualsT<EQ, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static EitherUnsafe<L, Set<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, Set<A>> fa) =>
@@ -11987,12 +12967,22 @@ namespace LanguageExt
                 .Inst.Map<MTask<Arr<B>>, Task<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Task<Arr<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Task<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Task<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Task<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Task<Arr<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Task<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -12062,12 +13052,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Task<Arr<int>> CompareT<ORD,  A>(this Task<Arr<A>> x, Task<Arr<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Task<Arr<A>> x, Task<Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Task<Arr<bool>> EqualsT<EQ,  A>(this Task<Arr<A>> x, Task<Arr<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Task<Arr<A>> x, Task<Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Task<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, Task<Arr<A>> fa) =>
@@ -12109,12 +13099,22 @@ namespace LanguageExt
                 .Inst.Map<MTask<HashSet<B>>, Task<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Task<HashSet<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Task<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Task<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Task<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Task<HashSet<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Task<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -12184,12 +13184,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Task<HashSet<int>> CompareT<ORD,  A>(this Task<HashSet<A>> x, Task<HashSet<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Task<HashSet<A>> x, Task<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Task<HashSet<bool>> EqualsT<EQ,  A>(this Task<HashSet<A>> x, Task<HashSet<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Task<HashSet<A>> x, Task<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Task<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, Task<HashSet<A>> fa) =>
@@ -12231,12 +13231,22 @@ namespace LanguageExt
                 .Inst.Map<MTask<Lst<B>>, Task<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Task<Lst<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Task<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Task<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Task<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Task<Lst<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Task<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -12306,12 +13316,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Task<Lst<int>> CompareT<ORD,  A>(this Task<Lst<A>> x, Task<Lst<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Task<Lst<A>> x, Task<Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Task<Lst<bool>> EqualsT<EQ,  A>(this Task<Lst<A>> x, Task<Lst<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Task<Lst<A>> x, Task<Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Task<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, Task<Lst<A>> fa) =>
@@ -12353,12 +13363,22 @@ namespace LanguageExt
                 .Inst.Map<MTask<Option<B>>, Task<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Task<Option<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Task<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Task<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Task<Option<A>> ma, Func<A, bool> f) =>
             Trans<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Task<Option<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Task<Option<A>> ma, Func<A, bool> f) =>
             Trans<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -12428,12 +13448,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Task<Option<int>> CompareT<ORD,  A>(this Task<Option<A>> x, Task<Option<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Task<Option<A>> x, Task<Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Task<Option<bool>> EqualsT<EQ,  A>(this Task<Option<A>> x, Task<Option<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Task<Option<A>> x, Task<Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Task<Option<B>> ApplyT< A, B>(this Func<A, B> fab, Task<Option<A>> fa) =>
@@ -12475,12 +13495,22 @@ namespace LanguageExt
                 .Inst.Map<MTask<OptionUnsafe<B>>, Task<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Task<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Task<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Task<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Task<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Task<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Task<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -12550,12 +13580,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Task<OptionUnsafe<int>> CompareT<ORD,  A>(this Task<OptionUnsafe<A>> x, Task<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Task<OptionUnsafe<A>> x, Task<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Task<OptionUnsafe<bool>> EqualsT<EQ,  A>(this Task<OptionUnsafe<A>> x, Task<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Task<OptionUnsafe<A>> x, Task<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Task<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, Task<OptionUnsafe<A>> fa) =>
@@ -12597,12 +13627,22 @@ namespace LanguageExt
                 .Inst.Map<MTask<Either<L, B>>, Task<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Task<Either<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Task<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Task<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Task<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Task<Either<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Task<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -12672,12 +13712,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Task<Either<L, int>> CompareT<ORD, L, A>(this Task<Either<L, A>> x, Task<Either<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Task<Either<L, A>> x, Task<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Task<Either<L, bool>> EqualsT<EQ, L, A>(this Task<Either<L, A>> x, Task<Either<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Task<Either<L, A>> x, Task<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Task<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Task<Either<L, A>> fa) =>
@@ -12719,12 +13759,22 @@ namespace LanguageExt
                 .Inst.Map<MTask<EitherUnsafe<L, B>>, Task<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Task<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Task<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Task<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Task<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Task<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Task<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -12794,12 +13844,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Task<EitherUnsafe<L, int>> CompareT<ORD, L, A>(this Task<EitherUnsafe<L, A>> x, Task<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Task<EitherUnsafe<L, A>> x, Task<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Task<EitherUnsafe<L, bool>> EqualsT<EQ, L, A>(this Task<EitherUnsafe<L, A>> x, Task<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Task<EitherUnsafe<L, A>> x, Task<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Task<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Task<EitherUnsafe<L, A>> fa) =>
@@ -12841,12 +13891,22 @@ namespace LanguageExt
                 .Inst.Map<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Task<Task<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Task<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Task<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Task<Task<A>> ma, Func<A, bool> f) =>
             Trans<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Task<Task<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Task<Task<A>> ma, Func<A, bool> f) =>
             Trans<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -12916,12 +13976,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Task<Task<int>> CompareT<ORD,  A>(this Task<Task<A>> x, Task<Task<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Task<Task<A>> x, Task<Task<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Task<Task<bool>> EqualsT<EQ,  A>(this Task<Task<A>> x, Task<Task<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Task<Task<A>> x, Task<Task<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Task<Task<B>> ApplyT< A, B>(this Func<A, B> fab, Task<Task<A>> fa) =>
@@ -12963,12 +14023,22 @@ namespace LanguageExt
                 .Inst.Map<MTask<Try<B>>, Task<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Task<Try<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Task<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Task<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Task<Try<A>> ma, Func<A, bool> f) =>
             Trans<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Task<Try<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Task<Try<A>> ma, Func<A, bool> f) =>
             Trans<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -13038,12 +14108,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Task<Try<int>> CompareT<ORD,  A>(this Task<Try<A>> x, Task<Try<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Task<Try<A>> x, Task<Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Task<Try<bool>> EqualsT<EQ,  A>(this Task<Try<A>> x, Task<Try<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Task<Try<A>> x, Task<Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Task<Try<B>> ApplyT< A, B>(this Func<A, B> fab, Task<Try<A>> fa) =>
@@ -13085,12 +14155,22 @@ namespace LanguageExt
                 .Inst.Map<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Task<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Task<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Task<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Task<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Task<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Task<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -13160,12 +14240,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Task<TryAsync<int>> CompareT<ORD,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Task<TryAsync<bool>> EqualsT<EQ,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Task<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Task<TryAsync<A>> fa) =>
@@ -13207,12 +14287,22 @@ namespace LanguageExt
                 .Inst.Map<MTask<TryOption<B>>, Task<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Task<TryOption<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Task<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Task<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Task<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Task<TryOption<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Task<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -13282,12 +14372,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Task<TryOption<int>> CompareT<ORD,  A>(this Task<TryOption<A>> x, Task<TryOption<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Task<TryOption<A>> x, Task<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Task<TryOption<bool>> EqualsT<EQ,  A>(this Task<TryOption<A>> x, Task<TryOption<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Task<TryOption<A>> x, Task<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Task<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, Task<TryOption<A>> fa) =>
@@ -13329,12 +14419,22 @@ namespace LanguageExt
                 .Inst.Map<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Task<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Task<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Task<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Task<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -13404,12 +14504,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Task<TryOptionAsync<int>> CompareT<ORD,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Task<TryOptionAsync<bool>> EqualsT<EQ,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Task<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Task<TryOptionAsync<A>> fa) =>
@@ -13451,12 +14551,22 @@ namespace LanguageExt
                 .Inst.Map<MTask<IEnumerable<B>>, Task<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Task<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Task<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Task<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Task<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Task<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Task<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -13526,12 +14636,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Task<IEnumerable<int>> CompareT<ORD,  A>(this Task<IEnumerable<A>> x, Task<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Task<IEnumerable<A>> x, Task<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Task<IEnumerable<bool>> EqualsT<EQ,  A>(this Task<IEnumerable<A>> x, Task<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Task<IEnumerable<A>> x, Task<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Task<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, Task<IEnumerable<A>> fa) =>
@@ -13573,12 +14683,22 @@ namespace LanguageExt
                 .Inst.Map<MTask<Set<B>>, Task<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Task<Set<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Task<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Task<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Task<Set<A>> ma, Func<A, bool> f) =>
             Trans<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Task<Set<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Task<Set<A>> ma, Func<A, bool> f) =>
             Trans<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -13648,12 +14768,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Task<Set<int>> CompareT<ORD,  A>(this Task<Set<A>> x, Task<Set<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Task<Set<A>> x, Task<Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Task<Set<bool>> EqualsT<EQ,  A>(this Task<Set<A>> x, Task<Set<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Task<Set<A>> x, Task<Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Task<Set<B>> ApplyT< A, B>(this Func<A, B> fab, Task<Set<A>> fa) =>
@@ -13695,12 +14815,22 @@ namespace LanguageExt
                 .Inst.Map<MTry<Arr<B>>, Try<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Try<Arr<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Try<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Arr<A>>, Try<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Try<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Arr<A>>, Try<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Try<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MTry<Arr<A>>, Try<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Try<Arr<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Try<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MTry<Arr<A>>, Try<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -13770,12 +14900,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Try<Arr<int>> CompareT<ORD,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Try<Arr<bool>> EqualsT<EQ,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Try<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, Try<Arr<A>> fa) =>
@@ -13817,12 +14947,22 @@ namespace LanguageExt
                 .Inst.Map<MTry<HashSet<B>>, Try<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Try<HashSet<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Try<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<HashSet<A>>, Try<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Try<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<HashSet<A>>, Try<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Try<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MTry<HashSet<A>>, Try<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Try<HashSet<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Try<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MTry<HashSet<A>>, Try<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -13892,12 +15032,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Try<HashSet<int>> CompareT<ORD,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Try<HashSet<bool>> EqualsT<EQ,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Try<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, Try<HashSet<A>> fa) =>
@@ -13939,12 +15079,22 @@ namespace LanguageExt
                 .Inst.Map<MTry<Lst<B>>, Try<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Try<Lst<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Try<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Lst<A>>, Try<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Try<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Lst<A>>, Try<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Try<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MTry<Lst<A>>, Try<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Try<Lst<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Try<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MTry<Lst<A>>, Try<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -14014,12 +15164,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Try<Lst<int>> CompareT<ORD,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Try<Lst<bool>> EqualsT<EQ,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Try<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, Try<Lst<A>> fa) =>
@@ -14061,12 +15211,22 @@ namespace LanguageExt
                 .Inst.Map<MTry<Option<B>>, Try<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Try<Option<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Try<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Option<A>>, Try<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Try<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Option<A>>, Try<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Try<Option<A>> ma, Func<A, bool> f) =>
             Trans<MTry<Option<A>>, Try<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Try<Option<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Try<Option<A>> ma, Func<A, bool> f) =>
             Trans<MTry<Option<A>>, Try<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -14136,12 +15296,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Try<Option<int>> CompareT<ORD,  A>(this Try<Option<A>> x, Try<Option<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Try<Option<A>> x, Try<Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Try<Option<bool>> EqualsT<EQ,  A>(this Try<Option<A>> x, Try<Option<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Try<Option<A>> x, Try<Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Try<Option<B>> ApplyT< A, B>(this Func<A, B> fab, Try<Option<A>> fa) =>
@@ -14183,12 +15343,22 @@ namespace LanguageExt
                 .Inst.Map<MTry<OptionUnsafe<B>>, Try<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Try<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Try<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<OptionUnsafe<A>>, Try<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Try<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<OptionUnsafe<A>>, Try<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Try<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MTry<OptionUnsafe<A>>, Try<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Try<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Try<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MTry<OptionUnsafe<A>>, Try<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -14258,12 +15428,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Try<OptionUnsafe<int>> CompareT<ORD,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Try<OptionUnsafe<bool>> EqualsT<EQ,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Try<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, Try<OptionUnsafe<A>> fa) =>
@@ -14305,12 +15475,22 @@ namespace LanguageExt
                 .Inst.Map<MTry<Either<L, B>>, Try<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Try<Either<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Try<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Either<L, A>>, Try<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Try<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Either<L, A>>, Try<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Try<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MTry<Either<L, A>>, Try<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Try<Either<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Try<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MTry<Either<L, A>>, Try<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -14380,12 +15560,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Try<Either<L, int>> CompareT<ORD, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Try<Either<L, bool>> EqualsT<EQ, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Try<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Try<Either<L, A>> fa) =>
@@ -14427,12 +15607,22 @@ namespace LanguageExt
                 .Inst.Map<MTry<EitherUnsafe<L, B>>, Try<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Try<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Try<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<EitherUnsafe<L, A>>, Try<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Try<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<EitherUnsafe<L, A>>, Try<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Try<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MTry<EitherUnsafe<L, A>>, Try<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Try<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Try<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MTry<EitherUnsafe<L, A>>, Try<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -14502,12 +15692,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Try<EitherUnsafe<L, int>> CompareT<ORD, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Try<EitherUnsafe<L, bool>> EqualsT<EQ, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Try<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Try<EitherUnsafe<L, A>> fa) =>
@@ -14549,12 +15739,22 @@ namespace LanguageExt
                 .Inst.Map<MTry<Task<B>>, Try<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Try<Task<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Try<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Task<A>>, Try<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Try<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Task<A>>, Try<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Try<Task<A>> ma, Func<A, bool> f) =>
             Trans<MTry<Task<A>>, Try<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Try<Task<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Try<Task<A>> ma, Func<A, bool> f) =>
             Trans<MTry<Task<A>>, Try<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -14624,12 +15824,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Try<Task<int>> CompareT<ORD,  A>(this Try<Task<A>> x, Try<Task<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Try<Task<A>> x, Try<Task<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Try<Task<bool>> EqualsT<EQ,  A>(this Try<Task<A>> x, Try<Task<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Try<Task<A>> x, Try<Task<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Try<Task<B>> ApplyT< A, B>(this Func<A, B> fab, Try<Task<A>> fa) =>
@@ -14671,12 +15871,22 @@ namespace LanguageExt
                 .Inst.Map<MTry<Try<B>>, Try<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Try<Try<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Try<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Try<A>>, Try<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Try<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Try<A>>, Try<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Try<Try<A>> ma, Func<A, bool> f) =>
             Trans<MTry<Try<A>>, Try<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Try<Try<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Try<Try<A>> ma, Func<A, bool> f) =>
             Trans<MTry<Try<A>>, Try<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -14746,12 +15956,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Try<Try<int>> CompareT<ORD,  A>(this Try<Try<A>> x, Try<Try<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Try<Try<A>> x, Try<Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Try<Try<bool>> EqualsT<EQ,  A>(this Try<Try<A>> x, Try<Try<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Try<Try<A>> x, Try<Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Try<Try<B>> ApplyT< A, B>(this Func<A, B> fab, Try<Try<A>> fa) =>
@@ -14793,12 +16003,22 @@ namespace LanguageExt
                 .Inst.Map<MTry<TryAsync<B>>, Try<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Try<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Try<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<TryAsync<A>>, Try<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Try<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<TryAsync<A>>, Try<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Try<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTry<TryAsync<A>>, Try<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Try<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Try<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTry<TryAsync<A>>, Try<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -14868,12 +16088,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Try<TryAsync<int>> CompareT<ORD,  A>(this Try<TryAsync<A>> x, Try<TryAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Try<TryAsync<A>> x, Try<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Try<TryAsync<bool>> EqualsT<EQ,  A>(this Try<TryAsync<A>> x, Try<TryAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Try<TryAsync<A>> x, Try<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Try<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Try<TryAsync<A>> fa) =>
@@ -14915,12 +16135,22 @@ namespace LanguageExt
                 .Inst.Map<MTry<TryOption<B>>, Try<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Try<TryOption<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Try<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<TryOption<A>>, Try<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Try<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<TryOption<A>>, Try<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Try<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MTry<TryOption<A>>, Try<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Try<TryOption<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Try<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MTry<TryOption<A>>, Try<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -14990,12 +16220,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Try<TryOption<int>> CompareT<ORD,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Try<TryOption<bool>> EqualsT<EQ,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Try<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, Try<TryOption<A>> fa) =>
@@ -15037,12 +16267,22 @@ namespace LanguageExt
                 .Inst.Map<MTry<TryOptionAsync<B>>, Try<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Try<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Try<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<TryOptionAsync<A>>, Try<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Try<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<TryOptionAsync<A>>, Try<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Try<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTry<TryOptionAsync<A>>, Try<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Try<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Try<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTry<TryOptionAsync<A>>, Try<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -15112,12 +16352,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Try<TryOptionAsync<int>> CompareT<ORD,  A>(this Try<TryOptionAsync<A>> x, Try<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Try<TryOptionAsync<A>> x, Try<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Try<TryOptionAsync<bool>> EqualsT<EQ,  A>(this Try<TryOptionAsync<A>> x, Try<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Try<TryOptionAsync<A>> x, Try<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Try<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Try<TryOptionAsync<A>> fa) =>
@@ -15159,12 +16399,22 @@ namespace LanguageExt
                 .Inst.Map<MTry<IEnumerable<B>>, Try<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Try<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Try<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<IEnumerable<A>>, Try<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Try<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<IEnumerable<A>>, Try<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Try<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MTry<IEnumerable<A>>, Try<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Try<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Try<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MTry<IEnumerable<A>>, Try<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -15234,12 +16484,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Try<IEnumerable<int>> CompareT<ORD,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Try<IEnumerable<bool>> EqualsT<EQ,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Try<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, Try<IEnumerable<A>> fa) =>
@@ -15281,12 +16531,22 @@ namespace LanguageExt
                 .Inst.Map<MTry<Set<B>>, Try<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Try<Set<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Try<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Set<A>>, Try<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Try<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Set<A>>, Try<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Try<Set<A>> ma, Func<A, bool> f) =>
             Trans<MTry<Set<A>>, Try<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Try<Set<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Try<Set<A>> ma, Func<A, bool> f) =>
             Trans<MTry<Set<A>>, Try<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -15356,12 +16616,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Try<Set<int>> CompareT<ORD,  A>(this Try<Set<A>> x, Try<Set<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Try<Set<A>> x, Try<Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Try<Set<bool>> EqualsT<EQ,  A>(this Try<Set<A>> x, Try<Set<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Try<Set<A>> x, Try<Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Try<Set<B>> ApplyT< A, B>(this Func<A, B> fab, Try<Set<A>> fa) =>
@@ -15403,12 +16663,22 @@ namespace LanguageExt
                 .Inst.Map<MTryAsync<Arr<B>>, TryAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryAsync<Arr<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryAsync<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryAsync<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryAsync<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryAsync<Arr<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryAsync<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -15478,12 +16748,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryAsync<Arr<int>> CompareT<ORD,  A>(this TryAsync<Arr<A>> x, TryAsync<Arr<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryAsync<Arr<A>> x, TryAsync<Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryAsync<Arr<bool>> EqualsT<EQ,  A>(this TryAsync<Arr<A>> x, TryAsync<Arr<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryAsync<Arr<A>> x, TryAsync<Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryAsync<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<Arr<A>> fa) =>
@@ -15525,12 +16795,22 @@ namespace LanguageExt
                 .Inst.Map<MTryAsync<HashSet<B>>, TryAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryAsync<HashSet<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryAsync<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryAsync<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryAsync<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryAsync<HashSet<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryAsync<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -15600,12 +16880,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryAsync<HashSet<int>> CompareT<ORD,  A>(this TryAsync<HashSet<A>> x, TryAsync<HashSet<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryAsync<HashSet<A>> x, TryAsync<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryAsync<HashSet<bool>> EqualsT<EQ,  A>(this TryAsync<HashSet<A>> x, TryAsync<HashSet<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryAsync<HashSet<A>> x, TryAsync<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryAsync<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<HashSet<A>> fa) =>
@@ -15647,12 +16927,22 @@ namespace LanguageExt
                 .Inst.Map<MTryAsync<Lst<B>>, TryAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryAsync<Lst<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryAsync<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryAsync<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryAsync<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryAsync<Lst<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryAsync<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -15722,12 +17012,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryAsync<Lst<int>> CompareT<ORD,  A>(this TryAsync<Lst<A>> x, TryAsync<Lst<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryAsync<Lst<A>> x, TryAsync<Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryAsync<Lst<bool>> EqualsT<EQ,  A>(this TryAsync<Lst<A>> x, TryAsync<Lst<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryAsync<Lst<A>> x, TryAsync<Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryAsync<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<Lst<A>> fa) =>
@@ -15769,12 +17059,22 @@ namespace LanguageExt
                 .Inst.Map<MTryAsync<Option<B>>, TryAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryAsync<Option<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryAsync<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryAsync<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryAsync<Option<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryAsync<Option<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryAsync<Option<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -15844,12 +17144,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryAsync<Option<int>> CompareT<ORD,  A>(this TryAsync<Option<A>> x, TryAsync<Option<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryAsync<Option<A>> x, TryAsync<Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryAsync<Option<bool>> EqualsT<EQ,  A>(this TryAsync<Option<A>> x, TryAsync<Option<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryAsync<Option<A>> x, TryAsync<Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryAsync<Option<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<Option<A>> fa) =>
@@ -15891,12 +17191,22 @@ namespace LanguageExt
                 .Inst.Map<MTryAsync<OptionUnsafe<B>>, TryAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryAsync<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryAsync<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryAsync<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryAsync<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryAsync<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryAsync<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -15966,12 +17276,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryAsync<OptionUnsafe<int>> CompareT<ORD,  A>(this TryAsync<OptionUnsafe<A>> x, TryAsync<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryAsync<OptionUnsafe<A>> x, TryAsync<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryAsync<OptionUnsafe<bool>> EqualsT<EQ,  A>(this TryAsync<OptionUnsafe<A>> x, TryAsync<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryAsync<OptionUnsafe<A>> x, TryAsync<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryAsync<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<OptionUnsafe<A>> fa) =>
@@ -16013,12 +17323,22 @@ namespace LanguageExt
                 .Inst.Map<MTryAsync<Either<L, B>>, TryAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this TryAsync<Either<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this TryAsync<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this TryAsync<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this TryAsync<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this TryAsync<Either<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this TryAsync<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -16088,12 +17408,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryAsync<Either<L, int>> CompareT<ORD, L, A>(this TryAsync<Either<L, A>> x, TryAsync<Either<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this TryAsync<Either<L, A>> x, TryAsync<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryAsync<Either<L, bool>> EqualsT<EQ, L, A>(this TryAsync<Either<L, A>> x, TryAsync<Either<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this TryAsync<Either<L, A>> x, TryAsync<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryAsync<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, TryAsync<Either<L, A>> fa) =>
@@ -16135,12 +17455,22 @@ namespace LanguageExt
                 .Inst.Map<MTryAsync<EitherUnsafe<L, B>>, TryAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this TryAsync<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this TryAsync<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -16210,12 +17540,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryAsync<EitherUnsafe<L, int>> CompareT<ORD, L, A>(this TryAsync<EitherUnsafe<L, A>> x, TryAsync<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this TryAsync<EitherUnsafe<L, A>> x, TryAsync<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryAsync<EitherUnsafe<L, bool>> EqualsT<EQ, L, A>(this TryAsync<EitherUnsafe<L, A>> x, TryAsync<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this TryAsync<EitherUnsafe<L, A>> x, TryAsync<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryAsync<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, TryAsync<EitherUnsafe<L, A>> fa) =>
@@ -16257,12 +17587,22 @@ namespace LanguageExt
                 .Inst.Map<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryAsync<Task<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryAsync<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryAsync<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryAsync<Task<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryAsync<Task<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryAsync<Task<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -16332,12 +17672,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryAsync<Task<int>> CompareT<ORD,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryAsync<Task<bool>> EqualsT<EQ,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryAsync<Task<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<Task<A>> fa) =>
@@ -16379,12 +17719,22 @@ namespace LanguageExt
                 .Inst.Map<MTryAsync<Try<B>>, TryAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryAsync<Try<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryAsync<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryAsync<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryAsync<Try<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryAsync<Try<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryAsync<Try<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -16454,12 +17804,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryAsync<Try<int>> CompareT<ORD,  A>(this TryAsync<Try<A>> x, TryAsync<Try<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryAsync<Try<A>> x, TryAsync<Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryAsync<Try<bool>> EqualsT<EQ,  A>(this TryAsync<Try<A>> x, TryAsync<Try<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryAsync<Try<A>> x, TryAsync<Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryAsync<Try<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<Try<A>> fa) =>
@@ -16501,12 +17851,22 @@ namespace LanguageExt
                 .Inst.Map<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryAsync<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryAsync<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryAsync<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryAsync<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -16576,12 +17936,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryAsync<TryAsync<int>> CompareT<ORD,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryAsync<TryAsync<bool>> EqualsT<EQ,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryAsync<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<TryAsync<A>> fa) =>
@@ -16623,12 +17983,22 @@ namespace LanguageExt
                 .Inst.Map<MTryAsync<TryOption<B>>, TryAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryAsync<TryOption<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryAsync<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryAsync<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryAsync<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryAsync<TryOption<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryAsync<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -16698,12 +18068,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryAsync<TryOption<int>> CompareT<ORD,  A>(this TryAsync<TryOption<A>> x, TryAsync<TryOption<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryAsync<TryOption<A>> x, TryAsync<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryAsync<TryOption<bool>> EqualsT<EQ,  A>(this TryAsync<TryOption<A>> x, TryAsync<TryOption<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryAsync<TryOption<A>> x, TryAsync<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryAsync<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<TryOption<A>> fa) =>
@@ -16745,12 +18115,22 @@ namespace LanguageExt
                 .Inst.Map<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryAsync<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryAsync<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -16820,12 +18200,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryAsync<TryOptionAsync<int>> CompareT<ORD,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryAsync<TryOptionAsync<bool>> EqualsT<EQ,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryAsync<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<TryOptionAsync<A>> fa) =>
@@ -16867,12 +18247,22 @@ namespace LanguageExt
                 .Inst.Map<MTryAsync<IEnumerable<B>>, TryAsync<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryAsync<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryAsync<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<IEnumerable<A>>, TryAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryAsync<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<IEnumerable<A>>, TryAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryAsync<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<IEnumerable<A>>, TryAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryAsync<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryAsync<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<IEnumerable<A>>, TryAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -16942,12 +18332,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryAsync<IEnumerable<int>> CompareT<ORD,  A>(this TryAsync<IEnumerable<A>> x, TryAsync<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryAsync<IEnumerable<A>> x, TryAsync<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryAsync<IEnumerable<bool>> EqualsT<EQ,  A>(this TryAsync<IEnumerable<A>> x, TryAsync<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryAsync<IEnumerable<A>> x, TryAsync<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryAsync<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<IEnumerable<A>> fa) =>
@@ -16989,12 +18379,22 @@ namespace LanguageExt
                 .Inst.Map<MTryAsync<Set<B>>, TryAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryAsync<Set<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryAsync<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryAsync<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryAsync<Set<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryAsync<Set<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryAsync<Set<A>> ma, Func<A, bool> f) =>
             Trans<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -17064,12 +18464,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryAsync<Set<int>> CompareT<ORD,  A>(this TryAsync<Set<A>> x, TryAsync<Set<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryAsync<Set<A>> x, TryAsync<Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryAsync<Set<bool>> EqualsT<EQ,  A>(this TryAsync<Set<A>> x, TryAsync<Set<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryAsync<Set<A>> x, TryAsync<Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryAsync<Set<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<Set<A>> fa) =>
@@ -17111,12 +18511,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOption<Arr<B>>, TryOption<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOption<Arr<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOption<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Arr<A>>, TryOption<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOption<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Arr<A>>, TryOption<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOption<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<Arr<A>>, TryOption<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOption<Arr<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOption<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<Arr<A>>, TryOption<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -17186,12 +18596,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOption<Arr<int>> CompareT<ORD,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOption<Arr<bool>> EqualsT<EQ,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOption<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<Arr<A>> fa) =>
@@ -17233,12 +18643,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOption<HashSet<B>>, TryOption<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOption<HashSet<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOption<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<HashSet<A>>, TryOption<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOption<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<HashSet<A>>, TryOption<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOption<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<HashSet<A>>, TryOption<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOption<HashSet<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOption<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<HashSet<A>>, TryOption<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -17308,12 +18728,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOption<HashSet<int>> CompareT<ORD,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOption<HashSet<bool>> EqualsT<EQ,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOption<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<HashSet<A>> fa) =>
@@ -17355,12 +18775,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOption<Lst<B>>, TryOption<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOption<Lst<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOption<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Lst<A>>, TryOption<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOption<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Lst<A>>, TryOption<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOption<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<Lst<A>>, TryOption<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOption<Lst<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOption<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<Lst<A>>, TryOption<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -17430,12 +18860,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOption<Lst<int>> CompareT<ORD,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOption<Lst<bool>> EqualsT<EQ,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOption<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<Lst<A>> fa) =>
@@ -17477,12 +18907,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOption<Option<B>>, TryOption<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOption<Option<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOption<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Option<A>>, TryOption<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOption<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Option<A>>, TryOption<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOption<Option<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<Option<A>>, TryOption<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOption<Option<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOption<Option<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<Option<A>>, TryOption<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -17552,12 +18992,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOption<Option<int>> CompareT<ORD,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOption<Option<bool>> EqualsT<EQ,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOption<Option<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<Option<A>> fa) =>
@@ -17599,12 +19039,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOption<OptionUnsafe<B>>, TryOption<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOption<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOption<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<OptionUnsafe<A>>, TryOption<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOption<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<OptionUnsafe<A>>, TryOption<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOption<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<OptionUnsafe<A>>, TryOption<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOption<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOption<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<OptionUnsafe<A>>, TryOption<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -17674,12 +19124,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOption<OptionUnsafe<int>> CompareT<ORD,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOption<OptionUnsafe<bool>> EqualsT<EQ,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOption<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<OptionUnsafe<A>> fa) =>
@@ -17721,12 +19171,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOption<Either<L, B>>, TryOption<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this TryOption<Either<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this TryOption<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Either<L, A>>, TryOption<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this TryOption<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Either<L, A>>, TryOption<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this TryOption<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<Either<L, A>>, TryOption<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this TryOption<Either<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this TryOption<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<Either<L, A>>, TryOption<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -17796,12 +19256,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOption<Either<L, int>> CompareT<ORD, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOption<Either<L, bool>> EqualsT<EQ, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOption<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, TryOption<Either<L, A>> fa) =>
@@ -17843,12 +19303,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOption<EitherUnsafe<L, B>>, TryOption<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this TryOption<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this TryOption<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<EitherUnsafe<L, A>>, TryOption<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this TryOption<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<EitherUnsafe<L, A>>, TryOption<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this TryOption<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<EitherUnsafe<L, A>>, TryOption<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this TryOption<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this TryOption<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<EitherUnsafe<L, A>>, TryOption<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -17918,12 +19388,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOption<EitherUnsafe<L, int>> CompareT<ORD, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOption<EitherUnsafe<L, bool>> EqualsT<EQ, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOption<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, TryOption<EitherUnsafe<L, A>> fa) =>
@@ -17965,12 +19435,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOption<Task<B>>, TryOption<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOption<Task<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOption<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Task<A>>, TryOption<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOption<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Task<A>>, TryOption<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOption<Task<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<Task<A>>, TryOption<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOption<Task<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOption<Task<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<Task<A>>, TryOption<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -18040,12 +19520,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOption<Task<int>> CompareT<ORD,  A>(this TryOption<Task<A>> x, TryOption<Task<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOption<Task<A>> x, TryOption<Task<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOption<Task<bool>> EqualsT<EQ,  A>(this TryOption<Task<A>> x, TryOption<Task<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOption<Task<A>> x, TryOption<Task<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOption<Task<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<Task<A>> fa) =>
@@ -18087,12 +19567,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOption<Try<B>>, TryOption<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOption<Try<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOption<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Try<A>>, TryOption<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOption<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Try<A>>, TryOption<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOption<Try<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<Try<A>>, TryOption<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOption<Try<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOption<Try<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<Try<A>>, TryOption<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -18162,12 +19652,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOption<Try<int>> CompareT<ORD,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOption<Try<bool>> EqualsT<EQ,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOption<Try<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<Try<A>> fa) =>
@@ -18209,12 +19699,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOption<TryAsync<B>>, TryOption<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOption<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOption<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<TryAsync<A>>, TryOption<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOption<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<TryAsync<A>>, TryOption<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOption<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<TryAsync<A>>, TryOption<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOption<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOption<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<TryAsync<A>>, TryOption<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -18284,12 +19784,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOption<TryAsync<int>> CompareT<ORD,  A>(this TryOption<TryAsync<A>> x, TryOption<TryAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOption<TryAsync<A>> x, TryOption<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOption<TryAsync<bool>> EqualsT<EQ,  A>(this TryOption<TryAsync<A>> x, TryOption<TryAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOption<TryAsync<A>> x, TryOption<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOption<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<TryAsync<A>> fa) =>
@@ -18331,12 +19831,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOption<TryOption<B>>, TryOption<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOption<TryOption<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOption<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<TryOption<A>>, TryOption<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOption<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<TryOption<A>>, TryOption<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOption<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<TryOption<A>>, TryOption<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOption<TryOption<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOption<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<TryOption<A>>, TryOption<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -18406,12 +19916,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOption<TryOption<int>> CompareT<ORD,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOption<TryOption<bool>> EqualsT<EQ,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOption<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<TryOption<A>> fa) =>
@@ -18453,12 +19963,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOption<TryOptionAsync<B>>, TryOption<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOption<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOption<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<TryOptionAsync<A>>, TryOption<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOption<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<TryOptionAsync<A>>, TryOption<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOption<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<TryOptionAsync<A>>, TryOption<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOption<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOption<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<TryOptionAsync<A>>, TryOption<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -18528,12 +20048,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOption<TryOptionAsync<int>> CompareT<ORD,  A>(this TryOption<TryOptionAsync<A>> x, TryOption<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOption<TryOptionAsync<A>> x, TryOption<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOption<TryOptionAsync<bool>> EqualsT<EQ,  A>(this TryOption<TryOptionAsync<A>> x, TryOption<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOption<TryOptionAsync<A>> x, TryOption<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOption<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<TryOptionAsync<A>> fa) =>
@@ -18575,12 +20095,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOption<IEnumerable<B>>, TryOption<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOption<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOption<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<IEnumerable<A>>, TryOption<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOption<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<IEnumerable<A>>, TryOption<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOption<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<IEnumerable<A>>, TryOption<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOption<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOption<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<IEnumerable<A>>, TryOption<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -18650,12 +20180,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOption<IEnumerable<int>> CompareT<ORD,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOption<IEnumerable<bool>> EqualsT<EQ,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOption<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<IEnumerable<A>> fa) =>
@@ -18697,12 +20227,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOption<Set<B>>, TryOption<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOption<Set<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOption<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Set<A>>, TryOption<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOption<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Set<A>>, TryOption<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOption<Set<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<Set<A>>, TryOption<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOption<Set<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOption<Set<A>> ma, Func<A, bool> f) =>
             Trans<MTryOption<Set<A>>, TryOption<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -18772,12 +20312,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOption<Set<int>> CompareT<ORD,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOption<Set<bool>> EqualsT<EQ,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOption<Set<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<Set<A>> fa) =>
@@ -18819,12 +20359,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOptionAsync<Arr<B>>, TryOptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOptionAsync<Arr<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOptionAsync<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOptionAsync<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOptionAsync<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOptionAsync<Arr<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOptionAsync<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -18894,12 +20444,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOptionAsync<Arr<int>> CompareT<ORD,  A>(this TryOptionAsync<Arr<A>> x, TryOptionAsync<Arr<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOptionAsync<Arr<A>> x, TryOptionAsync<Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOptionAsync<Arr<bool>> EqualsT<EQ,  A>(this TryOptionAsync<Arr<A>> x, TryOptionAsync<Arr<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOptionAsync<Arr<A>> x, TryOptionAsync<Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOptionAsync<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<Arr<A>> fa) =>
@@ -18941,12 +20491,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOptionAsync<HashSet<B>>, TryOptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOptionAsync<HashSet<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOptionAsync<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOptionAsync<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOptionAsync<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOptionAsync<HashSet<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOptionAsync<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -19016,12 +20576,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOptionAsync<HashSet<int>> CompareT<ORD,  A>(this TryOptionAsync<HashSet<A>> x, TryOptionAsync<HashSet<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOptionAsync<HashSet<A>> x, TryOptionAsync<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOptionAsync<HashSet<bool>> EqualsT<EQ,  A>(this TryOptionAsync<HashSet<A>> x, TryOptionAsync<HashSet<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOptionAsync<HashSet<A>> x, TryOptionAsync<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOptionAsync<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<HashSet<A>> fa) =>
@@ -19063,12 +20623,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOptionAsync<Lst<B>>, TryOptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOptionAsync<Lst<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOptionAsync<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOptionAsync<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOptionAsync<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOptionAsync<Lst<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOptionAsync<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -19138,12 +20708,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOptionAsync<Lst<int>> CompareT<ORD,  A>(this TryOptionAsync<Lst<A>> x, TryOptionAsync<Lst<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOptionAsync<Lst<A>> x, TryOptionAsync<Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOptionAsync<Lst<bool>> EqualsT<EQ,  A>(this TryOptionAsync<Lst<A>> x, TryOptionAsync<Lst<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOptionAsync<Lst<A>> x, TryOptionAsync<Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOptionAsync<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<Lst<A>> fa) =>
@@ -19185,12 +20755,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOptionAsync<Option<B>>, TryOptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOptionAsync<Option<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOptionAsync<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOptionAsync<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOptionAsync<Option<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOptionAsync<Option<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOptionAsync<Option<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -19260,12 +20840,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOptionAsync<Option<int>> CompareT<ORD,  A>(this TryOptionAsync<Option<A>> x, TryOptionAsync<Option<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOptionAsync<Option<A>> x, TryOptionAsync<Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOptionAsync<Option<bool>> EqualsT<EQ,  A>(this TryOptionAsync<Option<A>> x, TryOptionAsync<Option<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOptionAsync<Option<A>> x, TryOptionAsync<Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOptionAsync<Option<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<Option<A>> fa) =>
@@ -19307,12 +20887,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOptionAsync<OptionUnsafe<B>>, TryOptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOptionAsync<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOptionAsync<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -19382,12 +20972,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOptionAsync<OptionUnsafe<int>> CompareT<ORD,  A>(this TryOptionAsync<OptionUnsafe<A>> x, TryOptionAsync<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOptionAsync<OptionUnsafe<A>> x, TryOptionAsync<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOptionAsync<OptionUnsafe<bool>> EqualsT<EQ,  A>(this TryOptionAsync<OptionUnsafe<A>> x, TryOptionAsync<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOptionAsync<OptionUnsafe<A>> x, TryOptionAsync<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOptionAsync<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<OptionUnsafe<A>> fa) =>
@@ -19429,12 +21019,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOptionAsync<Either<L, B>>, TryOptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this TryOptionAsync<Either<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this TryOptionAsync<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this TryOptionAsync<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this TryOptionAsync<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this TryOptionAsync<Either<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this TryOptionAsync<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -19504,12 +21104,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOptionAsync<Either<L, int>> CompareT<ORD, L, A>(this TryOptionAsync<Either<L, A>> x, TryOptionAsync<Either<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this TryOptionAsync<Either<L, A>> x, TryOptionAsync<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOptionAsync<Either<L, bool>> EqualsT<EQ, L, A>(this TryOptionAsync<Either<L, A>> x, TryOptionAsync<Either<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this TryOptionAsync<Either<L, A>> x, TryOptionAsync<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOptionAsync<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, TryOptionAsync<Either<L, A>> fa) =>
@@ -19551,12 +21151,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOptionAsync<EitherUnsafe<L, B>>, TryOptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this TryOptionAsync<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this TryOptionAsync<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -19626,12 +21236,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOptionAsync<EitherUnsafe<L, int>> CompareT<ORD, L, A>(this TryOptionAsync<EitherUnsafe<L, A>> x, TryOptionAsync<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this TryOptionAsync<EitherUnsafe<L, A>> x, TryOptionAsync<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOptionAsync<EitherUnsafe<L, bool>> EqualsT<EQ, L, A>(this TryOptionAsync<EitherUnsafe<L, A>> x, TryOptionAsync<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this TryOptionAsync<EitherUnsafe<L, A>> x, TryOptionAsync<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOptionAsync<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, TryOptionAsync<EitherUnsafe<L, A>> fa) =>
@@ -19673,12 +21283,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOptionAsync<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOptionAsync<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOptionAsync<Task<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOptionAsync<Task<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -19748,12 +21368,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOptionAsync<Task<int>> CompareT<ORD,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOptionAsync<Task<bool>> EqualsT<EQ,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOptionAsync<Task<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<Task<A>> fa) =>
@@ -19795,12 +21415,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOptionAsync<Try<B>>, TryOptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOptionAsync<Try<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOptionAsync<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOptionAsync<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOptionAsync<Try<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOptionAsync<Try<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOptionAsync<Try<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -19870,12 +21500,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOptionAsync<Try<int>> CompareT<ORD,  A>(this TryOptionAsync<Try<A>> x, TryOptionAsync<Try<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOptionAsync<Try<A>> x, TryOptionAsync<Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOptionAsync<Try<bool>> EqualsT<EQ,  A>(this TryOptionAsync<Try<A>> x, TryOptionAsync<Try<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOptionAsync<Try<A>> x, TryOptionAsync<Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOptionAsync<Try<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<Try<A>> fa) =>
@@ -19917,12 +21547,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOptionAsync<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOptionAsync<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOptionAsync<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOptionAsync<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -19992,12 +21632,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOptionAsync<TryAsync<int>> CompareT<ORD,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOptionAsync<TryAsync<bool>> EqualsT<EQ,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOptionAsync<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<TryAsync<A>> fa) =>
@@ -20039,12 +21679,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOptionAsync<TryOption<B>>, TryOptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOptionAsync<TryOption<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOptionAsync<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOptionAsync<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOptionAsync<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOptionAsync<TryOption<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOptionAsync<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -20114,12 +21764,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOptionAsync<TryOption<int>> CompareT<ORD,  A>(this TryOptionAsync<TryOption<A>> x, TryOptionAsync<TryOption<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOptionAsync<TryOption<A>> x, TryOptionAsync<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOptionAsync<TryOption<bool>> EqualsT<EQ,  A>(this TryOptionAsync<TryOption<A>> x, TryOptionAsync<TryOption<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOptionAsync<TryOption<A>> x, TryOptionAsync<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOptionAsync<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<TryOption<A>> fa) =>
@@ -20161,12 +21811,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -20236,12 +21896,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOptionAsync<TryOptionAsync<int>> CompareT<ORD,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOptionAsync<TryOptionAsync<bool>> EqualsT<EQ,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOptionAsync<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<TryOptionAsync<A>> fa) =>
@@ -20283,12 +21943,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOptionAsync<IEnumerable<B>>, TryOptionAsync<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOptionAsync<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOptionAsync<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<IEnumerable<A>>, TryOptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOptionAsync<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<IEnumerable<A>>, TryOptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOptionAsync<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<IEnumerable<A>>, TryOptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOptionAsync<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOptionAsync<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<IEnumerable<A>>, TryOptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -20358,12 +22028,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOptionAsync<IEnumerable<int>> CompareT<ORD,  A>(this TryOptionAsync<IEnumerable<A>> x, TryOptionAsync<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOptionAsync<IEnumerable<A>> x, TryOptionAsync<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOptionAsync<IEnumerable<bool>> EqualsT<EQ,  A>(this TryOptionAsync<IEnumerable<A>> x, TryOptionAsync<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOptionAsync<IEnumerable<A>> x, TryOptionAsync<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOptionAsync<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<IEnumerable<A>> fa) =>
@@ -20405,12 +22075,22 @@ namespace LanguageExt
                 .Inst.Map<MTryOptionAsync<Set<B>>, TryOptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this TryOptionAsync<Set<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this TryOptionAsync<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this TryOptionAsync<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this TryOptionAsync<Set<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this TryOptionAsync<Set<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this TryOptionAsync<Set<A>> ma, Func<A, bool> f) =>
             Trans<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -20480,12 +22160,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static TryOptionAsync<Set<int>> CompareT<ORD,  A>(this TryOptionAsync<Set<A>> x, TryOptionAsync<Set<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this TryOptionAsync<Set<A>> x, TryOptionAsync<Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static TryOptionAsync<Set<bool>> EqualsT<EQ,  A>(this TryOptionAsync<Set<A>> x, TryOptionAsync<Set<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this TryOptionAsync<Set<A>> x, TryOptionAsync<Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static TryOptionAsync<Set<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<Set<A>> fa) =>
@@ -20527,12 +22207,22 @@ namespace LanguageExt
                 .Inst.Map<MSeq<Arr<B>>, IEnumerable<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this IEnumerable<Arr<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this IEnumerable<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<Arr<A>>, IEnumerable<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this IEnumerable<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<Arr<A>>, IEnumerable<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this IEnumerable<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<Arr<A>>, IEnumerable<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this IEnumerable<Arr<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this IEnumerable<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<Arr<A>>, IEnumerable<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -20602,12 +22292,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static IEnumerable<Arr<int>> CompareT<ORD,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static IEnumerable<Arr<bool>> EqualsT<EQ,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static IEnumerable<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<Arr<A>> fa) =>
@@ -20649,12 +22339,22 @@ namespace LanguageExt
                 .Inst.Map<MSeq<HashSet<B>>, IEnumerable<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this IEnumerable<HashSet<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this IEnumerable<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<HashSet<A>>, IEnumerable<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this IEnumerable<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<HashSet<A>>, IEnumerable<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this IEnumerable<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<HashSet<A>>, IEnumerable<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this IEnumerable<HashSet<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this IEnumerable<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<HashSet<A>>, IEnumerable<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -20724,12 +22424,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static IEnumerable<HashSet<int>> CompareT<ORD,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static IEnumerable<HashSet<bool>> EqualsT<EQ,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static IEnumerable<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<HashSet<A>> fa) =>
@@ -20771,12 +22471,22 @@ namespace LanguageExt
                 .Inst.Map<MSeq<Lst<B>>, IEnumerable<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this IEnumerable<Lst<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this IEnumerable<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<Lst<A>>, IEnumerable<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this IEnumerable<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<Lst<A>>, IEnumerable<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this IEnumerable<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<Lst<A>>, IEnumerable<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this IEnumerable<Lst<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this IEnumerable<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<Lst<A>>, IEnumerable<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -20846,12 +22556,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static IEnumerable<Lst<int>> CompareT<ORD,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static IEnumerable<Lst<bool>> EqualsT<EQ,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static IEnumerable<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<Lst<A>> fa) =>
@@ -20893,12 +22603,22 @@ namespace LanguageExt
                 .Inst.Map<MSeq<Option<B>>, IEnumerable<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this IEnumerable<Option<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this IEnumerable<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<Option<A>>, IEnumerable<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this IEnumerable<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<Option<A>>, IEnumerable<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this IEnumerable<Option<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<Option<A>>, IEnumerable<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this IEnumerable<Option<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this IEnumerable<Option<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<Option<A>>, IEnumerable<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -20968,12 +22688,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static IEnumerable<Option<int>> CompareT<ORD,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static IEnumerable<Option<bool>> EqualsT<EQ,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static IEnumerable<Option<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<Option<A>> fa) =>
@@ -21015,12 +22735,22 @@ namespace LanguageExt
                 .Inst.Map<MSeq<OptionUnsafe<B>>, IEnumerable<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this IEnumerable<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this IEnumerable<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<OptionUnsafe<A>>, IEnumerable<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this IEnumerable<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<OptionUnsafe<A>>, IEnumerable<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this IEnumerable<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<OptionUnsafe<A>>, IEnumerable<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this IEnumerable<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this IEnumerable<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<OptionUnsafe<A>>, IEnumerable<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -21090,12 +22820,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static IEnumerable<OptionUnsafe<int>> CompareT<ORD,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static IEnumerable<OptionUnsafe<bool>> EqualsT<EQ,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static IEnumerable<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<OptionUnsafe<A>> fa) =>
@@ -21137,12 +22867,22 @@ namespace LanguageExt
                 .Inst.Map<MSeq<Either<L, B>>, IEnumerable<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this IEnumerable<Either<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this IEnumerable<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<Either<L, A>>, IEnumerable<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this IEnumerable<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<Either<L, A>>, IEnumerable<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this IEnumerable<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MSeq<Either<L, A>>, IEnumerable<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this IEnumerable<Either<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this IEnumerable<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MSeq<Either<L, A>>, IEnumerable<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -21212,12 +22952,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static IEnumerable<Either<L, int>> CompareT<ORD, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static IEnumerable<Either<L, bool>> EqualsT<EQ, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static IEnumerable<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, IEnumerable<Either<L, A>> fa) =>
@@ -21259,12 +22999,22 @@ namespace LanguageExt
                 .Inst.Map<MSeq<EitherUnsafe<L, B>>, IEnumerable<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this IEnumerable<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this IEnumerable<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<EitherUnsafe<L, A>>, IEnumerable<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this IEnumerable<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<EitherUnsafe<L, A>>, IEnumerable<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this IEnumerable<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MSeq<EitherUnsafe<L, A>>, IEnumerable<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this IEnumerable<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this IEnumerable<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MSeq<EitherUnsafe<L, A>>, IEnumerable<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -21334,12 +23084,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static IEnumerable<EitherUnsafe<L, int>> CompareT<ORD, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static IEnumerable<EitherUnsafe<L, bool>> EqualsT<EQ, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static IEnumerable<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, IEnumerable<EitherUnsafe<L, A>> fa) =>
@@ -21381,12 +23131,22 @@ namespace LanguageExt
                 .Inst.Map<MSeq<Task<B>>, IEnumerable<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this IEnumerable<Task<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this IEnumerable<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<Task<A>>, IEnumerable<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this IEnumerable<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<Task<A>>, IEnumerable<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this IEnumerable<Task<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<Task<A>>, IEnumerable<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this IEnumerable<Task<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this IEnumerable<Task<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<Task<A>>, IEnumerable<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -21456,12 +23216,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static IEnumerable<Task<int>> CompareT<ORD,  A>(this IEnumerable<Task<A>> x, IEnumerable<Task<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this IEnumerable<Task<A>> x, IEnumerable<Task<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static IEnumerable<Task<bool>> EqualsT<EQ,  A>(this IEnumerable<Task<A>> x, IEnumerable<Task<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this IEnumerable<Task<A>> x, IEnumerable<Task<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static IEnumerable<Task<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<Task<A>> fa) =>
@@ -21503,12 +23263,22 @@ namespace LanguageExt
                 .Inst.Map<MSeq<Try<B>>, IEnumerable<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this IEnumerable<Try<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this IEnumerable<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<Try<A>>, IEnumerable<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this IEnumerable<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<Try<A>>, IEnumerable<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this IEnumerable<Try<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<Try<A>>, IEnumerable<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this IEnumerable<Try<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this IEnumerable<Try<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<Try<A>>, IEnumerable<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -21578,12 +23348,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static IEnumerable<Try<int>> CompareT<ORD,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static IEnumerable<Try<bool>> EqualsT<EQ,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static IEnumerable<Try<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<Try<A>> fa) =>
@@ -21625,12 +23395,22 @@ namespace LanguageExt
                 .Inst.Map<MSeq<TryAsync<B>>, IEnumerable<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this IEnumerable<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this IEnumerable<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<TryAsync<A>>, IEnumerable<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this IEnumerable<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<TryAsync<A>>, IEnumerable<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this IEnumerable<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<TryAsync<A>>, IEnumerable<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this IEnumerable<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this IEnumerable<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<TryAsync<A>>, IEnumerable<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -21700,12 +23480,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static IEnumerable<TryAsync<int>> CompareT<ORD,  A>(this IEnumerable<TryAsync<A>> x, IEnumerable<TryAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this IEnumerable<TryAsync<A>> x, IEnumerable<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static IEnumerable<TryAsync<bool>> EqualsT<EQ,  A>(this IEnumerable<TryAsync<A>> x, IEnumerable<TryAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this IEnumerable<TryAsync<A>> x, IEnumerable<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static IEnumerable<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<TryAsync<A>> fa) =>
@@ -21747,12 +23527,22 @@ namespace LanguageExt
                 .Inst.Map<MSeq<TryOption<B>>, IEnumerable<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this IEnumerable<TryOption<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this IEnumerable<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<TryOption<A>>, IEnumerable<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this IEnumerable<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<TryOption<A>>, IEnumerable<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this IEnumerable<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<TryOption<A>>, IEnumerable<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this IEnumerable<TryOption<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this IEnumerable<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<TryOption<A>>, IEnumerable<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -21822,12 +23612,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static IEnumerable<TryOption<int>> CompareT<ORD,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static IEnumerable<TryOption<bool>> EqualsT<EQ,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static IEnumerable<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<TryOption<A>> fa) =>
@@ -21869,12 +23659,22 @@ namespace LanguageExt
                 .Inst.Map<MSeq<TryOptionAsync<B>>, IEnumerable<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this IEnumerable<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this IEnumerable<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<TryOptionAsync<A>>, IEnumerable<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this IEnumerable<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<TryOptionAsync<A>>, IEnumerable<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this IEnumerable<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<TryOptionAsync<A>>, IEnumerable<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this IEnumerable<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this IEnumerable<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<TryOptionAsync<A>>, IEnumerable<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -21944,12 +23744,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static IEnumerable<TryOptionAsync<int>> CompareT<ORD,  A>(this IEnumerable<TryOptionAsync<A>> x, IEnumerable<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this IEnumerable<TryOptionAsync<A>> x, IEnumerable<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static IEnumerable<TryOptionAsync<bool>> EqualsT<EQ,  A>(this IEnumerable<TryOptionAsync<A>> x, IEnumerable<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this IEnumerable<TryOptionAsync<A>> x, IEnumerable<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static IEnumerable<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<TryOptionAsync<A>> fa) =>
@@ -21991,12 +23791,22 @@ namespace LanguageExt
                 .Inst.Map<MSeq<IEnumerable<B>>, IEnumerable<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this IEnumerable<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this IEnumerable<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<IEnumerable<A>>, IEnumerable<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this IEnumerable<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<IEnumerable<A>>, IEnumerable<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this IEnumerable<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<IEnumerable<A>>, IEnumerable<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this IEnumerable<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this IEnumerable<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<IEnumerable<A>>, IEnumerable<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -22066,12 +23876,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static IEnumerable<IEnumerable<int>> CompareT<ORD,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static IEnumerable<IEnumerable<bool>> EqualsT<EQ,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static IEnumerable<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<IEnumerable<A>> fa) =>
@@ -22113,12 +23923,22 @@ namespace LanguageExt
                 .Inst.Map<MSeq<Set<B>>, IEnumerable<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this IEnumerable<Set<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this IEnumerable<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<Set<A>>, IEnumerable<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this IEnumerable<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<Set<A>>, IEnumerable<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this IEnumerable<Set<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<Set<A>>, IEnumerable<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this IEnumerable<Set<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this IEnumerable<Set<A>> ma, Func<A, bool> f) =>
             Trans<MSeq<Set<A>>, IEnumerable<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -22188,12 +24008,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static IEnumerable<Set<int>> CompareT<ORD,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static IEnumerable<Set<bool>> EqualsT<EQ,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static IEnumerable<Set<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<Set<A>> fa) =>
@@ -22235,12 +24055,22 @@ namespace LanguageExt
                 .Inst.Map<MSet<Arr<B>>, Set<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Set<Arr<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Set<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<Arr<A>>, Set<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Set<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<Arr<A>>, Set<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Set<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MSet<Arr<A>>, Set<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Set<Arr<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Set<Arr<A>> ma, Func<A, bool> f) =>
             Trans<MSet<Arr<A>>, Set<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -22310,12 +24140,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Set<Arr<int>> CompareT<ORD,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Set<Arr<bool>> EqualsT<EQ,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Set<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, Set<Arr<A>> fa) =>
@@ -22357,12 +24187,22 @@ namespace LanguageExt
                 .Inst.Map<MSet<HashSet<B>>, Set<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Set<HashSet<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Set<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<HashSet<A>>, Set<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Set<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<HashSet<A>>, Set<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Set<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MSet<HashSet<A>>, Set<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Set<HashSet<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Set<HashSet<A>> ma, Func<A, bool> f) =>
             Trans<MSet<HashSet<A>>, Set<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -22432,12 +24272,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Set<HashSet<int>> CompareT<ORD,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Set<HashSet<bool>> EqualsT<EQ,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Set<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, Set<HashSet<A>> fa) =>
@@ -22479,12 +24319,22 @@ namespace LanguageExt
                 .Inst.Map<MSet<Lst<B>>, Set<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Set<Lst<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Set<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<Lst<A>>, Set<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Set<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<Lst<A>>, Set<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Set<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MSet<Lst<A>>, Set<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Set<Lst<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Set<Lst<A>> ma, Func<A, bool> f) =>
             Trans<MSet<Lst<A>>, Set<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -22554,12 +24404,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Set<Lst<int>> CompareT<ORD,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Set<Lst<bool>> EqualsT<EQ,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Set<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, Set<Lst<A>> fa) =>
@@ -22601,12 +24451,22 @@ namespace LanguageExt
                 .Inst.Map<MSet<Option<B>>, Set<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Set<Option<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Set<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<Option<A>>, Set<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Set<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<Option<A>>, Set<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Set<Option<A>> ma, Func<A, bool> f) =>
             Trans<MSet<Option<A>>, Set<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Set<Option<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Set<Option<A>> ma, Func<A, bool> f) =>
             Trans<MSet<Option<A>>, Set<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -22676,12 +24536,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Set<Option<int>> CompareT<ORD,  A>(this Set<Option<A>> x, Set<Option<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Set<Option<A>> x, Set<Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Set<Option<bool>> EqualsT<EQ,  A>(this Set<Option<A>> x, Set<Option<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Set<Option<A>> x, Set<Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Set<Option<B>> ApplyT< A, B>(this Func<A, B> fab, Set<Option<A>> fa) =>
@@ -22723,12 +24583,22 @@ namespace LanguageExt
                 .Inst.Map<MSet<OptionUnsafe<B>>, Set<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Set<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Set<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<OptionUnsafe<A>>, Set<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Set<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<OptionUnsafe<A>>, Set<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Set<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MSet<OptionUnsafe<A>>, Set<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Set<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Set<OptionUnsafe<A>> ma, Func<A, bool> f) =>
             Trans<MSet<OptionUnsafe<A>>, Set<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -22798,12 +24668,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Set<OptionUnsafe<int>> CompareT<ORD,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Set<OptionUnsafe<bool>> EqualsT<EQ,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Set<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, Set<OptionUnsafe<A>> fa) =>
@@ -22845,12 +24715,22 @@ namespace LanguageExt
                 .Inst.Map<MSet<Either<L, B>>, Set<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Set<Either<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Set<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<Either<L, A>>, Set<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Set<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<Either<L, A>>, Set<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Set<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MSet<Either<L, A>>, Set<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Set<Either<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Set<Either<L, A>> ma, Func<A, bool> f) =>
             Trans<MSet<Either<L, A>>, Set<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -22920,12 +24800,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Set<Either<L, int>> CompareT<ORD, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Set<Either<L, bool>> EqualsT<EQ, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Set<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Set<Either<L, A>> fa) =>
@@ -22967,12 +24847,22 @@ namespace LanguageExt
                 .Inst.Map<MSet<EitherUnsafe<L, B>>, Set<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<L, A, B>(this Set<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S, L, A>(this Set<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<EitherUnsafe<L, A>>, Set<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, L, A>(this Set<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<EitherUnsafe<L, A>>, Set<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<L, A>(this Set<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MSet<EitherUnsafe<L, A>>, Set<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<L, A, B>(this Set<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT<L, A>(this Set<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
             Trans<MSet<EitherUnsafe<L, A>>, Set<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -23042,12 +24932,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Set<EitherUnsafe<L, int>> CompareT<ORD, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Set<EitherUnsafe<L, bool>> EqualsT<EQ, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Set<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Set<EitherUnsafe<L, A>> fa) =>
@@ -23089,12 +24979,22 @@ namespace LanguageExt
                 .Inst.Map<MSet<Task<B>>, Set<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Set<Task<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Set<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<Task<A>>, Set<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Set<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<Task<A>>, Set<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Set<Task<A>> ma, Func<A, bool> f) =>
             Trans<MSet<Task<A>>, Set<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Set<Task<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Set<Task<A>> ma, Func<A, bool> f) =>
             Trans<MSet<Task<A>>, Set<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -23164,12 +25064,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Set<Task<int>> CompareT<ORD,  A>(this Set<Task<A>> x, Set<Task<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Set<Task<A>> x, Set<Task<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Set<Task<bool>> EqualsT<EQ,  A>(this Set<Task<A>> x, Set<Task<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Set<Task<A>> x, Set<Task<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Set<Task<B>> ApplyT< A, B>(this Func<A, B> fab, Set<Task<A>> fa) =>
@@ -23211,12 +25111,22 @@ namespace LanguageExt
                 .Inst.Map<MSet<Try<B>>, Set<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Set<Try<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Set<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<Try<A>>, Set<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Set<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<Try<A>>, Set<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Set<Try<A>> ma, Func<A, bool> f) =>
             Trans<MSet<Try<A>>, Set<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Set<Try<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Set<Try<A>> ma, Func<A, bool> f) =>
             Trans<MSet<Try<A>>, Set<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -23286,12 +25196,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Set<Try<int>> CompareT<ORD,  A>(this Set<Try<A>> x, Set<Try<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Set<Try<A>> x, Set<Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Set<Try<bool>> EqualsT<EQ,  A>(this Set<Try<A>> x, Set<Try<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Set<Try<A>> x, Set<Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Set<Try<B>> ApplyT< A, B>(this Func<A, B> fab, Set<Try<A>> fa) =>
@@ -23333,12 +25243,22 @@ namespace LanguageExt
                 .Inst.Map<MSet<TryAsync<B>>, Set<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Set<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Set<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<TryAsync<A>>, Set<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Set<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<TryAsync<A>>, Set<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Set<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MSet<TryAsync<A>>, Set<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Set<TryAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Set<TryAsync<A>> ma, Func<A, bool> f) =>
             Trans<MSet<TryAsync<A>>, Set<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -23408,12 +25328,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Set<TryAsync<int>> CompareT<ORD,  A>(this Set<TryAsync<A>> x, Set<TryAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Set<TryAsync<A>> x, Set<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Set<TryAsync<bool>> EqualsT<EQ,  A>(this Set<TryAsync<A>> x, Set<TryAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Set<TryAsync<A>> x, Set<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Set<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Set<TryAsync<A>> fa) =>
@@ -23455,12 +25375,22 @@ namespace LanguageExt
                 .Inst.Map<MSet<TryOption<B>>, Set<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Set<TryOption<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Set<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<TryOption<A>>, Set<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Set<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<TryOption<A>>, Set<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Set<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MSet<TryOption<A>>, Set<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Set<TryOption<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Set<TryOption<A>> ma, Func<A, bool> f) =>
             Trans<MSet<TryOption<A>>, Set<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -23530,12 +25460,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Set<TryOption<int>> CompareT<ORD,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Set<TryOption<bool>> EqualsT<EQ,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Set<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, Set<TryOption<A>> fa) =>
@@ -23577,12 +25507,22 @@ namespace LanguageExt
                 .Inst.Map<MSet<TryOptionAsync<B>>, Set<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Set<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Set<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<TryOptionAsync<A>>, Set<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Set<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<TryOptionAsync<A>>, Set<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Set<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MSet<TryOptionAsync<A>>, Set<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Set<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Set<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             Trans<MSet<TryOptionAsync<A>>, Set<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -23652,12 +25592,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Set<TryOptionAsync<int>> CompareT<ORD,  A>(this Set<TryOptionAsync<A>> x, Set<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Set<TryOptionAsync<A>> x, Set<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Set<TryOptionAsync<bool>> EqualsT<EQ,  A>(this Set<TryOptionAsync<A>> x, Set<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Set<TryOptionAsync<A>> x, Set<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Set<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Set<TryOptionAsync<A>> fa) =>
@@ -23699,12 +25639,22 @@ namespace LanguageExt
                 .Inst.Map<MSet<IEnumerable<B>>, Set<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Set<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Set<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<IEnumerable<A>>, Set<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Set<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<IEnumerable<A>>, Set<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Set<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MSet<IEnumerable<A>>, Set<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Set<IEnumerable<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Set<IEnumerable<A>> ma, Func<A, bool> f) =>
             Trans<MSet<IEnumerable<A>>, Set<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -23774,12 +25724,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Set<IEnumerable<int>> CompareT<ORD,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Set<IEnumerable<bool>> EqualsT<EQ,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Set<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, Set<IEnumerable<A>> fa) =>
@@ -23821,12 +25771,22 @@ namespace LanguageExt
                 .Inst.Map<MSet<Set<B>>, Set<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT< A, B>(this Set<Set<A>> ma, Func<A, bool> f) =>
+        public static S FoldT<S,  A>(this Set<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<Set<A>>, Set<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S,  A>(this Set<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<Set<A>>, Set<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT< A>(this Set<Set<A>> ma, Func<A, bool> f) =>
             Trans<MSet<Set<A>>, Set<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT< A, B>(this Set<Set<A>> ma, Func<A, bool> f) =>
+        public static bool ForAllT< A>(this Set<Set<A>> ma, Func<A, bool> f) =>
             Trans<MSet<Set<A>>, Set<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -23896,12 +25856,12 @@ namespace LanguageExt
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static Set<Set<int>> CompareT<ORD,  A>(this Set<Set<A>> x, Set<Set<A>> y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD,  A>(this Set<Set<A>> x, Set<Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static Set<Set<bool>> EqualsT<EQ,  A>(this Set<Set<A>> x, Set<Set<A>> y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ,  A>(this Set<Set<A>> x, Set<Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static Set<Set<B>> ApplyT< A, B>(this Func<A, B> fab, Set<Set<A>> fa) =>

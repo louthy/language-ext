@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System;
 using System.Diagnostics.Contracts;
+using System.Reflection;
 
 namespace LanguageExt.ClassInstances
 {
@@ -26,7 +27,7 @@ namespace LanguageExt.ClassInstances
             if (isnull(a)) return b == null;
             if (isnull(b)) return false;
             if (ReferenceEquals(a, b)) return true;
-            return EqualityComparer<A>.Default.Equals(a, b);
+            return Comparer.Equals(a, b);
         }
 
         /// <summary>
@@ -36,6 +37,32 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(A x) =>
-            x.IsNull() ? 0 : x.GetHashCode();
+            x.IsNull() ? 0 : Comparer.GetHashCode(x);
+
+        //
+        // Below is a shameless hack to make Func and anonymous Funcs equality comparable
+        // This is primarily to support Sets being used as applicatives, where the functor
+        // must be in a set itself.  A smarter solution is required.
+        // 
+
+        static readonly bool IsFunc =
+            typeof(A).GetTypeInfo().ToString().StartsWith("System.Func") ||
+            typeof(A).GetTypeInfo().ToString().StartsWith("<>");
+
+        static readonly IEqualityComparer<A> Comparer =
+            IsFunc
+                ? new DelEq() as IEqualityComparer<A>
+                : EqualityComparer<A>.Default;
+
+        class DelEq : IEqualityComparer<A>
+        {
+            public bool Equals(A x, A y) =>
+                ReferenceEquals(x, y);
+
+            public int GetHashCode(A x) =>
+                x?.GetHashCode() ?? 0;
+        }
+
+
     }
 }

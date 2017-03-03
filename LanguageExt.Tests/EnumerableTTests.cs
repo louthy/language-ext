@@ -9,27 +9,26 @@ namespace LanguageExtTests
 {
     public class EnumerableTTests
     {
-        // TODO: RESTORE WHEN NEW TRANSFORMER SYSTEM IS IN PLACE
-        //[Fact]
-        //public void WrappedListTest()
-        //{
-        //    var lst = List(List(1, 2, 3, 4, 5), List(1, 2, 3, 4, 5), List(1, 2, 3, 4, 5));
+        [Fact]
+        public void WrappedListTest()
+        {
+            var lst = List(List(1, 2, 3, 4, 5), List(1, 2, 3, 4, 5), List(1, 2, 3, 4, 5));
 
-        //    var res = lst.FoldT(0, (s, v) => s + v);
-        //    var mlst = lst.MapT(x => x * 2);
-        //    var mres = mlst.FoldT(0, (s, v) => s + v);
+            var res = lst.FoldT(0, (s, v) => s + v);
+            var mlst = lst.MapT(x => x * 2);
+            var mres = mlst.FoldT(0, (s, v) => s + v);
 
-        //    Assert.True(res == 45, "Expected 45 got "+ res);
-        //    Assert.True(mres == 90, "Expected 90 got " + res);
-        //    Assert.True(lst.CountT() == 15, "(lst) Expected 15 got " + lst.CountT());
-        //    Assert.True(mlst.CountT() == 15, "(mlst) Expected 15 got " + mlst.CountT());
+            Assert.True(res == 45, "Expected 45 got "+ res);
+            Assert.True(mres == 90, "Expected 90 got " + res);
+            Assert.True(lst.CountT() == 15, "(lst) Expected 15 got " + lst.CountT());
+            Assert.True(mlst.CountT() == 15, "(mlst) Expected 15 got " + mlst.CountT());
 
-        //    lst = List<Lst<int>>();
-        //    res = lst.FoldT(0, (s, v) => s + v);
+            lst = List<Lst<int>>();
+            res = lst.FoldT(0, (s, v) => s + v);
 
-        //    Assert.True(res == 0, "Fold results, expected 0 got " + res);
-        //    Assert.True(lst.CountT() == 0, "Empty count, expected 0 got " + res);
-        //}
+            Assert.True(res == 0, "Fold results, expected 0 got " + res);
+            Assert.True(lst.CountT() == 0, "Empty count, expected 0 got " + res);
+        }
 
         [Fact]
         public void ChooseTest()
@@ -51,8 +50,6 @@ namespace LanguageExtTests
 
             Assert.True(Enumerable.SequenceEqual(actual, expected), $"Expected {toString(expected)} but was {toString(actual)}");
         }
-
-        // TODO: RESTORE WHEN NEW TRANSFORMER SYSTEM IS IN PLACE
 
         //[Fact]
         //public void WrappedMapTest()

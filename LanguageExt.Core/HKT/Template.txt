@@ -20,12 +20,22 @@
                 .Inst.Map<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
         [Pure]
-        public static bool ExistsT<GENS, A, B>(this OUTER_A ma, Func<A, bool> f) =>
+        public static S FoldT<S, GENS, A>(this OUTER_A ma, S state, Func<S, A, S> f) =>
+            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+                .Inst.Fold(ma, state, f);
+
+        [Pure]
+        public static S FoldBackT<S, GENS, A>(this OUTER_A ma, S state, Func<S, A, S> f) =>
+            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+                .Inst.FoldBack(ma, state, f);
+
+        [Pure]
+        public static bool ExistsT<GENS, A>(this OUTER_A ma, Func<A, bool> f) =>
             Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         [Pure]
-        public static bool ForAllT<GENS, A, B>(this OUTER_A ma, Func<A, bool> f) =>
+        public static bool ForAllT<GENS, A>(this OUTER_A ma, Func<A, bool> f) =>
             Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
@@ -95,12 +105,12 @@
             ApplyT(default(SEMI).Append, x, y);
 
         [Pure]
-        public static OUTER_INT CompareT<ORD, GENS, A>(this OUTER_A x, OUTER_A y) where ORD : struct, Ord<A> =>
-            ApplyT(default(ORD).Compare, x, y);
+        public static int CompareT<ORD, GENS, A>(this OUTER_A x, OUTER_A y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         [Pure]
-        public static OUTER_BOOL EqualsT<EQ, GENS, A>(this OUTER_A x, OUTER_A y) where EQ : struct, Eq<A> =>
-            ApplyT(default(EQ).Equals, x, y);
+        public static bool EqualsT<EQ, GENS, A>(this OUTER_A x, OUTER_A y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         [Pure]
         public static OUTER_B ApplyT<GENS, A, B>(this Func<A, B> fab, OUTER_A fa) =>

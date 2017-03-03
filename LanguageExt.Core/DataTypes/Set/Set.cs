@@ -7,6 +7,7 @@ using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
