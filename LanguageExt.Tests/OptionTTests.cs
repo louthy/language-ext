@@ -70,6 +70,7 @@ namespace LanguageExtTests
             Assert.True(result == 5);
         }
 
+
         public static Lst<Option<B>> LstTBind<A, B>(Lst<Option<A>> list, Func<A, Option<B>> bind)
         {
             var LstT = default(Trans<MLst<Option<A>>, Lst<Option<A>>, MOption<A>, Option<A>, A>);

@@ -52,10 +52,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public async Task<A> Plus(Task<A> ma, Task<A> mb)
         {
-            await Task.WhenAll(ma, mb);
-
-            if (!ma.IsFaulted) return ma.Result;
-            return mb.Result;
+            // Run in parallel
+            for (int i = 0; i < 2; i++)
+            {
+                // Return first one that completes
+                var completed = await Task.WhenAny(ma, mb);
+                if (!completed.IsFaulted) return completed.Result;
+            }
+            throw new BottomException();
         }
 
         /// <summary>

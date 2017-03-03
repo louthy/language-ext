@@ -43,6 +43,30 @@ namespace LanguageExt
             where NewInnerMonad : struct, Monad<NewInnerType, B> =>
             Trans<OuterMonad, OuterType, MOption<A>, Option<A>, A>
                 .Inst.Map<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(ma, f);
+
+        public OuterType Plus(OuterType a, OuterType b)
+        {
+            throw new NotImplementedException();
+        }
+
+        public NewOuterType Sequence<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType>(OuterType ma)
+            where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
+            where NewInnerMonad : struct, Monad<NewInnerType, A>
+        {
+            throw new NotImplementedException();
+        }
+
+        public NewOuterType Traverse<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, B> f)
+            where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
+            where NewInnerMonad : struct, Monad<NewInnerType, B>
+        {
+            throw new NotImplementedException();
+        }
+
+        public OuterType Zero()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

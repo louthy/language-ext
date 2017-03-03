@@ -15,6 +15,17 @@ namespace LanguageExt
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
             where NewInnerMonad : struct, Monad<NewInnerType, B>;
 
+        NewOuterType Traverse<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, B> f)
+            where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
+            where NewInnerMonad : struct, Monad<NewInnerType, B>;
+
+        NewOuterType Sequence<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType>(OuterType ma)
+            where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
+            where NewInnerMonad : struct, Monad<NewInnerType, A>;
+
+        OuterType Zero();
+        OuterType Plus(OuterType a, OuterType b);
+
         S Fold<S>(OuterType ma, S state, Func<S, A, S> f);
 
         S FoldBack<S>(OuterType ma, S state, Func<S, A, S> f);

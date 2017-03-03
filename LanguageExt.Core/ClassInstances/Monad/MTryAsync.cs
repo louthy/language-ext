@@ -59,10 +59,15 @@ namespace LanguageExt.ClassInstances
             var resA = ma.Try();
             var resB = mb.Try();
 
-            await Task.WhenAll(resA, resB);
-            return (!resA.IsFaulted && !resA.Result.IsFaulted) 
-                ? resA.Result
-                : resB.Result;
+            for (int i = 0; i < 2; i++)
+            {
+                // Return first one that completes
+                var completed = await Task.WhenAny(resA, resB);
+                if (!completed.IsFaulted && !completed.Result.IsFaulted) return completed.Result;
+            }
+            if (!resA.IsFaulted) return resA.Result;
+            if (!resB.IsFaulted) return resB.Result;
+            throw new BottomException();
         };
 
         /// <summary>
