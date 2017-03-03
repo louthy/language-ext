@@ -10,7 +10,7 @@ namespace LanguageExt.ClassInstances
 {
     public struct MTryOptionAsync<A> :
         Optional<TryOptionAsync<A>, A>,
-        MonadPlus<TryOptionAsync<A>, A>,
+        Monad<TryOptionAsync<A>, A>,
         Foldable<TryOptionAsync<A>, A>,
         BiFoldable<TryOptionAsync<A>, Unit, A>
     {
@@ -69,33 +69,12 @@ namespace LanguageExt.ClassInstances
         /// <summary>
         /// Monad return
         /// </summary>
-        /// <param name="xs">The bound monad value(s)</param>
-        /// <returns>Monad of A</returns>
-        [Pure]
-        public TryOptionAsync<A> FromSeq(IEnumerable<A> xs)
-        {
-            var head = xs.FirstOrDefault();
-            return Return(head);
-        }
-
-        /// <summary>
-        /// Monad return
-        /// </summary>
         /// <typeparam name="A">Type of the bound monad value</typeparam>
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
         [Pure]
         public TryOptionAsync<A> Return(A x) =>
-            () => Task.Run(() => new OptionalResult<A>(x));
-
-        /// <summary>
-        /// Monad return
-        /// </summary>
-        /// <param name="f">The function to invoke to get the bound monad value(s)</param>
-        /// <returns>Monad of A</returns>
-        [Pure]
-        public TryOptionAsync<A> Return(Func<A> f) => 
-            () => Task.Run(() => new OptionalResult<A>(f()));
+            () => Task.FromResult(new OptionalResult<A>(x));
 
         [Pure]
         public TryOptionAsync<A> Zero() => 

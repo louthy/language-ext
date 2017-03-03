@@ -10,7 +10,7 @@ namespace LanguageExt.ClassInstances
     public struct MOption<A> :
         Choice<Option<A>, Unit, A>,
         Optional<Option<A>, A>,
-        MonadPlus<Option<A>, A>,
+        Monad<Option<A>, A>,
         Foldable<Option<A>, A>,
         BiFoldable<Option<A>, Unit, A>,
         Liftable<Option<A>, A>
@@ -44,16 +44,6 @@ namespace LanguageExt.ClassInstances
                 : b;
 
         [Pure]
-        public Option<A> FromSeq(IEnumerable<A> xs)
-        {
-            if (xs == null) return None;
-            var x = xs.Take(1).ToArray();
-            return x.Length == 0 
-                ? Option<A>.None
-                : Return(x[0]);
-        }
-
-        [Pure]
         public Option<A> Return(A x) =>
             isnull(x)
                 ? Option<A>.None
@@ -62,10 +52,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Option<A> Lift(A x) =>
             Return(x);
-
-        [Pure]
-        public Option<A> Return(Func<A> f) =>
-            Return(f());
 
         [Pure]
         public Option<A> Zero() =>

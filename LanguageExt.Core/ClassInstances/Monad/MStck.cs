@@ -14,7 +14,7 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
     public struct MStck<A> :
-        MonadPlus<Stck<A>, A>,
+        Monad<Stck<A>, A>,
         Foldable<Stck<A>, A>,
         Eq<Stck<A>>,
         Monoid<Stck<A>>
@@ -26,17 +26,8 @@ namespace LanguageExt.ClassInstances
             new Stck<A>(x.Concat(y));
 
         [Pure]
-        IEnumerable<B> BindSeq<MONADB, MB, B>(Stck<A> ma, Func<A, MB> f)
-            where MONADB : struct, Monad<MB, B>
-        {
-            foreach(var a in ma)
-                foreach (var b in toSeq<MONADB, MB, B>(f(a)))
-                    yield return b;
-        }
-
-        [Pure]
         public MB Bind<MONADB, MB, B>(Stck<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
-            default(MONADB).FromSeq(BindSeq<MONADB, MB, B>(ma, f));
+            traverse<MStck<A>, MONADB, Stck<A>, MB, A, B>(ma, f);
 
         [Pure]
         public int Count(Stck<A> fa) =>
@@ -75,16 +66,8 @@ namespace LanguageExt.ClassInstances
             ma + mb;
 
         [Pure]
-        public Stck<A> FromSeq(IEnumerable<A> xs) =>
-            new Stck<A>(xs);
-
-        [Pure]
         public Stck<A> Return(A x) =>
             Stack(x);
-
-        [Pure]
-        public Stck<A> Return(Func<A> f) =>
-            Return(f());
 
         [Pure]
         public Stck<A> Zero() =>

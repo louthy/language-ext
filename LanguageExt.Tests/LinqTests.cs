@@ -3,12 +3,36 @@ using System.Linq;
 using Xunit;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExtTests
 {
     
     public class LinqTests
     {
+        [Fact]
+        public void MixedLinq()
+        {
+            //var oa = Some(1);
+            //var lb = List(2);
+            //var oc = Some(3);
+
+            //var r2 =
+            //   from a in oa
+            //   from b in lb
+            //   from c in oc
+            //   select a + b + c;
+
+            var oa = Some(1);
+            var lb = List(2);
+
+            var r1 =
+               from a in oa.Map(MLst<int>.Inst.Return)  // a : int
+               from b in Some(lb)      // b : int
+               select a + b;
+        }
+
         [Fact]
         public void WithOptionSomeList()
         {

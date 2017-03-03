@@ -9,7 +9,7 @@ namespace LanguageExt.ClassInstances
 {
     public struct MOptionUnsafe<A> :
         Choice<OptionUnsafe<A>, Unit, A>,
-        MonadPlus<OptionUnsafe<A>, A>,
+        Monad<OptionUnsafe<A>, A>,
         Optional<OptionUnsafe<A>, A>,
         Foldable<OptionUnsafe<A>, A>,
         BiFoldable<OptionUnsafe<A>, Unit, A>,
@@ -44,22 +44,8 @@ namespace LanguageExt.ClassInstances
                 : b;
 
         [Pure]
-        public OptionUnsafe<A> FromSeq(IEnumerable<A> xs)
-        {
-            if (xs == null) return None;
-            var x = xs.Take(1).ToArray();
-            return x.Length == 0
-                ? OptionUnsafe<A>.None
-                : Return(x[0]);
-        }
-
-        [Pure]
         public OptionUnsafe<A> Return(A x) =>
             new OptionUnsafe<A>(new SomeValue<A>(x));
-
-        [Pure]
-        public OptionUnsafe<A> Return(Func<A> f) =>
-            Return(f());
 
         [Pure]
         public OptionUnsafe<A> Zero() =>

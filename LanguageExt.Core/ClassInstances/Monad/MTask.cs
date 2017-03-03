@@ -10,7 +10,7 @@ namespace LanguageExt.ClassInstances
 {
     public struct MTask<A> :
         Optional<Task<A>, A>,
-        MonadPlus<Task<A>, A>,
+        Monad<Task<A>, A>,
         Foldable<Task<A>, A>,
         BiFoldable<Task<A>, Unit, A>
     {
@@ -61,33 +61,12 @@ namespace LanguageExt.ClassInstances
         /// <summary>
         /// Monad return
         /// </summary>
-        /// <param name="xs">The bound monad value(s)</param>
-        /// <returns>Monad of A</returns>
-        [Pure]
-        public Task<A> FromSeq(IEnumerable<A> xs)
-        {
-            var head = xs.FirstOrDefault();
-            return Task.FromResult(head);
-        }
-
-        /// <summary>
-        /// Monad return
-        /// </summary>
         /// <typeparam name="A">Type of the bound monad value</typeparam>
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
         [Pure]
         public Task<A> Return(A x) =>
             Task.FromResult(x);
-
-        /// <summary>
-        /// Monad return
-        /// </summary>
-        /// <param name="f">The function to invoke to get the bound monad value(s)</param>
-        /// <returns>Monad of A</returns>
-        [Pure]
-        public Task<A> Return(Func<A> f) => 
-            Task.Run(f);
 
         [Pure]
         public Task<A> Zero() => 

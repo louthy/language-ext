@@ -15,7 +15,7 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
     public struct MArr<A> :
-        MonadPlus<Arr<A>, A>,
+        Monad<Arr<A>, A>,
         Foldable<Arr<A>, A>,
         Eq<Arr<A>>,
         Monoid<Arr<A>>
@@ -27,17 +27,8 @@ namespace LanguageExt.ClassInstances
             x.Concat(y).ToArray();
 
         [Pure]
-        IEnumerable<B> BindSeq<MONADB, MB, B>(Arr<A> ma, Func<A, MB> f)
-            where MONADB : struct, Monad<MB, B>
-        {
-            foreach(var a in ma)
-                foreach (var b in toSeq<MONADB, MB, B>(f(a)))
-                    yield return b;
-        }
-
-        [Pure]
         public MB Bind<MONADB, MB, B>(Arr<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
-            default(MONADB).FromSeq(BindSeq<MONADB, MB, B>(ma, f));
+            traverse<MArr<A>, MONADB, Arr<A>, MB, A, B>(ma, f);
 
         [Pure]
         public int Count(Arr<A> fa) =>
@@ -69,26 +60,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Arr<A> Plus(Arr<A> ma, Arr<A> mb) =>
-            PlusSeq(ma, mb).ToArray();
-
-        [Pure]
-        IEnumerable<A> PlusSeq(Arr<A> ma, Arr<A> mb)
-        {
-            foreach (var a in ma) yield return a;
-            foreach (var b in mb) yield return b;
-        }
-
-        [Pure]
-        public Arr<A> FromSeq(IEnumerable<A> xs) =>
-            xs.ToArray();
+            ma + mb;
 
         [Pure]
         public Arr<A> Return(A x) =>
             new[] { x };
-
-        [Pure]
-        public Arr<A> Return(Func<A> f) =>
-            Return(f());
 
         [Pure]
         public Arr<A> Zero() =>
@@ -97,5 +73,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Arr<A> x) =>
             x.GetHashCode();
+
+        [Pure]
+        public FunctorAB ToFunctor<FunctorAB, MB, B>() where FunctorAB : struct, Functor<Arr<A>, MB, A, B> =>
+            default(FunctorAB);
     }
 }

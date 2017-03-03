@@ -20,15 +20,15 @@ namespace LanguageExt
         public static MA Return<MONAD, MA, A>(A x) where MONAD : struct, Monad<MA, A> =>
             default(MONAD).Return(x);
 
-        /// <summary>
-        /// Monad return
-        /// </summary>
-        /// <typeparam name="A">Type of the bound monad value</typeparam>
-        /// <param name="a">The bound monad value</param>
-        /// <returns>Monad of A</returns>
-        [Pure]
-        public static MA FromSeq<MONAD, MA, A>(IEnumerable<A> xs) where MONAD : struct, Monad<MA, A> =>
-            default(MONAD).FromSeq(xs);
+        public static MB traverse<MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, B> f)
+            where MonadA : struct, Monad<MA, A>
+            where MonadB : struct, Monad<MB, B> =>
+            default(MonadA).Fold(ma, default(MonadB).Zero(), (s, a) => default(MonadB).Plus(s, default(MonadB).Return(f(a))));
+
+        public static MB traverse<MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, MB> f)
+            where MonadA : struct, Monad<MA, A>
+            where MonadB : struct, Monad<MB, B> =>
+            default(MonadA).Fold(ma, default(MonadB).Zero(), (s, a) => default(MonadB).Plus(s, f(a)));
 
         /// <summary>
         /// Monadic bind

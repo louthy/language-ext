@@ -9,7 +9,7 @@ namespace LanguageExt.ClassInstances
 {
     public struct MEither<L, R> :
         Choice<Either<L, R>, L, R>,
-        MonadPlus<Either<L, R>, R>,
+        Monad<Either<L, R>, R>,
         Optional<Either<L, R>, R>,
         Foldable<Either<L, R>, R>,
         BiFoldable<Either<L, R>, L, R>
@@ -37,10 +37,6 @@ namespace LanguageExt.ClassInstances
                 Choice1: _ => mb,
                 Choice2: _ => ma,
                 Bottom: () => mb);
-
-        [Pure]
-        public Either<L, R> FromSeq(IEnumerable<R> xs) =>
-            Either<L,R>.Right(xs.FirstOrDefault());
 
         [Pure]
         public Either<L, R> Return(R x) =>

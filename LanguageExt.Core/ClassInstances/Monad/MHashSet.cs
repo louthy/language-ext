@@ -14,7 +14,7 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     /// <typeparam name="A"></typeparam>
     public struct MHashSet<A> :
-        MonadPlus<HashSet<A>, A>,
+        Monad<HashSet<A>, A>,
         Foldable<HashSet<A>, A>,
         Eq<HashSet<A>>,
         Monoid<HashSet<A>>
@@ -26,17 +26,9 @@ namespace LanguageExt.ClassInstances
             HashSet.createRange(x.Concat(y));
 
         [Pure]
-        IEnumerable<B> BindSeq<MONADB, MB, B>(HashSet<A> ma, Func<A, MB> f)
-            where MONADB : struct, Monad<MB, B>
-        {
-            foreach(var a in ma)
-                foreach (var b in toSeq<MONADB, MB, B>(f(a)))
-                    yield return b;
-        }
-
-        [Pure]
         public MB Bind<MONADB, MB, B>(HashSet<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
-            default(MONADB).FromSeq(BindSeq<MONADB, MB, B>(ma, f));
+            ma.Fold(default(MONADB).Zero(), (s, a) => default(MONADB).Plus(s, f(a)));
+
 
         [Pure]
         public int Count(HashSet<A> fa) =>
@@ -75,16 +67,8 @@ namespace LanguageExt.ClassInstances
             ma + mb;
 
         [Pure]
-        public HashSet<A> FromSeq(IEnumerable<A> xs) =>
-            HashSet.createRange(xs);
-
-        [Pure]
         public HashSet<A> Return(A x) =>
             HashSet(x);
-
-        [Pure]
-        public HashSet<A> Return(Func<A> f) =>
-            Return(f());
 
         [Pure]
         public HashSet<A> Zero() =>

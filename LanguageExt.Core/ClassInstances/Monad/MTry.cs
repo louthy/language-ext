@@ -9,7 +9,7 @@ namespace LanguageExt.ClassInstances
 {
     public struct MTry<A> :
         Optional<Try<A>, A>,
-        MonadPlus<Try<A>, A>,
+        Monad<Try<A>, A>,
         Foldable<Try<A>, A>,
         BiFoldable<Try<A>, Unit, A>
     {
@@ -47,33 +47,12 @@ namespace LanguageExt.ClassInstances
         /// <summary>
         /// Monad return
         /// </summary>
-        /// <param name="xs">The bound monad value(s)</param>
-        /// <returns>Monad of A</returns>
-        [Pure]
-        public Try<A> FromSeq(IEnumerable<A> xs)
-        {
-            var head = xs.FirstOrDefault();
-            return () => head;
-        }
-
-        /// <summary>
-        /// Monad return
-        /// </summary>
         /// <typeparam name="A">Type of the bound monad value</typeparam>
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
         [Pure]
         public Try<A> Return(A x) =>
             () => x;
-
-        /// <summary>
-        /// Monad return
-        /// </summary>
-        /// <param name="f">The function to invoke to get the bound monad value(s)</param>
-        /// <returns>Monad of A</returns>
-        [Pure]
-        public Try<A> Return(Func<A> f) => () =>
-            f();
 
         [Pure]
         public Try<A> Zero() => 

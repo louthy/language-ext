@@ -14,7 +14,7 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
     public struct MQue<A> :
-        MonadPlus<Que<A>, A>,
+        Monad<Que<A>, A>,
         Foldable<Que<A>, A>,
         Eq<Que<A>>,
         Monoid<Que<A>>
@@ -26,17 +26,9 @@ namespace LanguageExt.ClassInstances
             x + y;
 
         [Pure]
-        IEnumerable<B> BindSeq<MONADB, MB, B>(Que<A> ma, Func<A, MB> f)
-            where MONADB : struct, Monad<MB, B>
-        {
-            foreach(var a in ma)
-                foreach (var b in toSeq<MONADB, MB, B>(f(a)))
-                    yield return b;
-        }
-
-        [Pure]
         public MB Bind<MONADB, MB, B>(Que<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
-            default(MONADB).FromSeq(BindSeq<MONADB, MB, B>(ma, f));
+            ma.Fold(default(MONADB).Zero(), (s, a) => default(MONADB).Plus(s, f(a)));
+
 
         [Pure]
         public int Count(Que<A> fa) =>
@@ -75,16 +67,8 @@ namespace LanguageExt.ClassInstances
             ma + mb;
 
         [Pure]
-        public Que<A> FromSeq(IEnumerable<A> xs) =>
-            new Que<A>(xs);
-
-        [Pure]
         public Que<A> Return(A x) =>
             Queue(x);
-
-        [Pure]
-        public Que<A> Return(Func<A> f) =>
-            Return(f());
 
         [Pure]
         public Que<A> Zero() =>

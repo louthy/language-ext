@@ -14,7 +14,7 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     /// <typeparam name="A"></typeparam>
     public struct MSet<A> :
-        MonadPlus<Set<A>, A>,
+        Monad<Set<A>, A>,
         Foldable<Set<A>, A>,
         Eq<Set<A>>,
         Monoid<Set<A>>
@@ -26,17 +26,8 @@ namespace LanguageExt.ClassInstances
             Set.createRange(x.Concat(y));
 
         [Pure]
-        IEnumerable<B> BindSeq<MONADB, MB, B>(Set<A> ma, Func<A, MB> f)
-            where MONADB : struct, Monad<MB, B>
-        {
-            foreach(var a in ma)
-                foreach (var b in toSeq<MONADB, MB, B>(f(a)))
-                    yield return b;
-        }
-
-        [Pure]
         public MB Bind<MONADB, MB, B>(Set<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
-            default(MONADB).FromSeq(BindSeq<MONADB, MB, B>(ma, f));
+            traverse<MSet<A>, MONADB, Set<A>, MB, A, B>(ma, f);
 
         [Pure]
         public int Count(Set<A> fa) =>
@@ -75,16 +66,8 @@ namespace LanguageExt.ClassInstances
             ma + mb;
 
         [Pure]
-        public Set<A> FromSeq(IEnumerable<A> xs) =>
-            Set.createRange(xs);
-
-        [Pure]
         public Set<A> Return(A x) =>
             Set(x);
-
-        [Pure]
-        public Set<A> Return(Func<A> f) =>
-            Return(f());
 
         [Pure]
         public Set<A> Zero() =>

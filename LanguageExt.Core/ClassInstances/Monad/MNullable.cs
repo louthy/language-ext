@@ -9,7 +9,7 @@ namespace LanguageExt.ClassInstances
 {
     public struct MNullable<A> :
         Optional<A?, A>,
-        MonadPlus<A?, A>,
+        Monad<A?, A>,
         Foldable<A?, A>,
         BiFoldable<A?, Unit, A>
         where A : struct
@@ -40,23 +40,10 @@ namespace LanguageExt.ClassInstances
                 : b;
 
         [Pure]
-        public A? FromSeq(IEnumerable<A> xs)
-        {
-            var x = xs.Take(1).ToArray();
-            return x.Length == 0 
-                ? null
-                : Return(x[0]);
-        }
-
-        [Pure]
         public A? Return(A x) =>
             isnull(x)
                 ? null
                 : (A?)x;
-
-        [Pure]
-        public A? Return(Func<A> f) =>
-            Return(f());
 
         [Pure]
         public A? Zero() =>

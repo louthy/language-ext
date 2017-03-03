@@ -9,7 +9,7 @@ namespace LanguageExt.ClassInstances
 {
     public struct MEitherUnsafe<L, R> :
         Choice<EitherUnsafe<L, R>, L, R>,
-        MonadPlus<EitherUnsafe<L, R>, R>,
+        Monad<EitherUnsafe<L, R>, R>,
         Optional<EitherUnsafe<L, R>, R>,
         Foldable<EitherUnsafe<L, R>, R>,
         BiFoldable<EitherUnsafe<L, R>, L, R>
@@ -37,10 +37,6 @@ namespace LanguageExt.ClassInstances
                 Choice1: _ => mb,
                 Choice2: _ => ma,
                 Bottom: () => mb);
-
-        [Pure]
-        public EitherUnsafe<L, R> FromSeq(IEnumerable<R> xs) =>
-            EitherUnsafe<L,R>.Right(xs.FirstOrDefault());
 
         [Pure]
         public EitherUnsafe<L, R> Return(R x) =>

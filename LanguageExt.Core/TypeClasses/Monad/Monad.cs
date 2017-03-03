@@ -33,20 +33,24 @@ namespace LanguageExt.TypeClasses
         MA Return(A x);
 
         /// <summary>
-        /// Monad return
+        /// Associative binary operation
         /// </summary>
-        /// <param name="f">The function to invoke to get the bound monad value(s)</param>
-        /// <returns>Monad of A</returns>
         [Pure]
-        MA Return(Func<A> f);
+        MA Plus(MA a, MA b);
 
         /// <summary>
-        /// Monad return
+        /// Neutral element (None in Option for example)
         /// </summary>
-        /// <param name="xs">The bound monad value(s)</param>
-        /// <returns>Monad of A</returns>
         [Pure]
-        MA FromSeq(IEnumerable<A> xs);
+        MA Zero();
+
+        ///// <summary>
+        ///// Monad return
+        ///// </summary>
+        ///// <param name="f">The function to invoke to get the bound monad value(s)</param>
+        ///// <returns>Monad of A</returns>
+        //[Pure]
+        //MA Return(Func<A> f);
 
         /// <summary>
         /// Produce a failure value

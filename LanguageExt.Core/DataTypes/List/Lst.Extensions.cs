@@ -970,4 +970,26 @@ public static class ListExtensions
             }
         } while (remaining);
     }
+
+    /// <summary>
+    /// Convert the enumerable to an Option.  
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="self">This</param>
+    /// <returns>If enumerable is empty then return None, else Some(head)</returns>
+    public static Option<A> ToOption<A>(this IEnumerable<A> self) =>
+        self.Match(
+            ()     => Option<A>.None,
+            (x, _) => Option<A>.Some(x));
+
+    /// <summary>
+    /// Convert the enumerable to an Option.  
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="self">This</param>
+    /// <returns>If enumerable is empty then return None, else Some(head)</returns>
+    public static TryOption<A> ToTryOption<A>(this IEnumerable<A> self) => () =>
+        self.Match(
+            () => Option<A>.None,
+            (x, _) => Option<A>.Some(x));
 }

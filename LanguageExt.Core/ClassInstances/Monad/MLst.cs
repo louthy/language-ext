@@ -14,7 +14,7 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
     public struct MLst<A> :
-        MonadPlus<Lst<A>, A>,
+        Monad<Lst<A>, A>,
         Foldable<Lst<A>, A>,
         Eq<Lst<A>>,
         Monoid<Lst<A>>
@@ -26,17 +26,8 @@ namespace LanguageExt.ClassInstances
             x.Concat(y).Freeze();
 
         [Pure]
-        IEnumerable<B> BindSeq<MONADB, MB, B>(Lst<A> ma, Func<A, MB> f)
-            where MONADB : struct, Monad<MB, B>
-        {
-            foreach(var a in ma)
-                foreach (var b in toSeq<MONADB, MB, B>(f(a)))
-                    yield return b;
-        }
-
-        [Pure]
         public MB Bind<MONADB, MB, B>(Lst<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
-            default(MONADB).FromSeq(BindSeq<MONADB, MB, B>(ma, f));
+            traverse<MLst<A>, MONADB, Lst<A>, MB, A, B>(ma, f);
 
         [Pure]
         public int Count(Lst<A> fa) =>
@@ -72,26 +63,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Lst<A> Plus(Lst<A> ma, Lst<A> mb) =>
-            PlusSeq(ma, mb).Freeze();
-
-        [Pure]
-        IEnumerable<A> PlusSeq(Lst<A> ma, Lst<A> mb)
-        {
-            foreach (var a in ma) yield return a;
-            foreach (var b in mb) yield return b;
-        }
-
-        [Pure]
-        public Lst<A> FromSeq(IEnumerable<A> xs) =>
-            xs.Freeze();
+            ma + mb;
 
         [Pure]
         public Lst<A> Return(A x) =>
             List(x);
-
-        [Pure]
-        public Lst<A> Return(Func<A> f) =>
-            Return(f());
 
         [Pure]
         public Lst<A> Zero() =>
