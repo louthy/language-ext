@@ -15,6 +15,15 @@
                 .Inst.Bind<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
         [Pure]
+        public static FLIPPED_OUTER_B Traverse<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
+            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+                .Inst.Traverse<M_FLIPPED_OUTER_B, FLIPPED_OUTER_B, M_FLIPPED_INNER_B, FLIPPED_INNER_B, B>(ma, f);
+
+        [Pure]
+        public static FLIPPED_OUTER_A Sequence<GENS, A>(this OUTER_A ma) =>
+            ma.Traverse<GENS, A, A>(identity);
+
+        [Pure]
         public static OUTER_B MapT<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
             Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Map<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);

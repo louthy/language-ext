@@ -26,6 +26,15 @@ namespace LanguageExt
                 .Inst.Bind<MArr<Arr<B>>, Arr<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
+        public static Arr<Arr<B>> Traverse< A, B>(this Arr<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MArr<Arr<A>>, Arr<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<Arr<B>>, Arr<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        [Pure]
+        public static Arr<Arr<A>> Sequence< A>(this Arr<Arr<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Arr<Arr<B>> MapT< A, B>(this Arr<Arr<A>> ma, Func<A, B> f) =>
             Trans<MArr<Arr<A>>, Arr<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MArr<Arr<B>>, Arr<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
@@ -156,6 +165,15 @@ namespace LanguageExt
         public static Arr<HashSet<B>> BindT< A, B>(this Arr<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             Trans<MArr<HashSet<A>>, Arr<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MArr<HashSet<B>>, Arr<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<Arr<B>> Traverse< A, B>(this Arr<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MArr<HashSet<A>>, Arr<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<Arr<B>>, HashSet<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<Arr<A>> Sequence< A>(this Arr<HashSet<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Arr<HashSet<B>> MapT< A, B>(this Arr<HashSet<A>> ma, Func<A, B> f) =>
@@ -290,6 +308,15 @@ namespace LanguageExt
                 .Inst.Bind<MArr<Lst<B>>, Arr<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
+        public static Lst<Arr<B>> Traverse< A, B>(this Arr<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MArr<Lst<A>>, Arr<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<Arr<B>>, Lst<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        [Pure]
+        public static Lst<Arr<A>> Sequence< A>(this Arr<Lst<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Arr<Lst<B>> MapT< A, B>(this Arr<Lst<A>> ma, Func<A, B> f) =>
             Trans<MArr<Lst<A>>, Arr<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MArr<Lst<B>>, Arr<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
@@ -420,6 +447,15 @@ namespace LanguageExt
         public static Arr<Option<B>> BindT< A, B>(this Arr<Option<A>> ma, Func<A, Option<B>> f) =>
             Trans<MArr<Option<A>>, Arr<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MArr<Option<B>>, Arr<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<Arr<B>> Traverse< A, B>(this Arr<Option<A>> ma, Func<A, B> f) =>
+            Trans<MArr<Option<A>>, Arr<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<Arr<B>>, Option<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<Arr<A>> Sequence< A>(this Arr<Option<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Arr<Option<B>> MapT< A, B>(this Arr<Option<A>> ma, Func<A, B> f) =>
@@ -554,6 +590,15 @@ namespace LanguageExt
                 .Inst.Bind<MArr<OptionUnsafe<B>>, Arr<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
+        public static OptionUnsafe<Arr<B>> Traverse< A, B>(this Arr<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MArr<OptionUnsafe<A>>, Arr<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<Arr<B>>, OptionUnsafe<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        [Pure]
+        public static OptionUnsafe<Arr<A>> Sequence< A>(this Arr<OptionUnsafe<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Arr<OptionUnsafe<B>> MapT< A, B>(this Arr<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MArr<OptionUnsafe<A>>, Arr<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MArr<OptionUnsafe<B>>, Arr<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
@@ -684,6 +729,15 @@ namespace LanguageExt
         public static Arr<Either<L, B>> BindT<L, A, B>(this Arr<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             Trans<MArr<Either<L, A>>, Arr<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MArr<Either<L, B>>, Arr<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, Arr<B>> Traverse<L, A, B>(this Arr<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MArr<Either<L, A>>, Arr<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, Arr<B>>, Either<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, Arr<A>> Sequence<L, A>(this Arr<Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static Arr<Either<L, B>> MapT<L, A, B>(this Arr<Either<L, A>> ma, Func<A, B> f) =>
@@ -818,6 +872,15 @@ namespace LanguageExt
                 .Inst.Bind<MArr<EitherUnsafe<L, B>>, Arr<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
+        public static EitherUnsafe<L, Arr<B>> Traverse<L, A, B>(this Arr<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MArr<EitherUnsafe<L, A>>, Arr<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, Arr<B>>, EitherUnsafe<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        [Pure]
+        public static EitherUnsafe<L, Arr<A>> Sequence<L, A>(this Arr<EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static Arr<EitherUnsafe<L, B>> MapT<L, A, B>(this Arr<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MArr<EitherUnsafe<L, A>>, Arr<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MArr<EitherUnsafe<L, B>>, Arr<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
@@ -948,6 +1011,15 @@ namespace LanguageExt
         public static Arr<Task<B>> BindT< A, B>(this Arr<Task<A>> ma, Func<A, Task<B>> f) =>
             Trans<MArr<Task<A>>, Arr<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Bind<MArr<Task<B>>, Arr<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<Arr<B>> Traverse< A, B>(this Arr<Task<A>> ma, Func<A, B> f) =>
+            Trans<MArr<Task<A>>, Arr<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<Arr<B>>, Task<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<Arr<A>> Sequence< A>(this Arr<Task<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Arr<Task<B>> MapT< A, B>(this Arr<Task<A>> ma, Func<A, B> f) =>
@@ -1082,6 +1154,15 @@ namespace LanguageExt
                 .Inst.Bind<MArr<Try<B>>, Arr<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
+        public static Try<Arr<B>> Traverse< A, B>(this Arr<Try<A>> ma, Func<A, B> f) =>
+            Trans<MArr<Try<A>>, Arr<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<Arr<B>>, Try<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        [Pure]
+        public static Try<Arr<A>> Sequence< A>(this Arr<Try<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Arr<Try<B>> MapT< A, B>(this Arr<Try<A>> ma, Func<A, B> f) =>
             Trans<MArr<Try<A>>, Arr<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MArr<Try<B>>, Arr<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
@@ -1212,6 +1293,15 @@ namespace LanguageExt
         public static Arr<TryAsync<B>> BindT< A, B>(this Arr<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             Trans<MArr<TryAsync<A>>, Arr<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Bind<MArr<TryAsync<B>>, Arr<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<Arr<B>> Traverse< A, B>(this Arr<TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MArr<TryAsync<A>>, Arr<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<Arr<B>>, TryAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<Arr<A>> Sequence< A>(this Arr<TryAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Arr<TryAsync<B>> MapT< A, B>(this Arr<TryAsync<A>> ma, Func<A, B> f) =>
@@ -1346,6 +1436,15 @@ namespace LanguageExt
                 .Inst.Bind<MArr<TryOption<B>>, Arr<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
+        public static TryOption<Arr<B>> Traverse< A, B>(this Arr<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MArr<TryOption<A>>, Arr<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<Arr<B>>, TryOption<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOption<Arr<A>> Sequence< A>(this Arr<TryOption<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Arr<TryOption<B>> MapT< A, B>(this Arr<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MArr<TryOption<A>>, Arr<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MArr<TryOption<B>>, Arr<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
@@ -1476,6 +1575,15 @@ namespace LanguageExt
         public static Arr<TryOptionAsync<B>> BindT< A, B>(this Arr<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             Trans<MArr<TryOptionAsync<A>>, Arr<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Bind<MArr<TryOptionAsync<B>>, Arr<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<Arr<B>> Traverse< A, B>(this Arr<TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MArr<TryOptionAsync<A>>, Arr<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<Arr<B>>, TryOptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<Arr<A>> Sequence< A>(this Arr<TryOptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Arr<TryOptionAsync<B>> MapT< A, B>(this Arr<TryOptionAsync<A>> ma, Func<A, B> f) =>
@@ -1610,6 +1718,15 @@ namespace LanguageExt
                 .Inst.Bind<MArr<IEnumerable<B>>, Arr<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
+        public static IEnumerable<Arr<B>> Traverse< A, B>(this Arr<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MArr<IEnumerable<A>>, Arr<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<Arr<B>>, IEnumerable<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        [Pure]
+        public static IEnumerable<Arr<A>> Sequence< A>(this Arr<IEnumerable<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Arr<IEnumerable<B>> MapT< A, B>(this Arr<IEnumerable<A>> ma, Func<A, B> f) =>
             Trans<MArr<IEnumerable<A>>, Arr<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Map<MArr<IEnumerable<B>>, Arr<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
@@ -1740,6 +1857,15 @@ namespace LanguageExt
         public static Arr<Set<B>> BindT< A, B>(this Arr<Set<A>> ma, Func<A, Set<B>> f) =>
             Trans<MArr<Set<A>>, Arr<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MArr<Set<B>>, Arr<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<Arr<B>> Traverse< A, B>(this Arr<Set<A>> ma, Func<A, B> f) =>
+            Trans<MArr<Set<A>>, Arr<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<Arr<B>>, Set<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<Arr<A>> Sequence< A>(this Arr<Set<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Arr<Set<B>> MapT< A, B>(this Arr<Set<A>> ma, Func<A, B> f) =>
@@ -1874,6 +2000,15 @@ namespace LanguageExt
                 .Inst.Bind<MHashSet<Arr<B>>, HashSet<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
+        public static Arr<HashSet<B>> Traverse< A, B>(this HashSet<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<Arr<A>>, HashSet<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<HashSet<B>>, Arr<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static Arr<HashSet<A>> Sequence< A>(this HashSet<Arr<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static HashSet<Arr<B>> MapT< A, B>(this HashSet<Arr<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<Arr<A>>, HashSet<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MHashSet<Arr<B>>, HashSet<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
@@ -2004,6 +2139,15 @@ namespace LanguageExt
         public static HashSet<HashSet<B>> BindT< A, B>(this HashSet<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             Trans<MHashSet<HashSet<A>>, HashSet<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MHashSet<HashSet<B>>, HashSet<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<HashSet<B>> Traverse< A, B>(this HashSet<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<HashSet<A>>, HashSet<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<HashSet<B>>, HashSet<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<HashSet<A>> Sequence< A>(this HashSet<HashSet<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static HashSet<HashSet<B>> MapT< A, B>(this HashSet<HashSet<A>> ma, Func<A, B> f) =>
@@ -2138,6 +2282,15 @@ namespace LanguageExt
                 .Inst.Bind<MHashSet<Lst<B>>, HashSet<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
+        public static Lst<HashSet<B>> Traverse< A, B>(this HashSet<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<Lst<A>>, HashSet<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<HashSet<B>>, Lst<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static Lst<HashSet<A>> Sequence< A>(this HashSet<Lst<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static HashSet<Lst<B>> MapT< A, B>(this HashSet<Lst<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<Lst<A>>, HashSet<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MHashSet<Lst<B>>, HashSet<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
@@ -2268,6 +2421,15 @@ namespace LanguageExt
         public static HashSet<Option<B>> BindT< A, B>(this HashSet<Option<A>> ma, Func<A, Option<B>> f) =>
             Trans<MHashSet<Option<A>>, HashSet<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MHashSet<Option<B>>, HashSet<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<HashSet<B>> Traverse< A, B>(this HashSet<Option<A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<Option<A>>, HashSet<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<HashSet<B>>, Option<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<HashSet<A>> Sequence< A>(this HashSet<Option<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static HashSet<Option<B>> MapT< A, B>(this HashSet<Option<A>> ma, Func<A, B> f) =>
@@ -2402,6 +2564,15 @@ namespace LanguageExt
                 .Inst.Bind<MHashSet<OptionUnsafe<B>>, HashSet<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
+        public static OptionUnsafe<HashSet<B>> Traverse< A, B>(this HashSet<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<OptionUnsafe<A>>, HashSet<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<HashSet<B>>, OptionUnsafe<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static OptionUnsafe<HashSet<A>> Sequence< A>(this HashSet<OptionUnsafe<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static HashSet<OptionUnsafe<B>> MapT< A, B>(this HashSet<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<OptionUnsafe<A>>, HashSet<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MHashSet<OptionUnsafe<B>>, HashSet<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
@@ -2532,6 +2703,15 @@ namespace LanguageExt
         public static HashSet<Either<L, B>> BindT<L, A, B>(this HashSet<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             Trans<MHashSet<Either<L, A>>, HashSet<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MHashSet<Either<L, B>>, HashSet<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, HashSet<B>> Traverse<L, A, B>(this HashSet<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<Either<L, A>>, HashSet<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, HashSet<B>>, Either<L, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, HashSet<A>> Sequence<L, A>(this HashSet<Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static HashSet<Either<L, B>> MapT<L, A, B>(this HashSet<Either<L, A>> ma, Func<A, B> f) =>
@@ -2666,6 +2846,15 @@ namespace LanguageExt
                 .Inst.Bind<MHashSet<EitherUnsafe<L, B>>, HashSet<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
+        public static EitherUnsafe<L, HashSet<B>> Traverse<L, A, B>(this HashSet<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<EitherUnsafe<L, A>>, HashSet<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, HashSet<B>>, EitherUnsafe<L, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static EitherUnsafe<L, HashSet<A>> Sequence<L, A>(this HashSet<EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static HashSet<EitherUnsafe<L, B>> MapT<L, A, B>(this HashSet<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MHashSet<EitherUnsafe<L, A>>, HashSet<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MHashSet<EitherUnsafe<L, B>>, HashSet<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
@@ -2796,6 +2985,15 @@ namespace LanguageExt
         public static HashSet<Task<B>> BindT< A, B>(this HashSet<Task<A>> ma, Func<A, Task<B>> f) =>
             Trans<MHashSet<Task<A>>, HashSet<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Bind<MHashSet<Task<B>>, HashSet<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<HashSet<B>> Traverse< A, B>(this HashSet<Task<A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<Task<A>>, HashSet<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<HashSet<B>>, Task<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<HashSet<A>> Sequence< A>(this HashSet<Task<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static HashSet<Task<B>> MapT< A, B>(this HashSet<Task<A>> ma, Func<A, B> f) =>
@@ -2930,6 +3128,15 @@ namespace LanguageExt
                 .Inst.Bind<MHashSet<Try<B>>, HashSet<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
+        public static Try<HashSet<B>> Traverse< A, B>(this HashSet<Try<A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<Try<A>>, HashSet<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<HashSet<B>>, Try<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static Try<HashSet<A>> Sequence< A>(this HashSet<Try<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static HashSet<Try<B>> MapT< A, B>(this HashSet<Try<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<Try<A>>, HashSet<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MHashSet<Try<B>>, HashSet<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
@@ -3060,6 +3267,15 @@ namespace LanguageExt
         public static HashSet<TryAsync<B>> BindT< A, B>(this HashSet<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             Trans<MHashSet<TryAsync<A>>, HashSet<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Bind<MHashSet<TryAsync<B>>, HashSet<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<HashSet<B>> Traverse< A, B>(this HashSet<TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<TryAsync<A>>, HashSet<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<HashSet<B>>, TryAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<HashSet<A>> Sequence< A>(this HashSet<TryAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static HashSet<TryAsync<B>> MapT< A, B>(this HashSet<TryAsync<A>> ma, Func<A, B> f) =>
@@ -3194,6 +3410,15 @@ namespace LanguageExt
                 .Inst.Bind<MHashSet<TryOption<B>>, HashSet<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
+        public static TryOption<HashSet<B>> Traverse< A, B>(this HashSet<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<TryOption<A>>, HashSet<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<HashSet<B>>, TryOption<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOption<HashSet<A>> Sequence< A>(this HashSet<TryOption<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static HashSet<TryOption<B>> MapT< A, B>(this HashSet<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<TryOption<A>>, HashSet<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MHashSet<TryOption<B>>, HashSet<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
@@ -3324,6 +3549,15 @@ namespace LanguageExt
         public static HashSet<TryOptionAsync<B>> BindT< A, B>(this HashSet<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             Trans<MHashSet<TryOptionAsync<A>>, HashSet<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Bind<MHashSet<TryOptionAsync<B>>, HashSet<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<HashSet<B>> Traverse< A, B>(this HashSet<TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<TryOptionAsync<A>>, HashSet<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<HashSet<B>>, TryOptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<HashSet<A>> Sequence< A>(this HashSet<TryOptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static HashSet<TryOptionAsync<B>> MapT< A, B>(this HashSet<TryOptionAsync<A>> ma, Func<A, B> f) =>
@@ -3458,6 +3692,15 @@ namespace LanguageExt
                 .Inst.Bind<MHashSet<IEnumerable<B>>, HashSet<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
+        public static IEnumerable<HashSet<B>> Traverse< A, B>(this HashSet<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<IEnumerable<A>>, HashSet<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<HashSet<B>>, IEnumerable<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static IEnumerable<HashSet<A>> Sequence< A>(this HashSet<IEnumerable<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static HashSet<IEnumerable<B>> MapT< A, B>(this HashSet<IEnumerable<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<IEnumerable<A>>, HashSet<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Map<MHashSet<IEnumerable<B>>, HashSet<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
@@ -3588,6 +3831,15 @@ namespace LanguageExt
         public static HashSet<Set<B>> BindT< A, B>(this HashSet<Set<A>> ma, Func<A, Set<B>> f) =>
             Trans<MHashSet<Set<A>>, HashSet<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MHashSet<Set<B>>, HashSet<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<HashSet<B>> Traverse< A, B>(this HashSet<Set<A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<Set<A>>, HashSet<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<HashSet<B>>, Set<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<HashSet<A>> Sequence< A>(this HashSet<Set<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static HashSet<Set<B>> MapT< A, B>(this HashSet<Set<A>> ma, Func<A, B> f) =>
@@ -3722,6 +3974,15 @@ namespace LanguageExt
                 .Inst.Bind<MLst<Arr<B>>, Lst<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
+        public static Arr<Lst<B>> Traverse< A, B>(this Lst<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MLst<Arr<A>>, Lst<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<Lst<B>>, Arr<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        [Pure]
+        public static Arr<Lst<A>> Sequence< A>(this Lst<Arr<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Lst<Arr<B>> MapT< A, B>(this Lst<Arr<A>> ma, Func<A, B> f) =>
             Trans<MLst<Arr<A>>, Lst<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MLst<Arr<B>>, Lst<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
@@ -3852,6 +4113,15 @@ namespace LanguageExt
         public static Lst<HashSet<B>> BindT< A, B>(this Lst<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             Trans<MLst<HashSet<A>>, Lst<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MLst<HashSet<B>>, Lst<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<Lst<B>> Traverse< A, B>(this Lst<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MLst<HashSet<A>>, Lst<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<Lst<B>>, HashSet<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<Lst<A>> Sequence< A>(this Lst<HashSet<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Lst<HashSet<B>> MapT< A, B>(this Lst<HashSet<A>> ma, Func<A, B> f) =>
@@ -3986,6 +4256,15 @@ namespace LanguageExt
                 .Inst.Bind<MLst<Lst<B>>, Lst<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
+        public static Lst<Lst<B>> Traverse< A, B>(this Lst<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MLst<Lst<A>>, Lst<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<Lst<B>>, Lst<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        [Pure]
+        public static Lst<Lst<A>> Sequence< A>(this Lst<Lst<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Lst<Lst<B>> MapT< A, B>(this Lst<Lst<A>> ma, Func<A, B> f) =>
             Trans<MLst<Lst<A>>, Lst<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MLst<Lst<B>>, Lst<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
@@ -4116,6 +4395,15 @@ namespace LanguageExt
         public static Lst<Option<B>> BindT< A, B>(this Lst<Option<A>> ma, Func<A, Option<B>> f) =>
             Trans<MLst<Option<A>>, Lst<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MLst<Option<B>>, Lst<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<Lst<B>> Traverse< A, B>(this Lst<Option<A>> ma, Func<A, B> f) =>
+            Trans<MLst<Option<A>>, Lst<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<Lst<B>>, Option<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<Lst<A>> Sequence< A>(this Lst<Option<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Lst<Option<B>> MapT< A, B>(this Lst<Option<A>> ma, Func<A, B> f) =>
@@ -4250,6 +4538,15 @@ namespace LanguageExt
                 .Inst.Bind<MLst<OptionUnsafe<B>>, Lst<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
+        public static OptionUnsafe<Lst<B>> Traverse< A, B>(this Lst<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MLst<OptionUnsafe<A>>, Lst<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<Lst<B>>, OptionUnsafe<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        [Pure]
+        public static OptionUnsafe<Lst<A>> Sequence< A>(this Lst<OptionUnsafe<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Lst<OptionUnsafe<B>> MapT< A, B>(this Lst<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MLst<OptionUnsafe<A>>, Lst<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MLst<OptionUnsafe<B>>, Lst<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
@@ -4380,6 +4677,15 @@ namespace LanguageExt
         public static Lst<Either<L, B>> BindT<L, A, B>(this Lst<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             Trans<MLst<Either<L, A>>, Lst<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MLst<Either<L, B>>, Lst<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, Lst<B>> Traverse<L, A, B>(this Lst<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MLst<Either<L, A>>, Lst<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, Lst<B>>, Either<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, Lst<A>> Sequence<L, A>(this Lst<Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static Lst<Either<L, B>> MapT<L, A, B>(this Lst<Either<L, A>> ma, Func<A, B> f) =>
@@ -4514,6 +4820,15 @@ namespace LanguageExt
                 .Inst.Bind<MLst<EitherUnsafe<L, B>>, Lst<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
+        public static EitherUnsafe<L, Lst<B>> Traverse<L, A, B>(this Lst<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MLst<EitherUnsafe<L, A>>, Lst<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, Lst<B>>, EitherUnsafe<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        [Pure]
+        public static EitherUnsafe<L, Lst<A>> Sequence<L, A>(this Lst<EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static Lst<EitherUnsafe<L, B>> MapT<L, A, B>(this Lst<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MLst<EitherUnsafe<L, A>>, Lst<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MLst<EitherUnsafe<L, B>>, Lst<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
@@ -4644,6 +4959,15 @@ namespace LanguageExt
         public static Lst<Task<B>> BindT< A, B>(this Lst<Task<A>> ma, Func<A, Task<B>> f) =>
             Trans<MLst<Task<A>>, Lst<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Bind<MLst<Task<B>>, Lst<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<Lst<B>> Traverse< A, B>(this Lst<Task<A>> ma, Func<A, B> f) =>
+            Trans<MLst<Task<A>>, Lst<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<Lst<B>>, Task<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<Lst<A>> Sequence< A>(this Lst<Task<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Lst<Task<B>> MapT< A, B>(this Lst<Task<A>> ma, Func<A, B> f) =>
@@ -4778,6 +5102,15 @@ namespace LanguageExt
                 .Inst.Bind<MLst<Try<B>>, Lst<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
+        public static Try<Lst<B>> Traverse< A, B>(this Lst<Try<A>> ma, Func<A, B> f) =>
+            Trans<MLst<Try<A>>, Lst<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<Lst<B>>, Try<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        [Pure]
+        public static Try<Lst<A>> Sequence< A>(this Lst<Try<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Lst<Try<B>> MapT< A, B>(this Lst<Try<A>> ma, Func<A, B> f) =>
             Trans<MLst<Try<A>>, Lst<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MLst<Try<B>>, Lst<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
@@ -4908,6 +5241,15 @@ namespace LanguageExt
         public static Lst<TryAsync<B>> BindT< A, B>(this Lst<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             Trans<MLst<TryAsync<A>>, Lst<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Bind<MLst<TryAsync<B>>, Lst<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<Lst<B>> Traverse< A, B>(this Lst<TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MLst<TryAsync<A>>, Lst<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<Lst<B>>, TryAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<Lst<A>> Sequence< A>(this Lst<TryAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Lst<TryAsync<B>> MapT< A, B>(this Lst<TryAsync<A>> ma, Func<A, B> f) =>
@@ -5042,6 +5384,15 @@ namespace LanguageExt
                 .Inst.Bind<MLst<TryOption<B>>, Lst<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
+        public static TryOption<Lst<B>> Traverse< A, B>(this Lst<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MLst<TryOption<A>>, Lst<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<Lst<B>>, TryOption<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOption<Lst<A>> Sequence< A>(this Lst<TryOption<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Lst<TryOption<B>> MapT< A, B>(this Lst<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MLst<TryOption<A>>, Lst<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MLst<TryOption<B>>, Lst<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
@@ -5172,6 +5523,15 @@ namespace LanguageExt
         public static Lst<TryOptionAsync<B>> BindT< A, B>(this Lst<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             Trans<MLst<TryOptionAsync<A>>, Lst<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Bind<MLst<TryOptionAsync<B>>, Lst<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<Lst<B>> Traverse< A, B>(this Lst<TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MLst<TryOptionAsync<A>>, Lst<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<Lst<B>>, TryOptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<Lst<A>> Sequence< A>(this Lst<TryOptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Lst<TryOptionAsync<B>> MapT< A, B>(this Lst<TryOptionAsync<A>> ma, Func<A, B> f) =>
@@ -5306,6 +5666,15 @@ namespace LanguageExt
                 .Inst.Bind<MLst<IEnumerable<B>>, Lst<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
+        public static IEnumerable<Lst<B>> Traverse< A, B>(this Lst<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MLst<IEnumerable<A>>, Lst<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<Lst<B>>, IEnumerable<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        [Pure]
+        public static IEnumerable<Lst<A>> Sequence< A>(this Lst<IEnumerable<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Lst<IEnumerable<B>> MapT< A, B>(this Lst<IEnumerable<A>> ma, Func<A, B> f) =>
             Trans<MLst<IEnumerable<A>>, Lst<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Map<MLst<IEnumerable<B>>, Lst<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
@@ -5436,6 +5805,15 @@ namespace LanguageExt
         public static Lst<Set<B>> BindT< A, B>(this Lst<Set<A>> ma, Func<A, Set<B>> f) =>
             Trans<MLst<Set<A>>, Lst<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MLst<Set<B>>, Lst<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<Lst<B>> Traverse< A, B>(this Lst<Set<A>> ma, Func<A, B> f) =>
+            Trans<MLst<Set<A>>, Lst<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<Lst<B>>, Set<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<Lst<A>> Sequence< A>(this Lst<Set<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Lst<Set<B>> MapT< A, B>(this Lst<Set<A>> ma, Func<A, B> f) =>
@@ -5570,6 +5948,15 @@ namespace LanguageExt
                 .Inst.Bind<MOption<Arr<B>>, Option<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
+        public static Arr<Option<B>> Traverse< A, B>(this Option<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MOption<Arr<A>>, Option<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<Option<B>>, Arr<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Arr<Option<A>> Sequence< A>(this Option<Arr<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Option<Arr<B>> MapT< A, B>(this Option<Arr<A>> ma, Func<A, B> f) =>
             Trans<MOption<Arr<A>>, Option<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MOption<Arr<B>>, Option<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
@@ -5700,6 +6087,15 @@ namespace LanguageExt
         public static Option<HashSet<B>> BindT< A, B>(this Option<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             Trans<MOption<HashSet<A>>, Option<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MOption<HashSet<B>>, Option<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<Option<B>> Traverse< A, B>(this Option<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MOption<HashSet<A>>, Option<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<Option<B>>, HashSet<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<Option<A>> Sequence< A>(this Option<HashSet<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Option<HashSet<B>> MapT< A, B>(this Option<HashSet<A>> ma, Func<A, B> f) =>
@@ -5834,6 +6230,15 @@ namespace LanguageExt
                 .Inst.Bind<MOption<Lst<B>>, Option<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
+        public static Lst<Option<B>> Traverse< A, B>(this Option<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MOption<Lst<A>>, Option<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<Option<B>>, Lst<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Lst<Option<A>> Sequence< A>(this Option<Lst<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Option<Lst<B>> MapT< A, B>(this Option<Lst<A>> ma, Func<A, B> f) =>
             Trans<MOption<Lst<A>>, Option<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MOption<Lst<B>>, Option<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
@@ -5964,6 +6369,15 @@ namespace LanguageExt
         public static Option<Option<B>> BindT< A, B>(this Option<Option<A>> ma, Func<A, Option<B>> f) =>
             Trans<MOption<Option<A>>, Option<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MOption<Option<B>>, Option<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<Option<B>> Traverse< A, B>(this Option<Option<A>> ma, Func<A, B> f) =>
+            Trans<MOption<Option<A>>, Option<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<Option<B>>, Option<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<Option<A>> Sequence< A>(this Option<Option<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Option<Option<B>> MapT< A, B>(this Option<Option<A>> ma, Func<A, B> f) =>
@@ -6098,6 +6512,15 @@ namespace LanguageExt
                 .Inst.Bind<MOption<OptionUnsafe<B>>, Option<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
+        public static OptionUnsafe<Option<B>> Traverse< A, B>(this Option<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MOption<OptionUnsafe<A>>, Option<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<Option<B>>, OptionUnsafe<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static OptionUnsafe<Option<A>> Sequence< A>(this Option<OptionUnsafe<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Option<OptionUnsafe<B>> MapT< A, B>(this Option<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MOption<OptionUnsafe<A>>, Option<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MOption<OptionUnsafe<B>>, Option<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
@@ -6228,6 +6651,15 @@ namespace LanguageExt
         public static Option<Either<L, B>> BindT<L, A, B>(this Option<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             Trans<MOption<Either<L, A>>, Option<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MOption<Either<L, B>>, Option<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, Option<B>> Traverse<L, A, B>(this Option<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MOption<Either<L, A>>, Option<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, Option<B>>, Either<L, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, Option<A>> Sequence<L, A>(this Option<Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static Option<Either<L, B>> MapT<L, A, B>(this Option<Either<L, A>> ma, Func<A, B> f) =>
@@ -6362,6 +6794,15 @@ namespace LanguageExt
                 .Inst.Bind<MOption<EitherUnsafe<L, B>>, Option<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
+        public static EitherUnsafe<L, Option<B>> Traverse<L, A, B>(this Option<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MOption<EitherUnsafe<L, A>>, Option<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, Option<B>>, EitherUnsafe<L, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static EitherUnsafe<L, Option<A>> Sequence<L, A>(this Option<EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static Option<EitherUnsafe<L, B>> MapT<L, A, B>(this Option<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MOption<EitherUnsafe<L, A>>, Option<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MOption<EitherUnsafe<L, B>>, Option<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
@@ -6492,6 +6933,15 @@ namespace LanguageExt
         public static Option<Task<B>> BindT< A, B>(this Option<Task<A>> ma, Func<A, Task<B>> f) =>
             Trans<MOption<Task<A>>, Option<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Bind<MOption<Task<B>>, Option<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<Option<B>> Traverse< A, B>(this Option<Task<A>> ma, Func<A, B> f) =>
+            Trans<MOption<Task<A>>, Option<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<Option<B>>, Task<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<Option<A>> Sequence< A>(this Option<Task<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Option<Task<B>> MapT< A, B>(this Option<Task<A>> ma, Func<A, B> f) =>
@@ -6626,6 +7076,15 @@ namespace LanguageExt
                 .Inst.Bind<MOption<Try<B>>, Option<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
+        public static Try<Option<B>> Traverse< A, B>(this Option<Try<A>> ma, Func<A, B> f) =>
+            Trans<MOption<Try<A>>, Option<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<Option<B>>, Try<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Try<Option<A>> Sequence< A>(this Option<Try<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Option<Try<B>> MapT< A, B>(this Option<Try<A>> ma, Func<A, B> f) =>
             Trans<MOption<Try<A>>, Option<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MOption<Try<B>>, Option<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
@@ -6756,6 +7215,15 @@ namespace LanguageExt
         public static Option<TryAsync<B>> BindT< A, B>(this Option<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             Trans<MOption<TryAsync<A>>, Option<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Bind<MOption<TryAsync<B>>, Option<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<Option<B>> Traverse< A, B>(this Option<TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MOption<TryAsync<A>>, Option<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<Option<B>>, TryAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<Option<A>> Sequence< A>(this Option<TryAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Option<TryAsync<B>> MapT< A, B>(this Option<TryAsync<A>> ma, Func<A, B> f) =>
@@ -6890,6 +7358,15 @@ namespace LanguageExt
                 .Inst.Bind<MOption<TryOption<B>>, Option<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
+        public static TryOption<Option<B>> Traverse< A, B>(this Option<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MOption<TryOption<A>>, Option<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<Option<B>>, TryOption<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOption<Option<A>> Sequence< A>(this Option<TryOption<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Option<TryOption<B>> MapT< A, B>(this Option<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MOption<TryOption<A>>, Option<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MOption<TryOption<B>>, Option<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
@@ -7020,6 +7497,15 @@ namespace LanguageExt
         public static Option<TryOptionAsync<B>> BindT< A, B>(this Option<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             Trans<MOption<TryOptionAsync<A>>, Option<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Bind<MOption<TryOptionAsync<B>>, Option<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<Option<B>> Traverse< A, B>(this Option<TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MOption<TryOptionAsync<A>>, Option<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<Option<B>>, TryOptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<Option<A>> Sequence< A>(this Option<TryOptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Option<TryOptionAsync<B>> MapT< A, B>(this Option<TryOptionAsync<A>> ma, Func<A, B> f) =>
@@ -7154,6 +7640,15 @@ namespace LanguageExt
                 .Inst.Bind<MOption<IEnumerable<B>>, Option<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
+        public static IEnumerable<Option<B>> Traverse< A, B>(this Option<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MOption<IEnumerable<A>>, Option<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<Option<B>>, IEnumerable<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static IEnumerable<Option<A>> Sequence< A>(this Option<IEnumerable<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Option<IEnumerable<B>> MapT< A, B>(this Option<IEnumerable<A>> ma, Func<A, B> f) =>
             Trans<MOption<IEnumerable<A>>, Option<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Map<MOption<IEnumerable<B>>, Option<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
@@ -7284,6 +7779,15 @@ namespace LanguageExt
         public static Option<Set<B>> BindT< A, B>(this Option<Set<A>> ma, Func<A, Set<B>> f) =>
             Trans<MOption<Set<A>>, Option<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MOption<Set<B>>, Option<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<Option<B>> Traverse< A, B>(this Option<Set<A>> ma, Func<A, B> f) =>
+            Trans<MOption<Set<A>>, Option<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<Option<B>>, Set<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<Option<A>> Sequence< A>(this Option<Set<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Option<Set<B>> MapT< A, B>(this Option<Set<A>> ma, Func<A, B> f) =>
@@ -7418,6 +7922,15 @@ namespace LanguageExt
                 .Inst.Bind<MOptionUnsafe<Arr<B>>, OptionUnsafe<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
+        public static Arr<OptionUnsafe<B>> Traverse< A, B>(this OptionUnsafe<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<Arr<A>>, OptionUnsafe<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<OptionUnsafe<B>>, Arr<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        [Pure]
+        public static Arr<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<Arr<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static OptionUnsafe<Arr<B>> MapT< A, B>(this OptionUnsafe<Arr<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<Arr<A>>, OptionUnsafe<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MOptionUnsafe<Arr<B>>, OptionUnsafe<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
@@ -7548,6 +8061,15 @@ namespace LanguageExt
         public static OptionUnsafe<HashSet<B>> BindT< A, B>(this OptionUnsafe<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             Trans<MOptionUnsafe<HashSet<A>>, OptionUnsafe<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MOptionUnsafe<HashSet<B>>, OptionUnsafe<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<OptionUnsafe<B>> Traverse< A, B>(this OptionUnsafe<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<HashSet<A>>, OptionUnsafe<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<OptionUnsafe<B>>, HashSet<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<HashSet<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static OptionUnsafe<HashSet<B>> MapT< A, B>(this OptionUnsafe<HashSet<A>> ma, Func<A, B> f) =>
@@ -7682,6 +8204,15 @@ namespace LanguageExt
                 .Inst.Bind<MOptionUnsafe<Lst<B>>, OptionUnsafe<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
+        public static Lst<OptionUnsafe<B>> Traverse< A, B>(this OptionUnsafe<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<Lst<A>>, OptionUnsafe<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<OptionUnsafe<B>>, Lst<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        [Pure]
+        public static Lst<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<Lst<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static OptionUnsafe<Lst<B>> MapT< A, B>(this OptionUnsafe<Lst<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<Lst<A>>, OptionUnsafe<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MOptionUnsafe<Lst<B>>, OptionUnsafe<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
@@ -7812,6 +8343,15 @@ namespace LanguageExt
         public static OptionUnsafe<Option<B>> BindT< A, B>(this OptionUnsafe<Option<A>> ma, Func<A, Option<B>> f) =>
             Trans<MOptionUnsafe<Option<A>>, OptionUnsafe<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MOptionUnsafe<Option<B>>, OptionUnsafe<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<OptionUnsafe<B>> Traverse< A, B>(this OptionUnsafe<Option<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<Option<A>>, OptionUnsafe<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<OptionUnsafe<B>>, Option<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<Option<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static OptionUnsafe<Option<B>> MapT< A, B>(this OptionUnsafe<Option<A>> ma, Func<A, B> f) =>
@@ -7946,6 +8486,15 @@ namespace LanguageExt
                 .Inst.Bind<MOptionUnsafe<OptionUnsafe<B>>, OptionUnsafe<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
+        public static OptionUnsafe<OptionUnsafe<B>> Traverse< A, B>(this OptionUnsafe<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<OptionUnsafe<A>>, OptionUnsafe<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<OptionUnsafe<B>>, OptionUnsafe<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        [Pure]
+        public static OptionUnsafe<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<OptionUnsafe<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static OptionUnsafe<OptionUnsafe<B>> MapT< A, B>(this OptionUnsafe<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<OptionUnsafe<A>>, OptionUnsafe<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MOptionUnsafe<OptionUnsafe<B>>, OptionUnsafe<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
@@ -8076,6 +8625,15 @@ namespace LanguageExt
         public static OptionUnsafe<Either<L, B>> BindT<L, A, B>(this OptionUnsafe<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             Trans<MOptionUnsafe<Either<L, A>>, OptionUnsafe<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MOptionUnsafe<Either<L, B>>, OptionUnsafe<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, OptionUnsafe<B>> Traverse<L, A, B>(this OptionUnsafe<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<Either<L, A>>, OptionUnsafe<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, OptionUnsafe<B>>, Either<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, OptionUnsafe<A>> Sequence<L, A>(this OptionUnsafe<Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static OptionUnsafe<Either<L, B>> MapT<L, A, B>(this OptionUnsafe<Either<L, A>> ma, Func<A, B> f) =>
@@ -8210,6 +8768,15 @@ namespace LanguageExt
                 .Inst.Bind<MOptionUnsafe<EitherUnsafe<L, B>>, OptionUnsafe<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
+        public static EitherUnsafe<L, OptionUnsafe<B>> Traverse<L, A, B>(this OptionUnsafe<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<EitherUnsafe<L, A>>, OptionUnsafe<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, OptionUnsafe<B>>, EitherUnsafe<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        [Pure]
+        public static EitherUnsafe<L, OptionUnsafe<A>> Sequence<L, A>(this OptionUnsafe<EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static OptionUnsafe<EitherUnsafe<L, B>> MapT<L, A, B>(this OptionUnsafe<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<EitherUnsafe<L, A>>, OptionUnsafe<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MOptionUnsafe<EitherUnsafe<L, B>>, OptionUnsafe<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
@@ -8340,6 +8907,15 @@ namespace LanguageExt
         public static OptionUnsafe<Task<B>> BindT< A, B>(this OptionUnsafe<Task<A>> ma, Func<A, Task<B>> f) =>
             Trans<MOptionUnsafe<Task<A>>, OptionUnsafe<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Bind<MOptionUnsafe<Task<B>>, OptionUnsafe<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<OptionUnsafe<B>> Traverse< A, B>(this OptionUnsafe<Task<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<Task<A>>, OptionUnsafe<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<OptionUnsafe<B>>, Task<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<Task<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static OptionUnsafe<Task<B>> MapT< A, B>(this OptionUnsafe<Task<A>> ma, Func<A, B> f) =>
@@ -8474,6 +9050,15 @@ namespace LanguageExt
                 .Inst.Bind<MOptionUnsafe<Try<B>>, OptionUnsafe<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
+        public static Try<OptionUnsafe<B>> Traverse< A, B>(this OptionUnsafe<Try<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<Try<A>>, OptionUnsafe<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<OptionUnsafe<B>>, Try<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        [Pure]
+        public static Try<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<Try<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static OptionUnsafe<Try<B>> MapT< A, B>(this OptionUnsafe<Try<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<Try<A>>, OptionUnsafe<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MOptionUnsafe<Try<B>>, OptionUnsafe<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
@@ -8604,6 +9189,15 @@ namespace LanguageExt
         public static OptionUnsafe<TryAsync<B>> BindT< A, B>(this OptionUnsafe<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             Trans<MOptionUnsafe<TryAsync<A>>, OptionUnsafe<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Bind<MOptionUnsafe<TryAsync<B>>, OptionUnsafe<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<OptionUnsafe<B>> Traverse< A, B>(this OptionUnsafe<TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<TryAsync<A>>, OptionUnsafe<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<OptionUnsafe<B>>, TryAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<TryAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static OptionUnsafe<TryAsync<B>> MapT< A, B>(this OptionUnsafe<TryAsync<A>> ma, Func<A, B> f) =>
@@ -8738,6 +9332,15 @@ namespace LanguageExt
                 .Inst.Bind<MOptionUnsafe<TryOption<B>>, OptionUnsafe<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
+        public static TryOption<OptionUnsafe<B>> Traverse< A, B>(this OptionUnsafe<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<TryOption<A>>, OptionUnsafe<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<OptionUnsafe<B>>, TryOption<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOption<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<TryOption<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static OptionUnsafe<TryOption<B>> MapT< A, B>(this OptionUnsafe<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<TryOption<A>>, OptionUnsafe<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MOptionUnsafe<TryOption<B>>, OptionUnsafe<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
@@ -8868,6 +9471,15 @@ namespace LanguageExt
         public static OptionUnsafe<TryOptionAsync<B>> BindT< A, B>(this OptionUnsafe<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             Trans<MOptionUnsafe<TryOptionAsync<A>>, OptionUnsafe<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Bind<MOptionUnsafe<TryOptionAsync<B>>, OptionUnsafe<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<OptionUnsafe<B>> Traverse< A, B>(this OptionUnsafe<TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<TryOptionAsync<A>>, OptionUnsafe<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<OptionUnsafe<B>>, TryOptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<TryOptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static OptionUnsafe<TryOptionAsync<B>> MapT< A, B>(this OptionUnsafe<TryOptionAsync<A>> ma, Func<A, B> f) =>
@@ -9002,6 +9614,15 @@ namespace LanguageExt
                 .Inst.Bind<MOptionUnsafe<IEnumerable<B>>, OptionUnsafe<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
+        public static IEnumerable<OptionUnsafe<B>> Traverse< A, B>(this OptionUnsafe<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<IEnumerable<A>>, OptionUnsafe<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<OptionUnsafe<B>>, IEnumerable<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        [Pure]
+        public static IEnumerable<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<IEnumerable<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static OptionUnsafe<IEnumerable<B>> MapT< A, B>(this OptionUnsafe<IEnumerable<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<IEnumerable<A>>, OptionUnsafe<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Map<MOptionUnsafe<IEnumerable<B>>, OptionUnsafe<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
@@ -9132,6 +9753,15 @@ namespace LanguageExt
         public static OptionUnsafe<Set<B>> BindT< A, B>(this OptionUnsafe<Set<A>> ma, Func<A, Set<B>> f) =>
             Trans<MOptionUnsafe<Set<A>>, OptionUnsafe<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MOptionUnsafe<Set<B>>, OptionUnsafe<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<OptionUnsafe<B>> Traverse< A, B>(this OptionUnsafe<Set<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<Set<A>>, OptionUnsafe<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<OptionUnsafe<B>>, Set<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<Set<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static OptionUnsafe<Set<B>> MapT< A, B>(this OptionUnsafe<Set<A>> ma, Func<A, B> f) =>
@@ -9266,6 +9896,15 @@ namespace LanguageExt
                 .Inst.Bind<MEither<L, Arr<B>>, Either<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
+        public static Arr<Either<L, B>> Traverse<L, A, B>(this Either<L, Arr<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, Arr<A>>, Either<L, Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<Either<L, B>>, Arr<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Arr<Either<L, A>> Sequence<L, A>(this Either<L, Arr<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static Either<L, Arr<B>> MapT<L, A, B>(this Either<L, Arr<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, Arr<A>>, Either<L, Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MEither<L, Arr<B>>, Either<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
@@ -9396,6 +10035,15 @@ namespace LanguageExt
         public static Either<L, HashSet<B>> BindT<L, A, B>(this Either<L, HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             Trans<MEither<L, HashSet<A>>, Either<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MEither<L, HashSet<B>>, Either<L, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<Either<L, B>> Traverse<L, A, B>(this Either<L, HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, HashSet<A>>, Either<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<Either<L, B>>, HashSet<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<Either<L, A>> Sequence<L, A>(this Either<L, HashSet<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static Either<L, HashSet<B>> MapT<L, A, B>(this Either<L, HashSet<A>> ma, Func<A, B> f) =>
@@ -9530,6 +10178,15 @@ namespace LanguageExt
                 .Inst.Bind<MEither<L, Lst<B>>, Either<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
+        public static Lst<Either<L, B>> Traverse<L, A, B>(this Either<L, Lst<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, Lst<A>>, Either<L, Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<Either<L, B>>, Lst<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Lst<Either<L, A>> Sequence<L, A>(this Either<L, Lst<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static Either<L, Lst<B>> MapT<L, A, B>(this Either<L, Lst<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, Lst<A>>, Either<L, Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MEither<L, Lst<B>>, Either<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
@@ -9660,6 +10317,15 @@ namespace LanguageExt
         public static Either<L, Option<B>> BindT<L, A, B>(this Either<L, Option<A>> ma, Func<A, Option<B>> f) =>
             Trans<MEither<L, Option<A>>, Either<L, Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MEither<L, Option<B>>, Either<L, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<Either<L, B>> Traverse<L, A, B>(this Either<L, Option<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, Option<A>>, Either<L, Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<Either<L, B>>, Option<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Option<Either<L, A>> Sequence<L, A>(this Either<L, Option<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static Either<L, Option<B>> MapT<L, A, B>(this Either<L, Option<A>> ma, Func<A, B> f) =>
@@ -9794,6 +10460,15 @@ namespace LanguageExt
                 .Inst.Bind<MEither<L, OptionUnsafe<B>>, Either<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
+        public static OptionUnsafe<Either<L, B>> Traverse<L, A, B>(this Either<L, OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, OptionUnsafe<A>>, Either<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<Either<L, B>>, OptionUnsafe<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static OptionUnsafe<Either<L, A>> Sequence<L, A>(this Either<L, OptionUnsafe<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static Either<L, OptionUnsafe<B>> MapT<L, A, B>(this Either<L, OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, OptionUnsafe<A>>, Either<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MEither<L, OptionUnsafe<B>>, Either<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
@@ -9924,6 +10599,15 @@ namespace LanguageExt
         public static Either<L, Either<L, B>> BindT<L, A, B>(this Either<L, Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             Trans<MEither<L, Either<L, A>>, Either<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MEither<L, Either<L, B>>, Either<L, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, Either<L, B>> Traverse<L, A, B>(this Either<L, Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, Either<L, A>>, Either<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, Either<L, B>>, Either<L, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, Either<L, A>> Sequence<L, A>(this Either<L, Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static Either<L, Either<L, B>> MapT<L, A, B>(this Either<L, Either<L, A>> ma, Func<A, B> f) =>
@@ -10058,6 +10742,15 @@ namespace LanguageExt
                 .Inst.Bind<MEither<L, EitherUnsafe<L, B>>, Either<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
+        public static EitherUnsafe<L, Either<L, B>> Traverse<L, A, B>(this Either<L, EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, EitherUnsafe<L, A>>, Either<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, Either<L, B>>, EitherUnsafe<L, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static EitherUnsafe<L, Either<L, A>> Sequence<L, A>(this Either<L, EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static Either<L, EitherUnsafe<L, B>> MapT<L, A, B>(this Either<L, EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MEither<L, EitherUnsafe<L, A>>, Either<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MEither<L, EitherUnsafe<L, B>>, Either<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
@@ -10188,6 +10881,15 @@ namespace LanguageExt
         public static Either<L, Task<B>> BindT<L, A, B>(this Either<L, Task<A>> ma, Func<A, Task<B>> f) =>
             Trans<MEither<L, Task<A>>, Either<L, Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Bind<MEither<L, Task<B>>, Either<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<Either<L, B>> Traverse<L, A, B>(this Either<L, Task<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, Task<A>>, Either<L, Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<Either<L, B>>, Task<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Task<Either<L, A>> Sequence<L, A>(this Either<L, Task<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static Either<L, Task<B>> MapT<L, A, B>(this Either<L, Task<A>> ma, Func<A, B> f) =>
@@ -10322,6 +11024,15 @@ namespace LanguageExt
                 .Inst.Bind<MEither<L, Try<B>>, Either<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
+        public static Try<Either<L, B>> Traverse<L, A, B>(this Either<L, Try<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, Try<A>>, Either<L, Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<Either<L, B>>, Try<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Try<Either<L, A>> Sequence<L, A>(this Either<L, Try<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static Either<L, Try<B>> MapT<L, A, B>(this Either<L, Try<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, Try<A>>, Either<L, Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MEither<L, Try<B>>, Either<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
@@ -10452,6 +11163,15 @@ namespace LanguageExt
         public static Either<L, TryAsync<B>> BindT<L, A, B>(this Either<L, TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             Trans<MEither<L, TryAsync<A>>, Either<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Bind<MEither<L, TryAsync<B>>, Either<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<Either<L, B>> Traverse<L, A, B>(this Either<L, TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, TryAsync<A>>, Either<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<Either<L, B>>, TryAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<Either<L, A>> Sequence<L, A>(this Either<L, TryAsync<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static Either<L, TryAsync<B>> MapT<L, A, B>(this Either<L, TryAsync<A>> ma, Func<A, B> f) =>
@@ -10586,6 +11306,15 @@ namespace LanguageExt
                 .Inst.Bind<MEither<L, TryOption<B>>, Either<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
+        public static TryOption<Either<L, B>> Traverse<L, A, B>(this Either<L, TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, TryOption<A>>, Either<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<Either<L, B>>, TryOption<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static TryOption<Either<L, A>> Sequence<L, A>(this Either<L, TryOption<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static Either<L, TryOption<B>> MapT<L, A, B>(this Either<L, TryOption<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, TryOption<A>>, Either<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MEither<L, TryOption<B>>, Either<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
@@ -10716,6 +11445,15 @@ namespace LanguageExt
         public static Either<L, TryOptionAsync<B>> BindT<L, A, B>(this Either<L, TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             Trans<MEither<L, TryOptionAsync<A>>, Either<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Bind<MEither<L, TryOptionAsync<B>>, Either<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<Either<L, B>> Traverse<L, A, B>(this Either<L, TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, TryOptionAsync<A>>, Either<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<Either<L, B>>, TryOptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<Either<L, A>> Sequence<L, A>(this Either<L, TryOptionAsync<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static Either<L, TryOptionAsync<B>> MapT<L, A, B>(this Either<L, TryOptionAsync<A>> ma, Func<A, B> f) =>
@@ -10850,6 +11588,15 @@ namespace LanguageExt
                 .Inst.Bind<MEither<L, IEnumerable<B>>, Either<L, IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
+        public static IEnumerable<Either<L, B>> Traverse<L, A, B>(this Either<L, IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, IEnumerable<A>>, Either<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<Either<L, B>>, IEnumerable<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static IEnumerable<Either<L, A>> Sequence<L, A>(this Either<L, IEnumerable<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static Either<L, IEnumerable<B>> MapT<L, A, B>(this Either<L, IEnumerable<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, IEnumerable<A>>, Either<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Map<MEither<L, IEnumerable<B>>, Either<L, IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
@@ -10980,6 +11727,15 @@ namespace LanguageExt
         public static Either<L, Set<B>> BindT<L, A, B>(this Either<L, Set<A>> ma, Func<A, Set<B>> f) =>
             Trans<MEither<L, Set<A>>, Either<L, Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MEither<L, Set<B>>, Either<L, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<Either<L, B>> Traverse<L, A, B>(this Either<L, Set<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, Set<A>>, Either<L, Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<Either<L, B>>, Set<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Set<Either<L, A>> Sequence<L, A>(this Either<L, Set<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static Either<L, Set<B>> MapT<L, A, B>(this Either<L, Set<A>> ma, Func<A, B> f) =>
@@ -11114,6 +11870,15 @@ namespace LanguageExt
                 .Inst.Bind<MEitherUnsafe<L, Arr<B>>, EitherUnsafe<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
+        public static Arr<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Arr<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, Arr<A>>, EitherUnsafe<L, Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<EitherUnsafe<L, B>>, Arr<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Arr<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Arr<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static EitherUnsafe<L, Arr<B>> MapT<L, A, B>(this EitherUnsafe<L, Arr<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, Arr<A>>, EitherUnsafe<L, Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MEitherUnsafe<L, Arr<B>>, EitherUnsafe<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
@@ -11244,6 +12009,15 @@ namespace LanguageExt
         public static EitherUnsafe<L, HashSet<B>> BindT<L, A, B>(this EitherUnsafe<L, HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             Trans<MEitherUnsafe<L, HashSet<A>>, EitherUnsafe<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, HashSet<B>>, EitherUnsafe<L, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, HashSet<A>>, EitherUnsafe<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<EitherUnsafe<L, B>>, HashSet<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, HashSet<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static EitherUnsafe<L, HashSet<B>> MapT<L, A, B>(this EitherUnsafe<L, HashSet<A>> ma, Func<A, B> f) =>
@@ -11378,6 +12152,15 @@ namespace LanguageExt
                 .Inst.Bind<MEitherUnsafe<L, Lst<B>>, EitherUnsafe<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
+        public static Lst<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Lst<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, Lst<A>>, EitherUnsafe<L, Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<EitherUnsafe<L, B>>, Lst<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Lst<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Lst<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static EitherUnsafe<L, Lst<B>> MapT<L, A, B>(this EitherUnsafe<L, Lst<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, Lst<A>>, EitherUnsafe<L, Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MEitherUnsafe<L, Lst<B>>, EitherUnsafe<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
@@ -11508,6 +12291,15 @@ namespace LanguageExt
         public static EitherUnsafe<L, Option<B>> BindT<L, A, B>(this EitherUnsafe<L, Option<A>> ma, Func<A, Option<B>> f) =>
             Trans<MEitherUnsafe<L, Option<A>>, EitherUnsafe<L, Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, Option<B>>, EitherUnsafe<L, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Option<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, Option<A>>, EitherUnsafe<L, Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<EitherUnsafe<L, B>>, Option<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Option<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Option<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static EitherUnsafe<L, Option<B>> MapT<L, A, B>(this EitherUnsafe<L, Option<A>> ma, Func<A, B> f) =>
@@ -11642,6 +12434,15 @@ namespace LanguageExt
                 .Inst.Bind<MEitherUnsafe<L, OptionUnsafe<B>>, EitherUnsafe<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
+        public static OptionUnsafe<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, OptionUnsafe<A>>, EitherUnsafe<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<EitherUnsafe<L, B>>, OptionUnsafe<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        [Pure]
+        public static OptionUnsafe<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, OptionUnsafe<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static EitherUnsafe<L, OptionUnsafe<B>> MapT<L, A, B>(this EitherUnsafe<L, OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, OptionUnsafe<A>>, EitherUnsafe<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MEitherUnsafe<L, OptionUnsafe<B>>, EitherUnsafe<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
@@ -11772,6 +12573,15 @@ namespace LanguageExt
         public static EitherUnsafe<L, Either<L, B>> BindT<L, A, B>(this EitherUnsafe<L, Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             Trans<MEitherUnsafe<L, Either<L, A>>, EitherUnsafe<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MEitherUnsafe<L, Either<L, B>>, EitherUnsafe<L, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, Either<L, A>>, EitherUnsafe<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, EitherUnsafe<L, B>>, Either<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static EitherUnsafe<L, Either<L, B>> MapT<L, A, B>(this EitherUnsafe<L, Either<L, A>> ma, Func<A, B> f) =>
@@ -11906,6 +12716,15 @@ namespace LanguageExt
                 .Inst.Bind<MEitherUnsafe<L, EitherUnsafe<L, B>>, EitherUnsafe<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
+        public static EitherUnsafe<L, EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, EitherUnsafe<L, A>>, EitherUnsafe<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, EitherUnsafe<L, B>>, EitherUnsafe<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        [Pure]
+        public static EitherUnsafe<L, EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static EitherUnsafe<L, EitherUnsafe<L, B>> MapT<L, A, B>(this EitherUnsafe<L, EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, EitherUnsafe<L, A>>, EitherUnsafe<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MEitherUnsafe<L, EitherUnsafe<L, B>>, EitherUnsafe<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
@@ -12036,6 +12855,15 @@ namespace LanguageExt
         public static EitherUnsafe<L, Task<B>> BindT<L, A, B>(this EitherUnsafe<L, Task<A>> ma, Func<A, Task<B>> f) =>
             Trans<MEitherUnsafe<L, Task<A>>, EitherUnsafe<L, Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, Task<B>>, EitherUnsafe<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Task<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, Task<A>>, EitherUnsafe<L, Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<EitherUnsafe<L, B>>, Task<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Task<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Task<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static EitherUnsafe<L, Task<B>> MapT<L, A, B>(this EitherUnsafe<L, Task<A>> ma, Func<A, B> f) =>
@@ -12170,6 +12998,15 @@ namespace LanguageExt
                 .Inst.Bind<MEitherUnsafe<L, Try<B>>, EitherUnsafe<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
+        public static Try<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Try<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, Try<A>>, EitherUnsafe<L, Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<EitherUnsafe<L, B>>, Try<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Try<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Try<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static EitherUnsafe<L, Try<B>> MapT<L, A, B>(this EitherUnsafe<L, Try<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, Try<A>>, EitherUnsafe<L, Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MEitherUnsafe<L, Try<B>>, EitherUnsafe<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
@@ -12300,6 +13137,15 @@ namespace LanguageExt
         public static EitherUnsafe<L, TryAsync<B>> BindT<L, A, B>(this EitherUnsafe<L, TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             Trans<MEitherUnsafe<L, TryAsync<A>>, EitherUnsafe<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, TryAsync<B>>, EitherUnsafe<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, TryAsync<A>>, EitherUnsafe<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<EitherUnsafe<L, B>>, TryAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, TryAsync<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static EitherUnsafe<L, TryAsync<B>> MapT<L, A, B>(this EitherUnsafe<L, TryAsync<A>> ma, Func<A, B> f) =>
@@ -12434,6 +13280,15 @@ namespace LanguageExt
                 .Inst.Bind<MEitherUnsafe<L, TryOption<B>>, EitherUnsafe<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
+        public static TryOption<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, TryOption<A>>, EitherUnsafe<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<EitherUnsafe<L, B>>, TryOption<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        [Pure]
+        public static TryOption<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, TryOption<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static EitherUnsafe<L, TryOption<B>> MapT<L, A, B>(this EitherUnsafe<L, TryOption<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, TryOption<A>>, EitherUnsafe<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MEitherUnsafe<L, TryOption<B>>, EitherUnsafe<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
@@ -12564,6 +13419,15 @@ namespace LanguageExt
         public static EitherUnsafe<L, TryOptionAsync<B>> BindT<L, A, B>(this EitherUnsafe<L, TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             Trans<MEitherUnsafe<L, TryOptionAsync<A>>, EitherUnsafe<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, TryOptionAsync<B>>, EitherUnsafe<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, TryOptionAsync<A>>, EitherUnsafe<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<EitherUnsafe<L, B>>, TryOptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, TryOptionAsync<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static EitherUnsafe<L, TryOptionAsync<B>> MapT<L, A, B>(this EitherUnsafe<L, TryOptionAsync<A>> ma, Func<A, B> f) =>
@@ -12698,6 +13562,15 @@ namespace LanguageExt
                 .Inst.Bind<MEitherUnsafe<L, IEnumerable<B>>, EitherUnsafe<L, IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
+        public static IEnumerable<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, IEnumerable<A>>, EitherUnsafe<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<EitherUnsafe<L, B>>, IEnumerable<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        [Pure]
+        public static IEnumerable<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, IEnumerable<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static EitherUnsafe<L, IEnumerable<B>> MapT<L, A, B>(this EitherUnsafe<L, IEnumerable<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, IEnumerable<A>>, EitherUnsafe<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Map<MEitherUnsafe<L, IEnumerable<B>>, EitherUnsafe<L, IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
@@ -12828,6 +13701,15 @@ namespace LanguageExt
         public static EitherUnsafe<L, Set<B>> BindT<L, A, B>(this EitherUnsafe<L, Set<A>> ma, Func<A, Set<B>> f) =>
             Trans<MEitherUnsafe<L, Set<A>>, EitherUnsafe<L, Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, Set<B>>, EitherUnsafe<L, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Set<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, Set<A>>, EitherUnsafe<L, Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<EitherUnsafe<L, B>>, Set<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Set<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Set<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static EitherUnsafe<L, Set<B>> MapT<L, A, B>(this EitherUnsafe<L, Set<A>> ma, Func<A, B> f) =>
@@ -12962,6 +13844,15 @@ namespace LanguageExt
                 .Inst.Bind<MTask<Arr<B>>, Task<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
+        public static Arr<Task<B>> Traverse< A, B>(this Task<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<Task<B>>, Arr<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Arr<Task<A>> Sequence< A>(this Task<Arr<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Task<Arr<B>> MapT< A, B>(this Task<Arr<A>> ma, Func<A, B> f) =>
             Trans<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MTask<Arr<B>>, Task<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
@@ -13092,6 +13983,15 @@ namespace LanguageExt
         public static Task<HashSet<B>> BindT< A, B>(this Task<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             Trans<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MTask<HashSet<B>>, Task<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<Task<B>> Traverse< A, B>(this Task<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<Task<B>>, HashSet<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<Task<A>> Sequence< A>(this Task<HashSet<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Task<HashSet<B>> MapT< A, B>(this Task<HashSet<A>> ma, Func<A, B> f) =>
@@ -13226,6 +14126,15 @@ namespace LanguageExt
                 .Inst.Bind<MTask<Lst<B>>, Task<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
+        public static Lst<Task<B>> Traverse< A, B>(this Task<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<Task<B>>, Lst<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Lst<Task<A>> Sequence< A>(this Task<Lst<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Task<Lst<B>> MapT< A, B>(this Task<Lst<A>> ma, Func<A, B> f) =>
             Trans<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MTask<Lst<B>>, Task<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
@@ -13356,6 +14265,15 @@ namespace LanguageExt
         public static Task<Option<B>> BindT< A, B>(this Task<Option<A>> ma, Func<A, Option<B>> f) =>
             Trans<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MTask<Option<B>>, Task<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<Task<B>> Traverse< A, B>(this Task<Option<A>> ma, Func<A, B> f) =>
+            Trans<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<Task<B>>, Option<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<Task<A>> Sequence< A>(this Task<Option<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Task<Option<B>> MapT< A, B>(this Task<Option<A>> ma, Func<A, B> f) =>
@@ -13490,6 +14408,15 @@ namespace LanguageExt
                 .Inst.Bind<MTask<OptionUnsafe<B>>, Task<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
+        public static OptionUnsafe<Task<B>> Traverse< A, B>(this Task<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<Task<B>>, OptionUnsafe<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static OptionUnsafe<Task<A>> Sequence< A>(this Task<OptionUnsafe<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Task<OptionUnsafe<B>> MapT< A, B>(this Task<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MTask<OptionUnsafe<B>>, Task<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
@@ -13620,6 +14547,15 @@ namespace LanguageExt
         public static Task<Either<L, B>> BindT<L, A, B>(this Task<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             Trans<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MTask<Either<L, B>>, Task<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, Task<B>> Traverse<L, A, B>(this Task<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, Task<B>>, Either<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, Task<A>> Sequence<L, A>(this Task<Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static Task<Either<L, B>> MapT<L, A, B>(this Task<Either<L, A>> ma, Func<A, B> f) =>
@@ -13754,6 +14690,15 @@ namespace LanguageExt
                 .Inst.Bind<MTask<EitherUnsafe<L, B>>, Task<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
+        public static EitherUnsafe<L, Task<B>> Traverse<L, A, B>(this Task<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, Task<B>>, EitherUnsafe<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static EitherUnsafe<L, Task<A>> Sequence<L, A>(this Task<EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static Task<EitherUnsafe<L, B>> MapT<L, A, B>(this Task<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MTask<EitherUnsafe<L, B>>, Task<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
@@ -13884,6 +14829,15 @@ namespace LanguageExt
         public static Task<Task<B>> BindT< A, B>(this Task<Task<A>> ma, Func<A, Task<B>> f) =>
             Trans<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Bind<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<Task<B>> Traverse< A, B>(this Task<Task<A>> ma, Func<A, B> f) =>
+            Trans<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<Task<A>> Sequence< A>(this Task<Task<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Task<Task<B>> MapT< A, B>(this Task<Task<A>> ma, Func<A, B> f) =>
@@ -14018,6 +14972,15 @@ namespace LanguageExt
                 .Inst.Bind<MTask<Try<B>>, Task<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
+        public static Try<Task<B>> Traverse< A, B>(this Task<Try<A>> ma, Func<A, B> f) =>
+            Trans<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<Task<B>>, Try<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Try<Task<A>> Sequence< A>(this Task<Try<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Task<Try<B>> MapT< A, B>(this Task<Try<A>> ma, Func<A, B> f) =>
             Trans<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MTask<Try<B>>, Task<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
@@ -14148,6 +15111,15 @@ namespace LanguageExt
         public static Task<TryAsync<B>> BindT< A, B>(this Task<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             Trans<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Bind<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<Task<B>> Traverse< A, B>(this Task<TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<Task<A>> Sequence< A>(this Task<TryAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Task<TryAsync<B>> MapT< A, B>(this Task<TryAsync<A>> ma, Func<A, B> f) =>
@@ -14282,6 +15254,15 @@ namespace LanguageExt
                 .Inst.Bind<MTask<TryOption<B>>, Task<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
+        public static TryOption<Task<B>> Traverse< A, B>(this Task<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<Task<B>>, TryOption<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOption<Task<A>> Sequence< A>(this Task<TryOption<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Task<TryOption<B>> MapT< A, B>(this Task<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MTask<TryOption<B>>, Task<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
@@ -14412,6 +15393,15 @@ namespace LanguageExt
         public static Task<TryOptionAsync<B>> BindT< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             Trans<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Bind<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<Task<B>> Traverse< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<Task<A>> Sequence< A>(this Task<TryOptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Task<TryOptionAsync<B>> MapT< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, B> f) =>
@@ -14546,6 +15536,15 @@ namespace LanguageExt
                 .Inst.Bind<MTask<IEnumerable<B>>, Task<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
+        public static IEnumerable<Task<B>> Traverse< A, B>(this Task<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<Task<B>>, IEnumerable<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static IEnumerable<Task<A>> Sequence< A>(this Task<IEnumerable<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Task<IEnumerable<B>> MapT< A, B>(this Task<IEnumerable<A>> ma, Func<A, B> f) =>
             Trans<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Map<MTask<IEnumerable<B>>, Task<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
@@ -14676,6 +15675,15 @@ namespace LanguageExt
         public static Task<Set<B>> BindT< A, B>(this Task<Set<A>> ma, Func<A, Set<B>> f) =>
             Trans<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MTask<Set<B>>, Task<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<Task<B>> Traverse< A, B>(this Task<Set<A>> ma, Func<A, B> f) =>
+            Trans<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<Task<B>>, Set<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<Task<A>> Sequence< A>(this Task<Set<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Task<Set<B>> MapT< A, B>(this Task<Set<A>> ma, Func<A, B> f) =>
@@ -14810,6 +15818,15 @@ namespace LanguageExt
                 .Inst.Bind<MTry<Arr<B>>, Try<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
+        public static Arr<Try<B>> Traverse< A, B>(this Try<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MTry<Arr<A>>, Try<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<Try<B>>, Arr<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        [Pure]
+        public static Arr<Try<A>> Sequence< A>(this Try<Arr<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Try<Arr<B>> MapT< A, B>(this Try<Arr<A>> ma, Func<A, B> f) =>
             Trans<MTry<Arr<A>>, Try<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MTry<Arr<B>>, Try<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
@@ -14940,6 +15957,15 @@ namespace LanguageExt
         public static Try<HashSet<B>> BindT< A, B>(this Try<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             Trans<MTry<HashSet<A>>, Try<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MTry<HashSet<B>>, Try<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<Try<B>> Traverse< A, B>(this Try<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MTry<HashSet<A>>, Try<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<Try<B>>, HashSet<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<Try<A>> Sequence< A>(this Try<HashSet<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Try<HashSet<B>> MapT< A, B>(this Try<HashSet<A>> ma, Func<A, B> f) =>
@@ -15074,6 +16100,15 @@ namespace LanguageExt
                 .Inst.Bind<MTry<Lst<B>>, Try<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
+        public static Lst<Try<B>> Traverse< A, B>(this Try<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MTry<Lst<A>>, Try<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<Try<B>>, Lst<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        [Pure]
+        public static Lst<Try<A>> Sequence< A>(this Try<Lst<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Try<Lst<B>> MapT< A, B>(this Try<Lst<A>> ma, Func<A, B> f) =>
             Trans<MTry<Lst<A>>, Try<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MTry<Lst<B>>, Try<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
@@ -15204,6 +16239,15 @@ namespace LanguageExt
         public static Try<Option<B>> BindT< A, B>(this Try<Option<A>> ma, Func<A, Option<B>> f) =>
             Trans<MTry<Option<A>>, Try<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MTry<Option<B>>, Try<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<Try<B>> Traverse< A, B>(this Try<Option<A>> ma, Func<A, B> f) =>
+            Trans<MTry<Option<A>>, Try<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<Try<B>>, Option<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<Try<A>> Sequence< A>(this Try<Option<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Try<Option<B>> MapT< A, B>(this Try<Option<A>> ma, Func<A, B> f) =>
@@ -15338,6 +16382,15 @@ namespace LanguageExt
                 .Inst.Bind<MTry<OptionUnsafe<B>>, Try<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
+        public static OptionUnsafe<Try<B>> Traverse< A, B>(this Try<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MTry<OptionUnsafe<A>>, Try<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<Try<B>>, OptionUnsafe<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        [Pure]
+        public static OptionUnsafe<Try<A>> Sequence< A>(this Try<OptionUnsafe<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Try<OptionUnsafe<B>> MapT< A, B>(this Try<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MTry<OptionUnsafe<A>>, Try<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MTry<OptionUnsafe<B>>, Try<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
@@ -15468,6 +16521,15 @@ namespace LanguageExt
         public static Try<Either<L, B>> BindT<L, A, B>(this Try<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             Trans<MTry<Either<L, A>>, Try<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MTry<Either<L, B>>, Try<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, Try<B>> Traverse<L, A, B>(this Try<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MTry<Either<L, A>>, Try<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, Try<B>>, Either<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, Try<A>> Sequence<L, A>(this Try<Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static Try<Either<L, B>> MapT<L, A, B>(this Try<Either<L, A>> ma, Func<A, B> f) =>
@@ -15602,6 +16664,15 @@ namespace LanguageExt
                 .Inst.Bind<MTry<EitherUnsafe<L, B>>, Try<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
+        public static EitherUnsafe<L, Try<B>> Traverse<L, A, B>(this Try<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MTry<EitherUnsafe<L, A>>, Try<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, Try<B>>, EitherUnsafe<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        [Pure]
+        public static EitherUnsafe<L, Try<A>> Sequence<L, A>(this Try<EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static Try<EitherUnsafe<L, B>> MapT<L, A, B>(this Try<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MTry<EitherUnsafe<L, A>>, Try<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MTry<EitherUnsafe<L, B>>, Try<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
@@ -15732,6 +16803,15 @@ namespace LanguageExt
         public static Try<Task<B>> BindT< A, B>(this Try<Task<A>> ma, Func<A, Task<B>> f) =>
             Trans<MTry<Task<A>>, Try<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Bind<MTry<Task<B>>, Try<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<Try<B>> Traverse< A, B>(this Try<Task<A>> ma, Func<A, B> f) =>
+            Trans<MTry<Task<A>>, Try<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<Try<B>>, Task<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<Try<A>> Sequence< A>(this Try<Task<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Try<Task<B>> MapT< A, B>(this Try<Task<A>> ma, Func<A, B> f) =>
@@ -15866,6 +16946,15 @@ namespace LanguageExt
                 .Inst.Bind<MTry<Try<B>>, Try<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
+        public static Try<Try<B>> Traverse< A, B>(this Try<Try<A>> ma, Func<A, B> f) =>
+            Trans<MTry<Try<A>>, Try<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<Try<B>>, Try<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        [Pure]
+        public static Try<Try<A>> Sequence< A>(this Try<Try<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Try<Try<B>> MapT< A, B>(this Try<Try<A>> ma, Func<A, B> f) =>
             Trans<MTry<Try<A>>, Try<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MTry<Try<B>>, Try<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
@@ -15996,6 +17085,15 @@ namespace LanguageExt
         public static Try<TryAsync<B>> BindT< A, B>(this Try<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             Trans<MTry<TryAsync<A>>, Try<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Bind<MTry<TryAsync<B>>, Try<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<Try<B>> Traverse< A, B>(this Try<TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTry<TryAsync<A>>, Try<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<Try<B>>, TryAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<Try<A>> Sequence< A>(this Try<TryAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Try<TryAsync<B>> MapT< A, B>(this Try<TryAsync<A>> ma, Func<A, B> f) =>
@@ -16130,6 +17228,15 @@ namespace LanguageExt
                 .Inst.Bind<MTry<TryOption<B>>, Try<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
+        public static TryOption<Try<B>> Traverse< A, B>(this Try<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MTry<TryOption<A>>, Try<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<Try<B>>, TryOption<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOption<Try<A>> Sequence< A>(this Try<TryOption<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Try<TryOption<B>> MapT< A, B>(this Try<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MTry<TryOption<A>>, Try<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MTry<TryOption<B>>, Try<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
@@ -16260,6 +17367,15 @@ namespace LanguageExt
         public static Try<TryOptionAsync<B>> BindT< A, B>(this Try<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             Trans<MTry<TryOptionAsync<A>>, Try<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Bind<MTry<TryOptionAsync<B>>, Try<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<Try<B>> Traverse< A, B>(this Try<TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTry<TryOptionAsync<A>>, Try<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<Try<B>>, TryOptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<Try<A>> Sequence< A>(this Try<TryOptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Try<TryOptionAsync<B>> MapT< A, B>(this Try<TryOptionAsync<A>> ma, Func<A, B> f) =>
@@ -16394,6 +17510,15 @@ namespace LanguageExt
                 .Inst.Bind<MTry<IEnumerable<B>>, Try<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
+        public static IEnumerable<Try<B>> Traverse< A, B>(this Try<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MTry<IEnumerable<A>>, Try<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<Try<B>>, IEnumerable<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        [Pure]
+        public static IEnumerable<Try<A>> Sequence< A>(this Try<IEnumerable<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Try<IEnumerable<B>> MapT< A, B>(this Try<IEnumerable<A>> ma, Func<A, B> f) =>
             Trans<MTry<IEnumerable<A>>, Try<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Map<MTry<IEnumerable<B>>, Try<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
@@ -16524,6 +17649,15 @@ namespace LanguageExt
         public static Try<Set<B>> BindT< A, B>(this Try<Set<A>> ma, Func<A, Set<B>> f) =>
             Trans<MTry<Set<A>>, Try<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MTry<Set<B>>, Try<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<Try<B>> Traverse< A, B>(this Try<Set<A>> ma, Func<A, B> f) =>
+            Trans<MTry<Set<A>>, Try<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<Try<B>>, Set<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<Try<A>> Sequence< A>(this Try<Set<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Try<Set<B>> MapT< A, B>(this Try<Set<A>> ma, Func<A, B> f) =>
@@ -16658,6 +17792,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryAsync<Arr<B>>, TryAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
+        public static Arr<TryAsync<B>> Traverse< A, B>(this TryAsync<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<TryAsync<B>>, Arr<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static Arr<TryAsync<A>> Sequence< A>(this TryAsync<Arr<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryAsync<Arr<B>> MapT< A, B>(this TryAsync<Arr<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MTryAsync<Arr<B>>, TryAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
@@ -16788,6 +17931,15 @@ namespace LanguageExt
         public static TryAsync<HashSet<B>> BindT< A, B>(this TryAsync<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             Trans<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MTryAsync<HashSet<B>>, TryAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<TryAsync<B>> Traverse< A, B>(this TryAsync<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<TryAsync<B>>, HashSet<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<TryAsync<A>> Sequence< A>(this TryAsync<HashSet<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryAsync<HashSet<B>> MapT< A, B>(this TryAsync<HashSet<A>> ma, Func<A, B> f) =>
@@ -16922,6 +18074,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryAsync<Lst<B>>, TryAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
+        public static Lst<TryAsync<B>> Traverse< A, B>(this TryAsync<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<TryAsync<B>>, Lst<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static Lst<TryAsync<A>> Sequence< A>(this TryAsync<Lst<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryAsync<Lst<B>> MapT< A, B>(this TryAsync<Lst<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MTryAsync<Lst<B>>, TryAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
@@ -17052,6 +18213,15 @@ namespace LanguageExt
         public static TryAsync<Option<B>> BindT< A, B>(this TryAsync<Option<A>> ma, Func<A, Option<B>> f) =>
             Trans<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MTryAsync<Option<B>>, TryAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<TryAsync<B>> Traverse< A, B>(this TryAsync<Option<A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<TryAsync<B>>, Option<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<TryAsync<A>> Sequence< A>(this TryAsync<Option<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryAsync<Option<B>> MapT< A, B>(this TryAsync<Option<A>> ma, Func<A, B> f) =>
@@ -17186,6 +18356,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryAsync<OptionUnsafe<B>>, TryAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
+        public static OptionUnsafe<TryAsync<B>> Traverse< A, B>(this TryAsync<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<TryAsync<B>>, OptionUnsafe<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static OptionUnsafe<TryAsync<A>> Sequence< A>(this TryAsync<OptionUnsafe<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryAsync<OptionUnsafe<B>> MapT< A, B>(this TryAsync<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MTryAsync<OptionUnsafe<B>>, TryAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
@@ -17316,6 +18495,15 @@ namespace LanguageExt
         public static TryAsync<Either<L, B>> BindT<L, A, B>(this TryAsync<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             Trans<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MTryAsync<Either<L, B>>, TryAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, TryAsync<B>> Traverse<L, A, B>(this TryAsync<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, TryAsync<B>>, Either<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, TryAsync<A>> Sequence<L, A>(this TryAsync<Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static TryAsync<Either<L, B>> MapT<L, A, B>(this TryAsync<Either<L, A>> ma, Func<A, B> f) =>
@@ -17450,6 +18638,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryAsync<EitherUnsafe<L, B>>, TryAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
+        public static EitherUnsafe<L, TryAsync<B>> Traverse<L, A, B>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, TryAsync<B>>, EitherUnsafe<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static EitherUnsafe<L, TryAsync<A>> Sequence<L, A>(this TryAsync<EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static TryAsync<EitherUnsafe<L, B>> MapT<L, A, B>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MTryAsync<EitherUnsafe<L, B>>, TryAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
@@ -17580,6 +18777,15 @@ namespace LanguageExt
         public static TryAsync<Task<B>> BindT< A, B>(this TryAsync<Task<A>> ma, Func<A, Task<B>> f) =>
             Trans<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Bind<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<TryAsync<B>> Traverse< A, B>(this TryAsync<Task<A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<TryAsync<A>> Sequence< A>(this TryAsync<Task<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryAsync<Task<B>> MapT< A, B>(this TryAsync<Task<A>> ma, Func<A, B> f) =>
@@ -17714,6 +18920,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryAsync<Try<B>>, TryAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
+        public static Try<TryAsync<B>> Traverse< A, B>(this TryAsync<Try<A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<TryAsync<B>>, Try<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static Try<TryAsync<A>> Sequence< A>(this TryAsync<Try<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryAsync<Try<B>> MapT< A, B>(this TryAsync<Try<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MTryAsync<Try<B>>, TryAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
@@ -17844,6 +19059,15 @@ namespace LanguageExt
         public static TryAsync<TryAsync<B>> BindT< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             Trans<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Bind<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<TryAsync<B>> Traverse< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<TryAsync<A>> Sequence< A>(this TryAsync<TryAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryAsync<TryAsync<B>> MapT< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, B> f) =>
@@ -17978,6 +19202,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryAsync<TryOption<B>>, TryAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
+        public static TryOption<TryAsync<B>> Traverse< A, B>(this TryAsync<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<TryAsync<B>>, TryOption<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOption<TryAsync<A>> Sequence< A>(this TryAsync<TryOption<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryAsync<TryOption<B>> MapT< A, B>(this TryAsync<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MTryAsync<TryOption<B>>, TryAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
@@ -18108,6 +19341,15 @@ namespace LanguageExt
         public static TryAsync<TryOptionAsync<B>> BindT< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             Trans<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Bind<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<TryAsync<B>> Traverse< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<TryAsync<A>> Sequence< A>(this TryAsync<TryOptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryAsync<TryOptionAsync<B>> MapT< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
@@ -18242,6 +19484,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryAsync<IEnumerable<B>>, TryAsync<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
+        public static IEnumerable<TryAsync<B>> Traverse< A, B>(this TryAsync<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<IEnumerable<A>>, TryAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<TryAsync<B>>, IEnumerable<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static IEnumerable<TryAsync<A>> Sequence< A>(this TryAsync<IEnumerable<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryAsync<IEnumerable<B>> MapT< A, B>(this TryAsync<IEnumerable<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<IEnumerable<A>>, TryAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Map<MTryAsync<IEnumerable<B>>, TryAsync<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
@@ -18372,6 +19623,15 @@ namespace LanguageExt
         public static TryAsync<Set<B>> BindT< A, B>(this TryAsync<Set<A>> ma, Func<A, Set<B>> f) =>
             Trans<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MTryAsync<Set<B>>, TryAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<TryAsync<B>> Traverse< A, B>(this TryAsync<Set<A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<TryAsync<B>>, Set<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<TryAsync<A>> Sequence< A>(this TryAsync<Set<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryAsync<Set<B>> MapT< A, B>(this TryAsync<Set<A>> ma, Func<A, B> f) =>
@@ -18506,6 +19766,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryOption<Arr<B>>, TryOption<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
+        public static Arr<TryOption<B>> Traverse< A, B>(this TryOption<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<Arr<A>>, TryOption<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<TryOption<B>>, Arr<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        [Pure]
+        public static Arr<TryOption<A>> Sequence< A>(this TryOption<Arr<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryOption<Arr<B>> MapT< A, B>(this TryOption<Arr<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<Arr<A>>, TryOption<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MTryOption<Arr<B>>, TryOption<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
@@ -18636,6 +19905,15 @@ namespace LanguageExt
         public static TryOption<HashSet<B>> BindT< A, B>(this TryOption<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             Trans<MTryOption<HashSet<A>>, TryOption<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MTryOption<HashSet<B>>, TryOption<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<TryOption<B>> Traverse< A, B>(this TryOption<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<HashSet<A>>, TryOption<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<TryOption<B>>, HashSet<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<TryOption<A>> Sequence< A>(this TryOption<HashSet<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryOption<HashSet<B>> MapT< A, B>(this TryOption<HashSet<A>> ma, Func<A, B> f) =>
@@ -18770,6 +20048,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryOption<Lst<B>>, TryOption<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
+        public static Lst<TryOption<B>> Traverse< A, B>(this TryOption<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<Lst<A>>, TryOption<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<TryOption<B>>, Lst<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        [Pure]
+        public static Lst<TryOption<A>> Sequence< A>(this TryOption<Lst<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryOption<Lst<B>> MapT< A, B>(this TryOption<Lst<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<Lst<A>>, TryOption<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MTryOption<Lst<B>>, TryOption<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
@@ -18900,6 +20187,15 @@ namespace LanguageExt
         public static TryOption<Option<B>> BindT< A, B>(this TryOption<Option<A>> ma, Func<A, Option<B>> f) =>
             Trans<MTryOption<Option<A>>, TryOption<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MTryOption<Option<B>>, TryOption<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<TryOption<B>> Traverse< A, B>(this TryOption<Option<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<Option<A>>, TryOption<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<TryOption<B>>, Option<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<TryOption<A>> Sequence< A>(this TryOption<Option<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryOption<Option<B>> MapT< A, B>(this TryOption<Option<A>> ma, Func<A, B> f) =>
@@ -19034,6 +20330,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryOption<OptionUnsafe<B>>, TryOption<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
+        public static OptionUnsafe<TryOption<B>> Traverse< A, B>(this TryOption<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<OptionUnsafe<A>>, TryOption<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<TryOption<B>>, OptionUnsafe<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        [Pure]
+        public static OptionUnsafe<TryOption<A>> Sequence< A>(this TryOption<OptionUnsafe<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryOption<OptionUnsafe<B>> MapT< A, B>(this TryOption<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<OptionUnsafe<A>>, TryOption<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MTryOption<OptionUnsafe<B>>, TryOption<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
@@ -19164,6 +20469,15 @@ namespace LanguageExt
         public static TryOption<Either<L, B>> BindT<L, A, B>(this TryOption<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             Trans<MTryOption<Either<L, A>>, TryOption<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MTryOption<Either<L, B>>, TryOption<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, TryOption<B>> Traverse<L, A, B>(this TryOption<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<Either<L, A>>, TryOption<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, TryOption<B>>, Either<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, TryOption<A>> Sequence<L, A>(this TryOption<Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static TryOption<Either<L, B>> MapT<L, A, B>(this TryOption<Either<L, A>> ma, Func<A, B> f) =>
@@ -19298,6 +20612,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryOption<EitherUnsafe<L, B>>, TryOption<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
+        public static EitherUnsafe<L, TryOption<B>> Traverse<L, A, B>(this TryOption<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<EitherUnsafe<L, A>>, TryOption<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, TryOption<B>>, EitherUnsafe<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        [Pure]
+        public static EitherUnsafe<L, TryOption<A>> Sequence<L, A>(this TryOption<EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static TryOption<EitherUnsafe<L, B>> MapT<L, A, B>(this TryOption<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MTryOption<EitherUnsafe<L, A>>, TryOption<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MTryOption<EitherUnsafe<L, B>>, TryOption<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
@@ -19428,6 +20751,15 @@ namespace LanguageExt
         public static TryOption<Task<B>> BindT< A, B>(this TryOption<Task<A>> ma, Func<A, Task<B>> f) =>
             Trans<MTryOption<Task<A>>, TryOption<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Bind<MTryOption<Task<B>>, TryOption<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<TryOption<B>> Traverse< A, B>(this TryOption<Task<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<Task<A>>, TryOption<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<TryOption<B>>, Task<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<TryOption<A>> Sequence< A>(this TryOption<Task<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryOption<Task<B>> MapT< A, B>(this TryOption<Task<A>> ma, Func<A, B> f) =>
@@ -19562,6 +20894,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryOption<Try<B>>, TryOption<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
+        public static Try<TryOption<B>> Traverse< A, B>(this TryOption<Try<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<Try<A>>, TryOption<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<TryOption<B>>, Try<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        [Pure]
+        public static Try<TryOption<A>> Sequence< A>(this TryOption<Try<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryOption<Try<B>> MapT< A, B>(this TryOption<Try<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<Try<A>>, TryOption<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MTryOption<Try<B>>, TryOption<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
@@ -19692,6 +21033,15 @@ namespace LanguageExt
         public static TryOption<TryAsync<B>> BindT< A, B>(this TryOption<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             Trans<MTryOption<TryAsync<A>>, TryOption<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Bind<MTryOption<TryAsync<B>>, TryOption<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<TryOption<B>> Traverse< A, B>(this TryOption<TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<TryAsync<A>>, TryOption<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<TryOption<B>>, TryAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<TryOption<A>> Sequence< A>(this TryOption<TryAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryOption<TryAsync<B>> MapT< A, B>(this TryOption<TryAsync<A>> ma, Func<A, B> f) =>
@@ -19826,6 +21176,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryOption<TryOption<B>>, TryOption<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
+        public static TryOption<TryOption<B>> Traverse< A, B>(this TryOption<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<TryOption<A>>, TryOption<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<TryOption<B>>, TryOption<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOption<TryOption<A>> Sequence< A>(this TryOption<TryOption<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryOption<TryOption<B>> MapT< A, B>(this TryOption<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<TryOption<A>>, TryOption<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MTryOption<TryOption<B>>, TryOption<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
@@ -19956,6 +21315,15 @@ namespace LanguageExt
         public static TryOption<TryOptionAsync<B>> BindT< A, B>(this TryOption<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             Trans<MTryOption<TryOptionAsync<A>>, TryOption<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Bind<MTryOption<TryOptionAsync<B>>, TryOption<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<TryOption<B>> Traverse< A, B>(this TryOption<TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<TryOptionAsync<A>>, TryOption<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<TryOption<B>>, TryOptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<TryOption<A>> Sequence< A>(this TryOption<TryOptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryOption<TryOptionAsync<B>> MapT< A, B>(this TryOption<TryOptionAsync<A>> ma, Func<A, B> f) =>
@@ -20090,6 +21458,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryOption<IEnumerable<B>>, TryOption<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
+        public static IEnumerable<TryOption<B>> Traverse< A, B>(this TryOption<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<IEnumerable<A>>, TryOption<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<TryOption<B>>, IEnumerable<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        [Pure]
+        public static IEnumerable<TryOption<A>> Sequence< A>(this TryOption<IEnumerable<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryOption<IEnumerable<B>> MapT< A, B>(this TryOption<IEnumerable<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<IEnumerable<A>>, TryOption<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Map<MTryOption<IEnumerable<B>>, TryOption<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
@@ -20220,6 +21597,15 @@ namespace LanguageExt
         public static TryOption<Set<B>> BindT< A, B>(this TryOption<Set<A>> ma, Func<A, Set<B>> f) =>
             Trans<MTryOption<Set<A>>, TryOption<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MTryOption<Set<B>>, TryOption<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<TryOption<B>> Traverse< A, B>(this TryOption<Set<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<Set<A>>, TryOption<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<TryOption<B>>, Set<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<TryOption<A>> Sequence< A>(this TryOption<Set<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryOption<Set<B>> MapT< A, B>(this TryOption<Set<A>> ma, Func<A, B> f) =>
@@ -20354,6 +21740,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryOptionAsync<Arr<B>>, TryOptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
+        public static Arr<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<TryOptionAsync<B>>, Arr<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static Arr<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<Arr<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryOptionAsync<Arr<B>> MapT< A, B>(this TryOptionAsync<Arr<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MTryOptionAsync<Arr<B>>, TryOptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
@@ -20484,6 +21879,15 @@ namespace LanguageExt
         public static TryOptionAsync<HashSet<B>> BindT< A, B>(this TryOptionAsync<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             Trans<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MTryOptionAsync<HashSet<B>>, TryOptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<TryOptionAsync<B>>, HashSet<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<HashSet<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryOptionAsync<HashSet<B>> MapT< A, B>(this TryOptionAsync<HashSet<A>> ma, Func<A, B> f) =>
@@ -20618,6 +22022,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryOptionAsync<Lst<B>>, TryOptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
+        public static Lst<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<TryOptionAsync<B>>, Lst<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static Lst<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<Lst<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryOptionAsync<Lst<B>> MapT< A, B>(this TryOptionAsync<Lst<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MTryOptionAsync<Lst<B>>, TryOptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
@@ -20748,6 +22161,15 @@ namespace LanguageExt
         public static TryOptionAsync<Option<B>> BindT< A, B>(this TryOptionAsync<Option<A>> ma, Func<A, Option<B>> f) =>
             Trans<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MTryOptionAsync<Option<B>>, TryOptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<Option<A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<TryOptionAsync<B>>, Option<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<Option<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryOptionAsync<Option<B>> MapT< A, B>(this TryOptionAsync<Option<A>> ma, Func<A, B> f) =>
@@ -20882,6 +22304,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryOptionAsync<OptionUnsafe<B>>, TryOptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
+        public static OptionUnsafe<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<TryOptionAsync<B>>, OptionUnsafe<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static OptionUnsafe<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<OptionUnsafe<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryOptionAsync<OptionUnsafe<B>> MapT< A, B>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MTryOptionAsync<OptionUnsafe<B>>, TryOptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
@@ -21012,6 +22443,15 @@ namespace LanguageExt
         public static TryOptionAsync<Either<L, B>> BindT<L, A, B>(this TryOptionAsync<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             Trans<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MTryOptionAsync<Either<L, B>>, TryOptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, TryOptionAsync<B>> Traverse<L, A, B>(this TryOptionAsync<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, TryOptionAsync<B>>, Either<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, TryOptionAsync<A>> Sequence<L, A>(this TryOptionAsync<Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static TryOptionAsync<Either<L, B>> MapT<L, A, B>(this TryOptionAsync<Either<L, A>> ma, Func<A, B> f) =>
@@ -21146,6 +22586,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryOptionAsync<EitherUnsafe<L, B>>, TryOptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
+        public static EitherUnsafe<L, TryOptionAsync<B>> Traverse<L, A, B>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, TryOptionAsync<B>>, EitherUnsafe<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static EitherUnsafe<L, TryOptionAsync<A>> Sequence<L, A>(this TryOptionAsync<EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static TryOptionAsync<EitherUnsafe<L, B>> MapT<L, A, B>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MTryOptionAsync<EitherUnsafe<L, B>>, TryOptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
@@ -21276,6 +22725,15 @@ namespace LanguageExt
         public static TryOptionAsync<Task<B>> BindT< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, Task<B>> f) =>
             Trans<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Bind<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<Task<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryOptionAsync<Task<B>> MapT< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, B> f) =>
@@ -21410,6 +22868,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryOptionAsync<Try<B>>, TryOptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
+        public static Try<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<Try<A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<TryOptionAsync<B>>, Try<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static Try<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<Try<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryOptionAsync<Try<B>> MapT< A, B>(this TryOptionAsync<Try<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MTryOptionAsync<Try<B>>, TryOptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
@@ -21540,6 +23007,15 @@ namespace LanguageExt
         public static TryOptionAsync<TryAsync<B>> BindT< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             Trans<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Bind<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<TryAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryOptionAsync<TryAsync<B>> MapT< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, B> f) =>
@@ -21674,6 +23150,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryOptionAsync<TryOption<B>>, TryOptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
+        public static TryOption<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<TryOptionAsync<B>>, TryOption<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOption<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<TryOption<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryOptionAsync<TryOption<B>> MapT< A, B>(this TryOptionAsync<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MTryOptionAsync<TryOption<B>>, TryOptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
@@ -21804,6 +23289,15 @@ namespace LanguageExt
         public static TryOptionAsync<TryOptionAsync<B>> BindT< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             Trans<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Bind<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<TryOptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryOptionAsync<TryOptionAsync<B>> MapT< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
@@ -21938,6 +23432,15 @@ namespace LanguageExt
                 .Inst.Bind<MTryOptionAsync<IEnumerable<B>>, TryOptionAsync<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
+        public static IEnumerable<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<IEnumerable<A>>, TryOptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<TryOptionAsync<B>>, IEnumerable<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static IEnumerable<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<IEnumerable<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static TryOptionAsync<IEnumerable<B>> MapT< A, B>(this TryOptionAsync<IEnumerable<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<IEnumerable<A>>, TryOptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Map<MTryOptionAsync<IEnumerable<B>>, TryOptionAsync<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
@@ -22068,6 +23571,15 @@ namespace LanguageExt
         public static TryOptionAsync<Set<B>> BindT< A, B>(this TryOptionAsync<Set<A>> ma, Func<A, Set<B>> f) =>
             Trans<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MTryOptionAsync<Set<B>>, TryOptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<Set<A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<TryOptionAsync<B>>, Set<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<Set<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static TryOptionAsync<Set<B>> MapT< A, B>(this TryOptionAsync<Set<A>> ma, Func<A, B> f) =>
@@ -22202,6 +23714,15 @@ namespace LanguageExt
                 .Inst.Bind<MSeq<Arr<B>>, IEnumerable<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
+        public static Arr<IEnumerable<B>> Traverse< A, B>(this IEnumerable<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MSeq<Arr<A>>, IEnumerable<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<IEnumerable<B>>, Arr<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        [Pure]
+        public static Arr<IEnumerable<A>> Sequence< A>(this IEnumerable<Arr<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static IEnumerable<Arr<B>> MapT< A, B>(this IEnumerable<Arr<A>> ma, Func<A, B> f) =>
             Trans<MSeq<Arr<A>>, IEnumerable<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MSeq<Arr<B>>, IEnumerable<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
@@ -22332,6 +23853,15 @@ namespace LanguageExt
         public static IEnumerable<HashSet<B>> BindT< A, B>(this IEnumerable<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             Trans<MSeq<HashSet<A>>, IEnumerable<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MSeq<HashSet<B>>, IEnumerable<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<IEnumerable<B>> Traverse< A, B>(this IEnumerable<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MSeq<HashSet<A>>, IEnumerable<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<IEnumerable<B>>, HashSet<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<IEnumerable<A>> Sequence< A>(this IEnumerable<HashSet<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static IEnumerable<HashSet<B>> MapT< A, B>(this IEnumerable<HashSet<A>> ma, Func<A, B> f) =>
@@ -22466,6 +23996,15 @@ namespace LanguageExt
                 .Inst.Bind<MSeq<Lst<B>>, IEnumerable<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
+        public static Lst<IEnumerable<B>> Traverse< A, B>(this IEnumerable<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MSeq<Lst<A>>, IEnumerable<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<IEnumerable<B>>, Lst<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        [Pure]
+        public static Lst<IEnumerable<A>> Sequence< A>(this IEnumerable<Lst<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static IEnumerable<Lst<B>> MapT< A, B>(this IEnumerable<Lst<A>> ma, Func<A, B> f) =>
             Trans<MSeq<Lst<A>>, IEnumerable<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MSeq<Lst<B>>, IEnumerable<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
@@ -22596,6 +24135,15 @@ namespace LanguageExt
         public static IEnumerable<Option<B>> BindT< A, B>(this IEnumerable<Option<A>> ma, Func<A, Option<B>> f) =>
             Trans<MSeq<Option<A>>, IEnumerable<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MSeq<Option<B>>, IEnumerable<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<IEnumerable<B>> Traverse< A, B>(this IEnumerable<Option<A>> ma, Func<A, B> f) =>
+            Trans<MSeq<Option<A>>, IEnumerable<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<IEnumerable<B>>, Option<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<IEnumerable<A>> Sequence< A>(this IEnumerable<Option<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static IEnumerable<Option<B>> MapT< A, B>(this IEnumerable<Option<A>> ma, Func<A, B> f) =>
@@ -22730,6 +24278,15 @@ namespace LanguageExt
                 .Inst.Bind<MSeq<OptionUnsafe<B>>, IEnumerable<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
+        public static OptionUnsafe<IEnumerable<B>> Traverse< A, B>(this IEnumerable<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MSeq<OptionUnsafe<A>>, IEnumerable<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<IEnumerable<B>>, OptionUnsafe<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        [Pure]
+        public static OptionUnsafe<IEnumerable<A>> Sequence< A>(this IEnumerable<OptionUnsafe<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static IEnumerable<OptionUnsafe<B>> MapT< A, B>(this IEnumerable<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MSeq<OptionUnsafe<A>>, IEnumerable<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MSeq<OptionUnsafe<B>>, IEnumerable<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
@@ -22860,6 +24417,15 @@ namespace LanguageExt
         public static IEnumerable<Either<L, B>> BindT<L, A, B>(this IEnumerable<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             Trans<MSeq<Either<L, A>>, IEnumerable<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MSeq<Either<L, B>>, IEnumerable<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MSeq<Either<L, A>>, IEnumerable<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, IEnumerable<B>>, Either<L, IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, IEnumerable<A>> Sequence<L, A>(this IEnumerable<Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static IEnumerable<Either<L, B>> MapT<L, A, B>(this IEnumerable<Either<L, A>> ma, Func<A, B> f) =>
@@ -22994,6 +24560,15 @@ namespace LanguageExt
                 .Inst.Bind<MSeq<EitherUnsafe<L, B>>, IEnumerable<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
+        public static EitherUnsafe<L, IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MSeq<EitherUnsafe<L, A>>, IEnumerable<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, IEnumerable<B>>, EitherUnsafe<L, IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        [Pure]
+        public static EitherUnsafe<L, IEnumerable<A>> Sequence<L, A>(this IEnumerable<EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static IEnumerable<EitherUnsafe<L, B>> MapT<L, A, B>(this IEnumerable<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MSeq<EitherUnsafe<L, A>>, IEnumerable<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MSeq<EitherUnsafe<L, B>>, IEnumerable<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
@@ -23124,6 +24699,15 @@ namespace LanguageExt
         public static IEnumerable<Task<B>> BindT< A, B>(this IEnumerable<Task<A>> ma, Func<A, Task<B>> f) =>
             Trans<MSeq<Task<A>>, IEnumerable<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Bind<MSeq<Task<B>>, IEnumerable<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<IEnumerable<B>> Traverse< A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f) =>
+            Trans<MSeq<Task<A>>, IEnumerable<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<IEnumerable<B>>, Task<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<IEnumerable<A>> Sequence< A>(this IEnumerable<Task<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static IEnumerable<Task<B>> MapT< A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f) =>
@@ -23258,6 +24842,15 @@ namespace LanguageExt
                 .Inst.Bind<MSeq<Try<B>>, IEnumerable<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
+        public static Try<IEnumerable<B>> Traverse< A, B>(this IEnumerable<Try<A>> ma, Func<A, B> f) =>
+            Trans<MSeq<Try<A>>, IEnumerable<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<IEnumerable<B>>, Try<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        [Pure]
+        public static Try<IEnumerable<A>> Sequence< A>(this IEnumerable<Try<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static IEnumerable<Try<B>> MapT< A, B>(this IEnumerable<Try<A>> ma, Func<A, B> f) =>
             Trans<MSeq<Try<A>>, IEnumerable<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MSeq<Try<B>>, IEnumerable<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
@@ -23388,6 +24981,15 @@ namespace LanguageExt
         public static IEnumerable<TryAsync<B>> BindT< A, B>(this IEnumerable<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             Trans<MSeq<TryAsync<A>>, IEnumerable<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Bind<MSeq<TryAsync<B>>, IEnumerable<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<IEnumerable<B>> Traverse< A, B>(this IEnumerable<TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MSeq<TryAsync<A>>, IEnumerable<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<IEnumerable<B>>, TryAsync<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<IEnumerable<A>> Sequence< A>(this IEnumerable<TryAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static IEnumerable<TryAsync<B>> MapT< A, B>(this IEnumerable<TryAsync<A>> ma, Func<A, B> f) =>
@@ -23522,6 +25124,15 @@ namespace LanguageExt
                 .Inst.Bind<MSeq<TryOption<B>>, IEnumerable<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
+        public static TryOption<IEnumerable<B>> Traverse< A, B>(this IEnumerable<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MSeq<TryOption<A>>, IEnumerable<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<IEnumerable<B>>, TryOption<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOption<IEnumerable<A>> Sequence< A>(this IEnumerable<TryOption<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static IEnumerable<TryOption<B>> MapT< A, B>(this IEnumerable<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MSeq<TryOption<A>>, IEnumerable<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MSeq<TryOption<B>>, IEnumerable<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
@@ -23652,6 +25263,15 @@ namespace LanguageExt
         public static IEnumerable<TryOptionAsync<B>> BindT< A, B>(this IEnumerable<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             Trans<MSeq<TryOptionAsync<A>>, IEnumerable<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Bind<MSeq<TryOptionAsync<B>>, IEnumerable<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<IEnumerable<B>> Traverse< A, B>(this IEnumerable<TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MSeq<TryOptionAsync<A>>, IEnumerable<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<IEnumerable<B>>, TryOptionAsync<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<IEnumerable<A>> Sequence< A>(this IEnumerable<TryOptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static IEnumerable<TryOptionAsync<B>> MapT< A, B>(this IEnumerable<TryOptionAsync<A>> ma, Func<A, B> f) =>
@@ -23786,6 +25406,15 @@ namespace LanguageExt
                 .Inst.Bind<MSeq<IEnumerable<B>>, IEnumerable<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
+        public static IEnumerable<IEnumerable<B>> Traverse< A, B>(this IEnumerable<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MSeq<IEnumerable<A>>, IEnumerable<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<IEnumerable<B>>, IEnumerable<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        [Pure]
+        public static IEnumerable<IEnumerable<A>> Sequence< A>(this IEnumerable<IEnumerable<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static IEnumerable<IEnumerable<B>> MapT< A, B>(this IEnumerable<IEnumerable<A>> ma, Func<A, B> f) =>
             Trans<MSeq<IEnumerable<A>>, IEnumerable<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Map<MSeq<IEnumerable<B>>, IEnumerable<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
@@ -23916,6 +25545,15 @@ namespace LanguageExt
         public static IEnumerable<Set<B>> BindT< A, B>(this IEnumerable<Set<A>> ma, Func<A, Set<B>> f) =>
             Trans<MSeq<Set<A>>, IEnumerable<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MSeq<Set<B>>, IEnumerable<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<IEnumerable<B>> Traverse< A, B>(this IEnumerable<Set<A>> ma, Func<A, B> f) =>
+            Trans<MSeq<Set<A>>, IEnumerable<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<IEnumerable<B>>, Set<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<IEnumerable<A>> Sequence< A>(this IEnumerable<Set<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static IEnumerable<Set<B>> MapT< A, B>(this IEnumerable<Set<A>> ma, Func<A, B> f) =>
@@ -24050,6 +25688,15 @@ namespace LanguageExt
                 .Inst.Bind<MSet<Arr<B>>, Set<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         [Pure]
+        public static Arr<Set<B>> Traverse< A, B>(this Set<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MSet<Arr<A>>, Set<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<Set<B>>, Arr<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Arr<Set<A>> Sequence< A>(this Set<Arr<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Set<Arr<B>> MapT< A, B>(this Set<Arr<A>> ma, Func<A, B> f) =>
             Trans<MSet<Arr<A>>, Set<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MSet<Arr<B>>, Set<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
@@ -24180,6 +25827,15 @@ namespace LanguageExt
         public static Set<HashSet<B>> BindT< A, B>(this Set<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             Trans<MSet<HashSet<A>>, Set<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MSet<HashSet<B>>, Set<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<Set<B>> Traverse< A, B>(this Set<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MSet<HashSet<A>>, Set<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<Set<B>>, HashSet<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static HashSet<Set<A>> Sequence< A>(this Set<HashSet<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Set<HashSet<B>> MapT< A, B>(this Set<HashSet<A>> ma, Func<A, B> f) =>
@@ -24314,6 +25970,15 @@ namespace LanguageExt
                 .Inst.Bind<MSet<Lst<B>>, Set<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         [Pure]
+        public static Lst<Set<B>> Traverse< A, B>(this Set<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MSet<Lst<A>>, Set<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<Set<B>>, Lst<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Lst<Set<A>> Sequence< A>(this Set<Lst<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Set<Lst<B>> MapT< A, B>(this Set<Lst<A>> ma, Func<A, B> f) =>
             Trans<MSet<Lst<A>>, Set<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MSet<Lst<B>>, Set<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
@@ -24444,6 +26109,15 @@ namespace LanguageExt
         public static Set<Option<B>> BindT< A, B>(this Set<Option<A>> ma, Func<A, Option<B>> f) =>
             Trans<MSet<Option<A>>, Set<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MSet<Option<B>>, Set<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<Set<B>> Traverse< A, B>(this Set<Option<A>> ma, Func<A, B> f) =>
+            Trans<MSet<Option<A>>, Set<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<Set<B>>, Option<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Option<Set<A>> Sequence< A>(this Set<Option<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Set<Option<B>> MapT< A, B>(this Set<Option<A>> ma, Func<A, B> f) =>
@@ -24578,6 +26252,15 @@ namespace LanguageExt
                 .Inst.Bind<MSet<OptionUnsafe<B>>, Set<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         [Pure]
+        public static OptionUnsafe<Set<B>> Traverse< A, B>(this Set<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MSet<OptionUnsafe<A>>, Set<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<Set<B>>, OptionUnsafe<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static OptionUnsafe<Set<A>> Sequence< A>(this Set<OptionUnsafe<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Set<OptionUnsafe<B>> MapT< A, B>(this Set<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MSet<OptionUnsafe<A>>, Set<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MSet<OptionUnsafe<B>>, Set<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
@@ -24708,6 +26391,15 @@ namespace LanguageExt
         public static Set<Either<L, B>> BindT<L, A, B>(this Set<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             Trans<MSet<Either<L, A>>, Set<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MSet<Either<L, B>>, Set<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, Set<B>> Traverse<L, A, B>(this Set<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MSet<Either<L, A>>, Set<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, Set<B>>, Either<L, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Either<L, Set<A>> Sequence<L, A>(this Set<Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
 
         [Pure]
         public static Set<Either<L, B>> MapT<L, A, B>(this Set<Either<L, A>> ma, Func<A, B> f) =>
@@ -24842,6 +26534,15 @@ namespace LanguageExt
                 .Inst.Bind<MSet<EitherUnsafe<L, B>>, Set<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         [Pure]
+        public static EitherUnsafe<L, Set<B>> Traverse<L, A, B>(this Set<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MSet<EitherUnsafe<L, A>>, Set<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, Set<B>>, EitherUnsafe<L, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static EitherUnsafe<L, Set<A>> Sequence<L, A>(this Set<EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        [Pure]
         public static Set<EitherUnsafe<L, B>> MapT<L, A, B>(this Set<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MSet<EitherUnsafe<L, A>>, Set<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MSet<EitherUnsafe<L, B>>, Set<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
@@ -24972,6 +26673,15 @@ namespace LanguageExt
         public static Set<Task<B>> BindT< A, B>(this Set<Task<A>> ma, Func<A, Task<B>> f) =>
             Trans<MSet<Task<A>>, Set<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Bind<MSet<Task<B>>, Set<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<Set<B>> Traverse< A, B>(this Set<Task<A>> ma, Func<A, B> f) =>
+            Trans<MSet<Task<A>>, Set<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<Set<B>>, Task<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Task<Set<A>> Sequence< A>(this Set<Task<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Set<Task<B>> MapT< A, B>(this Set<Task<A>> ma, Func<A, B> f) =>
@@ -25106,6 +26816,15 @@ namespace LanguageExt
                 .Inst.Bind<MSet<Try<B>>, Set<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         [Pure]
+        public static Try<Set<B>> Traverse< A, B>(this Set<Try<A>> ma, Func<A, B> f) =>
+            Trans<MSet<Try<A>>, Set<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<Set<B>>, Try<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Try<Set<A>> Sequence< A>(this Set<Try<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Set<Try<B>> MapT< A, B>(this Set<Try<A>> ma, Func<A, B> f) =>
             Trans<MSet<Try<A>>, Set<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MSet<Try<B>>, Set<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
@@ -25236,6 +26955,15 @@ namespace LanguageExt
         public static Set<TryAsync<B>> BindT< A, B>(this Set<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             Trans<MSet<TryAsync<A>>, Set<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Bind<MSet<TryAsync<B>>, Set<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<Set<B>> Traverse< A, B>(this Set<TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MSet<TryAsync<A>>, Set<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<Set<B>>, TryAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static TryAsync<Set<A>> Sequence< A>(this Set<TryAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Set<TryAsync<B>> MapT< A, B>(this Set<TryAsync<A>> ma, Func<A, B> f) =>
@@ -25370,6 +27098,15 @@ namespace LanguageExt
                 .Inst.Bind<MSet<TryOption<B>>, Set<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         [Pure]
+        public static TryOption<Set<B>> Traverse< A, B>(this Set<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MSet<TryOption<A>>, Set<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<Set<B>>, TryOption<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOption<Set<A>> Sequence< A>(this Set<TryOption<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Set<TryOption<B>> MapT< A, B>(this Set<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MSet<TryOption<A>>, Set<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MSet<TryOption<B>>, Set<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
@@ -25500,6 +27237,15 @@ namespace LanguageExt
         public static Set<TryOptionAsync<B>> BindT< A, B>(this Set<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             Trans<MSet<TryOptionAsync<A>>, Set<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Bind<MSet<TryOptionAsync<B>>, Set<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<Set<B>> Traverse< A, B>(this Set<TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MSet<TryOptionAsync<A>>, Set<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<Set<B>>, TryOptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static TryOptionAsync<Set<A>> Sequence< A>(this Set<TryOptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Set<TryOptionAsync<B>> MapT< A, B>(this Set<TryOptionAsync<A>> ma, Func<A, B> f) =>
@@ -25634,6 +27380,15 @@ namespace LanguageExt
                 .Inst.Bind<MSet<IEnumerable<B>>, Set<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         [Pure]
+        public static IEnumerable<Set<B>> Traverse< A, B>(this Set<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MSet<IEnumerable<A>>, Set<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<Set<B>>, IEnumerable<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static IEnumerable<Set<A>> Sequence< A>(this Set<IEnumerable<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        [Pure]
         public static Set<IEnumerable<B>> MapT< A, B>(this Set<IEnumerable<A>> ma, Func<A, B> f) =>
             Trans<MSet<IEnumerable<A>>, Set<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
                 .Inst.Map<MSet<IEnumerable<B>>, Set<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
@@ -25764,6 +27519,15 @@ namespace LanguageExt
         public static Set<Set<B>> BindT< A, B>(this Set<Set<A>> ma, Func<A, Set<B>> f) =>
             Trans<MSet<Set<A>>, Set<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MSet<Set<B>>, Set<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<Set<B>> Traverse< A, B>(this Set<Set<A>> ma, Func<A, B> f) =>
+            Trans<MSet<Set<A>>, Set<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<Set<B>>, Set<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        [Pure]
+        public static Set<Set<A>> Sequence< A>(this Set<Set<A>> ma) =>
+            ma.Traverse< A, A>(identity);
 
         [Pure]
         public static Set<Set<B>> MapT< A, B>(this Set<Set<A>> ma, Func<A, B> f) =>

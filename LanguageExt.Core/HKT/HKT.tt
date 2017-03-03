@@ -52,6 +52,13 @@ namespace LanguageExt
             var M_INNER_B = innerType.MTypeB;
             var M_INNER_C = innerType.MTypeC;
 
+            var FLIPPED_INNER_B = outerType.TypeB;
+            var FLIPPED_OUTER_B = innerType.OuterTypeB(outerType);
+            var FLIPPED_OUTER_A = innerType.OuterTypeA(outerType);
+            var M_FLIPPED_INNER_B = outerType.MTypeB;
+            var M_FLIPPED_OUTER_B = innerType.MOuterTypeB(outerType);
+
+
             var OUTER_A = outerType.OuterTypeA(innerType);
             var OUTER_B = outerType.OuterTypeB(innerType);
             var OUTER_C = outerType.OuterTypeC(innerType);
@@ -75,6 +82,11 @@ namespace LanguageExt
             var GENS = TypeDesc.Gens(outerType, innerType);
 
             var src = template.Replace("CLASS_NAME", CLASS_NAME)
+                              .Replace("M_FLIPPED_INNER_B", M_FLIPPED_INNER_B)
+                              .Replace("M_FLIPPED_OUTER_B", M_FLIPPED_OUTER_B)
+                              .Replace("FLIPPED_OUTER_B", FLIPPED_OUTER_B)
+                              .Replace("FLIPPED_OUTER_A", FLIPPED_OUTER_A)
+                              .Replace("FLIPPED_INNER_B", FLIPPED_INNER_B)
                               .Replace("APPL_ABC", APPL_ABC)
                               .Replace("APPL_AB", APPL_AB)
                               .Replace("APPL_INNER_ABC", APPL_INNER_ABC)
