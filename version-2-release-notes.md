@@ -351,7 +351,10 @@ By expanding the amount of operations that the `Num<A>` type-class can do, you c
 Luckily you don't need to do that, because I have created the `Num<A>` type (in the `LanguageExt.TypeClasses` name-space), as well as `Floating<A>` (with operations like `Sin`, `Cos`, `Exp`, etc.).  I have also mapped all of the core numeric types to instances: `TInt`, `TShort`, `TLong`, `TFloat`, `TDouble`, `TDecimal`, `TBigInt`, etc.  So it's possible to write truly generic numeric code once.
 
 > There's no getting around the fact that providing the class-instance in the generic arguments list is a annoying (and later you'll see how annoying).  The Roslyn team are looking into a type-classes like feature for a future version of C# (variously named: 'Concepts' or 'Shapes').  So this will I'm sure be rectified, and when it is, it will be implemented exactly as I am using them here.  
-> Until then the pain of providing the generic arguments must continue.  You do however get a _super-powered C#__ in the mean-time.  Although the need to write this kind of super-generic code is rare, when you need it, _you need it_ - and right now this is simply the most powerful way.
+> 
+> Until then the pain of providing the generic arguments must continue.  You do however get a _super-powered C#_ in the mean-time.  
+> 
+> Although the need to write this kind of super-generic code is rare, when you need it, _you need it_ - and right now this is simply the most powerful way.
 
 #### `Eq<A>`
 
