@@ -399,7 +399,7 @@ Because you may be concerned about calling:
 There are two variants of the immutable `HashSet` in language-ext:
 ```c#
     HashSet<A>
-    HashSet<EqA, A>
+    HashSet<EqA, A> where EqA : struct, Eq<A>
 ```
 What's interesting about the second one is that the equality _definition_ is baked into the type.  So this:
 ```c#
@@ -413,7 +413,7 @@ And if you think about that, it's right.  The strings that are used as keys in t
 
 Now compare that to `HashSet<T>` in the BCL, or `ImmutableHashSet<T>` in `System.Collections.Immutable`, where two different sets with different `IEqualityComparer` types injected will cause undefined results when used together.
 
-_That's hopefully a glimpse into the potential for improving type-safeness in C#._
+> That's hopefully a glimpse into the potential for improving type-safeness in C#.
 
 #### `Ord<A>`
 
