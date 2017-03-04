@@ -3,8 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace LanguageExt.Core.ClassInstances.MonadPlus
+namespace LanguageExt.ClassInstances
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="A"></typeparam>
     public struct MIdentity<A> : Monad<Identity<A>, A>
     {
         public MB Bind<MONADB, MB, B>(Identity<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>

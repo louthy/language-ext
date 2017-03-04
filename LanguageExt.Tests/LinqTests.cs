@@ -25,12 +25,14 @@ namespace LanguageExtTests
             //   select a + b + c;
 
             var oa = Some(1);
-            var lb = List(2);
+            var lb = List(2, 3, 4, 5);
 
             var r1 =
                from a in oa.Map(MLst<int>.Inst.Return)  // a : int
                from b in Some(lb)      // b : int
                select a + b;
+
+            Assert.True(r1 == Some(List(1, 2, 3, 4, 5)));
         }
 
         [Fact]

@@ -110,14 +110,6 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void MapTest()
-        {
-            var res = FArr<int, int>.Inst.Map(Arr.create(1, 2, 3, 4), x => x * 2);
-
-
-        }
-
-        [Fact]
         public static async void TraverseAsync()
         {
             int n = 0;
@@ -146,7 +138,9 @@ namespace LanguageExt.Tests
 
             var y = x.Sequence();
 
-            Assert.True(x.IsRight && x == List(1, 2, 3, 4, 5));
+            var expect = List(Right<Exception, int>(1), Right<Exception, int>(2), Right<Exception, int>(3), Right<Exception, int>(4), Right<Exception, int>(5));
+
+            Assert.True(y == expect);
         }
 
         [Fact]

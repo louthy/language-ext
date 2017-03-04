@@ -38,14 +38,14 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static partial class TypeClass
-    {
 <#
     foreach(var outerType in types)
     {
         foreach(var innerType in types)
         {
             var CLASS_NAME = outerType.Name+innerType.Name;
+            var INNER_CLASS_NAME = innerType.Name;
+            var OUTER_CLASS_NAME = outerType.Name;
 
             var INNER_A = innerType.TypeA;
             var INNER_B = innerType.TypeB;
@@ -83,7 +83,9 @@ namespace LanguageExt
 
             var GENS = TypeDesc.Gens(outerType, innerType);
 
-            var src = template.Replace("CLASS_NAME", CLASS_NAME)
+            var src = template.Replace("INNER_CLASS_NAME", INNER_CLASS_NAME)
+                              .Replace("OUTER_CLASS_NAME", OUTER_CLASS_NAME)
+                              .Replace("CLASS_NAME", CLASS_NAME)
                               .Replace("M_FLIPPED_INNER_B", M_FLIPPED_INNER_B)
                               .Replace("M_FLIPPED_OUTER_B", M_FLIPPED_OUTER_B)
                               .Replace("FLIPPED_OUTER_B", FLIPPED_OUTER_B)
@@ -119,7 +121,6 @@ namespace LanguageExt
     }
 
 #>
-    }
 }
 <#+
 

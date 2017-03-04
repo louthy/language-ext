@@ -25,9 +25,12 @@
         T("Set"),
     };
 
+    string header = System.IO.File.ReadAllText(this.Host.ResolvePath("HKT.Extensions.Header.Template.txt"));
+    string footer = System.IO.File.ReadAllText(this.Host.ResolvePath("HKT.Extensions.Footer.Template.txt"));
     string template = System.IO.File.ReadAllText(this.Host.ResolvePath("HKT.Extensions.Template.txt"));
 #>
 using System;
+using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -39,11 +42,17 @@ using static LanguageExt.Prelude;
 namespace LanguageExt
 {
 <#
-    foreach(var outerType in types)
+    foreach(var innerType in types)
     {
-        foreach(var innerType in types)
+        StringBuilder b = new StringBuilder();
+
+        b.Append(header.Replace("INNER_CLASS_NAME",innerType.Name));
+
+        foreach(var outerType in types)
         {
             var CLASS_NAME = outerType.Name+innerType.Name;
+            var INNER_CLASS_NAME = innerType.Name;
+            var OUTER_CLASS_NAME = outerType.Name;
 
             var INNER_A = innerType.TypeA;
             var INNER_B = innerType.TypeB;
@@ -81,39 +90,42 @@ namespace LanguageExt
 
             var GENS = TypeDesc.Gens(outerType, innerType);
 
-            var src = template.Replace("CLASS_NAME", CLASS_NAME)
-                              .Replace("M_FLIPPED_INNER_B", M_FLIPPED_INNER_B)
-                              .Replace("M_FLIPPED_OUTER_B", M_FLIPPED_OUTER_B)
-                              .Replace("FLIPPED_OUTER_B", FLIPPED_OUTER_B)
-                              .Replace("FLIPPED_OUTER_A", FLIPPED_OUTER_A)
-                              .Replace("FLIPPED_INNER_B", FLIPPED_INNER_B)
-                              .Replace("APPL_ABC", APPL_ABC)
-                              .Replace("APPL_AB", APPL_AB)
-                              .Replace("APPL_INNER_ABC", APPL_INNER_ABC)
-                              .Replace("APPL_INNER_AB", APPL_INNER_AB)
-                              .Replace("M_INNER_FUNC_ABC", M_INNER_FUNC_ABC)
-                              .Replace("M_INNER_FUNC_AB", M_INNER_FUNC_AB)
-                              .Replace("M_FUNC_ABC", M_FUNC_ABC)
-                              .Replace("M_FUNC_AB", M_FUNC_AB)
-                              .Replace("M_OUTER_C", M_OUTER_C)
-                              .Replace("M_OUTER_B", M_OUTER_B)
-                              .Replace("M_OUTER_A", M_OUTER_A)
-                              .Replace("M_INNER_C", M_INNER_C)
-                              .Replace("M_INNER_B", M_INNER_B)
-                              .Replace("M_INNER_A", M_INNER_A)
-                              .Replace("OUTER_INT", OUTER_INT)
-                              .Replace("OUTER_BOOL", OUTER_BOOL)
-                              .Replace("OUTER_C", OUTER_C)
-                              .Replace("OUTER_B", OUTER_B)
-                              .Replace("OUTER_A", OUTER_A)
-                              .Replace("INNER_C", INNER_C)
-                              .Replace("INNER_B", INNER_B)
-                              .Replace("INNER_A", INNER_A)
-                              .Replace("GENS,", GENS);
-#>
-<#= src #>
-<#
+            b.AppendLine(template.Replace("INNER_CLASS_NAME", INNER_CLASS_NAME)
+                                 .Replace("OUTER_CLASS_NAME", OUTER_CLASS_NAME)
+                                 .Replace("CLASS_NAME", CLASS_NAME)
+                                 .Replace("M_FLIPPED_INNER_B", M_FLIPPED_INNER_B)
+                                 .Replace("M_FLIPPED_OUTER_B", M_FLIPPED_OUTER_B)
+                                 .Replace("FLIPPED_OUTER_B", FLIPPED_OUTER_B)
+                                 .Replace("FLIPPED_OUTER_A", FLIPPED_OUTER_A)
+                                 .Replace("FLIPPED_INNER_B", FLIPPED_INNER_B)
+                                 .Replace("APPL_ABC", APPL_ABC)
+                                 .Replace("APPL_AB", APPL_AB)
+                                 .Replace("APPL_INNER_ABC", APPL_INNER_ABC)
+                                 .Replace("APPL_INNER_AB", APPL_INNER_AB)
+                                 .Replace("M_INNER_FUNC_ABC", M_INNER_FUNC_ABC)
+                                 .Replace("M_INNER_FUNC_AB", M_INNER_FUNC_AB)
+                                 .Replace("M_FUNC_ABC", M_FUNC_ABC)
+                                 .Replace("M_FUNC_AB", M_FUNC_AB)
+                                 .Replace("M_OUTER_C", M_OUTER_C)
+                                 .Replace("M_OUTER_B", M_OUTER_B)
+                                 .Replace("M_OUTER_A", M_OUTER_A)
+                                 .Replace("M_INNER_C", M_INNER_C)
+                                 .Replace("M_INNER_B", M_INNER_B)
+                                 .Replace("M_INNER_A", M_INNER_A)
+                                 .Replace("OUTER_INT", OUTER_INT)
+                                 .Replace("OUTER_BOOL", OUTER_BOOL)
+                                 .Replace("OUTER_C", OUTER_C)
+                                 .Replace("OUTER_B", OUTER_B)
+                                 .Replace("OUTER_A", OUTER_A)
+                                 .Replace("INNER_C", INNER_C)
+                                 .Replace("INNER_B", INNER_B)
+                                 .Replace("INNER_A", INNER_A)
+                                 .Replace("GENS,", GENS));
         }
+        b.Append(footer);
+#>
+<#= b.ToString() #>
+<#
     }
 
 #>
