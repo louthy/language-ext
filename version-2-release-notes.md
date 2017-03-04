@@ -354,7 +354,7 @@ Luckily you don't need to do that, because I have created the `Num<A>` type (in 
 > 
 > Until then the pain of providing the generic arguments must continue.  You do however get a _super-powered C#_ in the mean-time.  
 > 
-> Although the need to write this kind of super-generic code is rare, when you need it, _you need it_ - and right now this is simply the most powerful way.
+> The need to write this kind of super-generic code is rare; but when you need it, _you need it_ - and right now this is simply the most powerful way.
 
 #### `Eq<A>`
 
