@@ -12,9 +12,6 @@ namespace LanguageExt
     /// <summary>
     /// Internal representation of a hash-set.  This allows for the HashSet type to be
     /// a non-nullable struct.
-    /// 
-    /// TODO: Some functions are not as optimal as they could be
-    /// TODO: Too much cut n paste.  Make DRY.
     /// </summary>
     /// <typeparam name="A">Key type</typeparam>
     internal class HashSetInternal<EqA, A> :

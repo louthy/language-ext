@@ -378,11 +378,6 @@ namespace LanguageExt
             AddRange(rhs);
 
         [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Lst<A> Append(Lst<A> lhs, Lst<A> rhs) =>
-            lhs.AddRange(rhs);
-
-        [Pure]
         public static LstInternal<A> operator -(LstInternal<A> lhs, LstInternal<A> rhs) =>
             lhs.Subtract(Wrap(rhs)).Value;
 
@@ -395,17 +390,6 @@ namespace LanguageExt
                 self = self.Remove(item);
             }
             return self;
-        }
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Lst<A> Subtract(Lst<A> lhs, Lst<A> rhs)
-        {
-            foreach (var item in rhs)
-            {
-                lhs = lhs.Remove(item);
-            }
-            return lhs;
         }
 
         [Pure]

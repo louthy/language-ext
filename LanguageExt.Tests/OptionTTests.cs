@@ -144,20 +144,19 @@ namespace LanguageExtTests
             Assert.True(total == 30);
         }
 
-        // TODO: RESTORE WHEN NEW TRANSFORMER SYSTEM IS IN PLACE
-        //[Fact]
-        //public void WrappedMapLinqTest()
-        //{
-        //    var opt = Some(Map(Tuple(1, "A"), Tuple(2, "B"), Tuple(3, "C"), Tuple(4, "D"), Tuple(5, "E")));
+        [Fact]
+        public void WrappedMapLinqTest()
+        {
+            var opt = Some(Map(Tuple(1, "A"), Tuple(2, "B"), Tuple(3, "C"), Tuple(4, "D"), Tuple(5, "E")));
 
-        //    var res = from x in opt
-        //              from y in x
-        //              select y.ToLower();
+            var res = from x in opt
+                      from y in x
+                      select y.Value.ToLower();
 
-        //    var fd = res.FoldT("", (s, x) => s + x);
+            var fd = res.FoldT("", (s, x) => s + x);
 
-        //    Assert.True(fd == "abcde");
-        //}
+            Assert.True(fd == "abcde");
+        }
 
         [Fact]
         public void WrappedOptionOptionLinqTest()

@@ -16,9 +16,6 @@ namespace LanguageExt
     /// <summary>
     /// Internal representation of a hash-map.  This allows for the HMap type to be
     /// a non-nullable struct.
-    /// 
-    /// TODO: Some functions are not as optimal as they could be
-    /// TODO: Too much cut n paste.  Make DRY.
     /// </summary>
     internal class HashMapInternal<EqK, K, V> :
         IEnumerable<(K Key, V Value)>

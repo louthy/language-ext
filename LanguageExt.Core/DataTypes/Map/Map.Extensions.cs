@@ -37,20 +37,6 @@ namespace LanguageExt
         public static int Sum<K>(this Map<K, int> self) =>
             self.Values.Sum();
 
-        //[Pure]
-        //public static Map<K, U> Bind<K, T, U>(this Map<K, T> self, Func<T, Map<K, U>> binder) =>
-        //    failwith<Map<K, U>>("Map<K,V> doesn't support Bind.");
-
-        //[Pure]
-        //[EditorBrowsable(EditorBrowsableState.Never)]
-        //public static Map<K, U> SelectMany<K, T, U>(this Map<K, T> self, Func<T, Map<K, U>> binder) =>
-        //    failwith<Map<K, U>>("Map<K,V> doesn't support Bind or SelectMany.");
-
-        //[Pure]
-        //[EditorBrowsable(EditorBrowsableState.Never)]
-        //public static Map<K, V> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, Map<K, U>> binder, Func<T, U, V> project) =>
-        //    failwith<Map<K, V>>("Map<K,V> doesn't support Bind or SelectMany.");
-
         // 
         // Map<A<Map<B,C>>
         // 
@@ -430,21 +416,27 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static S FoldT<A, B, S, V>(this Map<A, Map<B, V>> map, S state, Func<S, V, S> folder)
-        {
-            return map.Fold(state, (s, x) => x.Fold(s, folder));
-        }
+        public static S FoldT<A, B, S, V>(this Map<A, Map<B, V>> map, S state, Func<S, V, S> folder) =>
+            map.Fold(state, (s, x) => x.Fold(s, folder));
 
         [Pure]
-        public static S FoldT<A, B, C, S, V>(this Map<A, Map<B, Map<C, V>>> map, S state, Func<S, V, S> folder)
-        {
-            return map.Fold(state, (s, x) => x.FoldT(s, folder));
-        }
+        public static S FoldT<A, B, C, S, V>(this Map<A, Map<B, Map<C, V>>> map, S state, Func<S, V, S> folder) =>
+            map.Fold(state, (s, x) => x.FoldT(s, folder));
 
         [Pure]
-        public static S FoldT<A, B, C, D, S, V>(this Map<A, Map<B, Map<C, Map<D, V>>>> map, S state, Func<S, V, S> folder)
-        {
-            return map.Fold(state, (s, x) => x.FoldT(s, folder));
-        }
+        public static S FoldT<A, B, C, D, S, V>(this Map<A, Map<B, Map<C, Map<D, V>>>> map, S state, Func<S, V, S> folder) =>
+            map.Fold(state, (s, x) => x.FoldT(s, folder));
+
+        [Pure]
+        public static int CountT<A, B, V>(this Map<A, Map<B, V>> map) =>
+            map.Fold(0, (s, x) => s+  x.Count);
+
+        [Pure]
+        public static int CountT<A, B, C, V>(this Map<A, Map<B, Map<C, V>>> map) =>
+            map.Fold(0, (s, x) => s + x.CountT());
+
+        [Pure]
+        public static int CountT<A, B, C, D, V>(this Map<A, Map<B, Map<C, Map<D, V>>>> map) =>
+            map.Fold(0, (s, x) => s + x.CountT());
     }
 }

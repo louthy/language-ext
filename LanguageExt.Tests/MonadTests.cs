@@ -164,29 +164,10 @@ namespace LanguageExtTests
         //}
 
         //[Fact]
-        //public void LiftTest()
-        //{
-        //    var x = List(None, Some(1), Some(2), Some(3), Some(4));
-
-        //    Assert.True(x.Lift() == None);
-        //    Assert.True(x.LiftT() == 0);
-
-        //    var y = List(Some(1), Some(2), Some(3), Some(4));
-
-        //    Assert.True(y.Lift() == Some(1));
-        //    Assert.True(y.LiftT() == 1);
-
-        //    var z = Some(Some(Some(Some(1))));
-
-        //    Assert.True(z.LiftT().Lift() == Some(1));
-        //    Assert.True(z.LiftT().LiftT() == 1);
-        //}
-
-        //[Fact]
         //public void ReaderTryOptionLinqTest()
         //{
         //    var res = from x in ask<string>()
-        //              from y in Hello(x)
+        //              from y in Hello(x).Map(MReader<string, string>.Inst.Return)
         //              select y;
 
         //    Assert.True(res.LiftT("World") == "Hello, World");

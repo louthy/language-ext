@@ -26,7 +26,7 @@ namespace LanguageExt.ClassInstances
         {
             if (typeof(MB) == typeof(TryOptionAsync<B>) && typeof(MONADB) == typeof(MTryOptionAsync<B>))
             {
-                // TODO: This is a hack to get around the type system for async
+                // HACK: This is a hack to get around the type system for async
                 //       A better solution is needed
 
                 var mb = from a in ma
