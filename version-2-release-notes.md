@@ -413,7 +413,7 @@ And if you think about that, it's right.  The strings that are used as keys in t
 
 Now compare that to `HashSet<T>` in the BCL, or `ImmutableHashSet<T>` in `System.Collections.Immutable`, where two different sets with different `IEqualityComparer` types injected will cause undefined results when used together.
 
-> That's hopefully a glimpse into the potential for improving type-safeness in C#.
+> That's hopefully a small glimpse into the potential for improving type-safeness in C#.
 
 #### `Ord<A>`
 
