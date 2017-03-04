@@ -167,7 +167,9 @@ As with `NewType` you can also use a predicate:
 ### FloatType
 Even more specialised than `NumType` and `NewType` in that it only accepts class-instances from the type-class `Floating<A>`.  It adds functionality that are only useful with floating point number types (along with the functionality from `NumType` and `NewType`):
 ```
-    `Exp()`, `Sqrt()`, `Log()`, `Pow(A exp)`, `LogBase(A y)`, `Sin()`, `Cos()`, `Asin()`, `Acos()`, `Atan()`, `Sinh()`, `Cosh()`, `Tanh()`, `Asinh()`, `Acosh()`, `Atanh()`
+`Exp()`, `Sqrt()`, `Log()`, `Pow(A exp)`, `LogBase(A y)`, `Sin()`, `Cos()`,
+`Asin()`, `Acos()`, `Atan()`, `Sinh()`, `Cosh()`, `Tanh()`, `Asinh()`, 
+`Acosh()`, `Atanh()`
 ```
 
 ### ValueTuple and Tuple
