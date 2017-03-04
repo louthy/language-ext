@@ -506,7 +506,7 @@ This comes with some helper functions in `LanguageExt.TypeClass`:
 ```
 Now the semigroup `Append` comes to life.  Examples of monoids are: `TInt`, `MLst`, `TString`, etc.  i.e.
 ```c#
-    var x = mconcat<TString, string>("Hello ", "World");       // "Hello World"
+    var x = mconcat<TString, string>("Hello", " ", "World");   // "Hello World"
     var y = mconcat<TLst<int>, Lst<int>>(List(1), List(2, 3)); // [1,2,3]
     var z = mconcat<TInt, int>(1, 2, 3, 4, 5);                 // 15
 ```
