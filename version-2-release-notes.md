@@ -386,7 +386,7 @@ One final way is:
 
 For example you may call this directly:
 ```c#
-    bool x = EqInst.Inst.Equals(List(1,2,3), List(1,2,3));
+    bool x = EqLst.Inst.Equals(List(1,2,3), List(1,2,3));
 ```
 Because you may be concerned about calling:
 ```c#
