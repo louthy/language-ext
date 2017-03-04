@@ -10,7 +10,6 @@ namespace LanguageExt.Tests
 {
     public class TraverseTests
     {
-
         [Fact]
         public void OptionList()
         {
@@ -108,6 +107,75 @@ namespace LanguageExt.Tests
             var y = x.Sequence();
 
             Assert.True(y == None);
+        }
+
+        [Fact]
+        public void MapTest()
+        {
+            var res = FArr<int, int>.Inst.Map(Arr.create(1, 2, 3, 4), x => x * 2);
+
+
+        }
+
+        [Fact]
+        public static async void TraverseAsync()
+        {
+            int n = 0;
+
+            var start = DateTime.UtcNow;
+
+            var f1 = Task.Run(() => { Thread.Sleep(3000); return Interlocked.Increment(ref n); });
+            var f2 = Task.Run(() => { Thread.Sleep(3000); return Interlocked.Increment(ref n); });
+            var f3 = Task.Run(() => { Thread.Sleep(3000); return Interlocked.Increment(ref n); });
+            var f4 = Task.Run(() => { Thread.Sleep(3000); return Interlocked.Increment(ref n); });
+            var f5 = Task.Run(() => { Thread.Sleep(3000); return Interlocked.Increment(ref n); });
+            var f6 = Task.Run(() => { Thread.Sleep(3000); return Interlocked.Increment(ref n); });
+
+            var res = await List(f1, f2, f3, f4, f5, f6).Traverse(x => x * 2);
+
+            Assert.True(Set.createRange(res) == Set(2, 4, 6, 8, 10, 12));
+
+            var ms = (int)(DateTime.UtcNow - start).TotalMilliseconds;
+            Assert.True(ms < 3500, $"Took {ms} ticks");
+        }
+
+        [Fact]
+        public static void EitherList1()
+        {
+            var x = Right<Exception, Lst<int>>(List(1, 2, 3, 4, 5));
+
+            var y = x.Sequence();
+
+            Assert.True(x.IsRight && x == List(1, 2, 3, 4, 5));
+        }
+
+        [Fact]
+        public static void EitherList2()
+        {
+            var x = Left<string, Lst<int>>("error");
+
+            var y = x.Sequence();
+
+            Assert.True(y.Count == 1 && y[0].IsBottom);
+        }
+
+        [Fact]
+        public static void ListEither1()
+        {
+            var x = List<Either<Exception, int>>(1, 2, 3, 4, 5);
+
+            var y = x.Sequence();
+            Assert.True(y == List(1, 2, 3, 4, 5));
+        }
+
+        [Fact]
+        public static void ListEither2()
+        {
+            var x = List<Either<string, int>>(1, 2, 3, 4, "error");
+
+            var y = x.Sequence();
+
+            Assert.True(y.IsLeft && y == "error");
         }
 
     }

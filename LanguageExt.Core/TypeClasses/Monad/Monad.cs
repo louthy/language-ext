@@ -44,14 +44,6 @@ namespace LanguageExt.TypeClasses
         [Pure]
         MA Zero();
 
-        ///// <summary>
-        ///// Monad return
-        ///// </summary>
-        ///// <param name="f">The function to invoke to get the bound monad value(s)</param>
-        ///// <returns>Monad of A</returns>
-        //[Pure]
-        //MA Return(Func<A> f);
-
         /// <summary>
         /// Produce a failure value
         /// </summary>

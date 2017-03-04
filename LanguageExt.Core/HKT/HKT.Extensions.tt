@@ -25,7 +25,7 @@
         T("Set"),
     };
 
-    string template = System.IO.File.ReadAllText(this.Host.ResolvePath("Template.txt"));
+    string template = System.IO.File.ReadAllText(this.Host.ResolvePath("HKT.Extensions.Template.txt"));
 #>
 using System;
 using System.Linq;

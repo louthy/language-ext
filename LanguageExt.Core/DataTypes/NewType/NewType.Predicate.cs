@@ -32,7 +32,7 @@ namespace LanguageExt
         /// <summary>
         /// Constructor function
         /// </summary>
-        public static readonly Func<A, NEWTYPE> New = Reflect.Util.CtorInvoke<A, NEWTYPE>();
+        public static readonly Func<A, NEWTYPE> New = IL.Ctor<A, NEWTYPE>();
 
         /// <summary>
         /// Constructor

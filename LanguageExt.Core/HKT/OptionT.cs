@@ -15,7 +15,7 @@ namespace LanguageExt
     struct OptionT<OuterMonad, OuterType, A> : MonadTrans<OuterMonad, OuterType, MOption<A>, Option<A>, A>
         where OuterMonad : struct, Monad<OuterType, Option<A>>
     {
-        public static readonly OptionT<OuterMonad, OuterType, A> Inst;
+        public static readonly OptionT<OuterMonad, OuterType, A> Inst = default(OptionT<OuterMonad, OuterType, A>);
 
         public OuterType Bind(OuterType ma, Func<A, Option<A>> f) =>
             Trans<OuterMonad, OuterType, MOption<A>, Option<A>, A>

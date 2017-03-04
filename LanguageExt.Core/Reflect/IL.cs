@@ -3,14 +3,15 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace LanguageExt.Reflect
+namespace LanguageExt
 {
-    public static class Util
+    public static class IL
     {
         /// <summary>
-        /// Emits the IL to instantiate a type of R
+        /// Emits the IL to instantiate a type of R with a single argument to 
+        /// the constructor
         /// </summary>
-        public static Func<A, R> CtorInvoke<A, R>(Func<ConstructorInfo, bool> ctorPred = null)
+        public static Func<A, R> Ctor<A, R>(Func<ConstructorInfo, bool> ctorPred = null)
         {
             ctorPred = ctorPred ?? (_ => true);
 
@@ -45,9 +46,10 @@ namespace LanguageExt.Reflect
         }
 
         /// <summary>
-        /// Emits the IL to instantiate a type of R
+        /// Emits the IL to instantiate a type of R with two arguments to 
+        /// the constructor
         /// </summary>
-        public static Func<A, B, R> CtorInvoke<A, B, R>(Func<ConstructorInfo, bool> ctorPred = null)
+        public static Func<A, B, R> Ctor<A, B, R>(Func<ConstructorInfo, bool> ctorPred = null)
         {
             ctorPred = ctorPred ?? (_ => true);
 
@@ -84,9 +86,10 @@ namespace LanguageExt.Reflect
         }
 
         /// <summary>
-        /// Emits the IL to instantiate a type of R
+        /// Emits the IL to instantiate a type of R with three arguments to 
+        /// the constructor
         /// </summary>
-        public static Func<A, B, C, R> CtorInvoke<A, B, C, R>(Func<ConstructorInfo, bool> ctorPred = null)
+        public static Func<A, B, C, R> Ctor<A, B, C, R>(Func<ConstructorInfo, bool> ctorPred = null)
         {
             ctorPred = ctorPred ?? (_ => true);
 
@@ -125,9 +128,10 @@ namespace LanguageExt.Reflect
         }
 
         /// <summary>
-        /// Emits the IL to instantiate a type of R
+        /// Emits the IL to instantiate a type of R with four arguments to 
+        /// the constructor
         /// </summary>
-        public static Func<A, B, C, D, R> CtorInvoke<A, B, C, D, R>(Func<ConstructorInfo, bool> ctorPred = null)
+        public static Func<A, B, C, D, R> Ctor<A, B, C, D, R>(Func<ConstructorInfo, bool> ctorPred = null)
         {
             ctorPred = ctorPred ?? (_ => true);
 

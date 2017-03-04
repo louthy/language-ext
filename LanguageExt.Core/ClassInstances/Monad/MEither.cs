@@ -48,7 +48,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Either<L, R> Zero() =>
-            Either<L, R>.Right(default(R));
+            default(Either<L, R>);
 
         [Pure]
         public bool IsNone(Either<L, R> opt) =>

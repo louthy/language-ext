@@ -20,6 +20,6 @@ namespace LanguageExt.TypeClasses
         [Pure]
         A Empty();
 
-        // Concat is defined in Monoid.Prelude
+        // Concat is defined in LanguageExt.TypeClass
     }
 }

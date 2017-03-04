@@ -9,7 +9,7 @@
     <DefineConstants>COREFX</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageVersion>2.0.22-alpha</PackageVersion>
+    <PackageVersion>2.0.23-alpha</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -51,24 +51,38 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="HKT\HKT.cs">
+    <Compile Update="HKT\HKT.Extensions.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>HKT.tt</DependentUpon>
+      <DependentUpon>HKT.Extensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="HKT\HKT.Prelude.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.Prelude.tt</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="HKT\HKT.cs">
+    <None Update="HKT\HKT.Extensions.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>HKT.tt</DependentUpon>
+      <DependentUpon>HKT.Extensions.tt</DependentUpon>
     </None>
-    <None Update="HKT\HKT.tt">
+    <None Update="HKT\HKT.Extensions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>HKT.cs</LastGenOutput>
+      <LastGenOutput>HKT.Extensions.cs</LastGenOutput>
+    </None>
+    <None Update="HKT\HKT.Prelude.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.Prelude.tt</DependentUpon>
+    </None>
+    <None Update="HKT\HKT.Prelude.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.Prelude.cs</LastGenOutput>
     </None>
   </ItemGroup>
 </Project>

@@ -48,7 +48,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public EitherUnsafe<L, R> Zero() =>
-            EitherUnsafe<L, R>.Right(default(R));
+            default(EitherUnsafe<L, R>);
 
         [Pure]
         public bool IsNone(EitherUnsafe<L, R> opt) =>

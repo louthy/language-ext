@@ -54,7 +54,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void CtorOfArity1Test()
         {
-            var ctor = Reflect.Util.CtorInvoke<string, TestClass>();
+            var ctor = IL.Ctor<string, TestClass>();
 
             var res = ctor("Hello");
 
@@ -64,7 +64,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void CtorOfArity2Test()
         {
-            var ctor = Reflect.Util.CtorInvoke<string, string, TestClass>();
+            var ctor = IL.Ctor<string, string, TestClass>();
 
             var res = ctor("Hello", "World");
 
@@ -75,7 +75,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void CtorOfArity2Test2()
         {
-            var ctor = Reflect.Util.CtorInvoke<string, bool, TestClass>();
+            var ctor = IL.Ctor<string, bool, TestClass>();
 
             var res = ctor("Hello", true);
 
@@ -86,7 +86,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void CtorOfArity3Test()
         {
-            var ctor = Reflect.Util.CtorInvoke<string, string, string, TestClass>();
+            var ctor = IL.Ctor<string, string, string, TestClass>();
 
             var res = ctor("Roland","TR", "909");
 
@@ -98,7 +98,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void CtorOfArity4Test()
         {
-            var ctor = Reflect.Util.CtorInvoke<string, string, string, string, TestClass>();
+            var ctor = IL.Ctor<string, string, string, string, TestClass>();
 
             var res = ctor("Chandler", "Curve", "Bender", "EQ");
 
@@ -112,7 +112,7 @@ namespace LanguageExt.Tests
         public void DateConstructTest()
         {
             var ticks = new DateTime(2017, 1, 1).Ticks;
-            var ctor = Reflect.Util.CtorInvoke<long, DateTime>();
+            var ctor = IL.Ctor<long, DateTime>();
 
             DateTime res = ctor(ticks);
 
