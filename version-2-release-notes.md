@@ -111,16 +111,16 @@ You can define your own `struct` type that derives from `Pred<A>` to provide any
 
 These are the built in predicate types:
 
-    * `True<A>` - Always succeeds, no matter what's passed
-    * `False<A>` - Always fails, no matter what's passed
-    * `Equal<A, EQ, CONST>` - Value `A` must be equal to `CONST`.  `EQ` is a `Eq<A>` instance
-    * `Exists<A, Term1, ..., Term5>` - `Term1 - Term5` are predicates.  The test passes if `A` is true when applied to any of the terms.
-    * `ForAll<A, Term1, ..., Term5>` - `Term1 - Term5` are predicates.  The test passes if `A` is true when applied to all of the terms.
-    * `GreaterThan<A, ORD, CONST>` - Value `A` must be greater than `CONST`.  `ORD` is an `Ord<A>` instance.
-    * `GreaterOrEq<A, ORD, CONST>` - Value `A` must be greater than or equal to `CONST`.  `ORD` is an `Ord<A>` instance.
-    * `LessThan<A, ORD, CONST>` - Value `A` must be less than `CONST`.  `ORD` is an `Ord<A>` instance.
-    * `LessOrEq<A, ORD, CONST>` - Value `A` must be less than or equal to `CONST`.  `ORD` is an `Ord<A>` instance.
-    * `Range<A, ORD, MIN, MAX>` - Value `A` must be in the range `MIN` to `MAX`.  `ORD` is an `Ord<A>` instance.
+* `True<A>` - Always succeeds, no matter what's passed
+* `False<A>` - Always fails, no matter what's passed
+* `Equal<A, EQ, CONST>` - Value `A` must be equal to `CONST`.  `EQ` is a `Eq<A>` instance
+* `Exists<A, Term1, ..., Term5>` - `Term1 - Term5` are predicates.  The test passes if `A` is true when applied to any of the terms.
+* `ForAll<A, Term1, ..., Term5>` - `Term1 - Term5` are predicates.  The test passes if `A` is true when applied to all of the terms.
+* `GreaterThan<A, ORD, CONST>` - Value `A` must be greater than `CONST`.  `ORD` is an `Ord<A>` instance.
+* `GreaterOrEq<A, ORD, CONST>` - Value `A` must be greater than or equal to `CONST`.  `ORD` is an `Ord<A>` instance.
+* `LessThan<A, ORD, CONST>` - Value `A` must be less than `CONST`.  `ORD` is an `Ord<A>` instance.
+* `LessOrEq<A, ORD, CONST>` - Value `A` must be less than or equal to `CONST`.  `ORD` is an `Ord<A>` instance.
+* `Range<A, ORD, MIN, MAX>` - Value `A` must be in the range `MIN` to `MAX`.  `ORD` is an `Ord<A>` instance.
 
 Constants are in the `LanguageExt.ClassInstances.Const` namespace.  Integers are prefixed with `I`;  the most commonl used are already created: `0` to `256`, then powers of two and hundreds, thousands, etc.  `Double` constants are prefixed with `D`.  Only `D0`, `D1`, and `DNeg1` exist.  `Char` constants are `A` to `Z`, `a` to `z`, `0` to `9`, `ChSpace`, `ChTab`, `ChCR`, `ChLF`.
 
