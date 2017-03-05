@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics.Contracts;
 using LanguageExt;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -89,5 +90,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Arr<A> BindReturn(Unit _, Arr<A> fmb) =>
             fmb;
+
+        [Pure]
+        public Arr<A> IdAsync(Func<Unit, Task<Arr<A>>> ma) =>
+            ma(unit).Result;
     }
 }

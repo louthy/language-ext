@@ -3,6 +3,7 @@ using System.Diagnostics.Contracts;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
+using System.Threading.Tasks;
 
 namespace LanguageExt
 {
@@ -102,7 +103,7 @@ namespace LanguageExt
 
         [Pure]
         public static bool operator==(Result<A> a, Result<A> b) =>
-            a.Equals(b);
+            EqDefault<A>.Equals(a, b);
 
         [Pure]
         public static bool operator !=(Result<A> a, Result<A> b) =>
@@ -141,9 +142,22 @@ namespace LanguageExt
                 ? Fail(Exception)
                 : Succ(Value);
 
+        [Pure]
         internal OptionalResult<A> ToOptional() =>
             IsFaulted
                 ? new OptionalResult<A>(Exception)
                 : new OptionalResult<A>(Value);
+
+        [Pure]
+        public Result<B> Map<B>(Func<A, B> f) =>
+            IsFaulted
+                ? new Result<B>(Exception)
+                : new Result<B>(f(Value));
+
+        [Pure]
+        public async Task<Result<B>> MapAsync<B>(Func<A, Task<B>> f) =>
+            IsFaulted
+                ? new Result<B>(Exception)
+                : new Result<B>(await f(Value));
     }
 }

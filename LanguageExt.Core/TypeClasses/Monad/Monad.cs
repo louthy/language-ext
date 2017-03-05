@@ -45,11 +45,6 @@ namespace LanguageExt.TypeClasses
         MA Return(Func<Env, A> f);
 
         /// <summary>
-        /// Monad identity
-        /// </summary>
-        MA Id(Func<Env, MA> ma);
-
-        /// <summary>
         /// Used for double dispatch by the bind function for monadic types that
         /// need to construct an output value/state (like MState and MWriter).  For
         /// all other monad types just return mb.
@@ -59,6 +54,16 @@ namespace LanguageExt.TypeClasses
         /// maOutput and then re-wrap</param>
         /// <returns>Monad with the combined output</returns>
         MA BindReturn(Out maOutput, MA mb);
+
+        /// <summary>
+        /// Monad identity
+        /// </summary>
+        MA Id(Func<Env, MA> ma);
+
+        /// <summary>
+        /// Monad identity asynchronously
+        /// </summary>
+        MA IdAsync(Func<Env, Task<MA>> ma);
 
         /// <summary>
         /// Produce a failure value

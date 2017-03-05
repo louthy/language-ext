@@ -17,6 +17,22 @@ using System.Collections.Generic;
 public static class TryOptionExtensions
 {
     /// <summary>
+    /// Memoize the computation so that it's only run once
+    /// </summary>
+    public static TryOption<A> Memo<A>(this TryOption<A> ma)
+    {
+        bool run = false;
+        OptionalResult<A> result = new OptionalResult<A>();
+        return (() =>
+        {
+            if (run) return result;
+            result = ma.Try();
+            run = true;
+            return result;
+        });
+    }
+
+    /// <summary>
     /// Invoke a delegate if the Try returns a value successfully
     /// </summary>
     /// <param name="Some">Delegate to invoke if successful</param>
@@ -310,19 +326,6 @@ public static class TryOptionExtensions
                 : None();
     }
 
-    /// <summary>
-    /// Memoise the try
-    /// </summary>
-    public static TryOption<A> Memo<A>(this TryOption<A> self)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return () =>
-        {
-            if (res.IsFaulted) throw new InnerException(res.Exception);
-            return res.Value;
-        };
-    }
-
     [Pure]
     public static Option<A> ToOption<A>(this TryOption<A> self)
     {
@@ -379,8 +382,8 @@ public static class TryOptionExtensions
 
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static TryOption<U> Select<A, U>(this TryOption<A> self, Func<A, U> select) => () => 
-        self().Value.Map(select);
+    public static TryOption<B> Select<A, B>(this TryOption<A> self, Func<A, B> select) =>
+        Map(self, select);
 
     /// <summary>
     /// Apply Try values to a Try function of arity 2
@@ -504,8 +507,8 @@ public static class TryOptionExtensions
     /// <param name="mapper">Delegate to map the bound value</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static TryOption<R> Map<A, R>(this TryOption<A> self, Func<A, R> mapper) =>
-        () => self().Value.Map(mapper);
+    public static TryOption<B> Map<A, B>(this TryOption<A> self, Func<A, B> f) =>
+        Memo(() => self.Try().Map(f));
 
     /// <summary>
     /// Maps the bound value
@@ -517,16 +520,14 @@ public static class TryOptionExtensions
     /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static TryOption<R> BiMap<A, R>(this TryOption<A> self, Func<A, R> Some, Func<R> Fail)
-    {
-        return () =>
+    public static TryOption<R> BiMap<A, R>(this TryOption<A> self, Func<A, R> Some, Func<R> Fail) =>
+        Memo<R>(() =>
         {
             var res = self.Try();
             return res.IsFaulted || res.Value.IsNone
                 ? Fail()
                 : Some(res.Value.Value);
-        };
-    }
+        });
 
     /// <summary>
     /// Maps the bound value
@@ -540,7 +541,7 @@ public static class TryOptionExtensions
     [Pure]
     public static TryOption<R> TriMap<A, R>(this TryOption<A> self, Func<A, R> Some, Func<R> None, Func<Exception, R> Fail)
     {
-        return () =>
+        return Memo<R>(() =>
         {
             var res = self.Try();
             return res.IsFaulted
@@ -548,7 +549,7 @@ public static class TryOptionExtensions
                 : res.Value.IsSome
                     ? Some(res.Value.Value)
                     : None();
-        };
+        });
     }
 
     /// <summary>
@@ -570,13 +571,13 @@ public static class TryOptionExtensions
     [Pure]
     public static TryOption<A> Filter<A>(this TryOption<A> self, Func<A, bool> pred)
     {
-        return () =>
+        return Memo<A>(() =>
         {
             var res = self().Value;
             return res.IsSome && pred(res.Value)
                 ? res
                 : Option<A>.None;
-        };
+        });
     }
 
     [Pure]
@@ -585,39 +586,31 @@ public static class TryOptionExtensions
         self.Filter(pred);
 
     [Pure]
-    public static TryOption<R> Bind<A, R>(this TryOption<A> self, Func<A, TryOption<R>> binder)
-    {
-        return () =>
-        {
-            var opt = self().Value;
-            return opt.IsSome
-                ? binder(opt.Value)().Value
-                : Option<R>.None;
-        };
-    }
+    public static TryOption<B> Bind<A, B>(this TryOption<A> self, Func<A, TryOption<B>> binder) =>
+        MTryOption<A>.Inst.Bind<MTryOption<B>, TryOption<B>, B>(self, binder);
 
     [Pure]
     public static TryOption<R> BiBind<A, R>(this TryOption<A> self, Func<A, TryOption<R>> Some, Func<TryOption<R>> Fail)
     {
-        return () =>
+        return Memo<R>(() =>
         {
             var res = self().Value;
             return res.IsNone
                 ? Fail()().Value
                 : Some(res.Value)().Value;
-        };
+        });
     }
 
     [Pure]
     public static TryOption<R> TriBind<A, R>(this TryOption<A> self, Func<A, TryOption<R>> Some, Func<TryOption<R>> None, Func<Exception, TryOption<R>> Fail)
     {
-        return () =>
+        return Memo<R>(() =>
         {
             var res = self().Value;
             return res.IsSome
                 ? Some(res.Value)().Value 
                 : None()().Value;
-        };
+        });
     }
 
     [Pure]
@@ -658,20 +651,13 @@ public static class TryOptionExtensions
 
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static TryOption<V> SelectMany<A, U, V>(
+    public static TryOption<C> SelectMany<A, B, C>(
         this TryOption<A> self,
-        Func<A, TryOption<U>> bind,
-        Func<A, U, V> project)
-    {
-        return () =>
-        {
-            var resT = self().Value;
-            if (resT.IsNone) return Option<V>.None;
-            var resU = bind(resT.Value)().Value;
-            if (resU.IsNone) return Option<V>.None;
-            return project(resT.Value, resU.Value);
-        };
-    }
+        Func<A, TryOption<B>> bind,
+        Func<A, B, C> project) =>
+            MTryOption<A>.Inst.Bind<MTryOption<C>, TryOption<C>, C>(self, a =>
+            MTryOption<B>.Inst.Bind<MTryOption<C>, TryOption<C>, C>(bind(a), b =>
+            MTryOption<C>.Inst.Return(project(a, b))));
 
     public static TryOption<V> Join<A, U, K, V>(
         this TryOption<A> self,
@@ -680,14 +666,14 @@ public static class TryOptionExtensions
         Func<U, K> innerKeyMap,
         Func<A, U, V> project)
     {
-        return () =>
+        return Memo<V>(() =>
         {
             var selfRes = self().Value;
             var innerRes = inner().Value;
             return selfRes.IsSome && innerRes.IsSome && EqualityComparer<K>.Default.Equals(outerKeyMap(selfRes.Value), innerKeyMap(innerRes.Value))
                 ? project(selfRes.Value, innerRes.Value)
                 : raise<V>(new BottomException());
-        };
+        });
     }
 
     /// <summary>

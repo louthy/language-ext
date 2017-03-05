@@ -4,6 +4,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using LanguageExt.ClassInstances;
+using System.Threading.Tasks;
 
 namespace LanguageExt
 {
@@ -16,6 +17,8 @@ namespace LanguageExt
     /// <typeparam name="A">Bound value type</typeparam>
     public struct OptionalResult<A> : IEquatable<OptionalResult<A>>
     {
+        public static readonly OptionalResult<A> None = new OptionalResult<A>();
+
         readonly bool IsValid;
         internal readonly Option<A> Value;
         internal Exception Exception;
@@ -41,7 +44,7 @@ namespace LanguageExt
         {
             IsValid = true;
             Exception = e;
-            Value = None;
+            Value = Option<A>.None;
         }
 
         /// <summary>
@@ -176,5 +179,17 @@ namespace LanguageExt
                 : Value.IsSome
                     ? new Result<A>(Value.Value)
                     : new Result<A>(default(A));
+
+        [Pure]
+        public OptionalResult<B> Map<B>(Func<A, B> f) =>
+            IsFaulted || Value.IsNone
+                ? new OptionalResult<B>(Exception)
+                : new OptionalResult<B>(f(Value.Value));
+
+        [Pure]
+        public async Task<OptionalResult<B>> MapAsync<B>(Func<A, Task<B>> f) =>
+            IsFaulted || Value.IsNone
+                ? new OptionalResult<B>(Exception)
+                : new OptionalResult<B>(await f(Value.Value));
     }
 }

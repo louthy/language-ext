@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -87,5 +88,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Set<A> BindReturn(Unit _, Set<A> mb) =>
             mb;
+
+        [Pure]
+        public Set<A> IdAsync(Func<Unit, Task<Set<A>>> ma) =>
+            ma(unit).Result;
     }
 }

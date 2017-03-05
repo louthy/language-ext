@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -62,5 +63,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Identity<A> Return(A x) =>
             Return(_ => x);
+
+        [Pure]
+        public Identity<A> IdAsync(Func<Unit, Task<Identity<A>>> ma) =>
+            ma(unit).Result;
     }
 }

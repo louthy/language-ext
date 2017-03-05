@@ -4,6 +4,7 @@ using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -35,7 +36,9 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryOption<A> Fail(Exception err = null) => 
-            TryOption<A>(() => { throw err; });
+            err == null 
+                ? TryOption<A>(Option<A>.None)
+                : TryOption<A>(err);
 
         [Pure]
         public TryOption<A> Plus(TryOption<A> ma, TryOption<A> mb) => () =>
@@ -164,6 +167,10 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryOption<A> Return(A x) =>
-            Return(_ => x);
+            () => x;
+
+        [Pure]
+        public TryOption<A> IdAsync(Func<Unit, Task<TryOption<A>>> ma) =>
+            ma(unit).Result;
     }
 }

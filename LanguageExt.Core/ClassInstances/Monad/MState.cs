@@ -3,6 +3,7 @@ using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -81,5 +82,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public State<S, A> State(Func<S, A> f) => state =>
             (f(state), state, false);
+
+        [Pure]
+        public State<S, A> IdAsync(Func<S, Task<State<S, A>>> ma) => state =>
+            ma(state).Result(state);
     }
 }

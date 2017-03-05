@@ -22,36 +22,36 @@ namespace LanguageExt.ClassInstances
         public TryOptionAsync<A> None => none;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(TryOptionAsync<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
-        {
-            if (typeof(MB) == typeof(TryOptionAsync<B>) && typeof(MONADB) == typeof(MTryOptionAsync<B>))
+        public MB Bind<MONADB, MB, B>(TryOptionAsync<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
+            default(MONADB).IdAsync(_ => ma.Try().ContinueWith(task =>
             {
-                // HACK: This is a hack to get around the type system for async
-                //       A better solution is needed
-
-                var mb = from a in ma
-                         from b in (TryOptionAsync<B>)(object)f(a)
-                         select b;
-
-                return (MB)(object)mb;
-            }
-            else
-            {
-                // Synchronous type-safe version
-                return ma.Match(
-                    Some: f,
-                    None: () => default(MONADB).Fail(),           
-                    Fail: x => default(MONADB).Fail(x)).Result;
-            }
-        }
+                try
+                {
+                    return task.IsFaulted
+                        ? default(MONADB).Fail(task.Exception)
+                        : task.IsCanceled
+                            ? default(MONADB).Fail()
+                            : task.Result.IsFaulted
+                                ? default(MONADB).Fail(task.Result.Exception)
+                                : task.Result.Value.IsNone || task.Result.IsBottom
+                                    ? default(MONADB).Fail()
+                                    : f(task.Result.Value.Value);
+                }
+                catch(Exception e)
+                {
+                    return default(MONADB).Fail(e);
+                }
+            }));
 
         [Pure]
         public TryOptionAsync<A> Fail(object err) =>
-            TryOptionAsync<A>(() => { throw new BottomException(); });
+            TryOptionAsync<A>(Option<A>.None);
 
         [Pure]
         public TryOptionAsync<A> Fail(Exception err = null) =>
-            TryOptionAsync<A>(() => { throw err; });
+            err == null
+                ? TryOptionAsync<A>(Option<A>.None)
+                : TryOptionAsync<A>(err);
 
         [Pure]
         public TryOptionAsync<A> Plus(TryOptionAsync<A> ma, TryOptionAsync<A> mb) => async () =>
@@ -68,7 +68,7 @@ namespace LanguageExt.ClassInstances
             }
             if (!resA.IsFaulted) return resA.Result;
             if (!resB.IsFaulted) return resB.Result;
-            throw new BottomException();
+            return OptionalResult<A>.None;
         };
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace LanguageExt.ClassInstances
             () => Task.FromResult(new OptionalResult<A>(f(unit)));
 
         [Pure]
-        public TryOptionAsync<A> Zero() => 
+        public TryOptionAsync<A> Zero() =>
             none;
 
         [Pure]
@@ -116,7 +116,7 @@ namespace LanguageExt.ClassInstances
 
         public Unit Match(TryOptionAsync<A> opt, Action<A> Some, Action None) =>
             Match(opt,
-                x  => { Some(x); return unit; },
+                x => { Some(x); return unit; },
                 () => { None(); return unit; });
 
         [Pure]
@@ -154,6 +154,23 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public TryOptionAsync<A> Id(Func<Unit, TryOptionAsync<A>> ma) =>
             ma(unit);
+
+        [Pure]
+        public TryOptionAsync<A> IdAsync(Func<Unit, Task<TryOptionAsync<A>>> ma) =>
+            new TryOptionAsync<A>(() =>
+            {
+                try
+                {
+                    return from a in ma(unit)
+                           let b = a()
+                           from c in b
+                           select c;
+                }
+                catch (Exception e)
+                {
+                    return Task.FromResult(new OptionalResult<A>(e));
+                }
+            });
 
         [Pure]
         public TryOptionAsync<A> BindReturn(Unit _, TryOptionAsync<A> mb) =>

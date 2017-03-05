@@ -13,15 +13,15 @@ namespace LanguageExt
         /// TryOption constructor
         /// </summary>
         [Pure]
-        public static TryOption<T> TryOption<T>(Func<Option<T>> f) => () =>
-            f();
+        public static TryOption<T> TryOption<T>(Func<Option<T>> f) =>
+            TryOptionExtensions.Memo<T>(() => f());
 
         /// <summary>
         /// TryOption constructor
         /// </summary>
         [Pure]
-        public static TryOption<T> TryOption<T>(Func<T> f) => () => 
-            Optional(f());
+        public static TryOption<T> TryOption<T>(Func<T> f) =>
+            TryOptionExtensions.Memo<T>(() => Optional(f()));
 
         /// <summary>
         /// TryOption constructor
@@ -36,6 +36,13 @@ namespace LanguageExt
         [Pure]
         public static TryOption<T> TryOption<T>(Option<T> value) => () => 
             value;
+
+        /// <summary>
+        /// TryOption constructor
+        /// </summary>
+        [Pure]
+        public static TryOption<T> TryOption<T>(Exception ex) => () =>
+            new OptionalResult<T>(ex);
 
         /// <summary>
         /// Add the bound value of Try(x) to Try(y).  If either of the

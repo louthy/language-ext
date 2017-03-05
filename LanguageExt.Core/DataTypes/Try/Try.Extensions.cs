@@ -17,6 +17,22 @@ using LanguageExt.ClassInstances;
 public static class TryExtensions
 {
     /// <summary>
+    /// Memoize the computation so that it's only run once
+    /// </summary>
+    public static Try<A> Memo<A>(this Try<A> ma)
+    {
+        bool run = false;
+        Result<A> result = new Result<A>();
+        return (() =>
+        {
+            if (run) return result;
+            result = ma.Try();
+            run = true;
+            return result;
+        });
+    }
+
+    /// <summary>
     /// Invoke a delegate if the Try returns a value successfully
     /// </summary>
     /// <param name="Succ">Delegate to invoke if successful</param>
@@ -181,20 +197,6 @@ public static class TryExtensions
     public static IObservable<R> MatchObservable<A, R>(this Try<A> self, Func<A, R> Succ, Func<Exception, IObservable<R>> Fail) =>
         self.ToAsync().MatchObservable(Succ, Fail);
 
-    /// <summary>
-    /// Memoise the try
-    /// </summary>
-    [Pure]
-    public static Try<A> Memo<A>(this Try<A> self)
-    {
-        var res = self.Try();
-        return () =>
-        {
-            if (res.IsFaulted) throw new InnerException(res.Exception);
-            return res.Value;
-        };
-    }
-
     [Pure]
     public static Option<A> ToOption<A>(this Try<A> self)
     {
@@ -263,9 +265,9 @@ public static class TryExtensions
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped Try</returns>
     [Pure]
-    public static Try<B> Select<A, B>(this Try<A> self, Func<A, B> f) => () =>
-        f(self().Value);
-
+    public static Try<B> Select<A, B>(this Try<A> self, Func<A, B> f) => 
+        Map(self, f);
+    
     /// <summary>
     /// Apply Try values to a Try function of arity 2
     /// </summary>
@@ -368,8 +370,8 @@ public static class TryExtensions
     /// <param name="mapper">Delegate to map the bound value</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static Try<R> Map<A, R>(this Try<A> self, Func<A, R> mapper) => () =>
-        new Result<R>(mapper(self().Value));
+    public static Try<B> Map<A, B>(this Try<A> self, Func<A, B> f) =>
+        Memo(() => self.Try().Map(f));
 
     /// <summary>
     /// Maps the bound value
@@ -381,13 +383,13 @@ public static class TryExtensions
     /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static Try<R> BiMap<A, R>(this Try<A> self, Func<A, R> Succ, Func<Exception, R> Fail) => () =>
+    public static Try<R> BiMap<A, R>(this Try<A> self, Func<A, R> Succ, Func<Exception, R> Fail) => Memo<R>(() =>
     {
         var res = self.Try();
         return res.IsFaulted
             ? Fail(res.Exception)
             : Succ(res.Value);
-    };
+    });
 
     /// <summary>
     /// Partial application map
@@ -406,16 +408,16 @@ public static class TryExtensions
         self.Map(curry(func));
 
     [Pure]
-    public static Try<A> Filter<A>(this Try<A> self, Func<A, bool> pred) => () =>
+    public static Try<A> Filter<A>(this Try<A> self, Func<A, bool> pred) => Memo(() =>
     {
         var res = self();
         return pred(res.Value)
             ? res
             : raise<A>(new BottomException());
-    };
+    });
 
     [Pure]
-    public static Try<A> BiFilter<A>(this Try<A> self, Func<A, bool> Succ, Func<Exception, bool> Fail) => () =>
+    public static Try<A> BiFilter<A>(this Try<A> self, Func<A, bool> Succ, Func<Exception, bool> Fail) => Memo<A>(() =>
     {
         var res = self.Try();
         return res.IsFaulted
@@ -425,24 +427,24 @@ public static class TryExtensions
             : Succ(res.Value)
                 ? res.Value
                 : raise<A>(new BottomException());
-    };
+    });
 
     [Pure]
     public static Try<A> Where<A>(this Try<A> self, Func<A, bool> pred) =>
         self.Filter(pred);
 
     [Pure]
-    public static Try<R> Bind<A, R>(this Try<A> self, Func<A, Try<R>> binder) => () => 
-        binder(self().Value)().Value;
+    public static Try<B> Bind<A, B>(this Try<A> self, Func<A, Try<B>> binder) =>
+        MTry<A>.Inst.Bind<MTry<B>, Try<B>, B>(self, binder);
 
     [Pure]
-    public static Try<R> BiBind<A, R>(this Try<A> self, Func<A, Try<R>> Succ, Func<Exception, Try<R>> Fail) => () =>
+    public static Try<R> BiBind<A, R>(this Try<A> self, Func<A, Try<R>> Succ, Func<Exception, Try<R>> Fail) => Memo(() =>
     {
         var res = self.Try();
         return res.IsFaulted
             ? Fail(res.Exception).Try()
             : Succ(res.Value).Try();
-    };
+    });
 
     [Pure]
     public static IEnumerable<A> AsEnumerable<A>(this Try<A> self)
@@ -479,14 +481,13 @@ public static class TryExtensions
             Fail: ex => $"Fail({ex.Message})");
 
     [Pure]
-    public static Try<V> SelectMany<A, U, V>(
+    public static Try<C> SelectMany<A, B, C>(
         this Try<A> self,
-        Func<A, Try<U>> bind,
-        Func<A, U, V> project) => () =>
-        {
-            var resT = self();
-            return project(resT.Value, bind(resT.Value)().Value);
-        };
+        Func<A, Try<B>> bind,
+        Func<A, B, C> project) =>
+            MTry<A>.Inst.Bind<MTry<C>, Try<C>, C>(self,    a =>
+            MTry<B>.Inst.Bind<MTry<C>, Try<C>, C>(bind(a), b =>
+            MTry<C>.Inst.Return(project(a, b))));
 
     [Pure]
     public static Try<V> Join<A, U, K, V>(
@@ -494,14 +495,14 @@ public static class TryExtensions
         Try<U> inner,
         Func<A, K> outerKeyMap,
         Func<U, K> innerKeyMap,
-        Func<A, U, V> project) => () =>
+        Func<A, U, V> project) => Memo<V>(() =>
         {
             var selfRes = self();
             var innerRes = inner();
             return EqualityComparer<K>.Default.Equals(outerKeyMap(selfRes.Value), innerKeyMap(innerRes.Value))
                 ? project(selfRes.Value, innerRes.Value)
                 : throw new BottomException();
-        };
+        });
 
     [Pure]
     public static Result<T> Try<T>(this Try<T> self)
@@ -736,7 +737,7 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs `append` rhs</returns>
     [Pure]
-    public static Try<A> Append<SEMI, A>(this Try<A> lhs, Try<A> rhs) where SEMI : struct, Semigroup<A> =>
+    public static Try<A> Append<SEMI, A>(this Try<A> lhs, Try<A> rhs) where SEMI : struct, Semigroup<A> => 
         from x in lhs
         from y in rhs
         select append<SEMI, A>(x, y);
@@ -775,7 +776,7 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Try<A> Product<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
+    public static Try<A> Product<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> => 
         from x in lhs
         from y in rhs
         select product<NUM, A>(x, y);

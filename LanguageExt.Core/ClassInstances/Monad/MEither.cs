@@ -4,6 +4,7 @@ using System.Linq;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -198,5 +199,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Either<L, R> Return(R x) =>
             Return(_ => x);
+
+        [Pure]
+        public Either<L, R> IdAsync(Func<Unit, Task<Either<L, R>>> ma) =>
+            ma(unit).Result;
     }
 }

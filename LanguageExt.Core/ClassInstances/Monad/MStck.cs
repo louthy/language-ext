@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -87,5 +88,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Stck<A> Return(A x) =>
             Return(_ => x);
+
+        [Pure]
+        public Stck<A> IdAsync(Func<Unit, Task<Stck<A>>> ma) =>
+            ma(unit).Result;
     }
 }

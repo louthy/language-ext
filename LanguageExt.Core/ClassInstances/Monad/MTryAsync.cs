@@ -22,35 +22,59 @@ namespace LanguageExt.ClassInstances
         public TryAsync<A> None => none;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(TryAsync<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
-        {
-            if (typeof(MB) == typeof(TryAsync<B>) && typeof(MONADB) == typeof(MTryAsync<B>))
+        public MB Bind<MONADB, MB, B>(TryAsync<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
+            default(MONADB).IdAsync(_ => ma.Try().ContinueWith(task =>
             {
-                // HACK: This is a hack to get around the type system for async
-                //       A better solution is needed
+                try
+                {
+                    return task.IsFaulted
+                        ? default(MONADB).Fail(task.Exception)
+                        : task.IsCanceled
+                            ? default(MONADB).Fail()
+                            : task.Result.IsFaulted
+                                ? default(MONADB).Fail(task.Result.Exception)
+                                : task.Result.IsBottom
+                                    ? default(MONADB).Fail()
+                                    : f(task.Result.Value);
+                }
+                catch (Exception e)
+                {
+                    return default(MONADB).Fail(e);
+                }
+            }));
 
-                var mb = from a in ma
-                         from b in (TryAsync<B>)(object)f(a)
-                         select b;
+        [Pure]
+        public TryAsync<A> Id(Func<Unit, TryAsync<A>> ma) =>
+            ma(unit);
 
-                return (MB)(object)mb;
-            }
-            else
+        [Pure]
+        public TryAsync<A> IdAsync(Func<Unit, Task<TryAsync<A>>> ma) =>
+            new TryAsync<A>(() =>
             {
-                // Synchronous type-safe version
-                return ma.Match(
-                    Succ: f,
-                    Fail: x => default(MONADB).Fail(x)).Result;
-            }
-        } 
+                try
+                {
+                    return from a in ma(unit)
+                           let b = a()
+                           from c in b
+                           select c;
+                }
+                catch(Exception e)
+                {
+                    return Task.FromResult(new Result<A>(e));
+                }
+            });
+
+        [Pure]
+        public TryAsync<A> BindReturn(Unit _, TryAsync<A> mb) =>
+            mb;
 
         [Pure]
         public TryAsync<A> Fail(object err) =>
-            TryAsync<A>(() => { throw new BottomException(); });
+            TryAsync<A>(BottomException.Default);
 
         [Pure]
         public TryAsync<A> Fail(Exception err = null) =>
-            TryAsync<A>(() => { throw err; });
+            TryAsync<A>(err ?? BottomException.Default);
 
         [Pure]
         public TryAsync<A> Plus(TryAsync<A> ma, TryAsync<A> mb) => async () =>
@@ -149,14 +173,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public TryAsync<A> Optional(A value) =>
             Return(_ => value);
-
-        [Pure]
-        public TryAsync<A> Id(Func<Unit, TryAsync<A>> ma) =>
-            ma(unit);
-
-        [Pure]
-        public TryAsync<A> BindReturn(Unit _, TryAsync<A> mb) =>
-            mb;
 
         [Pure]
         public TryAsync<A> Return(A x) =>

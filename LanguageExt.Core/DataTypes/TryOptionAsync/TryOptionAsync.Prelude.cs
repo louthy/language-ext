@@ -17,8 +17,9 @@ namespace LanguageExt
         /// <param name="f">Function to run asynchronously</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
-        public static TryOptionAsync<A> TryOptionAsync<A>(Func<A> f) => () =>
-            Task.Run(() => new OptionalResult<A>(f()));
+        public static TryOptionAsync<A> TryOptionAsync<A>(Func<A> f) =>
+            TryOptionAsyncExtensions.Memo<A>(() =>
+                Task.Run(() => new OptionalResult<A>(f())));
 
         /// <summary>
         /// TryOptionAsync constructor function
@@ -27,8 +28,9 @@ namespace LanguageExt
         /// <param name="f">Function to run asynchronously</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
-        public static TryOptionAsync<A> TryOptionAsync<A>(Func<Option<A>> f) => () =>
-            Task.Run(() => new OptionalResult<A>(f()));
+        public static TryOptionAsync<A> TryOptionAsync<A>(Func<Option<A>> f) =>
+            TryOptionAsyncExtensions.Memo<A>(() =>
+                Task.Run(() => new OptionalResult<A>(f())));
 
         /// <summary>
         /// TryOptionAsync constructor function
@@ -49,6 +51,16 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<A> TryOptionAsync<A>(Option<A> v) => () =>
             Task.FromResult(new OptionalResult<A>(v));
+
+        /// <summary>
+        /// TryOptionAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryOptionAsync<A> TryOptionAsync<A>(Exception ex) => () =>
+            Task.FromResult(new OptionalResult<A>(ex));
 
         /// <summary>
         /// Append the bound value of TryOptionAsync(x) to TryOptionAsync(y).  If either of the

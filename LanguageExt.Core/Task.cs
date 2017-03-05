@@ -11,6 +11,17 @@ using static LanguageExt.Prelude;
 
 public static class TaskExtensions
 {
+
+    public static Task<A> FromException<A>(Exception ex)
+    {
+        var ei = System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex);
+        return new Task<A>(() =>
+        {
+            ei.Throw();
+            return default(A);
+        });
+    }
+
     /// <summary>
     /// Convert a value to a Task that completes immediately
     /// </summary>

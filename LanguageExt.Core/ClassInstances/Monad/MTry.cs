@@ -4,6 +4,7 @@ using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -15,7 +16,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly MTry<A> Inst = default(MTry<A>);
 
-        static Try<A> none = () => raise<A>(new BottomException());
+        static Try<A> none = () => new Result<A>(BottomException.Default);
 
         [Pure]
         public Try<A> None => none;
@@ -30,11 +31,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Try<A> Fail(object err) =>
-            Try<A>(() => { throw new BottomException(); });
+            Try<A>(BottomException.Default);
 
         [Pure]
         public Try<A> Fail(Exception err = null) =>
-            Try<A>(() => { throw err; });
+            Try<A>(err ?? BottomException.Default);
 
         [Pure]
         public Try<A> Plus(Try<A> ma, Try<A> mb) => () =>
@@ -161,6 +162,10 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Try<A> Return(A x) =>
-            Return(_ => x);
+            () => x;
+
+        [Pure]
+        public Try<A> IdAsync(Func<Unit, Task<Try<A>>> ma) =>
+            ma(unit).Result;
     }
 }

@@ -3,6 +3,7 @@ using static LanguageExt.TypeClass;
 using LanguageExt.TypeClasses;
 using System;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -100,5 +101,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, int> Count(Writer<MonoidW, W, A> fa) =>
             Fold(fa, 0, (s,x) => 1);
+
+        [Pure]
+        public Writer<MonoidW, W, A> IdAsync(Func<Unit, Task<Writer<MonoidW, W, A>>> ma) => () =>
+            ma(unit).Result();
     }
 }

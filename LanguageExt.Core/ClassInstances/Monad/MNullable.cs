@@ -4,6 +4,7 @@ using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -131,5 +132,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public A? Return(A x) =>
             Return(_ => x);
+
+        [Pure]
+        public A? IdAsync(Func<Unit, Task<A?>> ma) =>
+            ma(unit).Result;
     }
 }

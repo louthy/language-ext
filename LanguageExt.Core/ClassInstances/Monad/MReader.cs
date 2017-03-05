@@ -3,6 +3,7 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -82,5 +83,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Reader<Env, A> BindReturn(Unit _, Reader<Env, A> mb) => env =>
             mb(env);
+
+        [Pure]
+        public Reader<Env, A> IdAsync(Func<Env, Task<Reader<Env, A>>> ma) => env =>
+            ma(env).Result(env);
     }
 }

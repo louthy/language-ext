@@ -17,6 +17,22 @@ using LanguageExt.ClassInstances;
 public static class TryAsyncExtensions
 {
     /// <summary>
+    /// Memoize the computation so that it's only run once
+    /// </summary>
+    public static TryAsync<A> Memo<A>(this TryAsync<A> ma)
+    {
+        bool run = false;
+        Result<A> result = new Result<A>();
+        return new TryAsync<A>(async () =>
+        {
+            if (run) return result;
+            result = await ma.Try();
+            run = true;
+            return result;
+        });
+    }
+
+    /// <summary>
     /// Invoke a delegate if the Try returns a value successfully
     /// </summary>
     /// <param name="Succ">Delegate to invoke if successful</param>
@@ -355,15 +371,6 @@ public static class TryAsyncExtensions
                 ? Fail(a.Exception)
                 : Observable.Return(Succ(a.Value)));
 
-    /// <summary>
-    /// Memoise the try
-    /// </summary>
-    public static TryAsync<A> Memo<A>(this TryAsync<A> self)
-    {
-        var res = self.Try().Result;
-        return () => Task.Run(() => res);
-    }
-
     [Pure]
     public static Task<Option<A>> ToOption<A>(this TryAsync<A> self) =>
         self.Match(
@@ -593,12 +600,8 @@ public static class TryAsyncExtensions
     /// <param name="mapper">Delegate to map the bound value</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static TryAsync<B> Map<A, B>(this TryAsync<A> self, Func<A, B> mapper) => async () =>
-    {
-        var res = await self.Try();
-        if (res.IsFaulted) return new Result<B>(res.Exception);
-        return mapper(res.Value);
-    };
+    public static TryAsync<B> Map<A, B>(this TryAsync<A> self, Func<A, B> f) =>
+        Memo(async () => (await self.Try()).Map(f));
 
     /// <summary>
     /// Maps the bound value
@@ -609,12 +612,8 @@ public static class TryAsyncExtensions
     /// <param name="mapper">Delegate to map the bound value</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static TryAsync<B> Map<A, B>(this TryAsync<A> self, Func<A, Task<B>> mapper) => async () =>
-    {
-        var res = await self.Try();
-        if (res.IsFaulted) return new Result<B>(res.Exception);
-        return await mapper(res.Value);
-    };
+    public static TryAsync<B> Map<A, B>(this TryAsync<A> self, Func<A, Task<B>> f)  =>
+        Memo(async () => await (await self.Try()).MapAsync(f));
 
     /// <summary>
     /// Maps the bound value
@@ -626,13 +625,13 @@ public static class TryAsyncExtensions
     /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static TryAsync<B> BiMap<A, B>(this TryAsync<A> self, Func<A, B> Succ, Func<Exception, B> Fail) => async () =>
+    public static TryAsync<B> BiMap<A, B>(this TryAsync<A> self, Func<A, B> Succ, Func<Exception, B> Fail) => Memo<B>(async () =>
     {
         var res = await self.Try();
         return res.IsFaulted
             ? Fail(res.Exception)
             : Succ(res.Value);
-    };
+    });
 
     /// <summary>
     /// Maps the bound value
@@ -644,13 +643,13 @@ public static class TryAsyncExtensions
     /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static TryAsync<B> BiMap<A, B>(this TryAsync<A> self, Func<A, Task<B>> Succ, Func<Exception, B> Fail) => async () =>
+    public static TryAsync<B> BiMap<A, B>(this TryAsync<A> self, Func<A, Task<B>> Succ, Func<Exception, B> Fail) => Memo<B>(async () =>
     {
         var res = await self.Try();
         return res.IsFaulted
             ? Fail(res.Exception)
             : await Succ(res.Value);
-    };
+    });
 
     /// <summary>
     /// Maps the bound value
@@ -662,13 +661,13 @@ public static class TryAsyncExtensions
     /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static TryAsync<B> BiMap<A, B>(this TryAsync<A> self, Func<A, B> Succ, Func<Exception, Task<B>> Fail) => async () =>
+    public static TryAsync<B> BiMap<A, B>(this TryAsync<A> self, Func<A, B> Succ, Func<Exception, Task<B>> Fail) => Memo<B>(async () =>
     {
         var res = await self.Try();
         return res.IsFaulted
             ? await Fail(res.Exception)
             : Succ(res.Value);
-    };
+    });
 
     /// <summary>
     /// Maps the bound value
@@ -680,13 +679,13 @@ public static class TryAsyncExtensions
     /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static TryAsync<B> BiMap<A, B>(this TryAsync<A> self, Func<A, Task<B>> Succ, Func<Exception, Task<B>> Fail) => async () =>
+    public static TryAsync<B> BiMap<A, B>(this TryAsync<A> self, Func<A, Task<B>> Succ, Func<Exception, Task<B>> Fail) => Memo<B>(async () =>
     {
         var res = await self.Try();
         return res.IsFaulted
             ? await Fail(res.Exception)
             : await Succ(res.Value);
-    };
+    });
 
     /// <summary>
     /// Partial application map
@@ -705,27 +704,27 @@ public static class TryAsyncExtensions
         self.Map(curry(func));
 
     [Pure]
-    public static TryAsync<A> Filter<A>(this TryAsync<A> self, Func<A, bool> pred) => async () =>
+    public static TryAsync<A> Filter<A>(this TryAsync<A> self, Func<A, bool> pred) => Memo<A>(async () =>
     {
         var res = await self.Try();
         if (res.IsFaulted) return res;
         return pred(res.Value)
             ? res
             : raise<A>(new BottomException());
-    };
+    });
 
     [Pure]
-    public static TryAsync<A> Filter<A>(this TryAsync<A> self, Func<A, Task<bool>> pred) => async () =>
+    public static TryAsync<A> Filter<A>(this TryAsync<A> self, Func<A, Task<bool>> pred) => Memo(async () =>
     {
         var res = await self.Try();
         if (res.IsFaulted) return res;
         return await pred(res.Value)
             ? res
             : raise<A>(new BottomException());
-    };
+    });
 
     [Pure]
-    public static TryAsync<A> BiFilter<A>(this TryAsync<A> self, Func<A, bool> Succ, Func<Exception, bool> Fail) => async () =>
+    public static TryAsync<A> BiFilter<A>(this TryAsync<A> self, Func<A, bool> Succ, Func<Exception, bool> Fail) => Memo<A>(async () =>
     {
         var res = await self.Try();
         return res.IsFaulted
@@ -735,10 +734,10 @@ public static class TryAsyncExtensions
             : Succ(res.Value)
                 ? res.Value
                 : raise<A>(new BottomException());
-    };
+    });
 
     [Pure]
-    public static TryAsync<A> BiFilter<A>(this TryAsync<A> self, Func<A, Task<bool>> Succ, Func<Exception, bool> Fail) => async () =>
+    public static TryAsync<A> BiFilter<A>(this TryAsync<A> self, Func<A, Task<bool>> Succ, Func<Exception, bool> Fail) => Memo<A>(async () =>
     {
         var res = await self.Try();
         return res.IsFaulted
@@ -748,11 +747,11 @@ public static class TryAsyncExtensions
             : await Succ(res.Value)
                 ? res.Value
                 : raise<A>(new BottomException());
-    };
+    });
 
 
     [Pure]
-    public static TryAsync<A> BiFilter<A>(this TryAsync<A> self, Func<A, bool> Succ, Func<Exception, Task<bool>> Fail) => async () =>
+    public static TryAsync<A> BiFilter<A>(this TryAsync<A> self, Func<A, bool> Succ, Func<Exception, Task<bool>> Fail) => Memo<A>(async () =>
     {
         var res = await self.Try();
         return res.IsFaulted
@@ -762,10 +761,10 @@ public static class TryAsyncExtensions
             : Succ(res.Value)
                 ? res.Value
                 : raise<A>(new BottomException());
-    };
+    });
 
     [Pure]
-    public static TryAsync<A> BiFilter<A>(this TryAsync<A> self, Func<A, Task<bool>> Succ, Func<Exception, Task<bool>> Fail) => async () =>
+    public static TryAsync<A> BiFilter<A>(this TryAsync<A> self, Func<A, Task<bool>> Succ, Func<Exception, Task<bool>> Fail) => Memo<A>(async () =>
     {
         var res = await self.Try();
         return res.IsFaulted
@@ -775,7 +774,7 @@ public static class TryAsyncExtensions
             : await Succ(res.Value)
                 ? res.Value
                 : raise<A>(new BottomException());
-    };
+    });
 
     [Pure]
     public static TryAsync<A> Where<A>(this TryAsync<A> self, Func<A, bool> pred) =>
@@ -786,22 +785,17 @@ public static class TryAsyncExtensions
         self.Filter(pred);
 
     [Pure]
-    public static TryAsync<B> Bind<A, B>(this TryAsync<A> self, Func<A, TryAsync<B>> binder) => async () =>
-    {
-        var resA = await self.Try();
-        if (resA.IsFaulted) return new Result<B>(resA.Exception);
-        var resB = binder(resA.Value);
-        return await resB.Try();
-    };
+    public static TryAsync<B> Bind<A, B>(this TryAsync<A> self, Func<A, TryAsync<B>> binder) =>
+        MTryAsync<A>.Inst.Bind<MTryAsync<B>, TryAsync<B>, B>(self, binder);
 
     [Pure]
-    public static TryAsync<R> BiBind<A, R>(this TryAsync<A> self, Func<A, TryAsync<R>> Succ, Func<Exception, TryAsync<R>> Fail) => async () =>
+    public static TryAsync<R> BiBind<A, R>(this TryAsync<A> self, Func<A, TryAsync<R>> Succ, Func<Exception, TryAsync<R>> Fail) => Memo<R>(async () =>
     {
         var res = await self.Try();
         return res.IsFaulted
             ? await Fail(res.Exception).Try()
             : await Succ(res.Value).Try();
-    };
+    });
 
     [Pure]
     public static Task<IEnumerable<A>> AsEnumerable<A>(this TryAsync<A> self) =>
@@ -837,14 +831,10 @@ public static class TryAsyncExtensions
     public static TryAsync<C> SelectMany<A, B, C>(
         this TryAsync<A> self,
         Func<A, TryAsync<B>> bind,
-        Func<A, B, C> project) => async () =>
-        {
-            var resT = await self.Try();
-            if (resT.IsFaulted) return new Result<C>(resT.Exception);
-            var resU = await bind(resT.Value).Try();
-            if (resU.IsFaulted) return new Result<C>(resU.Exception);
-            return project(resT.Value, (await bind(resT.Value).Try()).Value);
-        };
+        Func<A, B, C> project) =>
+            MTryAsync<A>.Inst.Bind<MTryAsync<C>, TryAsync<C>, C>(self, a =>
+            MTryAsync<B>.Inst.Bind<MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
+            MTryAsync<C>.Inst.Return(project(a, b))));
 
     [Pure]
     public static TryAsync<V> Join<A, U, K, V>(
@@ -852,8 +842,8 @@ public static class TryAsyncExtensions
         TryAsync<U> inner,
         Func<A, K> outerKeyMap,
         Func<U, K> innerKeyMap,
-        Func<A, U, V> project) => 
-            async () =>
+        Func<A, U, V> project) =>
+            Memo<V>(async () =>
             {
                 var selfTask = self.Try();
                 var innerTask = inner.Try();
@@ -866,7 +856,7 @@ public static class TryAsyncExtensions
                 return EqualityComparer<K>.Default.Equals(outerKeyMap(selfTask.Result.Value), innerKeyMap(innerTask.Result.Value))
                     ? project(selfTask.Result.Value, innerTask.Result.Value)
                     : throw new BottomException();
-            };
+            });
 
     [Pure]
     public static Task<Result<T>> Try<T>(this TryAsync<T> self)
@@ -1081,7 +1071,7 @@ public static class TryAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs `append` rhs</returns>
     [Pure]
-    public static TryAsync<A> Append<SEMI, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where SEMI : struct, Semigroup<A> => async () =>
+    public static TryAsync<A> Append<SEMI, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where SEMI : struct, Semigroup<A> => Memo(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -1089,7 +1079,7 @@ public static class TryAsyncExtensions
         if (x.IsFaulted || x.Result.IsFaulted) return x.Result;
         if (y.IsFaulted || y.Result.IsFaulted) return y.Result;
         return append<SEMI, A>(x.Result.Value, y.Result.Value);
-    };
+    });
 
     /// <summary>
     /// Add the bound value of Try(x) to Try(y).  If either of the
@@ -1099,7 +1089,7 @@ public static class TryAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Add<NUM, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where NUM : struct, Num<A> => async () =>
+    public static TryAsync<A> Add<NUM, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where NUM : struct, Num<A> => Memo(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -1107,7 +1097,7 @@ public static class TryAsyncExtensions
         if (x.IsFaulted || x.Result.IsFaulted) return x.Result;
         if (y.IsFaulted || y.Result.IsFaulted) return y.Result;
         return plus<NUM, A>(x.Result.Value, y.Result.Value);
-    };
+    });
 
     /// <summary>
     /// Find the subtract of the bound value of Try(x) and Try(y).  If either of 
@@ -1117,7 +1107,7 @@ public static class TryAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Subtract<NUM, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where NUM : struct, Num<A> => async () =>
+    public static TryAsync<A> Subtract<NUM, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where NUM : struct, Num<A> => Memo(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -1125,7 +1115,7 @@ public static class TryAsyncExtensions
         if (x.IsFaulted || x.Result.IsFaulted) return x.Result;
         if (y.IsFaulted || y.Result.IsFaulted) return y.Result;
         return subtract<NUM, A>(x.Result.Value, y.Result.Value);
-    };
+    });
 
     /// <summary>
     /// Multiply the bound value of Try(x) and Try(y).  If either of the
@@ -1135,7 +1125,7 @@ public static class TryAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Product<NUM, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where NUM : struct, Num<A> => async () =>
+    public static TryAsync<A> Product<NUM, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where NUM : struct, Num<A> => Memo(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -1143,7 +1133,7 @@ public static class TryAsyncExtensions
         if (x.IsFaulted || x.Result.IsFaulted) return x.Result;
         if (y.IsFaulted || y.Result.IsFaulted) return y.Result;
         return product<NUM, A>(x.Result.Value, y.Result.Value);
-    };
+    });
 
     /// <summary>
     /// Multiply the bound value of Try(x) and Try(y).  If either of the
@@ -1153,7 +1143,7 @@ public static class TryAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Divide<NUM, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where NUM : struct, Num<A> => async () =>
+    public static TryAsync<A> Divide<NUM, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where NUM : struct, Num<A> => Memo(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -1161,7 +1151,7 @@ public static class TryAsyncExtensions
         if (x.IsFaulted || x.Result.IsFaulted) return x.Result;
         if (y.IsFaulted || y.Result.IsFaulted) return y.Result;
         return divide<NUM, A>(x.Result.Value, y.Result.Value);
-    };
+    });
 
     /// <summary>
     /// Convert the Try type to a Nullable of A

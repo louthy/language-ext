@@ -16,8 +16,8 @@ namespace LanguageExt
         /// <param name="f">Function to run when invoked</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
-        public static Try<A> Try<A>(Func<A> f) => () =>
-            f();
+        public static Try<A> Try<A>(Func<A> f) =>
+            TryExtensions.Memo<A>(() => f());
 
         /// <summary>
         /// Try identity constructor function
@@ -26,8 +26,18 @@ namespace LanguageExt
         /// <param name="v">Bound value to return</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
-        public static Try<A> Try<A>(A v) => () =>
-            v;
+        public static Try<A> Try<A>(A v) =>
+            () => v;
+
+        /// <summary>
+        /// Try identity constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static Try<A> Try<A>(Exception ex) => () =>
+            new Result<A>(ex);
 
         /// <summary>
         /// Append the bound value of Try(x) to Try(y).  If either of the

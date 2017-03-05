@@ -19,26 +19,11 @@ namespace LanguageExt.ClassInstances
         public Task<A> None => Task.Run<A>(() => raise<A>(new BottomException()));
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Task<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
-        {
-            if (typeof(MB) == typeof(Task<B>) && typeof(MONADB) == typeof(MTask<B>))
-            {
-                // HACK: This is a hack to get around the type system for async
-                //       A better solution is needed
-
-                var mb = from a in ma
-                         from b in (Task<B>)(object)f(a)
-                         select b;
-
-                return (MB)(object)mb;
-            }
-            else
-            {
-                // Synchronous type-safe version
-                if (ma.IsFaulted) return default(MONADB).Fail(ma.Exception);
-                return f(ma.Result);
-            }
-        }
+        public MB Bind<MONADB, MB, B>(Task<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
+            default(MONADB).IdAsync(_ => ma.ContinueWith(task =>
+                task.IsFaulted || task.IsCanceled
+                    ? default(MONADB).Fail()
+                    : f(task.Result)));
 
         [Pure]
         public Task<A> Fail(object err) =>
@@ -168,5 +153,11 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Task<A> Return(A x) =>
             Return(_ => x);
+
+        [Pure]
+        public Task<A> IdAsync(Func<Unit, Task<Task<A>>> ma) =>
+            from ta in ma(unit)
+            from a in ta
+            select a;
     }
 }

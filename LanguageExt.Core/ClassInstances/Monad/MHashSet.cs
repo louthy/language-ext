@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -88,5 +89,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public HashSet<A> Return(A x) =>
             Return(_ => x);
+
+        [Pure]
+        public HashSet<A> IdAsync(Func<Unit, Task<HashSet<A>>> ma) =>
+            ma(unit).Result;
     }
 }

@@ -17,8 +17,9 @@ namespace LanguageExt
         /// <param name="f">Function to run asynchronously</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
-        public static TryAsync<A> TryAsync<A>(Func<A> f) => () =>
-            Task.Run(() => new Result<A>(f()));
+        public static TryAsync<A> TryAsync<A>(Func<A> f) => 
+            TryAsyncExtensions.Memo<A>(() =>
+                Task.Run(() => new Result<A>(f())));
 
         /// <summary>
         /// TryAsync identity constructor function
@@ -29,6 +30,16 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<A> TryAsync<A>(A v) => () =>
             Task.FromResult(new Result<A>(v));
+
+        /// <summary>
+        /// TryOptionAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryAsync<A> TryAsync<A>(Exception ex) => () =>
+            Task.FromResult(new Result<A>(ex));
 
         /// <summary>
         /// Append the bound value of TryAsync(x) to TryAsync(y).  If either of the

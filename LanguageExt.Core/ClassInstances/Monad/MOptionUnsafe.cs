@@ -4,6 +4,7 @@ using System.Linq;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -187,5 +188,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionUnsafe<A> Return(A x) =>
             Return(_ => x);
+
+        [Pure]
+        public OptionUnsafe<A> IdAsync(Func<Unit, Task<OptionUnsafe<A>>> ma) =>
+            ma(unit).Result;
     }
 }
