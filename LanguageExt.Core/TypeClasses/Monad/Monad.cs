@@ -7,8 +7,9 @@ namespace LanguageExt.TypeClasses
     ///// <summary>
     ///// Monad type-class
     ///// </summary>
-    ///// <typeparam name="A">Bound value</typeparam>
-    //[Typeclass]
+    /// <typeparam name="MA">The data-type to make monadic</typeparam>
+    /// <typeparam name="A">The data-type bound value</typeparam>
+    [Typeclass]
     public interface Monad<MA, A> : Monad<Unit, Unit, MA, A>, Foldable<MA, A>
     {
         MA Return(A x);
@@ -17,7 +18,10 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// Monad type-class
     /// </summary>
-    /// <typeparam name="A">Bound value</typeparam>
+    /// <typeparam name="Env">The input type to the monadic computation</typeparam>
+    /// <typeparam name="Out">The output type of the monadic computation</typeparam>
+    /// <typeparam name="MA">The data-type to make monadic</typeparam>
+    /// <typeparam name="A">The data-type bound value</typeparam>
     [Typeclass]
     public interface Monad<Env, Out, MA, A> : Foldable<Env, MA, A>
     {
@@ -34,35 +38,26 @@ namespace LanguageExt.TypeClasses
         MB Bind<MONADB, MB, B>(MA ma, Func<A, MB> f) 
             where MONADB : struct, Monad<Env, Out, MB, B>;
 
-        ///// <summary>
-        ///// Monad return
-        ///// </summary>
-        ///// <typeparam name="A">Type of the bound monad value</typeparam>
-        ///// <param name="x">The bound monad value</param>
-        ///// <returns>Monad of A</returns>
-        //[Pure]
-        //MA Return(A x);
-
+        /// <summary>
+        /// Lazy monad construction
+        /// </summary>
         MA Return(Func<Env, A> f);
+
+        /// <summary>
+        /// Monad identity
+        /// </summary>
         MA Id(Func<Env, MA> ma);
 
+        /// <summary>
+        /// Used for double dispatch by the bind function for monadic types that
+        /// need to construct an output value/state (like MState and MWriter).  For
+        /// all other monad types just return mb.
+        /// </summary>
+        /// <param name="maOutput">Output from the first part of a monadic bind</param>
+        /// <param name="mb">Monadic to invoke.  Get the results from this to combine with
+        /// maOutput and then re-wrap</param>
+        /// <returns>Monad with the combined output</returns>
         MA BindOutput(Out maOutput, MA mb);
-
-        ///// <summary>
-        ///// Monad return
-        ///// </summary>
-        ///// <param name="f">The function to invoke to get the bound monad value(s)</param>
-        ///// <returns>Monad of A</returns>
-        //[Pure]
-        //MA Return(Func<Env, (A, Env, bool)> f);
-
-        ///// <summary>
-        ///// Monad run
-        ///// </summary>
-        ///// <param name="f">The function to invoke to get the monad value(s)</param>
-        ///// <returns>Monad of A</returns>
-        //[Pure]
-        //(A, Env, bool) Eval(MA ma, Env e);
 
         /// <summary>
         /// Produce a failure value
