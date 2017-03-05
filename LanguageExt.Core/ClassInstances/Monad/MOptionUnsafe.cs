@@ -181,7 +181,7 @@ namespace LanguageExt.ClassInstances
             ma(unit);
 
         [Pure]
-        public OptionUnsafe<A> BindOutput(Unit _, OptionUnsafe<A> mb) =>
+        public OptionUnsafe<A> BindReturn(Unit _, OptionUnsafe<A> mb) =>
             mb;
 
         [Pure]

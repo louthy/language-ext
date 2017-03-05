@@ -84,7 +84,7 @@ namespace LanguageExt.ClassInstances
             ma(unit);
 
         [Pure]
-        public IEnumerable<A> BindOutput(Unit maOutput, IEnumerable<A> mb) =>
+        public IEnumerable<A> BindReturn(Unit maOutput, IEnumerable<A> mb) =>
             mb;
 
         [Pure]

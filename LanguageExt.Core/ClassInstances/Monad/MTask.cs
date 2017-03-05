@@ -162,7 +162,7 @@ namespace LanguageExt.ClassInstances
             ma(unit);
 
         [Pure]
-        public Task<A> BindOutput(Unit _, Task<A> mb) =>
+        public Task<A> BindReturn(Unit _, Task<A> mb) =>
             mb;
 
         [Pure]

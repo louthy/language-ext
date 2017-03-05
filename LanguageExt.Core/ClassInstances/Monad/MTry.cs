@@ -156,7 +156,7 @@ namespace LanguageExt.ClassInstances
             ma(unit);
 
         [Pure]
-        public Try<A> BindOutput(Unit _, Try<A> mb) =>
+        public Try<A> BindReturn(Unit _, Try<A> mb) =>
             mb;
 
         [Pure]

@@ -80,7 +80,7 @@ namespace LanguageExt.ClassInstances
             Fold(fa, 0, (_, __) => 1);
 
         [Pure]
-        public Reader<Env, A> BindOutput(Unit _, Reader<Env, A> mb) => env =>
+        public Reader<Env, A> BindReturn(Unit _, Reader<Env, A> mb) => env =>
             mb(env);
     }
 }

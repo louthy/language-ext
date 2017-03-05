@@ -81,7 +81,7 @@ namespace LanguageExt.ClassInstances
             ma(unit);
 
         [Pure]
-        public Stck<A> BindOutput(Unit _, Stck<A> mb) =>
+        public Stck<A> BindReturn(Unit _, Stck<A> mb) =>
             mb;
 
         [Pure]

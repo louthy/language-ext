@@ -17,11 +17,11 @@ namespace LanguageExt.ClassInstances
             {
                 var (a, output1, faulted) = ma();
                 if (faulted) return default(MONADB).Fail();
-                return default(MONADB).BindOutput((output1, faulted), f(a));
+                return default(MONADB).BindReturn((output1, faulted), f(a));
             });
 
         [Pure]
-        public Writer<MonoidW, W, A> BindOutput((W, bool) output, Writer<MonoidW, W, A> mb) => () =>
+        public Writer<MonoidW, W, A> BindReturn((W, bool) output, Writer<MonoidW, W, A> mb) => () =>
         {
             var (b, output2, faulted) = mb();
             if (faulted) return (default(A), default(MonoidW).Empty(), true);

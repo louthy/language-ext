@@ -125,7 +125,7 @@ namespace LanguageExt.ClassInstances
             ma(unit);
 
         [Pure]
-        public A? BindOutput(Unit _, A? mb) =>
+        public A? BindReturn(Unit _, A? mb) =>
             mb;
 
         [Pure]

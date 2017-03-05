@@ -190,7 +190,7 @@ namespace LanguageExt.ClassInstances
             ma(unit);
 
         [Pure]
-        public EitherUnsafe<L, R> BindOutput(Unit _, EitherUnsafe<L, R> mb) =>
+        public EitherUnsafe<L, R> BindReturn(Unit _, EitherUnsafe<L, R> mb) =>
             mb;
 
         [Pure]

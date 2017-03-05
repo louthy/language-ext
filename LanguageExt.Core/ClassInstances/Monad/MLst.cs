@@ -82,7 +82,7 @@ namespace LanguageExt.ClassInstances
             ma(unit);
 
         [Pure]
-        public Lst<A> BindOutput(Unit maOutput, Lst<A> mb) =>
+        public Lst<A> BindReturn(Unit maOutput, Lst<A> mb) =>
             mb;
 
         [Pure]

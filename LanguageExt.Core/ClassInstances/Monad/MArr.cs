@@ -87,7 +87,7 @@ namespace LanguageExt.ClassInstances
             f(unit);
 
         [Pure]
-        public Arr<A> BindOutput(Unit _, Arr<A> fmb) =>
+        public Arr<A> BindReturn(Unit _, Arr<A> fmb) =>
             fmb;
     }
 }

@@ -82,7 +82,7 @@ namespace LanguageExt.ClassInstances
             ma(unit);
 
         [Pure]
-        public HashSet<A> BindOutput(Unit maOutput, HashSet<A> mb) =>
+        public HashSet<A> BindReturn(Unit maOutput, HashSet<A> mb) =>
             mb;
 
         [Pure]

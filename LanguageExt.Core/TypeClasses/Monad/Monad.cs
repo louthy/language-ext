@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.TypeClasses
 {
-    ///// <summary>
-    ///// Monad type-class
-    ///// </summary>
+    /// <summary>
+    /// Monad type-class
+    /// </summary>
     /// <typeparam name="MA">The data-type to make monadic</typeparam>
     /// <typeparam name="A">The data-type bound value</typeparam>
     [Typeclass]
@@ -57,7 +58,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="mb">Monadic to invoke.  Get the results from this to combine with
         /// maOutput and then re-wrap</param>
         /// <returns>Monad with the combined output</returns>
-        MA BindOutput(Out maOutput, MA mb);
+        MA BindReturn(Out maOutput, MA mb);
 
         /// <summary>
         /// Produce a failure value

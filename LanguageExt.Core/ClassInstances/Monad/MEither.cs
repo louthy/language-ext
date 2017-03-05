@@ -192,7 +192,7 @@ namespace LanguageExt.ClassInstances
             ma(unit);
 
         [Pure]
-        public Either<L, R> BindOutput(Unit _, Either<L, R> mb) =>
+        public Either<L, R> BindReturn(Unit _, Either<L, R> mb) =>
             mb;
 
         [Pure]

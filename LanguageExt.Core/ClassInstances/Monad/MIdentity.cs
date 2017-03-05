@@ -18,7 +18,7 @@ namespace LanguageExt.ClassInstances
             f(ma.Value);
 
         [Pure]
-        public Identity<A> BindOutput(Unit maOutput, Identity<A> mb) =>
+        public Identity<A> BindReturn(Unit maOutput, Identity<A> mb) =>
             mb;
 
         [Pure]

@@ -186,7 +186,7 @@ namespace LanguageExt.ClassInstances
             ma(unit);
 
         [Pure]
-        public Option<A> BindOutput(Unit _, Option<A> mb) =>
+        public Option<A> BindReturn(Unit _, Option<A> mb) =>
             mb;
 
         [Pure]

@@ -16,11 +16,11 @@ namespace LanguageExt.ClassInstances
             {
                 var (a, sa, faulted) = ma(state);
                 if(faulted) return default(MONADB).Fail();
-                return default(MONADB).BindOutput((sa, faulted), f(a));
+                return default(MONADB).BindReturn((sa, faulted), f(a));
             });
 
         [Pure]
-        public State<S, A> BindOutput((S State, bool IsFaulted) output, State<S, A> mb) => 
+        public State<S, A> BindReturn((S State, bool IsFaulted) output, State<S, A> mb) => 
             _ => mb(output.State);
 
         [Pure]

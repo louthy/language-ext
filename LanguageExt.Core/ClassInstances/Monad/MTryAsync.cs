@@ -155,11 +155,11 @@ namespace LanguageExt.ClassInstances
             ma(unit);
 
         [Pure]
-        public TryAsync<A> BindOutput(Unit _, TryAsync<A> mb) =>
+        public TryAsync<A> BindReturn(Unit _, TryAsync<A> mb) =>
             mb;
 
         [Pure]
         public TryAsync<A> Return(A x) =>
-            Return(_ => x);
+            () => Task.FromResult(new Result<A>(x));
     }
 }

@@ -156,7 +156,7 @@ namespace LanguageExt.ClassInstances
             ma(unit);
 
         [Pure]
-        public TryOptionAsync<A> BindOutput(Unit _, TryOptionAsync<A> mb) =>
+        public TryOptionAsync<A> BindReturn(Unit _, TryOptionAsync<A> mb) =>
             mb;
 
         [Pure]

@@ -83,7 +83,7 @@ namespace LanguageExt.ClassInstances
             ma(unit);
 
         [Pure]
-        public Que<A> BindOutput(Unit _, Que<A> mb) =>
+        public Que<A> BindReturn(Unit _, Que<A> mb) =>
             mb;
 
         [Pure]
