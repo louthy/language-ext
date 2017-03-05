@@ -17,7 +17,7 @@ namespace LanguageExt.ClassInstances
         public static readonly MEither<L, R> Inst = default(MEither<L, R>);
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Either<L, R> ma, Func<R, MB> f) where MONADB : struct, Monad<MB, B> =>
+        public MB Bind<MONADB, MB, B>(Either<L, R> ma, Func<R, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             Match(ma,
                 Choice1: l => default(MONADB).Fail(l),
                 Choice2: r => f(r),
@@ -39,12 +39,8 @@ namespace LanguageExt.ClassInstances
                 Bottom: () => mb);
 
         [Pure]
-        public Either<L, R> Return(R x) =>
-            Either<L, R>.Right(x);
-
-        [Pure]
-        public Either<L, R> Return(Func<R> f) =>
-            Return(f());
+        public Either<L, R> Return(Func<Unit, R> f) =>
+            f(unit);
 
         [Pure]
         public Either<L, R> Zero() =>
@@ -124,20 +120,26 @@ namespace LanguageExt.ClassInstances
                     : Choice1(choice.LeftValue);
 
         [Pure]
-        public S Fold<S>(Either<L, R> foldable, S state, Func<S, R, S> f) =>
-            Check.NullReturn(
-                Match(foldable,
+        public Func<Unit, S> Fold<S>(Either<L, R> foldable, S state, Func<S, R, S> f)
+        {
+            var self = this;
+            return u => Check.NullReturn(
+                self.Match(foldable,
                     Choice1: _ => state,
                     Choice2: _ => f(state, foldable.RightValue),
                     Bottom: () => state));
+        }
 
         [Pure]
-        public S FoldBack<S>(Either<L, R> foldable, S state, Func<S, R, S> f) =>
-            Check.NullReturn(
-                Match(foldable,
+        public Func<Unit, S> FoldBack<S>(Either<L, R> foldable, S state, Func<S, R, S> f)
+        {
+            var self = this;
+            return u => Check.NullReturn(
+                self.Match(foldable,
                     Choice1: _ => state,
                     Choice2: _ => f(state, foldable.RightValue),
                     Bottom: () => state));
+        }
 
         [Pure]
         public S BiFold<S>(Either<L, R> foldable, S state, Func<S, L, S> fa, Func<S, R, S> fb) =>
@@ -156,11 +158,14 @@ namespace LanguageExt.ClassInstances
                     Bottom: () => state));
 
         [Pure]
-        public int Count(Either<L, R> ma) =>
-            Match(ma,
+        public Func<Unit, int> Count(Either<L, R> ma)
+        {
+            var self = this;
+            return u => self.Match(ma,
                 Choice1: _ => 0,
                 Choice2: _ => 1,
                 Bottom: () => 0);
+        }
 
         [Pure]
         public Either<L, R> None =>
@@ -181,5 +186,17 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Either<L, R> Optional(R value) =>
             value;
+
+        [Pure]
+        public Either<L, R> Id(Func<Unit, Either<L, R>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public Either<L, R> BindOutput(Unit _, Either<L, R> mb) =>
+            mb;
+
+        [Pure]
+        public Either<L, R> Return(R x) =>
+            Return(_ => x);
     }
 }

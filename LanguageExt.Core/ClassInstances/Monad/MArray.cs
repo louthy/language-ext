@@ -26,12 +26,12 @@ namespace LanguageExt.ClassInstances
             x.Concat(y).ToArray();
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(A[] ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
+        public MB Bind<MONADB, MB, B>(A[] ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             ma.Fold(default(MONADB).Zero(), (s, a) => default(MONADB).Plus(s, f(a)));
 
         [Pure]
-        public int Count(A[] fa) =>
-            fa.Count();
+        public Func<Unit, int> Count(A[] fa) =>
+            _ => fa.Count();
 
         [Pure]
         public A[] Subtract(A[] x, A[] y) =>
@@ -54,12 +54,12 @@ namespace LanguageExt.ClassInstances
             Empty();
 
         [Pure]
-        public S Fold<S>(A[] fa, S state, Func<S, A, S> f) =>
-            fa.Fold(state, f);
+        public Func<Unit, S> Fold<S>(A[] fa, S state, Func<S, A, S> f) =>
+            _ => fa.Fold(state, f);
 
         [Pure]
-        public S FoldBack<S>(A[] fa, S state, Func<S, A, S> f) =>
-            fa.FoldBack(state, f);
+        public Func<Unit, S> FoldBack<S>(A[] fa, S state, Func<S, A, S> f) =>
+            _ => fa.FoldBack(state, f);
 
         [Pure]
         public A[] Plus(A[] ma, A[] mb) =>
@@ -73,8 +73,12 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
+        public A[] Return(Func<Unit, A> x) =>
+            new[] { x(unit) };
+
+        [Pure]
         public A[] Return(A x) =>
-            new[] { x };
+            Return(_ => x);
 
         [Pure]
         public A[] Zero() =>
@@ -83,5 +87,13 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(A[] x) =>
             hash(x);
+
+        [Pure]
+        public A[] Id(Func<Unit, A[]> ma) =>
+            ma(unit);
+
+        [Pure]
+        public A[] BindOutput(Unit _, A[] mb) =>
+            mb;
     }
 }

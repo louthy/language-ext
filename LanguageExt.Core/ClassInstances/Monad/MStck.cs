@@ -15,7 +15,6 @@ namespace LanguageExt.ClassInstances
     /// <typeparam name="A">Bound value type</typeparam>
     public struct MStck<A> :
         Monad<Stck<A>, A>,
-        Foldable<Stck<A>, A>,
         Eq<Stck<A>>,
         Monoid<Stck<A>>
    {
@@ -26,11 +25,11 @@ namespace LanguageExt.ClassInstances
             new Stck<A>(x.Concat(y));
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Stck<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
+        public MB Bind<MONADB, MB, B>(Stck<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             traverse<MStck<A>, MONADB, Stck<A>, MB, A, B>(ma, f);
 
         [Pure]
-        public int Count(Stck<A> fa) =>
+        public Func<Unit, int> Count(Stck<A> fa) => _ => 
             fa.Count();
 
         [Pure]
@@ -54,11 +53,11 @@ namespace LanguageExt.ClassInstances
             Stck<A>.Empty;
 
         [Pure]
-        public S Fold<S>(Stck<A> fa, S state, Func<S, A, S> f) =>
+        public Func<Unit, S> Fold<S>(Stck<A> fa, S state, Func<S, A, S> f) => _ =>
             fa.Fold(state, f);
 
         [Pure]
-        public S FoldBack<S>(Stck<A> fa, S state, Func<S, A, S> f) =>
+        public Func<Unit, S> FoldBack<S>(Stck<A> fa, S state, Func<S, A, S> f) => _ =>
             fa.FoldBack(state, f);
 
         [Pure]
@@ -66,8 +65,8 @@ namespace LanguageExt.ClassInstances
             ma + mb;
 
         [Pure]
-        public Stck<A> Return(A x) =>
-            Stack(x);
+        public Stck<A> Return(Func<Unit, A> f) =>
+            Stack(f(unit));
 
         [Pure]
         public Stck<A> Zero() =>
@@ -76,5 +75,17 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Stck<A> x) =>
             x.GetHashCode();
+
+        [Pure]
+        public Stck<A> Id(Func<Unit, Stck<A>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public Stck<A> BindOutput(Unit _, Stck<A> mb) =>
+            mb;
+
+        [Pure]
+        public Stck<A> Return(A x) =>
+            Return(_ => x);
     }
 }

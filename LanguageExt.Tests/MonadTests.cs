@@ -73,7 +73,7 @@ namespace LanguageExtTests
             var calculateContentLen = from content in ask<string>()
                                       select content.Length;
 
-            var calculateModifiedContentLen = local(content => "Prefix " + content, calculateContentLen);
+            var calculateModifiedContentLen = local(calculateContentLen, content => "Prefix " + content);
 
             var s = "12345";
             var modifiedLen = calculateModifiedContentLen.Run(s).IfNoneOrFail(0);

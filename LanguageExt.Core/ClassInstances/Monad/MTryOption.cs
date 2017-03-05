@@ -21,7 +21,7 @@ namespace LanguageExt.ClassInstances
         public TryOption<A> None => none;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(TryOption<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
+        public MB Bind<MONADB, MB, B>(TryOption<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
         {
             var mr = ma.Try();
             if (mr.IsFaulted) return default(MONADB).Fail(mr.Exception);
@@ -52,8 +52,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
         [Pure]
-        public TryOption<A> Return(A x) =>
-            () => x;
+        public TryOption<A> Return(Func<Unit, A> f) =>
+            () => f(unit);
 
         [Pure]
         public TryOption<A> Zero() => 
@@ -105,20 +105,20 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public S Fold<S>(TryOption<A> ma, S state, Func<S, A, S> f)
+        public Func<Unit, S> Fold<S>(TryOption<A> ma, S state, Func<S, A, S> f) => _ =>
         {
             var res = ma.Try();
             if (res.IsFaulted || res.Value.IsNone) return state;
             return f(state, res.Value.Value);
-        }
+        };
 
         [Pure]
-        public S FoldBack<S>(TryOption<A> ma, S state, Func<S, A, S> f)
+        public Func<Unit, S> FoldBack<S>(TryOption<A> ma, S state, Func<S, A, S> f) => _ =>
         {
             var res = ma.Try();
             if (res.IsFaulted || res.Value.IsNone) return state;
             return f(state, res.Value.Value);
-        }
+        };
 
         [Pure]
         public S BiFold<S>(TryOption<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
@@ -141,7 +141,7 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public int Count(TryOption<A> ma) =>
+        public Func<Unit, int> Count(TryOption<A> ma) => _ =>
             ma.Try().Value.IsSome
                 ? 1
                 : 0;
@@ -153,5 +153,17 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public TryOption<A> Optional(A value) =>
             Return(value);
+
+        [Pure]
+        public TryOption<A> Id(Func<Unit, TryOption<A>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public TryOption<A> BindOutput(Unit _, TryOption<A> mb) =>
+            mb;
+
+        [Pure]
+        public TryOption<A> Return(A x) =>
+            Return(_ => x);
     }
 }

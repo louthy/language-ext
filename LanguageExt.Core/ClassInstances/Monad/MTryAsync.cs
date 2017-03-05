@@ -22,7 +22,7 @@ namespace LanguageExt.ClassInstances
         public TryAsync<A> None => none;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(TryAsync<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
+        public MB Bind<MONADB, MB, B>(TryAsync<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
         {
             if (typeof(MB) == typeof(TryAsync<B>) && typeof(MONADB) == typeof(MTryAsync<B>))
             {
@@ -77,8 +77,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
         [Pure]
-        public TryAsync<A> Return(A x) =>
-            () => Task.FromResult(new Result<A>(x));
+        public TryAsync<A> Return(Func<Unit, A> f) =>
+            () => Task.FromResult(new Result<A>(f(unit)));
 
         [Pure]
         public TryAsync<A> Zero() => 
@@ -123,12 +123,12 @@ namespace LanguageExt.ClassInstances
             Match(opt, Some, None);
 
         [Pure]
-        public S Fold<S>(TryAsync<A> ma, S state, Func<S, A, S> f) =>
-            Match(ma, x => f(state, x), () => state);
+        public Func<Unit, S> Fold<S>(TryAsync<A> ma, S state, Func<S, A, S> f) => _ =>
+            default(MTryAsync<A>).Match(ma, x => f(state, x), () => state);
 
         [Pure]
-        public S FoldBack<S>(TryAsync<A> ma, S state, Func<S, A, S> f) =>
-            Match(ma, x => f(state, x), () => state);
+        public Func<Unit, S> FoldBack<S>(TryAsync<A> ma, S state, Func<S, A, S> f) => _ =>
+            default(MTryAsync<A>).Match(ma, x => f(state, x), () => state);
 
         [Pure]
         public S BiFold<S>(TryAsync<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb) =>
@@ -139,15 +139,27 @@ namespace LanguageExt.ClassInstances
             Match(ma, x => fb(state, x), () => fa(state, unit));
 
         [Pure]
-        public int Count(TryAsync<A> ma) =>
-            Match(ma, x => 1, () => 0);
+        public Func<Unit, int> Count(TryAsync<A> ma) => _ =>
+            default(MTryAsync<A>).Match(ma, x => 1, () => 0);
 
         [Pure]
         public TryAsync<A> Some(A value) =>
-            Return(value);
+            Return(_ => value);
 
         [Pure]
         public TryAsync<A> Optional(A value) =>
-            Return(value);
+            Return(_ => value);
+
+        [Pure]
+        public TryAsync<A> Id(Func<Unit, TryAsync<A>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public TryAsync<A> BindOutput(Unit _, TryAsync<A> mb) =>
+            mb;
+
+        [Pure]
+        public TryAsync<A> Return(A x) =>
+            Return(_ => x);
     }
 }

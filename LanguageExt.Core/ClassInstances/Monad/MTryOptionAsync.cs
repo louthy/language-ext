@@ -22,7 +22,7 @@ namespace LanguageExt.ClassInstances
         public TryOptionAsync<A> None => none;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(TryOptionAsync<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
+        public MB Bind<MONADB, MB, B>(TryOptionAsync<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
         {
             if (typeof(MB) == typeof(TryOptionAsync<B>) && typeof(MONADB) == typeof(MTryOptionAsync<B>))
             {
@@ -78,8 +78,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
         [Pure]
-        public TryOptionAsync<A> Return(A x) =>
-            () => Task.FromResult(new OptionalResult<A>(x));
+        public TryOptionAsync<A> Return(Func<Unit, A> f) =>
+            () => Task.FromResult(new OptionalResult<A>(f(unit)));
 
         [Pure]
         public TryOptionAsync<A> Zero() => 
@@ -124,12 +124,12 @@ namespace LanguageExt.ClassInstances
             Match(opt, Some, None);
 
         [Pure]
-        public S Fold<S>(TryOptionAsync<A> ma, S state, Func<S, A, S> f) =>
-            Match(ma, x => f(state, x), () => state);
+        public Func<Unit, S> Fold<S>(TryOptionAsync<A> ma, S state, Func<S, A, S> f) => _ =>
+            Inst.Match(ma, x => f(state, x), () => state);
 
         [Pure]
-        public S FoldBack<S>(TryOptionAsync<A> ma, S state, Func<S, A, S> f) =>
-            Match(ma, x => f(state, x), () => state);
+        public Func<Unit, S> FoldBack<S>(TryOptionAsync<A> ma, S state, Func<S, A, S> f) => _ =>
+            Inst.Match(ma, x => f(state, x), () => state);
 
         [Pure]
         public S BiFold<S>(TryOptionAsync<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb) =>
@@ -140,15 +140,27 @@ namespace LanguageExt.ClassInstances
             Match(ma, x => fb(state, x), () => fa(state, unit));
 
         [Pure]
-        public int Count(TryOptionAsync<A> ma) =>
-            Match(ma, x => 1, () => 0);
+        public Func<Unit, int> Count(TryOptionAsync<A> ma) => _ =>
+            Inst.Match(ma, x => 1, () => 0);
 
         [Pure]
         public TryOptionAsync<A> Some(A value) =>
-            Return(value);
+            Return(_ => value);
 
         [Pure]
         public TryOptionAsync<A> Optional(A value) =>
-            Return(value);
+            Return(_ => value);
+
+        [Pure]
+        public TryOptionAsync<A> Id(Func<Unit, TryOptionAsync<A>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public TryOptionAsync<A> BindOutput(Unit _, TryOptionAsync<A> mb) =>
+            mb;
+
+        [Pure]
+        public TryOptionAsync<A> Return(A x) =>
+            Return(_ => x);
     }
 }

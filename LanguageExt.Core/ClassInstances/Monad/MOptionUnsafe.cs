@@ -12,8 +12,7 @@ namespace LanguageExt.ClassInstances
         Monad<OptionUnsafe<A>, A>,
         Optional<OptionUnsafe<A>, A>,
         Foldable<OptionUnsafe<A>, A>,
-        BiFoldable<OptionUnsafe<A>, Unit, A>,
-        Liftable<OptionUnsafe<A>, A>
+        BiFoldable<OptionUnsafe<A>, Unit, A>
     {
         public static readonly MOptionUnsafe<A> Inst = default(MOptionUnsafe<A>);
 
@@ -21,7 +20,7 @@ namespace LanguageExt.ClassInstances
         public OptionUnsafe<A> None => OptionUnsafe<A>.None;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(OptionUnsafe<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
+        public MB Bind<MONADB, MB, B>(OptionUnsafe<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
         {
             if (f == null) throw new ArgumentNullException(nameof(f));
             return ma.IsSome && f != null
@@ -44,8 +43,8 @@ namespace LanguageExt.ClassInstances
                 : b;
 
         [Pure]
-        public OptionUnsafe<A> Return(A x) =>
-            new OptionUnsafe<A>(new SomeValue<A>(x));
+        public OptionUnsafe<A> Return(Func<Unit, A> f) =>
+            new OptionUnsafe<A>(new SomeValue<A>(f(unit)));
 
         [Pure]
         public OptionUnsafe<A> Zero() =>
@@ -92,24 +91,24 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public S Fold<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> f)
+        public Func<Unit, S> Fold<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> f) => _ =>
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (f == null) throw new ArgumentNullException(nameof(f));
             return ma.IsSome
                 ? f(state, ma.Value)
                 : state;
-        }
+        };
 
         [Pure]
-        public S FoldBack<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> f)
+        public Func<Unit, S> FoldBack<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> f) => _ =>
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (f == null) throw new ArgumentNullException(nameof(f));
             return ma.IsSome
                 ? f(state, ma.Value)
                 : state;
-        }
+        };
 
         [Pure]
         public S BiFold<S>(OptionUnsafe<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
@@ -134,14 +133,10 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public int Count(OptionUnsafe<A> ma) =>
+        public Func<Unit, int> Count(OptionUnsafe<A> ma) => _ =>
             ma.IsSome
                 ? 1
                 : 0;
-
-        [Pure]
-        public OptionUnsafe<A> Lift(A x) =>
-            Return(x);
 
         [Pure]
         public bool IsChoice1(OptionUnsafe<A> choice) =>
@@ -180,5 +175,17 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionUnsafe<A> Optional(A value) =>
             OptionUnsafe<A>.Some(value);
+
+        [Pure]
+        public OptionUnsafe<A> Id(Func<Unit, OptionUnsafe<A>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public OptionUnsafe<A> BindOutput(Unit _, OptionUnsafe<A> mb) =>
+            mb;
+
+        [Pure]
+        public OptionUnsafe<A> Return(A x) =>
+            Return(_ => x);
     }
 }

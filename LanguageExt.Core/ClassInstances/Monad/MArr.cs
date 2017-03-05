@@ -27,12 +27,12 @@ namespace LanguageExt.ClassInstances
             x.Concat(y).ToArray();
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Arr<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
+        public MB Bind<MONADB, MB, B>(Arr<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             traverse<MArr<A>, MONADB, Arr<A>, MB, A, B>(ma, f);
 
         [Pure]
-        public int Count(Arr<A> fa) =>
-            fa.Count();
+        public Func<Unit, int> Count(Arr<A> fa) =>
+            _ => fa.Count();
 
         [Pure]
         public Arr<A> Empty() =>
@@ -51,20 +51,24 @@ namespace LanguageExt.ClassInstances
             Empty();
 
         [Pure]
-        public S Fold<S>(Arr<A> fa, S state, Func<S, A, S> f) =>
-            fa.Fold(state, f);
+        public Func<Unit, S> Fold<S>(Arr<A> fa, S state, Func<S, A, S> f) =>
+            _ => fa.Fold(state, f);
 
         [Pure]
-        public S FoldBack<S>(Arr<A> fa, S state, Func<S, A, S> f) =>
-            fa.FoldBack(state, f);
+        public Func<Unit, S> FoldBack<S>(Arr<A> fa, S state, Func<S, A, S> f) =>
+            _ => fa.FoldBack(state, f);
 
         [Pure]
         public Arr<A> Plus(Arr<A> ma, Arr<A> mb) =>
             ma + mb;
 
         [Pure]
+        public Arr<A> Return(Func<Unit, A> f) =>
+            Arr.create(f(unit));
+
+        [Pure]
         public Arr<A> Return(A x) =>
-            new[] { x };
+            Return(_ => x);
 
         [Pure]
         public Arr<A> Zero() =>
@@ -77,5 +81,13 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public FunctorAB ToFunctor<FunctorAB, MB, B>() where FunctorAB : struct, Functor<Arr<A>, MB, A, B> =>
             default(FunctorAB);
+
+        [Pure]
+        public Arr<A> Id(Func<Unit, Arr<A>> f) =>
+            f(unit);
+
+        [Pure]
+        public Arr<A> BindOutput(Unit _, Arr<A> fmb) =>
+            fmb;
     }
 }

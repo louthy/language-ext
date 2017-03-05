@@ -9,15 +9,14 @@ namespace LanguageExt
     /// State monad type class
     /// </summary>
     [Typeclass]
-    public interface MonadState<SStateA, SSA, S, A>
-        where SStateA : struct, StateMonadValue<SSA, S, A>
+    public interface MonadState<S, A>
     {
         /// <summary>
         /// Returns the state from the internals of the monad.
         /// </summary>
         /// <returns>State value where the internal state and the bound value are the same</returns>
         [Pure]
-        SSS Get<SStateS, SSS>() where SStateS : struct, StateMonadValue<SSS, S, S>;
+        State<S, S> Get();
 
         /// <summary>
         /// Replaces the state inside the monad.
@@ -26,7 +25,7 @@ namespace LanguageExt
         /// <param name="state">State value to use</param>
         /// <returns>Updated state monad</returns>
         [Pure]
-        SSU Put<SStateU, SSU>(S state) where SStateU : struct, StateMonadValue<SSU, S, Unit>;
+        State<S, Unit> Put(S state);
 
         /// <summary>
         /// Embed a simple state action into the monad
@@ -34,6 +33,6 @@ namespace LanguageExt
         /// <param name="f">Action to embed</param>
         /// <returns>Updated state monad</returns>
         [Pure]
-        SSA State(Func<S, (A, S, bool)> f);
+        State<S, A> State(Func<S, A> f);
     }
 }

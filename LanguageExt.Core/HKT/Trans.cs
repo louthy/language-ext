@@ -39,15 +39,15 @@ namespace LanguageExt
 
         public S Fold<S>(OuterType ma, S state, Func<S, A, S> f) =>
             default(OuterMonad).Fold(ma, state, (s, inner) =>
-                default(InnerMonad).Fold(inner, s, f));
+                default(InnerMonad).Fold(inner, s, f)(unit))(unit);
 
         public S FoldBack<S>(OuterType ma, S state, Func<S, A, S> f) =>
             default(OuterMonad).FoldBack(ma, state, (s, inner) =>
-                default(InnerMonad).FoldBack(inner, s, f));
+                default(InnerMonad).FoldBack(inner, s, f)(unit))(unit);
 
         public int Count(OuterType ma) =>
             default(OuterMonad).Fold(ma, 0, (s, inner) =>
-                s + default(InnerMonad).Count(inner));
+                s + default(InnerMonad).Count(inner)(unit))(unit);
 
         public NewOuterType Sequence<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType>(OuterType ma)
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
@@ -60,7 +60,7 @@ namespace LanguageExt
                 default(OuterMonad).Fold(ma, default(NewOuterMonad).Return(default(NewInnerMonad).Zero()), (outerState, innerA) =>
                     Trans<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>.Inst.Plus(outerState,
                         default(InnerMonad).Bind<NewOuterMonad, NewOuterType, NewInnerType>(innerA, a =>
-                            default(NewOuterMonad).Return(default(NewInnerMonad).Return(f(a))))));
+                            default(NewOuterMonad).Return(default(NewInnerMonad).Return(f(a))))))(unit);
                         
         public OuterType Plus(OuterType ma, OuterType mb) =>
             default(OuterMonad).Bind<OuterMonad, OuterType, InnerType>(ma, a =>
@@ -80,6 +80,6 @@ namespace LanguageExt
 
         public A Sum(OuterType ma) =>
             default(OuterMonad).Fold(ma, default(NumA).FromInteger(0), (s, inner) =>
-                default(InnerMonad).Fold(inner, s, (ss, x) => default(NumA).Plus(ss, x)));
+                default(InnerMonad).Fold(inner, s, (ss, x) => default(NumA).Plus(ss, x))(unit))(unit);
     }
 }

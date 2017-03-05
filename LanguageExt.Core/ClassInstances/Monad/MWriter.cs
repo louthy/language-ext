@@ -1,110 +1,52 @@
 ﻿using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
 using LanguageExt.TypeClasses;
 using System;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct MWriter<MonoidW, W, A> : MonadWriter<SWriter<MonoidW, W, A>, Writer<MonoidW, W, A>, MonoidW, W, A>, Monad<W, Writer<MonoidW, W, A>, A>
+    public struct MWriter<MonoidW, W, A> : 
+        MonadWriter<MonoidW, W, A>, 
+        Monad<Unit, (W, bool), Writer<MonoidW, W, A>, A>
         where MonoidW  : struct, Monoid<W>
     {
         [Pure]
-        public MB Bind<MONADB, MB, B>(Writer<MonoidW, W, A> ma, Func<A, MB> f) where MONADB : struct, Monad<W, MB, B> =>
-            default(MONADB).Return(write1 =>
+        public MB Bind<MONADB, MB, B>(Writer<MonoidW, W, A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, (W, bool), MB, B> =>
+            default(MONADB).Id(_ =>
             {
-                var (x, write2, bottom) = default(SWriter<MonoidW, W, A>).Eval(ma, write1);
-                if (bottom) return (default(B), write1, true);
-                return default(MONADB).Eval(f(x), write2);
+                var (a, output1, faulted) = ma();
+                if (faulted) return default(MONADB).Fail();
+                return default(MONADB).BindOutput((output1, faulted), f(a));
             });
 
         [Pure]
-        public (A, W, bool) Eval(Writer<MonoidW, W, A> ma, W output) =>
-            default(SWriter<MonoidW, W, A>).Eval(ma, output);
+        public Writer<MonoidW, W, A> BindOutput((W, bool) output, Writer<MonoidW, W, A> mb) => () =>
+        {
+            var (b, output2, faulted) = mb();
+            if (faulted) return (default(A), default(MonoidW).Empty(), true);
+            return (b, default(MonoidW).Append(output.Item1, output2), false);
+        };
 
         [Pure]
         public Writer<MonoidW, W, A> Fail(Exception err = null) =>
-            default(SWriter<MonoidW, W, A>).Bottom;
+            () => (default(A), default(MonoidW).Empty(), true);
 
         [Pure]
         public Writer<MonoidW, W, A> Fail(object err) =>
-            default(SWriter<MonoidW, W, A>).Bottom;
+            () => (default(A), default(MonoidW).Empty(), true);
 
         [Pure]
         public Writer<MonoidW, W, A> Writer(A value, W output) =>
-            default(SWriter<MonoidW, W, A>).Lift(w => (value, default(MonoidW).Append(w, output), false));
+            () => (value, output, false);
 
         [Pure]
-        public Writer<MonoidW, W, A> Return(A x) =>
-            Writer(x, default(MonoidW).Empty());
+        public Writer<MonoidW, W, A> Id(Func<Unit, Writer<MonoidW, W, A>> f) =>
+            f(unit);
 
         [Pure]
-        public Writer<MonoidW, W, A> Return(Func<W, (A, W, bool)> f) =>
-            default(SWriter<MonoidW, W, A>).Lift(f);
-
-        /// <summary>
-        /// Tells the monad what you want it to hear.  The monad carries this 'packet'
-        /// upwards, merging it if needed (hence the Monoid requirement).
-        /// </summary>
-        /// <typeparam name="W">Type of the value tell</typeparam>
-        /// <param name="what">The value to tell</param>
-        /// <returns>Updated writer monad</returns>
-        [Pure]
-        public SSU Tell<SWriterU, SSU>(W what)
-            where SWriterU : struct, WriterMonadValue<SSU, W, Unit> =>
-                default(SWriterU).Lift(w => (unit, default(MonoidW).Append(w, what), false));
-
-        /// <summary>
-        /// 'listen' is an action that executes the monad and adds
-        /// its output to the value of the computation.
-        /// </summary>
-        [Pure]
-        public SSAW Listen<SWriterAW, SSAW>(Writer<MonoidW, W, A> ma)
-            where SWriterAW : struct, WriterMonadValue<SSAW, W, (A, W)> =>
-                default(SWriterAW).Lift(written =>
-                {
-                    var (a, w, b) = default(SWriter<MonoidW, W, A>).Eval(ma, written);
-                    return b
-                        ? (default((A, W)), default(MonoidW).Empty(), true)
-                        : ((a, w), w, false);
-                });
-    }
-
-    public struct MWriter<SWriterA, SWA, MonoidW, W, A> : MonadWriter<SWriterA, SWA, MonoidW, W, A>, Monad<W, SWA, A>
-    where SWriterA : struct, WriterMonadValue<SWA, W, A>
-    where MonoidW : struct, Monoid<W>
-    {
-        [Pure]
-        public MB Bind<MONADB, MB, B>(SWA ma, Func<A, MB> f) where MONADB : struct, Monad<W, MB, B> =>
-            default(MONADB).Return(write1 =>
-            {
-                var (x, write2, bottom) = default(SWriterA).Eval(ma, write1);
-                if (bottom) return (default(B), write1, true);
-                return default(MONADB).Eval(f(x), write2);
-            });
-
-        [Pure]
-        public (A, W, bool) Eval(SWA ma, W output) =>
-            default(SWriterA).Eval(ma, output);
-
-        [Pure]
-        public SWA Fail(Exception err = null) =>
-            default(SWriterA).Bottom;
-
-        [Pure]
-        public SWA Fail(object err) =>
-            default(SWriterA).Bottom;
-
-        [Pure]
-        public SWA Writer(A value, W output) =>
-            default(SWriterA).Lift(w => (value, default(MonoidW).Append(w, output), false));
-
-        [Pure]
-        public SWA Return(A x) =>
-            Writer(x, default(MonoidW).Empty());
-
-        [Pure]
-        public SWA Return(Func<W, (A, W, bool)> f) =>
-            default(SWriterA).Lift(f);
+        public Writer<MonoidW, W, A> Return(Func<Unit, A> f) =>
+            () => (f(unit), default(MonoidW).Empty(), false);
 
         /// <summary>
         /// Tells the monad what you want it to hear.  The monad carries this 'packet'
@@ -114,23 +56,49 @@ namespace LanguageExt.ClassInstances
         /// <param name="what">The value to tell</param>
         /// <returns>Updated writer monad</returns>
         [Pure]
-        public SSU Tell<SWriterU, SSU>(W what)
-            where SWriterU : struct, WriterMonadValue<SSU, W, Unit> =>
-                default(SWriterU).Lift(w => (unit, default(MonoidW).Append(w, what), false));
+        public Writer<MonoidW, W, Unit> Tell(W what) => () =>
+            (unit, what, false);
 
         /// <summary>
         /// 'listen' is an action that executes the monad and adds
         /// its output to the value of the computation.
         /// </summary>
         [Pure]
-        public SSAW Listen<SWriterAW, SSAW>(SWA ma)
-            where SWriterAW : struct, WriterMonadValue<SSAW, W, (A, W)> =>
-                default(SWriterAW).Lift(written =>
-                {
-                    var (a, w, b) = default(SWriterA).Eval(ma, written);
-                    return b
-                        ? (default((A, W)), default(MonoidW).Empty(), true)
-                        : ((a, w), w, false);
-                });
+        public Writer<MonoidW, W, (A, B)> Listen<B>(Writer<MonoidW, W, A> ma, Func<W, B> f) => () =>
+        {
+            var (a, output, faulted) = ma();
+            if (faulted) return (default((A, B)), default(MonoidW).Empty(), true);
+            return ((a, f(output)), output, false);
+        };
+
+        [Pure]
+        public Writer<MonoidW, W, A> Plus(Writer<MonoidW, W, A> ma, Writer<MonoidW, W, A> mb) => () =>
+        {
+            var (a, output, faulted) = ma();
+            return faulted
+                ? mb()
+                : (a, output, faulted);
+        };
+
+        [Pure]
+        public Writer<MonoidW, W, A> Zero() =>
+            () => (default(A), default(MonoidW).Empty(), true);
+
+        [Pure]
+        public Func<Unit, S> Fold<S>(Writer<MonoidW, W, A> fa, S state, Func<S, A, S> f) => _ =>
+        {
+            var (a, output, faulted) = fa();
+            return faulted
+                ? state
+                : f(state, a);
+        };
+
+        [Pure]
+        public Func<Unit, S> FoldBack<S>(Writer<MonoidW, W, A> fa, S state, Func<S, A, S> f) =>
+            Fold(fa, state, f);
+
+        [Pure]
+        public Func<Unit, int> Count(Writer<MonoidW, W, A> fa) =>
+            Fold(fa, 0, (s,x) => 1);
     }
 }

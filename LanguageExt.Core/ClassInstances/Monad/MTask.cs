@@ -11,7 +11,6 @@ namespace LanguageExt.ClassInstances
     public struct MTask<A> :
         Optional<Task<A>, A>,
         Monad<Task<A>, A>,
-        Foldable<Task<A>, A>,
         BiFoldable<Task<A>, Unit, A>
     {
         public static readonly MTask<A> Inst = default(MTask<A>);
@@ -20,7 +19,7 @@ namespace LanguageExt.ClassInstances
         public Task<A> None => Task.Run<A>(() => raise<A>(new BottomException()));
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Task<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
+        public MB Bind<MONADB, MB, B>(Task<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
         {
             if (typeof(MB) == typeof(Task<B>) && typeof(MONADB) == typeof(MTask<B>))
             {
@@ -69,8 +68,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
         [Pure]
-        public Task<A> Return(A x) =>
-            Task.FromResult(x);
+        public Task<A> Return(Func<Unit, A> f) =>
+            Task.Run(() => f(unit));
 
         [Pure]
         public Task<A> Zero() => 
@@ -113,18 +112,18 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public S Fold<S>(Task<A> ma, S state, Func<S, A, S> f)
+        public Func<Unit, S> Fold<S>(Task<A> ma, S state, Func<S, A, S> f) => _ =>
         {
             if (ma.IsFaulted) return state;
             return f(state, ma.Result);
-        }
+        };
 
         [Pure]
-        public S FoldBack<S>(Task<A> ma, S state, Func<S, A, S> f)
+        public Func<Unit, S> FoldBack<S>(Task<A> ma, S state, Func<S, A, S> f) => _ =>
         {
             if (ma.IsFaulted) return state;
             return f(state, ma.Result);
-        }
+        };
 
         [Pure]
         public S BiFold<S>(Task<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
@@ -145,17 +144,29 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public int Count(Task<A> ma) =>
+        public Func<Unit, int> Count(Task<A> ma) => _ =>
             ma.IsFaulted
                 ? 0
                 : 1;
 
         [Pure]
         public Task<A> Some(A value) =>
-            Return(value);
+            Task.FromResult(value);
 
         [Pure]
         public Task<A> Optional(A value) =>
-            Return(value);
+            Task.FromResult(value);
+
+        [Pure]
+        public Task<A> Id(Func<Unit, Task<A>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public Task<A> BindOutput(Unit _, Task<A> mb) =>
+            mb;
+
+        [Pure]
+        public Task<A> Return(A x) =>
+            Return(_ => x);
     }
 }

@@ -24,9 +24,9 @@ public static class ReaderExt
     {
         try
         {
-            if (self == null) throw new ArgumentNullException(nameof(self));
-            if (env == null) throw new ArgumentNullException(nameof(env));
-            var (a, _, b) = Eval(self, env);
+            if (self == null) return () => Option<A>.None; ;
+            if (env == null) return () => Option<A>.None; ;
+            var (a, b) = self(env);
             if(b)
             {
                 return () => Option<A>.None;
@@ -42,24 +42,13 @@ public static class ReaderExt
         }
     }
 
-    internal static (A Value, Env Environment, bool IsBottom) Eval<Env, A>(this Reader<Env, A> self, Env env) =>
-        self == null || self.eval == null
-            ? (default(A), default(Env), true)
-            : self.eval(env);
-
     [Pure]
     public static Reader<Env, IEnumerable<A>> AsEnumerable<Env, A>(this Reader<Env, A> self) =>
         self.Map(x => (new A[1] { x }).AsEnumerable());
 
     [Pure]
-    public static IEnumerable<A> AsEnumerable<Env, A>(this Reader<Env, A> self, Env env)
-    {
-        var res = self.Eval(env);
-        if (!res.IsBottom)
-        {
-            yield return res.Value;
-        }
-    }
+    public static IEnumerable<A> AsEnumerable<Env, A>(this Reader<Env, A> self, Env env) =>
+        self.Map(x => new[] { x }.AsEnumerable()).Run(env).IfNoneOrFail(new A[0].AsEnumerable());
 
     public static Reader<Env, Unit> Iter<Env, A>(this Reader<Env, A> self, Action<A> action) =>
         self.Map(x => { action(x); return unit; });
@@ -93,25 +82,25 @@ public static class ReaderExt
         self.Where(pred);
 
     [Pure]
-    public static Reader<Env, A> Where<Env, A>(this Reader<Env, A> self, Func<A, bool> pred) =>
-        default(MReader<SReader<Env,A>, Reader<Env, A>, Env, A>).Return(env => {
-            var (x, _, b) = self.Eval(env);
-            if (b || !pred(x)) return (default(A), env, true);
-            return (x, env, b);
-        });
+    public static Reader<Env, A> Where<Env, A>(this Reader<Env, A> self, Func<A, bool> pred) => env =>
+    {
+        var (a, faulted) = self(env);
+        if (faulted || !pred(a)) return (a, true);
+        return (a, false);
+    };
 
     [Pure]
     public static Reader<Env, B> Bind<Env, A, B>(this Reader<Env, A> self, Func<A, Reader<Env, B>> binder) =>
-        default(MReader<SReader<Env, A>, Reader<Env, A>, Env, A>)
-            .Bind<MReader<SReader<Env, B>, Reader<Env, B>, Env, B>, Reader<Env, B>, B>(self, binder);
+        default(MReader<Env, A>)
+            .Bind<MReader<Env, B>, Reader<Env, B>, B>(self, binder);
 
     /// <summary>
     /// Select
     /// </summary>
     [Pure]
     public static Reader<Env, B> Select<Env, A, B>(this Reader<Env, A> self, Func<A, B> map) =>
-        default(MReader<SReader<Env, A>, Reader<Env, A>, Env, A>).Bind<MReader<SReader<Env, B>, Reader<Env, B>, Env, B>, Reader<Env, B>, B>(self, a =>
-        default(MReader<SReader<Env, B>, Reader<Env, B>, Env, B>).Return(map(a)));
+        default(MReader<Env, A>).Bind<MReader<Env, B>, Reader<Env, B>, B>(self, a =>
+        default(MReader<Env, B>).Return(_ => map(a)));
 
     /// <summary>
     /// Select Many
@@ -121,28 +110,28 @@ public static class ReaderExt
         this Reader<Env, A> self,
         Func<A, Reader<Env, B>> bind,
         Func<A, B, C> project) =>
-            default(MReader<SReader<Env, A>, Reader<Env, A>, Env, A>).Bind<MReader<SReader<Env, C>, Reader<Env, C>, Env, C>, Reader<Env, C>, C>(self, a =>
-            default(MReader<SReader<Env, B>, Reader<Env, B>, Env, B>).Bind<MReader<SReader<Env, C>, Reader<Env, C>, Env, C>, Reader<Env, C>, C>(bind(a), b =>
-            default(MReader<SReader<Env, C>, Reader<Env, C>, Env, C>).Return(project(a, b))));
+            default(MReader<Env, A>).Bind<MReader<Env, C>, Reader<Env, C>, C>(self, a =>
+            default(MReader<Env, B>).Bind<MReader<Env, C>, Reader<Env, C>, C>(bind(a), b =>
+            default(MReader<Env, C>).Return(_ => project(a, b))));
 
     [Pure]
     public static Reader<Env, S> Fold<Env, A, S>(this Reader<Env, A> self, S initialState, Func<S, A, S> f) =>
-        default(MReader<SReader<Env, S>, Reader<Env, S>, Env, S>).Return(env =>
+        env =>
         {
-            var (x, _, b) = self.Eval(env);
+            var (x, b) = self(env);
             return b
-                ? (default(S), env, true)
-                : (f(initialState, x), env, false);
-        });
+                ? (default(S), true)
+                : (f(initialState, x), false);
+        };
 
     [Pure]
     public static Reader<Env, Env> Fold<Env, A>(this Reader<Env, A> self, Func<Env, A, Env> f) =>
-        default(MReader<SReader<Env, Env>, Reader<Env, Env>, Env, Env>).Return(env =>
+        env =>
         {
-            var (x, _, b) = self.Eval(env);
+            var (x, b) = self(env);
             return b
-                ? (default(Env), env, true)
-                : (f(env, x), env, false);
-        });
+                ? (default(Env), true)
+                : (f(env, x), false);
+        };
 }
 

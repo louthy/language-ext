@@ -9,8 +9,7 @@ namespace LanguageExt
     /// State monad type class
     /// </summary>
     [Typeclass]
-    public interface MonadWriter<SWriterA, SWA, MonoidW, W, A>
-        where SWriterA : struct, WriterMonadValue<SWA, W, A>
+    public interface MonadWriter<MonoidW, W, A>
         where MonoidW  : struct, Monoid<W>
     {
         /// <summary>
@@ -21,13 +20,13 @@ namespace LanguageExt
         /// <param name="what">The value to tell</param>
         /// <returns>Updated writer monad</returns>
         [Pure]
-        SSU Tell<SWriterU, SSU>(W what) where SWriterU : struct, WriterMonadValue<SSU, W, Unit>;
+        Writer<MonoidW, W, Unit> Tell(W what);
 
         /// <summary>
         /// 'listen' is an action that executes the monad and adds
         /// its output to the value of the computation.
         /// </summary>
         [Pure]
-        SSAW Listen<SWriterAW, SSAW>(SWA ma) where SWriterAW : struct, WriterMonadValue<SSAW, W, (A, W)>;
+        Writer<MonoidW, W, (A, B)> Listen<B>(Writer<MonoidW, W, A> ma, Func<W, B> f);
     }
 }

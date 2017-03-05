@@ -8,15 +8,14 @@ namespace LanguageExt
     /// Reader monad type class
     /// </summary>
     [Typeclass]
-    public interface MonadReader<SReaderA, SRA, Env, A>
-        where SReaderA : struct, ReaderMonadValue<SRA, Env, A>
+    public interface MonadReader<Env, A>
     {
         /// <summary>
         /// Returns the state from the internals of the monad.
         /// </summary>
         /// <returns>State value where the internal state and the bound value are the same</returns>
         [Pure]
-        SEnv Ask<SReaderEnv, SEnv>() where SReaderEnv : struct, ReaderMonadValue<SEnv, Env, Env>;
+        Reader<Env, Env> Ask();
 
         /// <summary>
         /// Retrieves a function of the current environment.
@@ -24,7 +23,7 @@ namespace LanguageExt
         /// <param name="f">The function to modify the environment.</param>
         /// <returns></returns>
         [Pure]
-        SRA Local(Func<Env, Env> f, SRA ma);
+        Reader<Env, A> Local(Reader<Env, A> ma, Func<Env, Env> f);
 
         /// <summary>
         /// Retrieves a function of the current environment.
@@ -32,6 +31,6 @@ namespace LanguageExt
         /// <param name="f">The function to modify the environment.</param>
         /// <returns></returns>
         [Pure]
-        SRA Reader(Func<Env, A> f);
+        Reader<Env, A> Reader(Func<Env, A> f);
     }
 }

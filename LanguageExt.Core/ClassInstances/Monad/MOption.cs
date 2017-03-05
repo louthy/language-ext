@@ -12,8 +12,7 @@ namespace LanguageExt.ClassInstances
         Optional<Option<A>, A>,
         Monad<Option<A>, A>,
         Foldable<Option<A>, A>,
-        BiFoldable<Option<A>, Unit, A>,
-        Liftable<Option<A>, A>
+        BiFoldable<Option<A>, Unit, A>
     {
         public static readonly MOption<A> Inst = default(MOption<A>);
 
@@ -21,7 +20,7 @@ namespace LanguageExt.ClassInstances
         public Option<A> None => Option<A>.None;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Option<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
+        public MB Bind<MONADB, MB, B>(Option<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
         {
             if (f == null) throw new ArgumentNullException(nameof(f));
             return ma.IsSome && f != null
@@ -44,14 +43,13 @@ namespace LanguageExt.ClassInstances
                 : b;
 
         [Pure]
-        public Option<A> Return(A x) =>
-            isnull(x)
+        public Option<A> Return(Func<Unit, A> f)
+        {
+            var x = f(unit);
+            return isnull(x)
                 ? Option<A>.None
                 : new Option<A>(new SomeValue<A>(x));
-
-        [Pure]
-        public Option<A> Lift(A x) =>
-            Return(x);
+        }
 
         [Pure]
         public Option<A> Zero() =>
@@ -98,24 +96,24 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public S Fold<S>(Option<A> ma, S state, Func<S, A, S> f)
+        public Func<Unit, S> Fold<S>(Option<A> ma, S state, Func<S, A, S> f) => _ =>
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (f == null) throw new ArgumentNullException(nameof(f));
             return Check.NullReturn(ma.IsSome
                 ? f(state, ma.Value)
                 : state);
-        }
+        };
 
         [Pure]
-        public S FoldBack<S>(Option<A> ma, S state, Func<S, A, S> f)
+        public Func<Unit, S> FoldBack<S>(Option<A> ma, S state, Func<S, A, S> f) => _ =>
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (f == null) throw new ArgumentNullException(nameof(f));
             return Check.NullReturn(ma.IsSome
                 ? f(state, ma.Value)
                 : state);
-        }
+        };
 
         [Pure]
         public S BiFold<S>(Option<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
@@ -140,7 +138,7 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public int Count(Option<A> ma) =>
+        public Func<Unit, int> Count(Option<A> ma) => _ =>
             ma.IsSome
                 ? 1
                 : 0;
@@ -182,5 +180,17 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Option<A> Optional(A value) =>
             Prelude.Optional(value);
+
+        [Pure]
+        public Option<A> Id(Func<Unit, Option<A>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public Option<A> BindOutput(Unit _, Option<A> mb) =>
+            mb;
+
+        [Pure]
+        public Option<A> Return(A x) =>
+            Return(_ => x);
     }
 }

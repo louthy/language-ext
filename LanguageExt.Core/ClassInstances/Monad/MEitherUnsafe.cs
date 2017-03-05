@@ -17,7 +17,7 @@ namespace LanguageExt.ClassInstances
         public static readonly MEitherUnsafe<L, R> Inst = default(MEitherUnsafe<L, R>);
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(EitherUnsafe<L, R> ma, Func<R, MB> f) where MONADB : struct, Monad<MB, B> =>
+        public MB Bind<MONADB, MB, B>(EitherUnsafe<L, R> ma, Func<R, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             Match(ma,
                 Choice1: l => default(MONADB).Fail(l),
                 Choice2: r => f(r),
@@ -39,12 +39,8 @@ namespace LanguageExt.ClassInstances
                 Bottom: () => mb);
 
         [Pure]
-        public EitherUnsafe<L, R> Return(R x) =>
-            EitherUnsafe<L, R>.Right(x);
-
-        [Pure]
-        public EitherUnsafe<L, R> Return(Func<R> f) =>
-            Return(f());
+        public EitherUnsafe<L, R> Return(Func<Unit, R> f) =>
+            f(unit);
 
         [Pure]
         public EitherUnsafe<L, R> Zero() =>
@@ -124,18 +120,26 @@ namespace LanguageExt.ClassInstances
                     : Choice1(choice.LeftValue);
 
         [Pure]
-        public S Fold<S>(EitherUnsafe<L, R> foldable, S state, Func<S, R, S> f) =>
-            Match(foldable,
-                Choice1: _ => state,
-                Choice2: _ => f(state, foldable.RightValue),
-                Bottom: () => state);
+        public Func<Unit, S> Fold<S>(EitherUnsafe<L, R> foldable, S state, Func<S, R, S> f)
+        {
+            var self = this;
+            return u => 
+                self.Match(foldable,
+                    Choice1: _ => state,
+                    Choice2: _ => f(state, foldable.RightValue),
+                    Bottom: () => state);
+        }
 
         [Pure]
-        public S FoldBack<S>(EitherUnsafe<L, R> foldable, S state, Func<S, R, S> f) =>
-            Match(foldable,
-                Choice1: _ => state,
-                Choice2: _ => f(state, foldable.RightValue),
-                Bottom: () => state);
+        public Func<Unit, S> FoldBack<S>(EitherUnsafe<L, R> foldable, S state, Func<S, R, S> f)
+        {
+            var self = this;
+            return u => 
+                self.Match(foldable,
+                    Choice1: _ => state,
+                    Choice2: _ => f(state, foldable.RightValue),
+                    Bottom: () => state);
+        }
 
         [Pure]
         public S BiFold<S>(EitherUnsafe<L, R> foldable, S state, Func<S, L, S> fa, Func<S, R, S> fb) =>
@@ -152,11 +156,14 @@ namespace LanguageExt.ClassInstances
                 Bottom: () => state);
 
         [Pure]
-        public int Count(EitherUnsafe<L, R> ma) =>
-            Match(ma,
+        public Func<Unit, int> Count(EitherUnsafe<L, R> ma)
+        {
+            var self = this;
+            return u => self.Match(ma,
                 Choice1: _ => 0,
                 Choice2: _ => 1,
                 Bottom: () => 0);
+        }
 
         [Pure]
         public EitherUnsafe<L, R> Some(R value) =>
@@ -178,5 +185,16 @@ namespace LanguageExt.ClassInstances
             throw new BottomException();
         }
 
+        [Pure]
+        public EitherUnsafe<L, R> Id(Func<Unit, EitherUnsafe<L, R>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public EitherUnsafe<L, R> BindOutput(Unit _, EitherUnsafe<L, R> mb) =>
+            mb;
+
+        [Pure]
+        public EitherUnsafe<L, R> Return(R x) =>
+            Return(_ => x);
     }
 }

@@ -26,32 +26,26 @@ namespace LanguageExt
     public interface ReaderMonadValue<MValue, R, A>
     {
         [Pure]
-        (A, R, bool) Eval(MValue ma, R state);
+        MValue Lift((A, bool) value);
 
         [Pure]
-        MValue Lift((A, R, bool) value);
-
-        [Pure]
-        MValue Lift(Func<R, (A, R, bool)> f);
+        MValue Lift(Func<R, (A, bool)> f);
 
         [Pure]
         MValue Bottom { get; }
     }
 
-    public interface WriterMonadValue<MValue, W, A>
-    {
-        [Pure]
-        (A, W, bool) Eval(MValue ma, W state);
+    //public interface WriterMonadValue<MValue, W, A>
+    //{
+    //    [Pure]
+    //    MValue Lift((A, W, bool) value);
 
-        [Pure]
-        MValue Lift((A, W, bool) value);
+    //    [Pure]
+    //    MValue Lift(Func<(A, W, bool)> f);
 
-        [Pure]
-        MValue Lift(Func<W, (A, W, bool)> f);
-
-        [Pure]
-        MValue Bottom { get; }
-    }
+    //    [Pure]
+    //    MValue Bottom { get; }
+    //}
 
     public interface StateMonadValue<MValue, S, A>
     {

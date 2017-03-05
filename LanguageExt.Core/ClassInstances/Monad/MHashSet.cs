@@ -15,7 +15,6 @@ namespace LanguageExt.ClassInstances
     /// <typeparam name="A"></typeparam>
     public struct MHashSet<A> :
         Monad<HashSet<A>, A>,
-        Foldable<HashSet<A>, A>,
         Eq<HashSet<A>>,
         Monoid<HashSet<A>>
    {
@@ -26,13 +25,13 @@ namespace LanguageExt.ClassInstances
             HashSet.createRange(x.Concat(y));
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(HashSet<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
+        public MB Bind<MONADB, MB, B>(HashSet<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             ma.Fold(default(MONADB).Zero(), (s, a) => default(MONADB).Plus(s, f(a)));
 
 
         [Pure]
-        public int Count(HashSet<A> fa) =>
-            fa.Count();
+        public Func<Unit, int> Count(HashSet<A> fa) =>
+            _ => fa.Count();
 
         [Pure]
         public HashSet<A> Subtract(HashSet<A> x, HashSet<A> y) =>
@@ -55,20 +54,20 @@ namespace LanguageExt.ClassInstances
             Empty();
 
         [Pure]
-        public S Fold<S>(HashSet<A> fa, S state, Func<S, A, S> f) =>
-            fa.Fold(state, f);
+        public Func<Unit, S> Fold<S>(HashSet<A> fa, S state, Func<S, A, S> f) =>
+            _ => fa.Fold(state, f);
 
         [Pure]
-        public S FoldBack<S>(HashSet<A> fa, S state, Func<S, A, S> f) =>
-            fa.FoldBack(state, f);
+        public Func<Unit, S> FoldBack<S>(HashSet<A> fa, S state, Func<S, A, S> f) =>
+            _ => fa.FoldBack(state, f);
 
         [Pure]
         public HashSet<A> Plus(HashSet<A> ma, HashSet<A> mb) =>
             ma + mb;
 
         [Pure]
-        public HashSet<A> Return(A x) =>
-            HashSet(x);
+        public HashSet<A> Return(Func<Unit, A> f) =>
+            HashSet(f(unit));
 
         [Pure]
         public HashSet<A> Zero() =>
@@ -77,5 +76,17 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(HashSet<A> x) =>
             x.GetHashCode();
+
+        [Pure]
+        public HashSet<A> Id(Func<Unit, HashSet<A>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public HashSet<A> BindOutput(Unit maOutput, HashSet<A> mb) =>
+            mb;
+
+        [Pure]
+        public HashSet<A> Return(A x) =>
+            Return(_ => x);
     }
 }

@@ -26,11 +26,11 @@ namespace LanguageExt.ClassInstances
             x.Concat(y).Freeze();
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Lst<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
+        public MB Bind<MONADB, MB, B>(Lst<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             traverse<MLst<A>, MONADB, Lst<A>, MB, A, B>(ma, f);
 
         [Pure]
-        public int Count(Lst<A> fa) =>
+        public Func<Unit, int> Count(Lst<A> fa) => _ =>
             fa.Count();
 
         [Pure]
@@ -54,20 +54,20 @@ namespace LanguageExt.ClassInstances
             Empty();
 
         [Pure]
-        public S Fold<S>(Lst<A> fa, S state, Func<S, A, S> f) =>
-            fa.Fold(state, f);
+        public Func<Unit, S> Fold<S>(Lst<A> fa, S state, Func<S, A, S> f) => _ =>
+             fa.Fold(state, f);
 
         [Pure]
-        public S FoldBack<S>(Lst<A> fa, S state, Func<S, A, S> f) =>
-            fa.FoldBack(state, f);
+        public Func<Unit, S> FoldBack<S>(Lst<A> fa, S state, Func<S, A, S> f) => _ =>
+             fa.FoldBack(state, f);
 
         [Pure]
         public Lst<A> Plus(Lst<A> ma, Lst<A> mb) =>
             ma + mb;
 
         [Pure]
-        public Lst<A> Return(A x) =>
-            List(x);
+        public Lst<A> Return(Func<Unit, A> f) =>
+            List(f(unit));
 
         [Pure]
         public Lst<A> Zero() =>
@@ -76,5 +76,17 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Lst<A> x) =>
             x.GetHashCode();
+
+        [Pure]
+        public Lst<A> Id(Func<Unit, Lst<A>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public Lst<A> BindOutput(Unit maOutput, Lst<A> mb) =>
+            mb;
+
+        [Pure]
+        public Lst<A> Return(A x) =>
+            Return(_ => x);
     }
 }

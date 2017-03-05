@@ -648,7 +648,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S Fold<S>(S state, Func<S, R, S> Right) =>
-            MEitherUnsafe<L, R>.Inst.Fold(this, state, Right);
+            MEitherUnsafe<L, R>.Inst.Fold(this, state, Right)(unit);
 
         /// <summary>
         /// <para>

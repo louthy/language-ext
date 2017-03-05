@@ -1,100 +1,85 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
+using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct MState<S, A> : MonadState<SState<S, A>, State<S, A>, S, A>, Monad<S, State<S, A>, A>
+    public struct MState<S, A> : 
+        MonadState<S, A>, 
+        Monad<S, (S State, bool IsFaulted), State<S, A>, A>
     {
         [Pure]
-        public MB Bind<MONADB, MB, B>(State<S, A> ma, Func<A, MB> f) where MONADB : struct, Monad<S, MB, B> =>
-            default(MONADB).Return(s1 =>
+        public MB Bind<MONADB, MB, B>(State<S, A> ma, Func<A, MB> f) where MONADB : struct, Monad<S, (S State, bool IsFaulted), MB, B> =>
+            default(MONADB).Id(state =>
             {
-                var (x, s2, bottom) = default(SState<S, A>).Eval(ma, s1);
-                if (bottom) return (default(B), s1, true);
-                return default(MONADB).Eval(f(x), s2);
+                var (a, sa, faulted) = ma(state);
+                if(faulted) return default(MONADB).Fail();
+                return default(MONADB).BindOutput((sa, faulted), f(a));
             });
 
         [Pure]
-        public State<S, A> Fail(object err) =>
-            default(SState<S, A>).Bottom;
+        public State<S, A> BindOutput((S State, bool IsFaulted) output, State<S, A> mb) => 
+            _ => mb(output.State);
 
         [Pure]
-        public State<S, A> Fail(Exception err = null) =>
-            default(SState<S, A>).Bottom;
+        public State<S, A> Fail(object err) => state =>
+            (default(A), state, true);
 
         [Pure]
-        public State<S, A> Return(Func<S, (A, S, bool)> f) =>
-            default(SState<S, A>).Lift(f);
+        public State<S, A> Fail(Exception err = null) => state =>
+             (default(A), state, true);
 
         [Pure]
-        public SSS Get<SStateS, SSS>()
-            where SStateS : struct, StateMonadValue<SSS, S, S> =>
-                default(SStateS).Lift(state => (state, state, false));
+        public State<S, S> Get() => state =>
+            (state, state, false);
 
         [Pure]
-        public SSU Put<SStateU, SSU>(S state)
-            where SStateU : struct, StateMonadValue<SSU, S, Unit> =>
-                default(SStateU).Lift(_ => (unit, state, false));
+        public State<S, Unit> Put(S state) => _ =>
+            (unit, state, false);
 
         [Pure]
-        public State<S, A> Return(A x) =>
-            State(s => (x, s, false));
+        public State<S, A> Return(Func<S, A> f) => state =>
+            (f(state), state, false);
 
         [Pure]
-        public (A, S, bool) Eval(State<S, A> ma, S state) =>
-            default(SState<S, A>).Eval(ma, state);
+        public State<S, A> Plus(State<S, A> ma, State<S, A> mb) => state =>
+        {
+            var (a, newstate, faulted) = ma(state);
+            return faulted
+                ? mb(state)
+                : (a, newstate, faulted);
+        };
 
         [Pure]
-        public State<S, A> State(Func<S, (A, S, bool)> f) =>
-            default(SState<S, A>).Lift(state => f(state));
-    }
+        public State<S, A> Zero() => state =>
+            (default(A), state, true);
 
-    public struct MState<SStateA, SSA, S, A> : MonadState<SStateA, SSA, S, A>, Monad<S, SSA, A>
-        where SStateA : struct, StateMonadValue<SSA, S, A>
-    {
         [Pure]
-        public MB Bind<MONADB, MB, B>(SSA ma, Func<A, MB> f) where MONADB : struct, Monad<S, MB, B> =>
-            default(MONADB).Return(s1 =>
+        public Func<S, FoldState> Fold<FoldState>(State<S, A> fa, FoldState initialState, Func<FoldState, A, FoldState> f) =>
+            state =>
             {
-                var (x, s2, bottom) = default(SStateA).Eval(ma, s1);
-                if (bottom) return (default(B), s1, true);
-                return default(MONADB).Eval(f(x), s2);
-            });
+                var (a, newstate, faulted) = fa(state);
+                return faulted
+                    ? initialState
+                    : f(initialState, a);
+            };
 
         [Pure]
-        public SSA Fail(object err) =>
-            default(SStateA).Bottom;
+        public Func<S, FoldState> FoldBack<FoldState>(State<S, A> fa, FoldState state, Func<FoldState, A, FoldState> f) =>
+            Fold(fa, state, f);
 
         [Pure]
-        public SSA Fail(Exception err = null) =>
-            default(SStateA).Bottom;
+        public Func<S, int> Count(State<S, A> fa) =>
+            Fold(fa, 0, (_, __) => 1);
 
         [Pure]
-        public SSA Return(Func<S, (A, S, bool)> f) =>
-            default(SStateA).Lift(f);
+        public State<S, A> Id(Func<S, State<S, A>> ma) => 
+            state => ma(state)(state);
 
         [Pure]
-        public SSS Get<SStateS, SSS>()
-            where SStateS : struct, StateMonadValue<SSS, S, S> =>
-                default(SStateS).Lift(state => (state, state, false));
-
-        [Pure]
-        public SSU Put<SStateU, SSU>(S state)
-            where SStateU : struct, StateMonadValue<SSU, S, Unit> =>
-                default(SStateU).Lift(_ => (unit, state, false));
-
-        [Pure]
-        public SSA Return(A x) =>
-            State(s => (x, s, false));
-
-        [Pure]
-        public (A, S, bool) Eval(SSA ma, S state) =>
-            default(SStateA).Eval(ma, state);
-
-        [Pure]
-        public SSA State(Func<S, (A, S, bool)> f) =>
-            default(SStateA).Lift(state => f(state));
+        public State<S, A> State(Func<S, A> f) => state =>
+            (f(state), state, false);
     }
 }

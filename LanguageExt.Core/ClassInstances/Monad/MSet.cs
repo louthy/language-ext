@@ -15,7 +15,6 @@ namespace LanguageExt.ClassInstances
     /// <typeparam name="A"></typeparam>
     public struct MSet<A> :
         Monad<Set<A>, A>,
-        Foldable<Set<A>, A>,
         Eq<Set<A>>,
         Monoid<Set<A>>
    {
@@ -26,11 +25,11 @@ namespace LanguageExt.ClassInstances
             Set.createRange(x.Concat(y));
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Set<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
+        public MB Bind<MONADB, MB, B>(Set<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             traverse<MSet<A>, MONADB, Set<A>, MB, A, B>(ma, f);
 
         [Pure]
-        public int Count(Set<A> fa) =>
+        public Func<Unit, int> Count(Set<A> fa) => _ =>
             fa.Count();
 
         [Pure]
@@ -54,11 +53,11 @@ namespace LanguageExt.ClassInstances
             Empty();
 
         [Pure]
-        public S Fold<S>(Set<A> fa, S state, Func<S, A, S> f) =>
+        public Func<Unit, S> Fold<S>(Set<A> fa, S state, Func<S, A, S> f) => _ =>
             fa.Fold(state, f);
 
         [Pure]
-        public S FoldBack<S>(Set<A> fa, S state, Func<S, A, S> f) =>
+        public Func<Unit, S> FoldBack<S>(Set<A> fa, S state, Func<S, A, S> f) => _ =>
             fa.FoldBack(state, f);
 
         [Pure]
@@ -66,8 +65,8 @@ namespace LanguageExt.ClassInstances
             ma + mb;
 
         [Pure]
-        public Set<A> Return(A x) =>
-            Set(x);
+        public Set<A> Return(Func<Unit, A> f) =>
+            Set(f(unit));
 
         [Pure]
         public Set<A> Zero() =>
@@ -76,5 +75,17 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Set<A> x) =>
             x.GetHashCode();
+
+        [Pure]
+        public Set<A> Return(A x) =>
+            Set(x);
+
+        [Pure]
+        public Set<A> Id(Func<Unit, Set<A>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public Set<A> BindOutput(Unit _, Set<A> mb) =>
+            mb;
     }
 }

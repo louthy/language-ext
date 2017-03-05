@@ -26,12 +26,12 @@ namespace LanguageExt.ClassInstances
             x + y;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Que<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
+        public MB Bind<MONADB, MB, B>(Que<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             ma.Fold(default(MONADB).Zero(), (s, a) => default(MONADB).Plus(s, f(a)));
 
 
         [Pure]
-        public int Count(Que<A> fa) =>
+        public Func<Unit, int> Count(Que<A> fa) => _ =>
             fa.Count();
 
         [Pure]
@@ -55,11 +55,11 @@ namespace LanguageExt.ClassInstances
             Que<A>.Empty;
 
         [Pure]
-        public S Fold<S>(Que<A> fa, S state, Func<S, A, S> f) =>
+        public Func<Unit, S> Fold<S>(Que<A> fa, S state, Func<S, A, S> f) => _ =>
             fa.Fold(state, f);
 
         [Pure]
-        public S FoldBack<S>(Que<A> fa, S state, Func<S, A, S> f) =>
+        public Func<Unit, S> FoldBack<S>(Que<A> fa, S state, Func<S, A, S> f) => _ =>
             fa.FoldBack(state, f);
 
         [Pure]
@@ -67,8 +67,8 @@ namespace LanguageExt.ClassInstances
             ma + mb;
 
         [Pure]
-        public Que<A> Return(A x) =>
-            Queue(x);
+        public Que<A> Return(Func<Unit, A> f) =>
+            Queue(f(unit));
 
         [Pure]
         public Que<A> Zero() =>
@@ -77,5 +77,17 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Que<A> x) =>
             x.GetHashCode();
+
+        [Pure]
+        public Que<A> Id(Func<Unit, Que<A>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public Que<A> BindOutput(Unit _, Que<A> mb) =>
+            mb;
+
+        [Pure]
+        public Que<A> Return(A x) =>
+            Return(_ => x);
     }
 }

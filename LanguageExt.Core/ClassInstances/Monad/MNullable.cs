@@ -20,7 +20,7 @@ namespace LanguageExt.ClassInstances
         public A? None => (A?)null;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(A? ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
+        public MB Bind<MONADB, MB, B>(A? ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             ma.HasValue && f != null
                 ? f(ma.Value)
                 : default(MONADB).Fail(ValueIsNoneException.Default);
@@ -40,10 +40,13 @@ namespace LanguageExt.ClassInstances
                 : b;
 
         [Pure]
-        public A? Return(A x) =>
-            isnull(x)
+        public A? Return(Func<Unit, A> f)
+        {
+            var x = f(unit);
+            return isnull(x)
                 ? null
-                : (A?)x;
+                : (A?)f(unit);
+        }
 
         [Pure]
         public A? Zero() =>
@@ -80,13 +83,13 @@ namespace LanguageExt.ClassInstances
                 : None();
 
         [Pure]
-        public S Fold<S>(A? ma, S state, Func<S, A, S> f) =>
+        public Func<Unit, S> Fold<S>(A? ma, S state, Func<S, A, S> f) => _ =>
             Check.NullReturn(ma.HasValue
                 ? f(state, ma.Value)
                 : state);
 
         [Pure]
-        public S FoldBack<S>(A? ma, S state, Func<S, A, S> f) =>
+        public Func<Unit, S> FoldBack<S>(A? ma, S state, Func<S, A, S> f) => _ =>
             Check.NullReturn(ma.HasValue
                 ? f(state, ma.Value)
                 : state);
@@ -104,7 +107,7 @@ namespace LanguageExt.ClassInstances
                 : fb(state, ma.Value));
 
         [Pure]
-        public int Count(A? ma) =>
+        public Func<Unit, int> Count(A? ma) => _ =>
             ma.HasValue
                 ? 1
                 : 0;
@@ -116,5 +119,17 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public A? Optional(A value) =>
             value;
+
+        [Pure]
+        public A? Id(Func<Unit, A?> ma) =>
+            ma(unit);
+
+        [Pure]
+        public A? BindOutput(Unit _, A? mb) =>
+            mb;
+
+        [Pure]
+        public A? Return(A x) =>
+            Return(_ => x);
     }
 }

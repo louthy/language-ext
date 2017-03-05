@@ -499,7 +499,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S Fold<S>(S state, Func<S, A, S> folder) =>
-            MOptionUnsafe<A>.Inst.Fold(this, state, folder);
+            MOptionUnsafe<A>.Inst.Fold(this, state, folder)(unit);
 
         /// <summary>
         /// <para>
@@ -524,7 +524,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S FoldBack<S>(S state, Func<S, A, S> folder) =>
-            MOptionUnsafe<A>.Inst.FoldBack(this, state, folder);
+            MOptionUnsafe<A>.Inst.FoldBack(this, state, folder)(unit);
 
         /// <summary>
         /// <para>
@@ -614,7 +614,7 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public int Count() =>
-            MOptionUnsafe<A>.Inst.Count(this);
+            MOptionUnsafe<A>.Inst.Count(this)(unit);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state

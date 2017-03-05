@@ -15,7 +15,6 @@ namespace LanguageExt.ClassInstances
     /// <typeparam name="A"></typeparam>
     public struct MSeq<A> :
         Monad<IEnumerable<A>, A>,
-        Foldable<IEnumerable<A>, A>,
         Eq<IEnumerable<A>>,
         Monoid<IEnumerable<A>>
     {
@@ -26,11 +25,11 @@ namespace LanguageExt.ClassInstances
             x.Concat(y);
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(IEnumerable<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
+        public MB Bind<MONADB, MB, B>(IEnumerable<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             traverse<MSeq<A>, MONADB, IEnumerable<A>, MB, A, B>(ma, f);
 
         [Pure]
-        public int Count(IEnumerable<A> fa) =>
+        public Func<Unit, int> Count(IEnumerable<A> fa) => _ =>
             fa.Count();
 
         [Pure]
@@ -54,11 +53,11 @@ namespace LanguageExt.ClassInstances
             Empty();
 
         [Pure]
-        public S Fold<S>(IEnumerable<A> fa, S state, Func<S, A, S> f) =>
+        public Func<Unit, S> Fold<S>(IEnumerable<A> fa, S state, Func<S, A, S> f) => _ =>
             fa.Fold(state, f);
 
         [Pure]
-        public S FoldBack<S>(IEnumerable<A> fa, S state, Func<S, A, S> f) =>
+        public Func<Unit, S> FoldBack<S>(IEnumerable<A> fa, S state, Func<S, A, S> f) => _ => 
             fa.FoldBack(state, f);
 
         [Pure]
@@ -73,11 +72,23 @@ namespace LanguageExt.ClassInstances
             Empty();
 
         [Pure]
-        public IEnumerable<A> Return(A x) =>
-            new[] { x };
+        public IEnumerable<A> Return(Func<Unit, A> f) =>
+            new[] { f(unit) };
 
         [Pure]
         public int GetHashCode(IEnumerable<A> x) =>
             hash(x);
+
+        [Pure]
+        public IEnumerable<A> Id(Func<Unit, IEnumerable<A>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public IEnumerable<A> BindOutput(Unit maOutput, IEnumerable<A> mb) =>
+            mb;
+
+        [Pure]
+        public IEnumerable<A> Return(A x) =>
+            Return(_ => x);
     }
 }

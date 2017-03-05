@@ -4,7 +4,12 @@ using System.Diagnostics.Contracts;
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface Foldable<FA, A>
+    public interface Foldable<FA, A> : Foldable<Unit, FA, A>
+    {
+    }
+
+    [Typeclass]
+    public interface Foldable<Env, FA, A>
     {
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary
@@ -23,7 +28,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="f">Folder function, applied for each item in fa</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        S Fold<S>(FA fa, S state, Func<S, A, S> f);
+        Func<Env, S> Fold<S>(FA fa, S state, Func<S, A, S> f);
 
         /// <summary>
         /// In the case of lists, 'FoldBack', when applied to a binary
@@ -41,13 +46,13 @@ namespace LanguageExt.TypeClasses
         /// <param name="f">Folder function, applied for each item in fa</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        S FoldBack<S>(FA fa, S state, Func<S, A, S> f);
+        Func<Env, S> FoldBack<S>(FA fa, S state, Func<S, A, S> f);
 
         /// <summary>
         /// Number of items in the foldable
         /// </summary>
         /// <returns>Total number of items </returns>
         [Pure]
-        int Count(FA fa);
+        Func<Env, int> Count(FA fa);
     }
 }

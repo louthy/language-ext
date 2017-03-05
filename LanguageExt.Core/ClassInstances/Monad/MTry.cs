@@ -21,7 +21,7 @@ namespace LanguageExt.ClassInstances
         public Try<A> None => none;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Try<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
+        public MB Bind<MONADB, MB, B>(Try<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
         {
             var mr = ma.Try();
             if (mr.IsFaulted) return default(MONADB).Fail(mr.Exception);
@@ -51,8 +51,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
         [Pure]
-        public Try<A> Return(A x) =>
-            () => x;
+        public Try<A> Return(Func<Unit, A> f) =>
+            () => f(unit);
 
         [Pure]
         public Try<A> Zero() => 
@@ -102,20 +102,20 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public S Fold<S>(Try<A> ma, S state, Func<S, A, S> f)
+        public Func<Unit, S> Fold<S>(Try<A> ma, S state, Func<S, A, S> f) => _ =>
         {
             var res = ma.Try();
             if (res.IsFaulted) return state;
             return f(state, res.Value);
-        }
+        };
 
         [Pure]
-        public S FoldBack<S>(Try<A> ma, S state, Func<S, A, S> f)
+        public Func<Unit, S> FoldBack<S>(Try<A> ma, S state, Func<S, A, S> f) => _ =>
         {
             var res = ma.Try();
             if (res.IsFaulted) return state;
             return f(state, res.Value);
-        }
+        };
 
         [Pure]
         public S BiFold<S>(Try<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
@@ -138,7 +138,7 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public int Count(Try<A> ma) =>
+        public Func<Unit, int> Count(Try<A> ma) => _ =>
             ma.Try().IsFaulted
                 ? 0
                 : 1;
@@ -150,5 +150,17 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Try<A> Optional(A value) =>
             Return(value);
+
+        [Pure]
+        public Try<A> Id(Func<Unit, Try<A>> ma) =>
+            ma(unit);
+
+        [Pure]
+        public Try<A> BindOutput(Unit _, Try<A> mb) =>
+            mb;
+
+        [Pure]
+        public Try<A> Return(A x) =>
+            Return(_ => x);
     }
 }

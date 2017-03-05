@@ -19,7 +19,7 @@ namespace LanguageExt.ClassInstances
             x + y;
 
         [Pure]
-        public int Count(Map<K, V> fa) =>
+        public Func<Unit, int> Count(Map<K, V> fa) => _ =>
             fa.Count;
 
         [Pure]
@@ -35,11 +35,11 @@ namespace LanguageExt.ClassInstances
             x == y;
 
         [Pure]
-        public S Fold<S>(Map<K, V> fa, S state, Func<S, V, S> f) =>
-            fa.Fold(state, f);
+        public Func<Unit, S> Fold<S>(Map<K, V> fa, S state, Func<S, V, S> f) => _ =>
+             fa.Fold(state, f);
 
         [Pure]
-        public S FoldBack<S>(Map<K, V> fa, S state, Func<S, V, S> f) =>
+        public Func<Unit, S> FoldBack<S>(Map<K, V> fa, S state, Func<S, V, S> f) => _ =>
             fa.Values.Reverse().FoldBack(state, f);
 
         [Pure]
