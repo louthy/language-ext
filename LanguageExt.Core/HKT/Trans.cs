@@ -14,40 +14,44 @@ namespace LanguageExt
     ///         Trans<MLst<Option<int>>, Lst<Option<int>>, MOption<int>, Option<int>, int>
     /// 
     /// </summary>
-    public struct Trans<OuterMonad, OuterType, InnerMonad, InnerType, A> : MonadTrans<OuterMonad, OuterType, InnerMonad, InnerType, A>
-        where OuterMonad : struct, Monad<OuterType, InnerType>
-        where InnerMonad : struct, Monad<InnerType, A>
+    public struct Trans<OuterMonad, OuterType, InnerMonad, InnerType, A> : 
+        MonadTrans<OuterMonad, OuterType, InnerMonad, InnerType, A>
+            where OuterMonad : struct, Monad<OuterType, InnerType>
+            where InnerMonad : struct, Monad<InnerType, A>
     {
+        static readonly OuterMonad MOuter = new OuterMonad();
+        static readonly InnerMonad MInner = new InnerMonad();
+
         public static readonly Trans<OuterMonad, OuterType, InnerMonad, InnerType, A> Inst;
 
         public NewOuterType Bind<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, NewInnerType> f)
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
             where NewInnerMonad : struct, Monad<NewInnerType, B> =>
-                default(OuterMonad).Bind<NewOuterMonad, NewOuterType, NewInnerType>(ma,
+                MOuter.Bind<NewOuterMonad, NewOuterType, NewInnerType>(ma,
                     inner =>
                         default(NewOuterMonad).Return(
-                            default(InnerMonad).Bind<NewInnerMonad, NewInnerType, B>(inner, f)));
+                            MInner.Bind<NewInnerMonad, NewInnerType, B>(inner, f)));
 
         public NewOuterType Map<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, B> f)
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
             where NewInnerMonad : struct, Monad<NewInnerType, B> =>
-                default(OuterMonad).Bind<NewOuterMonad, NewOuterType, NewInnerType>(ma,
+                MOuter.Bind<NewOuterMonad, NewOuterType, NewInnerType>(ma,
                     inner =>
                         default(NewOuterMonad).Return(
-                            default(InnerMonad).Bind<NewInnerMonad, NewInnerType, B>(inner,
+                            MInner.Bind<NewInnerMonad, NewInnerType, B>(inner,
                                 a => default(NewInnerMonad).Return(f(a)))));
 
         public S Fold<S>(OuterType ma, S state, Func<S, A, S> f) =>
-            default(OuterMonad).Fold(ma, state, (s, inner) =>
-                default(InnerMonad).Fold(inner, s, f)(unit))(unit);
+            MOuter.Fold(ma, state, (s, inner) =>
+                MInner.Fold(inner, s, f)(unit))(unit);
 
         public S FoldBack<S>(OuterType ma, S state, Func<S, A, S> f) =>
-            default(OuterMonad).FoldBack(ma, state, (s, inner) =>
-                default(InnerMonad).FoldBack(inner, s, f)(unit))(unit);
+            MOuter.FoldBack(ma, state, (s, inner) =>
+                MInner.FoldBack(inner, s, f)(unit))(unit);
 
         public int Count(OuterType ma) =>
-            default(OuterMonad).Fold(ma, 0, (s, inner) =>
-                s + default(InnerMonad).Count(inner)(unit))(unit);
+            MOuter.Fold(ma, 0, (s, inner) =>
+                s + MInner.Count(inner)(unit))(unit);
 
         public NewOuterType Sequence<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType>(OuterType ma)
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
@@ -57,18 +61,18 @@ namespace LanguageExt
         public NewOuterType Traverse<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, B> f)
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
             where NewInnerMonad : struct, Monad<NewInnerType, B> =>
-                default(OuterMonad).Fold(ma, default(NewOuterMonad).Return(default(NewInnerMonad).Zero()), (outerState, innerA) =>
+                MOuter.Fold(ma, default(NewOuterMonad).Return(default(NewInnerMonad).Zero()), (outerState, innerA) =>
                     Trans<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>.Inst.Plus(outerState,
-                        default(InnerMonad).Bind<NewOuterMonad, NewOuterType, NewInnerType>(innerA, a =>
+                        MInner.Bind<NewOuterMonad, NewOuterType, NewInnerType>(innerA, a =>
                             default(NewOuterMonad).Return(default(NewInnerMonad).Return(f(a))))))(unit);
                         
         public OuterType Plus(OuterType ma, OuterType mb) =>
-            default(OuterMonad).Bind<OuterMonad, OuterType, InnerType>(ma, a =>
-               default(OuterMonad).Bind<OuterMonad, OuterType, InnerType>(mb, b =>
-                  default(OuterMonad).Return(default(InnerMonad).Plus(a, b))));
+            MOuter.Bind<OuterMonad, OuterType, InnerType>(ma, a =>
+               MOuter.Bind<OuterMonad, OuterType, InnerType>(mb, b =>
+                  MOuter.Return(MInner.Plus(a, b))));
 
         public OuterType Zero() =>
-            default(OuterMonad).Return(default(InnerMonad).Zero());
+            MOuter.Return(MInner.Zero());
     }
 
     public struct Trans<OuterMonad, OuterType, InnerMonad, InnerType, NumA, A>

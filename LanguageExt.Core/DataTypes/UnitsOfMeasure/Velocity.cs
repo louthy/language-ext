@@ -132,7 +132,7 @@ namespace LanguageExt.UnitsOfMeasure
         public double MilesPerHour        => Value / 1609.344000006437376000025749504 / 3600.0;
     }
 
-    public static class __UnitsVelocityExt
+    public static class UnitsVelocityExtensions
     {
         public static Velocity MetresPerSecond(this int self) =>
             new Velocity(self);

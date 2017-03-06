@@ -156,28 +156,6 @@ public static class TaskExtensions
     public static Task<U> Map<T, U>(this Task<T> self, Func<T, U> map) =>
         self.Select(map);
 
-    /// <summary>
-    /// Extracts the value from the Task - here for completeness so that
-    /// the HKT work.
-    /// </summary>
-    public static T LiftUnsafe<T>(this Task<T> self) where T : class
-    {
-        if (self.IsFaulted || self.IsCanceled) return self.Result;
-        self.Wait();
-        return self.Result;
-    }
-
-    /// <summary>
-    /// Extracts the value from the Task - here for completeness so that
-    /// the HKT work.
-    /// </summary>
-    public static T Lift<T>(this Task<T> self) where T : struct
-    {
-        if (self.IsFaulted || self.IsCanceled) return self.Result;
-        self.Wait();
-        return self.Result;
-    }
-
     public static async Task<V> Join<T, U, K, V>(
         this Task<T> source,
         Task<U> inner,

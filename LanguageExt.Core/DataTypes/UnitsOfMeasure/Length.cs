@@ -137,7 +137,7 @@ namespace LanguageExt.UnitsOfMeasure
         public double Nanometres  => Value * 1000000000.0;
     }
 
-    public static class __UnitsLengthExt
+    public static class UnitsLengthExtensions
     {
         public static Length Miles(this int self) =>
             new Length(1609.344000006437376000025749504 * self);

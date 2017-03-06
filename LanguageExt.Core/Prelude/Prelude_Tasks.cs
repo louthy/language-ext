@@ -61,19 +61,5 @@ namespace LanguageExt
         /// </summary>
         public static Task<U> map<T, U>(Task<T> self, Func<T, U> map) =>
             self.Select(map);
-
-        /// <summary>
-        /// Extracts the value from the Task - here for completeness so that
-        /// the HKT work.
-        /// </summary>
-        public static T liftUnsafe<T>(Task<T> self) where T : class =>
-            self.LiftUnsafe();
-
-        /// <summary>
-        /// Extracts the value from the Task - here for completeness so that
-        /// the HKT work.
-        /// </summary>
-        public static T lift<T>(Task<T> self) where T : struct =>
-            self.Lift();
     }
 }

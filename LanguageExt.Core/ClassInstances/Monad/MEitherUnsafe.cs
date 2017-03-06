@@ -26,7 +26,9 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public EitherUnsafe<L, R> Fail(object err) =>
-            EitherUnsafe<L, R>.Left((L)err);
+            err is L
+                ? EitherUnsafe<L, R>.Left((L)err)
+                : EitherUnsafe<L, R>.Bottom;
 
         [Pure]
         public EitherUnsafe<L, R> Fail(Exception err = null) =>

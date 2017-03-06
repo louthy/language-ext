@@ -132,7 +132,7 @@ namespace LanguageExt.UnitsOfMeasure
         public double MetresPerSecond2 => Value;
     }
 
-    public static class __UnitsAccelExt
+    public static class UnitsAccelExtensions
     {
         public static Accel MetresPerSecond2(this int self) =>
             new Accel(self);

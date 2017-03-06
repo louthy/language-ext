@@ -267,37 +267,6 @@ namespace LanguageExt
             tail.Insert(0, head);
 
         /// <summary>
-        /// Lazily generate a range of chars.  
-        /// 
-        ///   Remarks:
-        ///     Can go in a positive direction ('a'..'z') as well as negative ('z'..'a')
-        /// </summary>
-        [Obsolete("Use 'Range'.  All constructor functions are renamed to have their first letter as a capital.")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IEnumerable<char> range(char from, char to) =>
-            new CharRange(from, to);
-
-        /// <summary>
-        /// Lazily generate integers from any number of provided ranges
-        /// </summary>
-        [Obsolete("Use 'Range'.  All constructor functions are renamed to have their first letter as a capital.")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IEnumerable<int> range(params IEnumerable<int>[] ranges) =>
-            from range in ranges
-            from i in range
-            select i;
-
-        /// <summary>
-        /// Lazily generate chars from any number of provided ranges
-        /// </summary>
-        [Obsolete("Use 'Range'.  All constructor functions are renamed to have their first letter as a capital.")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IEnumerable<char> range(params IEnumerable<char>[] ranges) =>
-            from range in ranges
-            from c in range
-            select c;
-
-        /// <summary>
         /// Projects values into a lambda
         /// Useful when one needs to declare a local variable which breaks your
         /// expression.  This allows you to keep the expression going.

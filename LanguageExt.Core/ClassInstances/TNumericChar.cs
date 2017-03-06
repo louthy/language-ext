@@ -7,9 +7,9 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Integer number 
     /// </summary>
-    public struct TChar : Eq<char>, Ord<char>, Monoid<char>, Arithmetic<char>
+    public struct TNumericChar : Eq<char>, Ord<char>, Monoid<char>, Arithmetic<char>
     {
-        public static readonly TChar Inst = default(TChar);
+        public static readonly TNumericChar Inst = default(TNumericChar);
 
         /// <summary>
         /// Equality test
@@ -35,7 +35,7 @@ namespace LanguageExt.ClassInstances
         /// </returns>
         [Pure]
         public int Compare(char x, char y) =>
-            x.CompareTo(y);
+            CharToInt(x).CompareTo(CharToInt(y));
 
         /// <summary>
         /// Monoid empty value (0)
@@ -52,7 +52,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>x + y</returns>
         [Pure]
         public char Append(char x, char y) => 
-            (char)(x + y);
+            (char)(CharToInt(x) + CharToInt(y));
 
         /// <summary>
         /// Get the hash-code of the provided value
@@ -64,18 +64,23 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public char Plus(char x, char y) =>
-            (char)(x + y);
+            (char)(CharToInt(x) + CharToInt(y));
 
         [Pure]
         public char Subtract(char x, char y) =>
-            (char)(x - y);
+            (char)(CharToInt(x) - CharToInt(y));
 
         [Pure]
         public char Product(char x, char y) =>
-            (char) (x * y);
+            (char)(CharToInt(x) * CharToInt(y));
 
         [Pure]
         public char Negate(char x) =>
-            (char)(-x);
+            (char)(-CharToInt(x));
+
+        static int CharToInt(int x) =>
+            x > 32768
+                ? -(65536 - x)
+                : x;
     }
 }

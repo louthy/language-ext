@@ -141,7 +141,7 @@ namespace LanguageExt.UnitsOfMeasure
         public double Days          => Value / 86400.0;
     }
 
-    public static class __UnitsTimeExt
+    public static class UnitsTimeExtensions
     {
         public static Time Milliseconds(this int self) =>
             new Time(self / 1000.0);

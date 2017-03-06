@@ -26,7 +26,9 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Either<L, R> Fail(object err) =>
-            Either<L, R>.Left((L)err);
+            err is L
+                ? Either<L, R>.Left((L)err)
+                : Either<L, R>.Bottom;
 
         [Pure]
         public Either<L, R> Fail(Exception err = null) =>

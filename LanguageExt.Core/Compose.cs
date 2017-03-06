@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    public static class __ComposeExt
+    public static class ComposeExtensions
     {
         /// <summary>
         /// Function composition

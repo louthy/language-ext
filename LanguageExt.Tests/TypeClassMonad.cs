@@ -46,6 +46,41 @@ namespace LanguageExtTests
             Assert.True(Math.Abs(x.IfNone(0) -  200.0) < 0.000001);
         }
 
+        [Fact]
+        public void MonadOptionBindTest()
+        {
+            var x = Some(10);
+            var y = Some(20);
+            var z = Option<int>.None;
+
+            var r1 = Add<MOption<int>, Option<int>, TInt, int>(x, y); // Some(30)
+            var r2 = Add<MOption<int>, Option<int>, TInt, int>(x, z); // None
+
+            Assert.True(r1 == Some(30));
+            Assert.True(r2 == None);
+        }
+
+        [Fact]
+        public void MonadListBindTest()
+        {
+            var x = List(1, 2, 3);
+            var y = List(4, 5, 6);
+            var z = List<int>();
+
+            var r1 = Add<MLst<int>, Lst<int>, TInt, int>(x, y);
+            var r2 = Add<MLst<int>, Lst<int>, TInt, int>(x, z);
+
+            Assert.True(r1 == List(5, 6, 7,  6, 7, 8,  7, 8, 9));
+            Assert.True(r2 == z);
+        }
+
+        public static MA Add<MonadA, MA, NumA, A>(MA ma, MA mb)
+            where MonadA : struct, Monad<MA, A>
+            where NumA : struct, Num<A> =>
+                default(MonadA).Bind<MonadA, MA, A>(ma, a =>
+                default(MonadA).Bind<MonadA, MA, A>(mb, b =>
+                default(MonadA).Return(default(NumA).Plus(a, b))));
+
         public static MA DoubleAndLift<MONAD, MA, NUM, A>(A num)
             where MONAD : struct, Monad<MA, A>
             where NUM   : struct, Num<A> =>

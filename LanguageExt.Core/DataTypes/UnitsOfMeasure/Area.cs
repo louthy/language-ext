@@ -120,7 +120,7 @@ namespace LanguageExt.UnitsOfMeasure
         public double SqMillimetres => Value * 1000000.0;
     }
 
-    public static class __UnitsAreaExt
+    public static class UnitsAreaExtensions
     {
         public static Area SqKilometres(this int self) =>
             new Area(self / 0.000001);

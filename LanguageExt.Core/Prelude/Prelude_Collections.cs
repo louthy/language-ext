@@ -36,7 +36,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static IEnumerable<int> Range(int from, int count, int step = 1) =>
-            new IntegerRange(from, count, step);
+            IntegerRange.FromCount(from, count, step);
 
         /// <summary>
         /// Lazily generate a range of chars.  
@@ -46,7 +46,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static IEnumerable<char> Range(char from, char to) =>
-            new CharRange(from, to);
+            CharRange.FromMinMax(from, to);
 
         /// <summary>
         /// Lazily generate integers from any number of provided ranges
