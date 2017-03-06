@@ -779,6 +779,16 @@ namespace LanguageExt
             list.Distinct(new EqCompare<T>((x, y) => default(EQ).Equals(x, y)));
 
         /// <summary>
+        /// Return a new enumerable with all duplicate values removed
+        /// </summary>
+        /// <typeparam name="T">Enumerable item type</typeparam>
+        /// <param name="list">Enumerable</param>
+        /// <returns>A new enumerable with all duplicate values removed</returns>
+        [Pure]
+        public static IEnumerable<T> distinct<T, K>(IEnumerable<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
+             list.Distinct(new EqCompare<T>((a, b) => compare.IfNone(EqualityComparer<K>.Default.Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0));
+
+        /// <summary>
         /// Returns a new enumerable with the first 'count' items from the enumerable provided
         /// </summary>
         /// <typeparam name="T">Enumerable item type</typeparam>
@@ -1148,10 +1158,17 @@ namespace LanguageExt
     class EqCompare<T> : IEqualityComparer<T>
     {
         readonly Func<T, T, bool> compare;
+        readonly Option<Func<T, int>> hashCode = None;
 
         public EqCompare(Func<T, T, bool> compare)
         {
             this.compare = compare;
+        }
+
+        public EqCompare(Func<T, T, bool> compare, Func<T, int> hashCode)
+        {
+            this.compare = compare;
+            this.hashCode = hashCode;
         }
 
         [Pure]
@@ -1164,8 +1181,8 @@ namespace LanguageExt
 
         [Pure]
         public int GetHashCode(T obj) =>
-            isnull(obj)
-                ? 0
-                : obj.GetHashCode();
+            hashCode.Match(
+                f => isnull(obj) ? 0 : f(obj),
+                () => 0);
     }
 }
