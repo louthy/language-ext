@@ -30,6 +30,10 @@ This has allowed the transformer extensions to become more powerful too (because
 
 Scroll down to the section on Ad-hoc polymorphism for more details.
 
+## Documentation
+
+[Full API documentation can be found here](https://louthy.github.io/language-ext/index.htm)
+
 ## Bug fixes
 
 * Fix for `Lst.RemoveAt(index)` - certain tree arrangements caused this function to fail
@@ -833,7 +837,7 @@ I could go on endlessly about the new types.  There are so many.  But for the re
 
 ### Transformer types
 
-Because using the super-generic stuff is hard, and most of the time not needed.  I have kept the transformer types, but they're now implemented in terms of the super-generic types.  There is a new `MonadTrans` type-class and a default instance called `Trans`.
+Because using the super-generic stuff is hard, and most of the time not needed.  I have kept the transformer types, but they're now implemented in terms of the super-generic types.  There is a new [`MonadTrans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/MonadTrans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm) type-class and a default instance called [`Trans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Trans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm).
 
 For every pair of nested monads: `Lst<Option<A>>`, `Try<Either<L, A>>`, etc.  there are the following extension methods (this is for `Arr<Lst<A>>`):
 ```c#
@@ -924,6 +928,8 @@ As well as the extensions, there are also static classes for the transformer typ
 
 ### Type-classes
 
+[Type-Classes API documentation](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.TypeClasses/index.htm)
+
  Type-class | Functions | Description
 ------------|-----------|-------------
 `Arithmetic<A>` | `Plus`, `Subtract`, `Product`, `Negate` | Base type-class for `Num<A>`
@@ -953,6 +959,8 @@ As well as the extensions, there are also static classes for the transformer typ
 `TriFunctor` | `TriMap` | Three item version of `Functor`
 
 ### Class-instances
+
+[Class instances API documentation](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.ClassInstances/index.htm)
 
 Class instances implement the type-class interfaces, are structs, and can be invoked by `default(TClassInstance).Foo()`.  This allows for ad-hoc polymorphic behaviours to be applied to sealed types.
 
