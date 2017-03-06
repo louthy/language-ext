@@ -831,6 +831,97 @@ Or any two monads.  They will follow the built in rules for the type, and produc
 
 I could go on endlessly about the new types.  There are so many.  But for the release notes I think I should wrap it up.  Below is a short list of the type-classes (interfaces) and class-instances (structs) that make up language-ext 2.0:
 
+### Transformer types
+
+Because using the super-generic stuff is hard, and most of the time not needed.  I have kept the transformer types, but they're now implemented in terms of the super-generic types.  There is a new `MonadTrans` type-class and a default instance called `Trans`.
+
+For every pair of nested monads: `Lst<Option<A>>`, `Try<Either<L, A>>`, etc.  there are the following extension methods (this is for `Arr<Lst<A>>`):
+```c#
+    A SumT<NumA, A>(this Arr<Lst<A>> ma);
+    int CountT<A>(this Arr<Lst<A>> ma);
+    Arr<Lst<B>> BindT<A, B>(this Arr<Lst<A>> ma, Func<A, Lst<B>> f);
+    Lst<Arr<B>> Traverse<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+    Lst<Arr<A>> Sequence<A>(this Arr<Lst<A>> ma);
+    Arr<Lst<B>> MapT<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+    S FoldT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
+    FoldBackT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
+    ExistsT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
+    ForAllT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
+    IterT<A>(this Arr<Lst<A>> ma, Action<A> f);
+    Arr<Lst<A>> FilterT< A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
+    Arr<Lst<A>> Where<A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
+    Arr<Lst<A>> Select<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+    Arr<Lst<C>> SelectMany<A, B, C>(
+            this Arr<Lst<A>> ma,
+            Func<A, Lst<B>> bind,
+            Func<A, B, C> project);
+    Arr<Lst<A>> PlusT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+    Arr<Lst<A>> SubtractT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+    Arr<Lst<A>> ProductT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+    Arr<Lst<A>> DivideT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+    AppendT<SEMI, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where SEMI : struct, Semigroup<A>;
+    int CompareT<ORD, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where ORD : struct, Ord<A>;
+    bool EqualsT<EQ, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where EQ : struct, Eq<A>;
+    Arr<Lst<A>> ApplyT<A, B>(this Func<A, B> fab, Arr<Lst<A>> fa);
+    Arr<Lst<C>> ApplyT<A, B, C>(this Func<A, B, C> fabc, Arr<Lst<A>> fa, Arr<Lst<A>> fb);
+```
+The number of functions has increased dramatically.  Some of the special ones are `Traverse` and `Sequence` which flips the inner and outer types.  So for example:
+```c#
+    Lst<Option<int>> x = List(Some(1), Some(2), Some(3), Some(4), Some(5));
+    Option<Lst<int>> y = x.Sequence();
+
+    Assert.True(y == Some(List(1, 2, 3, 4, 5)));
+```
+As you can see, the list is now inside the option.
+```c#
+    Lst<Option<int>> x = List(Some(1), Some(2), Some(3), None, Some(5));
+    Option<Lst<int>> y = x.Sequence();
+
+    Assert.True(y == None);
+```
+In this case there is a `None` in the `Lst` so when the `Lst<Option<>>` becomes a `Option<Lst<>>` the rules of the `Option` take over, and one `None` means all `None`.
+
+This can be quite useful for `Either`:
+```c#
+    var x = List<Either<string, int>>(1, 2, 3, 4, "error");
+
+    var y = x.Sequence();
+
+    Assert.True(y.IsLeft && y == "error");
+```
+This collects the first error it finds, or returns `Right` if there is no error. 
+
+`Traverse` is that same as `Sequence` except it applies a mapping function to each bound value as it's transforming the types.  Here's an example that runs 6 tasks in parallel, and collects their results:
+
+```c#
+    var start = DateTime.UtcNow;
+
+    var f1 = Task.Run(() => { Thread.Sleep(3000); return 0; });
+    var f2 = Task.Run(() => { Thread.Sleep(3000); return 1; });
+    var f3 = Task.Run(() => { Thread.Sleep(3000); return 2; });
+    var f4 = Task.Run(() => { Thread.Sleep(3000); return 3; });
+    var f5 = Task.Run(() => { Thread.Sleep(3000); return 4; });
+    var f6 = Task.Run(() => { Thread.Sleep(3000); return 5; });
+
+    var res = await List(f1, f2, f3, f4, f5, f6).Traverse(x => x * 2);
+
+    Assert.True(Set.createRange(res) == Set(2, 4, 6, 8, 10, 12));
+
+    var ms = (int)(DateTime.UtcNow - start).TotalMilliseconds;
+    Assert.True(ms < 3500, $"Took {ms} ticks");
+```
+So there is a List of Tasks that becomes a single awaitable Task of List.
+
+As well as the extensions, there are also static classes for the transformer types.  There is one for each type of monad.  So for example, `Option` has a `LanguageExt.OptionT` type.  Whenever you have a pair of nested monads, and `Option` is the inner monad, then you would use `OptionT`:
+```c#
+    var ma = List(Some(1),Some(2),Some(3),Some(4),Some(5));
+
+    var total = OptionT.foldT(ma, 0, (s, x) => s + x); // 15
+    var total = OptionT.sumT<TInt, int>(ma); // 15
+    var mb    = OptionT.filterT(ma, x > 3); // List(Some(3), Some(4))
+```
+
 ### Type-classes
 
  Type-class | Functions | Description
@@ -867,9 +958,6 @@ Class instances implement the type-class interfaces, are structs, and can be inv
 
  Type-class              | Class instances
 -------------------------|-----------------
-`Const<A>`               | `ChA` - `ChZ`, `Cha` - `Chz`, `Ch0` - `Ch9`, `ChSpace`, `ChTab`, `ChCR`, `ChLF`
-                         | `D0`, `D1`, `DNeg`
-                         | `I0`-`I256`, `I300`, `I320`, `I384`, `I400`, `I480`, `I500`, `I512`, `I600`, `I640`, `I700`, `I768`, ..., `I1073741824`, `IMax`, `IMin`.
 `Eq<A>`                  | `TChar`, `EqArr`, `EqArray`, `EqBigInt`, `EqBool`, `EqChar`, `EqChoice`, `EqDateTime`, `EqDecimal`, `EqDefault`, `EqDouble`, `EqFloat`, `EqGuid`, `EqHashSet`, `EqInt`, `EqLong`, `EqLst`, `EqNewType`, `EqNumType`, `EqOpt`, `EqQue`, `EqSeq`, `EqShort`, `EqStck`, `EqString`, `EqTry`, `EqTryOpt`
 `Floating<A>`            | `TFloat`, `TDouble`, `TDecimal`
 `Foldable<FA, A>`        | `FoldTuple`, `MArr`, `MArray`, `MEither`, `MEitherUnsafe`, `MHashSet`, `MLst`, `MNullable`, `MOption`, `MOptionUnsafe`, `MQue`, `MSeq`, `MSet`, `MStck`, `MTry`, `MTryOption`
