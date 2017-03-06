@@ -751,7 +751,7 @@ So we now know that `MonadB` is a class-instance of the `Monad<MB, B>` type-clas
 ```
 The eagle eyed reader will notice that this actually allows binding to any resulting monad.  I'm not an academic, but I'm sure there will be someone throwing their toys out of their prams at this point.  However, it works, it's type-safe, and it's efficient. 
 
-The actual definition of `Monad` is more complex than this, in order to unify monadic types that take arguments (`Reader` and `State`) and monads that carry internal state (`Writer` and `State`), as well as to support asynchronous monads (`TryAsync` and `TryOption`).  I won't muddy the waters too much right now, but unified and type-safe they are.  There are no hacks.
+[The actual definition of `Monad`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.TypeClasses/Monad_Env_Out_MA_A.htm) is more complex than this, in order to unify monadic types that take arguments (`Reader` and `State`) and monads that carry internal state (`Writer` and `State`), as well as to support asynchronous monads (`TryAsync` and `TryOption`).  I won't muddy the waters too much right now, but unified and type-safe they are.  There are no hacks.
 
 You should see that the `Return` and `Fail` functions are trivial to implement:
 ```c#
