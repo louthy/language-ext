@@ -837,34 +837,34 @@ Because using the super-generic stuff is hard, and most of the time not needed. 
 
 For every pair of nested monads: `Lst<Option<A>>`, `Try<Either<L, A>>`, etc.  there are the following extension methods (this is for `Arr<Lst<A>>`):
 ```c#
-    A SumT<NumA, A>(this Arr<Lst<A>> ma);
-    int CountT<A>(this Arr<Lst<A>> ma);
-    Arr<Lst<B>> BindT<A, B>(this Arr<Lst<A>> ma, Func<A, Lst<B>> f);
-    Lst<Arr<B>> Traverse<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
-    Lst<Arr<A>> Sequence<A>(this Arr<Lst<A>> ma);
-    Arr<Lst<B>> MapT<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
-    S FoldT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
-    FoldBackT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
-    ExistsT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
-    ForAllT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
-    IterT<A>(this Arr<Lst<A>> ma, Action<A> f);
-    Arr<Lst<A>> FilterT< A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
-    Arr<Lst<A>> Where<A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
-    Arr<Lst<A>> Select<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
-    Arr<Lst<C>> SelectMany<A, B, C>(
-            this Arr<Lst<A>> ma,
-            Func<A, Lst<B>> bind,
-            Func<A, B, C> project);
-    Arr<Lst<A>> PlusT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
-    Arr<Lst<A>> SubtractT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
-    Arr<Lst<A>> ProductT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A> =>
-            ApplyT(default(NUM).Product, x, y);
-    Arr<Lst<A>> DivideT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
-    AppendT<SEMI, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where SEMI : struct, Semigroup<A>;
-    int CompareT<ORD, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where ORD : struct, Ord<A>;
-    bool EqualsT<EQ, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where EQ : struct, Eq<A>;
-    Arr<Lst<A>> ApplyT<A, B>(this Func<A, B> fab, Arr<Lst<A>> fa);
-    Arr<Lst<C>> ApplyT<A, B, C>(this Func<A, B, C> fabc, Arr<Lst<A>> fa, Arr<Lst<A>> fb);
+A SumT<NumA, A>(this Arr<Lst<A>> ma);
+int CountT<A>(this Arr<Lst<A>> ma);
+Arr<Lst<B>> BindT<A, B>(this Arr<Lst<A>> ma, Func<A, Lst<B>> f);
+Lst<Arr<B>> Traverse<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+Lst<Arr<A>> Sequence<A>(this Arr<Lst<A>> ma);
+Arr<Lst<B>> MapT<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+S FoldT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
+S FoldBackT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
+bool ExistsT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
+bool ForAllT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
+Unit IterT<A>(this Arr<Lst<A>> ma, Action<A> f);
+Arr<Lst<A>> FilterT< A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
+Arr<Lst<A>> Where<A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
+Arr<Lst<A>> Select<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+Arr<Lst<C>> SelectMany<A, B, C>(
+        this Arr<Lst<A>> ma,
+        Func<A, Lst<B>> bind,
+        Func<A, B, C> project);
+Arr<Lst<A>> PlusT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+Arr<Lst<A>> SubtractT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+Arr<Lst<A>> ProductT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A> =>
+        ApplyT(default(NUM).Product, x, y);
+Arr<Lst<A>> DivideT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+AppendT<SEMI, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where SEMI : struct, Semigroup<A>;
+int CompareT<ORD, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where ORD : struct, Ord<A>;
+bool EqualsT<EQ, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where EQ : struct, Eq<A>;
+Arr<Lst<A>> ApplyT<A, B>(this Func<A, B> fab, Arr<Lst<A>> fa);
+Arr<Lst<C>> ApplyT<A, B, C>(this Func<A, B, C> fabc, Arr<Lst<A>> fa, Arr<Lst<A>> fb);
 ```
 The number of functions has increased dramatically.  Some of the special ones are `Traverse` and `Sequence` which flips the inner and outer types.  So for example:
 ```c#

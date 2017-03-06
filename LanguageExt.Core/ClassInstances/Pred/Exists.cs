@@ -1,7 +1,8 @@
 ﻿
+using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 
-namespace LanguageExt.TypeClasses
+namespace LanguageExt.ClassInstances.Pred
 {
     /// <summary>
     /// Logical OR of the terms

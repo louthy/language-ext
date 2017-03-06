@@ -114,12 +114,12 @@ namespace LanguageExt.Tests
         {
             var start = DateTime.UtcNow;
 
-            var f1 = Task.Run(() => { Thread.Sleep(3000); return 0; });
-            var f2 = Task.Run(() => { Thread.Sleep(3000); return 1; });
-            var f3 = Task.Run(() => { Thread.Sleep(3000); return 2; });
-            var f4 = Task.Run(() => { Thread.Sleep(3000); return 3; });
-            var f5 = Task.Run(() => { Thread.Sleep(3000); return 4; });
-            var f6 = Task.Run(() => { Thread.Sleep(3000); return 5; });
+            var f1 = Task.Run(() => { Thread.Sleep(3000); return 1; });
+            var f2 = Task.Run(() => { Thread.Sleep(3000); return 2; });
+            var f3 = Task.Run(() => { Thread.Sleep(3000); return 3; });
+            var f4 = Task.Run(() => { Thread.Sleep(3000); return 4; });
+            var f5 = Task.Run(() => { Thread.Sleep(3000); return 5; });
+            var f6 = Task.Run(() => { Thread.Sleep(3000); return 6; });
 
             var res = await List(f1, f2, f3, f4, f5, f6).Traverse(x => x * 2);
 

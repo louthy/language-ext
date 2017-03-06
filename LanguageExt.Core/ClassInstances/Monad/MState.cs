@@ -16,8 +16,9 @@ namespace LanguageExt.ClassInstances
             default(MONADB).Id(state =>
             {
                 var (a, sa, faulted) = ma(state);
-                if(faulted) return default(MONADB).Fail();
-                return default(MONADB).BindReturn((sa, faulted), f(a));
+                return faulted
+                    ? default(MONADB).Fail()
+                    : default(MONADB).BindReturn((sa, faulted), f(a));
             });
 
         [Pure]

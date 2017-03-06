@@ -7,27 +7,29 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct MWriter<MonoidW, W, A> : 
-        MonadWriter<MonoidW, W, A>, 
+    public struct MWriter<MonoidW, W, A> :
+        MonadWriter<MonoidW, W, A>,
         Monad<Unit, (W, bool), Writer<MonoidW, W, A>, A>
-        where MonoidW  : struct, Monoid<W>
+        where MonoidW : struct, Monoid<W>
     {
         [Pure]
         public MB Bind<MONADB, MB, B>(Writer<MonoidW, W, A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, (W, bool), MB, B> =>
             default(MONADB).Id(_ =>
             {
                 var (a, output1, faulted) = ma();
-                if (faulted) return default(MONADB).Fail();
-                return default(MONADB).BindReturn((output1, faulted), f(a));
+                return faulted
+                    ? default(MONADB).Fail()
+                    : default(MONADB).BindReturn((output1, faulted), f(a));
             });
 
         [Pure]
-        public Writer<MonoidW, W, A> BindReturn((W, bool) output, Writer<MonoidW, W, A> mb) => () =>
+        public Writer<MonoidW, W, A> BindReturn((W, bool) output, Writer<MonoidW, W, A> mb)
         {
             var (b, output2, faulted) = mb();
-            if (faulted) return (default(A), default(MonoidW).Empty(), true);
-            return (b, default(MonoidW).Append(output.Item1, output2), false);
-        };
+            return () => faulted
+                ? (default(A), default(MonoidW).Empty(), true)
+                : (b, default(MonoidW).Append(output.Item1, output2), false);
+        }
 
         [Pure]
         public Writer<MonoidW, W, A> Fail(Exception err = null) =>

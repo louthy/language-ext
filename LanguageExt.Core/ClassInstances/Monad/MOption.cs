@@ -21,13 +21,10 @@ namespace LanguageExt.ClassInstances
         public Option<A> None => Option<A>.None;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Option<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
-        {
-            if (f == null) throw new ArgumentNullException(nameof(f));
-            return ma.IsSome && f != null
+        public MB Bind<MONADB, MB, B>(Option<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
+            ma.IsSome && f != null
                 ? f(ma.Value)
-                : default(MONADB).Fail(ValueIsNoneException.Default);
-        }
+                : default(MONADB).Fail();
 
         [Pure]
         public Option<A> Fail(object err) =>

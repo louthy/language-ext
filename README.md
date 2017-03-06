@@ -5,7 +5,7 @@ C# Functional Language Extensions
 
 [![Join the chat at https://gitter.im/louthy/language-ext](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/louthy/language-ext?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
-This library uses and abuses the features of C# 6 to provide a functional 'Base class library', that, if you squint, can look like 
+This library uses and abuses the features of C# 6+ to provide a functional 'Base class library', that, if you squint, can look like 
 extensions to the language itself.
 
 #### [API Reference](https://louthy.github.io)
@@ -21,10 +21,9 @@ https://twitter.com/paullouth
 
 
 ## Introduction
-One of the great features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static 
+One of the great features of C#6+ is that it allows us to treat static classes like namespaces.  This means that we can use static 
 methods without qualifying them first.  That instantly gives us access to single term method names that look exactly like functions 
 in functional languages.  i.e.
-
 ```C#
     using static System.Console;
     
@@ -54,7 +53,7 @@ be `PascalCase`:
     Option<int> x = Some(123);
     Option<int> y = None;
     List<int> items = List(1,2,3,4,5);
-    Map<int,string> dict = Map(Tuple(1, "Hello"), Tuple(2, "World"));
+    Map<int, string> dict = Map((1, "Hello"), (2, "World"));
 ```
 * Any (non-type constructor) static function that can be used on its own by `using static LanguageExt.Prelude` are `camelCase`.
 ```C#
@@ -78,7 +77,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 ```
 
-The namespace `LanguageExt` contains the types, and `LanguageExt.Prelude` contains the functions.  
+The namespace `LanguageExt` contains the core types, and `LanguageExt.Prelude` contains the functions that you bring into scope `using static LanguageExt.Prelude`.  
 
 There is also:
 * [`LanguageExt.List`](https://louthy.github.io/languageext.core/LanguageExt/List_.htm)
