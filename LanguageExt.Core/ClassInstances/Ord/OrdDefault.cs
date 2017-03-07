@@ -37,6 +37,10 @@ namespace LanguageExt.ClassInstances
         public int GetHashCode(A x) =>
             x.IsNull() ? 0 : x.GetHashCode();
 
+        // Below is a shameless hack to make Func and anonymous Funcs equality comparable
+        // This is primarily to support Sets being used as applicatives, where the functor
+        // must be in a set itself.  A smarter solution is required.
+
         static readonly bool IsFunc =
             typeof(A).GetTypeInfo().ToString().StartsWith("System.Func") ||
             typeof(A).GetTypeInfo().ToString().StartsWith("<>");
@@ -48,11 +52,6 @@ namespace LanguageExt.ClassInstances
 
         class DelCompare : IComparer<A>
         {
-            //
-            // Below is a shameless hack to make Func and anonymous Funcs equality comparable
-            // This is primarily to support Sets being used as applicatives, where the functor
-            // must be in a set itself.  A smarter solution is required.
-            // 
             public int Compare(A x, A y) =>
                 ReferenceEquals(x, y) ? 0 : -1;
         }

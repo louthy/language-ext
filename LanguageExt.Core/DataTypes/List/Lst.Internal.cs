@@ -75,17 +75,8 @@ namespace LanguageExt
             Rev = rev;
         }
 
-        internal ListItem<A> Root
-        {
-            get
-            {
-                return root ?? ListItem<A>.Empty;
-            }
-            //set
-            //{
-            //    root = Root;
-            //}
-        }
+        internal ListItem<A> Root =>
+            root ?? ListItem<A>.Empty;
 
         /// <summary>
         /// Index accessor
