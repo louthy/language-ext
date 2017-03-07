@@ -2,7 +2,7 @@
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 
-namespace LanguageExt
+namespace LanguageExt.TypeClasses
 {
     /// <summary>
     /// Reader monad type class

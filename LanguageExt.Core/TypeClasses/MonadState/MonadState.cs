@@ -3,7 +3,7 @@ using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt
+namespace LanguageExt.TypeClasses
 {
     /// <summary>
     /// State monad type class

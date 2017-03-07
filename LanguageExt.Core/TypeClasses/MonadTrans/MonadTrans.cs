@@ -1,7 +1,7 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
 
-namespace LanguageExt
+namespace LanguageExt.TypeClasses
 {
     public interface MonadTrans<OuterMonad, OuterType, InnerMonad, InnerType, A>
         where OuterMonad : struct, Monad<OuterType, InnerType>

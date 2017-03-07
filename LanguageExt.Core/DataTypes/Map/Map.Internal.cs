@@ -891,7 +891,7 @@ namespace LanguageExt
         }
     }
 
-    public interface IMapItem<K, V>
+    internal interface IMapItem<K, V>
     {
         K Key
         {
