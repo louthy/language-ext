@@ -735,7 +735,7 @@ public static class TryExtensions
     /// </summary>
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
-    /// <returns>lhs `append` rhs</returns>
+    /// <returns>lhs ++ rhs</returns>
     [Pure]
     public static Try<A> Append<SEMI, A>(this Try<A> lhs, Try<A> rhs) where SEMI : struct, Semigroup<A> => 
         from x in lhs

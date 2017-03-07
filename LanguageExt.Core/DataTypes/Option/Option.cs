@@ -513,9 +513,8 @@ namespace LanguageExt
         /// operator, a starting value(typically the left-identity of the operator),
         /// and a list, reduces the list using the binary operator, from left to
         /// right:
-        /// </para><para>
-        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
-        /// </para><para>
+        /// </para>
+        /// <para>
         /// Note that, since the head of the resulting expression is produced by
         /// an application of the operator to the first element of the list,
         /// 'Fold' can produce a terminating expression from an infinite list.
@@ -538,9 +537,8 @@ namespace LanguageExt
         /// operator, a starting value(typically the left-identity of the operator),
         /// and a list, reduces the list using the binary operator, from left to
         /// right:
-        /// </para><para>
-        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
-        /// </para><para>
+        /// </para>
+        /// <para>
         /// Note that, since the head of the resulting expression is produced by
         /// an application of the operator to the first element of the list,
         /// 'Fold' can produce a terminating expression from an infinite list.
@@ -563,9 +561,8 @@ namespace LanguageExt
         /// operator, a starting value(typically the left-identity of the operator),
         /// and a list, reduces the list using the binary operator, from left to
         /// right:
-        /// </para><para>
-        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
-        /// </para><para>
+        /// </para>
+        /// <para>
         /// Note that, since the head of the resulting expression is produced by
         /// an application of the operator to the first element of the list,
         /// 'Fold' can produce a terminating expression from an infinite list.
@@ -589,9 +586,8 @@ namespace LanguageExt
         /// operator, a starting value(typically the left-identity of the operator),
         /// and a list, reduces the list using the binary operator, from left to
         /// right:
-        /// </para><para>
-        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
-        /// </para><para>
+        /// </para>
+        /// <para>
         /// Note that, since the head of the resulting expression is produced by
         /// an application of the operator to the first element of the list,
         /// 'Fold' can produce a terminating expression from an infinite list.

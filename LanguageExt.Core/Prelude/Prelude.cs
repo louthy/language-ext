@@ -22,7 +22,6 @@ namespace LanguageExt
     ///     Reader E T
     ///     Writer W T
     ///     State S cT
-    ///     Rws E W S T
     ///     Unit
     /// 
     /// </summary>

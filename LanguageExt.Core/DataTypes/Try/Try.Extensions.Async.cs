@@ -447,7 +447,7 @@ public static class TryExtensionsAsync
     /// </summary>
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
-    /// <returns>lhs `append` rhs</returns>
+    /// <returns>lhs ++ rhs</returns>
     [Pure]
     public static TryAsync<A> AppendAsync<SEMI, A>(this Try<A> lhs, Try<A> rhs) where SEMI : struct, Semigroup<A> =>
         lhs.ToAsync().Append<SEMI, A>(rhs.ToAsync());

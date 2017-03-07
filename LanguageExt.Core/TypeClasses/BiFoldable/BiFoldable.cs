@@ -10,9 +10,7 @@ namespace LanguageExt.TypeClasses
         /// In the case of lists, 'Fold', when applied to a binary
         /// operator, a starting value(typically the left-identity of the operator),
         /// and a list, reduces the list using the binary operator, from left to
-        /// right:
-        /// 
-        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
+        /// right.
         /// 
         /// Note that, since the head of the resulting expression is produced by
         /// an application of the operator to the first element of the list,
@@ -30,9 +28,7 @@ namespace LanguageExt.TypeClasses
         /// In the case of lists, 'FoldBack', when applied to a binary
         /// operator, a starting value(typically the left-identity of the operator),
         /// and a list, reduces the list using the binary operator, from left to
-        /// right:
-        /// 
-        /// FoldBack( [x1, x2, ..., xn]) == (...((z `f` x1) `f` x2) `f`...) `f` xn
+        /// right.
         /// 
         /// Note that to produce the outermost application of the operator the
         /// entire input list must be traversed. 
@@ -52,9 +48,7 @@ namespace LanguageExt.TypeClasses
         /// In the case of lists, 'Fold', when applied to a binary
         /// operator, a starting value(typically the left-identity of the operator),
         /// and a list, reduces the list using the binary operator, from left to
-        /// right:
-        /// 
-        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
+        /// right.
         /// 
         /// Note that, since the head of the resulting expression is produced by
         /// an application of the operator to the first element of the list,
@@ -72,9 +66,7 @@ namespace LanguageExt.TypeClasses
         /// In the case of lists, 'FoldBack', when applied to a binary
         /// operator, a starting value(typically the left-identity of the operator),
         /// and a list, reduces the list using the binary operator, from left to
-        /// right:
-        /// 
-        /// FoldBack( [x1, x2, ..., xn]) == (...((z `f` x1) `f` x2) `f`...) `f` xn
+        /// right.
         /// 
         /// Note that to produce the outermost application of the operator the
         /// entire input list must be traversed. 
