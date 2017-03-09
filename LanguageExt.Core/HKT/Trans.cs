@@ -27,10 +27,16 @@ namespace LanguageExt
         public NewOuterType Bind<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, NewInnerType> f)
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
             where NewInnerMonad : struct, Monad<NewInnerType, B> =>
-                MOuter.Bind<NewOuterMonad, NewOuterType, NewInnerType>(ma,
-                    inner =>
-                        default(NewOuterMonad).Return(
-                            MInner.Bind<NewInnerMonad, NewInnerType, B>(inner, f)));
+                MOuter.Bind<NewOuterMonad, NewOuterType, NewInnerType>(ma, inner =>
+                    default(NewOuterMonad).Return(
+                        MInner.Bind<NewInnerMonad, NewInnerType, B>(inner, f)));
+
+        public NewOuterType Bind<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, NewOuterType> f)
+            where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
+            where NewInnerMonad : struct, Monad<NewInnerType, B> =>
+                MOuter.Bind<NewOuterMonad, NewOuterType, NewInnerType>(ma, inner =>
+                    MInner.Bind<NewOuterMonad, NewOuterType, NewInnerType>(inner, a =>
+                        f(a)));
 
         public NewOuterType Map<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, B> f)
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>

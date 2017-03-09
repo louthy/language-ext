@@ -8,18 +8,17 @@
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`OUTER_C` which is the result of performing bind then project</returns>
-
         [Pure]
         public static OUTER_C SelectMany<GENS, A, B, C>(
             this OUTER_A ma,
-            Func<A, INNER_B> bind,
+            Func<A, OUTER_B> bind,
             Func<A, B, C> project) =>
-                Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
-                    .Inst.Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(ma, a =>
-                    {
-                        var mb = bind(a);
-                        return default(M_INNER_B).Bind<M_INNER_C, INNER_C, C>(mb, b => default(M_INNER_C).Return(project(a, b)));
-                    });
+            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+                .Inst.Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(ma, a =>
+                    Trans<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>
+                        .Inst.Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(bind(a), b =>
+                            default(M_INNER_C).Return(project(a, b))));
+
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.

@@ -7,6 +7,10 @@ namespace LanguageExt.TypeClasses
         where OuterMonad : struct, Monad<OuterType, InnerType>
         where InnerMonad : struct, Monad<InnerType, A>
     {
+        NewOuterType Bind<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, NewOuterType> f)
+            where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
+            where NewInnerMonad : struct, Monad<NewInnerType, B>;
+
         NewOuterType Bind<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, NewInnerType> f)
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
             where NewInnerMonad : struct, Monad<NewInnerType, B>;
