@@ -18,7 +18,8 @@ namespace LanguageExt
     /// a non-nullable struct.
     /// </summary>
     internal class HashMapInternal<EqK, K, V> :
-        IEnumerable<(K Key, V Value)>
+        IEnumerable<(K Key, V Value)>,
+        IReadOnlyDictionary<K, V>
         where EqK : struct, Eq<K>
     {
         public static readonly HashMapInternal<EqK, K, V> Empty = new HashMapInternal<EqK, K, V>();
@@ -951,6 +952,9 @@ namespace LanguageExt
             }
             return self;
         }
+
+        IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
+            AsEnumerable().Map(kv => new KeyValuePair<K, V>(kv.Item1, kv.Item2)).GetEnumerator();
     }
 
     class HMapKeyValue<K, V> : IMapItem<K, V>

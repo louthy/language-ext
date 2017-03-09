@@ -64,6 +64,12 @@ namespace LanguageExt
         public int Length =>
             Value.Count;
 
+        /// <summary>
+        /// Get a IReadOnlyDictionary for this map.  No mapping is required, so this is very fast.
+        /// </summary>
+        [Pure]
+        public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
+            value;
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -472,17 +478,6 @@ namespace LanguageExt
         [Pure]
         public bool Contains(KeyValuePair<K, V> pair) =>
             Value.Contains(pair);
-
-        /// <summary>
-        /// TryGetValue
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("TryGetValue is obsolete, use TryFind instead")]
-        public bool TryGetValue(K key, out V value) =>
-            Value.TryGetValue(key, out value);
 
         /// <summary>
         /// Enumerable of map keys

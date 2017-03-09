@@ -597,9 +597,18 @@ namespace LanguageExt
                    None);
 
         /// <summary>
+        /// Convert any value to an enumerable
+        ///     T     : [x]
+        ///     null  : []
+        /// </summary>
+        [Pure]
+        public static IEnumerable<T> seqOne<T>(T value) =>
+            value.IsNull() ? new T[0] : new T[1] { value };
+
+        /// <summary>
         /// Convert a nullable to an enumerable
-        /// HasValue : true = [x]
-        /// HasValue : false = []
+        ///     HasValue == true  : [x]
+        ///     HasValue == false : []
         /// </summary>
         [Pure]
         public static IEnumerable<T> seq<T>(T? value) where T : struct =>
@@ -607,7 +616,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Convert an Enumerable to an Enumerable
-        /// Deals with value == null by returning []
+        /// Deals with `value == null` by returning `[]`
         /// </summary>
         [Pure]
         public static IEnumerable<T> seq<T>(IEnumerable<T> value) =>
@@ -615,8 +624,8 @@ namespace LanguageExt
 
         /// <summary>
         /// Convert an option to an enumerable
-        /// Some(x) = [x]
-        /// None = []
+        ///     Some(x) : [x]
+        ///     None    : []
         /// </summary>
         [Pure]
         public static IEnumerable<T> seq<T>(Option<T> value) =>
@@ -624,8 +633,8 @@ namespace LanguageExt
 
         /// <summary>
         /// Convert an option to an enumerable
-        /// Some(x) = [x]
-        /// None = []
+        ///     Some(x) : [x]
+        ///     None    : []
         /// </summary>
         [Pure]
         public static IEnumerable<T> seq<T>(OptionUnsafe<T> value) =>
@@ -633,8 +642,8 @@ namespace LanguageExt
 
         /// <summary>
         /// Convert an either to an enumerable
-        /// Right(x) = [x]
-        /// Left(y) = []
+        ///     Right(x) : [x]
+        ///     Left(y)  : []
         /// </summary>
         [Pure]
         public static IEnumerable<T> seq<L, T>(Either<L, T> value) =>
@@ -642,8 +651,8 @@ namespace LanguageExt
 
         /// <summary>
         /// Convert an either to an enumerable
-        /// Right(x) = [x]
-        /// Left(y) = []
+        ///     Right(x) : [x]
+        ///     Left(y)  : []
         /// </summary>
         [Pure]
         public static IEnumerable<T> seq<L, T>(EitherUnsafe<L, T> value) =>
@@ -651,9 +660,9 @@ namespace LanguageExt
 
         /// <summary>
         /// Convert a Try to an enumerable
-        /// Succ(x) = [x]
-        /// Fail(e) = []
-        /// value is null : []
+        ///     Succ(x) : [x]
+        ///     Fail(e) : []
+        ///     null    : []
         /// </summary>
         [Pure]
         public static IEnumerable<T> seq<T>(Try<T> value) =>
@@ -661,10 +670,10 @@ namespace LanguageExt
 
         /// <summary>
         /// Convert a TryOption to an enumerable
-        /// Succ(x) = [x]
-        /// Fail(e) = []
-        /// None = []
-        /// value is null : []
+        ///     Succ(x) : [x]
+        ///     Fail(e) : []
+        ///     None    : []
+        ///     null    : []
         /// </summary>
         [Pure]
         public static IEnumerable<T> seq<T>(TryOption<T> value) =>
@@ -672,10 +681,10 @@ namespace LanguageExt
 
         /// <summary>
         /// Convert a TryOption to an enumerable
-        /// Succ(x) = [x]
-        /// Fail(e) = []
-        /// None = []
-        /// value is null : []
+        ///     Succ(x) : [x]
+        ///     Fail(e) : []
+        ///     None    : []
+        ///     null    : []
         /// </summary>
         [Pure]
         public static Task<IEnumerable<T>> seq<T>(TryAsync<T> value) =>
@@ -683,10 +692,10 @@ namespace LanguageExt
 
         /// <summary>
         /// Convert a TryOption to an enumerable
-        /// Succ(x) = [x]
-        /// Fail(e) = []
-        /// None = []
-        /// value is null : []
+        ///     Succ(x) : [x]
+        ///     Fail(e) : []
+        ///     None    : []
+        ///     null    : []
         /// </summary>
         [Pure]
         public static Task<IEnumerable<T>> seq<T>(TryOptionAsync<T> value) =>
