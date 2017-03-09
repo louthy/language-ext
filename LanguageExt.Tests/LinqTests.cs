@@ -12,6 +12,31 @@ namespace LanguageExtTests
     public class LinqTests
     {
         [Fact]
+        public void EnumerableString()
+        {
+            var opt = Some("pre ");
+            var list = Some(new[] { "hello", "world" }.AsEnumerable());
+
+            var res = from a in opt
+                      from x in list
+                      from y in x
+                      select a + y;
+
+            Assert.True(res.Head() == "pre hello");
+            Assert.True(res.Tail().Head() == "pre world");
+
+            opt = None;
+
+            res = from a in opt
+                  from x in list
+                  from y in x
+                  select a + y;
+
+            Assert.True(!res.Any());
+        }
+
+
+        [Fact]
         public void MixedLinq()
         {
             //var oa = Some(1);

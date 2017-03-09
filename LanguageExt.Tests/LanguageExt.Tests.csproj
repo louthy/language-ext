@@ -1,9 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netcoreapp1.0</TargetFrameworks>
     <FileVersion>2.0.0.0</FileVersion>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="LanguageExt.Tests.nuget.props" />
+    <None Remove="LanguageExt.Tests.project.lock.json" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.0" />
