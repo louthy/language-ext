@@ -27,6 +27,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Arr<Arr<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Arr<Arr<C>> SelectMany< A, B, C>(
             this Arr<Arr<A>> ma,
@@ -67,7 +68,6 @@ namespace LanguageExt
         public static Arr<Arr<B>> Select< A, B>(this Arr<Arr<A>> ma, Func<A, B> f) =>
             Trans<MArr<Arr<A>>, Arr<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MArr<Arr<B>>, Arr<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Arr<Arr<A>>`
         /// </summary>
@@ -359,6 +359,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`HashSet<Arr<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static HashSet<Arr<C>> SelectMany< A, B, C>(
             this HashSet<Arr<A>> ma,
@@ -399,7 +400,6 @@ namespace LanguageExt
         public static HashSet<Arr<B>> Select< A, B>(this HashSet<Arr<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<Arr<A>>, HashSet<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MHashSet<Arr<B>>, HashSet<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `HashSet<Arr<A>>`
         /// </summary>
@@ -691,6 +691,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Lst<Arr<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Lst<Arr<C>> SelectMany< A, B, C>(
             this Lst<Arr<A>> ma,
@@ -731,7 +732,6 @@ namespace LanguageExt
         public static Lst<Arr<B>> Select< A, B>(this Lst<Arr<A>> ma, Func<A, B> f) =>
             Trans<MLst<Arr<A>>, Lst<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MLst<Arr<B>>, Lst<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Lst<Arr<A>>`
         /// </summary>
@@ -1023,6 +1023,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Option<Arr<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Option<Arr<C>> SelectMany< A, B, C>(
             this Option<Arr<A>> ma,
@@ -1063,7 +1064,6 @@ namespace LanguageExt
         public static Option<Arr<B>> Select< A, B>(this Option<Arr<A>> ma, Func<A, B> f) =>
             Trans<MOption<Arr<A>>, Option<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MOption<Arr<B>>, Option<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Option<Arr<A>>`
         /// </summary>
@@ -1355,6 +1355,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`OptionUnsafe<Arr<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static OptionUnsafe<Arr<C>> SelectMany< A, B, C>(
             this OptionUnsafe<Arr<A>> ma,
@@ -1395,7 +1396,6 @@ namespace LanguageExt
         public static OptionUnsafe<Arr<B>> Select< A, B>(this OptionUnsafe<Arr<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<Arr<A>>, OptionUnsafe<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MOptionUnsafe<Arr<B>>, OptionUnsafe<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<Arr<A>>`
         /// </summary>
@@ -1687,6 +1687,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Either<L, Arr<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Either<L, Arr<C>> SelectMany<L, A, B, C>(
             this Either<L, Arr<A>> ma,
@@ -1727,7 +1728,6 @@ namespace LanguageExt
         public static Either<L, Arr<B>> Select<L, A, B>(this Either<L, Arr<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, Arr<A>>, Either<L, Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MEither<L, Arr<B>>, Either<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Either<L, Arr<A>>`
         /// </summary>
@@ -2019,6 +2019,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`EitherUnsafe<L, Arr<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static EitherUnsafe<L, Arr<C>> SelectMany<L, A, B, C>(
             this EitherUnsafe<L, Arr<A>> ma,
@@ -2059,7 +2060,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Arr<B>> Select<L, A, B>(this EitherUnsafe<L, Arr<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, Arr<A>>, EitherUnsafe<L, Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MEitherUnsafe<L, Arr<B>>, EitherUnsafe<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, Arr<A>>`
         /// </summary>
@@ -2351,6 +2351,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Task<Arr<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Task<Arr<C>> SelectMany< A, B, C>(
             this Task<Arr<A>> ma,
@@ -2391,7 +2392,6 @@ namespace LanguageExt
         public static Task<Arr<B>> Select< A, B>(this Task<Arr<A>> ma, Func<A, B> f) =>
             Trans<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MTask<Arr<B>>, Task<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task<Arr<A>>`
         /// </summary>
@@ -2683,6 +2683,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Try<Arr<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Try<Arr<C>> SelectMany< A, B, C>(
             this Try<Arr<A>> ma,
@@ -2723,7 +2724,6 @@ namespace LanguageExt
         public static Try<Arr<B>> Select< A, B>(this Try<Arr<A>> ma, Func<A, B> f) =>
             Trans<MTry<Arr<A>>, Try<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MTry<Arr<B>>, Try<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Try<Arr<A>>`
         /// </summary>
@@ -3015,6 +3015,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryAsync<Arr<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryAsync<Arr<C>> SelectMany< A, B, C>(
             this TryAsync<Arr<A>> ma,
@@ -3055,7 +3056,6 @@ namespace LanguageExt
         public static TryAsync<Arr<B>> Select< A, B>(this TryAsync<Arr<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MTryAsync<Arr<B>>, TryAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync<Arr<A>>`
         /// </summary>
@@ -3347,6 +3347,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOption<Arr<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOption<Arr<C>> SelectMany< A, B, C>(
             this TryOption<Arr<A>> ma,
@@ -3387,7 +3388,6 @@ namespace LanguageExt
         public static TryOption<Arr<B>> Select< A, B>(this TryOption<Arr<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<Arr<A>>, TryOption<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MTryOption<Arr<B>>, TryOption<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOption<Arr<A>>`
         /// </summary>
@@ -3679,6 +3679,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOptionAsync<Arr<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOptionAsync<Arr<C>> SelectMany< A, B, C>(
             this TryOptionAsync<Arr<A>> ma,
@@ -3719,7 +3720,6 @@ namespace LanguageExt
         public static TryOptionAsync<Arr<B>> Select< A, B>(this TryOptionAsync<Arr<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MTryOptionAsync<Arr<B>>, TryOptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync<Arr<A>>`
         /// </summary>
@@ -4011,6 +4011,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`IEnumerable<Arr<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static IEnumerable<Arr<C>> SelectMany< A, B, C>(
             this IEnumerable<Arr<A>> ma,
@@ -4051,7 +4052,6 @@ namespace LanguageExt
         public static IEnumerable<Arr<B>> Select< A, B>(this IEnumerable<Arr<A>> ma, Func<A, B> f) =>
             Trans<MSeq<Arr<A>>, IEnumerable<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MSeq<Arr<B>>, IEnumerable<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `IEnumerable<Arr<A>>`
         /// </summary>
@@ -4343,6 +4343,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Set<Arr<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Set<Arr<C>> SelectMany< A, B, C>(
             this Set<Arr<A>> ma,
@@ -4383,7 +4384,6 @@ namespace LanguageExt
         public static Set<Arr<B>> Select< A, B>(this Set<Arr<A>> ma, Func<A, B> f) =>
             Trans<MSet<Arr<A>>, Set<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Map<MSet<Arr<B>>, Set<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Set<Arr<A>>`
         /// </summary>
@@ -4683,6 +4683,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Arr<HashSet<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Arr<HashSet<C>> SelectMany< A, B, C>(
             this Arr<HashSet<A>> ma,
@@ -4723,7 +4724,6 @@ namespace LanguageExt
         public static Arr<HashSet<B>> Select< A, B>(this Arr<HashSet<A>> ma, Func<A, B> f) =>
             Trans<MArr<HashSet<A>>, Arr<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Map<MArr<HashSet<B>>, Arr<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Arr<HashSet<A>>`
         /// </summary>
@@ -5015,6 +5015,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`HashSet<HashSet<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static HashSet<HashSet<C>> SelectMany< A, B, C>(
             this HashSet<HashSet<A>> ma,
@@ -5055,7 +5056,6 @@ namespace LanguageExt
         public static HashSet<HashSet<B>> Select< A, B>(this HashSet<HashSet<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<HashSet<A>>, HashSet<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Map<MHashSet<HashSet<B>>, HashSet<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `HashSet<HashSet<A>>`
         /// </summary>
@@ -5347,6 +5347,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Lst<HashSet<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Lst<HashSet<C>> SelectMany< A, B, C>(
             this Lst<HashSet<A>> ma,
@@ -5387,7 +5388,6 @@ namespace LanguageExt
         public static Lst<HashSet<B>> Select< A, B>(this Lst<HashSet<A>> ma, Func<A, B> f) =>
             Trans<MLst<HashSet<A>>, Lst<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Map<MLst<HashSet<B>>, Lst<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Lst<HashSet<A>>`
         /// </summary>
@@ -5679,6 +5679,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Option<HashSet<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Option<HashSet<C>> SelectMany< A, B, C>(
             this Option<HashSet<A>> ma,
@@ -5719,7 +5720,6 @@ namespace LanguageExt
         public static Option<HashSet<B>> Select< A, B>(this Option<HashSet<A>> ma, Func<A, B> f) =>
             Trans<MOption<HashSet<A>>, Option<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Map<MOption<HashSet<B>>, Option<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Option<HashSet<A>>`
         /// </summary>
@@ -6011,6 +6011,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`OptionUnsafe<HashSet<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static OptionUnsafe<HashSet<C>> SelectMany< A, B, C>(
             this OptionUnsafe<HashSet<A>> ma,
@@ -6051,7 +6052,6 @@ namespace LanguageExt
         public static OptionUnsafe<HashSet<B>> Select< A, B>(this OptionUnsafe<HashSet<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<HashSet<A>>, OptionUnsafe<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Map<MOptionUnsafe<HashSet<B>>, OptionUnsafe<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<HashSet<A>>`
         /// </summary>
@@ -6343,6 +6343,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Either<L, HashSet<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Either<L, HashSet<C>> SelectMany<L, A, B, C>(
             this Either<L, HashSet<A>> ma,
@@ -6383,7 +6384,6 @@ namespace LanguageExt
         public static Either<L, HashSet<B>> Select<L, A, B>(this Either<L, HashSet<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, HashSet<A>>, Either<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Map<MEither<L, HashSet<B>>, Either<L, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Either<L, HashSet<A>>`
         /// </summary>
@@ -6675,6 +6675,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`EitherUnsafe<L, HashSet<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static EitherUnsafe<L, HashSet<C>> SelectMany<L, A, B, C>(
             this EitherUnsafe<L, HashSet<A>> ma,
@@ -6715,7 +6716,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, HashSet<B>> Select<L, A, B>(this EitherUnsafe<L, HashSet<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, HashSet<A>>, EitherUnsafe<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Map<MEitherUnsafe<L, HashSet<B>>, EitherUnsafe<L, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, HashSet<A>>`
         /// </summary>
@@ -7007,6 +7007,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Task<HashSet<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Task<HashSet<C>> SelectMany< A, B, C>(
             this Task<HashSet<A>> ma,
@@ -7047,7 +7048,6 @@ namespace LanguageExt
         public static Task<HashSet<B>> Select< A, B>(this Task<HashSet<A>> ma, Func<A, B> f) =>
             Trans<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Map<MTask<HashSet<B>>, Task<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task<HashSet<A>>`
         /// </summary>
@@ -7339,6 +7339,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Try<HashSet<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Try<HashSet<C>> SelectMany< A, B, C>(
             this Try<HashSet<A>> ma,
@@ -7379,7 +7380,6 @@ namespace LanguageExt
         public static Try<HashSet<B>> Select< A, B>(this Try<HashSet<A>> ma, Func<A, B> f) =>
             Trans<MTry<HashSet<A>>, Try<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Map<MTry<HashSet<B>>, Try<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Try<HashSet<A>>`
         /// </summary>
@@ -7671,6 +7671,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryAsync<HashSet<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryAsync<HashSet<C>> SelectMany< A, B, C>(
             this TryAsync<HashSet<A>> ma,
@@ -7711,7 +7712,6 @@ namespace LanguageExt
         public static TryAsync<HashSet<B>> Select< A, B>(this TryAsync<HashSet<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Map<MTryAsync<HashSet<B>>, TryAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync<HashSet<A>>`
         /// </summary>
@@ -8003,6 +8003,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOption<HashSet<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOption<HashSet<C>> SelectMany< A, B, C>(
             this TryOption<HashSet<A>> ma,
@@ -8043,7 +8044,6 @@ namespace LanguageExt
         public static TryOption<HashSet<B>> Select< A, B>(this TryOption<HashSet<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<HashSet<A>>, TryOption<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Map<MTryOption<HashSet<B>>, TryOption<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOption<HashSet<A>>`
         /// </summary>
@@ -8335,6 +8335,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOptionAsync<HashSet<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOptionAsync<HashSet<C>> SelectMany< A, B, C>(
             this TryOptionAsync<HashSet<A>> ma,
@@ -8375,7 +8376,6 @@ namespace LanguageExt
         public static TryOptionAsync<HashSet<B>> Select< A, B>(this TryOptionAsync<HashSet<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Map<MTryOptionAsync<HashSet<B>>, TryOptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync<HashSet<A>>`
         /// </summary>
@@ -8667,6 +8667,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`IEnumerable<HashSet<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static IEnumerable<HashSet<C>> SelectMany< A, B, C>(
             this IEnumerable<HashSet<A>> ma,
@@ -8707,7 +8708,6 @@ namespace LanguageExt
         public static IEnumerable<HashSet<B>> Select< A, B>(this IEnumerable<HashSet<A>> ma, Func<A, B> f) =>
             Trans<MSeq<HashSet<A>>, IEnumerable<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Map<MSeq<HashSet<B>>, IEnumerable<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `IEnumerable<HashSet<A>>`
         /// </summary>
@@ -8999,6 +8999,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Set<HashSet<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Set<HashSet<C>> SelectMany< A, B, C>(
             this Set<HashSet<A>> ma,
@@ -9039,7 +9040,6 @@ namespace LanguageExt
         public static Set<HashSet<B>> Select< A, B>(this Set<HashSet<A>> ma, Func<A, B> f) =>
             Trans<MSet<HashSet<A>>, Set<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Map<MSet<HashSet<B>>, Set<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Set<HashSet<A>>`
         /// </summary>
@@ -9339,6 +9339,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Arr<Lst<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Arr<Lst<C>> SelectMany< A, B, C>(
             this Arr<Lst<A>> ma,
@@ -9379,7 +9380,6 @@ namespace LanguageExt
         public static Arr<Lst<B>> Select< A, B>(this Arr<Lst<A>> ma, Func<A, B> f) =>
             Trans<MArr<Lst<A>>, Arr<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MArr<Lst<B>>, Arr<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Arr<Lst<A>>`
         /// </summary>
@@ -9671,6 +9671,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`HashSet<Lst<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static HashSet<Lst<C>> SelectMany< A, B, C>(
             this HashSet<Lst<A>> ma,
@@ -9711,7 +9712,6 @@ namespace LanguageExt
         public static HashSet<Lst<B>> Select< A, B>(this HashSet<Lst<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<Lst<A>>, HashSet<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MHashSet<Lst<B>>, HashSet<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `HashSet<Lst<A>>`
         /// </summary>
@@ -10003,6 +10003,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Lst<Lst<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Lst<Lst<C>> SelectMany< A, B, C>(
             this Lst<Lst<A>> ma,
@@ -10043,7 +10044,6 @@ namespace LanguageExt
         public static Lst<Lst<B>> Select< A, B>(this Lst<Lst<A>> ma, Func<A, B> f) =>
             Trans<MLst<Lst<A>>, Lst<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MLst<Lst<B>>, Lst<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Lst<Lst<A>>`
         /// </summary>
@@ -10335,6 +10335,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Option<Lst<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Option<Lst<C>> SelectMany< A, B, C>(
             this Option<Lst<A>> ma,
@@ -10375,7 +10376,6 @@ namespace LanguageExt
         public static Option<Lst<B>> Select< A, B>(this Option<Lst<A>> ma, Func<A, B> f) =>
             Trans<MOption<Lst<A>>, Option<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MOption<Lst<B>>, Option<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Option<Lst<A>>`
         /// </summary>
@@ -10667,6 +10667,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`OptionUnsafe<Lst<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static OptionUnsafe<Lst<C>> SelectMany< A, B, C>(
             this OptionUnsafe<Lst<A>> ma,
@@ -10707,7 +10708,6 @@ namespace LanguageExt
         public static OptionUnsafe<Lst<B>> Select< A, B>(this OptionUnsafe<Lst<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<Lst<A>>, OptionUnsafe<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MOptionUnsafe<Lst<B>>, OptionUnsafe<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<Lst<A>>`
         /// </summary>
@@ -10999,6 +10999,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Either<L, Lst<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Either<L, Lst<C>> SelectMany<L, A, B, C>(
             this Either<L, Lst<A>> ma,
@@ -11039,7 +11040,6 @@ namespace LanguageExt
         public static Either<L, Lst<B>> Select<L, A, B>(this Either<L, Lst<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, Lst<A>>, Either<L, Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MEither<L, Lst<B>>, Either<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Either<L, Lst<A>>`
         /// </summary>
@@ -11331,6 +11331,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`EitherUnsafe<L, Lst<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static EitherUnsafe<L, Lst<C>> SelectMany<L, A, B, C>(
             this EitherUnsafe<L, Lst<A>> ma,
@@ -11371,7 +11372,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Lst<B>> Select<L, A, B>(this EitherUnsafe<L, Lst<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, Lst<A>>, EitherUnsafe<L, Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MEitherUnsafe<L, Lst<B>>, EitherUnsafe<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, Lst<A>>`
         /// </summary>
@@ -11663,6 +11663,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Task<Lst<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Task<Lst<C>> SelectMany< A, B, C>(
             this Task<Lst<A>> ma,
@@ -11703,7 +11704,6 @@ namespace LanguageExt
         public static Task<Lst<B>> Select< A, B>(this Task<Lst<A>> ma, Func<A, B> f) =>
             Trans<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MTask<Lst<B>>, Task<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task<Lst<A>>`
         /// </summary>
@@ -11995,6 +11995,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Try<Lst<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Try<Lst<C>> SelectMany< A, B, C>(
             this Try<Lst<A>> ma,
@@ -12035,7 +12036,6 @@ namespace LanguageExt
         public static Try<Lst<B>> Select< A, B>(this Try<Lst<A>> ma, Func<A, B> f) =>
             Trans<MTry<Lst<A>>, Try<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MTry<Lst<B>>, Try<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Try<Lst<A>>`
         /// </summary>
@@ -12327,6 +12327,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryAsync<Lst<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryAsync<Lst<C>> SelectMany< A, B, C>(
             this TryAsync<Lst<A>> ma,
@@ -12367,7 +12368,6 @@ namespace LanguageExt
         public static TryAsync<Lst<B>> Select< A, B>(this TryAsync<Lst<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MTryAsync<Lst<B>>, TryAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync<Lst<A>>`
         /// </summary>
@@ -12659,6 +12659,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOption<Lst<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOption<Lst<C>> SelectMany< A, B, C>(
             this TryOption<Lst<A>> ma,
@@ -12699,7 +12700,6 @@ namespace LanguageExt
         public static TryOption<Lst<B>> Select< A, B>(this TryOption<Lst<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<Lst<A>>, TryOption<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MTryOption<Lst<B>>, TryOption<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOption<Lst<A>>`
         /// </summary>
@@ -12991,6 +12991,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOptionAsync<Lst<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOptionAsync<Lst<C>> SelectMany< A, B, C>(
             this TryOptionAsync<Lst<A>> ma,
@@ -13031,7 +13032,6 @@ namespace LanguageExt
         public static TryOptionAsync<Lst<B>> Select< A, B>(this TryOptionAsync<Lst<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MTryOptionAsync<Lst<B>>, TryOptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync<Lst<A>>`
         /// </summary>
@@ -13323,6 +13323,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`IEnumerable<Lst<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static IEnumerable<Lst<C>> SelectMany< A, B, C>(
             this IEnumerable<Lst<A>> ma,
@@ -13363,7 +13364,6 @@ namespace LanguageExt
         public static IEnumerable<Lst<B>> Select< A, B>(this IEnumerable<Lst<A>> ma, Func<A, B> f) =>
             Trans<MSeq<Lst<A>>, IEnumerable<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MSeq<Lst<B>>, IEnumerable<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `IEnumerable<Lst<A>>`
         /// </summary>
@@ -13655,6 +13655,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Set<Lst<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Set<Lst<C>> SelectMany< A, B, C>(
             this Set<Lst<A>> ma,
@@ -13695,7 +13696,6 @@ namespace LanguageExt
         public static Set<Lst<B>> Select< A, B>(this Set<Lst<A>> ma, Func<A, B> f) =>
             Trans<MSet<Lst<A>>, Set<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Map<MSet<Lst<B>>, Set<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Set<Lst<A>>`
         /// </summary>
@@ -13995,6 +13995,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Arr<Option<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Arr<Option<C>> SelectMany< A, B, C>(
             this Arr<Option<A>> ma,
@@ -14035,7 +14036,6 @@ namespace LanguageExt
         public static Arr<Option<B>> Select< A, B>(this Arr<Option<A>> ma, Func<A, B> f) =>
             Trans<MArr<Option<A>>, Arr<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Map<MArr<Option<B>>, Arr<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Arr<Option<A>>`
         /// </summary>
@@ -14327,6 +14327,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`HashSet<Option<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static HashSet<Option<C>> SelectMany< A, B, C>(
             this HashSet<Option<A>> ma,
@@ -14367,7 +14368,6 @@ namespace LanguageExt
         public static HashSet<Option<B>> Select< A, B>(this HashSet<Option<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<Option<A>>, HashSet<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Map<MHashSet<Option<B>>, HashSet<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `HashSet<Option<A>>`
         /// </summary>
@@ -14659,6 +14659,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Lst<Option<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Lst<Option<C>> SelectMany< A, B, C>(
             this Lst<Option<A>> ma,
@@ -14699,7 +14700,6 @@ namespace LanguageExt
         public static Lst<Option<B>> Select< A, B>(this Lst<Option<A>> ma, Func<A, B> f) =>
             Trans<MLst<Option<A>>, Lst<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Map<MLst<Option<B>>, Lst<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Lst<Option<A>>`
         /// </summary>
@@ -14991,6 +14991,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Option<Option<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Option<Option<C>> SelectMany< A, B, C>(
             this Option<Option<A>> ma,
@@ -15031,7 +15032,6 @@ namespace LanguageExt
         public static Option<Option<B>> Select< A, B>(this Option<Option<A>> ma, Func<A, B> f) =>
             Trans<MOption<Option<A>>, Option<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Map<MOption<Option<B>>, Option<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Option<Option<A>>`
         /// </summary>
@@ -15323,6 +15323,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`OptionUnsafe<Option<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static OptionUnsafe<Option<C>> SelectMany< A, B, C>(
             this OptionUnsafe<Option<A>> ma,
@@ -15363,7 +15364,6 @@ namespace LanguageExt
         public static OptionUnsafe<Option<B>> Select< A, B>(this OptionUnsafe<Option<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<Option<A>>, OptionUnsafe<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Map<MOptionUnsafe<Option<B>>, OptionUnsafe<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<Option<A>>`
         /// </summary>
@@ -15655,6 +15655,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Either<L, Option<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Either<L, Option<C>> SelectMany<L, A, B, C>(
             this Either<L, Option<A>> ma,
@@ -15695,7 +15696,6 @@ namespace LanguageExt
         public static Either<L, Option<B>> Select<L, A, B>(this Either<L, Option<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, Option<A>>, Either<L, Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Map<MEither<L, Option<B>>, Either<L, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Either<L, Option<A>>`
         /// </summary>
@@ -15987,6 +15987,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`EitherUnsafe<L, Option<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static EitherUnsafe<L, Option<C>> SelectMany<L, A, B, C>(
             this EitherUnsafe<L, Option<A>> ma,
@@ -16027,7 +16028,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Option<B>> Select<L, A, B>(this EitherUnsafe<L, Option<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, Option<A>>, EitherUnsafe<L, Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Map<MEitherUnsafe<L, Option<B>>, EitherUnsafe<L, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, Option<A>>`
         /// </summary>
@@ -16319,6 +16319,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Task<Option<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Task<Option<C>> SelectMany< A, B, C>(
             this Task<Option<A>> ma,
@@ -16359,7 +16360,6 @@ namespace LanguageExt
         public static Task<Option<B>> Select< A, B>(this Task<Option<A>> ma, Func<A, B> f) =>
             Trans<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Map<MTask<Option<B>>, Task<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task<Option<A>>`
         /// </summary>
@@ -16651,6 +16651,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Try<Option<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Try<Option<C>> SelectMany< A, B, C>(
             this Try<Option<A>> ma,
@@ -16691,7 +16692,6 @@ namespace LanguageExt
         public static Try<Option<B>> Select< A, B>(this Try<Option<A>> ma, Func<A, B> f) =>
             Trans<MTry<Option<A>>, Try<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Map<MTry<Option<B>>, Try<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Try<Option<A>>`
         /// </summary>
@@ -16983,6 +16983,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryAsync<Option<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryAsync<Option<C>> SelectMany< A, B, C>(
             this TryAsync<Option<A>> ma,
@@ -17023,7 +17024,6 @@ namespace LanguageExt
         public static TryAsync<Option<B>> Select< A, B>(this TryAsync<Option<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Map<MTryAsync<Option<B>>, TryAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync<Option<A>>`
         /// </summary>
@@ -17315,6 +17315,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOption<Option<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOption<Option<C>> SelectMany< A, B, C>(
             this TryOption<Option<A>> ma,
@@ -17355,7 +17356,6 @@ namespace LanguageExt
         public static TryOption<Option<B>> Select< A, B>(this TryOption<Option<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<Option<A>>, TryOption<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Map<MTryOption<Option<B>>, TryOption<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOption<Option<A>>`
         /// </summary>
@@ -17647,6 +17647,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOptionAsync<Option<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOptionAsync<Option<C>> SelectMany< A, B, C>(
             this TryOptionAsync<Option<A>> ma,
@@ -17687,7 +17688,6 @@ namespace LanguageExt
         public static TryOptionAsync<Option<B>> Select< A, B>(this TryOptionAsync<Option<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Map<MTryOptionAsync<Option<B>>, TryOptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync<Option<A>>`
         /// </summary>
@@ -17979,6 +17979,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`IEnumerable<Option<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static IEnumerable<Option<C>> SelectMany< A, B, C>(
             this IEnumerable<Option<A>> ma,
@@ -18019,7 +18020,6 @@ namespace LanguageExt
         public static IEnumerable<Option<B>> Select< A, B>(this IEnumerable<Option<A>> ma, Func<A, B> f) =>
             Trans<MSeq<Option<A>>, IEnumerable<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Map<MSeq<Option<B>>, IEnumerable<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `IEnumerable<Option<A>>`
         /// </summary>
@@ -18311,6 +18311,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Set<Option<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Set<Option<C>> SelectMany< A, B, C>(
             this Set<Option<A>> ma,
@@ -18351,7 +18352,6 @@ namespace LanguageExt
         public static Set<Option<B>> Select< A, B>(this Set<Option<A>> ma, Func<A, B> f) =>
             Trans<MSet<Option<A>>, Set<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Map<MSet<Option<B>>, Set<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Set<Option<A>>`
         /// </summary>
@@ -18651,6 +18651,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Arr<OptionUnsafe<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Arr<OptionUnsafe<C>> SelectMany< A, B, C>(
             this Arr<OptionUnsafe<A>> ma,
@@ -18691,7 +18692,6 @@ namespace LanguageExt
         public static Arr<OptionUnsafe<B>> Select< A, B>(this Arr<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MArr<OptionUnsafe<A>>, Arr<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MArr<OptionUnsafe<B>>, Arr<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Arr<OptionUnsafe<A>>`
         /// </summary>
@@ -18983,6 +18983,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`HashSet<OptionUnsafe<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static HashSet<OptionUnsafe<C>> SelectMany< A, B, C>(
             this HashSet<OptionUnsafe<A>> ma,
@@ -19023,7 +19024,6 @@ namespace LanguageExt
         public static HashSet<OptionUnsafe<B>> Select< A, B>(this HashSet<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<OptionUnsafe<A>>, HashSet<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MHashSet<OptionUnsafe<B>>, HashSet<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `HashSet<OptionUnsafe<A>>`
         /// </summary>
@@ -19315,6 +19315,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Lst<OptionUnsafe<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Lst<OptionUnsafe<C>> SelectMany< A, B, C>(
             this Lst<OptionUnsafe<A>> ma,
@@ -19355,7 +19356,6 @@ namespace LanguageExt
         public static Lst<OptionUnsafe<B>> Select< A, B>(this Lst<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MLst<OptionUnsafe<A>>, Lst<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MLst<OptionUnsafe<B>>, Lst<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Lst<OptionUnsafe<A>>`
         /// </summary>
@@ -19647,6 +19647,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Option<OptionUnsafe<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Option<OptionUnsafe<C>> SelectMany< A, B, C>(
             this Option<OptionUnsafe<A>> ma,
@@ -19687,7 +19688,6 @@ namespace LanguageExt
         public static Option<OptionUnsafe<B>> Select< A, B>(this Option<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MOption<OptionUnsafe<A>>, Option<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MOption<OptionUnsafe<B>>, Option<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Option<OptionUnsafe<A>>`
         /// </summary>
@@ -19979,6 +19979,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`OptionUnsafe<OptionUnsafe<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static OptionUnsafe<OptionUnsafe<C>> SelectMany< A, B, C>(
             this OptionUnsafe<OptionUnsafe<A>> ma,
@@ -20019,7 +20020,6 @@ namespace LanguageExt
         public static OptionUnsafe<OptionUnsafe<B>> Select< A, B>(this OptionUnsafe<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<OptionUnsafe<A>>, OptionUnsafe<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MOptionUnsafe<OptionUnsafe<B>>, OptionUnsafe<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<OptionUnsafe<A>>`
         /// </summary>
@@ -20311,6 +20311,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Either<L, OptionUnsafe<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Either<L, OptionUnsafe<C>> SelectMany<L, A, B, C>(
             this Either<L, OptionUnsafe<A>> ma,
@@ -20351,7 +20352,6 @@ namespace LanguageExt
         public static Either<L, OptionUnsafe<B>> Select<L, A, B>(this Either<L, OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, OptionUnsafe<A>>, Either<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MEither<L, OptionUnsafe<B>>, Either<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Either<L, OptionUnsafe<A>>`
         /// </summary>
@@ -20643,6 +20643,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`EitherUnsafe<L, OptionUnsafe<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static EitherUnsafe<L, OptionUnsafe<C>> SelectMany<L, A, B, C>(
             this EitherUnsafe<L, OptionUnsafe<A>> ma,
@@ -20683,7 +20684,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, OptionUnsafe<B>> Select<L, A, B>(this EitherUnsafe<L, OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, OptionUnsafe<A>>, EitherUnsafe<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MEitherUnsafe<L, OptionUnsafe<B>>, EitherUnsafe<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, OptionUnsafe<A>>`
         /// </summary>
@@ -20975,6 +20975,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Task<OptionUnsafe<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Task<OptionUnsafe<C>> SelectMany< A, B, C>(
             this Task<OptionUnsafe<A>> ma,
@@ -21015,7 +21016,6 @@ namespace LanguageExt
         public static Task<OptionUnsafe<B>> Select< A, B>(this Task<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MTask<OptionUnsafe<B>>, Task<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task<OptionUnsafe<A>>`
         /// </summary>
@@ -21307,6 +21307,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Try<OptionUnsafe<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Try<OptionUnsafe<C>> SelectMany< A, B, C>(
             this Try<OptionUnsafe<A>> ma,
@@ -21347,7 +21348,6 @@ namespace LanguageExt
         public static Try<OptionUnsafe<B>> Select< A, B>(this Try<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MTry<OptionUnsafe<A>>, Try<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MTry<OptionUnsafe<B>>, Try<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Try<OptionUnsafe<A>>`
         /// </summary>
@@ -21639,6 +21639,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryAsync<OptionUnsafe<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryAsync<OptionUnsafe<C>> SelectMany< A, B, C>(
             this TryAsync<OptionUnsafe<A>> ma,
@@ -21679,7 +21680,6 @@ namespace LanguageExt
         public static TryAsync<OptionUnsafe<B>> Select< A, B>(this TryAsync<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MTryAsync<OptionUnsafe<B>>, TryAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync<OptionUnsafe<A>>`
         /// </summary>
@@ -21971,6 +21971,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOption<OptionUnsafe<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOption<OptionUnsafe<C>> SelectMany< A, B, C>(
             this TryOption<OptionUnsafe<A>> ma,
@@ -22011,7 +22012,6 @@ namespace LanguageExt
         public static TryOption<OptionUnsafe<B>> Select< A, B>(this TryOption<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<OptionUnsafe<A>>, TryOption<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MTryOption<OptionUnsafe<B>>, TryOption<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOption<OptionUnsafe<A>>`
         /// </summary>
@@ -22303,6 +22303,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOptionAsync<OptionUnsafe<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOptionAsync<OptionUnsafe<C>> SelectMany< A, B, C>(
             this TryOptionAsync<OptionUnsafe<A>> ma,
@@ -22343,7 +22344,6 @@ namespace LanguageExt
         public static TryOptionAsync<OptionUnsafe<B>> Select< A, B>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MTryOptionAsync<OptionUnsafe<B>>, TryOptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync<OptionUnsafe<A>>`
         /// </summary>
@@ -22635,6 +22635,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`IEnumerable<OptionUnsafe<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static IEnumerable<OptionUnsafe<C>> SelectMany< A, B, C>(
             this IEnumerable<OptionUnsafe<A>> ma,
@@ -22675,7 +22676,6 @@ namespace LanguageExt
         public static IEnumerable<OptionUnsafe<B>> Select< A, B>(this IEnumerable<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MSeq<OptionUnsafe<A>>, IEnumerable<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MSeq<OptionUnsafe<B>>, IEnumerable<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `IEnumerable<OptionUnsafe<A>>`
         /// </summary>
@@ -22967,6 +22967,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Set<OptionUnsafe<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Set<OptionUnsafe<C>> SelectMany< A, B, C>(
             this Set<OptionUnsafe<A>> ma,
@@ -23007,7 +23008,6 @@ namespace LanguageExt
         public static Set<OptionUnsafe<B>> Select< A, B>(this Set<OptionUnsafe<A>> ma, Func<A, B> f) =>
             Trans<MSet<OptionUnsafe<A>>, Set<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Map<MSet<OptionUnsafe<B>>, Set<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Set<OptionUnsafe<A>>`
         /// </summary>
@@ -23307,6 +23307,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Arr<Either<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Arr<Either<L, C>> SelectMany<L, A, B, C>(
             this Arr<Either<L, A>> ma,
@@ -23347,7 +23348,6 @@ namespace LanguageExt
         public static Arr<Either<L, B>> Select<L, A, B>(this Arr<Either<L, A>> ma, Func<A, B> f) =>
             Trans<MArr<Either<L, A>>, Arr<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Map<MArr<Either<L, B>>, Arr<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Arr<Either<L, A>>`
         /// </summary>
@@ -23639,6 +23639,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`HashSet<Either<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static HashSet<Either<L, C>> SelectMany<L, A, B, C>(
             this HashSet<Either<L, A>> ma,
@@ -23679,7 +23680,6 @@ namespace LanguageExt
         public static HashSet<Either<L, B>> Select<L, A, B>(this HashSet<Either<L, A>> ma, Func<A, B> f) =>
             Trans<MHashSet<Either<L, A>>, HashSet<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Map<MHashSet<Either<L, B>>, HashSet<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `HashSet<Either<L, A>>`
         /// </summary>
@@ -23971,6 +23971,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Lst<Either<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Lst<Either<L, C>> SelectMany<L, A, B, C>(
             this Lst<Either<L, A>> ma,
@@ -24011,7 +24012,6 @@ namespace LanguageExt
         public static Lst<Either<L, B>> Select<L, A, B>(this Lst<Either<L, A>> ma, Func<A, B> f) =>
             Trans<MLst<Either<L, A>>, Lst<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Map<MLst<Either<L, B>>, Lst<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Lst<Either<L, A>>`
         /// </summary>
@@ -24303,6 +24303,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Option<Either<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Option<Either<L, C>> SelectMany<L, A, B, C>(
             this Option<Either<L, A>> ma,
@@ -24343,7 +24344,6 @@ namespace LanguageExt
         public static Option<Either<L, B>> Select<L, A, B>(this Option<Either<L, A>> ma, Func<A, B> f) =>
             Trans<MOption<Either<L, A>>, Option<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Map<MOption<Either<L, B>>, Option<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Option<Either<L, A>>`
         /// </summary>
@@ -24635,6 +24635,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`OptionUnsafe<Either<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static OptionUnsafe<Either<L, C>> SelectMany<L, A, B, C>(
             this OptionUnsafe<Either<L, A>> ma,
@@ -24675,7 +24676,6 @@ namespace LanguageExt
         public static OptionUnsafe<Either<L, B>> Select<L, A, B>(this OptionUnsafe<Either<L, A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<Either<L, A>>, OptionUnsafe<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Map<MOptionUnsafe<Either<L, B>>, OptionUnsafe<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<Either<L, A>>`
         /// </summary>
@@ -24967,6 +24967,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Either<L, Either<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Either<L, Either<L, C>> SelectMany<L, A, B, C>(
             this Either<L, Either<L, A>> ma,
@@ -25007,7 +25008,6 @@ namespace LanguageExt
         public static Either<L, Either<L, B>> Select<L, A, B>(this Either<L, Either<L, A>> ma, Func<A, B> f) =>
             Trans<MEither<L, Either<L, A>>, Either<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Map<MEither<L, Either<L, B>>, Either<L, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Either<L, Either<L, A>>`
         /// </summary>
@@ -25299,6 +25299,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`EitherUnsafe<L, Either<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static EitherUnsafe<L, Either<L, C>> SelectMany<L, A, B, C>(
             this EitherUnsafe<L, Either<L, A>> ma,
@@ -25339,7 +25340,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Either<L, B>> Select<L, A, B>(this EitherUnsafe<L, Either<L, A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, Either<L, A>>, EitherUnsafe<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Map<MEitherUnsafe<L, Either<L, B>>, EitherUnsafe<L, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, Either<L, A>>`
         /// </summary>
@@ -25631,6 +25631,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Task<Either<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Task<Either<L, C>> SelectMany<L, A, B, C>(
             this Task<Either<L, A>> ma,
@@ -25671,7 +25672,6 @@ namespace LanguageExt
         public static Task<Either<L, B>> Select<L, A, B>(this Task<Either<L, A>> ma, Func<A, B> f) =>
             Trans<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Map<MTask<Either<L, B>>, Task<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task<Either<L, A>>`
         /// </summary>
@@ -25963,6 +25963,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Try<Either<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Try<Either<L, C>> SelectMany<L, A, B, C>(
             this Try<Either<L, A>> ma,
@@ -26003,7 +26004,6 @@ namespace LanguageExt
         public static Try<Either<L, B>> Select<L, A, B>(this Try<Either<L, A>> ma, Func<A, B> f) =>
             Trans<MTry<Either<L, A>>, Try<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Map<MTry<Either<L, B>>, Try<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Try<Either<L, A>>`
         /// </summary>
@@ -26295,6 +26295,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryAsync<Either<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryAsync<Either<L, C>> SelectMany<L, A, B, C>(
             this TryAsync<Either<L, A>> ma,
@@ -26335,7 +26336,6 @@ namespace LanguageExt
         public static TryAsync<Either<L, B>> Select<L, A, B>(this TryAsync<Either<L, A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Map<MTryAsync<Either<L, B>>, TryAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync<Either<L, A>>`
         /// </summary>
@@ -26627,6 +26627,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOption<Either<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOption<Either<L, C>> SelectMany<L, A, B, C>(
             this TryOption<Either<L, A>> ma,
@@ -26667,7 +26668,6 @@ namespace LanguageExt
         public static TryOption<Either<L, B>> Select<L, A, B>(this TryOption<Either<L, A>> ma, Func<A, B> f) =>
             Trans<MTryOption<Either<L, A>>, TryOption<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Map<MTryOption<Either<L, B>>, TryOption<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOption<Either<L, A>>`
         /// </summary>
@@ -26959,6 +26959,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOptionAsync<Either<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOptionAsync<Either<L, C>> SelectMany<L, A, B, C>(
             this TryOptionAsync<Either<L, A>> ma,
@@ -26999,7 +27000,6 @@ namespace LanguageExt
         public static TryOptionAsync<Either<L, B>> Select<L, A, B>(this TryOptionAsync<Either<L, A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Map<MTryOptionAsync<Either<L, B>>, TryOptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync<Either<L, A>>`
         /// </summary>
@@ -27291,6 +27291,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`IEnumerable<Either<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static IEnumerable<Either<L, C>> SelectMany<L, A, B, C>(
             this IEnumerable<Either<L, A>> ma,
@@ -27331,7 +27332,6 @@ namespace LanguageExt
         public static IEnumerable<Either<L, B>> Select<L, A, B>(this IEnumerable<Either<L, A>> ma, Func<A, B> f) =>
             Trans<MSeq<Either<L, A>>, IEnumerable<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Map<MSeq<Either<L, B>>, IEnumerable<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `IEnumerable<Either<L, A>>`
         /// </summary>
@@ -27623,6 +27623,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Set<Either<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Set<Either<L, C>> SelectMany<L, A, B, C>(
             this Set<Either<L, A>> ma,
@@ -27663,7 +27664,6 @@ namespace LanguageExt
         public static Set<Either<L, B>> Select<L, A, B>(this Set<Either<L, A>> ma, Func<A, B> f) =>
             Trans<MSet<Either<L, A>>, Set<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Map<MSet<Either<L, B>>, Set<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Set<Either<L, A>>`
         /// </summary>
@@ -27963,6 +27963,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Arr<EitherUnsafe<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Arr<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
             this Arr<EitherUnsafe<L, A>> ma,
@@ -28003,7 +28004,6 @@ namespace LanguageExt
         public static Arr<EitherUnsafe<L, B>> Select<L, A, B>(this Arr<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MArr<EitherUnsafe<L, A>>, Arr<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MArr<EitherUnsafe<L, B>>, Arr<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Arr<EitherUnsafe<L, A>>`
         /// </summary>
@@ -28295,6 +28295,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`HashSet<EitherUnsafe<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static HashSet<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
             this HashSet<EitherUnsafe<L, A>> ma,
@@ -28335,7 +28336,6 @@ namespace LanguageExt
         public static HashSet<EitherUnsafe<L, B>> Select<L, A, B>(this HashSet<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MHashSet<EitherUnsafe<L, A>>, HashSet<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MHashSet<EitherUnsafe<L, B>>, HashSet<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `HashSet<EitherUnsafe<L, A>>`
         /// </summary>
@@ -28627,6 +28627,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Lst<EitherUnsafe<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Lst<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
             this Lst<EitherUnsafe<L, A>> ma,
@@ -28667,7 +28668,6 @@ namespace LanguageExt
         public static Lst<EitherUnsafe<L, B>> Select<L, A, B>(this Lst<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MLst<EitherUnsafe<L, A>>, Lst<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MLst<EitherUnsafe<L, B>>, Lst<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Lst<EitherUnsafe<L, A>>`
         /// </summary>
@@ -28959,6 +28959,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Option<EitherUnsafe<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Option<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
             this Option<EitherUnsafe<L, A>> ma,
@@ -28999,7 +29000,6 @@ namespace LanguageExt
         public static Option<EitherUnsafe<L, B>> Select<L, A, B>(this Option<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MOption<EitherUnsafe<L, A>>, Option<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MOption<EitherUnsafe<L, B>>, Option<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Option<EitherUnsafe<L, A>>`
         /// </summary>
@@ -29291,6 +29291,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`OptionUnsafe<EitherUnsafe<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static OptionUnsafe<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
             this OptionUnsafe<EitherUnsafe<L, A>> ma,
@@ -29331,7 +29332,6 @@ namespace LanguageExt
         public static OptionUnsafe<EitherUnsafe<L, B>> Select<L, A, B>(this OptionUnsafe<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<EitherUnsafe<L, A>>, OptionUnsafe<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MOptionUnsafe<EitherUnsafe<L, B>>, OptionUnsafe<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<EitherUnsafe<L, A>>`
         /// </summary>
@@ -29623,6 +29623,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Either<L, EitherUnsafe<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Either<L, EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
             this Either<L, EitherUnsafe<L, A>> ma,
@@ -29663,7 +29664,6 @@ namespace LanguageExt
         public static Either<L, EitherUnsafe<L, B>> Select<L, A, B>(this Either<L, EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MEither<L, EitherUnsafe<L, A>>, Either<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MEither<L, EitherUnsafe<L, B>>, Either<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Either<L, EitherUnsafe<L, A>>`
         /// </summary>
@@ -29955,6 +29955,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`EitherUnsafe<L, EitherUnsafe<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static EitherUnsafe<L, EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
             this EitherUnsafe<L, EitherUnsafe<L, A>> ma,
@@ -29995,7 +29996,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, EitherUnsafe<L, B>> Select<L, A, B>(this EitherUnsafe<L, EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, EitherUnsafe<L, A>>, EitherUnsafe<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MEitherUnsafe<L, EitherUnsafe<L, B>>, EitherUnsafe<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, EitherUnsafe<L, A>>`
         /// </summary>
@@ -30287,6 +30287,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Task<EitherUnsafe<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Task<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
             this Task<EitherUnsafe<L, A>> ma,
@@ -30327,7 +30328,6 @@ namespace LanguageExt
         public static Task<EitherUnsafe<L, B>> Select<L, A, B>(this Task<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MTask<EitherUnsafe<L, B>>, Task<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task<EitherUnsafe<L, A>>`
         /// </summary>
@@ -30619,6 +30619,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Try<EitherUnsafe<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Try<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
             this Try<EitherUnsafe<L, A>> ma,
@@ -30659,7 +30660,6 @@ namespace LanguageExt
         public static Try<EitherUnsafe<L, B>> Select<L, A, B>(this Try<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MTry<EitherUnsafe<L, A>>, Try<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MTry<EitherUnsafe<L, B>>, Try<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Try<EitherUnsafe<L, A>>`
         /// </summary>
@@ -30951,6 +30951,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryAsync<EitherUnsafe<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryAsync<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
             this TryAsync<EitherUnsafe<L, A>> ma,
@@ -30991,7 +30992,6 @@ namespace LanguageExt
         public static TryAsync<EitherUnsafe<L, B>> Select<L, A, B>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MTryAsync<EitherUnsafe<L, B>>, TryAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync<EitherUnsafe<L, A>>`
         /// </summary>
@@ -31283,6 +31283,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOption<EitherUnsafe<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOption<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
             this TryOption<EitherUnsafe<L, A>> ma,
@@ -31323,7 +31324,6 @@ namespace LanguageExt
         public static TryOption<EitherUnsafe<L, B>> Select<L, A, B>(this TryOption<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MTryOption<EitherUnsafe<L, A>>, TryOption<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MTryOption<EitherUnsafe<L, B>>, TryOption<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOption<EitherUnsafe<L, A>>`
         /// </summary>
@@ -31615,6 +31615,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOptionAsync<EitherUnsafe<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOptionAsync<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
             this TryOptionAsync<EitherUnsafe<L, A>> ma,
@@ -31655,7 +31656,6 @@ namespace LanguageExt
         public static TryOptionAsync<EitherUnsafe<L, B>> Select<L, A, B>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MTryOptionAsync<EitherUnsafe<L, B>>, TryOptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync<EitherUnsafe<L, A>>`
         /// </summary>
@@ -31947,6 +31947,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`IEnumerable<EitherUnsafe<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static IEnumerable<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
             this IEnumerable<EitherUnsafe<L, A>> ma,
@@ -31987,7 +31988,6 @@ namespace LanguageExt
         public static IEnumerable<EitherUnsafe<L, B>> Select<L, A, B>(this IEnumerable<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MSeq<EitherUnsafe<L, A>>, IEnumerable<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MSeq<EitherUnsafe<L, B>>, IEnumerable<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `IEnumerable<EitherUnsafe<L, A>>`
         /// </summary>
@@ -32279,6 +32279,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Set<EitherUnsafe<L, C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Set<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
             this Set<EitherUnsafe<L, A>> ma,
@@ -32319,7 +32320,6 @@ namespace LanguageExt
         public static Set<EitherUnsafe<L, B>> Select<L, A, B>(this Set<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
             Trans<MSet<EitherUnsafe<L, A>>, Set<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Map<MSet<EitherUnsafe<L, B>>, Set<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Set<EitherUnsafe<L, A>>`
         /// </summary>
@@ -32619,6 +32619,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Arr<Task<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Arr<Task<C>> SelectMany< A, B, C>(
             this Arr<Task<A>> ma,
@@ -32659,7 +32660,6 @@ namespace LanguageExt
         public static Arr<Task<B>> Select< A, B>(this Arr<Task<A>> ma, Func<A, B> f) =>
             Trans<MArr<Task<A>>, Arr<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Map<MArr<Task<B>>, Arr<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Arr<Task<A>>`
         /// </summary>
@@ -32951,6 +32951,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`HashSet<Task<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static HashSet<Task<C>> SelectMany< A, B, C>(
             this HashSet<Task<A>> ma,
@@ -32991,7 +32992,6 @@ namespace LanguageExt
         public static HashSet<Task<B>> Select< A, B>(this HashSet<Task<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<Task<A>>, HashSet<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Map<MHashSet<Task<B>>, HashSet<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `HashSet<Task<A>>`
         /// </summary>
@@ -33283,6 +33283,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Lst<Task<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Lst<Task<C>> SelectMany< A, B, C>(
             this Lst<Task<A>> ma,
@@ -33323,7 +33324,6 @@ namespace LanguageExt
         public static Lst<Task<B>> Select< A, B>(this Lst<Task<A>> ma, Func<A, B> f) =>
             Trans<MLst<Task<A>>, Lst<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Map<MLst<Task<B>>, Lst<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Lst<Task<A>>`
         /// </summary>
@@ -33615,6 +33615,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Option<Task<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Option<Task<C>> SelectMany< A, B, C>(
             this Option<Task<A>> ma,
@@ -33655,7 +33656,6 @@ namespace LanguageExt
         public static Option<Task<B>> Select< A, B>(this Option<Task<A>> ma, Func<A, B> f) =>
             Trans<MOption<Task<A>>, Option<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Map<MOption<Task<B>>, Option<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Option<Task<A>>`
         /// </summary>
@@ -33947,6 +33947,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`OptionUnsafe<Task<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static OptionUnsafe<Task<C>> SelectMany< A, B, C>(
             this OptionUnsafe<Task<A>> ma,
@@ -33987,7 +33988,6 @@ namespace LanguageExt
         public static OptionUnsafe<Task<B>> Select< A, B>(this OptionUnsafe<Task<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<Task<A>>, OptionUnsafe<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Map<MOptionUnsafe<Task<B>>, OptionUnsafe<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<Task<A>>`
         /// </summary>
@@ -34279,6 +34279,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Either<L, Task<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Either<L, Task<C>> SelectMany<L, A, B, C>(
             this Either<L, Task<A>> ma,
@@ -34319,7 +34320,6 @@ namespace LanguageExt
         public static Either<L, Task<B>> Select<L, A, B>(this Either<L, Task<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, Task<A>>, Either<L, Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Map<MEither<L, Task<B>>, Either<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Either<L, Task<A>>`
         /// </summary>
@@ -34611,6 +34611,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`EitherUnsafe<L, Task<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static EitherUnsafe<L, Task<C>> SelectMany<L, A, B, C>(
             this EitherUnsafe<L, Task<A>> ma,
@@ -34651,7 +34652,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Task<B>> Select<L, A, B>(this EitherUnsafe<L, Task<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, Task<A>>, EitherUnsafe<L, Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Map<MEitherUnsafe<L, Task<B>>, EitherUnsafe<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, Task<A>>`
         /// </summary>
@@ -34943,6 +34943,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Task<Task<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Task<Task<C>> SelectMany< A, B, C>(
             this Task<Task<A>> ma,
@@ -34983,7 +34984,6 @@ namespace LanguageExt
         public static Task<Task<B>> Select< A, B>(this Task<Task<A>> ma, Func<A, B> f) =>
             Trans<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Map<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task<Task<A>>`
         /// </summary>
@@ -35275,6 +35275,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Try<Task<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Try<Task<C>> SelectMany< A, B, C>(
             this Try<Task<A>> ma,
@@ -35315,7 +35316,6 @@ namespace LanguageExt
         public static Try<Task<B>> Select< A, B>(this Try<Task<A>> ma, Func<A, B> f) =>
             Trans<MTry<Task<A>>, Try<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Map<MTry<Task<B>>, Try<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Try<Task<A>>`
         /// </summary>
@@ -35607,6 +35607,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryAsync<Task<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryAsync<Task<C>> SelectMany< A, B, C>(
             this TryAsync<Task<A>> ma,
@@ -35647,7 +35648,6 @@ namespace LanguageExt
         public static TryAsync<Task<B>> Select< A, B>(this TryAsync<Task<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Map<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync<Task<A>>`
         /// </summary>
@@ -35939,6 +35939,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOption<Task<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOption<Task<C>> SelectMany< A, B, C>(
             this TryOption<Task<A>> ma,
@@ -35979,7 +35980,6 @@ namespace LanguageExt
         public static TryOption<Task<B>> Select< A, B>(this TryOption<Task<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<Task<A>>, TryOption<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Map<MTryOption<Task<B>>, TryOption<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOption<Task<A>>`
         /// </summary>
@@ -36271,6 +36271,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOptionAsync<Task<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOptionAsync<Task<C>> SelectMany< A, B, C>(
             this TryOptionAsync<Task<A>> ma,
@@ -36311,7 +36312,6 @@ namespace LanguageExt
         public static TryOptionAsync<Task<B>> Select< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Map<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync<Task<A>>`
         /// </summary>
@@ -36603,6 +36603,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`IEnumerable<Task<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static IEnumerable<Task<C>> SelectMany< A, B, C>(
             this IEnumerable<Task<A>> ma,
@@ -36643,7 +36644,6 @@ namespace LanguageExt
         public static IEnumerable<Task<B>> Select< A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f) =>
             Trans<MSeq<Task<A>>, IEnumerable<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Map<MSeq<Task<B>>, IEnumerable<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `IEnumerable<Task<A>>`
         /// </summary>
@@ -36935,6 +36935,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Set<Task<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Set<Task<C>> SelectMany< A, B, C>(
             this Set<Task<A>> ma,
@@ -36975,7 +36976,6 @@ namespace LanguageExt
         public static Set<Task<B>> Select< A, B>(this Set<Task<A>> ma, Func<A, B> f) =>
             Trans<MSet<Task<A>>, Set<Task<A>>, MTask<A>, Task<A>, A>
                 .Inst.Map<MSet<Task<B>>, Set<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Set<Task<A>>`
         /// </summary>
@@ -37275,6 +37275,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Arr<Try<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Arr<Try<C>> SelectMany< A, B, C>(
             this Arr<Try<A>> ma,
@@ -37315,7 +37316,6 @@ namespace LanguageExt
         public static Arr<Try<B>> Select< A, B>(this Arr<Try<A>> ma, Func<A, B> f) =>
             Trans<MArr<Try<A>>, Arr<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MArr<Try<B>>, Arr<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Arr<Try<A>>`
         /// </summary>
@@ -37607,6 +37607,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`HashSet<Try<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static HashSet<Try<C>> SelectMany< A, B, C>(
             this HashSet<Try<A>> ma,
@@ -37647,7 +37648,6 @@ namespace LanguageExt
         public static HashSet<Try<B>> Select< A, B>(this HashSet<Try<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<Try<A>>, HashSet<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MHashSet<Try<B>>, HashSet<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `HashSet<Try<A>>`
         /// </summary>
@@ -37939,6 +37939,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Lst<Try<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Lst<Try<C>> SelectMany< A, B, C>(
             this Lst<Try<A>> ma,
@@ -37979,7 +37980,6 @@ namespace LanguageExt
         public static Lst<Try<B>> Select< A, B>(this Lst<Try<A>> ma, Func<A, B> f) =>
             Trans<MLst<Try<A>>, Lst<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MLst<Try<B>>, Lst<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Lst<Try<A>>`
         /// </summary>
@@ -38271,6 +38271,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Option<Try<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Option<Try<C>> SelectMany< A, B, C>(
             this Option<Try<A>> ma,
@@ -38311,7 +38312,6 @@ namespace LanguageExt
         public static Option<Try<B>> Select< A, B>(this Option<Try<A>> ma, Func<A, B> f) =>
             Trans<MOption<Try<A>>, Option<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MOption<Try<B>>, Option<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Option<Try<A>>`
         /// </summary>
@@ -38603,6 +38603,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`OptionUnsafe<Try<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static OptionUnsafe<Try<C>> SelectMany< A, B, C>(
             this OptionUnsafe<Try<A>> ma,
@@ -38643,7 +38644,6 @@ namespace LanguageExt
         public static OptionUnsafe<Try<B>> Select< A, B>(this OptionUnsafe<Try<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<Try<A>>, OptionUnsafe<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MOptionUnsafe<Try<B>>, OptionUnsafe<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<Try<A>>`
         /// </summary>
@@ -38935,6 +38935,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Either<L, Try<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Either<L, Try<C>> SelectMany<L, A, B, C>(
             this Either<L, Try<A>> ma,
@@ -38975,7 +38976,6 @@ namespace LanguageExt
         public static Either<L, Try<B>> Select<L, A, B>(this Either<L, Try<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, Try<A>>, Either<L, Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MEither<L, Try<B>>, Either<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Either<L, Try<A>>`
         /// </summary>
@@ -39267,6 +39267,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`EitherUnsafe<L, Try<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static EitherUnsafe<L, Try<C>> SelectMany<L, A, B, C>(
             this EitherUnsafe<L, Try<A>> ma,
@@ -39307,7 +39308,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Try<B>> Select<L, A, B>(this EitherUnsafe<L, Try<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, Try<A>>, EitherUnsafe<L, Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MEitherUnsafe<L, Try<B>>, EitherUnsafe<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, Try<A>>`
         /// </summary>
@@ -39599,6 +39599,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Task<Try<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Task<Try<C>> SelectMany< A, B, C>(
             this Task<Try<A>> ma,
@@ -39639,7 +39640,6 @@ namespace LanguageExt
         public static Task<Try<B>> Select< A, B>(this Task<Try<A>> ma, Func<A, B> f) =>
             Trans<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MTask<Try<B>>, Task<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task<Try<A>>`
         /// </summary>
@@ -39931,6 +39931,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Try<Try<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Try<Try<C>> SelectMany< A, B, C>(
             this Try<Try<A>> ma,
@@ -39971,7 +39972,6 @@ namespace LanguageExt
         public static Try<Try<B>> Select< A, B>(this Try<Try<A>> ma, Func<A, B> f) =>
             Trans<MTry<Try<A>>, Try<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MTry<Try<B>>, Try<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Try<Try<A>>`
         /// </summary>
@@ -40263,6 +40263,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryAsync<Try<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryAsync<Try<C>> SelectMany< A, B, C>(
             this TryAsync<Try<A>> ma,
@@ -40303,7 +40304,6 @@ namespace LanguageExt
         public static TryAsync<Try<B>> Select< A, B>(this TryAsync<Try<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MTryAsync<Try<B>>, TryAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync<Try<A>>`
         /// </summary>
@@ -40595,6 +40595,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOption<Try<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOption<Try<C>> SelectMany< A, B, C>(
             this TryOption<Try<A>> ma,
@@ -40635,7 +40636,6 @@ namespace LanguageExt
         public static TryOption<Try<B>> Select< A, B>(this TryOption<Try<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<Try<A>>, TryOption<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MTryOption<Try<B>>, TryOption<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOption<Try<A>>`
         /// </summary>
@@ -40927,6 +40927,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOptionAsync<Try<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOptionAsync<Try<C>> SelectMany< A, B, C>(
             this TryOptionAsync<Try<A>> ma,
@@ -40967,7 +40968,6 @@ namespace LanguageExt
         public static TryOptionAsync<Try<B>> Select< A, B>(this TryOptionAsync<Try<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MTryOptionAsync<Try<B>>, TryOptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync<Try<A>>`
         /// </summary>
@@ -41259,6 +41259,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`IEnumerable<Try<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static IEnumerable<Try<C>> SelectMany< A, B, C>(
             this IEnumerable<Try<A>> ma,
@@ -41299,7 +41300,6 @@ namespace LanguageExt
         public static IEnumerable<Try<B>> Select< A, B>(this IEnumerable<Try<A>> ma, Func<A, B> f) =>
             Trans<MSeq<Try<A>>, IEnumerable<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MSeq<Try<B>>, IEnumerable<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `IEnumerable<Try<A>>`
         /// </summary>
@@ -41591,6 +41591,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Set<Try<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Set<Try<C>> SelectMany< A, B, C>(
             this Set<Try<A>> ma,
@@ -41631,7 +41632,6 @@ namespace LanguageExt
         public static Set<Try<B>> Select< A, B>(this Set<Try<A>> ma, Func<A, B> f) =>
             Trans<MSet<Try<A>>, Set<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Map<MSet<Try<B>>, Set<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Set<Try<A>>`
         /// </summary>
@@ -41931,6 +41931,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Arr<TryAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Arr<TryAsync<C>> SelectMany< A, B, C>(
             this Arr<TryAsync<A>> ma,
@@ -41971,7 +41972,6 @@ namespace LanguageExt
         public static Arr<TryAsync<B>> Select< A, B>(this Arr<TryAsync<A>> ma, Func<A, B> f) =>
             Trans<MArr<TryAsync<A>>, Arr<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Map<MArr<TryAsync<B>>, Arr<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Arr<TryAsync<A>>`
         /// </summary>
@@ -42263,6 +42263,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`HashSet<TryAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static HashSet<TryAsync<C>> SelectMany< A, B, C>(
             this HashSet<TryAsync<A>> ma,
@@ -42303,7 +42304,6 @@ namespace LanguageExt
         public static HashSet<TryAsync<B>> Select< A, B>(this HashSet<TryAsync<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<TryAsync<A>>, HashSet<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Map<MHashSet<TryAsync<B>>, HashSet<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `HashSet<TryAsync<A>>`
         /// </summary>
@@ -42595,6 +42595,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Lst<TryAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Lst<TryAsync<C>> SelectMany< A, B, C>(
             this Lst<TryAsync<A>> ma,
@@ -42635,7 +42636,6 @@ namespace LanguageExt
         public static Lst<TryAsync<B>> Select< A, B>(this Lst<TryAsync<A>> ma, Func<A, B> f) =>
             Trans<MLst<TryAsync<A>>, Lst<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Map<MLst<TryAsync<B>>, Lst<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Lst<TryAsync<A>>`
         /// </summary>
@@ -42927,6 +42927,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Option<TryAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Option<TryAsync<C>> SelectMany< A, B, C>(
             this Option<TryAsync<A>> ma,
@@ -42967,7 +42968,6 @@ namespace LanguageExt
         public static Option<TryAsync<B>> Select< A, B>(this Option<TryAsync<A>> ma, Func<A, B> f) =>
             Trans<MOption<TryAsync<A>>, Option<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Map<MOption<TryAsync<B>>, Option<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Option<TryAsync<A>>`
         /// </summary>
@@ -43259,6 +43259,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`OptionUnsafe<TryAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static OptionUnsafe<TryAsync<C>> SelectMany< A, B, C>(
             this OptionUnsafe<TryAsync<A>> ma,
@@ -43299,7 +43300,6 @@ namespace LanguageExt
         public static OptionUnsafe<TryAsync<B>> Select< A, B>(this OptionUnsafe<TryAsync<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<TryAsync<A>>, OptionUnsafe<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Map<MOptionUnsafe<TryAsync<B>>, OptionUnsafe<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<TryAsync<A>>`
         /// </summary>
@@ -43591,6 +43591,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Either<L, TryAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Either<L, TryAsync<C>> SelectMany<L, A, B, C>(
             this Either<L, TryAsync<A>> ma,
@@ -43631,7 +43632,6 @@ namespace LanguageExt
         public static Either<L, TryAsync<B>> Select<L, A, B>(this Either<L, TryAsync<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, TryAsync<A>>, Either<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Map<MEither<L, TryAsync<B>>, Either<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Either<L, TryAsync<A>>`
         /// </summary>
@@ -43923,6 +43923,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`EitherUnsafe<L, TryAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static EitherUnsafe<L, TryAsync<C>> SelectMany<L, A, B, C>(
             this EitherUnsafe<L, TryAsync<A>> ma,
@@ -43963,7 +43964,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, TryAsync<B>> Select<L, A, B>(this EitherUnsafe<L, TryAsync<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, TryAsync<A>>, EitherUnsafe<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Map<MEitherUnsafe<L, TryAsync<B>>, EitherUnsafe<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, TryAsync<A>>`
         /// </summary>
@@ -44255,6 +44255,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Task<TryAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Task<TryAsync<C>> SelectMany< A, B, C>(
             this Task<TryAsync<A>> ma,
@@ -44295,7 +44296,6 @@ namespace LanguageExt
         public static Task<TryAsync<B>> Select< A, B>(this Task<TryAsync<A>> ma, Func<A, B> f) =>
             Trans<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Map<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task<TryAsync<A>>`
         /// </summary>
@@ -44587,6 +44587,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Try<TryAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Try<TryAsync<C>> SelectMany< A, B, C>(
             this Try<TryAsync<A>> ma,
@@ -44627,7 +44628,6 @@ namespace LanguageExt
         public static Try<TryAsync<B>> Select< A, B>(this Try<TryAsync<A>> ma, Func<A, B> f) =>
             Trans<MTry<TryAsync<A>>, Try<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Map<MTry<TryAsync<B>>, Try<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Try<TryAsync<A>>`
         /// </summary>
@@ -44919,6 +44919,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryAsync<TryAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryAsync<TryAsync<C>> SelectMany< A, B, C>(
             this TryAsync<TryAsync<A>> ma,
@@ -44959,7 +44960,6 @@ namespace LanguageExt
         public static TryAsync<TryAsync<B>> Select< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Map<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync<TryAsync<A>>`
         /// </summary>
@@ -45251,6 +45251,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOption<TryAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOption<TryAsync<C>> SelectMany< A, B, C>(
             this TryOption<TryAsync<A>> ma,
@@ -45291,7 +45292,6 @@ namespace LanguageExt
         public static TryOption<TryAsync<B>> Select< A, B>(this TryOption<TryAsync<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<TryAsync<A>>, TryOption<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Map<MTryOption<TryAsync<B>>, TryOption<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOption<TryAsync<A>>`
         /// </summary>
@@ -45583,6 +45583,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOptionAsync<TryAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOptionAsync<TryAsync<C>> SelectMany< A, B, C>(
             this TryOptionAsync<TryAsync<A>> ma,
@@ -45623,7 +45624,6 @@ namespace LanguageExt
         public static TryOptionAsync<TryAsync<B>> Select< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Map<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync<TryAsync<A>>`
         /// </summary>
@@ -45915,6 +45915,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`IEnumerable<TryAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static IEnumerable<TryAsync<C>> SelectMany< A, B, C>(
             this IEnumerable<TryAsync<A>> ma,
@@ -45955,7 +45956,6 @@ namespace LanguageExt
         public static IEnumerable<TryAsync<B>> Select< A, B>(this IEnumerable<TryAsync<A>> ma, Func<A, B> f) =>
             Trans<MSeq<TryAsync<A>>, IEnumerable<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Map<MSeq<TryAsync<B>>, IEnumerable<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `IEnumerable<TryAsync<A>>`
         /// </summary>
@@ -46247,6 +46247,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Set<TryAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Set<TryAsync<C>> SelectMany< A, B, C>(
             this Set<TryAsync<A>> ma,
@@ -46287,7 +46288,6 @@ namespace LanguageExt
         public static Set<TryAsync<B>> Select< A, B>(this Set<TryAsync<A>> ma, Func<A, B> f) =>
             Trans<MSet<TryAsync<A>>, Set<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
                 .Inst.Map<MSet<TryAsync<B>>, Set<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Set<TryAsync<A>>`
         /// </summary>
@@ -46587,6 +46587,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Arr<TryOption<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Arr<TryOption<C>> SelectMany< A, B, C>(
             this Arr<TryOption<A>> ma,
@@ -46627,7 +46628,6 @@ namespace LanguageExt
         public static Arr<TryOption<B>> Select< A, B>(this Arr<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MArr<TryOption<A>>, Arr<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MArr<TryOption<B>>, Arr<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Arr<TryOption<A>>`
         /// </summary>
@@ -46919,6 +46919,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`HashSet<TryOption<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static HashSet<TryOption<C>> SelectMany< A, B, C>(
             this HashSet<TryOption<A>> ma,
@@ -46959,7 +46960,6 @@ namespace LanguageExt
         public static HashSet<TryOption<B>> Select< A, B>(this HashSet<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<TryOption<A>>, HashSet<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MHashSet<TryOption<B>>, HashSet<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `HashSet<TryOption<A>>`
         /// </summary>
@@ -47251,6 +47251,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Lst<TryOption<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Lst<TryOption<C>> SelectMany< A, B, C>(
             this Lst<TryOption<A>> ma,
@@ -47291,7 +47292,6 @@ namespace LanguageExt
         public static Lst<TryOption<B>> Select< A, B>(this Lst<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MLst<TryOption<A>>, Lst<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MLst<TryOption<B>>, Lst<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Lst<TryOption<A>>`
         /// </summary>
@@ -47583,6 +47583,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Option<TryOption<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Option<TryOption<C>> SelectMany< A, B, C>(
             this Option<TryOption<A>> ma,
@@ -47623,7 +47624,6 @@ namespace LanguageExt
         public static Option<TryOption<B>> Select< A, B>(this Option<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MOption<TryOption<A>>, Option<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MOption<TryOption<B>>, Option<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Option<TryOption<A>>`
         /// </summary>
@@ -47915,6 +47915,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`OptionUnsafe<TryOption<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static OptionUnsafe<TryOption<C>> SelectMany< A, B, C>(
             this OptionUnsafe<TryOption<A>> ma,
@@ -47955,7 +47956,6 @@ namespace LanguageExt
         public static OptionUnsafe<TryOption<B>> Select< A, B>(this OptionUnsafe<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<TryOption<A>>, OptionUnsafe<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MOptionUnsafe<TryOption<B>>, OptionUnsafe<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<TryOption<A>>`
         /// </summary>
@@ -48247,6 +48247,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Either<L, TryOption<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Either<L, TryOption<C>> SelectMany<L, A, B, C>(
             this Either<L, TryOption<A>> ma,
@@ -48287,7 +48288,6 @@ namespace LanguageExt
         public static Either<L, TryOption<B>> Select<L, A, B>(this Either<L, TryOption<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, TryOption<A>>, Either<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MEither<L, TryOption<B>>, Either<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Either<L, TryOption<A>>`
         /// </summary>
@@ -48579,6 +48579,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`EitherUnsafe<L, TryOption<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static EitherUnsafe<L, TryOption<C>> SelectMany<L, A, B, C>(
             this EitherUnsafe<L, TryOption<A>> ma,
@@ -48619,7 +48620,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, TryOption<B>> Select<L, A, B>(this EitherUnsafe<L, TryOption<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, TryOption<A>>, EitherUnsafe<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MEitherUnsafe<L, TryOption<B>>, EitherUnsafe<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, TryOption<A>>`
         /// </summary>
@@ -48911,6 +48911,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Task<TryOption<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Task<TryOption<C>> SelectMany< A, B, C>(
             this Task<TryOption<A>> ma,
@@ -48951,7 +48952,6 @@ namespace LanguageExt
         public static Task<TryOption<B>> Select< A, B>(this Task<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MTask<TryOption<B>>, Task<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task<TryOption<A>>`
         /// </summary>
@@ -49243,6 +49243,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Try<TryOption<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Try<TryOption<C>> SelectMany< A, B, C>(
             this Try<TryOption<A>> ma,
@@ -49283,7 +49284,6 @@ namespace LanguageExt
         public static Try<TryOption<B>> Select< A, B>(this Try<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MTry<TryOption<A>>, Try<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MTry<TryOption<B>>, Try<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Try<TryOption<A>>`
         /// </summary>
@@ -49575,6 +49575,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryAsync<TryOption<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryAsync<TryOption<C>> SelectMany< A, B, C>(
             this TryAsync<TryOption<A>> ma,
@@ -49615,7 +49616,6 @@ namespace LanguageExt
         public static TryAsync<TryOption<B>> Select< A, B>(this TryAsync<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MTryAsync<TryOption<B>>, TryAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync<TryOption<A>>`
         /// </summary>
@@ -49907,6 +49907,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOption<TryOption<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOption<TryOption<C>> SelectMany< A, B, C>(
             this TryOption<TryOption<A>> ma,
@@ -49947,7 +49948,6 @@ namespace LanguageExt
         public static TryOption<TryOption<B>> Select< A, B>(this TryOption<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<TryOption<A>>, TryOption<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MTryOption<TryOption<B>>, TryOption<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOption<TryOption<A>>`
         /// </summary>
@@ -50239,6 +50239,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOptionAsync<TryOption<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOptionAsync<TryOption<C>> SelectMany< A, B, C>(
             this TryOptionAsync<TryOption<A>> ma,
@@ -50279,7 +50280,6 @@ namespace LanguageExt
         public static TryOptionAsync<TryOption<B>> Select< A, B>(this TryOptionAsync<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MTryOptionAsync<TryOption<B>>, TryOptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync<TryOption<A>>`
         /// </summary>
@@ -50571,6 +50571,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`IEnumerable<TryOption<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static IEnumerable<TryOption<C>> SelectMany< A, B, C>(
             this IEnumerable<TryOption<A>> ma,
@@ -50611,7 +50612,6 @@ namespace LanguageExt
         public static IEnumerable<TryOption<B>> Select< A, B>(this IEnumerable<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MSeq<TryOption<A>>, IEnumerable<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MSeq<TryOption<B>>, IEnumerable<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `IEnumerable<TryOption<A>>`
         /// </summary>
@@ -50903,6 +50903,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Set<TryOption<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Set<TryOption<C>> SelectMany< A, B, C>(
             this Set<TryOption<A>> ma,
@@ -50943,7 +50944,6 @@ namespace LanguageExt
         public static Set<TryOption<B>> Select< A, B>(this Set<TryOption<A>> ma, Func<A, B> f) =>
             Trans<MSet<TryOption<A>>, Set<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Map<MSet<TryOption<B>>, Set<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Set<TryOption<A>>`
         /// </summary>
@@ -51243,6 +51243,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Arr<TryOptionAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Arr<TryOptionAsync<C>> SelectMany< A, B, C>(
             this Arr<TryOptionAsync<A>> ma,
@@ -51283,7 +51284,6 @@ namespace LanguageExt
         public static Arr<TryOptionAsync<B>> Select< A, B>(this Arr<TryOptionAsync<A>> ma, Func<A, B> f) =>
             Trans<MArr<TryOptionAsync<A>>, Arr<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Map<MArr<TryOptionAsync<B>>, Arr<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Arr<TryOptionAsync<A>>`
         /// </summary>
@@ -51575,6 +51575,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`HashSet<TryOptionAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static HashSet<TryOptionAsync<C>> SelectMany< A, B, C>(
             this HashSet<TryOptionAsync<A>> ma,
@@ -51615,7 +51616,6 @@ namespace LanguageExt
         public static HashSet<TryOptionAsync<B>> Select< A, B>(this HashSet<TryOptionAsync<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<TryOptionAsync<A>>, HashSet<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Map<MHashSet<TryOptionAsync<B>>, HashSet<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `HashSet<TryOptionAsync<A>>`
         /// </summary>
@@ -51907,6 +51907,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Lst<TryOptionAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Lst<TryOptionAsync<C>> SelectMany< A, B, C>(
             this Lst<TryOptionAsync<A>> ma,
@@ -51947,7 +51948,6 @@ namespace LanguageExt
         public static Lst<TryOptionAsync<B>> Select< A, B>(this Lst<TryOptionAsync<A>> ma, Func<A, B> f) =>
             Trans<MLst<TryOptionAsync<A>>, Lst<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Map<MLst<TryOptionAsync<B>>, Lst<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Lst<TryOptionAsync<A>>`
         /// </summary>
@@ -52239,6 +52239,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Option<TryOptionAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Option<TryOptionAsync<C>> SelectMany< A, B, C>(
             this Option<TryOptionAsync<A>> ma,
@@ -52279,7 +52280,6 @@ namespace LanguageExt
         public static Option<TryOptionAsync<B>> Select< A, B>(this Option<TryOptionAsync<A>> ma, Func<A, B> f) =>
             Trans<MOption<TryOptionAsync<A>>, Option<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Map<MOption<TryOptionAsync<B>>, Option<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Option<TryOptionAsync<A>>`
         /// </summary>
@@ -52571,6 +52571,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`OptionUnsafe<TryOptionAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static OptionUnsafe<TryOptionAsync<C>> SelectMany< A, B, C>(
             this OptionUnsafe<TryOptionAsync<A>> ma,
@@ -52611,7 +52612,6 @@ namespace LanguageExt
         public static OptionUnsafe<TryOptionAsync<B>> Select< A, B>(this OptionUnsafe<TryOptionAsync<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<TryOptionAsync<A>>, OptionUnsafe<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Map<MOptionUnsafe<TryOptionAsync<B>>, OptionUnsafe<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<TryOptionAsync<A>>`
         /// </summary>
@@ -52903,6 +52903,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Either<L, TryOptionAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Either<L, TryOptionAsync<C>> SelectMany<L, A, B, C>(
             this Either<L, TryOptionAsync<A>> ma,
@@ -52943,7 +52944,6 @@ namespace LanguageExt
         public static Either<L, TryOptionAsync<B>> Select<L, A, B>(this Either<L, TryOptionAsync<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, TryOptionAsync<A>>, Either<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Map<MEither<L, TryOptionAsync<B>>, Either<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Either<L, TryOptionAsync<A>>`
         /// </summary>
@@ -53235,6 +53235,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`EitherUnsafe<L, TryOptionAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static EitherUnsafe<L, TryOptionAsync<C>> SelectMany<L, A, B, C>(
             this EitherUnsafe<L, TryOptionAsync<A>> ma,
@@ -53275,7 +53276,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, TryOptionAsync<B>> Select<L, A, B>(this EitherUnsafe<L, TryOptionAsync<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, TryOptionAsync<A>>, EitherUnsafe<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Map<MEitherUnsafe<L, TryOptionAsync<B>>, EitherUnsafe<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, TryOptionAsync<A>>`
         /// </summary>
@@ -53567,6 +53567,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Task<TryOptionAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Task<TryOptionAsync<C>> SelectMany< A, B, C>(
             this Task<TryOptionAsync<A>> ma,
@@ -53607,7 +53608,6 @@ namespace LanguageExt
         public static Task<TryOptionAsync<B>> Select< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, B> f) =>
             Trans<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Map<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task<TryOptionAsync<A>>`
         /// </summary>
@@ -53899,6 +53899,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Try<TryOptionAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Try<TryOptionAsync<C>> SelectMany< A, B, C>(
             this Try<TryOptionAsync<A>> ma,
@@ -53939,7 +53940,6 @@ namespace LanguageExt
         public static Try<TryOptionAsync<B>> Select< A, B>(this Try<TryOptionAsync<A>> ma, Func<A, B> f) =>
             Trans<MTry<TryOptionAsync<A>>, Try<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Map<MTry<TryOptionAsync<B>>, Try<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Try<TryOptionAsync<A>>`
         /// </summary>
@@ -54231,6 +54231,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryAsync<TryOptionAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryAsync<TryOptionAsync<C>> SelectMany< A, B, C>(
             this TryAsync<TryOptionAsync<A>> ma,
@@ -54271,7 +54272,6 @@ namespace LanguageExt
         public static TryAsync<TryOptionAsync<B>> Select< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Map<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync<TryOptionAsync<A>>`
         /// </summary>
@@ -54563,6 +54563,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOption<TryOptionAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOption<TryOptionAsync<C>> SelectMany< A, B, C>(
             this TryOption<TryOptionAsync<A>> ma,
@@ -54603,7 +54604,6 @@ namespace LanguageExt
         public static TryOption<TryOptionAsync<B>> Select< A, B>(this TryOption<TryOptionAsync<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<TryOptionAsync<A>>, TryOption<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Map<MTryOption<TryOptionAsync<B>>, TryOption<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOption<TryOptionAsync<A>>`
         /// </summary>
@@ -54895,6 +54895,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOptionAsync<TryOptionAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOptionAsync<TryOptionAsync<C>> SelectMany< A, B, C>(
             this TryOptionAsync<TryOptionAsync<A>> ma,
@@ -54935,7 +54936,6 @@ namespace LanguageExt
         public static TryOptionAsync<TryOptionAsync<B>> Select< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Map<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync<TryOptionAsync<A>>`
         /// </summary>
@@ -55227,6 +55227,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`IEnumerable<TryOptionAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static IEnumerable<TryOptionAsync<C>> SelectMany< A, B, C>(
             this IEnumerable<TryOptionAsync<A>> ma,
@@ -55267,7 +55268,6 @@ namespace LanguageExt
         public static IEnumerable<TryOptionAsync<B>> Select< A, B>(this IEnumerable<TryOptionAsync<A>> ma, Func<A, B> f) =>
             Trans<MSeq<TryOptionAsync<A>>, IEnumerable<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Map<MSeq<TryOptionAsync<B>>, IEnumerable<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `IEnumerable<TryOptionAsync<A>>`
         /// </summary>
@@ -55559,6 +55559,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Set<TryOptionAsync<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Set<TryOptionAsync<C>> SelectMany< A, B, C>(
             this Set<TryOptionAsync<A>> ma,
@@ -55599,7 +55600,6 @@ namespace LanguageExt
         public static Set<TryOptionAsync<B>> Select< A, B>(this Set<TryOptionAsync<A>> ma, Func<A, B> f) =>
             Trans<MSet<TryOptionAsync<A>>, Set<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
                 .Inst.Map<MSet<TryOptionAsync<B>>, Set<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Set<TryOptionAsync<A>>`
         /// </summary>
@@ -55890,36 +55890,6 @@ namespace LanguageExt
     public static partial class IEnumerableT_Extensions
     {
         /// <summary>
-        /// Filter operation.  Applies the bound value to the predicate `f`. If
-        /// `true` then that value is retained, else filtered out.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The predicate function</param>
-        /// <returns>`Arr<IEnumerable<A>>` with the predicate `f(a)` applied</returns>
-        [Pure]
-        public static Arr<IEnumerable<A>> Where< A>(this Arr<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            Trans<MArr<IEnumerable<A>>, Arr<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Bind<MArr<IEnumerable<A>>, Arr<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
-
-        /// <summary>
-        /// Functor map operation.  This maps the bound value(s) of the nested monads
-        /// using the provided function `f`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Arr<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr<IEnumerable<B>>` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Arr<IEnumerable<B>> Select< A, B>(this Arr<IEnumerable<A>> ma, Func<A, B> f) =>
-            Trans<MArr<IEnumerable<A>>, Arr<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Map<MArr<IEnumerable<B>>, Arr<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
-
-        /// <summary>
         /// Finds total of all the `Num<A>`s in `Arr<IEnumerable<A>>`
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -56199,36 +56169,6 @@ namespace LanguageExt
                         (IEnumerable<B> b) =>
                             FSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
-
-        /// <summary>
-        /// Filter operation.  Applies the bound value to the predicate `f`. If
-        /// `true` then that value is retained, else filtered out.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The predicate function</param>
-        /// <returns>`HashSet<IEnumerable<A>>` with the predicate `f(a)` applied</returns>
-        [Pure]
-        public static HashSet<IEnumerable<A>> Where< A>(this HashSet<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            Trans<MHashSet<IEnumerable<A>>, HashSet<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Bind<MHashSet<IEnumerable<A>>, HashSet<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
-
-        /// <summary>
-        /// Functor map operation.  This maps the bound value(s) of the nested monads
-        /// using the provided function `f`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet<IEnumerable<B>>` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static HashSet<IEnumerable<B>> Select< A, B>(this HashSet<IEnumerable<A>> ma, Func<A, B> f) =>
-            Trans<MHashSet<IEnumerable<A>>, HashSet<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Map<MHashSet<IEnumerable<B>>, HashSet<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `HashSet<IEnumerable<A>>`
@@ -56512,36 +56452,6 @@ namespace LanguageExt
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
-        /// Filter operation.  Applies the bound value to the predicate `f`. If
-        /// `true` then that value is retained, else filtered out.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The predicate function</param>
-        /// <returns>`Lst<IEnumerable<A>>` with the predicate `f(a)` applied</returns>
-        [Pure]
-        public static Lst<IEnumerable<A>> Where< A>(this Lst<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            Trans<MLst<IEnumerable<A>>, Lst<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Bind<MLst<IEnumerable<A>>, Lst<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
-
-        /// <summary>
-        /// Functor map operation.  This maps the bound value(s) of the nested monads
-        /// using the provided function `f`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Lst<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst<IEnumerable<B>>` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Lst<IEnumerable<B>> Select< A, B>(this Lst<IEnumerable<A>> ma, Func<A, B> f) =>
-            Trans<MLst<IEnumerable<A>>, Lst<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Map<MLst<IEnumerable<B>>, Lst<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
-
-        /// <summary>
         /// Finds total of all the `Num<A>`s in `Lst<IEnumerable<A>>`
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -56821,36 +56731,6 @@ namespace LanguageExt
                         (IEnumerable<B> b) =>
                             FSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
-
-        /// <summary>
-        /// Filter operation.  Applies the bound value to the predicate `f`. If
-        /// `true` then that value is retained, else filtered out.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The predicate function</param>
-        /// <returns>`Option<IEnumerable<A>>` with the predicate `f(a)` applied</returns>
-        [Pure]
-        public static Option<IEnumerable<A>> Where< A>(this Option<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            Trans<MOption<IEnumerable<A>>, Option<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Bind<MOption<IEnumerable<A>>, Option<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
-
-        /// <summary>
-        /// Functor map operation.  This maps the bound value(s) of the nested monads
-        /// using the provided function `f`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Option<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option<IEnumerable<B>>` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Option<IEnumerable<B>> Select< A, B>(this Option<IEnumerable<A>> ma, Func<A, B> f) =>
-            Trans<MOption<IEnumerable<A>>, Option<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Map<MOption<IEnumerable<B>>, Option<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Option<IEnumerable<A>>`
@@ -57134,36 +57014,6 @@ namespace LanguageExt
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
-        /// Filter operation.  Applies the bound value to the predicate `f`. If
-        /// `true` then that value is retained, else filtered out.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The predicate function</param>
-        /// <returns>`OptionUnsafe<IEnumerable<A>>` with the predicate `f(a)` applied</returns>
-        [Pure]
-        public static OptionUnsafe<IEnumerable<A>> Where< A>(this OptionUnsafe<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            Trans<MOptionUnsafe<IEnumerable<A>>, OptionUnsafe<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Bind<MOptionUnsafe<IEnumerable<A>>, OptionUnsafe<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
-
-        /// <summary>
-        /// Functor map operation.  This maps the bound value(s) of the nested monads
-        /// using the provided function `f`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe<IEnumerable<B>>` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static OptionUnsafe<IEnumerable<B>> Select< A, B>(this OptionUnsafe<IEnumerable<A>> ma, Func<A, B> f) =>
-            Trans<MOptionUnsafe<IEnumerable<A>>, OptionUnsafe<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Map<MOptionUnsafe<IEnumerable<B>>, OptionUnsafe<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
-
-        /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<IEnumerable<A>>`
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -57443,36 +57293,6 @@ namespace LanguageExt
                         (IEnumerable<B> b) =>
                             FSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
-
-        /// <summary>
-        /// Filter operation.  Applies the bound value to the predicate `f`. If
-        /// `true` then that value is retained, else filtered out.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either<L, IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The predicate function</param>
-        /// <returns>`Either<L, IEnumerable<A>>` with the predicate `f(a)` applied</returns>
-        [Pure]
-        public static Either<L, IEnumerable<A>> Where<L, A>(this Either<L, IEnumerable<A>> ma, Func<A, bool> pred) =>
-            Trans<MEither<L, IEnumerable<A>>, Either<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Bind<MEither<L, IEnumerable<A>>, Either<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
-
-        /// <summary>
-        /// Functor map operation.  This maps the bound value(s) of the nested monads
-        /// using the provided function `f`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Either<L, IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either<L, IEnumerable<B>>` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Either<L, IEnumerable<B>> Select<L, A, B>(this Either<L, IEnumerable<A>> ma, Func<A, B> f) =>
-            Trans<MEither<L, IEnumerable<A>>, Either<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Map<MEither<L, IEnumerable<B>>, Either<L, IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Either<L, IEnumerable<A>>`
@@ -57756,36 +57576,6 @@ namespace LanguageExt
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
-        /// Filter operation.  Applies the bound value to the predicate `f`. If
-        /// `true` then that value is retained, else filtered out.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe<L, IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The predicate function</param>
-        /// <returns>`EitherUnsafe<L, IEnumerable<A>>` with the predicate `f(a)` applied</returns>
-        [Pure]
-        public static EitherUnsafe<L, IEnumerable<A>> Where<L, A>(this EitherUnsafe<L, IEnumerable<A>> ma, Func<A, bool> pred) =>
-            Trans<MEitherUnsafe<L, IEnumerable<A>>, EitherUnsafe<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Bind<MEitherUnsafe<L, IEnumerable<A>>, EitherUnsafe<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
-
-        /// <summary>
-        /// Functor map operation.  This maps the bound value(s) of the nested monads
-        /// using the provided function `f`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe<L, IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe<L, IEnumerable<B>>` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static EitherUnsafe<L, IEnumerable<B>> Select<L, A, B>(this EitherUnsafe<L, IEnumerable<A>> ma, Func<A, B> f) =>
-            Trans<MEitherUnsafe<L, IEnumerable<A>>, EitherUnsafe<L, IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Map<MEitherUnsafe<L, IEnumerable<B>>, EitherUnsafe<L, IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
-
-        /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, IEnumerable<A>>`
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -58065,36 +57855,6 @@ namespace LanguageExt
                         (IEnumerable<B> b) =>
                             FSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
-
-        /// <summary>
-        /// Filter operation.  Applies the bound value to the predicate `f`. If
-        /// `true` then that value is retained, else filtered out.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Task<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The predicate function</param>
-        /// <returns>`Task<IEnumerable<A>>` with the predicate `f(a)` applied</returns>
-        [Pure]
-        public static Task<IEnumerable<A>> Where< A>(this Task<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            Trans<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Bind<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
-
-        /// <summary>
-        /// Functor map operation.  This maps the bound value(s) of the nested monads
-        /// using the provided function `f`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Task<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Task<IEnumerable<B>>` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Task<IEnumerable<B>> Select< A, B>(this Task<IEnumerable<A>> ma, Func<A, B> f) =>
-            Trans<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Map<MTask<IEnumerable<B>>, Task<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task<IEnumerable<A>>`
@@ -58378,36 +58138,6 @@ namespace LanguageExt
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
-        /// Filter operation.  Applies the bound value to the predicate `f`. If
-        /// `true` then that value is retained, else filtered out.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The predicate function</param>
-        /// <returns>`Try<IEnumerable<A>>` with the predicate `f(a)` applied</returns>
-        [Pure]
-        public static Try<IEnumerable<A>> Where< A>(this Try<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            Trans<MTry<IEnumerable<A>>, Try<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Bind<MTry<IEnumerable<A>>, Try<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
-
-        /// <summary>
-        /// Functor map operation.  This maps the bound value(s) of the nested monads
-        /// using the provided function `f`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Try<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try<IEnumerable<B>>` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Try<IEnumerable<B>> Select< A, B>(this Try<IEnumerable<A>> ma, Func<A, B> f) =>
-            Trans<MTry<IEnumerable<A>>, Try<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Map<MTry<IEnumerable<B>>, Try<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
-
-        /// <summary>
         /// Finds total of all the `Num<A>`s in `Try<IEnumerable<A>>`
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -58687,36 +58417,6 @@ namespace LanguageExt
                         (IEnumerable<B> b) =>
                             FSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
-
-        /// <summary>
-        /// Filter operation.  Applies the bound value to the predicate `f`. If
-        /// `true` then that value is retained, else filtered out.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The predicate function</param>
-        /// <returns>`TryAsync<IEnumerable<A>>` with the predicate `f(a)` applied</returns>
-        [Pure]
-        public static TryAsync<IEnumerable<A>> Where< A>(this TryAsync<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            Trans<MTryAsync<IEnumerable<A>>, TryAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Bind<MTryAsync<IEnumerable<A>>, TryAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
-
-        /// <summary>
-        /// Functor map operation.  This maps the bound value(s) of the nested monads
-        /// using the provided function `f`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryAsync<IEnumerable<B>>` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryAsync<IEnumerable<B>> Select< A, B>(this TryAsync<IEnumerable<A>> ma, Func<A, B> f) =>
-            Trans<MTryAsync<IEnumerable<A>>, TryAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Map<MTryAsync<IEnumerable<B>>, TryAsync<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync<IEnumerable<A>>`
@@ -59000,36 +58700,6 @@ namespace LanguageExt
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
-        /// Filter operation.  Applies the bound value to the predicate `f`. If
-        /// `true` then that value is retained, else filtered out.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The predicate function</param>
-        /// <returns>`TryOption<IEnumerable<A>>` with the predicate `f(a)` applied</returns>
-        [Pure]
-        public static TryOption<IEnumerable<A>> Where< A>(this TryOption<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            Trans<MTryOption<IEnumerable<A>>, TryOption<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Bind<MTryOption<IEnumerable<A>>, TryOption<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
-
-        /// <summary>
-        /// Functor map operation.  This maps the bound value(s) of the nested monads
-        /// using the provided function `f`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption<IEnumerable<B>>` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOption<IEnumerable<B>> Select< A, B>(this TryOption<IEnumerable<A>> ma, Func<A, B> f) =>
-            Trans<MTryOption<IEnumerable<A>>, TryOption<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Map<MTryOption<IEnumerable<B>>, TryOption<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
-
-        /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOption<IEnumerable<A>>`
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -59309,36 +58979,6 @@ namespace LanguageExt
                         (IEnumerable<B> b) =>
                             FSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
-
-        /// <summary>
-        /// Filter operation.  Applies the bound value to the predicate `f`. If
-        /// `true` then that value is retained, else filtered out.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The predicate function</param>
-        /// <returns>`TryOptionAsync<IEnumerable<A>>` with the predicate `f(a)` applied</returns>
-        [Pure]
-        public static TryOptionAsync<IEnumerable<A>> Where< A>(this TryOptionAsync<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            Trans<MTryOptionAsync<IEnumerable<A>>, TryOptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Bind<MTryOptionAsync<IEnumerable<A>>, TryOptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
-
-        /// <summary>
-        /// Functor map operation.  This maps the bound value(s) of the nested monads
-        /// using the provided function `f`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOptionAsync<IEnumerable<B>>` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOptionAsync<IEnumerable<B>> Select< A, B>(this TryOptionAsync<IEnumerable<A>> ma, Func<A, B> f) =>
-            Trans<MTryOptionAsync<IEnumerable<A>>, TryOptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Map<MTryOptionAsync<IEnumerable<B>>, TryOptionAsync<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync<IEnumerable<A>>`
@@ -59622,36 +59262,6 @@ namespace LanguageExt
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
-        /// Filter operation.  Applies the bound value to the predicate `f`. If
-        /// `true` then that value is retained, else filtered out.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The predicate function</param>
-        /// <returns>`IEnumerable<IEnumerable<A>>` with the predicate `f(a)` applied</returns>
-        [Pure]
-        public static IEnumerable<IEnumerable<A>> Where< A>(this IEnumerable<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            Trans<MSeq<IEnumerable<A>>, IEnumerable<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Bind<MSeq<IEnumerable<A>>, IEnumerable<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
-
-        /// <summary>
-        /// Functor map operation.  This maps the bound value(s) of the nested monads
-        /// using the provided function `f`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable<IEnumerable<B>>` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static IEnumerable<IEnumerable<B>> Select< A, B>(this IEnumerable<IEnumerable<A>> ma, Func<A, B> f) =>
-            Trans<MSeq<IEnumerable<A>>, IEnumerable<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Map<MSeq<IEnumerable<B>>, IEnumerable<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
-
-        /// <summary>
         /// Finds total of all the `Num<A>`s in `IEnumerable<IEnumerable<A>>`
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -59931,36 +59541,6 @@ namespace LanguageExt
                         (IEnumerable<B> b) =>
                             FSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
-
-        /// <summary>
-        /// Filter operation.  Applies the bound value to the predicate `f`. If
-        /// `true` then that value is retained, else filtered out.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The predicate function</param>
-        /// <returns>`Set<IEnumerable<A>>` with the predicate `f(a)` applied</returns>
-        [Pure]
-        public static Set<IEnumerable<A>> Where< A>(this Set<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            Trans<MSet<IEnumerable<A>>, Set<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Bind<MSet<IEnumerable<A>>, Set<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
-
-        /// <summary>
-        /// Functor map operation.  This maps the bound value(s) of the nested monads
-        /// using the provided function `f`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Set<IEnumerable<A>>` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set<IEnumerable<B>>` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Set<IEnumerable<B>> Select< A, B>(this Set<IEnumerable<A>> ma, Func<A, B> f) =>
-            Trans<MSet<IEnumerable<A>>, Set<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
-                .Inst.Map<MSet<IEnumerable<B>>, Set<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Set<IEnumerable<A>>`
@@ -60261,6 +59841,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Arr<Set<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Arr<Set<C>> SelectMany< A, B, C>(
             this Arr<Set<A>> ma,
@@ -60301,7 +59882,6 @@ namespace LanguageExt
         public static Arr<Set<B>> Select< A, B>(this Arr<Set<A>> ma, Func<A, B> f) =>
             Trans<MArr<Set<A>>, Arr<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Map<MArr<Set<B>>, Arr<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Arr<Set<A>>`
         /// </summary>
@@ -60593,6 +60173,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`HashSet<Set<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static HashSet<Set<C>> SelectMany< A, B, C>(
             this HashSet<Set<A>> ma,
@@ -60633,7 +60214,6 @@ namespace LanguageExt
         public static HashSet<Set<B>> Select< A, B>(this HashSet<Set<A>> ma, Func<A, B> f) =>
             Trans<MHashSet<Set<A>>, HashSet<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Map<MHashSet<Set<B>>, HashSet<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `HashSet<Set<A>>`
         /// </summary>
@@ -60925,6 +60505,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Lst<Set<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Lst<Set<C>> SelectMany< A, B, C>(
             this Lst<Set<A>> ma,
@@ -60965,7 +60546,6 @@ namespace LanguageExt
         public static Lst<Set<B>> Select< A, B>(this Lst<Set<A>> ma, Func<A, B> f) =>
             Trans<MLst<Set<A>>, Lst<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Map<MLst<Set<B>>, Lst<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Lst<Set<A>>`
         /// </summary>
@@ -61257,6 +60837,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Option<Set<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Option<Set<C>> SelectMany< A, B, C>(
             this Option<Set<A>> ma,
@@ -61297,7 +60878,6 @@ namespace LanguageExt
         public static Option<Set<B>> Select< A, B>(this Option<Set<A>> ma, Func<A, B> f) =>
             Trans<MOption<Set<A>>, Option<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Map<MOption<Set<B>>, Option<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Option<Set<A>>`
         /// </summary>
@@ -61589,6 +61169,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`OptionUnsafe<Set<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static OptionUnsafe<Set<C>> SelectMany< A, B, C>(
             this OptionUnsafe<Set<A>> ma,
@@ -61629,7 +61210,6 @@ namespace LanguageExt
         public static OptionUnsafe<Set<B>> Select< A, B>(this OptionUnsafe<Set<A>> ma, Func<A, B> f) =>
             Trans<MOptionUnsafe<Set<A>>, OptionUnsafe<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Map<MOptionUnsafe<Set<B>>, OptionUnsafe<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<Set<A>>`
         /// </summary>
@@ -61921,6 +61501,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Either<L, Set<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Either<L, Set<C>> SelectMany<L, A, B, C>(
             this Either<L, Set<A>> ma,
@@ -61961,7 +61542,6 @@ namespace LanguageExt
         public static Either<L, Set<B>> Select<L, A, B>(this Either<L, Set<A>> ma, Func<A, B> f) =>
             Trans<MEither<L, Set<A>>, Either<L, Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Map<MEither<L, Set<B>>, Either<L, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Either<L, Set<A>>`
         /// </summary>
@@ -62253,6 +61833,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`EitherUnsafe<L, Set<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static EitherUnsafe<L, Set<C>> SelectMany<L, A, B, C>(
             this EitherUnsafe<L, Set<A>> ma,
@@ -62293,7 +61874,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Set<B>> Select<L, A, B>(this EitherUnsafe<L, Set<A>> ma, Func<A, B> f) =>
             Trans<MEitherUnsafe<L, Set<A>>, EitherUnsafe<L, Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Map<MEitherUnsafe<L, Set<B>>, EitherUnsafe<L, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, Set<A>>`
         /// </summary>
@@ -62585,6 +62165,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Task<Set<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Task<Set<C>> SelectMany< A, B, C>(
             this Task<Set<A>> ma,
@@ -62625,7 +62206,6 @@ namespace LanguageExt
         public static Task<Set<B>> Select< A, B>(this Task<Set<A>> ma, Func<A, B> f) =>
             Trans<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Map<MTask<Set<B>>, Task<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task<Set<A>>`
         /// </summary>
@@ -62917,6 +62497,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Try<Set<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Try<Set<C>> SelectMany< A, B, C>(
             this Try<Set<A>> ma,
@@ -62957,7 +62538,6 @@ namespace LanguageExt
         public static Try<Set<B>> Select< A, B>(this Try<Set<A>> ma, Func<A, B> f) =>
             Trans<MTry<Set<A>>, Try<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Map<MTry<Set<B>>, Try<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Try<Set<A>>`
         /// </summary>
@@ -63249,6 +62829,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryAsync<Set<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryAsync<Set<C>> SelectMany< A, B, C>(
             this TryAsync<Set<A>> ma,
@@ -63289,7 +62870,6 @@ namespace LanguageExt
         public static TryAsync<Set<B>> Select< A, B>(this TryAsync<Set<A>> ma, Func<A, B> f) =>
             Trans<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Map<MTryAsync<Set<B>>, TryAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync<Set<A>>`
         /// </summary>
@@ -63581,6 +63161,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOption<Set<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOption<Set<C>> SelectMany< A, B, C>(
             this TryOption<Set<A>> ma,
@@ -63621,7 +63202,6 @@ namespace LanguageExt
         public static TryOption<Set<B>> Select< A, B>(this TryOption<Set<A>> ma, Func<A, B> f) =>
             Trans<MTryOption<Set<A>>, TryOption<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Map<MTryOption<Set<B>>, TryOption<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOption<Set<A>>`
         /// </summary>
@@ -63913,6 +63493,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`TryOptionAsync<Set<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static TryOptionAsync<Set<C>> SelectMany< A, B, C>(
             this TryOptionAsync<Set<A>> ma,
@@ -63953,7 +63534,6 @@ namespace LanguageExt
         public static TryOptionAsync<Set<B>> Select< A, B>(this TryOptionAsync<Set<A>> ma, Func<A, B> f) =>
             Trans<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Map<MTryOptionAsync<Set<B>>, TryOptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync<Set<A>>`
         /// </summary>
@@ -64245,6 +63825,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`IEnumerable<Set<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static IEnumerable<Set<C>> SelectMany< A, B, C>(
             this IEnumerable<Set<A>> ma,
@@ -64285,7 +63866,6 @@ namespace LanguageExt
         public static IEnumerable<Set<B>> Select< A, B>(this IEnumerable<Set<A>> ma, Func<A, B> f) =>
             Trans<MSeq<Set<A>>, IEnumerable<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Map<MSeq<Set<B>>, IEnumerable<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `IEnumerable<Set<A>>`
         /// </summary>
@@ -64577,6 +64157,7 @@ namespace LanguageExt
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
         /// <returns>`Set<Set<C>>` which is the result of performing bind then project</returns>
+
         [Pure]
         public static Set<Set<C>> SelectMany< A, B, C>(
             this Set<Set<A>> ma,
@@ -64617,7 +64198,6 @@ namespace LanguageExt
         public static Set<Set<B>> Select< A, B>(this Set<Set<A>> ma, Func<A, B> f) =>
             Trans<MSet<Set<A>>, Set<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Map<MSet<Set<B>>, Set<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Set<Set<A>>`
         /// </summary>

@@ -7,7 +7,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
-    <PackageVersion>2.0.29-beta</PackageVersion>
+    <PackageVersion>2.0.30-beta</PackageVersion>
     <PackageId>LanguageExt.FSharp</PackageId>
     <Title>LanguageExt.FSharp</Title>
     <Authors>Paul Louth</Authors>
