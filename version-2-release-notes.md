@@ -763,7 +763,7 @@ You should see that the `Return` and `Fail` functions are trivial to implement:
 ```
 What that means is that any function that has been constrained by a monad instance can create new instances of them:
 ```c#
-    public MA CreateNewIntegerMonad<MonadInt, M, int>(int x) 
+    public M CreateNewIntegerMonad<MonadInt, M, int>(int x) 
         where MonadInt : struct, Monad<M, int> =>
             default(MonadInt).Return(x);
 ```
@@ -832,8 +832,6 @@ Or two lists:
     Assert.True(r2 == z);
 ```
 Or any two monads.  They will follow the built in rules for the type, and produce concrete values efficiently. 
-
-I could go on endlessly about the new types.  There are so many.  But for the release notes I think I should wrap it up.  Below is a short list of the type-classes (interfaces) and class-instances (structs) that make up language-ext 2.0:
 
 ### Transformer types
 
@@ -925,6 +923,8 @@ As well as the extensions, there are also static classes for the transformer typ
     var total = OptionT.sumT<TInt, int>(ma); // 15
     var mb    = OptionT.filterT(ma, x > 3); // List(Some(3), Some(4))
 ```
+
+I could go on endlessly about the new types.  There are so many.  But for the release notes I think I should wrap it up.  Below is a short list of the type-classes (interfaces) and class-instances (structs) that make up language-ext 2.0:
 
 ### Type-classes
 

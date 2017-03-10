@@ -5,6 +5,8 @@ using static LanguageExt.TypeClass;
 using LanguageExt.ClassInstances.Pred;
 using LanguageExt.ClassInstances.Const;
 using System;
+using Newtonsoft.Json;
+using System.Reflection;
 
 namespace LanguageExtTests
 {
@@ -83,7 +85,6 @@ namespace LanguageExtTests
             // Assert.Throws<Exception>(() => h1 <= m2);
         }
 
-#if !COREFX
         [Fact]
         public void LinqTest()
         {
@@ -135,6 +136,16 @@ namespace LanguageExtTests
             // Assert.Throws<Exception>(() => m1 * h1);
         }
 
-#endif
+        [Fact]
+        public void SerialisationTest()
+        {
+            var m1 = Metres.New(10);
+
+            var str = JsonConvert.SerializeObject(m1);
+
+            var m2 = JsonConvert.DeserializeObject<Metres>(str);
+
+            Assert.True(m2 == m1);
+        }
     }
 }

@@ -24,7 +24,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public bool Equals(A a, A b)
         {
-            if (isnull(a)) return b == null;
+            if (isnull(a)) return isnull(b);
             if (isnull(b)) return false;
             if (ReferenceEquals(a, b)) return true;
             return Comparer.Equals(a, b);
