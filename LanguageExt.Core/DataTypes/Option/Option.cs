@@ -52,6 +52,12 @@ namespace LanguageExt
             value;
 
         /// <summary>
+        /// Takes the value-type OptionV<A>
+        /// </summary>
+        internal Option(OptionV<A> value) =>
+            this.value = value ?? throw new ArgumentNullException(nameof(value));
+
+        /// <summary>
         /// Ctor that facilitates serialisation
         /// </summary>
         /// <param name="option">None or Some A.</param>
@@ -68,12 +74,6 @@ namespace LanguageExt
                 value = OptionV<A>.Optional(first[0]);
             }
         }
-
-        /// <summary>
-        /// Takes the value-type OptionV<A>
-        /// </summary>
-        internal Option(OptionV<A> value) =>
-            this.value = value ?? throw new ArgumentNullException(nameof(value));
 
         /// <summary>
         /// Uses the EqDefault instance to do an equality check on the bound value.  

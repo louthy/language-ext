@@ -894,21 +894,21 @@ This can be quite useful for `Either`:
 ```
 This collects the first error it finds, or returns `Right` if there is no error. 
 
-`Traverse` is that same as `Sequence` except it applies a mapping function to each bound value as it's transforming the types.  Here's an example that runs 6 tasks in parallel, and collects their results:
+`Traverse` is the same as `Sequence` except it applies a mapping function to each bound value as it's transforming the types.  Here's an example that runs 6 tasks in parallel, and collects their results:
 
 ```c#
     var start = DateTime.UtcNow;
 
-    var f1 = Task.Run(() => { Thread.Sleep(3000); return 0; });
-    var f2 = Task.Run(() => { Thread.Sleep(3000); return 1; });
-    var f3 = Task.Run(() => { Thread.Sleep(3000); return 2; });
-    var f4 = Task.Run(() => { Thread.Sleep(3000); return 3; });
-    var f5 = Task.Run(() => { Thread.Sleep(3000); return 4; });
-    var f6 = Task.Run(() => { Thread.Sleep(3000); return 5; });
+    var f1 = Task.Run(() => { Thread.Sleep(3000); return 1; });
+    var f2 = Task.Run(() => { Thread.Sleep(3000); return 2; });
+    var f3 = Task.Run(() => { Thread.Sleep(3000); return 3; });
+    var f4 = Task.Run(() => { Thread.Sleep(3000); return 4; });
+    var f5 = Task.Run(() => { Thread.Sleep(3000); return 5; });
+    var f6 = Task.Run(() => { Thread.Sleep(3000); return 6; });
 
     var res = await List(f1, f2, f3, f4, f5, f6).Traverse(x => x * 2);
 
-    Assert.True(Set.createRange(res) == Set(2, 4, 6, 8, 10, 12));
+    Assert.True(toSet(res) == Set(2, 4, 6, 8, 10, 12));
 
     var ms = (int)(DateTime.UtcNow - start).TotalMilliseconds;
     Assert.True(ms < 3500, $"Took {ms} ticks");
