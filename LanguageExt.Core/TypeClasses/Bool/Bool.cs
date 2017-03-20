@@ -49,5 +49,20 @@ namespace LanguageExt.TypeClasses
         /// <returns>The result of the logical exclusive-OR operation between `a` and `b`</returns>
         [Pure]
         A XOr(A a, A b);
+
+        /// <summary>
+        /// Logical implication
+        /// </summary>
+        /// <returns>If `a` is true that implies `b`, else `true`</returns>
+        [Pure]
+        A Implies(A a, A b);
+
+        /// <summary>
+        /// Logical bi-conditional.  Both `a` and `b` must be `true`, or both `a` and `b` must
+        /// be false.
+        /// </summary>
+        /// <returns>`true` if `a == b`, `false` otherwise</returns>
+        [Pure]
+        A BiCondition(A a, A b);
     }
 }

@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 namespace LanguageExt.ClassInstances
 {
     /// <summary>
-    /// Bool class instance.  Implements
+    /// TBoolBool class instance.  Implements
     /// 
-    ///     Eq<bool>
-    ///     Ord<bool>
-    ///     Bool<bool>
+    ///     Eq<(bool, bool)>
+    ///     Ord<(bool, bool)>
+    ///     Bool<(bool, bool)>
     /// </summary>
-    public struct TBool : Eq<bool>, Ord<bool>, Bool<bool>
+    public struct TBoolBool : Eq<(bool, bool)>, Ord<(bool, bool)>, Bool<(bool, bool)>
     {
         public static readonly TBool Inst = new TBool();
 
@@ -25,8 +25,9 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <returns>The result of the logical AND operation between `a` and `b`</returns>
         [Pure]
-        public bool And(bool a, bool b) =>
-            a && b;
+        public (bool, bool) And((bool, bool) a, (bool, bool) b) =>
+            (a.Item1 && b.Item1,
+             a.Item2 && b.Item2);
 
         /// <summary>
         /// Compare two values
@@ -40,7 +41,7 @@ namespace LanguageExt.ClassInstances
         /// 
         /// if x equals y       : 0
         /// </returns>
-        public int Compare(bool x, bool y) =>
+        public int Compare((bool, bool) x, (bool, bool) y) =>
             x.CompareTo(y);
 
         /// <summary>
@@ -50,23 +51,23 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public bool Equals(bool x, bool y) =>
-            x == y;
+        public bool Equals((bool, bool) x, (bool, bool) y) =>
+            (x.Item1 == y.Item1) && (x.Item2 == y.Item2);
 
         /// <summary>
         /// Returns False
         /// </summary>
         /// <returns>False</returns>
         [Pure]
-        public bool False() =>
-            false;
+        public (bool, bool) False() =>
+            (false, false);
 
         /// <summary>
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
         [Pure]
-        public int GetHashCode(bool x) =>
+        public int GetHashCode((bool, bool) x) =>
             x.GetHashCode();
 
         /// <summary>
@@ -74,40 +75,43 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <returns>The result of the logical NOT operation on `a`</returns>
         [Pure]
-        public bool Not(bool a) =>
-            !a;
+        public (bool, bool) Not((bool, bool) a) =>
+            (!a.Item1, !a.Item2);
 
         /// <summary>
         /// Returns the result of the logical OR operation between `a` and `b`
         /// </summary>
         /// <returns>The result of the logical OR operation between `a` and `b`</returns>
         [Pure]
-        public bool Or(bool a, bool b) =>
-            a || b;
+        public (bool, bool) Or((bool, bool) a, (bool, bool) b) =>
+            (a.Item1 || b.Item1,
+             a.Item2 || b.Item2);
 
         /// <summary>
         /// Returns True
         /// </summary>
         /// <returns>True</returns>
         [Pure]
-        public bool True() =>
-            true;
+        public (bool, bool) True() =>
+            (true, true);
 
         /// <summary>
         /// Returns the result of the logical exclusive-OR operation between `a` and `b`
         /// </summary>
         /// <returns>The result of the logical exclusive-OR operation between `a` and `b`</returns>
         [Pure]
-        public bool XOr(bool a, bool b) =>
-            a ^ b;
+        public (bool, bool) XOr((bool, bool) a, (bool, bool) b) =>
+            (a.Item1 ^ b.Item1,
+             a.Item2 ^ b.Item2);
 
         /// <summary>
         /// Logical implication
         /// </summary>
         /// <returns>If `a` is true that implies `b`, else `true`</returns>
         [Pure]
-        public bool Implies(bool a, bool b) =>
-            a ? b : true;
+        public (bool, bool) Implies((bool, bool) a, (bool, bool) b) =>
+            ((a.Item1 ? b.Item1 : true),
+             (a.Item2 ? b.Item2 : true));
 
         /// <summary>
         /// Logical bi-conditional.  Both `a` and `b` must be `true`, or both `a` and `b` must
@@ -115,7 +119,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <returns>`true` if `a == b`, `false` otherwise</returns>
         [Pure]
-        public bool BiCondition(bool a, bool b) =>
-            a == b;
+        public (bool, bool) BiCondition((bool, bool) a, (bool, bool) b) =>
+            (a.Item1 == b.Item1, a.Item2 == b.Item2);
     }
 }
