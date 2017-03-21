@@ -8,7 +8,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Integer number 
     /// </summary>
-    public struct TBigInt : Num<BigInteger>, Monoid<BigInteger>
+    public struct TBigInt : Num<bigint>, Monoid<bigint>, Bool<bigint>
     {
         public static readonly TBigInt Inst = default(TBigInt);
 
@@ -19,7 +19,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public bool Equals(BigInteger x, BigInteger y) =>
+        public bool Equals(bigint x, bigint y) =>
             x == y;
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace LanguageExt.ClassInstances
         /// if x equals y       : 0
         /// </returns>
         [Pure]
-        public int Compare(BigInteger x, BigInteger y) =>
+        public int Compare(bigint x, bigint y) =>
             x.CompareTo(y);
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">right hand side of the addition operation</param>
         /// <returns>The sum of x and y</returns>
         [Pure]
-        public BigInteger Plus(BigInteger x, BigInteger y) =>
+        public bigint Plus(bigint x, bigint y) =>
             x + y;
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">right hand side of the subtraction operation</param>
         /// <returns>The difference between x and y</returns>
         [Pure]
-        public BigInteger Subtract(BigInteger x, BigInteger y) =>
+        public bigint Subtract(bigint x, bigint y) =>
             x - y;
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">right hand side of the product operation</param>
         /// <returns>The product of x and y</returns>
         [Pure]
-        public BigInteger Product(BigInteger x, BigInteger y) =>
+        public bigint Product(bigint x, bigint y) =>
             x * y;
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">right hand side of the division operation</param>
         /// <returns>x / y</returns>
         [Pure]
-        public BigInteger Divide(BigInteger x, BigInteger y) =>
+        public bigint Divide(bigint x, bigint y) =>
             x / y;
 
         /// <summary>
@@ -84,8 +84,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The value to find the absolute value of</param>
         /// <returns>The non-negative absolute value of x</returns>
         [Pure]
-        public BigInteger Abs(BigInteger x) =>
-            x < BigInteger.Zero
+        public bigint Abs(bigint x) =>
+            x < bigint.Zero
                 ? -x
                 : x;
 
@@ -95,9 +95,9 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The value to find the sign of</param>
         /// <returns>-1, 0, or +1</returns>
         [Pure]
-        public BigInteger Signum(BigInteger x) =>
-            x == BigInteger.Zero ? 0
-          : x <  BigInteger.Zero ? -1
+        public bigint Signum(bigint x) =>
+            x == bigint.Zero ? 0
+          : x < bigint.Zero ? -1
           : 1;
 
         /// <summary>
@@ -106,8 +106,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The integer to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
         [Pure]
-        public BigInteger FromInteger(int x) =>
-            (BigInteger)x;
+        public bigint FromInteger(int x) =>
+            (bigint)x;
 
         /// <summary>
         /// Generate a numeric value from a float
@@ -115,8 +115,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The float to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
         [Pure]
-        public BigInteger FromDecimal(decimal x) =>
-            (BigInteger)x;
+        public bigint FromDecimal(decimal x) =>
+            (bigint)x;
 
         /// <summary>
         /// Generate a numeric value from a double
@@ -124,8 +124,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The double to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
         [Pure]
-        public BigInteger FromFloat(float x) =>
-            (BigInteger)x;
+        public bigint FromFloat(float x) =>
+            (bigint)x;
 
         /// <summary>
         /// Generate a numeric value from a decimal
@@ -133,15 +133,15 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The decimal to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
         [Pure]
-        public BigInteger FromDouble(double x) =>
-            (BigInteger)x;
+        public bigint FromDouble(double x) =>
+            (bigint)x;
 
         /// <summary>
         /// Monoid empty value (0)
         /// </summary>
         /// <returns>0</returns>
         [Pure]
-        public BigInteger Empty() => 0;
+        public bigint Empty() => bigint.Zero;
 
         /// <summary>
         /// Negate the value
@@ -149,7 +149,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to negate</param>
         /// <returns>The negated source value</returns>
         [Pure]
-        public BigInteger Negate(BigInteger x) => -x;
+        public bigint Negate(bigint x) => -x;
 
         /// <summary>
         /// Semigroup append (sum)
@@ -158,7 +158,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">right hand side of the append operation</param>
         /// <returns>x + y</returns>
         [Pure]
-        public BigInteger Append(BigInteger x, BigInteger y) => 
+        public bigint Append(bigint x, bigint y) => 
             x + y;
 
         /// <summary>
@@ -166,7 +166,73 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <returns>Hash code of x</returns>
         [Pure]
-        public int GetHashCode(BigInteger x) =>
+        public int GetHashCode(bigint x) =>
             x.GetHashCode();
+
+        /// <summary>
+        /// Returns True
+        /// </summary>
+        /// <returns>True</returns>
+        [Pure]
+        public bigint True() =>
+            bigint.MinusOne;
+
+        /// <summary>
+        /// Returns False
+        /// </summary>
+        /// <returns>False</returns>
+        [Pure]
+        public bigint False() =>
+            bigint.Zero;
+
+        /// <summary>
+        /// Returns the result of the bitwise AND operation between `a` and `b`
+        /// </summary>
+        /// <returns>The result of the bitwise AND operation between `a` and `b`</returns>
+        [Pure]
+        public bigint And(bigint a, bigint b) =>
+            a & b;
+
+        /// <summary>
+        /// Returns the result of the bitwise OR operation between `a` and `b`
+        /// </summary>
+        /// <returns>The result of the bitwise OR operation between `a` and `b`</returns>
+        [Pure]
+        public bigint Or(bigint a, bigint b) =>
+            a | b;
+
+        /// <summary>
+        /// Returns the result of the bitwise NOT operation on `a`
+        /// </summary>
+        /// <returns>The result of the bitwise NOT operation on `a`</returns>
+        [Pure]
+        public bigint Not(bigint a) =>
+            ~a;
+
+        /// <summary>
+        /// Returns the result of the bitwise exclusive-OR operation between `a` and `b`
+        /// </summary>
+        /// <returns>The result of the bitwise exclusive-OR operation between `a` and `b`</returns>
+        [Pure]
+        public bigint XOr(bigint a, bigint b) =>
+            a ^ b;
+
+        /// <summary>
+        /// Logical implication
+        /// </summary>
+        /// <returns>If `a` is true that implies `b`, else `true`</returns>
+        [Pure]
+        public bigint Implies(bigint a, bigint b) =>
+            And(a, True()) == False()
+                ? True()
+                : b;
+
+        /// <summary>
+        /// Bitwise bi-conditional. 
+        /// </summary>
+        /// <returns>`XOr(Not(a), Not(b))`</returns>
+        [Pure]
+        public bigint BiCondition(bigint a, bigint b) =>
+            XOr(Not(a), Not(b));
     }
 }

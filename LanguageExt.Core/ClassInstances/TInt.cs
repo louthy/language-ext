@@ -7,7 +7,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Integer number 
     /// </summary>
-    public struct TInt : Num<int>, Monoid<int>
+    public struct TInt : Num<int>, Monoid<int>, Bool<int>
     {
         public static readonly TInt Inst = default(TInt);
 
@@ -163,5 +163,71 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(int x) =>
             x.GetHashCode();
+
+        /// <summary>
+        /// Returns True
+        /// </summary>
+        /// <returns>True</returns>
+        [Pure]
+        public int True() =>
+            -1;
+
+        /// <summary>
+        /// Returns False
+        /// </summary>
+        /// <returns>False</returns>
+        [Pure]
+        public int False() =>
+            0;
+
+        /// <summary>
+        /// Returns the result of the bitwise AND operation between `a` and `b`
+        /// </summary>
+        /// <returns>The result of the bitwise AND operation between `a` and `b`</returns>
+        [Pure]
+        public int And(int a, int b) =>
+            a & b;
+
+        /// <summary>
+        /// Returns the result of the bitwise OR operation between `a` and `b`
+        /// </summary>
+        /// <returns>The result of the bitwise OR operation between `a` and `b`</returns>
+        [Pure]
+        public int Or(int a, int b) =>
+            a | b;
+
+        /// <summary>
+        /// Returns the result of the bitwise NOT operation on `a`
+        /// </summary>
+        /// <returns>The result of the bitwise NOT operation on `a`</returns>
+        [Pure]
+        public int Not(int a) =>
+            ~a;
+
+        /// <summary>
+        /// Returns the result of the bitwise exclusive-OR operation between `a` and `b`
+        /// </summary>
+        /// <returns>The result of the bitwise exclusive-OR operation between `a` and `b`</returns>
+        [Pure]
+        public int XOr(int a, int b) =>
+            a ^ b;
+
+        /// <summary>
+        /// Logical implication
+        /// </summary>
+        /// <returns>If `a` is true that implies `b`, else `true`</returns>
+        [Pure]
+        public int Implies(int a, int b) =>
+            And(a, True()) == False()
+                ? True()
+                : b;
+
+        /// <summary>
+        /// Bitwise bi-conditional. 
+        /// </summary>
+        /// <returns>`XOr(Not(a), Not(b))`</returns>
+        [Pure]
+        public int BiCondition(int a, int b) =>
+            XOr(Not(a), Not(b));
     }
 }

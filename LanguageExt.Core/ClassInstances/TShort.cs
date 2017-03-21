@@ -7,7 +7,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Short integer number
     /// </summary>
-    public struct TShort : Num<short>
+    public struct TShort : Num<short>, Bool<short>
     {
         public static readonly TShort Inst = default(TShort);
 
@@ -162,5 +162,71 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(short x) =>
             x.GetHashCode();
+
+        /// <summary>
+        /// Returns True
+        /// </summary>
+        /// <returns>True</returns>
+        [Pure]
+        public short True() =>
+            -1;
+
+        /// <summary>
+        /// Returns False
+        /// </summary>
+        /// <returns>False</returns>
+        [Pure]
+        public short False() =>
+            0;
+
+        /// <summary>
+        /// Returns the result of the bitwise AND operation between `a` and `b`
+        /// </summary>
+        /// <returns>The result of the bitwise AND operation between `a` and `b`</returns>
+        [Pure]
+        public short And(short a, short b) =>
+            (short)(a & b);
+
+        /// <summary>
+        /// Returns the result of the bitwise OR operation between `a` and `b`
+        /// </summary>
+        /// <returns>The result of the bitwise OR operation between `a` and `b`</returns>
+        [Pure]
+        public short Or(short a, short b) =>
+            (short)(a | b);
+
+        /// <summary>
+        /// Returns the result of the bitwise NOT operation on `a`
+        /// </summary>
+        /// <returns>The result of the bitwise NOT operation on `a`</returns>
+        [Pure]
+        public short Not(short a) =>
+            (short)(~a);
+
+        /// <summary>
+        /// Returns the result of the bitwise exclusive-OR operation between `a` and `b`
+        /// </summary>
+        /// <returns>The result of the bitwise exclusive-OR operation between `a` and `b`</returns>
+        [Pure]
+        public short XOr(short a, short b) =>
+            (short)(a ^ b);
+
+        /// <summary>
+        /// Logical implication
+        /// </summary>
+        /// <returns>If `a` is true that implies `b`, else `true`</returns>
+        [Pure]
+        public short Implies(short a, short b) =>
+            And(a, True()) == False()
+                ? True()
+                : b;
+
+        /// <summary>
+        /// Bitwise bi-conditional. 
+        /// </summary>
+        /// <returns>`XOr(Not(a), Not(b))`</returns>
+        [Pure]
+        public short BiCondition(short a, short b) =>
+            XOr(Not(a), Not(b));
     }
 }

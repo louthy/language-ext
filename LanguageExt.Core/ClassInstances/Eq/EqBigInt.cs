@@ -8,7 +8,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Integer equality
     /// </summary>
-    public struct EqBigInt : Eq<BigInteger>
+    public struct EqBigInt : Eq<bigint>
     {
         public static readonly EqBigInt Inst = default(EqBigInt);
 
@@ -19,7 +19,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public bool Equals(BigInteger a, BigInteger b) =>
+        public bool Equals(bigint a, bigint b) =>
             a == b;
 
 
@@ -29,7 +29,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         [Pure]
-        public int GetHashCode(BigInteger x) =>
+        public int GetHashCode(bigint x) =>
             x.GetHashCode();
     }
 }

@@ -7,7 +7,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Equality and ordering
     /// </summary>
-    public struct OrdBigInt : Ord<BigInteger>
+    public struct OrdBigInt : Ord<bigint>
     {
         public static readonly OrdBigInt Inst = default(OrdBigInt);
 
@@ -18,7 +18,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public bool Equals(BigInteger x, BigInteger y) =>
+        public bool Equals(bigint x, bigint y) =>
             x == y;
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace LanguageExt.ClassInstances
         /// if x equals y       : 0
         /// </returns>
         [Pure]
-        public int Compare(BigInteger x, BigInteger y) =>
+        public int Compare(bigint x, bigint y) =>
             x.CompareTo(y);
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <returns>Hash code of x</returns>
         [Pure]
-        public int GetHashCode(BigInteger x) =>
+        public int GetHashCode(bigint x) =>
             x.GetHashCode();
     }
 }

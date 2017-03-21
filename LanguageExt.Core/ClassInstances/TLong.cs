@@ -7,7 +7,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Long integer number
     /// </summary>
-    public struct TLong : Num<long>
+    public struct TLong : Num<long>, Bool<long>
     {
         public static readonly TLong Inst = default(TLong);
 
@@ -162,5 +162,71 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(long x) =>
             x.GetHashCode();
+
+        /// <summary>
+        /// Returns True
+        /// </summary>
+        /// <returns>True</returns>
+        [Pure]
+        public long True() =>
+            -1;
+
+        /// <summary>
+        /// Returns False
+        /// </summary>
+        /// <returns>False</returns>
+        [Pure]
+        public long False() =>
+            0;
+
+        /// <summary>
+        /// Returns the result of the bitwise AND operation between `a` and `b`
+        /// </summary>
+        /// <returns>The result of the bitwise AND operation between `a` and `b`</returns>
+        [Pure]
+        public long And(long a, long b) =>
+            a & b;
+
+        /// <summary>
+        /// Returns the result of the bitwise OR operation between `a` and `b`
+        /// </summary>
+        /// <returns>The result of the bitwise OR operation between `a` and `b`</returns>
+        [Pure]
+        public long Or(long a, long b) =>
+            a | b;
+
+        /// <summary>
+        /// Returns the result of the bitwise NOT operation on `a`
+        /// </summary>
+        /// <returns>The result of the bitwise NOT operation on `a`</returns>
+        [Pure]
+        public long Not(long a) =>
+            ~a;
+
+        /// <summary>
+        /// Returns the result of the bitwise exclusive-OR operation between `a` and `b`
+        /// </summary>
+        /// <returns>The result of the bitwise exclusive-OR operation between `a` and `b`</returns>
+        [Pure]
+        public long XOr(long a, long b) =>
+            a ^ b;
+
+        /// <summary>
+        /// Logical implication
+        /// </summary>
+        /// <returns>If `a` is true that implies `b`, else `true`</returns>
+        [Pure]
+        public long Implies(long a, long b) =>
+            And(a, True()) == False()
+                ? True()
+                : b;
+
+        /// <summary>
+        /// Bitwise bi-conditional. 
+        /// </summary>
+        /// <returns>`XOr(Not(a), Not(b))`</returns>
+        [Pure]
+        public long BiCondition(long a, long b) =>
+            XOr(Not(a), Not(b));
     }
 }
