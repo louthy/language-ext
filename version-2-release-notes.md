@@ -4,27 +4,28 @@ Version 2.0 of Language-Ext is now in beta.  This is a major overhaul of every t
 
 Version 2.0 of Language-Ext actually just started out as a branch where I was trying out a new technique for doing ad-hoc polymorphism in C# (think somewhere between Haskell typeclasses and Scala implicits).  
 
-I didn't expect it to lead to an entire re-write.  So a word of warning, there are many areas that I know will be breaking changes, but some I don't.  Breaking changes will 99% of the time be compile time errors, rather than changes in behaviour that silently affect your code.  So although I don't expect any major issues, I would put aside an afternoon to fix up any compilation breakages.  
+I didn't expect it to lead to an entire re-write.  So a word of warning, there are many areas that I know will be breaking changes, but some I don't.  Breaking changes will 99% of the time be compile time errors (rather than changes in behaviour that silently affect your code).  So although I don't expect any major issues, I would put aside an afternoon to fix up any compilation breakages.  
 
 Often the breakages are for things like rectifying naming inconsistencies (for example some bi-map functions were named `Map`, some named `BiMap`, they're all now `BiMap`), another example is that all collection types (`Lst`, `Map`, etc.) are now structs.  So any code that does this will fail to compile:
 ```c
     Map<int, string> x = null;
 ```
-The transformer extensions have been overhauled too (they provided overloads for nested monadic types, `Option<Lst<A>>` for example).  If you were cheating trying to get directly at values by calling `Lift` or `LiftUnsafe`, well, now you can't.  It was a bad idea, with the wrong name.  So they're gone.  The overloads of `Select` and `SelectMany` are more restricted now, because combining different monadic types could lead to some headaches.  You will now need to lift your types into the context of the LINQ expression (there are now lots of extensions to do that: `ToOption`, `ToTry`, etc.)
+The transformer extensions have been overhauled too (they provided overloads for nested monadic types, `Option<Lst<A>>` for example).  If you were cheating trying to get directly at values by calling `Lift` or `LiftUnsafe`, well, now you can't.  It was a bad idea that was primarily to make the old transformer types work.  So they're gone.  
 
-For the problems you will inevitablity have with upgrading to language-ext 2.0, you will also have an enormous amount of new benefits and possibilities.  
+The overloads of `Select` and `SelectMany` are more restricted now, because combining different monadic types could lead to some type resolution issues with the compiler.  You will now need to lift your types into the context of the LINQ expression (there are now lots of extensions to do that: `ToOption`, `ToTry`, etc.)
 
-> My overriding goal with this library is to try and provide a safer environment in which to write C#.  Version 1 was mostly trying to protect the programmer from null and mutable state.  Version 2 is very much focussed on improving our lot when implementing abstract types.  Inheritance based polymorphism is pretty much accepted to be the worst performer in the polymorphic world.  Our other option is parametric polymorphism (generics).  With this release I'm hoping to push the boundaries further...
+> For the problems you will inevitablity have with upgrading to language-ext 2.0, you will also have an enormous amount of new benefits and possibilities.  
+My overriding goal with this library is to try and provide a safer environment in which to write C#.  Version 1 was mostly trying to protect the programmer from null and mutable state.  Version 2 is very much focussed on improving our lot when implementing abstract types.  
 
-I hinted at it earlier, but I have managed to formulate the structures needed to do ad-hoc polymorphism of simple types like `Monoid`, `Num`, `Eq`, etc.  
+Inheritance based polymorphism is pretty much accepted to be the worst performer in the polymorphic world.  Our other option is parametric polymorphism (generics).  With this release I have facilitated [ad-hoc polymorphism](https://en.wikipedia.org/wiki/Ad_hoc_polymorphism) with a little known technique in C#.  
 
-So for the first time it's possible to write numeric methods once for all numeric types, or do structural equality testing that you can rely on. 
+So for the first time it's possible to write numeric methods once for all numeric types or do structural equality testing that you can rely on. 
 
-Also there is support for the much more difficult higher-order polymorphic types like `Monad<MA, A>`.  LanguageExt 2.0 provides a fully type-safe and efficient approach to working with higher order types.  So yes, you can now write functions that take monads, or functors, or applicatives, and return specialised types (rather than interfaces or dynamic results).  So intead of writing a function that takes an option, you can write one that takes any monadic type, bind them, join them, map them, and return the concrete type that you pushed in.
+Also there is support for the much more difficult higher-order polymorphic types like `Monad<MA, A>`.  LanguageExt 2.0 provides a fully type-safe and efficient approach to working with higher order types.  So yes, you can now write functions that take monads, or functors, or applicatives, and return specialised values (rather than abstract or dynamic values).  Instead of writing a function that takes an `Option<A>`, you can write one that takes any monadic type, bind them, join them, map them, and return the concrete type that you pushed in.
 
-Of course without compiler or runtime support for higher-order generics some hoops need to be jumped through (and I'm sure there will be some Haskell purist losing his shit over the approach).  But at no point is the integrity of your types affected.  Often the technique requires quite a large amount of generic argument typing, but if you want to write the super generic code, it's now possible.  I don't know of any other library that provides this functionality.
+Of course without compiler or runtime support for higher-order generics some hoops need to be jumped through (and I'm sure there will be some Haskell purist losing their shit over the approach).  But at no point is the integrity of your types affected.  Often the technique requires quite a large amount of generic argument typing, but if you want to write the super generic code, it's now possible.  I don't know of any other library that provides this functionality.
 
-This has allowed the transformer extensions to become more powerful too (because the code generator that emits them can now use the type-class/instance system).  The `Writer` monad can now work with any output type (as long as it has a `Monoid` instance), so it's not limited to telling its output to an `IEnumerable`, it can be a `Lst`, a `string`, and `int`, or whatever `Monoid` you specify.
+This has allowed the transformer extensions to become more powerful too (because the code generator that emits them can now use the type-class/instance system).  The `Writer` monad can now work with any output type (as long as it has a `Monoid` instance), so it's not limited to telling its output to an `IEnumerable`, it can be a `Lst`, a `string`, an `int`, or whatever `Monoid` you specify.
 
 > Personally I find this very elegant and exciting.  It has so much potential, but many will be put off by the amount of generic args typing they need to do.  If anybody from the Rosyln team is reading this, please for the love of god help out with the issues around constraints and excessive specifying of generic arguments.  The power is here, but needs more support.
 
@@ -80,7 +81,7 @@ In the ongoing quest to make it safer to write C# code, these types are all now 
     Que<A>, 
     Arr<A>
 ```
-This means you can create a member property and not initialise it and everything will 'just work':
+This means you can create a member field and not initialise it and everything will 'just work':
 
 ```c#
     static class Test
@@ -97,6 +98,50 @@ This means you can create a member property and not initialise it and everything
 
 Examples: https://github.com/louthy/language-ext/blob/type-classes/LanguageExt.Tests/SerialisationTests.cs
 
+### Lazy `Option<A>` and `OptionUnsafe<A>`
+
+`Option<A>` and `OptionUnsafe<A>` have until now been strict types.  They can now support both strict and lazy behaviour in the same type.
+
+For example:
+```c#
+    var option = from w in Some(_ => 5)
+                 from x in Some(_ => 10)
+                 from y in Some(_ => 15)
+                 from z in Some(_ => 20)
+                 select w + x + y + z;
+
+    // At this point the w + x + y + z expression hasn't run
+```
+Any function that returns a concrete non-Option type will force the expression to be evaluated:
+```c#
+    var result = option.IfNone(0);   // 50
+```
+The result is memoised and therefore subsequent calls to `Match` or similar won't re-evaluate the expression.  The strict behaviour is unaltered:
+```c#
+    var option = from w in Some(5)
+                 from x in Some(10)
+                 from y in Some(15)
+                 from z in Some(20)
+                 select w + x + y + z;
+
+    // At this point the w + x + y + z expression *has* run
+```
+If strict and lazy Options are combined, then the whole expression becomes lazy:
+```c#
+    var option = from w in Some(5)
+                 from x in Some(_ => 10)  // lazy expression
+                 from y in Some(15)
+                 from z in Some(20)
+                 select w + x + y + z;
+
+    // At this point the w + x + y + z expression hasn't run
+```
+Note if you want to write functions that return lazy options, then you will need to wrap them in `Optional` or `Some`:
+```c#
+    Option<int> LazyOptionFoo() => Optional(_ => ... );
+```
+
+> Either and EitherUnsafe will have lazy functionality soon
 
 ### `NewType`
 
@@ -114,7 +159,8 @@ That makes lots of functionality more type-safe for `NewType` derived types.  Fo
 
 There is a variant that takes an additional generic argument `PRED`.  Which is constrained to be a `struct` of `Pred<A>`.  This is called in the base constructor:
 ```c#
-    if (!default(PRED).True(value)) throw new ArgumentOutOfRangeException(nameof(value), value);
+    if (!default(PRED).True(value)) 
+        throw new ArgumentOutOfRangeException(nameof(value), value);
 ```
 So you should be able to see that this allows validation to be embedded into the type.  Here's an example from the new Process system client code:
 ```c#
@@ -155,20 +201,16 @@ These are the built in predicate types:
 * `LessOrEq<A, ORD, CONST>` - Value `A` must be less than or equal to `CONST`.  `ORD` is an `Ord<A>` instance.
 * `Range<A, ORD, MIN, MAX>` - Value `A` must be in the range `MIN` to `MAX`.  `ORD` is an `Ord<A>` instance.
 
-Constants are in the `LanguageExt.ClassInstances.Const` namespace.  Integers are prefixed with `I`;  the most commonly used are already created: `0` to `256`, then powers of two and hundreds, thousands, etc.  `Double` constants are prefixed with `D`.  Only `D0`, `D1`, and `DNeg1` exist.  `Char` constants are `A` to `Z`, `a` to `z`, `0` to `9`, `ChSpace`, `ChTab`, `ChCR`, `ChLF`.
+Constants are in the `LanguageExt.ClassInstances.Const` namespace.  Integers are prefixed with `I`;  the most commonly used are already created: `0` to `256`, then powers of two and hundreds, thousands, etc.  `Double` constants are prefixed with `D`.  Only `D0`, `D1`, and `DNeg1` exist.  `Char` constants are `'A'- 'Z'`, `'a' - 'z'`, `'0' - '9'`, `ChSpace`, `ChTab`, `ChCR`, `ChLF`.
 
 By embedding the validation into the type, there is no 'get out of jail free' cards where a loophole can be found in the type (or sub-type).  And it also becomes fundamentally a different type to (for example) `NewType<ClientConnectionId, string, StrLen<I0, I10>>` _(See the `<I0, I10>` at the end)_; so any function that wants to work with a client connection token must accept either `ClientConnectionId` or its base type of `NewType<ClientConnectionId, string, StrLen<I10, I100>>`.  It gives a small glimpse into the world of dependently typed languages, I think this is a pretty powerful concept for improving the safety of C# types in general (with no runtime costs), and takes the original `NewType` idea to the next level. 
 
-Another breaking change is that the `Value` property has been made `protected`.  That means you can expose it if you like when you declare the `NewType`, but by default it's not visible outside of the class.  There is an explicit cast operator.  So for the `Metres` example above:
+There is now an explicit cast operator.  So for the `Metres` example above:
 ```c#
     Metres m = Metres.New(100);
     double x = (double)m * 2.0;
 ```
-I think that creates a _barrier to entry_ that is high enough to make it more attractive to use `Map`, `Bind`, etc. and therefore keep the value in context, i.e:
-```c#
-    Metres m = Metres.New(100);
-    Metres x = m.Map(v => v * 2);
-```
+
 ### `NumType`
 
 With the new type-classes and class-instances (see later), it's now possible to write generic code for numeric-types.  And so I have created a variant of `NewType` called `NumType`.  Numeric types like `int` are the kind of types that are very commonly made into `NewType` derived types (along with `string`), but previously there wasn't a good story for doing arithmetic on those types.  Now with the `NumType` it is possible.  They work in exactly the same way as `NewTypes`, but you must specify a `Num<A>` class-instance (below it's `TDouble`):
@@ -201,7 +243,7 @@ As with `NewType` you can also use a predicate:
     }
 ```
 ### `FloatType`
-Even more specialised than `NumType` and `NewType` in that it only accepts class-instances from the type-class `Floating<A>`.  It adds functionality that are only useful with floating point number types (along with the functionality from `NumType` and `NewType`):
+Even more specialised than `NumType` and `NewType` in that it only accepts class-instances from the type-class `Floating<A>`.  It adds functionality that are only useful with floating-point number types (along with the functionality from `NumType` and `NewType`):
 ```
  Exp(), Sqrt(), Log(), Pow(A exp), LogBase(A y), Sin(), Cos(), Asin(), Acos(), Atan(), Sinh(), Cosh(), Tanh(), Asinh(), Acosh(), Atanh()
 ```
@@ -347,7 +389,7 @@ Everything else is handled in the base class, so it's trivial to add your own.  
 
 #### `Try<A>` and `TryOption<A>`
 
-`Try` and `TryOption` (the lazy monads that catch exceptions) have been improved to memoise everything they do.  So once you run a `Try`, running the same reference again won't re-invoke the computation, it will just return the previously cached value.  I noticed that in LINQ expressions especially that sometimes a `Try` could get invoked multiple times.  
+`Try` and `TryOption` (the lazy monads that catch exceptions) have been improved to memoise everything they do.  So once you run a `Try`, running the same reference again won't re-invoke the computation, it will just return the previously cached value.  This can be useful in LINQ expressions especially.  
 
 #### `TryAsync<A>`
 
@@ -458,7 +500,7 @@ Ad-hoc polymorphism has long been believed to not be possible in C#.  However wi
 ```c#
     INumeric Add(INumeric x, INumeric y) => x + y;
 ```
-Then it would cause boxing.  Which is slow (well, slower).  I can only assume that's why it wasn't added by the BCL team.  Anyway, it's possible to create a numeric type, very much like a type-class in Haskell, and _ad-hoc_ instances of the numeric _type-class_ that allow for generic numeric operations without boxing.  
+Then it would cause boxing.  Which is slow (well, slower).  I can only assume that's why it wasn't added by the BCL team.  Anyway, it's possible to create a numeric type, very much like a type-class in Haskell, and ad-hoc _instances_ of the numeric _type-class_ that allow for generic numeric operations without boxing.  
 
 > From now on I will call them type-classes and class-instances, or just instances.  This is not exactly the same as Haskell's type-classes.  If anything it's closer to Scala's implicits.  However to make it easier to discuss them I will steal from Haskell's lexicon.
 
@@ -502,7 +544,7 @@ Then we can see how a general function could be written to take any numeric type
     public A DoubleIt<NumA, A>(A x) where NumA : struct, Num<A> =>
         default(NumA).Add(x, x);
 ```
-The important bit is the `NumA` generic argument, and the constraint to `struct, Num<A>`.  That allows us to call `default(NumA)` to get the type-class instance and invoke `Add`.
+The important bit is the `NumA` generic argument, and the constraint of `struct, Num<A>`.  That allows us to call `default(NumA)` to get the type-class instance and invoke `Add`.
 
 And so this can now be called by:
 ```c#
@@ -513,7 +555,7 @@ By expanding the amount of operations that the `Num<A>` type-class can do, you c
 
 Luckily you don't need to do that, because I have created the `Num<A>` type (in the `LanguageExt.TypeClasses` namespace), as well as `Floating<A>` (with all of the operations from `Math`; like `Sin`, `Cos`, `Exp`, etc.).  `Num<A>` also has a base-type of `Arithmetic<A>` which supports `Plus`, `Subtract`, `Product`, `Negate`.  This is for types which don't need the full spec of the `Num<A>` type.  I have also mapped all of the core numeric types to instances: `TInt`, `TShort`, `TLong`, `TFloat`, `TDouble`, `TDecimal`, `TBigInt`, etc.  So it's possible to write truly generic numeric code once.
 
-> There's no getting around the fact that providing the class-instance in the generic arguments list is a annoying (and later you'll see how annoying).  The Roslyn team are looking into a type-classes like feature for a future version of C# (variously named: 'Concepts' or 'Shapes').  So this will I'm sure be rectified, and when it is, it will be implemented exactly as I am using them here.  
+> There's no getting around the fact that providing the class-instance in the generic arguments list is annoying (and later you'll see how annoying).  The Roslyn team are looking into a type-classes like feature for a future version of C# (variously named: 'Concepts' or 'Shapes').  So this will I'm sure be rectified, and when it is, it will be implemented exactly as I am using them here.  
 > 
 > Until then the pain of providing the generic arguments must continue.  You do however get a _super-powered C#_ in the mean-time.  
 > 
@@ -555,7 +597,7 @@ Because you may be concerned about calling:
 ```c#
     bool x = List(1,2,3) == List(1,2,3); // ?
 ```
-... as all C# programmers are at some point, because we have no idea most of the time whether `==` does what we think it should do.  
+... as all C# programmers are at some point, because we have no idea most of the time whether `==` does what we think it should.  
 
 > Just FYI `List(1,2,3) == List(1,2,3)` does work properly!  As do all types in language-ext.
 
@@ -643,14 +685,12 @@ Positive numbers (for example) form a semigroup.  I won't dwell on it too long, 
 
 #### `Monoid<A>`
 
-A monoid has something that a semigroup doesn't, and that's the concept of 'empty', or 'zero'.  It looks like this:
+A monoid has something that a semigroup doesn't, and that's the concept of identity (often meaning 'empty' or 'zero').  It looks like this:
 
 ```c#
     public interface Monoid<A> : Semigroup<A>
     {
         A Empty();
-
-        // Concat is defined in LanguageExt.TypeClass
     }
 ```
 This comes with some helper functions in `LanguageExt.TypeClass`:
@@ -673,9 +713,9 @@ Now the semigroup `Append` comes to life.  Examples of monoids are: `TInt`, `MLs
     var y = mconcat<TLst<int>, Lst<int>>(List(1), List(2, 3)); // [1,2,3]
     var z = mconcat<TInt, int>(1, 2, 3, 4, 5);                 // 15
 ```
-The `Empty()` function is what provides the _base value_ for the concat operations.  So for `string` it's `""`, for `Lst<T>` it's `[]` and for `int` it's `0`.  So a monoid is a semigroup with a _zero_.
+The `Empty()` function is what provides the _identity value_ for the concat operations.  So for `string` it's `""`, for `Lst<T>` it's `[]` and for `int` it's `0`.  So a monoid is a semigroup with a _zero_.
 
-It's surprising how much _stuff_ just starts working when you know your type is a monoid.  For example in language-ext version 1 there is a monadic type called `Writer<W, T>`.  The writer monad collects a _log_ as well as returning the bound value.  In version 1 the 'log' had to be an `IEnumerable<W>`, which isn't super flexible.  In language-ext version 2 the type looks like this:
+It's surprising how much _stuff_ just starts working when you know your type is a monoid.  For example in language-ext version 1 there is a monadic type called `Writer<W, T>`.  The writer monad collects a _log_ as well as returning the bound value.  In version 1 the log had to be an `IEnumerable<W>`, which isn't super flexible.  In language-ext version 2 the type looks like this:
 
 ```c#
     public class Writer<MonoidW, W, A> where MonoidW : struct, Monoid<W>
@@ -723,11 +763,11 @@ This is where some of the difficulties come in.  How do we return an `MB` if we 
         MA Fail(Exception e = null);
     }
 ```
-On first glance, it looks like `bind` gives us the value we want.  But an `Option` might be in a `None` state, in which case it shouldn't run `bind`.
+Looking at the prototype for `Bind` it seems at first glance that the `bind` argument will give us the `MB` value we want.  But an `Option` might be in a `None` state, in which case it shouldn't run `bind`.
 ```c#
-    public MB Bind<MB, B>(Option<A> ma, Func<A, MB> f) =>
+    public MB Bind<MB, B>(Option<A> ma, Func<A, MB> bind) =>
         ma.IsSome
-            ? f(ma.Value)
+            ? bind(ma.Value)
             : ??? ; // What do we return here?
 ```
 The key is to use constraints.  But it also requires an extra generic paramter for `Bind`:
@@ -749,7 +789,7 @@ So we now know that `MonadB` is a class-instance of the `Monad<MB, B>` type-clas
                 ? f(ma.Value)
                 : default(MonadB).Fail();
 ```
-The eagle eyed reader will notice that this actually allows binding to any resulting monad.  I'm not an academic, but I'm sure there will be someone throwing their toys out of their prams at this point.  However, it works, it's type-safe, and it's efficient. 
+The eagle eyed reader will notice that this actually allows binding to any resulting monad (not just `Option<B>`).  I'm not an academic, but I'm sure there will be someone throwing their toys out of their prams at this point.  However, it works, it's type-safe, and it's efficient. 
 
 [The actual definition of `Monad`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.TypeClasses/Monad_Env_Out_MA_A.htm) is more complex than this, in order to unify monadic types that take arguments (`Reader` and `State`) and monads that carry internal state (`Writer` and `State`), as well as to support asynchronous monads (`TryAsync` and `TryOption`).  I won't muddy the waters too much right now, but unified and type-safe they are.  There are no hacks.
 
@@ -782,17 +822,17 @@ This is one of the key breakthroughs.  Imagine trying to create a `Monad` type t
                 : None;
     }
 
-    public Monad<A> CreateNewIntegerMonad(int x) =>
+    public Monad<int> CreateNewIntegerMonad(int x) =>
         ????; // How?
 ```
 Maybe we could parameterise it?
 ```c#
-    public M CreateNewIntegerMonad<M>(int x) where M : Monad<int> =>
+    public Monad<int> CreateNewIntegerMonad<M>(int x) where M : Monad<int> =>
         ????; // We still can't call new M(x)
 ```
 But that doesn't work either because we still can't call `new M(x)`.  Being able to paramterise generic functions at the point where you know the concrete types (and therefore know the concrete class-instance) means that the generic functions can invoke the instance functions to create the concrete types.
 
-Here's a super generic example of a function that takes two monad arguments, they're both of the same type, and their bound values are numeric.
+Here's a super generic example of a function that takes two monad arguments, they're both of the same type, and their bound values are `Num<A>`.
 ```c#
     public static MA Add<MonadA, MA, NumA, A>(MA ma, MA mb)
         where MonadA  : struct, Monad<MA, A>
@@ -831,41 +871,64 @@ Or two lists:
     Assert.True(r1 == List(5, 6, 7,  6, 7, 8,  7, 8, 9));
     Assert.True(r2 == z);
 ```
-Or any two monads.  They will follow the built in rules for the type, and produce concrete values efficiently. 
+Or any two monads.  They will follow the built in rules for the type, and produce concrete values efficiently and without any boxing or dynamic casting. 
 
 ### Transformer types
 
-Because using the super-generic stuff is hard, and most of the time not needed.  I have kept the transformer types, but they're now implemented in terms of the super-generic types.  There is a new [`MonadTrans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/MonadTrans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm) type-class and a default instance called [`Trans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Trans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm).
+Because using the super-generic stuff is hard, and most of the time not needed.  I have kept the transformer types, but they're now implemented in terms of the instance types.  There is a new [`MonadTrans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/MonadTrans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm) type-class and a default instance called [`Trans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Trans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm).
 
 For every pair of nested monads: `Lst<Option<A>>`, `Try<Either<L, A>>`, etc.  there are the following extension methods (this is for `Arr<Lst<A>>`):
 ```c#
 A SumT<NumA, A>(this Arr<Lst<A>> ma);
+
 int CountT<A>(this Arr<Lst<A>> ma);
+
 Arr<Lst<B>> BindT<A, B>(this Arr<Lst<A>> ma, Func<A, Lst<B>> f);
+
 Lst<Arr<B>> Traverse<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+
 Lst<Arr<A>> Sequence<A>(this Arr<Lst<A>> ma);
+
 Arr<Lst<B>> MapT<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+
 S FoldT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
+
 S FoldBackT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
+
 bool ExistsT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
+
 bool ForAllT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
+
 Unit IterT<A>(this Arr<Lst<A>> ma, Action<A> f);
+
 Arr<Lst<A>> FilterT< A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
+
 Arr<Lst<A>> Where<A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
+
 Arr<Lst<A>> Select<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+
 Arr<Lst<C>> SelectMany<A, B, C>(
         this Arr<Lst<A>> ma,
         Func<A, Lst<B>> bind,
         Func<A, B, C> project);
+
 Arr<Lst<A>> PlusT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+
 Arr<Lst<A>> SubtractT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+
 Arr<Lst<A>> ProductT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A> =>
         ApplyT(default(NUM).Product, x, y);
+
 Arr<Lst<A>> DivideT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+
 AppendT<SEMI, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where SEMI : struct, Semigroup<A>;
+
 int CompareT<ORD, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where ORD : struct, Ord<A>;
+
 bool EqualsT<EQ, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where EQ : struct, Eq<A>;
+
 Arr<Lst<A>> ApplyT<A, B>(this Func<A, B> fab, Arr<Lst<A>> fa);
+
 Arr<Lst<C>> ApplyT<A, B, C>(this Func<A, B, C> fabc, Arr<Lst<A>> fa, Arr<Lst<A>> fb);
 ```
 The number of functions has increased dramatically.  Some of the special ones are `Traverse` and `Sequence` which flips the inner and outer types.  So for example:
@@ -924,59 +987,7 @@ As well as the extensions, there are also static classes for the transformer typ
     var mb    = OptionT.filterT(ma, x > 3); // List(Some(3), Some(4))
 ```
 
-I could go on endlessly about the new types.  There are so many.  But for the release notes I think I should wrap it up.  Below is a short list of the type-classes (interfaces) and class-instances (structs) that make up language-ext 2.0:
-
-### Type-classes
-
-[Type-Classes API documentation](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.TypeClasses/index.htm)
-
- Type-class | Functions | Description
-------------|-----------|-------------
-`Arithmetic<A>` | `Plus`, `Subtract`, `Product`, `Negate` | Base type-class for `Num<A>`
-`Applicative<FAB, FA, FB, A, B>` | `FB Apply(FAB fab, FA fa)`, `FB Action(FA fa, FB fb)` | Applicative functors where a single applicative argument can be applied to an applicative function
-`Applicative<FABC, FBC, FA, FB, FC, A, B, C>` | `FBC Apply(FABC fabc, FA fa)`, `FC Apply(FABC fabc, FA fa, FB fb);` | Applicative functors where one or two applicative arguments can be applied to an applicative function
-`BiFoldable<F, A, B>` | `BiFold`, `BiFoldBack` | for folding types that have two values (`Tuple<A,B>` or `Either<L,R>` for example)
-`BiFunctor<FAB, FR, A, B, R>` | `BiMap` | as above, but for projection
-`Choice<CH, A, B>` | `IsChoice1`, `IsChoice2`, `Match`, `MatchUnsafe`, `IsBottom`, `IsUnsafe` | Represents a type (`CH`) with two possible values (a discriminated union of two types basically - like `Either<L, R>`).  Allows for generalisation of code that requires a binary choice, but doesn't want to be locked down to using `Either` (`Option` for example is a `Choice<Option<A>, Unit, A>`)
-`Const<A>` | `Value` | Used for providing constants to the predicates for `NewType`
-`Eq<A>`| `Equals`, `GetHashCode` | Equality type-class
-`Floating<A>` | `Pi`, `Exp`, `Sqrt`, `Log`, `Pow`, `LogBase`, `Sin`, `Cos`, `Tan`, `Asin`, `Acos`, `Atan`, `Sinh`, `Cosh`, `Tanh`, `Asinh`, `Acosh`, `Atanh` | Floating point number type-class.  Derives from `Fractional<A> -> Num<A> -> Ord<A> -> Eq<A>, Monoid<A> -> Semigroup<A>`.  
-`Foldable<FA, A>` | `Fold`, `FoldBack`, `Count` | standard type-class for types that can be folded (like `Lst`, `Option`, etc.)
-`Fraction<A>` | `FromRational` | Provides a way to get an `A` from `A / A`
-`Functor<FA, FB, A, B>` | `Map` | standard mapping projection function
-`Liftable<LA, A>` | `Lift`| For lifting value(s) of `A` into the container type of `LA`
-`Monad<MA, A>` | `Bind`, `Return`, `Fail`, `Plus`, `Zero` | Combined Monad and MonadPlus type-class
-`Monad<Input, Output, MA, A>` | `Bind`, `Return`, `Fail`, `Plus`, `Zero` | Combined Monad and MonadPlus type-class
-`MonadReader<Env, E>` | `Ask`, `Local`, `Reader` | Reader monad type-class, allows for an environment to be passed through a computation
-`MonadState<S, E>` | `Get`, `Put`, `State` | State monad type-class, allows for a state to be passed through a computation, one that can be set (using `Put`).
-`MonadWriter<MonoidW, W, A>` | `Tell`, `Listen` | Writer monad type-class, allows for aggregating outout (like a log for example).  The old version forced the use of `IEnumerable` to collect the output from `Tell` calls.  This is because I didn't have a `Monoid` type-class (`Monoid` provides `Append` and `Empty`).  So `MonadWriter` isn't limited to lists any more, it's limited to monoids: numbers, strings, etc.  Obviously you can implement your own monoids too.
-`MonadTrans<OuterMonad, OuterType, InnerMonad, InnerType, A>` | `Bind`, `Map`, `Traverse`, `Sequence`, `Zero`, `Plus`, `Fold`, `FoldBack` | Monad transformer type-class for dealing with nested monadic types, `Lst<Option<A>>` for example.
-`Num<A>` | `Abs`, `Signum`, `FromInteger`, `Plus`, `Subtract`, `Product`, `Divide`, `Negate` | Represents a numeric type.  Derives from `Ord<A> -> Eq<A>, Monoid<A> -> Semigroup<A>`.
-`Optional<OA, A>` | IsSome, IsNone, Match, MatchUnsafe, IsUnsafe | Represents an optional value.  Like the `Choice` type, this allows unification of values that have an optional result (`Option`, `Either`, `Try`, `TryOption`, etc.)
-`Ord<A>` | `Compare` | Ordering type-class
-`Pred<A>` | `True` | Predicate type-class, used by `NewType` and `NumType` for validation, but essentially can be used to represent any predicate expression.
-`Semigroup<A>` | `Append` | Type-class that provides one function: `Append`, types that fit in to this: `Lst`, `int`, `string`, etc.
-`TriFunctor` | `TriMap` | Three item version of `Functor`
-
-### Class-instances
-
-[Class instances API documentation](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.ClassInstances/index.htm)
-
-Class instances implement the type-class interfaces, are structs, and can be invoked by `default(TClassInstance).Foo()`.  This allows for ad-hoc polymorphic behaviours to be applied to sealed types.
-
- Type-class              | Class instances
--------------------------|-----------------
-`Eq<A>`                  | `TChar`, `EqArr`, `EqArray`, `EqBigInt`, `EqBool`, `EqChar`, `EqChoice`, `EqDateTime`, `EqDecimal`, `EqDefault`, `EqDouble`, `EqFloat`, `EqGuid`, `EqHashSet`, `EqInt`, `EqLong`, `EqLst`, `EqNewType`, `EqNumType`, `EqOpt`, `EqQue`, `EqSeq`, `EqShort`, `EqStck`, `EqString`, `EqTry`, `EqTryOpt`
-`Floating<A>`            | `TFloat`, `TDouble`, `TDecimal`
-`Foldable<FA, A>`        | `FoldTuple`, `MArr`, `MArray`, `MEither`, `MEitherUnsafe`, `MHashSet`, `MLst`, `MNullable`, `MOption`, `MOptionUnsafe`, `MQue`, `MSeq`, `MSet`, `MStck`, `MTry`, `MTryOption`
-`Functor<FA, FB, A, B>`  | `FArr`, `FArray`, `FEither`, `FEitherUnsafe`, `FHashMap`, `FLst`, `FMap`, `FNullable`, `FOption`, `FOptionUnsafe`, `FQue`, `FSeq`, `FSet`, `FStck`, `FTupleBi`, `FTupleFst`, `FTupleSnd`, `FTupleThrd`, `FTupleTri`
-`Monad<MA, A>`           | `MReader`, `MRWS`, `MState`, `MWriter`, `MArr`, `MArray`, `MEither`, `MEitherUnsafe`, `MHashSet`, `MLst`, `MNullable`, `MOption`, `MOptionUnsafe`, `MQue`, `MSeq`, `MSet`, `MStck`, `MTry`, `MTryOption`
-`MonadPlus<MA, A>`       | `MArr`, `MArray`, `MEither`, `MEitherUnsafe`, `MHashSet`, `MLst`, `MNullable`, `MOption`, `MOptionUnsafe`, `MQue`, `MSeq`, `MSet`, `MStck`, `MTry`, `MTryOption`
-`Monoid<A>`              | `TInt`, `TLong`, `TShort`, `TString`, `TLst`, `TFloat`, `TDouble`, `TChar`, `All`, `Any`, `MHashMap`, `MMap`, `Product`, `Sum`
-`Num<A>`                 | `TInt`, `TLong`, `TShort`, `TFloat`, `TDouble`, `TDecimal`, `TBigInt`, `TChar`,
-`Ord<A>`                 | `TInt`, `TLong`, `TShort`, `TString`, `TFloat`, `TDouble`, `TDecimal`, `TChar`,`OrdArr`, `OrdArray`, `OrdBigInt`, `OrdBool`, `OrdChar`, `OrdChoice`, `OrdDateTime`, `OrdDecimal`, `OrdDefault`, `OrdDouble`, `OrdFloat`, `OrdGuid`, `OrdInt`, `OrdLong`, `OrdLst`, `OrdNewType`, `OrdNumType`, `OrdOpt`, `OrdQue`, `OrdSeq`, `OrdSet`, `OrdShort`, `OrdStck`, `OrdString`, `OrdTry`, `OrdTryOpt`
-`Pred<A>`                | `CharSatisfy<MIN, MAX>`, `Char<CH>`, `Letter`, `Digit`, `Space`, `AlphaNum`, `StrLen<NMin, NMax>`, `True<A>`, `False<A>`, `Equal<A, EQ, CONST>`, `Exists<A, Term1, Term2>`, `ForAll<A, Term1, Term2>`, `GreaterThan<A, ORD, CONST>`, `LessThan<A, ORD, CONST>`, `GreaterOrEq<A, ORD, CONST>`, `LessOrEq<A, ORD, CONST>`, `Range<A, ORD, MIN, MAX>`
-`Semigroup<A>`           | `TInt`, `TLong`, `TShort`, `TString`, `TLst`, `TFloat`, `TDouble`, `TDecimal`, `TBigInt`, `TChar`,`Min<ORD, A>`, `Max<ORD, A>`, `All`, `Any`, `MHashMap`, `MMap`, `Product`, `Sum`, `TArr`, `TArray`, 
+I could go on endlessly about the new types.  There are so many.  But for the release notes I think I should wrap it up.  It's worth taking a look at the API documentation for the [type-classes](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.TypeClasses/index.htm) and the [instances](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.ClassInstances/index.htm)
 
 ### IL.Ctor
 
