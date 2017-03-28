@@ -628,7 +628,7 @@ public static class TryExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static Try<B> Apply<A, B>(this Try<Func<A, B>> fab, Try<A> fa) =>
-        FTry<A, B>.Inst.Apply(fab, fa);
+        ApplTry<A, B>.Inst.Apply(fab, fa);
 
     /// <summary>
     /// Apply
@@ -638,7 +638,7 @@ public static class TryExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static Try<B> Apply<A, B>(this Func<A, B> fab, Try<A> fa) =>
-        FTry<A, B>.Inst.Apply(Prelude.Try(fab), fa);
+        ApplTry<A, B>.Inst.Apply(Prelude.Try(fab), fa);
 
     /// <summary>
     /// Apply
@@ -649,7 +649,7 @@ public static class TryExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static Try<C> Apply<A, B, C>(this Try<Func<A, B, C>> fabc, Try<A> fa, Try<B> fb) =>
-        fabc.Bind(f => FTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
+        fabc.Bind(f => ApplTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
 
     /// <summary>
     /// Apply
@@ -660,7 +660,7 @@ public static class TryExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static Try<C> Apply<A, B, C>(this Func<A, B, C> fabc, Try<A> fa, Try<B> fb) =>
-        FTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
+        ApplTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
 
     /// <summary>
     /// Apply
@@ -670,7 +670,7 @@ public static class TryExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static Try<Func<B, C>> Apply<A, B, C>(this Try<Func<A, B, C>> fabc, Try<A> fa) =>
-        fabc.Bind(f => FTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa));
+        fabc.Bind(f => ApplTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa));
 
     /// <summary>
     /// Apply
@@ -680,7 +680,7 @@ public static class TryExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static Try<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, Try<A> fa) =>
-        FTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
+        ApplTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
 
     /// <summary>
     /// Apply
@@ -690,7 +690,7 @@ public static class TryExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static Try<Func<B, C>> Apply<A, B, C>(this Try<Func<A, Func<B, C>>> fabc, Try<A> fa) =>
-        FTry<A, B, C>.Inst.Apply(fabc, fa);
+        ApplTry<A, B, C>.Inst.Apply(fabc, fa);
 
     /// <summary>
     /// Apply
@@ -700,7 +700,7 @@ public static class TryExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static Try<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, Try<A> fa) =>
-        FTry<A, B, C>.Inst.Apply(Prelude.Try(fabc), fa);
+        ApplTry<A, B, C>.Inst.Apply(Prelude.Try(fabc), fa);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -710,7 +710,7 @@ public static class TryExtensions
     /// <returns>Applicative of type Option<B></returns>
     [Pure]
     public static Try<B> Action<A, B>(this Try<A> fa, Try<B> fb) =>
-        FTry<A, B>.Inst.Action(fa, fb);
+        ApplTry<A, B>.Inst.Action(fa, fb);
 
     /// <summary>
     /// Compare the bound value of Try(x) to Try(y).  If either of the

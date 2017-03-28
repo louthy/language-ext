@@ -36,12 +36,12 @@ namespace LanguageExt
         IEquatable<OptionUnsafe<A>>,
         IComparable<OptionUnsafe<A>>
     {
-        internal readonly OptionV<A> value;
+        readonly OptionData<A> data;
 
         /// <summary>
         /// None
         /// </summary>
-        public static readonly OptionUnsafe<A> None = new OptionUnsafe<A>(OptionV<A>.None);
+        public static readonly OptionUnsafe<A> None = new OptionUnsafe<A>(OptionData<A>.None);
 
         /// <summary>
         /// Construct an OptionUnsafe of A in a Some state
@@ -55,8 +55,8 @@ namespace LanguageExt
         /// <summary>
         /// Takes the value-type OptionV<A>
         /// </summary>
-        internal OptionUnsafe(OptionV<A> value) =>
-            this.value = value ?? throw new ArgumentNullException(nameof(value));
+        internal OptionUnsafe(OptionData<A> data) =>
+            this.data = data;
 
         /// <summary>
         /// Ctor that facilitates serialisation
@@ -66,14 +66,9 @@ namespace LanguageExt
         public OptionUnsafe(IEnumerable<A> option)
         {
             var first = option.Take(1).ToArray();
-            if (first.Length == 0)
-            {
-                value = OptionV<A>.None;
-            }
-            else
-            {
-                value = OptionV<A>.Some(first[0]);
-            }
+            this.data = first.Length == 0
+                ? OptionData<A>.None
+                : OptionData.Optional(first[0]);
         }
 
         public IEnumerator<A> GetEnumerator() =>
@@ -231,26 +226,31 @@ namespace LanguageExt
                 : "None";
 
         /// <summary>
+        /// True if this instance evaluates lazily
+        /// </summary>
+        [Pure]
+        public bool IsLazy =>
+            (data ?? OptionData<A>.None).IsLazy;
+
+        /// <summary>
         /// Is the option in a Some state
         /// </summary>
         [Pure]
         public bool IsSome =>
-            value?.IsSome ?? false;
+            (data ?? OptionData<A>.None).IsSome;
 
         /// <summary>
         /// Is the option in a None state
         /// </summary>
         [Pure]
         public bool IsNone =>
-            value?.IsNone ?? true;
+            !IsSome;
 
         /// <summary>
         /// Helper accessor for the bound value
         /// </summary>
         internal A Value =>
-            IsSome
-                ? value.Value
-                : default(A);
+            (data ?? OptionData<A>.None).Value;
 
         /// <summary>
         /// Projection from one value to another 

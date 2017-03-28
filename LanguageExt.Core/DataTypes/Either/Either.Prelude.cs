@@ -83,7 +83,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
         public static Either<L, B> apply<L, A, B>(Either<L, Func<A, B>> fab, Either<L, A> fa) =>
-            FEither<L, A, B>.Inst.Apply(fab, fa);
+            ApplEither<L, A, B>.Inst.Apply(fab, fa);
 
         /// <summary>
         /// Apply
@@ -93,7 +93,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
         public static Either<L, B> apply<L, A, B>(Func<A, B> fab, Either<L, A> fa) =>
-            FEither<L, A, B>.Inst.Apply(fab, fa);
+            ApplEither<L, A, B>.Inst.Apply(fab, fa);
 
         /// <summary>
         /// Apply
@@ -105,7 +105,7 @@ namespace LanguageExt
         [Pure]
         public static Either<L, C> apply<L, A, B, C>(Either<L, Func<A, B, C>> fabc, Either<L, A> fa, Either<L, B> fb) =>
             from x in fabc
-            from y in FEither<L, A, B, C>.Inst.Apply(curry(x), fa, fb)
+            from y in ApplEither<L, A, B, C>.Inst.Apply(curry(x), fa, fb)
             select y;
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static Either<L, C> apply<L, A, B, C>(Func<A, B, C> fabc, Either<L, A> fa, Either<L, B> fb) =>
-            FEither<L, A, B, C>.Inst.Apply(curry(fabc), fa, fb);
+            ApplEither<L, A, B, C>.Inst.Apply(curry(fabc), fa, fb);
 
         /// <summary>
         /// Apply
@@ -128,7 +128,7 @@ namespace LanguageExt
         [Pure]
         public static Either<L, Func<B, C>> apply<L, A, B, C>(Either<L, Func<A, B, C>> fabc, Either<L, A> fa) =>
             from x in fabc
-            from y in FEither<L, A, B, C>.Inst.Apply(curry(x), fa)
+            from y in ApplEither<L, A, B, C>.Inst.Apply(curry(x), fa)
             select y;
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static Either<L, Func<B, C>> apply<L, A, B, C>(Func<A, B, C> fabc, Either<L, A> fa) =>
-            FEither<L, A, B, C>.Inst.Apply(curry(fabc), fa);
+            ApplEither<L, A, B, C>.Inst.Apply(curry(fabc), fa);
 
         /// <summary>
         /// Apply
@@ -149,7 +149,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static Either<L, Func<B, C>> apply<L, A, B, C>(Either<L, Func<A, Func<B, C>>> fabc, Either<L, A> fa) =>
-            FEither<L, A, B, C>.Inst.Apply(fabc, fa);
+            ApplEither<L, A, B, C>.Inst.Apply(fabc, fa);
 
         /// <summary>
         /// Apply
@@ -159,7 +159,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static Either<L, Func<B, C>> apply<L, A, B, C>(Func<A, Func<B, C>> fabc, Either<L, A> fa) =>
-            FEither<L, A, B, C>.Inst.Apply(fabc, fa);
+            ApplEither<L, A, B, C>.Inst.Apply(fabc, fa);
 
         /// <summary>
         /// Evaluate fa, then fb, ignoring the result of fa
@@ -169,7 +169,7 @@ namespace LanguageExt
         /// <returns>Applicative of type Option<B></returns>
         [Pure]
         public static Either<L, B> action<L, A, B>(Either<L, A> fa, Either<L, B> fb) =>
-            FEither<L, A, B>.Inst.Action(fa, fb);
+            ApplEither<L, A, B>.Inst.Action(fa, fb);
 
         /// <summary>
         /// Returns the state of the Either provided

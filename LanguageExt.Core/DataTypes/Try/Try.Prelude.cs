@@ -114,7 +114,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
         public static Try<B> apply<A, B>(Try<Func<A, B>> fab, Try<A> fa) =>
-            FTry<A, B>.Inst.Apply(fab, fa);
+            ApplTry<A, B>.Inst.Apply(fab, fa);
 
         /// <summary>
         /// Apply
@@ -124,7 +124,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
         public static Try<B> apply<A, B>(Func<A, B> fab, Try<A> fa) =>
-            FTry<A, B>.Inst.Apply(Try(fab), fa);
+            ApplTry<A, B>.Inst.Apply(Try(fab), fa);
 
         /// <summary>
         /// Apply
@@ -135,7 +135,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static Try<C> apply<A, B, C>(Try<Func<A, B, C>> fabc, Try<A> fa, Try<B> fb) =>
-            fabc.Bind(f => FTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
+            fabc.Bind(f => ApplTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
 
         /// <summary>
         /// Apply
@@ -146,7 +146,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static Try<C> apply<A, B, C>(Func<A, B, C> fabc, Try<A> fa, Try<B> fb) =>
-            FTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
+            ApplTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
 
         /// <summary>
         /// Apply
@@ -156,7 +156,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static Try<Func<B, C>> apply<A, B, C>(Try<Func<A, B, C>> fabc, Try<A> fa) =>
-            fabc.Bind(f => FTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa));
+            fabc.Bind(f => ApplTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa));
 
         /// <summary>
         /// Apply
@@ -166,7 +166,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static Try<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, Try<A> fa) =>
-            FTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
+            ApplTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
 
         /// <summary>
         /// Apply
@@ -176,7 +176,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static Try<Func<B, C>> apply<A, B, C>(Try<Func<A, Func<B, C>>> fabc, Try<A> fa) =>
-            FTry<A, B, C>.Inst.Apply(fabc, fa);
+            ApplTry<A, B, C>.Inst.Apply(fabc, fa);
 
         /// <summary>
         /// Apply
@@ -186,7 +186,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static Try<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, Try<A> fa) =>
-            FTry<A, B, C>.Inst.Apply(Try(fabc), fa);
+            ApplTry<A, B, C>.Inst.Apply(Try(fabc), fa);
 
         /// <summary>
         /// Evaluate fa, then fb, ignoring the result of fa
@@ -196,7 +196,7 @@ namespace LanguageExt
         /// <returns>Applicative of type Option<B></returns>
         [Pure]
         public static Try<B> action<A, B>(Try<A> fa, Try<B> fb) =>
-            FTry<A, B>.Inst.Action(fa, fb);
+            ApplTry<A, B>.Inst.Action(fa, fb);
 
         /// <summary>
         /// Test if the Try computation is successful

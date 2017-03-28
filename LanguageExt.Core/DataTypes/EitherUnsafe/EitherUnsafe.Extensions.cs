@@ -85,7 +85,7 @@ public static class EitherUnsafeExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static EitherUnsafe<L, B> Apply<L, A, B>(this EitherUnsafe<L, Func<A, B>> fab, EitherUnsafe<L, A> fa) =>
-        FEitherUnsafe<L, A, B>.Inst.Apply(fab, fa);
+        ApplEitherUnsafe<L, A, B>.Inst.Apply(fab, fa);
 
     /// <summary>
     /// Apply
@@ -95,7 +95,7 @@ public static class EitherUnsafeExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static EitherUnsafe<L, B> Apply<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, A> fa) =>
-        FEitherUnsafe<L, A, B>.Inst.Apply(fab, fa);
+        ApplEitherUnsafe<L, A, B>.Inst.Apply(fab, fa);
 
     /// <summary>
     /// Apply
@@ -107,7 +107,7 @@ public static class EitherUnsafeExtensions
     [Pure]
     public static EitherUnsafe<L, C> Apply<L, A, B, C>(this EitherUnsafe<L, Func<A, B, C>> fabc, EitherUnsafe<L, A> fa, EitherUnsafe<L, B> fb) =>
         from x in fabc
-        from y in FEitherUnsafe<L, A, B, C>.Inst.Apply(curry(x), fa, fb)
+        from y in ApplEitherUnsafe<L, A, B, C>.Inst.Apply(curry(x), fa, fb)
         select y;
 
     /// <summary>
@@ -119,7 +119,7 @@ public static class EitherUnsafeExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static EitherUnsafe<L, C> Apply<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, A> fa, EitherUnsafe<L, B> fb) =>
-        FEitherUnsafe<L, A, B, C>.Inst.Apply(curry(fabc), fa, fb);
+        ApplEitherUnsafe<L, A, B, C>.Inst.Apply(curry(fabc), fa, fb);
 
     /// <summary>
     /// Apply
@@ -130,7 +130,7 @@ public static class EitherUnsafeExtensions
     [Pure]
     public static EitherUnsafe<L, Func<B, C>> Apply<L, A, B, C>(this EitherUnsafe<L, Func<A, B, C>> fabc, EitherUnsafe<L, A> fa) =>
         from x in fabc
-        from y in FEitherUnsafe<L, A, B, C>.Inst.Apply(curry(x), fa)
+        from y in ApplEitherUnsafe<L, A, B, C>.Inst.Apply(curry(x), fa)
         select y;
 
     /// <summary>
@@ -141,7 +141,7 @@ public static class EitherUnsafeExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static EitherUnsafe<L, Func<B, C>> Apply<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, A> fa) =>
-        FEitherUnsafe<L, A, B, C>.Inst.Apply(curry(fabc), fa);
+        ApplEitherUnsafe<L, A, B, C>.Inst.Apply(curry(fabc), fa);
 
     /// <summary>
     /// Apply
@@ -151,7 +151,7 @@ public static class EitherUnsafeExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static EitherUnsafe<L, Func<B, C>> Apply<L, A, B, C>(this EitherUnsafe<L, Func<A, Func<B, C>>> fabc, EitherUnsafe<L, A> fa) =>
-        FEitherUnsafe<L, A, B, C>.Inst.Apply(fabc, fa);
+        ApplEitherUnsafe<L, A, B, C>.Inst.Apply(fabc, fa);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -161,7 +161,7 @@ public static class EitherUnsafeExtensions
     /// <returns>Applicative of type Option<B></returns>
     [Pure]
     public static EitherUnsafe<L, B> Action<L, A, B>(this EitherUnsafe<L, A> fa, EitherUnsafe<L, B> fb) =>
-        FEitherUnsafe<L, A, B>.Inst.Action(fa, fb);
+        ApplEitherUnsafe<L, A, B>.Inst.Action(fa, fb);
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Left' elements.

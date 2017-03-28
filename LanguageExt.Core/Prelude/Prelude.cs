@@ -246,6 +246,16 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Not function, for prettifying code and removing the need to 
+        /// use the ! operator.
+        /// </summary>
+        /// <param name="value">Value to perform the not operation on</param>
+        /// <returns>!value</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool not(bool value) =>
+            !value;
+
+        /// <summary>
         /// Returns true if the value is equal to this type's
         /// default value.
         /// </summary>

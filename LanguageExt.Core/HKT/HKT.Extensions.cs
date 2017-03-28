@@ -337,8 +337,8 @@ namespace LanguageExt
         /// <returns>`Arr<Arr<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Arr<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<Arr<A>> fa) =>
-            FArr< Arr<A>, Arr<B>>.Inst.Apply(
-                 MArr< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => FArr< A, B>.Inst.Apply(
+            ApplArr< Arr<A>, Arr<B>>.Inst.Apply(
+                 MArr< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
                      MArr< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -354,11 +354,11 @@ namespace LanguageExt
         /// <returns>`Arr<Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Arr<Arr<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Arr<Arr<A>> fa, Arr<Arr<B>> fb) =>
-            FArr< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+            ApplArr< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
                 MArr< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
                     (Arr<A> a) =>
                         (Arr<B> b) =>
-                            FArr< A, B, C>.Inst.Apply(
+                            ApplArr< A, B, C>.Inst.Apply(
                                 MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -681,8 +681,8 @@ namespace LanguageExt
         /// <returns>`HashSet<Arr<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static HashSet<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<Arr<A>> fa) =>
-            FHashSet< Arr<A>, Arr<B>>.Inst.Apply(
-                 MHashSet< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => FArr< A, B>.Inst.Apply(
+            ApplHashSet< Arr<A>, Arr<B>>.Inst.Apply(
+                 MHashSet< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
                      MArr< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -698,11 +698,11 @@ namespace LanguageExt
         /// <returns>`HashSet<Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static HashSet<Arr<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, HashSet<Arr<A>> fa, HashSet<Arr<B>> fb) =>
-            FHashSet< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+            ApplHashSet< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
                 MHashSet< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
                     (Arr<A> a) =>
                         (Arr<B> b) =>
-                            FArr< A, B, C>.Inst.Apply(
+                            ApplArr< A, B, C>.Inst.Apply(
                                 MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -1025,8 +1025,8 @@ namespace LanguageExt
         /// <returns>`Lst<Arr<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Lst<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<Arr<A>> fa) =>
-            FLst< Arr<A>, Arr<B>>.Inst.Apply(
-                 MLst< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => FArr< A, B>.Inst.Apply(
+            ApplLst< Arr<A>, Arr<B>>.Inst.Apply(
+                 MLst< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
                      MArr< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -1042,11 +1042,11 @@ namespace LanguageExt
         /// <returns>`Lst<Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Lst<Arr<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Lst<Arr<A>> fa, Lst<Arr<B>> fb) =>
-            FLst< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+            ApplLst< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
                 MLst< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
                     (Arr<A> a) =>
                         (Arr<B> b) =>
-                            FArr< A, B, C>.Inst.Apply(
+                            ApplArr< A, B, C>.Inst.Apply(
                                 MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -1369,8 +1369,8 @@ namespace LanguageExt
         /// <returns>`Option<Arr<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Option<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, Option<Arr<A>> fa) =>
-            FOption< Arr<A>, Arr<B>>.Inst.Apply(
-                 MOption< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => FArr< A, B>.Inst.Apply(
+            ApplOption< Arr<A>, Arr<B>>.Inst.Apply(
+                 MOption< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
                      MArr< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -1386,11 +1386,11 @@ namespace LanguageExt
         /// <returns>`Option<Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Option<Arr<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Option<Arr<A>> fa, Option<Arr<B>> fb) =>
-            FOption< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+            ApplOption< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
                 MOption< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
                     (Arr<A> a) =>
                         (Arr<B> b) =>
-                            FArr< A, B, C>.Inst.Apply(
+                            ApplArr< A, B, C>.Inst.Apply(
                                 MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -1713,8 +1713,8 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<Arr<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionUnsafe<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<Arr<A>> fa) =>
-            FOptionUnsafe< Arr<A>, Arr<B>>.Inst.Apply(
-                 MOptionUnsafe< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => FArr< A, B>.Inst.Apply(
+            ApplOptionUnsafe< Arr<A>, Arr<B>>.Inst.Apply(
+                 MOptionUnsafe< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
                      MArr< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -1730,11 +1730,11 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionUnsafe<Arr<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<Arr<A>> fa, OptionUnsafe<Arr<B>> fb) =>
-            FOptionUnsafe< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+            ApplOptionUnsafe< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
                 MOptionUnsafe< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
                     (Arr<A> a) =>
                         (Arr<B> b) =>
-                            FArr< A, B, C>.Inst.Apply(
+                            ApplArr< A, B, C>.Inst.Apply(
                                 MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -2057,8 +2057,8 @@ namespace LanguageExt
         /// <returns>`Either<L, Arr<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Either<L, Arr<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, Arr<A>> fa) =>
-            FEither<L, Arr<A>, Arr<B>>.Inst.Apply(
-                 MEither<L, Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => FArr< A, B>.Inst.Apply(
+            ApplEither<L, Arr<A>, Arr<B>>.Inst.Apply(
+                 MEither<L, Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
                      MArr< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -2074,11 +2074,11 @@ namespace LanguageExt
         /// <returns>`Either<L, Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Either<L, Arr<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Either<L, Arr<A>> fa, Either<L, Arr<B>> fb) =>
-            FEither<L, Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+            ApplEither<L, Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
                 MEither<L, Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
                     (Arr<A> a) =>
                         (Arr<B> b) =>
-                            FArr< A, B, C>.Inst.Apply(
+                            ApplArr< A, B, C>.Inst.Apply(
                                 MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -2401,8 +2401,8 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, Arr<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherUnsafe<L, Arr<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, Arr<A>> fa) =>
-            FEitherUnsafe<L, Arr<A>, Arr<B>>.Inst.Apply(
-                 MEitherUnsafe<L, Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => FArr< A, B>.Inst.Apply(
+            ApplEitherUnsafe<L, Arr<A>, Arr<B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
                      MArr< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -2418,11 +2418,11 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherUnsafe<L, Arr<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, Arr<A>> fa, EitherUnsafe<L, Arr<B>> fb) =>
-            FEitherUnsafe<L, Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+            ApplEitherUnsafe<L, Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
                 MEitherUnsafe<L, Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
                     (Arr<A> a) =>
                         (Arr<B> b) =>
-                            FArr< A, B, C>.Inst.Apply(
+                            ApplArr< A, B, C>.Inst.Apply(
                                 MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -2745,8 +2745,8 @@ namespace LanguageExt
         /// <returns>`Task<Arr<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, Task<Arr<A>> fa) =>
-            FTask< Arr<A>, Arr<B>>.Inst.Apply(
-                 MTask< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => FArr< A, B>.Inst.Apply(
+            ApplTask< Arr<A>, Arr<B>>.Inst.Apply(
+                 MTask< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
                      MArr< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -2762,11 +2762,11 @@ namespace LanguageExt
         /// <returns>`Task<Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<Arr<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<Arr<A>> fa, Task<Arr<B>> fb) =>
-            FTask< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+            ApplTask< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
                 MTask< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
                     (Arr<A> a) =>
                         (Arr<B> b) =>
-                            FArr< A, B, C>.Inst.Apply(
+                            ApplArr< A, B, C>.Inst.Apply(
                                 MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -3089,8 +3089,8 @@ namespace LanguageExt
         /// <returns>`Try<Arr<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Try<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, Try<Arr<A>> fa) =>
-            FTry< Arr<A>, Arr<B>>.Inst.Apply(
-                 MTry< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => FArr< A, B>.Inst.Apply(
+            ApplTry< Arr<A>, Arr<B>>.Inst.Apply(
+                 MTry< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
                      MArr< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -3106,11 +3106,11 @@ namespace LanguageExt
         /// <returns>`Try<Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Try<Arr<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Try<Arr<A>> fa, Try<Arr<B>> fb) =>
-            FTry< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+            ApplTry< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
                 MTry< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
                     (Arr<A> a) =>
                         (Arr<B> b) =>
-                            FArr< A, B, C>.Inst.Apply(
+                            ApplArr< A, B, C>.Inst.Apply(
                                 MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -3433,8 +3433,8 @@ namespace LanguageExt
         /// <returns>`TryAsync<Arr<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<Arr<A>> fa) =>
-            FTryAsync< Arr<A>, Arr<B>>.Inst.Apply(
-                 MTryAsync< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => FArr< A, B>.Inst.Apply(
+            ApplTryAsync< Arr<A>, Arr<B>>.Inst.Apply(
+                 MTryAsync< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
                      MArr< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -3450,11 +3450,11 @@ namespace LanguageExt
         /// <returns>`TryAsync<Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<Arr<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<Arr<A>> fa, TryAsync<Arr<B>> fb) =>
-            FTryAsync< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+            ApplTryAsync< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
                 MTryAsync< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
                     (Arr<A> a) =>
                         (Arr<B> b) =>
-                            FArr< A, B, C>.Inst.Apply(
+                            ApplArr< A, B, C>.Inst.Apply(
                                 MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -3777,8 +3777,8 @@ namespace LanguageExt
         /// <returns>`TryOption<Arr<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOption<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<Arr<A>> fa) =>
-            FTryOption< Arr<A>, Arr<B>>.Inst.Apply(
-                 MTryOption< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => FArr< A, B>.Inst.Apply(
+            ApplTryOption< Arr<A>, Arr<B>>.Inst.Apply(
+                 MTryOption< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
                      MArr< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -3794,11 +3794,11 @@ namespace LanguageExt
         /// <returns>`TryOption<Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOption<Arr<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOption<Arr<A>> fa, TryOption<Arr<B>> fb) =>
-            FTryOption< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+            ApplTryOption< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
                 MTryOption< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
                     (Arr<A> a) =>
                         (Arr<B> b) =>
-                            FArr< A, B, C>.Inst.Apply(
+                            ApplArr< A, B, C>.Inst.Apply(
                                 MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -4121,8 +4121,8 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<Arr<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<Arr<A>> fa) =>
-            FTryOptionAsync< Arr<A>, Arr<B>>.Inst.Apply(
-                 MTryOptionAsync< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => FArr< A, B>.Inst.Apply(
+            ApplTryOptionAsync< Arr<A>, Arr<B>>.Inst.Apply(
+                 MTryOptionAsync< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
                      MArr< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -4138,11 +4138,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<Arr<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<Arr<A>> fa, TryOptionAsync<Arr<B>> fb) =>
-            FTryOptionAsync< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+            ApplTryOptionAsync< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
                 MTryOptionAsync< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
                     (Arr<A> a) =>
                         (Arr<B> b) =>
-                            FArr< A, B, C>.Inst.Apply(
+                            ApplArr< A, B, C>.Inst.Apply(
                                 MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -4465,8 +4465,8 @@ namespace LanguageExt
         /// <returns>`IEnumerable<Arr<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static IEnumerable<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<Arr<A>> fa) =>
-            FSeq< Arr<A>, Arr<B>>.Inst.Apply(
-                 MSeq< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => FArr< A, B>.Inst.Apply(
+            ApplSeq< Arr<A>, Arr<B>>.Inst.Apply(
+                 MSeq< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
                      MArr< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -4482,11 +4482,11 @@ namespace LanguageExt
         /// <returns>`IEnumerable<Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static IEnumerable<Arr<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, IEnumerable<Arr<A>> fa, IEnumerable<Arr<B>> fb) =>
-            FSeq< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+            ApplSeq< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
                 MSeq< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
                     (Arr<A> a) =>
                         (Arr<B> b) =>
-                            FArr< A, B, C>.Inst.Apply(
+                            ApplArr< A, B, C>.Inst.Apply(
                                 MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -4809,8 +4809,8 @@ namespace LanguageExt
         /// <returns>`Set<Arr<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Set<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, Set<Arr<A>> fa) =>
-            FSet< Arr<A>, Arr<B>>.Inst.Apply(
-                 MSet< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => FArr< A, B>.Inst.Apply(
+            ApplSet< Arr<A>, Arr<B>>.Inst.Apply(
+                 MSet< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
                      MArr< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -4826,11 +4826,11 @@ namespace LanguageExt
         /// <returns>`Set<Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Set<Arr<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Set<Arr<A>> fa, Set<Arr<B>> fb) =>
-            FSet< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+            ApplSet< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
                 MSet< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
                     (Arr<A> a) =>
                         (Arr<B> b) =>
-                            FArr< A, B, C>.Inst.Apply(
+                            ApplArr< A, B, C>.Inst.Apply(
                                 MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
@@ -5161,8 +5161,8 @@ namespace LanguageExt
         /// <returns>`Arr<HashSet<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Arr<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<HashSet<A>> fa) =>
-            FArr< HashSet<A>, HashSet<B>>.Inst.Apply(
-                 MArr< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => FHashSet< A, B>.Inst.Apply(
+            ApplArr< HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MArr< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
                      MHashSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -5178,11 +5178,11 @@ namespace LanguageExt
         /// <returns>`Arr<HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Arr<HashSet<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Arr<HashSet<A>> fa, Arr<HashSet<B>> fb) =>
-            FArr< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+            ApplArr< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
                 MArr< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
                     (HashSet<A> a) =>
                         (HashSet<B> b) =>
-                            FHashSet< A, B, C>.Inst.Apply(
+                            ApplHashSet< A, B, C>.Inst.Apply(
                                 MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -5505,8 +5505,8 @@ namespace LanguageExt
         /// <returns>`HashSet<HashSet<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static HashSet<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<HashSet<A>> fa) =>
-            FHashSet< HashSet<A>, HashSet<B>>.Inst.Apply(
-                 MHashSet< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => FHashSet< A, B>.Inst.Apply(
+            ApplHashSet< HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MHashSet< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
                      MHashSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -5522,11 +5522,11 @@ namespace LanguageExt
         /// <returns>`HashSet<HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static HashSet<HashSet<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, HashSet<HashSet<A>> fa, HashSet<HashSet<B>> fb) =>
-            FHashSet< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+            ApplHashSet< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
                 MHashSet< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
                     (HashSet<A> a) =>
                         (HashSet<B> b) =>
-                            FHashSet< A, B, C>.Inst.Apply(
+                            ApplHashSet< A, B, C>.Inst.Apply(
                                 MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -5849,8 +5849,8 @@ namespace LanguageExt
         /// <returns>`Lst<HashSet<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Lst<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<HashSet<A>> fa) =>
-            FLst< HashSet<A>, HashSet<B>>.Inst.Apply(
-                 MLst< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => FHashSet< A, B>.Inst.Apply(
+            ApplLst< HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MLst< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
                      MHashSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -5866,11 +5866,11 @@ namespace LanguageExt
         /// <returns>`Lst<HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Lst<HashSet<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Lst<HashSet<A>> fa, Lst<HashSet<B>> fb) =>
-            FLst< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+            ApplLst< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
                 MLst< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
                     (HashSet<A> a) =>
                         (HashSet<B> b) =>
-                            FHashSet< A, B, C>.Inst.Apply(
+                            ApplHashSet< A, B, C>.Inst.Apply(
                                 MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -6193,8 +6193,8 @@ namespace LanguageExt
         /// <returns>`Option<HashSet<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Option<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, Option<HashSet<A>> fa) =>
-            FOption< HashSet<A>, HashSet<B>>.Inst.Apply(
-                 MOption< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => FHashSet< A, B>.Inst.Apply(
+            ApplOption< HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MOption< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
                      MHashSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -6210,11 +6210,11 @@ namespace LanguageExt
         /// <returns>`Option<HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Option<HashSet<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Option<HashSet<A>> fa, Option<HashSet<B>> fb) =>
-            FOption< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+            ApplOption< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
                 MOption< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
                     (HashSet<A> a) =>
                         (HashSet<B> b) =>
-                            FHashSet< A, B, C>.Inst.Apply(
+                            ApplHashSet< A, B, C>.Inst.Apply(
                                 MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -6537,8 +6537,8 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<HashSet<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionUnsafe<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<HashSet<A>> fa) =>
-            FOptionUnsafe< HashSet<A>, HashSet<B>>.Inst.Apply(
-                 MOptionUnsafe< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => FHashSet< A, B>.Inst.Apply(
+            ApplOptionUnsafe< HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MOptionUnsafe< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
                      MHashSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -6554,11 +6554,11 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionUnsafe<HashSet<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<HashSet<A>> fa, OptionUnsafe<HashSet<B>> fb) =>
-            FOptionUnsafe< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+            ApplOptionUnsafe< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
                 MOptionUnsafe< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
                     (HashSet<A> a) =>
                         (HashSet<B> b) =>
-                            FHashSet< A, B, C>.Inst.Apply(
+                            ApplHashSet< A, B, C>.Inst.Apply(
                                 MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -6881,8 +6881,8 @@ namespace LanguageExt
         /// <returns>`Either<L, HashSet<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Either<L, HashSet<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, HashSet<A>> fa) =>
-            FEither<L, HashSet<A>, HashSet<B>>.Inst.Apply(
-                 MEither<L, Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => FHashSet< A, B>.Inst.Apply(
+            ApplEither<L, HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MEither<L, Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
                      MHashSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -6898,11 +6898,11 @@ namespace LanguageExt
         /// <returns>`Either<L, HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Either<L, HashSet<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Either<L, HashSet<A>> fa, Either<L, HashSet<B>> fb) =>
-            FEither<L, HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+            ApplEither<L, HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
                 MEither<L, Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
                     (HashSet<A> a) =>
                         (HashSet<B> b) =>
-                            FHashSet< A, B, C>.Inst.Apply(
+                            ApplHashSet< A, B, C>.Inst.Apply(
                                 MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -7225,8 +7225,8 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, HashSet<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherUnsafe<L, HashSet<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, HashSet<A>> fa) =>
-            FEitherUnsafe<L, HashSet<A>, HashSet<B>>.Inst.Apply(
-                 MEitherUnsafe<L, Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => FHashSet< A, B>.Inst.Apply(
+            ApplEitherUnsafe<L, HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
                      MHashSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -7242,11 +7242,11 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherUnsafe<L, HashSet<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, HashSet<A>> fa, EitherUnsafe<L, HashSet<B>> fb) =>
-            FEitherUnsafe<L, HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+            ApplEitherUnsafe<L, HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
                 MEitherUnsafe<L, Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
                     (HashSet<A> a) =>
                         (HashSet<B> b) =>
-                            FHashSet< A, B, C>.Inst.Apply(
+                            ApplHashSet< A, B, C>.Inst.Apply(
                                 MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -7569,8 +7569,8 @@ namespace LanguageExt
         /// <returns>`Task<HashSet<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, Task<HashSet<A>> fa) =>
-            FTask< HashSet<A>, HashSet<B>>.Inst.Apply(
-                 MTask< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => FHashSet< A, B>.Inst.Apply(
+            ApplTask< HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MTask< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
                      MHashSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -7586,11 +7586,11 @@ namespace LanguageExt
         /// <returns>`Task<HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<HashSet<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<HashSet<A>> fa, Task<HashSet<B>> fb) =>
-            FTask< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+            ApplTask< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
                 MTask< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
                     (HashSet<A> a) =>
                         (HashSet<B> b) =>
-                            FHashSet< A, B, C>.Inst.Apply(
+                            ApplHashSet< A, B, C>.Inst.Apply(
                                 MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -7913,8 +7913,8 @@ namespace LanguageExt
         /// <returns>`Try<HashSet<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Try<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, Try<HashSet<A>> fa) =>
-            FTry< HashSet<A>, HashSet<B>>.Inst.Apply(
-                 MTry< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => FHashSet< A, B>.Inst.Apply(
+            ApplTry< HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MTry< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
                      MHashSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -7930,11 +7930,11 @@ namespace LanguageExt
         /// <returns>`Try<HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Try<HashSet<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Try<HashSet<A>> fa, Try<HashSet<B>> fb) =>
-            FTry< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+            ApplTry< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
                 MTry< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
                     (HashSet<A> a) =>
                         (HashSet<B> b) =>
-                            FHashSet< A, B, C>.Inst.Apply(
+                            ApplHashSet< A, B, C>.Inst.Apply(
                                 MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -8257,8 +8257,8 @@ namespace LanguageExt
         /// <returns>`TryAsync<HashSet<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<HashSet<A>> fa) =>
-            FTryAsync< HashSet<A>, HashSet<B>>.Inst.Apply(
-                 MTryAsync< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => FHashSet< A, B>.Inst.Apply(
+            ApplTryAsync< HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MTryAsync< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
                      MHashSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -8274,11 +8274,11 @@ namespace LanguageExt
         /// <returns>`TryAsync<HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<HashSet<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<HashSet<A>> fa, TryAsync<HashSet<B>> fb) =>
-            FTryAsync< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+            ApplTryAsync< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
                 MTryAsync< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
                     (HashSet<A> a) =>
                         (HashSet<B> b) =>
-                            FHashSet< A, B, C>.Inst.Apply(
+                            ApplHashSet< A, B, C>.Inst.Apply(
                                 MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -8601,8 +8601,8 @@ namespace LanguageExt
         /// <returns>`TryOption<HashSet<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOption<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<HashSet<A>> fa) =>
-            FTryOption< HashSet<A>, HashSet<B>>.Inst.Apply(
-                 MTryOption< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => FHashSet< A, B>.Inst.Apply(
+            ApplTryOption< HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MTryOption< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
                      MHashSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -8618,11 +8618,11 @@ namespace LanguageExt
         /// <returns>`TryOption<HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOption<HashSet<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOption<HashSet<A>> fa, TryOption<HashSet<B>> fb) =>
-            FTryOption< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+            ApplTryOption< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
                 MTryOption< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
                     (HashSet<A> a) =>
                         (HashSet<B> b) =>
-                            FHashSet< A, B, C>.Inst.Apply(
+                            ApplHashSet< A, B, C>.Inst.Apply(
                                 MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -8945,8 +8945,8 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<HashSet<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<HashSet<A>> fa) =>
-            FTryOptionAsync< HashSet<A>, HashSet<B>>.Inst.Apply(
-                 MTryOptionAsync< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => FHashSet< A, B>.Inst.Apply(
+            ApplTryOptionAsync< HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MTryOptionAsync< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
                      MHashSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -8962,11 +8962,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<HashSet<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<HashSet<A>> fa, TryOptionAsync<HashSet<B>> fb) =>
-            FTryOptionAsync< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+            ApplTryOptionAsync< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
                 MTryOptionAsync< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
                     (HashSet<A> a) =>
                         (HashSet<B> b) =>
-                            FHashSet< A, B, C>.Inst.Apply(
+                            ApplHashSet< A, B, C>.Inst.Apply(
                                 MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -9289,8 +9289,8 @@ namespace LanguageExt
         /// <returns>`IEnumerable<HashSet<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static IEnumerable<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<HashSet<A>> fa) =>
-            FSeq< HashSet<A>, HashSet<B>>.Inst.Apply(
-                 MSeq< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => FHashSet< A, B>.Inst.Apply(
+            ApplSeq< HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MSeq< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
                      MHashSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -9306,11 +9306,11 @@ namespace LanguageExt
         /// <returns>`IEnumerable<HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static IEnumerable<HashSet<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, IEnumerable<HashSet<A>> fa, IEnumerable<HashSet<B>> fb) =>
-            FSeq< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+            ApplSeq< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
                 MSeq< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
                     (HashSet<A> a) =>
                         (HashSet<B> b) =>
-                            FHashSet< A, B, C>.Inst.Apply(
+                            ApplHashSet< A, B, C>.Inst.Apply(
                                 MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -9633,8 +9633,8 @@ namespace LanguageExt
         /// <returns>`Set<HashSet<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Set<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, Set<HashSet<A>> fa) =>
-            FSet< HashSet<A>, HashSet<B>>.Inst.Apply(
-                 MSet< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => FHashSet< A, B>.Inst.Apply(
+            ApplSet< HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MSet< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
                      MHashSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -9650,11 +9650,11 @@ namespace LanguageExt
         /// <returns>`Set<HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Set<HashSet<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Set<HashSet<A>> fa, Set<HashSet<B>> fb) =>
-            FSet< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+            ApplSet< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
                 MSet< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
                     (HashSet<A> a) =>
                         (HashSet<B> b) =>
-                            FHashSet< A, B, C>.Inst.Apply(
+                            ApplHashSet< A, B, C>.Inst.Apply(
                                 MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
@@ -9985,8 +9985,8 @@ namespace LanguageExt
         /// <returns>`Arr<Lst<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Arr<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<Lst<A>> fa) =>
-            FArr< Lst<A>, Lst<B>>.Inst.Apply(
-                 MArr< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => FLst< A, B>.Inst.Apply(
+            ApplArr< Lst<A>, Lst<B>>.Inst.Apply(
+                 MArr< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
                      MLst< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -10002,11 +10002,11 @@ namespace LanguageExt
         /// <returns>`Arr<Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Arr<Lst<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Arr<Lst<A>> fa, Arr<Lst<B>> fb) =>
-            FArr< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+            ApplArr< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
                 MArr< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
                     (Lst<A> a) =>
                         (Lst<B> b) =>
-                            FLst< A, B, C>.Inst.Apply(
+                            ApplLst< A, B, C>.Inst.Apply(
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -10329,8 +10329,8 @@ namespace LanguageExt
         /// <returns>`HashSet<Lst<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static HashSet<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<Lst<A>> fa) =>
-            FHashSet< Lst<A>, Lst<B>>.Inst.Apply(
-                 MHashSet< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => FLst< A, B>.Inst.Apply(
+            ApplHashSet< Lst<A>, Lst<B>>.Inst.Apply(
+                 MHashSet< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
                      MLst< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -10346,11 +10346,11 @@ namespace LanguageExt
         /// <returns>`HashSet<Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static HashSet<Lst<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, HashSet<Lst<A>> fa, HashSet<Lst<B>> fb) =>
-            FHashSet< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+            ApplHashSet< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
                 MHashSet< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
                     (Lst<A> a) =>
                         (Lst<B> b) =>
-                            FLst< A, B, C>.Inst.Apply(
+                            ApplLst< A, B, C>.Inst.Apply(
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -10673,8 +10673,8 @@ namespace LanguageExt
         /// <returns>`Lst<Lst<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Lst<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<Lst<A>> fa) =>
-            FLst< Lst<A>, Lst<B>>.Inst.Apply(
-                 MLst< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => FLst< A, B>.Inst.Apply(
+            ApplLst< Lst<A>, Lst<B>>.Inst.Apply(
+                 MLst< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
                      MLst< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -10690,11 +10690,11 @@ namespace LanguageExt
         /// <returns>`Lst<Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Lst<Lst<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Lst<Lst<A>> fa, Lst<Lst<B>> fb) =>
-            FLst< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+            ApplLst< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
                 MLst< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
                     (Lst<A> a) =>
                         (Lst<B> b) =>
-                            FLst< A, B, C>.Inst.Apply(
+                            ApplLst< A, B, C>.Inst.Apply(
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -11017,8 +11017,8 @@ namespace LanguageExt
         /// <returns>`Option<Lst<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Option<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, Option<Lst<A>> fa) =>
-            FOption< Lst<A>, Lst<B>>.Inst.Apply(
-                 MOption< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => FLst< A, B>.Inst.Apply(
+            ApplOption< Lst<A>, Lst<B>>.Inst.Apply(
+                 MOption< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
                      MLst< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -11034,11 +11034,11 @@ namespace LanguageExt
         /// <returns>`Option<Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Option<Lst<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Option<Lst<A>> fa, Option<Lst<B>> fb) =>
-            FOption< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+            ApplOption< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
                 MOption< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
                     (Lst<A> a) =>
                         (Lst<B> b) =>
-                            FLst< A, B, C>.Inst.Apply(
+                            ApplLst< A, B, C>.Inst.Apply(
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -11361,8 +11361,8 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<Lst<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionUnsafe<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<Lst<A>> fa) =>
-            FOptionUnsafe< Lst<A>, Lst<B>>.Inst.Apply(
-                 MOptionUnsafe< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => FLst< A, B>.Inst.Apply(
+            ApplOptionUnsafe< Lst<A>, Lst<B>>.Inst.Apply(
+                 MOptionUnsafe< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
                      MLst< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -11378,11 +11378,11 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionUnsafe<Lst<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<Lst<A>> fa, OptionUnsafe<Lst<B>> fb) =>
-            FOptionUnsafe< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+            ApplOptionUnsafe< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
                 MOptionUnsafe< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
                     (Lst<A> a) =>
                         (Lst<B> b) =>
-                            FLst< A, B, C>.Inst.Apply(
+                            ApplLst< A, B, C>.Inst.Apply(
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -11705,8 +11705,8 @@ namespace LanguageExt
         /// <returns>`Either<L, Lst<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Either<L, Lst<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, Lst<A>> fa) =>
-            FEither<L, Lst<A>, Lst<B>>.Inst.Apply(
-                 MEither<L, Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => FLst< A, B>.Inst.Apply(
+            ApplEither<L, Lst<A>, Lst<B>>.Inst.Apply(
+                 MEither<L, Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
                      MLst< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -11722,11 +11722,11 @@ namespace LanguageExt
         /// <returns>`Either<L, Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Either<L, Lst<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Either<L, Lst<A>> fa, Either<L, Lst<B>> fb) =>
-            FEither<L, Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+            ApplEither<L, Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
                 MEither<L, Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
                     (Lst<A> a) =>
                         (Lst<B> b) =>
-                            FLst< A, B, C>.Inst.Apply(
+                            ApplLst< A, B, C>.Inst.Apply(
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -12049,8 +12049,8 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, Lst<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherUnsafe<L, Lst<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, Lst<A>> fa) =>
-            FEitherUnsafe<L, Lst<A>, Lst<B>>.Inst.Apply(
-                 MEitherUnsafe<L, Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => FLst< A, B>.Inst.Apply(
+            ApplEitherUnsafe<L, Lst<A>, Lst<B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
                      MLst< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -12066,11 +12066,11 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherUnsafe<L, Lst<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, Lst<A>> fa, EitherUnsafe<L, Lst<B>> fb) =>
-            FEitherUnsafe<L, Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+            ApplEitherUnsafe<L, Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
                 MEitherUnsafe<L, Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
                     (Lst<A> a) =>
                         (Lst<B> b) =>
-                            FLst< A, B, C>.Inst.Apply(
+                            ApplLst< A, B, C>.Inst.Apply(
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -12393,8 +12393,8 @@ namespace LanguageExt
         /// <returns>`Task<Lst<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, Task<Lst<A>> fa) =>
-            FTask< Lst<A>, Lst<B>>.Inst.Apply(
-                 MTask< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => FLst< A, B>.Inst.Apply(
+            ApplTask< Lst<A>, Lst<B>>.Inst.Apply(
+                 MTask< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
                      MLst< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -12410,11 +12410,11 @@ namespace LanguageExt
         /// <returns>`Task<Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<Lst<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<Lst<A>> fa, Task<Lst<B>> fb) =>
-            FTask< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+            ApplTask< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
                 MTask< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
                     (Lst<A> a) =>
                         (Lst<B> b) =>
-                            FLst< A, B, C>.Inst.Apply(
+                            ApplLst< A, B, C>.Inst.Apply(
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -12737,8 +12737,8 @@ namespace LanguageExt
         /// <returns>`Try<Lst<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Try<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, Try<Lst<A>> fa) =>
-            FTry< Lst<A>, Lst<B>>.Inst.Apply(
-                 MTry< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => FLst< A, B>.Inst.Apply(
+            ApplTry< Lst<A>, Lst<B>>.Inst.Apply(
+                 MTry< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
                      MLst< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -12754,11 +12754,11 @@ namespace LanguageExt
         /// <returns>`Try<Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Try<Lst<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Try<Lst<A>> fa, Try<Lst<B>> fb) =>
-            FTry< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+            ApplTry< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
                 MTry< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
                     (Lst<A> a) =>
                         (Lst<B> b) =>
-                            FLst< A, B, C>.Inst.Apply(
+                            ApplLst< A, B, C>.Inst.Apply(
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -13081,8 +13081,8 @@ namespace LanguageExt
         /// <returns>`TryAsync<Lst<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<Lst<A>> fa) =>
-            FTryAsync< Lst<A>, Lst<B>>.Inst.Apply(
-                 MTryAsync< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => FLst< A, B>.Inst.Apply(
+            ApplTryAsync< Lst<A>, Lst<B>>.Inst.Apply(
+                 MTryAsync< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
                      MLst< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -13098,11 +13098,11 @@ namespace LanguageExt
         /// <returns>`TryAsync<Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<Lst<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<Lst<A>> fa, TryAsync<Lst<B>> fb) =>
-            FTryAsync< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+            ApplTryAsync< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
                 MTryAsync< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
                     (Lst<A> a) =>
                         (Lst<B> b) =>
-                            FLst< A, B, C>.Inst.Apply(
+                            ApplLst< A, B, C>.Inst.Apply(
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -13425,8 +13425,8 @@ namespace LanguageExt
         /// <returns>`TryOption<Lst<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOption<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<Lst<A>> fa) =>
-            FTryOption< Lst<A>, Lst<B>>.Inst.Apply(
-                 MTryOption< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => FLst< A, B>.Inst.Apply(
+            ApplTryOption< Lst<A>, Lst<B>>.Inst.Apply(
+                 MTryOption< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
                      MLst< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -13442,11 +13442,11 @@ namespace LanguageExt
         /// <returns>`TryOption<Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOption<Lst<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOption<Lst<A>> fa, TryOption<Lst<B>> fb) =>
-            FTryOption< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+            ApplTryOption< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
                 MTryOption< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
                     (Lst<A> a) =>
                         (Lst<B> b) =>
-                            FLst< A, B, C>.Inst.Apply(
+                            ApplLst< A, B, C>.Inst.Apply(
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -13769,8 +13769,8 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<Lst<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<Lst<A>> fa) =>
-            FTryOptionAsync< Lst<A>, Lst<B>>.Inst.Apply(
-                 MTryOptionAsync< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => FLst< A, B>.Inst.Apply(
+            ApplTryOptionAsync< Lst<A>, Lst<B>>.Inst.Apply(
+                 MTryOptionAsync< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
                      MLst< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -13786,11 +13786,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<Lst<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<Lst<A>> fa, TryOptionAsync<Lst<B>> fb) =>
-            FTryOptionAsync< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+            ApplTryOptionAsync< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
                 MTryOptionAsync< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
                     (Lst<A> a) =>
                         (Lst<B> b) =>
-                            FLst< A, B, C>.Inst.Apply(
+                            ApplLst< A, B, C>.Inst.Apply(
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -14113,8 +14113,8 @@ namespace LanguageExt
         /// <returns>`IEnumerable<Lst<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static IEnumerable<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<Lst<A>> fa) =>
-            FSeq< Lst<A>, Lst<B>>.Inst.Apply(
-                 MSeq< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => FLst< A, B>.Inst.Apply(
+            ApplSeq< Lst<A>, Lst<B>>.Inst.Apply(
+                 MSeq< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
                      MLst< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -14130,11 +14130,11 @@ namespace LanguageExt
         /// <returns>`IEnumerable<Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static IEnumerable<Lst<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, IEnumerable<Lst<A>> fa, IEnumerable<Lst<B>> fb) =>
-            FSeq< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+            ApplSeq< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
                 MSeq< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
                     (Lst<A> a) =>
                         (Lst<B> b) =>
-                            FLst< A, B, C>.Inst.Apply(
+                            ApplLst< A, B, C>.Inst.Apply(
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -14457,8 +14457,8 @@ namespace LanguageExt
         /// <returns>`Set<Lst<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Set<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, Set<Lst<A>> fa) =>
-            FSet< Lst<A>, Lst<B>>.Inst.Apply(
-                 MSet< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => FLst< A, B>.Inst.Apply(
+            ApplSet< Lst<A>, Lst<B>>.Inst.Apply(
+                 MSet< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
                      MLst< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -14474,11 +14474,11 @@ namespace LanguageExt
         /// <returns>`Set<Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Set<Lst<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Set<Lst<A>> fa, Set<Lst<B>> fb) =>
-            FSet< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+            ApplSet< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
                 MSet< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
                     (Lst<A> a) =>
                         (Lst<B> b) =>
-                            FLst< A, B, C>.Inst.Apply(
+                            ApplLst< A, B, C>.Inst.Apply(
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
@@ -14809,8 +14809,8 @@ namespace LanguageExt
         /// <returns>`Arr<Option<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Arr<Option<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<Option<A>> fa) =>
-            FArr< Option<A>, Option<B>>.Inst.Apply(
-                 MArr< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => FOption< A, B>.Inst.Apply(
+            ApplArr< Option<A>, Option<B>>.Inst.Apply(
+                 MArr< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
                      MOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -14826,11 +14826,11 @@ namespace LanguageExt
         /// <returns>`Arr<Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Arr<Option<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Arr<Option<A>> fa, Arr<Option<B>> fb) =>
-            FArr< Option<A>, Option<B>, Option<C>>.Inst.Apply(
+            ApplArr< Option<A>, Option<B>, Option<C>>.Inst.Apply(
                 MArr< Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
                     (Option<A> a) =>
                         (Option<B> b) =>
-                            FOption< A, B, C>.Inst.Apply(
+                            ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -15153,8 +15153,8 @@ namespace LanguageExt
         /// <returns>`HashSet<Option<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static HashSet<Option<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<Option<A>> fa) =>
-            FHashSet< Option<A>, Option<B>>.Inst.Apply(
-                 MHashSet< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => FOption< A, B>.Inst.Apply(
+            ApplHashSet< Option<A>, Option<B>>.Inst.Apply(
+                 MHashSet< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
                      MOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -15170,11 +15170,11 @@ namespace LanguageExt
         /// <returns>`HashSet<Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static HashSet<Option<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, HashSet<Option<A>> fa, HashSet<Option<B>> fb) =>
-            FHashSet< Option<A>, Option<B>, Option<C>>.Inst.Apply(
+            ApplHashSet< Option<A>, Option<B>, Option<C>>.Inst.Apply(
                 MHashSet< Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
                     (Option<A> a) =>
                         (Option<B> b) =>
-                            FOption< A, B, C>.Inst.Apply(
+                            ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -15497,8 +15497,8 @@ namespace LanguageExt
         /// <returns>`Lst<Option<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Lst<Option<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<Option<A>> fa) =>
-            FLst< Option<A>, Option<B>>.Inst.Apply(
-                 MLst< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => FOption< A, B>.Inst.Apply(
+            ApplLst< Option<A>, Option<B>>.Inst.Apply(
+                 MLst< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
                      MOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -15514,11 +15514,11 @@ namespace LanguageExt
         /// <returns>`Lst<Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Lst<Option<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Lst<Option<A>> fa, Lst<Option<B>> fb) =>
-            FLst< Option<A>, Option<B>, Option<C>>.Inst.Apply(
+            ApplLst< Option<A>, Option<B>, Option<C>>.Inst.Apply(
                 MLst< Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
                     (Option<A> a) =>
                         (Option<B> b) =>
-                            FOption< A, B, C>.Inst.Apply(
+                            ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -15841,8 +15841,8 @@ namespace LanguageExt
         /// <returns>`Option<Option<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Option<Option<B>> ApplyT< A, B>(this Func<A, B> fab, Option<Option<A>> fa) =>
-            FOption< Option<A>, Option<B>>.Inst.Apply(
-                 MOption< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => FOption< A, B>.Inst.Apply(
+            ApplOption< Option<A>, Option<B>>.Inst.Apply(
+                 MOption< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
                      MOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -15858,11 +15858,11 @@ namespace LanguageExt
         /// <returns>`Option<Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Option<Option<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Option<Option<A>> fa, Option<Option<B>> fb) =>
-            FOption< Option<A>, Option<B>, Option<C>>.Inst.Apply(
+            ApplOption< Option<A>, Option<B>, Option<C>>.Inst.Apply(
                 MOption< Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
                     (Option<A> a) =>
                         (Option<B> b) =>
-                            FOption< A, B, C>.Inst.Apply(
+                            ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -16185,8 +16185,8 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<Option<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionUnsafe<Option<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<Option<A>> fa) =>
-            FOptionUnsafe< Option<A>, Option<B>>.Inst.Apply(
-                 MOptionUnsafe< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => FOption< A, B>.Inst.Apply(
+            ApplOptionUnsafe< Option<A>, Option<B>>.Inst.Apply(
+                 MOptionUnsafe< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
                      MOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -16202,11 +16202,11 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionUnsafe<Option<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<Option<A>> fa, OptionUnsafe<Option<B>> fb) =>
-            FOptionUnsafe< Option<A>, Option<B>, Option<C>>.Inst.Apply(
+            ApplOptionUnsafe< Option<A>, Option<B>, Option<C>>.Inst.Apply(
                 MOptionUnsafe< Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
                     (Option<A> a) =>
                         (Option<B> b) =>
-                            FOption< A, B, C>.Inst.Apply(
+                            ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -16529,8 +16529,8 @@ namespace LanguageExt
         /// <returns>`Either<L, Option<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Either<L, Option<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, Option<A>> fa) =>
-            FEither<L, Option<A>, Option<B>>.Inst.Apply(
-                 MEither<L, Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => FOption< A, B>.Inst.Apply(
+            ApplEither<L, Option<A>, Option<B>>.Inst.Apply(
+                 MEither<L, Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
                      MOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -16546,11 +16546,11 @@ namespace LanguageExt
         /// <returns>`Either<L, Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Either<L, Option<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Either<L, Option<A>> fa, Either<L, Option<B>> fb) =>
-            FEither<L, Option<A>, Option<B>, Option<C>>.Inst.Apply(
+            ApplEither<L, Option<A>, Option<B>, Option<C>>.Inst.Apply(
                 MEither<L, Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
                     (Option<A> a) =>
                         (Option<B> b) =>
-                            FOption< A, B, C>.Inst.Apply(
+                            ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -16873,8 +16873,8 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, Option<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherUnsafe<L, Option<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, Option<A>> fa) =>
-            FEitherUnsafe<L, Option<A>, Option<B>>.Inst.Apply(
-                 MEitherUnsafe<L, Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => FOption< A, B>.Inst.Apply(
+            ApplEitherUnsafe<L, Option<A>, Option<B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
                      MOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -16890,11 +16890,11 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherUnsafe<L, Option<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, Option<A>> fa, EitherUnsafe<L, Option<B>> fb) =>
-            FEitherUnsafe<L, Option<A>, Option<B>, Option<C>>.Inst.Apply(
+            ApplEitherUnsafe<L, Option<A>, Option<B>, Option<C>>.Inst.Apply(
                 MEitherUnsafe<L, Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
                     (Option<A> a) =>
                         (Option<B> b) =>
-                            FOption< A, B, C>.Inst.Apply(
+                            ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -17217,8 +17217,8 @@ namespace LanguageExt
         /// <returns>`Task<Option<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<Option<B>> ApplyT< A, B>(this Func<A, B> fab, Task<Option<A>> fa) =>
-            FTask< Option<A>, Option<B>>.Inst.Apply(
-                 MTask< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => FOption< A, B>.Inst.Apply(
+            ApplTask< Option<A>, Option<B>>.Inst.Apply(
+                 MTask< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
                      MOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -17234,11 +17234,11 @@ namespace LanguageExt
         /// <returns>`Task<Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<Option<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<Option<A>> fa, Task<Option<B>> fb) =>
-            FTask< Option<A>, Option<B>, Option<C>>.Inst.Apply(
+            ApplTask< Option<A>, Option<B>, Option<C>>.Inst.Apply(
                 MTask< Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
                     (Option<A> a) =>
                         (Option<B> b) =>
-                            FOption< A, B, C>.Inst.Apply(
+                            ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -17561,8 +17561,8 @@ namespace LanguageExt
         /// <returns>`Try<Option<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Try<Option<B>> ApplyT< A, B>(this Func<A, B> fab, Try<Option<A>> fa) =>
-            FTry< Option<A>, Option<B>>.Inst.Apply(
-                 MTry< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => FOption< A, B>.Inst.Apply(
+            ApplTry< Option<A>, Option<B>>.Inst.Apply(
+                 MTry< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
                      MOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -17578,11 +17578,11 @@ namespace LanguageExt
         /// <returns>`Try<Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Try<Option<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Try<Option<A>> fa, Try<Option<B>> fb) =>
-            FTry< Option<A>, Option<B>, Option<C>>.Inst.Apply(
+            ApplTry< Option<A>, Option<B>, Option<C>>.Inst.Apply(
                 MTry< Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
                     (Option<A> a) =>
                         (Option<B> b) =>
-                            FOption< A, B, C>.Inst.Apply(
+                            ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -17905,8 +17905,8 @@ namespace LanguageExt
         /// <returns>`TryAsync<Option<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<Option<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<Option<A>> fa) =>
-            FTryAsync< Option<A>, Option<B>>.Inst.Apply(
-                 MTryAsync< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => FOption< A, B>.Inst.Apply(
+            ApplTryAsync< Option<A>, Option<B>>.Inst.Apply(
+                 MTryAsync< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
                      MOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -17922,11 +17922,11 @@ namespace LanguageExt
         /// <returns>`TryAsync<Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<Option<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<Option<A>> fa, TryAsync<Option<B>> fb) =>
-            FTryAsync< Option<A>, Option<B>, Option<C>>.Inst.Apply(
+            ApplTryAsync< Option<A>, Option<B>, Option<C>>.Inst.Apply(
                 MTryAsync< Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
                     (Option<A> a) =>
                         (Option<B> b) =>
-                            FOption< A, B, C>.Inst.Apply(
+                            ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -18249,8 +18249,8 @@ namespace LanguageExt
         /// <returns>`TryOption<Option<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOption<Option<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<Option<A>> fa) =>
-            FTryOption< Option<A>, Option<B>>.Inst.Apply(
-                 MTryOption< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => FOption< A, B>.Inst.Apply(
+            ApplTryOption< Option<A>, Option<B>>.Inst.Apply(
+                 MTryOption< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
                      MOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -18266,11 +18266,11 @@ namespace LanguageExt
         /// <returns>`TryOption<Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOption<Option<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOption<Option<A>> fa, TryOption<Option<B>> fb) =>
-            FTryOption< Option<A>, Option<B>, Option<C>>.Inst.Apply(
+            ApplTryOption< Option<A>, Option<B>, Option<C>>.Inst.Apply(
                 MTryOption< Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
                     (Option<A> a) =>
                         (Option<B> b) =>
-                            FOption< A, B, C>.Inst.Apply(
+                            ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -18593,8 +18593,8 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<Option<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<Option<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<Option<A>> fa) =>
-            FTryOptionAsync< Option<A>, Option<B>>.Inst.Apply(
-                 MTryOptionAsync< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => FOption< A, B>.Inst.Apply(
+            ApplTryOptionAsync< Option<A>, Option<B>>.Inst.Apply(
+                 MTryOptionAsync< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
                      MOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -18610,11 +18610,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<Option<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<Option<A>> fa, TryOptionAsync<Option<B>> fb) =>
-            FTryOptionAsync< Option<A>, Option<B>, Option<C>>.Inst.Apply(
+            ApplTryOptionAsync< Option<A>, Option<B>, Option<C>>.Inst.Apply(
                 MTryOptionAsync< Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
                     (Option<A> a) =>
                         (Option<B> b) =>
-                            FOption< A, B, C>.Inst.Apply(
+                            ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -18937,8 +18937,8 @@ namespace LanguageExt
         /// <returns>`IEnumerable<Option<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static IEnumerable<Option<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<Option<A>> fa) =>
-            FSeq< Option<A>, Option<B>>.Inst.Apply(
-                 MSeq< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => FOption< A, B>.Inst.Apply(
+            ApplSeq< Option<A>, Option<B>>.Inst.Apply(
+                 MSeq< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
                      MOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -18954,11 +18954,11 @@ namespace LanguageExt
         /// <returns>`IEnumerable<Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static IEnumerable<Option<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, IEnumerable<Option<A>> fa, IEnumerable<Option<B>> fb) =>
-            FSeq< Option<A>, Option<B>, Option<C>>.Inst.Apply(
+            ApplSeq< Option<A>, Option<B>, Option<C>>.Inst.Apply(
                 MSeq< Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
                     (Option<A> a) =>
                         (Option<B> b) =>
-                            FOption< A, B, C>.Inst.Apply(
+                            ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -19281,8 +19281,8 @@ namespace LanguageExt
         /// <returns>`Set<Option<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Set<Option<B>> ApplyT< A, B>(this Func<A, B> fab, Set<Option<A>> fa) =>
-            FSet< Option<A>, Option<B>>.Inst.Apply(
-                 MSet< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => FOption< A, B>.Inst.Apply(
+            ApplSet< Option<A>, Option<B>>.Inst.Apply(
+                 MSet< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
                      MOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -19298,11 +19298,11 @@ namespace LanguageExt
         /// <returns>`Set<Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Set<Option<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Set<Option<A>> fa, Set<Option<B>> fb) =>
-            FSet< Option<A>, Option<B>, Option<C>>.Inst.Apply(
+            ApplSet< Option<A>, Option<B>, Option<C>>.Inst.Apply(
                 MSet< Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
                     (Option<A> a) =>
                         (Option<B> b) =>
-                            FOption< A, B, C>.Inst.Apply(
+                            ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
@@ -19633,8 +19633,8 @@ namespace LanguageExt
         /// <returns>`Arr<OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Arr<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<OptionUnsafe<A>> fa) =>
-            FArr< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
-                 MArr< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => FOptionUnsafe< A, B>.Inst.Apply(
+            ApplArr< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MArr< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
                      MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -19650,11 +19650,11 @@ namespace LanguageExt
         /// <returns>`Arr<OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Arr<OptionUnsafe<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Arr<OptionUnsafe<A>> fa, Arr<OptionUnsafe<B>> fb) =>
-            FArr< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+            ApplArr< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
                 MArr< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
                     (OptionUnsafe<A> a) =>
                         (OptionUnsafe<B> b) =>
-                            FOptionUnsafe< A, B, C>.Inst.Apply(
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
                                 MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -19977,8 +19977,8 @@ namespace LanguageExt
         /// <returns>`HashSet<OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static HashSet<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<OptionUnsafe<A>> fa) =>
-            FHashSet< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
-                 MHashSet< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => FOptionUnsafe< A, B>.Inst.Apply(
+            ApplHashSet< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MHashSet< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
                      MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -19994,11 +19994,11 @@ namespace LanguageExt
         /// <returns>`HashSet<OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static HashSet<OptionUnsafe<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, HashSet<OptionUnsafe<A>> fa, HashSet<OptionUnsafe<B>> fb) =>
-            FHashSet< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+            ApplHashSet< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
                 MHashSet< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
                     (OptionUnsafe<A> a) =>
                         (OptionUnsafe<B> b) =>
-                            FOptionUnsafe< A, B, C>.Inst.Apply(
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
                                 MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -20321,8 +20321,8 @@ namespace LanguageExt
         /// <returns>`Lst<OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Lst<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<OptionUnsafe<A>> fa) =>
-            FLst< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
-                 MLst< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => FOptionUnsafe< A, B>.Inst.Apply(
+            ApplLst< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MLst< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
                      MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -20338,11 +20338,11 @@ namespace LanguageExt
         /// <returns>`Lst<OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Lst<OptionUnsafe<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Lst<OptionUnsafe<A>> fa, Lst<OptionUnsafe<B>> fb) =>
-            FLst< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+            ApplLst< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
                 MLst< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
                     (OptionUnsafe<A> a) =>
                         (OptionUnsafe<B> b) =>
-                            FOptionUnsafe< A, B, C>.Inst.Apply(
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
                                 MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -20665,8 +20665,8 @@ namespace LanguageExt
         /// <returns>`Option<OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Option<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, Option<OptionUnsafe<A>> fa) =>
-            FOption< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
-                 MOption< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => FOptionUnsafe< A, B>.Inst.Apply(
+            ApplOption< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MOption< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
                      MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -20682,11 +20682,11 @@ namespace LanguageExt
         /// <returns>`Option<OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Option<OptionUnsafe<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Option<OptionUnsafe<A>> fa, Option<OptionUnsafe<B>> fb) =>
-            FOption< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+            ApplOption< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
                 MOption< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
                     (OptionUnsafe<A> a) =>
                         (OptionUnsafe<B> b) =>
-                            FOptionUnsafe< A, B, C>.Inst.Apply(
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
                                 MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -21009,8 +21009,8 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionUnsafe<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<OptionUnsafe<A>> fa) =>
-            FOptionUnsafe< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
-                 MOptionUnsafe< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => FOptionUnsafe< A, B>.Inst.Apply(
+            ApplOptionUnsafe< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MOptionUnsafe< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
                      MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -21026,11 +21026,11 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionUnsafe<OptionUnsafe<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<OptionUnsafe<A>> fa, OptionUnsafe<OptionUnsafe<B>> fb) =>
-            FOptionUnsafe< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+            ApplOptionUnsafe< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
                 MOptionUnsafe< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
                     (OptionUnsafe<A> a) =>
                         (OptionUnsafe<B> b) =>
-                            FOptionUnsafe< A, B, C>.Inst.Apply(
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
                                 MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -21353,8 +21353,8 @@ namespace LanguageExt
         /// <returns>`Either<L, OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Either<L, OptionUnsafe<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, OptionUnsafe<A>> fa) =>
-            FEither<L, OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
-                 MEither<L, Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => FOptionUnsafe< A, B>.Inst.Apply(
+            ApplEither<L, OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MEither<L, Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
                      MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -21370,11 +21370,11 @@ namespace LanguageExt
         /// <returns>`Either<L, OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Either<L, OptionUnsafe<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Either<L, OptionUnsafe<A>> fa, Either<L, OptionUnsafe<B>> fb) =>
-            FEither<L, OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+            ApplEither<L, OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
                 MEither<L, Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
                     (OptionUnsafe<A> a) =>
                         (OptionUnsafe<B> b) =>
-                            FOptionUnsafe< A, B, C>.Inst.Apply(
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
                                 MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -21697,8 +21697,8 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherUnsafe<L, OptionUnsafe<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, OptionUnsafe<A>> fa) =>
-            FEitherUnsafe<L, OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
-                 MEitherUnsafe<L, Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => FOptionUnsafe< A, B>.Inst.Apply(
+            ApplEitherUnsafe<L, OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
                      MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -21714,11 +21714,11 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherUnsafe<L, OptionUnsafe<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, OptionUnsafe<A>> fa, EitherUnsafe<L, OptionUnsafe<B>> fb) =>
-            FEitherUnsafe<L, OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+            ApplEitherUnsafe<L, OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
                 MEitherUnsafe<L, Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
                     (OptionUnsafe<A> a) =>
                         (OptionUnsafe<B> b) =>
-                            FOptionUnsafe< A, B, C>.Inst.Apply(
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
                                 MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -22041,8 +22041,8 @@ namespace LanguageExt
         /// <returns>`Task<OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, Task<OptionUnsafe<A>> fa) =>
-            FTask< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
-                 MTask< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => FOptionUnsafe< A, B>.Inst.Apply(
+            ApplTask< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MTask< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
                      MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -22058,11 +22058,11 @@ namespace LanguageExt
         /// <returns>`Task<OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<OptionUnsafe<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<OptionUnsafe<A>> fa, Task<OptionUnsafe<B>> fb) =>
-            FTask< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+            ApplTask< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
                 MTask< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
                     (OptionUnsafe<A> a) =>
                         (OptionUnsafe<B> b) =>
-                            FOptionUnsafe< A, B, C>.Inst.Apply(
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
                                 MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -22385,8 +22385,8 @@ namespace LanguageExt
         /// <returns>`Try<OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Try<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, Try<OptionUnsafe<A>> fa) =>
-            FTry< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
-                 MTry< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => FOptionUnsafe< A, B>.Inst.Apply(
+            ApplTry< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MTry< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
                      MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -22402,11 +22402,11 @@ namespace LanguageExt
         /// <returns>`Try<OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Try<OptionUnsafe<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Try<OptionUnsafe<A>> fa, Try<OptionUnsafe<B>> fb) =>
-            FTry< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+            ApplTry< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
                 MTry< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
                     (OptionUnsafe<A> a) =>
                         (OptionUnsafe<B> b) =>
-                            FOptionUnsafe< A, B, C>.Inst.Apply(
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
                                 MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -22729,8 +22729,8 @@ namespace LanguageExt
         /// <returns>`TryAsync<OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<OptionUnsafe<A>> fa) =>
-            FTryAsync< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
-                 MTryAsync< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => FOptionUnsafe< A, B>.Inst.Apply(
+            ApplTryAsync< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MTryAsync< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
                      MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -22746,11 +22746,11 @@ namespace LanguageExt
         /// <returns>`TryAsync<OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<OptionUnsafe<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<OptionUnsafe<A>> fa, TryAsync<OptionUnsafe<B>> fb) =>
-            FTryAsync< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+            ApplTryAsync< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
                 MTryAsync< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
                     (OptionUnsafe<A> a) =>
                         (OptionUnsafe<B> b) =>
-                            FOptionUnsafe< A, B, C>.Inst.Apply(
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
                                 MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -23073,8 +23073,8 @@ namespace LanguageExt
         /// <returns>`TryOption<OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOption<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<OptionUnsafe<A>> fa) =>
-            FTryOption< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
-                 MTryOption< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => FOptionUnsafe< A, B>.Inst.Apply(
+            ApplTryOption< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MTryOption< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
                      MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -23090,11 +23090,11 @@ namespace LanguageExt
         /// <returns>`TryOption<OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOption<OptionUnsafe<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOption<OptionUnsafe<A>> fa, TryOption<OptionUnsafe<B>> fb) =>
-            FTryOption< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+            ApplTryOption< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
                 MTryOption< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
                     (OptionUnsafe<A> a) =>
                         (OptionUnsafe<B> b) =>
-                            FOptionUnsafe< A, B, C>.Inst.Apply(
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
                                 MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -23417,8 +23417,8 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<OptionUnsafe<A>> fa) =>
-            FTryOptionAsync< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
-                 MTryOptionAsync< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => FOptionUnsafe< A, B>.Inst.Apply(
+            ApplTryOptionAsync< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MTryOptionAsync< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
                      MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -23434,11 +23434,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<OptionUnsafe<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<OptionUnsafe<A>> fa, TryOptionAsync<OptionUnsafe<B>> fb) =>
-            FTryOptionAsync< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+            ApplTryOptionAsync< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
                 MTryOptionAsync< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
                     (OptionUnsafe<A> a) =>
                         (OptionUnsafe<B> b) =>
-                            FOptionUnsafe< A, B, C>.Inst.Apply(
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
                                 MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -23761,8 +23761,8 @@ namespace LanguageExt
         /// <returns>`IEnumerable<OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static IEnumerable<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<OptionUnsafe<A>> fa) =>
-            FSeq< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
-                 MSeq< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => FOptionUnsafe< A, B>.Inst.Apply(
+            ApplSeq< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MSeq< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
                      MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -23778,11 +23778,11 @@ namespace LanguageExt
         /// <returns>`IEnumerable<OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static IEnumerable<OptionUnsafe<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, IEnumerable<OptionUnsafe<A>> fa, IEnumerable<OptionUnsafe<B>> fb) =>
-            FSeq< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+            ApplSeq< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
                 MSeq< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
                     (OptionUnsafe<A> a) =>
                         (OptionUnsafe<B> b) =>
-                            FOptionUnsafe< A, B, C>.Inst.Apply(
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
                                 MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -24105,8 +24105,8 @@ namespace LanguageExt
         /// <returns>`Set<OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Set<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, Set<OptionUnsafe<A>> fa) =>
-            FSet< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
-                 MSet< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => FOptionUnsafe< A, B>.Inst.Apply(
+            ApplSet< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MSet< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
                      MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -24122,11 +24122,11 @@ namespace LanguageExt
         /// <returns>`Set<OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Set<OptionUnsafe<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Set<OptionUnsafe<A>> fa, Set<OptionUnsafe<B>> fb) =>
-            FSet< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+            ApplSet< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
                 MSet< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
                     (OptionUnsafe<A> a) =>
                         (OptionUnsafe<B> b) =>
-                            FOptionUnsafe< A, B, C>.Inst.Apply(
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
                                 MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
@@ -24457,8 +24457,8 @@ namespace LanguageExt
         /// <returns>`Arr<Either<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Arr<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Arr<Either<L, A>> fa) =>
-            FArr< Either<L, A>, Either<L, B>>.Inst.Apply(
-                 MArr< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => FEither<L, A, B>.Inst.Apply(
+            ApplArr< Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MArr< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
                      MEither<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -24474,11 +24474,11 @@ namespace LanguageExt
         /// <returns>`Arr<Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Arr<Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Arr<Either<L, A>> fa, Arr<Either<L, B>> fb) =>
-            FArr< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+            ApplArr< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
                 MArr< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
                     (Either<L, A> a) =>
                         (Either<L, B> b) =>
-                            FEither<L, A, B, C>.Inst.Apply(
+                            ApplEither<L, A, B, C>.Inst.Apply(
                                 MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -24801,8 +24801,8 @@ namespace LanguageExt
         /// <returns>`HashSet<Either<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static HashSet<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, HashSet<Either<L, A>> fa) =>
-            FHashSet< Either<L, A>, Either<L, B>>.Inst.Apply(
-                 MHashSet< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => FEither<L, A, B>.Inst.Apply(
+            ApplHashSet< Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MHashSet< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
                      MEither<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -24818,11 +24818,11 @@ namespace LanguageExt
         /// <returns>`HashSet<Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static HashSet<Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, HashSet<Either<L, A>> fa, HashSet<Either<L, B>> fb) =>
-            FHashSet< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+            ApplHashSet< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
                 MHashSet< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
                     (Either<L, A> a) =>
                         (Either<L, B> b) =>
-                            FEither<L, A, B, C>.Inst.Apply(
+                            ApplEither<L, A, B, C>.Inst.Apply(
                                 MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -25145,8 +25145,8 @@ namespace LanguageExt
         /// <returns>`Lst<Either<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Lst<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Lst<Either<L, A>> fa) =>
-            FLst< Either<L, A>, Either<L, B>>.Inst.Apply(
-                 MLst< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => FEither<L, A, B>.Inst.Apply(
+            ApplLst< Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MLst< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
                      MEither<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -25162,11 +25162,11 @@ namespace LanguageExt
         /// <returns>`Lst<Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Lst<Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Lst<Either<L, A>> fa, Lst<Either<L, B>> fb) =>
-            FLst< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+            ApplLst< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
                 MLst< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
                     (Either<L, A> a) =>
                         (Either<L, B> b) =>
-                            FEither<L, A, B, C>.Inst.Apply(
+                            ApplEither<L, A, B, C>.Inst.Apply(
                                 MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -25489,8 +25489,8 @@ namespace LanguageExt
         /// <returns>`Option<Either<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Option<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Option<Either<L, A>> fa) =>
-            FOption< Either<L, A>, Either<L, B>>.Inst.Apply(
-                 MOption< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => FEither<L, A, B>.Inst.Apply(
+            ApplOption< Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MOption< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
                      MEither<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -25506,11 +25506,11 @@ namespace LanguageExt
         /// <returns>`Option<Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Option<Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Option<Either<L, A>> fa, Option<Either<L, B>> fb) =>
-            FOption< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+            ApplOption< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
                 MOption< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
                     (Either<L, A> a) =>
                         (Either<L, B> b) =>
-                            FEither<L, A, B, C>.Inst.Apply(
+                            ApplEither<L, A, B, C>.Inst.Apply(
                                 MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -25833,8 +25833,8 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<Either<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionUnsafe<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, OptionUnsafe<Either<L, A>> fa) =>
-            FOptionUnsafe< Either<L, A>, Either<L, B>>.Inst.Apply(
-                 MOptionUnsafe< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => FEither<L, A, B>.Inst.Apply(
+            ApplOptionUnsafe< Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MOptionUnsafe< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
                      MEither<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -25850,11 +25850,11 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionUnsafe<Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<Either<L, A>> fa, OptionUnsafe<Either<L, B>> fb) =>
-            FOptionUnsafe< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+            ApplOptionUnsafe< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
                 MOptionUnsafe< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
                     (Either<L, A> a) =>
                         (Either<L, B> b) =>
-                            FEither<L, A, B, C>.Inst.Apply(
+                            ApplEither<L, A, B, C>.Inst.Apply(
                                 MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -26177,8 +26177,8 @@ namespace LanguageExt
         /// <returns>`Either<L, Either<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Either<L, Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, Either<L, A>> fa) =>
-            FEither<L, Either<L, A>, Either<L, B>>.Inst.Apply(
-                 MEither<L, Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => FEither<L, A, B>.Inst.Apply(
+            ApplEither<L, Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MEither<L, Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
                      MEither<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -26194,11 +26194,11 @@ namespace LanguageExt
         /// <returns>`Either<L, Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Either<L, Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Either<L, Either<L, A>> fa, Either<L, Either<L, B>> fb) =>
-            FEither<L, Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+            ApplEither<L, Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
                 MEither<L, Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
                     (Either<L, A> a) =>
                         (Either<L, B> b) =>
-                            FEither<L, A, B, C>.Inst.Apply(
+                            ApplEither<L, A, B, C>.Inst.Apply(
                                 MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -26521,8 +26521,8 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, Either<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherUnsafe<L, Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, Either<L, A>> fa) =>
-            FEitherUnsafe<L, Either<L, A>, Either<L, B>>.Inst.Apply(
-                 MEitherUnsafe<L, Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => FEither<L, A, B>.Inst.Apply(
+            ApplEitherUnsafe<L, Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
                      MEither<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -26538,11 +26538,11 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherUnsafe<L, Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, Either<L, A>> fa, EitherUnsafe<L, Either<L, B>> fb) =>
-            FEitherUnsafe<L, Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+            ApplEitherUnsafe<L, Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
                 MEitherUnsafe<L, Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
                     (Either<L, A> a) =>
                         (Either<L, B> b) =>
-                            FEither<L, A, B, C>.Inst.Apply(
+                            ApplEither<L, A, B, C>.Inst.Apply(
                                 MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -26865,8 +26865,8 @@ namespace LanguageExt
         /// <returns>`Task<Either<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Task<Either<L, A>> fa) =>
-            FTask< Either<L, A>, Either<L, B>>.Inst.Apply(
-                 MTask< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => FEither<L, A, B>.Inst.Apply(
+            ApplTask< Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MTask< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
                      MEither<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -26882,11 +26882,11 @@ namespace LanguageExt
         /// <returns>`Task<Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Task<Either<L, A>> fa, Task<Either<L, B>> fb) =>
-            FTask< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+            ApplTask< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
                 MTask< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
                     (Either<L, A> a) =>
                         (Either<L, B> b) =>
-                            FEither<L, A, B, C>.Inst.Apply(
+                            ApplEither<L, A, B, C>.Inst.Apply(
                                 MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -27209,8 +27209,8 @@ namespace LanguageExt
         /// <returns>`Try<Either<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Try<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Try<Either<L, A>> fa) =>
-            FTry< Either<L, A>, Either<L, B>>.Inst.Apply(
-                 MTry< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => FEither<L, A, B>.Inst.Apply(
+            ApplTry< Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MTry< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
                      MEither<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -27226,11 +27226,11 @@ namespace LanguageExt
         /// <returns>`Try<Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Try<Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Try<Either<L, A>> fa, Try<Either<L, B>> fb) =>
-            FTry< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+            ApplTry< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
                 MTry< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
                     (Either<L, A> a) =>
                         (Either<L, B> b) =>
-                            FEither<L, A, B, C>.Inst.Apply(
+                            ApplEither<L, A, B, C>.Inst.Apply(
                                 MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -27553,8 +27553,8 @@ namespace LanguageExt
         /// <returns>`TryAsync<Either<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, TryAsync<Either<L, A>> fa) =>
-            FTryAsync< Either<L, A>, Either<L, B>>.Inst.Apply(
-                 MTryAsync< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => FEither<L, A, B>.Inst.Apply(
+            ApplTryAsync< Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MTryAsync< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
                      MEither<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -27570,11 +27570,11 @@ namespace LanguageExt
         /// <returns>`TryAsync<Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, TryAsync<Either<L, A>> fa, TryAsync<Either<L, B>> fb) =>
-            FTryAsync< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+            ApplTryAsync< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
                 MTryAsync< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
                     (Either<L, A> a) =>
                         (Either<L, B> b) =>
-                            FEither<L, A, B, C>.Inst.Apply(
+                            ApplEither<L, A, B, C>.Inst.Apply(
                                 MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -27897,8 +27897,8 @@ namespace LanguageExt
         /// <returns>`TryOption<Either<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOption<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, TryOption<Either<L, A>> fa) =>
-            FTryOption< Either<L, A>, Either<L, B>>.Inst.Apply(
-                 MTryOption< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => FEither<L, A, B>.Inst.Apply(
+            ApplTryOption< Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MTryOption< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
                      MEither<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -27914,11 +27914,11 @@ namespace LanguageExt
         /// <returns>`TryOption<Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOption<Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, TryOption<Either<L, A>> fa, TryOption<Either<L, B>> fb) =>
-            FTryOption< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+            ApplTryOption< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
                 MTryOption< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
                     (Either<L, A> a) =>
                         (Either<L, B> b) =>
-                            FEither<L, A, B, C>.Inst.Apply(
+                            ApplEither<L, A, B, C>.Inst.Apply(
                                 MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -28241,8 +28241,8 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<Either<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, TryOptionAsync<Either<L, A>> fa) =>
-            FTryOptionAsync< Either<L, A>, Either<L, B>>.Inst.Apply(
-                 MTryOptionAsync< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => FEither<L, A, B>.Inst.Apply(
+            ApplTryOptionAsync< Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MTryOptionAsync< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
                      MEither<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -28258,11 +28258,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<Either<L, A>> fa, TryOptionAsync<Either<L, B>> fb) =>
-            FTryOptionAsync< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+            ApplTryOptionAsync< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
                 MTryOptionAsync< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
                     (Either<L, A> a) =>
                         (Either<L, B> b) =>
-                            FEither<L, A, B, C>.Inst.Apply(
+                            ApplEither<L, A, B, C>.Inst.Apply(
                                 MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -28585,8 +28585,8 @@ namespace LanguageExt
         /// <returns>`IEnumerable<Either<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static IEnumerable<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, IEnumerable<Either<L, A>> fa) =>
-            FSeq< Either<L, A>, Either<L, B>>.Inst.Apply(
-                 MSeq< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => FEither<L, A, B>.Inst.Apply(
+            ApplSeq< Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MSeq< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
                      MEither<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -28602,11 +28602,11 @@ namespace LanguageExt
         /// <returns>`IEnumerable<Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static IEnumerable<Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, IEnumerable<Either<L, A>> fa, IEnumerable<Either<L, B>> fb) =>
-            FSeq< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+            ApplSeq< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
                 MSeq< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
                     (Either<L, A> a) =>
                         (Either<L, B> b) =>
-                            FEither<L, A, B, C>.Inst.Apply(
+                            ApplEither<L, A, B, C>.Inst.Apply(
                                 MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -28929,8 +28929,8 @@ namespace LanguageExt
         /// <returns>`Set<Either<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Set<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Set<Either<L, A>> fa) =>
-            FSet< Either<L, A>, Either<L, B>>.Inst.Apply(
-                 MSet< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => FEither<L, A, B>.Inst.Apply(
+            ApplSet< Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MSet< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
                      MEither<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -28946,11 +28946,11 @@ namespace LanguageExt
         /// <returns>`Set<Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Set<Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Set<Either<L, A>> fa, Set<Either<L, B>> fb) =>
-            FSet< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+            ApplSet< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
                 MSet< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
                     (Either<L, A> a) =>
                         (Either<L, B> b) =>
-                            FEither<L, A, B, C>.Inst.Apply(
+                            ApplEither<L, A, B, C>.Inst.Apply(
                                 MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
@@ -29281,8 +29281,8 @@ namespace LanguageExt
         /// <returns>`Arr<EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Arr<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Arr<EitherUnsafe<L, A>> fa) =>
-            FArr< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
-                 MArr< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => FEitherUnsafe<L, A, B>.Inst.Apply(
+            ApplArr< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MArr< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
                      MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -29298,11 +29298,11 @@ namespace LanguageExt
         /// <returns>`Arr<EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Arr<EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Arr<EitherUnsafe<L, A>> fa, Arr<EitherUnsafe<L, B>> fb) =>
-            FArr< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+            ApplArr< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
                 MArr< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
                     (EitherUnsafe<L, A> a) =>
                         (EitherUnsafe<L, B> b) =>
-                            FEitherUnsafe<L, A, B, C>.Inst.Apply(
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
                                 MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -29625,8 +29625,8 @@ namespace LanguageExt
         /// <returns>`HashSet<EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static HashSet<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, HashSet<EitherUnsafe<L, A>> fa) =>
-            FHashSet< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
-                 MHashSet< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => FEitherUnsafe<L, A, B>.Inst.Apply(
+            ApplHashSet< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MHashSet< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
                      MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -29642,11 +29642,11 @@ namespace LanguageExt
         /// <returns>`HashSet<EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static HashSet<EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, HashSet<EitherUnsafe<L, A>> fa, HashSet<EitherUnsafe<L, B>> fb) =>
-            FHashSet< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+            ApplHashSet< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
                 MHashSet< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
                     (EitherUnsafe<L, A> a) =>
                         (EitherUnsafe<L, B> b) =>
-                            FEitherUnsafe<L, A, B, C>.Inst.Apply(
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
                                 MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -29969,8 +29969,8 @@ namespace LanguageExt
         /// <returns>`Lst<EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Lst<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Lst<EitherUnsafe<L, A>> fa) =>
-            FLst< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
-                 MLst< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => FEitherUnsafe<L, A, B>.Inst.Apply(
+            ApplLst< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MLst< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
                      MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -29986,11 +29986,11 @@ namespace LanguageExt
         /// <returns>`Lst<EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Lst<EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Lst<EitherUnsafe<L, A>> fa, Lst<EitherUnsafe<L, B>> fb) =>
-            FLst< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+            ApplLst< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
                 MLst< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
                     (EitherUnsafe<L, A> a) =>
                         (EitherUnsafe<L, B> b) =>
-                            FEitherUnsafe<L, A, B, C>.Inst.Apply(
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
                                 MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -30313,8 +30313,8 @@ namespace LanguageExt
         /// <returns>`Option<EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Option<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Option<EitherUnsafe<L, A>> fa) =>
-            FOption< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
-                 MOption< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => FEitherUnsafe<L, A, B>.Inst.Apply(
+            ApplOption< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MOption< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
                      MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -30330,11 +30330,11 @@ namespace LanguageExt
         /// <returns>`Option<EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Option<EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Option<EitherUnsafe<L, A>> fa, Option<EitherUnsafe<L, B>> fb) =>
-            FOption< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+            ApplOption< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
                 MOption< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
                     (EitherUnsafe<L, A> a) =>
                         (EitherUnsafe<L, B> b) =>
-                            FEitherUnsafe<L, A, B, C>.Inst.Apply(
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
                                 MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -30657,8 +30657,8 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionUnsafe<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, OptionUnsafe<EitherUnsafe<L, A>> fa) =>
-            FOptionUnsafe< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
-                 MOptionUnsafe< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => FEitherUnsafe<L, A, B>.Inst.Apply(
+            ApplOptionUnsafe< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MOptionUnsafe< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
                      MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -30674,11 +30674,11 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionUnsafe<EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<EitherUnsafe<L, A>> fa, OptionUnsafe<EitherUnsafe<L, B>> fb) =>
-            FOptionUnsafe< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+            ApplOptionUnsafe< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
                 MOptionUnsafe< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
                     (EitherUnsafe<L, A> a) =>
                         (EitherUnsafe<L, B> b) =>
-                            FEitherUnsafe<L, A, B, C>.Inst.Apply(
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
                                 MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -31001,8 +31001,8 @@ namespace LanguageExt
         /// <returns>`Either<L, EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Either<L, EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, EitherUnsafe<L, A>> fa) =>
-            FEither<L, EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
-                 MEither<L, Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => FEitherUnsafe<L, A, B>.Inst.Apply(
+            ApplEither<L, EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MEither<L, Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
                      MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -31018,11 +31018,11 @@ namespace LanguageExt
         /// <returns>`Either<L, EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Either<L, EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Either<L, EitherUnsafe<L, A>> fa, Either<L, EitherUnsafe<L, B>> fb) =>
-            FEither<L, EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+            ApplEither<L, EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
                 MEither<L, Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
                     (EitherUnsafe<L, A> a) =>
                         (EitherUnsafe<L, B> b) =>
-                            FEitherUnsafe<L, A, B, C>.Inst.Apply(
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
                                 MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -31345,8 +31345,8 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherUnsafe<L, EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, EitherUnsafe<L, A>> fa) =>
-            FEitherUnsafe<L, EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
-                 MEitherUnsafe<L, Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => FEitherUnsafe<L, A, B>.Inst.Apply(
+            ApplEitherUnsafe<L, EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
                      MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -31362,11 +31362,11 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherUnsafe<L, EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, EitherUnsafe<L, A>> fa, EitherUnsafe<L, EitherUnsafe<L, B>> fb) =>
-            FEitherUnsafe<L, EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+            ApplEitherUnsafe<L, EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
                 MEitherUnsafe<L, Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
                     (EitherUnsafe<L, A> a) =>
                         (EitherUnsafe<L, B> b) =>
-                            FEitherUnsafe<L, A, B, C>.Inst.Apply(
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
                                 MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -31689,8 +31689,8 @@ namespace LanguageExt
         /// <returns>`Task<EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Task<EitherUnsafe<L, A>> fa) =>
-            FTask< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
-                 MTask< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => FEitherUnsafe<L, A, B>.Inst.Apply(
+            ApplTask< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MTask< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
                      MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -31706,11 +31706,11 @@ namespace LanguageExt
         /// <returns>`Task<EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Task<EitherUnsafe<L, A>> fa, Task<EitherUnsafe<L, B>> fb) =>
-            FTask< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+            ApplTask< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
                 MTask< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
                     (EitherUnsafe<L, A> a) =>
                         (EitherUnsafe<L, B> b) =>
-                            FEitherUnsafe<L, A, B, C>.Inst.Apply(
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
                                 MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -32033,8 +32033,8 @@ namespace LanguageExt
         /// <returns>`Try<EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Try<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Try<EitherUnsafe<L, A>> fa) =>
-            FTry< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
-                 MTry< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => FEitherUnsafe<L, A, B>.Inst.Apply(
+            ApplTry< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MTry< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
                      MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -32050,11 +32050,11 @@ namespace LanguageExt
         /// <returns>`Try<EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Try<EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Try<EitherUnsafe<L, A>> fa, Try<EitherUnsafe<L, B>> fb) =>
-            FTry< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+            ApplTry< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
                 MTry< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
                     (EitherUnsafe<L, A> a) =>
                         (EitherUnsafe<L, B> b) =>
-                            FEitherUnsafe<L, A, B, C>.Inst.Apply(
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
                                 MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -32377,8 +32377,8 @@ namespace LanguageExt
         /// <returns>`TryAsync<EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, TryAsync<EitherUnsafe<L, A>> fa) =>
-            FTryAsync< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
-                 MTryAsync< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => FEitherUnsafe<L, A, B>.Inst.Apply(
+            ApplTryAsync< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MTryAsync< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
                      MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -32394,11 +32394,11 @@ namespace LanguageExt
         /// <returns>`TryAsync<EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, TryAsync<EitherUnsafe<L, A>> fa, TryAsync<EitherUnsafe<L, B>> fb) =>
-            FTryAsync< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+            ApplTryAsync< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
                 MTryAsync< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
                     (EitherUnsafe<L, A> a) =>
                         (EitherUnsafe<L, B> b) =>
-                            FEitherUnsafe<L, A, B, C>.Inst.Apply(
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
                                 MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -32721,8 +32721,8 @@ namespace LanguageExt
         /// <returns>`TryOption<EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOption<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, TryOption<EitherUnsafe<L, A>> fa) =>
-            FTryOption< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
-                 MTryOption< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => FEitherUnsafe<L, A, B>.Inst.Apply(
+            ApplTryOption< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MTryOption< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
                      MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -32738,11 +32738,11 @@ namespace LanguageExt
         /// <returns>`TryOption<EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOption<EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, TryOption<EitherUnsafe<L, A>> fa, TryOption<EitherUnsafe<L, B>> fb) =>
-            FTryOption< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+            ApplTryOption< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
                 MTryOption< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
                     (EitherUnsafe<L, A> a) =>
                         (EitherUnsafe<L, B> b) =>
-                            FEitherUnsafe<L, A, B, C>.Inst.Apply(
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
                                 MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -33065,8 +33065,8 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, TryOptionAsync<EitherUnsafe<L, A>> fa) =>
-            FTryOptionAsync< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
-                 MTryOptionAsync< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => FEitherUnsafe<L, A, B>.Inst.Apply(
+            ApplTryOptionAsync< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MTryOptionAsync< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
                      MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -33082,11 +33082,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<EitherUnsafe<L, A>> fa, TryOptionAsync<EitherUnsafe<L, B>> fb) =>
-            FTryOptionAsync< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+            ApplTryOptionAsync< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
                 MTryOptionAsync< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
                     (EitherUnsafe<L, A> a) =>
                         (EitherUnsafe<L, B> b) =>
-                            FEitherUnsafe<L, A, B, C>.Inst.Apply(
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
                                 MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -33409,8 +33409,8 @@ namespace LanguageExt
         /// <returns>`IEnumerable<EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static IEnumerable<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, IEnumerable<EitherUnsafe<L, A>> fa) =>
-            FSeq< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
-                 MSeq< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => FEitherUnsafe<L, A, B>.Inst.Apply(
+            ApplSeq< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MSeq< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
                      MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -33426,11 +33426,11 @@ namespace LanguageExt
         /// <returns>`IEnumerable<EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static IEnumerable<EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, IEnumerable<EitherUnsafe<L, A>> fa, IEnumerable<EitherUnsafe<L, B>> fb) =>
-            FSeq< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+            ApplSeq< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
                 MSeq< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
                     (EitherUnsafe<L, A> a) =>
                         (EitherUnsafe<L, B> b) =>
-                            FEitherUnsafe<L, A, B, C>.Inst.Apply(
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
                                 MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -33753,8 +33753,8 @@ namespace LanguageExt
         /// <returns>`Set<EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Set<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Set<EitherUnsafe<L, A>> fa) =>
-            FSet< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
-                 MSet< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => FEitherUnsafe<L, A, B>.Inst.Apply(
+            ApplSet< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MSet< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
                      MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -33770,11 +33770,11 @@ namespace LanguageExt
         /// <returns>`Set<EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Set<EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Set<EitherUnsafe<L, A>> fa, Set<EitherUnsafe<L, B>> fb) =>
-            FSet< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+            ApplSet< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
                 MSet< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
                     (EitherUnsafe<L, A> a) =>
                         (EitherUnsafe<L, B> b) =>
-                            FEitherUnsafe<L, A, B, C>.Inst.Apply(
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
                                 MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
@@ -34105,8 +34105,8 @@ namespace LanguageExt
         /// <returns>`Arr<Task<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Arr<Task<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<Task<A>> fa) =>
-            FArr< Task<A>, Task<B>>.Inst.Apply(
-                 MArr< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => FTask< A, B>.Inst.Apply(
+            ApplArr< Task<A>, Task<B>>.Inst.Apply(
+                 MArr< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
                      MTask< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -34122,11 +34122,11 @@ namespace LanguageExt
         /// <returns>`Arr<Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Arr<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Arr<Task<A>> fa, Arr<Task<B>> fb) =>
-            FArr< Task<A>, Task<B>, Task<C>>.Inst.Apply(
+            ApplArr< Task<A>, Task<B>, Task<C>>.Inst.Apply(
                 MArr< Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
                     (Task<A> a) =>
                         (Task<B> b) =>
-                            FTask< A, B, C>.Inst.Apply(
+                            ApplTask< A, B, C>.Inst.Apply(
                                 MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -34449,8 +34449,8 @@ namespace LanguageExt
         /// <returns>`HashSet<Task<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static HashSet<Task<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<Task<A>> fa) =>
-            FHashSet< Task<A>, Task<B>>.Inst.Apply(
-                 MHashSet< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => FTask< A, B>.Inst.Apply(
+            ApplHashSet< Task<A>, Task<B>>.Inst.Apply(
+                 MHashSet< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
                      MTask< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -34466,11 +34466,11 @@ namespace LanguageExt
         /// <returns>`HashSet<Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static HashSet<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, HashSet<Task<A>> fa, HashSet<Task<B>> fb) =>
-            FHashSet< Task<A>, Task<B>, Task<C>>.Inst.Apply(
+            ApplHashSet< Task<A>, Task<B>, Task<C>>.Inst.Apply(
                 MHashSet< Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
                     (Task<A> a) =>
                         (Task<B> b) =>
-                            FTask< A, B, C>.Inst.Apply(
+                            ApplTask< A, B, C>.Inst.Apply(
                                 MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -34793,8 +34793,8 @@ namespace LanguageExt
         /// <returns>`Lst<Task<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Lst<Task<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<Task<A>> fa) =>
-            FLst< Task<A>, Task<B>>.Inst.Apply(
-                 MLst< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => FTask< A, B>.Inst.Apply(
+            ApplLst< Task<A>, Task<B>>.Inst.Apply(
+                 MLst< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
                      MTask< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -34810,11 +34810,11 @@ namespace LanguageExt
         /// <returns>`Lst<Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Lst<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Lst<Task<A>> fa, Lst<Task<B>> fb) =>
-            FLst< Task<A>, Task<B>, Task<C>>.Inst.Apply(
+            ApplLst< Task<A>, Task<B>, Task<C>>.Inst.Apply(
                 MLst< Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
                     (Task<A> a) =>
                         (Task<B> b) =>
-                            FTask< A, B, C>.Inst.Apply(
+                            ApplTask< A, B, C>.Inst.Apply(
                                 MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -35137,8 +35137,8 @@ namespace LanguageExt
         /// <returns>`Option<Task<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Option<Task<B>> ApplyT< A, B>(this Func<A, B> fab, Option<Task<A>> fa) =>
-            FOption< Task<A>, Task<B>>.Inst.Apply(
-                 MOption< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => FTask< A, B>.Inst.Apply(
+            ApplOption< Task<A>, Task<B>>.Inst.Apply(
+                 MOption< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
                      MTask< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -35154,11 +35154,11 @@ namespace LanguageExt
         /// <returns>`Option<Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Option<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Option<Task<A>> fa, Option<Task<B>> fb) =>
-            FOption< Task<A>, Task<B>, Task<C>>.Inst.Apply(
+            ApplOption< Task<A>, Task<B>, Task<C>>.Inst.Apply(
                 MOption< Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
                     (Task<A> a) =>
                         (Task<B> b) =>
-                            FTask< A, B, C>.Inst.Apply(
+                            ApplTask< A, B, C>.Inst.Apply(
                                 MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -35481,8 +35481,8 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<Task<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionUnsafe<Task<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<Task<A>> fa) =>
-            FOptionUnsafe< Task<A>, Task<B>>.Inst.Apply(
-                 MOptionUnsafe< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => FTask< A, B>.Inst.Apply(
+            ApplOptionUnsafe< Task<A>, Task<B>>.Inst.Apply(
+                 MOptionUnsafe< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
                      MTask< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -35498,11 +35498,11 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionUnsafe<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<Task<A>> fa, OptionUnsafe<Task<B>> fb) =>
-            FOptionUnsafe< Task<A>, Task<B>, Task<C>>.Inst.Apply(
+            ApplOptionUnsafe< Task<A>, Task<B>, Task<C>>.Inst.Apply(
                 MOptionUnsafe< Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
                     (Task<A> a) =>
                         (Task<B> b) =>
-                            FTask< A, B, C>.Inst.Apply(
+                            ApplTask< A, B, C>.Inst.Apply(
                                 MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -35825,8 +35825,8 @@ namespace LanguageExt
         /// <returns>`Either<L, Task<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Either<L, Task<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, Task<A>> fa) =>
-            FEither<L, Task<A>, Task<B>>.Inst.Apply(
-                 MEither<L, Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => FTask< A, B>.Inst.Apply(
+            ApplEither<L, Task<A>, Task<B>>.Inst.Apply(
+                 MEither<L, Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
                      MTask< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -35842,11 +35842,11 @@ namespace LanguageExt
         /// <returns>`Either<L, Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Either<L, Task<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Either<L, Task<A>> fa, Either<L, Task<B>> fb) =>
-            FEither<L, Task<A>, Task<B>, Task<C>>.Inst.Apply(
+            ApplEither<L, Task<A>, Task<B>, Task<C>>.Inst.Apply(
                 MEither<L, Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
                     (Task<A> a) =>
                         (Task<B> b) =>
-                            FTask< A, B, C>.Inst.Apply(
+                            ApplTask< A, B, C>.Inst.Apply(
                                 MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -36169,8 +36169,8 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, Task<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherUnsafe<L, Task<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, Task<A>> fa) =>
-            FEitherUnsafe<L, Task<A>, Task<B>>.Inst.Apply(
-                 MEitherUnsafe<L, Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => FTask< A, B>.Inst.Apply(
+            ApplEitherUnsafe<L, Task<A>, Task<B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
                      MTask< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -36186,11 +36186,11 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherUnsafe<L, Task<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, Task<A>> fa, EitherUnsafe<L, Task<B>> fb) =>
-            FEitherUnsafe<L, Task<A>, Task<B>, Task<C>>.Inst.Apply(
+            ApplEitherUnsafe<L, Task<A>, Task<B>, Task<C>>.Inst.Apply(
                 MEitherUnsafe<L, Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
                     (Task<A> a) =>
                         (Task<B> b) =>
-                            FTask< A, B, C>.Inst.Apply(
+                            ApplTask< A, B, C>.Inst.Apply(
                                 MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -36513,8 +36513,8 @@ namespace LanguageExt
         /// <returns>`Task<Task<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<Task<B>> ApplyT< A, B>(this Func<A, B> fab, Task<Task<A>> fa) =>
-            FTask< Task<A>, Task<B>>.Inst.Apply(
-                 MTask< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => FTask< A, B>.Inst.Apply(
+            ApplTask< Task<A>, Task<B>>.Inst.Apply(
+                 MTask< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
                      MTask< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -36530,11 +36530,11 @@ namespace LanguageExt
         /// <returns>`Task<Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<Task<A>> fa, Task<Task<B>> fb) =>
-            FTask< Task<A>, Task<B>, Task<C>>.Inst.Apply(
+            ApplTask< Task<A>, Task<B>, Task<C>>.Inst.Apply(
                 MTask< Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
                     (Task<A> a) =>
                         (Task<B> b) =>
-                            FTask< A, B, C>.Inst.Apply(
+                            ApplTask< A, B, C>.Inst.Apply(
                                 MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -36857,8 +36857,8 @@ namespace LanguageExt
         /// <returns>`Try<Task<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Try<Task<B>> ApplyT< A, B>(this Func<A, B> fab, Try<Task<A>> fa) =>
-            FTry< Task<A>, Task<B>>.Inst.Apply(
-                 MTry< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => FTask< A, B>.Inst.Apply(
+            ApplTry< Task<A>, Task<B>>.Inst.Apply(
+                 MTry< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
                      MTask< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -36874,11 +36874,11 @@ namespace LanguageExt
         /// <returns>`Try<Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Try<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Try<Task<A>> fa, Try<Task<B>> fb) =>
-            FTry< Task<A>, Task<B>, Task<C>>.Inst.Apply(
+            ApplTry< Task<A>, Task<B>, Task<C>>.Inst.Apply(
                 MTry< Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
                     (Task<A> a) =>
                         (Task<B> b) =>
-                            FTask< A, B, C>.Inst.Apply(
+                            ApplTask< A, B, C>.Inst.Apply(
                                 MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -37201,8 +37201,8 @@ namespace LanguageExt
         /// <returns>`TryAsync<Task<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<Task<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<Task<A>> fa) =>
-            FTryAsync< Task<A>, Task<B>>.Inst.Apply(
-                 MTryAsync< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => FTask< A, B>.Inst.Apply(
+            ApplTryAsync< Task<A>, Task<B>>.Inst.Apply(
+                 MTryAsync< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
                      MTask< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -37218,11 +37218,11 @@ namespace LanguageExt
         /// <returns>`TryAsync<Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<Task<A>> fa, TryAsync<Task<B>> fb) =>
-            FTryAsync< Task<A>, Task<B>, Task<C>>.Inst.Apply(
+            ApplTryAsync< Task<A>, Task<B>, Task<C>>.Inst.Apply(
                 MTryAsync< Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
                     (Task<A> a) =>
                         (Task<B> b) =>
-                            FTask< A, B, C>.Inst.Apply(
+                            ApplTask< A, B, C>.Inst.Apply(
                                 MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -37545,8 +37545,8 @@ namespace LanguageExt
         /// <returns>`TryOption<Task<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOption<Task<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<Task<A>> fa) =>
-            FTryOption< Task<A>, Task<B>>.Inst.Apply(
-                 MTryOption< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => FTask< A, B>.Inst.Apply(
+            ApplTryOption< Task<A>, Task<B>>.Inst.Apply(
+                 MTryOption< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
                      MTask< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -37562,11 +37562,11 @@ namespace LanguageExt
         /// <returns>`TryOption<Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOption<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOption<Task<A>> fa, TryOption<Task<B>> fb) =>
-            FTryOption< Task<A>, Task<B>, Task<C>>.Inst.Apply(
+            ApplTryOption< Task<A>, Task<B>, Task<C>>.Inst.Apply(
                 MTryOption< Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
                     (Task<A> a) =>
                         (Task<B> b) =>
-                            FTask< A, B, C>.Inst.Apply(
+                            ApplTask< A, B, C>.Inst.Apply(
                                 MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -37889,8 +37889,8 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<Task<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<Task<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<Task<A>> fa) =>
-            FTryOptionAsync< Task<A>, Task<B>>.Inst.Apply(
-                 MTryOptionAsync< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => FTask< A, B>.Inst.Apply(
+            ApplTryOptionAsync< Task<A>, Task<B>>.Inst.Apply(
+                 MTryOptionAsync< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
                      MTask< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -37906,11 +37906,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<Task<A>> fa, TryOptionAsync<Task<B>> fb) =>
-            FTryOptionAsync< Task<A>, Task<B>, Task<C>>.Inst.Apply(
+            ApplTryOptionAsync< Task<A>, Task<B>, Task<C>>.Inst.Apply(
                 MTryOptionAsync< Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
                     (Task<A> a) =>
                         (Task<B> b) =>
-                            FTask< A, B, C>.Inst.Apply(
+                            ApplTask< A, B, C>.Inst.Apply(
                                 MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -38233,8 +38233,8 @@ namespace LanguageExt
         /// <returns>`IEnumerable<Task<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static IEnumerable<Task<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<Task<A>> fa) =>
-            FSeq< Task<A>, Task<B>>.Inst.Apply(
-                 MSeq< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => FTask< A, B>.Inst.Apply(
+            ApplSeq< Task<A>, Task<B>>.Inst.Apply(
+                 MSeq< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
                      MTask< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -38250,11 +38250,11 @@ namespace LanguageExt
         /// <returns>`IEnumerable<Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static IEnumerable<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, IEnumerable<Task<A>> fa, IEnumerable<Task<B>> fb) =>
-            FSeq< Task<A>, Task<B>, Task<C>>.Inst.Apply(
+            ApplSeq< Task<A>, Task<B>, Task<C>>.Inst.Apply(
                 MSeq< Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
                     (Task<A> a) =>
                         (Task<B> b) =>
-                            FTask< A, B, C>.Inst.Apply(
+                            ApplTask< A, B, C>.Inst.Apply(
                                 MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -38577,8 +38577,8 @@ namespace LanguageExt
         /// <returns>`Set<Task<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Set<Task<B>> ApplyT< A, B>(this Func<A, B> fab, Set<Task<A>> fa) =>
-            FSet< Task<A>, Task<B>>.Inst.Apply(
-                 MSet< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => FTask< A, B>.Inst.Apply(
+            ApplSet< Task<A>, Task<B>>.Inst.Apply(
+                 MSet< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
                      MTask< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -38594,11 +38594,11 @@ namespace LanguageExt
         /// <returns>`Set<Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Set<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Set<Task<A>> fa, Set<Task<B>> fb) =>
-            FSet< Task<A>, Task<B>, Task<C>>.Inst.Apply(
+            ApplSet< Task<A>, Task<B>, Task<C>>.Inst.Apply(
                 MSet< Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
                     (Task<A> a) =>
                         (Task<B> b) =>
-                            FTask< A, B, C>.Inst.Apply(
+                            ApplTask< A, B, C>.Inst.Apply(
                                 MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
@@ -38929,8 +38929,8 @@ namespace LanguageExt
         /// <returns>`Arr<Try<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Arr<Try<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<Try<A>> fa) =>
-            FArr< Try<A>, Try<B>>.Inst.Apply(
-                 MArr< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => FTry< A, B>.Inst.Apply(
+            ApplArr< Try<A>, Try<B>>.Inst.Apply(
+                 MArr< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
                      MTry< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -38946,11 +38946,11 @@ namespace LanguageExt
         /// <returns>`Arr<Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Arr<Try<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Arr<Try<A>> fa, Arr<Try<B>> fb) =>
-            FArr< Try<A>, Try<B>, Try<C>>.Inst.Apply(
+            ApplArr< Try<A>, Try<B>, Try<C>>.Inst.Apply(
                 MArr< Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
                     (Try<A> a) =>
                         (Try<B> b) =>
-                            FTry< A, B, C>.Inst.Apply(
+                            ApplTry< A, B, C>.Inst.Apply(
                                 MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -39273,8 +39273,8 @@ namespace LanguageExt
         /// <returns>`HashSet<Try<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static HashSet<Try<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<Try<A>> fa) =>
-            FHashSet< Try<A>, Try<B>>.Inst.Apply(
-                 MHashSet< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => FTry< A, B>.Inst.Apply(
+            ApplHashSet< Try<A>, Try<B>>.Inst.Apply(
+                 MHashSet< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
                      MTry< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -39290,11 +39290,11 @@ namespace LanguageExt
         /// <returns>`HashSet<Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static HashSet<Try<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, HashSet<Try<A>> fa, HashSet<Try<B>> fb) =>
-            FHashSet< Try<A>, Try<B>, Try<C>>.Inst.Apply(
+            ApplHashSet< Try<A>, Try<B>, Try<C>>.Inst.Apply(
                 MHashSet< Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
                     (Try<A> a) =>
                         (Try<B> b) =>
-                            FTry< A, B, C>.Inst.Apply(
+                            ApplTry< A, B, C>.Inst.Apply(
                                 MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -39617,8 +39617,8 @@ namespace LanguageExt
         /// <returns>`Lst<Try<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Lst<Try<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<Try<A>> fa) =>
-            FLst< Try<A>, Try<B>>.Inst.Apply(
-                 MLst< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => FTry< A, B>.Inst.Apply(
+            ApplLst< Try<A>, Try<B>>.Inst.Apply(
+                 MLst< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
                      MTry< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -39634,11 +39634,11 @@ namespace LanguageExt
         /// <returns>`Lst<Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Lst<Try<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Lst<Try<A>> fa, Lst<Try<B>> fb) =>
-            FLst< Try<A>, Try<B>, Try<C>>.Inst.Apply(
+            ApplLst< Try<A>, Try<B>, Try<C>>.Inst.Apply(
                 MLst< Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
                     (Try<A> a) =>
                         (Try<B> b) =>
-                            FTry< A, B, C>.Inst.Apply(
+                            ApplTry< A, B, C>.Inst.Apply(
                                 MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -39961,8 +39961,8 @@ namespace LanguageExt
         /// <returns>`Option<Try<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Option<Try<B>> ApplyT< A, B>(this Func<A, B> fab, Option<Try<A>> fa) =>
-            FOption< Try<A>, Try<B>>.Inst.Apply(
-                 MOption< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => FTry< A, B>.Inst.Apply(
+            ApplOption< Try<A>, Try<B>>.Inst.Apply(
+                 MOption< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
                      MTry< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -39978,11 +39978,11 @@ namespace LanguageExt
         /// <returns>`Option<Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Option<Try<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Option<Try<A>> fa, Option<Try<B>> fb) =>
-            FOption< Try<A>, Try<B>, Try<C>>.Inst.Apply(
+            ApplOption< Try<A>, Try<B>, Try<C>>.Inst.Apply(
                 MOption< Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
                     (Try<A> a) =>
                         (Try<B> b) =>
-                            FTry< A, B, C>.Inst.Apply(
+                            ApplTry< A, B, C>.Inst.Apply(
                                 MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -40305,8 +40305,8 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<Try<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionUnsafe<Try<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<Try<A>> fa) =>
-            FOptionUnsafe< Try<A>, Try<B>>.Inst.Apply(
-                 MOptionUnsafe< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => FTry< A, B>.Inst.Apply(
+            ApplOptionUnsafe< Try<A>, Try<B>>.Inst.Apply(
+                 MOptionUnsafe< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
                      MTry< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -40322,11 +40322,11 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionUnsafe<Try<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<Try<A>> fa, OptionUnsafe<Try<B>> fb) =>
-            FOptionUnsafe< Try<A>, Try<B>, Try<C>>.Inst.Apply(
+            ApplOptionUnsafe< Try<A>, Try<B>, Try<C>>.Inst.Apply(
                 MOptionUnsafe< Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
                     (Try<A> a) =>
                         (Try<B> b) =>
-                            FTry< A, B, C>.Inst.Apply(
+                            ApplTry< A, B, C>.Inst.Apply(
                                 MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -40649,8 +40649,8 @@ namespace LanguageExt
         /// <returns>`Either<L, Try<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Either<L, Try<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, Try<A>> fa) =>
-            FEither<L, Try<A>, Try<B>>.Inst.Apply(
-                 MEither<L, Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => FTry< A, B>.Inst.Apply(
+            ApplEither<L, Try<A>, Try<B>>.Inst.Apply(
+                 MEither<L, Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
                      MTry< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -40666,11 +40666,11 @@ namespace LanguageExt
         /// <returns>`Either<L, Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Either<L, Try<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Either<L, Try<A>> fa, Either<L, Try<B>> fb) =>
-            FEither<L, Try<A>, Try<B>, Try<C>>.Inst.Apply(
+            ApplEither<L, Try<A>, Try<B>, Try<C>>.Inst.Apply(
                 MEither<L, Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
                     (Try<A> a) =>
                         (Try<B> b) =>
-                            FTry< A, B, C>.Inst.Apply(
+                            ApplTry< A, B, C>.Inst.Apply(
                                 MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -40993,8 +40993,8 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, Try<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherUnsafe<L, Try<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, Try<A>> fa) =>
-            FEitherUnsafe<L, Try<A>, Try<B>>.Inst.Apply(
-                 MEitherUnsafe<L, Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => FTry< A, B>.Inst.Apply(
+            ApplEitherUnsafe<L, Try<A>, Try<B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
                      MTry< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -41010,11 +41010,11 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherUnsafe<L, Try<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, Try<A>> fa, EitherUnsafe<L, Try<B>> fb) =>
-            FEitherUnsafe<L, Try<A>, Try<B>, Try<C>>.Inst.Apply(
+            ApplEitherUnsafe<L, Try<A>, Try<B>, Try<C>>.Inst.Apply(
                 MEitherUnsafe<L, Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
                     (Try<A> a) =>
                         (Try<B> b) =>
-                            FTry< A, B, C>.Inst.Apply(
+                            ApplTry< A, B, C>.Inst.Apply(
                                 MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -41337,8 +41337,8 @@ namespace LanguageExt
         /// <returns>`Task<Try<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<Try<B>> ApplyT< A, B>(this Func<A, B> fab, Task<Try<A>> fa) =>
-            FTask< Try<A>, Try<B>>.Inst.Apply(
-                 MTask< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => FTry< A, B>.Inst.Apply(
+            ApplTask< Try<A>, Try<B>>.Inst.Apply(
+                 MTask< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
                      MTry< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -41354,11 +41354,11 @@ namespace LanguageExt
         /// <returns>`Task<Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<Try<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<Try<A>> fa, Task<Try<B>> fb) =>
-            FTask< Try<A>, Try<B>, Try<C>>.Inst.Apply(
+            ApplTask< Try<A>, Try<B>, Try<C>>.Inst.Apply(
                 MTask< Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
                     (Try<A> a) =>
                         (Try<B> b) =>
-                            FTry< A, B, C>.Inst.Apply(
+                            ApplTry< A, B, C>.Inst.Apply(
                                 MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -41681,8 +41681,8 @@ namespace LanguageExt
         /// <returns>`Try<Try<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Try<Try<B>> ApplyT< A, B>(this Func<A, B> fab, Try<Try<A>> fa) =>
-            FTry< Try<A>, Try<B>>.Inst.Apply(
-                 MTry< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => FTry< A, B>.Inst.Apply(
+            ApplTry< Try<A>, Try<B>>.Inst.Apply(
+                 MTry< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
                      MTry< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -41698,11 +41698,11 @@ namespace LanguageExt
         /// <returns>`Try<Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Try<Try<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Try<Try<A>> fa, Try<Try<B>> fb) =>
-            FTry< Try<A>, Try<B>, Try<C>>.Inst.Apply(
+            ApplTry< Try<A>, Try<B>, Try<C>>.Inst.Apply(
                 MTry< Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
                     (Try<A> a) =>
                         (Try<B> b) =>
-                            FTry< A, B, C>.Inst.Apply(
+                            ApplTry< A, B, C>.Inst.Apply(
                                 MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -42025,8 +42025,8 @@ namespace LanguageExt
         /// <returns>`TryAsync<Try<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<Try<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<Try<A>> fa) =>
-            FTryAsync< Try<A>, Try<B>>.Inst.Apply(
-                 MTryAsync< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => FTry< A, B>.Inst.Apply(
+            ApplTryAsync< Try<A>, Try<B>>.Inst.Apply(
+                 MTryAsync< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
                      MTry< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -42042,11 +42042,11 @@ namespace LanguageExt
         /// <returns>`TryAsync<Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<Try<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<Try<A>> fa, TryAsync<Try<B>> fb) =>
-            FTryAsync< Try<A>, Try<B>, Try<C>>.Inst.Apply(
+            ApplTryAsync< Try<A>, Try<B>, Try<C>>.Inst.Apply(
                 MTryAsync< Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
                     (Try<A> a) =>
                         (Try<B> b) =>
-                            FTry< A, B, C>.Inst.Apply(
+                            ApplTry< A, B, C>.Inst.Apply(
                                 MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -42369,8 +42369,8 @@ namespace LanguageExt
         /// <returns>`TryOption<Try<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOption<Try<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<Try<A>> fa) =>
-            FTryOption< Try<A>, Try<B>>.Inst.Apply(
-                 MTryOption< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => FTry< A, B>.Inst.Apply(
+            ApplTryOption< Try<A>, Try<B>>.Inst.Apply(
+                 MTryOption< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
                      MTry< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -42386,11 +42386,11 @@ namespace LanguageExt
         /// <returns>`TryOption<Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOption<Try<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOption<Try<A>> fa, TryOption<Try<B>> fb) =>
-            FTryOption< Try<A>, Try<B>, Try<C>>.Inst.Apply(
+            ApplTryOption< Try<A>, Try<B>, Try<C>>.Inst.Apply(
                 MTryOption< Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
                     (Try<A> a) =>
                         (Try<B> b) =>
-                            FTry< A, B, C>.Inst.Apply(
+                            ApplTry< A, B, C>.Inst.Apply(
                                 MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -42713,8 +42713,8 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<Try<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<Try<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<Try<A>> fa) =>
-            FTryOptionAsync< Try<A>, Try<B>>.Inst.Apply(
-                 MTryOptionAsync< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => FTry< A, B>.Inst.Apply(
+            ApplTryOptionAsync< Try<A>, Try<B>>.Inst.Apply(
+                 MTryOptionAsync< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
                      MTry< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -42730,11 +42730,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<Try<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<Try<A>> fa, TryOptionAsync<Try<B>> fb) =>
-            FTryOptionAsync< Try<A>, Try<B>, Try<C>>.Inst.Apply(
+            ApplTryOptionAsync< Try<A>, Try<B>, Try<C>>.Inst.Apply(
                 MTryOptionAsync< Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
                     (Try<A> a) =>
                         (Try<B> b) =>
-                            FTry< A, B, C>.Inst.Apply(
+                            ApplTry< A, B, C>.Inst.Apply(
                                 MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -43057,8 +43057,8 @@ namespace LanguageExt
         /// <returns>`IEnumerable<Try<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static IEnumerable<Try<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<Try<A>> fa) =>
-            FSeq< Try<A>, Try<B>>.Inst.Apply(
-                 MSeq< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => FTry< A, B>.Inst.Apply(
+            ApplSeq< Try<A>, Try<B>>.Inst.Apply(
+                 MSeq< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
                      MTry< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -43074,11 +43074,11 @@ namespace LanguageExt
         /// <returns>`IEnumerable<Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static IEnumerable<Try<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, IEnumerable<Try<A>> fa, IEnumerable<Try<B>> fb) =>
-            FSeq< Try<A>, Try<B>, Try<C>>.Inst.Apply(
+            ApplSeq< Try<A>, Try<B>, Try<C>>.Inst.Apply(
                 MSeq< Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
                     (Try<A> a) =>
                         (Try<B> b) =>
-                            FTry< A, B, C>.Inst.Apply(
+                            ApplTry< A, B, C>.Inst.Apply(
                                 MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -43401,8 +43401,8 @@ namespace LanguageExt
         /// <returns>`Set<Try<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Set<Try<B>> ApplyT< A, B>(this Func<A, B> fab, Set<Try<A>> fa) =>
-            FSet< Try<A>, Try<B>>.Inst.Apply(
-                 MSet< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => FTry< A, B>.Inst.Apply(
+            ApplSet< Try<A>, Try<B>>.Inst.Apply(
+                 MSet< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
                      MTry< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -43418,11 +43418,11 @@ namespace LanguageExt
         /// <returns>`Set<Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Set<Try<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Set<Try<A>> fa, Set<Try<B>> fb) =>
-            FSet< Try<A>, Try<B>, Try<C>>.Inst.Apply(
+            ApplSet< Try<A>, Try<B>, Try<C>>.Inst.Apply(
                 MSet< Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
                     (Try<A> a) =>
                         (Try<B> b) =>
-                            FTry< A, B, C>.Inst.Apply(
+                            ApplTry< A, B, C>.Inst.Apply(
                                 MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
@@ -43753,8 +43753,8 @@ namespace LanguageExt
         /// <returns>`Arr<TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Arr<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<TryAsync<A>> fa) =>
-            FArr< TryAsync<A>, TryAsync<B>>.Inst.Apply(
-                 MArr< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => FTryAsync< A, B>.Inst.Apply(
+            ApplArr< TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MArr< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
                      MTryAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -43770,11 +43770,11 @@ namespace LanguageExt
         /// <returns>`Arr<TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Arr<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Arr<TryAsync<A>> fa, Arr<TryAsync<B>> fb) =>
-            FArr< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+            ApplArr< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
                 MArr< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
                     (TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            FTryAsync< A, B, C>.Inst.Apply(
+                            ApplTryAsync< A, B, C>.Inst.Apply(
                                 MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -44097,8 +44097,8 @@ namespace LanguageExt
         /// <returns>`HashSet<TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static HashSet<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<TryAsync<A>> fa) =>
-            FHashSet< TryAsync<A>, TryAsync<B>>.Inst.Apply(
-                 MHashSet< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => FTryAsync< A, B>.Inst.Apply(
+            ApplHashSet< TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MHashSet< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
                      MTryAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -44114,11 +44114,11 @@ namespace LanguageExt
         /// <returns>`HashSet<TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static HashSet<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, HashSet<TryAsync<A>> fa, HashSet<TryAsync<B>> fb) =>
-            FHashSet< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+            ApplHashSet< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
                 MHashSet< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
                     (TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            FTryAsync< A, B, C>.Inst.Apply(
+                            ApplTryAsync< A, B, C>.Inst.Apply(
                                 MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -44441,8 +44441,8 @@ namespace LanguageExt
         /// <returns>`Lst<TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Lst<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<TryAsync<A>> fa) =>
-            FLst< TryAsync<A>, TryAsync<B>>.Inst.Apply(
-                 MLst< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => FTryAsync< A, B>.Inst.Apply(
+            ApplLst< TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MLst< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
                      MTryAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -44458,11 +44458,11 @@ namespace LanguageExt
         /// <returns>`Lst<TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Lst<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Lst<TryAsync<A>> fa, Lst<TryAsync<B>> fb) =>
-            FLst< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+            ApplLst< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
                 MLst< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
                     (TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            FTryAsync< A, B, C>.Inst.Apply(
+                            ApplTryAsync< A, B, C>.Inst.Apply(
                                 MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -44785,8 +44785,8 @@ namespace LanguageExt
         /// <returns>`Option<TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Option<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Option<TryAsync<A>> fa) =>
-            FOption< TryAsync<A>, TryAsync<B>>.Inst.Apply(
-                 MOption< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => FTryAsync< A, B>.Inst.Apply(
+            ApplOption< TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MOption< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
                      MTryAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -44802,11 +44802,11 @@ namespace LanguageExt
         /// <returns>`Option<TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Option<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Option<TryAsync<A>> fa, Option<TryAsync<B>> fb) =>
-            FOption< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+            ApplOption< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
                 MOption< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
                     (TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            FTryAsync< A, B, C>.Inst.Apply(
+                            ApplTryAsync< A, B, C>.Inst.Apply(
                                 MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -45129,8 +45129,8 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionUnsafe<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<TryAsync<A>> fa) =>
-            FOptionUnsafe< TryAsync<A>, TryAsync<B>>.Inst.Apply(
-                 MOptionUnsafe< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => FTryAsync< A, B>.Inst.Apply(
+            ApplOptionUnsafe< TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MOptionUnsafe< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
                      MTryAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -45146,11 +45146,11 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionUnsafe<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<TryAsync<A>> fa, OptionUnsafe<TryAsync<B>> fb) =>
-            FOptionUnsafe< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+            ApplOptionUnsafe< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
                 MOptionUnsafe< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
                     (TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            FTryAsync< A, B, C>.Inst.Apply(
+                            ApplTryAsync< A, B, C>.Inst.Apply(
                                 MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -45473,8 +45473,8 @@ namespace LanguageExt
         /// <returns>`Either<L, TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Either<L, TryAsync<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, TryAsync<A>> fa) =>
-            FEither<L, TryAsync<A>, TryAsync<B>>.Inst.Apply(
-                 MEither<L, Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => FTryAsync< A, B>.Inst.Apply(
+            ApplEither<L, TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MEither<L, Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
                      MTryAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -45490,11 +45490,11 @@ namespace LanguageExt
         /// <returns>`Either<L, TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Either<L, TryAsync<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Either<L, TryAsync<A>> fa, Either<L, TryAsync<B>> fb) =>
-            FEither<L, TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+            ApplEither<L, TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
                 MEither<L, Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
                     (TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            FTryAsync< A, B, C>.Inst.Apply(
+                            ApplTryAsync< A, B, C>.Inst.Apply(
                                 MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -45817,8 +45817,8 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherUnsafe<L, TryAsync<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, TryAsync<A>> fa) =>
-            FEitherUnsafe<L, TryAsync<A>, TryAsync<B>>.Inst.Apply(
-                 MEitherUnsafe<L, Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => FTryAsync< A, B>.Inst.Apply(
+            ApplEitherUnsafe<L, TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
                      MTryAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -45834,11 +45834,11 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherUnsafe<L, TryAsync<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, TryAsync<A>> fa, EitherUnsafe<L, TryAsync<B>> fb) =>
-            FEitherUnsafe<L, TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+            ApplEitherUnsafe<L, TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
                 MEitherUnsafe<L, Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
                     (TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            FTryAsync< A, B, C>.Inst.Apply(
+                            ApplTryAsync< A, B, C>.Inst.Apply(
                                 MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -46161,8 +46161,8 @@ namespace LanguageExt
         /// <returns>`Task<TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Task<TryAsync<A>> fa) =>
-            FTask< TryAsync<A>, TryAsync<B>>.Inst.Apply(
-                 MTask< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => FTryAsync< A, B>.Inst.Apply(
+            ApplTask< TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MTask< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
                      MTryAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -46178,11 +46178,11 @@ namespace LanguageExt
         /// <returns>`Task<TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<TryAsync<A>> fa, Task<TryAsync<B>> fb) =>
-            FTask< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+            ApplTask< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
                 MTask< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
                     (TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            FTryAsync< A, B, C>.Inst.Apply(
+                            ApplTryAsync< A, B, C>.Inst.Apply(
                                 MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -46505,8 +46505,8 @@ namespace LanguageExt
         /// <returns>`Try<TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Try<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Try<TryAsync<A>> fa) =>
-            FTry< TryAsync<A>, TryAsync<B>>.Inst.Apply(
-                 MTry< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => FTryAsync< A, B>.Inst.Apply(
+            ApplTry< TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MTry< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
                      MTryAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -46522,11 +46522,11 @@ namespace LanguageExt
         /// <returns>`Try<TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Try<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Try<TryAsync<A>> fa, Try<TryAsync<B>> fb) =>
-            FTry< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+            ApplTry< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
                 MTry< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
                     (TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            FTryAsync< A, B, C>.Inst.Apply(
+                            ApplTryAsync< A, B, C>.Inst.Apply(
                                 MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -46849,8 +46849,8 @@ namespace LanguageExt
         /// <returns>`TryAsync<TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<TryAsync<A>> fa) =>
-            FTryAsync< TryAsync<A>, TryAsync<B>>.Inst.Apply(
-                 MTryAsync< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => FTryAsync< A, B>.Inst.Apply(
+            ApplTryAsync< TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MTryAsync< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
                      MTryAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -46866,11 +46866,11 @@ namespace LanguageExt
         /// <returns>`TryAsync<TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<TryAsync<A>> fa, TryAsync<TryAsync<B>> fb) =>
-            FTryAsync< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+            ApplTryAsync< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
                 MTryAsync< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
                     (TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            FTryAsync< A, B, C>.Inst.Apply(
+                            ApplTryAsync< A, B, C>.Inst.Apply(
                                 MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -47193,8 +47193,8 @@ namespace LanguageExt
         /// <returns>`TryOption<TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOption<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<TryAsync<A>> fa) =>
-            FTryOption< TryAsync<A>, TryAsync<B>>.Inst.Apply(
-                 MTryOption< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => FTryAsync< A, B>.Inst.Apply(
+            ApplTryOption< TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MTryOption< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
                      MTryAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -47210,11 +47210,11 @@ namespace LanguageExt
         /// <returns>`TryOption<TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOption<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOption<TryAsync<A>> fa, TryOption<TryAsync<B>> fb) =>
-            FTryOption< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+            ApplTryOption< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
                 MTryOption< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
                     (TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            FTryAsync< A, B, C>.Inst.Apply(
+                            ApplTryAsync< A, B, C>.Inst.Apply(
                                 MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -47537,8 +47537,8 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<TryAsync<A>> fa) =>
-            FTryOptionAsync< TryAsync<A>, TryAsync<B>>.Inst.Apply(
-                 MTryOptionAsync< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => FTryAsync< A, B>.Inst.Apply(
+            ApplTryOptionAsync< TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MTryOptionAsync< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
                      MTryAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -47554,11 +47554,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<TryAsync<A>> fa, TryOptionAsync<TryAsync<B>> fb) =>
-            FTryOptionAsync< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+            ApplTryOptionAsync< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
                 MTryOptionAsync< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
                     (TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            FTryAsync< A, B, C>.Inst.Apply(
+                            ApplTryAsync< A, B, C>.Inst.Apply(
                                 MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -47881,8 +47881,8 @@ namespace LanguageExt
         /// <returns>`IEnumerable<TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static IEnumerable<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<TryAsync<A>> fa) =>
-            FSeq< TryAsync<A>, TryAsync<B>>.Inst.Apply(
-                 MSeq< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => FTryAsync< A, B>.Inst.Apply(
+            ApplSeq< TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MSeq< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
                      MTryAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -47898,11 +47898,11 @@ namespace LanguageExt
         /// <returns>`IEnumerable<TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static IEnumerable<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, IEnumerable<TryAsync<A>> fa, IEnumerable<TryAsync<B>> fb) =>
-            FSeq< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+            ApplSeq< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
                 MSeq< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
                     (TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            FTryAsync< A, B, C>.Inst.Apply(
+                            ApplTryAsync< A, B, C>.Inst.Apply(
                                 MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -48225,8 +48225,8 @@ namespace LanguageExt
         /// <returns>`Set<TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Set<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Set<TryAsync<A>> fa) =>
-            FSet< TryAsync<A>, TryAsync<B>>.Inst.Apply(
-                 MSet< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => FTryAsync< A, B>.Inst.Apply(
+            ApplSet< TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MSet< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
                      MTryAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -48242,11 +48242,11 @@ namespace LanguageExt
         /// <returns>`Set<TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Set<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Set<TryAsync<A>> fa, Set<TryAsync<B>> fb) =>
-            FSet< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+            ApplSet< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
                 MSet< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
                     (TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            FTryAsync< A, B, C>.Inst.Apply(
+                            ApplTryAsync< A, B, C>.Inst.Apply(
                                 MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
@@ -48577,8 +48577,8 @@ namespace LanguageExt
         /// <returns>`Arr<TryOption<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Arr<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<TryOption<A>> fa) =>
-            FArr< TryOption<A>, TryOption<B>>.Inst.Apply(
-                 MArr< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => FTryOption< A, B>.Inst.Apply(
+            ApplArr< TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MArr< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
                      MTryOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -48594,11 +48594,11 @@ namespace LanguageExt
         /// <returns>`Arr<TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Arr<TryOption<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Arr<TryOption<A>> fa, Arr<TryOption<B>> fb) =>
-            FArr< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+            ApplArr< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
                 MArr< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
                     (TryOption<A> a) =>
                         (TryOption<B> b) =>
-                            FTryOption< A, B, C>.Inst.Apply(
+                            ApplTryOption< A, B, C>.Inst.Apply(
                                 MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -48921,8 +48921,8 @@ namespace LanguageExt
         /// <returns>`HashSet<TryOption<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static HashSet<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<TryOption<A>> fa) =>
-            FHashSet< TryOption<A>, TryOption<B>>.Inst.Apply(
-                 MHashSet< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => FTryOption< A, B>.Inst.Apply(
+            ApplHashSet< TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MHashSet< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
                      MTryOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -48938,11 +48938,11 @@ namespace LanguageExt
         /// <returns>`HashSet<TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static HashSet<TryOption<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, HashSet<TryOption<A>> fa, HashSet<TryOption<B>> fb) =>
-            FHashSet< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+            ApplHashSet< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
                 MHashSet< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
                     (TryOption<A> a) =>
                         (TryOption<B> b) =>
-                            FTryOption< A, B, C>.Inst.Apply(
+                            ApplTryOption< A, B, C>.Inst.Apply(
                                 MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -49265,8 +49265,8 @@ namespace LanguageExt
         /// <returns>`Lst<TryOption<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Lst<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<TryOption<A>> fa) =>
-            FLst< TryOption<A>, TryOption<B>>.Inst.Apply(
-                 MLst< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => FTryOption< A, B>.Inst.Apply(
+            ApplLst< TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MLst< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
                      MTryOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -49282,11 +49282,11 @@ namespace LanguageExt
         /// <returns>`Lst<TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Lst<TryOption<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Lst<TryOption<A>> fa, Lst<TryOption<B>> fb) =>
-            FLst< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+            ApplLst< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
                 MLst< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
                     (TryOption<A> a) =>
                         (TryOption<B> b) =>
-                            FTryOption< A, B, C>.Inst.Apply(
+                            ApplTryOption< A, B, C>.Inst.Apply(
                                 MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -49609,8 +49609,8 @@ namespace LanguageExt
         /// <returns>`Option<TryOption<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Option<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, Option<TryOption<A>> fa) =>
-            FOption< TryOption<A>, TryOption<B>>.Inst.Apply(
-                 MOption< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => FTryOption< A, B>.Inst.Apply(
+            ApplOption< TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MOption< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
                      MTryOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -49626,11 +49626,11 @@ namespace LanguageExt
         /// <returns>`Option<TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Option<TryOption<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Option<TryOption<A>> fa, Option<TryOption<B>> fb) =>
-            FOption< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+            ApplOption< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
                 MOption< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
                     (TryOption<A> a) =>
                         (TryOption<B> b) =>
-                            FTryOption< A, B, C>.Inst.Apply(
+                            ApplTryOption< A, B, C>.Inst.Apply(
                                 MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -49953,8 +49953,8 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<TryOption<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionUnsafe<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<TryOption<A>> fa) =>
-            FOptionUnsafe< TryOption<A>, TryOption<B>>.Inst.Apply(
-                 MOptionUnsafe< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => FTryOption< A, B>.Inst.Apply(
+            ApplOptionUnsafe< TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MOptionUnsafe< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
                      MTryOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -49970,11 +49970,11 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionUnsafe<TryOption<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<TryOption<A>> fa, OptionUnsafe<TryOption<B>> fb) =>
-            FOptionUnsafe< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+            ApplOptionUnsafe< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
                 MOptionUnsafe< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
                     (TryOption<A> a) =>
                         (TryOption<B> b) =>
-                            FTryOption< A, B, C>.Inst.Apply(
+                            ApplTryOption< A, B, C>.Inst.Apply(
                                 MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -50297,8 +50297,8 @@ namespace LanguageExt
         /// <returns>`Either<L, TryOption<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Either<L, TryOption<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, TryOption<A>> fa) =>
-            FEither<L, TryOption<A>, TryOption<B>>.Inst.Apply(
-                 MEither<L, Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => FTryOption< A, B>.Inst.Apply(
+            ApplEither<L, TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MEither<L, Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
                      MTryOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -50314,11 +50314,11 @@ namespace LanguageExt
         /// <returns>`Either<L, TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Either<L, TryOption<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Either<L, TryOption<A>> fa, Either<L, TryOption<B>> fb) =>
-            FEither<L, TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+            ApplEither<L, TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
                 MEither<L, Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
                     (TryOption<A> a) =>
                         (TryOption<B> b) =>
-                            FTryOption< A, B, C>.Inst.Apply(
+                            ApplTryOption< A, B, C>.Inst.Apply(
                                 MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -50641,8 +50641,8 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, TryOption<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherUnsafe<L, TryOption<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, TryOption<A>> fa) =>
-            FEitherUnsafe<L, TryOption<A>, TryOption<B>>.Inst.Apply(
-                 MEitherUnsafe<L, Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => FTryOption< A, B>.Inst.Apply(
+            ApplEitherUnsafe<L, TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
                      MTryOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -50658,11 +50658,11 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherUnsafe<L, TryOption<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, TryOption<A>> fa, EitherUnsafe<L, TryOption<B>> fb) =>
-            FEitherUnsafe<L, TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+            ApplEitherUnsafe<L, TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
                 MEitherUnsafe<L, Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
                     (TryOption<A> a) =>
                         (TryOption<B> b) =>
-                            FTryOption< A, B, C>.Inst.Apply(
+                            ApplTryOption< A, B, C>.Inst.Apply(
                                 MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -50985,8 +50985,8 @@ namespace LanguageExt
         /// <returns>`Task<TryOption<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, Task<TryOption<A>> fa) =>
-            FTask< TryOption<A>, TryOption<B>>.Inst.Apply(
-                 MTask< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => FTryOption< A, B>.Inst.Apply(
+            ApplTask< TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MTask< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
                      MTryOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -51002,11 +51002,11 @@ namespace LanguageExt
         /// <returns>`Task<TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<TryOption<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<TryOption<A>> fa, Task<TryOption<B>> fb) =>
-            FTask< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+            ApplTask< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
                 MTask< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
                     (TryOption<A> a) =>
                         (TryOption<B> b) =>
-                            FTryOption< A, B, C>.Inst.Apply(
+                            ApplTryOption< A, B, C>.Inst.Apply(
                                 MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -51329,8 +51329,8 @@ namespace LanguageExt
         /// <returns>`Try<TryOption<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Try<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, Try<TryOption<A>> fa) =>
-            FTry< TryOption<A>, TryOption<B>>.Inst.Apply(
-                 MTry< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => FTryOption< A, B>.Inst.Apply(
+            ApplTry< TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MTry< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
                      MTryOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -51346,11 +51346,11 @@ namespace LanguageExt
         /// <returns>`Try<TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Try<TryOption<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Try<TryOption<A>> fa, Try<TryOption<B>> fb) =>
-            FTry< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+            ApplTry< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
                 MTry< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
                     (TryOption<A> a) =>
                         (TryOption<B> b) =>
-                            FTryOption< A, B, C>.Inst.Apply(
+                            ApplTryOption< A, B, C>.Inst.Apply(
                                 MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -51673,8 +51673,8 @@ namespace LanguageExt
         /// <returns>`TryAsync<TryOption<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<TryOption<A>> fa) =>
-            FTryAsync< TryOption<A>, TryOption<B>>.Inst.Apply(
-                 MTryAsync< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => FTryOption< A, B>.Inst.Apply(
+            ApplTryAsync< TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MTryAsync< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
                      MTryOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -51690,11 +51690,11 @@ namespace LanguageExt
         /// <returns>`TryAsync<TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<TryOption<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<TryOption<A>> fa, TryAsync<TryOption<B>> fb) =>
-            FTryAsync< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+            ApplTryAsync< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
                 MTryAsync< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
                     (TryOption<A> a) =>
                         (TryOption<B> b) =>
-                            FTryOption< A, B, C>.Inst.Apply(
+                            ApplTryOption< A, B, C>.Inst.Apply(
                                 MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -52017,8 +52017,8 @@ namespace LanguageExt
         /// <returns>`TryOption<TryOption<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOption<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<TryOption<A>> fa) =>
-            FTryOption< TryOption<A>, TryOption<B>>.Inst.Apply(
-                 MTryOption< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => FTryOption< A, B>.Inst.Apply(
+            ApplTryOption< TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MTryOption< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
                      MTryOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -52034,11 +52034,11 @@ namespace LanguageExt
         /// <returns>`TryOption<TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOption<TryOption<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOption<TryOption<A>> fa, TryOption<TryOption<B>> fb) =>
-            FTryOption< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+            ApplTryOption< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
                 MTryOption< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
                     (TryOption<A> a) =>
                         (TryOption<B> b) =>
-                            FTryOption< A, B, C>.Inst.Apply(
+                            ApplTryOption< A, B, C>.Inst.Apply(
                                 MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -52361,8 +52361,8 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<TryOption<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<TryOption<A>> fa) =>
-            FTryOptionAsync< TryOption<A>, TryOption<B>>.Inst.Apply(
-                 MTryOptionAsync< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => FTryOption< A, B>.Inst.Apply(
+            ApplTryOptionAsync< TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MTryOptionAsync< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
                      MTryOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -52378,11 +52378,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<TryOption<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<TryOption<A>> fa, TryOptionAsync<TryOption<B>> fb) =>
-            FTryOptionAsync< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+            ApplTryOptionAsync< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
                 MTryOptionAsync< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
                     (TryOption<A> a) =>
                         (TryOption<B> b) =>
-                            FTryOption< A, B, C>.Inst.Apply(
+                            ApplTryOption< A, B, C>.Inst.Apply(
                                 MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -52705,8 +52705,8 @@ namespace LanguageExt
         /// <returns>`IEnumerable<TryOption<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static IEnumerable<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<TryOption<A>> fa) =>
-            FSeq< TryOption<A>, TryOption<B>>.Inst.Apply(
-                 MSeq< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => FTryOption< A, B>.Inst.Apply(
+            ApplSeq< TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MSeq< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
                      MTryOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -52722,11 +52722,11 @@ namespace LanguageExt
         /// <returns>`IEnumerable<TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static IEnumerable<TryOption<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, IEnumerable<TryOption<A>> fa, IEnumerable<TryOption<B>> fb) =>
-            FSeq< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+            ApplSeq< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
                 MSeq< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
                     (TryOption<A> a) =>
                         (TryOption<B> b) =>
-                            FTryOption< A, B, C>.Inst.Apply(
+                            ApplTryOption< A, B, C>.Inst.Apply(
                                 MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -53049,8 +53049,8 @@ namespace LanguageExt
         /// <returns>`Set<TryOption<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Set<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, Set<TryOption<A>> fa) =>
-            FSet< TryOption<A>, TryOption<B>>.Inst.Apply(
-                 MSet< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => FTryOption< A, B>.Inst.Apply(
+            ApplSet< TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MSet< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
                      MTryOption< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -53066,11 +53066,11 @@ namespace LanguageExt
         /// <returns>`Set<TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Set<TryOption<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Set<TryOption<A>> fa, Set<TryOption<B>> fb) =>
-            FSet< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+            ApplSet< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
                 MSet< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
                     (TryOption<A> a) =>
                         (TryOption<B> b) =>
-                            FTryOption< A, B, C>.Inst.Apply(
+                            ApplTryOption< A, B, C>.Inst.Apply(
                                 MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
@@ -53401,8 +53401,8 @@ namespace LanguageExt
         /// <returns>`Arr<TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Arr<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<TryOptionAsync<A>> fa) =>
-            FArr< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
-                 MArr< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => FTryOptionAsync< A, B>.Inst.Apply(
+            ApplArr< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MArr< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
                      MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -53418,11 +53418,11 @@ namespace LanguageExt
         /// <returns>`Arr<TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Arr<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Arr<TryOptionAsync<A>> fa, Arr<TryOptionAsync<B>> fb) =>
-            FArr< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+            ApplArr< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
                 MArr< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
                     (TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            FTryOptionAsync< A, B, C>.Inst.Apply(
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
                                 MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -53745,8 +53745,8 @@ namespace LanguageExt
         /// <returns>`HashSet<TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static HashSet<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<TryOptionAsync<A>> fa) =>
-            FHashSet< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
-                 MHashSet< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => FTryOptionAsync< A, B>.Inst.Apply(
+            ApplHashSet< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MHashSet< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
                      MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -53762,11 +53762,11 @@ namespace LanguageExt
         /// <returns>`HashSet<TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static HashSet<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, HashSet<TryOptionAsync<A>> fa, HashSet<TryOptionAsync<B>> fb) =>
-            FHashSet< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+            ApplHashSet< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
                 MHashSet< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
                     (TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            FTryOptionAsync< A, B, C>.Inst.Apply(
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
                                 MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -54089,8 +54089,8 @@ namespace LanguageExt
         /// <returns>`Lst<TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Lst<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<TryOptionAsync<A>> fa) =>
-            FLst< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
-                 MLst< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => FTryOptionAsync< A, B>.Inst.Apply(
+            ApplLst< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MLst< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
                      MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -54106,11 +54106,11 @@ namespace LanguageExt
         /// <returns>`Lst<TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Lst<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Lst<TryOptionAsync<A>> fa, Lst<TryOptionAsync<B>> fb) =>
-            FLst< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+            ApplLst< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
                 MLst< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
                     (TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            FTryOptionAsync< A, B, C>.Inst.Apply(
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
                                 MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -54433,8 +54433,8 @@ namespace LanguageExt
         /// <returns>`Option<TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Option<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Option<TryOptionAsync<A>> fa) =>
-            FOption< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
-                 MOption< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => FTryOptionAsync< A, B>.Inst.Apply(
+            ApplOption< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MOption< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
                      MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -54450,11 +54450,11 @@ namespace LanguageExt
         /// <returns>`Option<TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Option<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Option<TryOptionAsync<A>> fa, Option<TryOptionAsync<B>> fb) =>
-            FOption< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+            ApplOption< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
                 MOption< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
                     (TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            FTryOptionAsync< A, B, C>.Inst.Apply(
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
                                 MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -54777,8 +54777,8 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionUnsafe<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<TryOptionAsync<A>> fa) =>
-            FOptionUnsafe< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
-                 MOptionUnsafe< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => FTryOptionAsync< A, B>.Inst.Apply(
+            ApplOptionUnsafe< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MOptionUnsafe< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
                      MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -54794,11 +54794,11 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionUnsafe<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<TryOptionAsync<A>> fa, OptionUnsafe<TryOptionAsync<B>> fb) =>
-            FOptionUnsafe< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+            ApplOptionUnsafe< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
                 MOptionUnsafe< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
                     (TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            FTryOptionAsync< A, B, C>.Inst.Apply(
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
                                 MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -55121,8 +55121,8 @@ namespace LanguageExt
         /// <returns>`Either<L, TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Either<L, TryOptionAsync<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, TryOptionAsync<A>> fa) =>
-            FEither<L, TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
-                 MEither<L, Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => FTryOptionAsync< A, B>.Inst.Apply(
+            ApplEither<L, TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MEither<L, Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
                      MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -55138,11 +55138,11 @@ namespace LanguageExt
         /// <returns>`Either<L, TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Either<L, TryOptionAsync<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Either<L, TryOptionAsync<A>> fa, Either<L, TryOptionAsync<B>> fb) =>
-            FEither<L, TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+            ApplEither<L, TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
                 MEither<L, Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
                     (TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            FTryOptionAsync< A, B, C>.Inst.Apply(
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
                                 MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -55465,8 +55465,8 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherUnsafe<L, TryOptionAsync<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, TryOptionAsync<A>> fa) =>
-            FEitherUnsafe<L, TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
-                 MEitherUnsafe<L, Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => FTryOptionAsync< A, B>.Inst.Apply(
+            ApplEitherUnsafe<L, TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
                      MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -55482,11 +55482,11 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherUnsafe<L, TryOptionAsync<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, TryOptionAsync<A>> fa, EitherUnsafe<L, TryOptionAsync<B>> fb) =>
-            FEitherUnsafe<L, TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+            ApplEitherUnsafe<L, TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
                 MEitherUnsafe<L, Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
                     (TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            FTryOptionAsync< A, B, C>.Inst.Apply(
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
                                 MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -55809,8 +55809,8 @@ namespace LanguageExt
         /// <returns>`Task<TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Task<TryOptionAsync<A>> fa) =>
-            FTask< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
-                 MTask< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => FTryOptionAsync< A, B>.Inst.Apply(
+            ApplTask< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MTask< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
                      MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -55826,11 +55826,11 @@ namespace LanguageExt
         /// <returns>`Task<TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<TryOptionAsync<A>> fa, Task<TryOptionAsync<B>> fb) =>
-            FTask< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+            ApplTask< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
                 MTask< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
                     (TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            FTryOptionAsync< A, B, C>.Inst.Apply(
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
                                 MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -56153,8 +56153,8 @@ namespace LanguageExt
         /// <returns>`Try<TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Try<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Try<TryOptionAsync<A>> fa) =>
-            FTry< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
-                 MTry< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => FTryOptionAsync< A, B>.Inst.Apply(
+            ApplTry< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MTry< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
                      MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -56170,11 +56170,11 @@ namespace LanguageExt
         /// <returns>`Try<TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Try<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Try<TryOptionAsync<A>> fa, Try<TryOptionAsync<B>> fb) =>
-            FTry< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+            ApplTry< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
                 MTry< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
                     (TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            FTryOptionAsync< A, B, C>.Inst.Apply(
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
                                 MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -56497,8 +56497,8 @@ namespace LanguageExt
         /// <returns>`TryAsync<TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<TryOptionAsync<A>> fa) =>
-            FTryAsync< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
-                 MTryAsync< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => FTryOptionAsync< A, B>.Inst.Apply(
+            ApplTryAsync< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MTryAsync< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
                      MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -56514,11 +56514,11 @@ namespace LanguageExt
         /// <returns>`TryAsync<TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<TryOptionAsync<A>> fa, TryAsync<TryOptionAsync<B>> fb) =>
-            FTryAsync< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+            ApplTryAsync< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
                 MTryAsync< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
                     (TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            FTryOptionAsync< A, B, C>.Inst.Apply(
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
                                 MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -56841,8 +56841,8 @@ namespace LanguageExt
         /// <returns>`TryOption<TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOption<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<TryOptionAsync<A>> fa) =>
-            FTryOption< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
-                 MTryOption< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => FTryOptionAsync< A, B>.Inst.Apply(
+            ApplTryOption< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MTryOption< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
                      MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -56858,11 +56858,11 @@ namespace LanguageExt
         /// <returns>`TryOption<TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOption<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOption<TryOptionAsync<A>> fa, TryOption<TryOptionAsync<B>> fb) =>
-            FTryOption< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+            ApplTryOption< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
                 MTryOption< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
                     (TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            FTryOptionAsync< A, B, C>.Inst.Apply(
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
                                 MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -57185,8 +57185,8 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<TryOptionAsync<A>> fa) =>
-            FTryOptionAsync< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
-                 MTryOptionAsync< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => FTryOptionAsync< A, B>.Inst.Apply(
+            ApplTryOptionAsync< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MTryOptionAsync< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
                      MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -57202,11 +57202,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<TryOptionAsync<A>> fa, TryOptionAsync<TryOptionAsync<B>> fb) =>
-            FTryOptionAsync< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+            ApplTryOptionAsync< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
                 MTryOptionAsync< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
                     (TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            FTryOptionAsync< A, B, C>.Inst.Apply(
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
                                 MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -57529,8 +57529,8 @@ namespace LanguageExt
         /// <returns>`IEnumerable<TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static IEnumerable<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<TryOptionAsync<A>> fa) =>
-            FSeq< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
-                 MSeq< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => FTryOptionAsync< A, B>.Inst.Apply(
+            ApplSeq< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MSeq< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
                      MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -57546,11 +57546,11 @@ namespace LanguageExt
         /// <returns>`IEnumerable<TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static IEnumerable<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, IEnumerable<TryOptionAsync<A>> fa, IEnumerable<TryOptionAsync<B>> fb) =>
-            FSeq< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+            ApplSeq< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
                 MSeq< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
                     (TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            FTryOptionAsync< A, B, C>.Inst.Apply(
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
                                 MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -57873,8 +57873,8 @@ namespace LanguageExt
         /// <returns>`Set<TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Set<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Set<TryOptionAsync<A>> fa) =>
-            FSet< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
-                 MSet< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => FTryOptionAsync< A, B>.Inst.Apply(
+            ApplSet< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MSet< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
                      MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -57890,11 +57890,11 @@ namespace LanguageExt
         /// <returns>`Set<TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Set<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Set<TryOptionAsync<A>> fa, Set<TryOptionAsync<B>> fb) =>
-            FSet< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+            ApplSet< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
                 MSet< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
                     (TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            FTryOptionAsync< A, B, C>.Inst.Apply(
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
                                 MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
@@ -58175,8 +58175,8 @@ namespace LanguageExt
         /// <returns>`Arr<IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Arr<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<IEnumerable<A>> fa) =>
-            FArr< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
-                 MArr< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => FSeq< A, B>.Inst.Apply(
+            ApplArr< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MArr< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
                      MSeq< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -58192,11 +58192,11 @@ namespace LanguageExt
         /// <returns>`Arr<IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Arr<IEnumerable<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Arr<IEnumerable<A>> fa, Arr<IEnumerable<B>> fb) =>
-            FArr< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+            ApplArr< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
                 MArr< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
                     (IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
-                            FSeq< A, B, C>.Inst.Apply(
+                            ApplSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -58469,8 +58469,8 @@ namespace LanguageExt
         /// <returns>`HashSet<IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static HashSet<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<IEnumerable<A>> fa) =>
-            FHashSet< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
-                 MHashSet< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => FSeq< A, B>.Inst.Apply(
+            ApplHashSet< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MHashSet< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
                      MSeq< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -58486,11 +58486,11 @@ namespace LanguageExt
         /// <returns>`HashSet<IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static HashSet<IEnumerable<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, HashSet<IEnumerable<A>> fa, HashSet<IEnumerable<B>> fb) =>
-            FHashSet< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+            ApplHashSet< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
                 MHashSet< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
                     (IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
-                            FSeq< A, B, C>.Inst.Apply(
+                            ApplSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -58763,8 +58763,8 @@ namespace LanguageExt
         /// <returns>`Lst<IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Lst<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<IEnumerable<A>> fa) =>
-            FLst< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
-                 MLst< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => FSeq< A, B>.Inst.Apply(
+            ApplLst< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MLst< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
                      MSeq< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -58780,11 +58780,11 @@ namespace LanguageExt
         /// <returns>`Lst<IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Lst<IEnumerable<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Lst<IEnumerable<A>> fa, Lst<IEnumerable<B>> fb) =>
-            FLst< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+            ApplLst< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
                 MLst< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
                     (IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
-                            FSeq< A, B, C>.Inst.Apply(
+                            ApplSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -59057,8 +59057,8 @@ namespace LanguageExt
         /// <returns>`Option<IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Option<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, Option<IEnumerable<A>> fa) =>
-            FOption< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
-                 MOption< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => FSeq< A, B>.Inst.Apply(
+            ApplOption< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MOption< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
                      MSeq< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -59074,11 +59074,11 @@ namespace LanguageExt
         /// <returns>`Option<IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Option<IEnumerable<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Option<IEnumerable<A>> fa, Option<IEnumerable<B>> fb) =>
-            FOption< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+            ApplOption< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
                 MOption< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
                     (IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
-                            FSeq< A, B, C>.Inst.Apply(
+                            ApplSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -59351,8 +59351,8 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionUnsafe<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<IEnumerable<A>> fa) =>
-            FOptionUnsafe< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
-                 MOptionUnsafe< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => FSeq< A, B>.Inst.Apply(
+            ApplOptionUnsafe< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MOptionUnsafe< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
                      MSeq< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -59368,11 +59368,11 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionUnsafe<IEnumerable<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<IEnumerable<A>> fa, OptionUnsafe<IEnumerable<B>> fb) =>
-            FOptionUnsafe< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+            ApplOptionUnsafe< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
                 MOptionUnsafe< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
                     (IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
-                            FSeq< A, B, C>.Inst.Apply(
+                            ApplSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -59645,8 +59645,8 @@ namespace LanguageExt
         /// <returns>`Either<L, IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Either<L, IEnumerable<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, IEnumerable<A>> fa) =>
-            FEither<L, IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
-                 MEither<L, Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => FSeq< A, B>.Inst.Apply(
+            ApplEither<L, IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MEither<L, Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
                      MSeq< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -59662,11 +59662,11 @@ namespace LanguageExt
         /// <returns>`Either<L, IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Either<L, IEnumerable<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Either<L, IEnumerable<A>> fa, Either<L, IEnumerable<B>> fb) =>
-            FEither<L, IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+            ApplEither<L, IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
                 MEither<L, Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
                     (IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
-                            FSeq< A, B, C>.Inst.Apply(
+                            ApplSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -59939,8 +59939,8 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherUnsafe<L, IEnumerable<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, IEnumerable<A>> fa) =>
-            FEitherUnsafe<L, IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
-                 MEitherUnsafe<L, Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => FSeq< A, B>.Inst.Apply(
+            ApplEitherUnsafe<L, IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
                      MSeq< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -59956,11 +59956,11 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherUnsafe<L, IEnumerable<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, IEnumerable<A>> fa, EitherUnsafe<L, IEnumerable<B>> fb) =>
-            FEitherUnsafe<L, IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+            ApplEitherUnsafe<L, IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
                 MEitherUnsafe<L, Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
                     (IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
-                            FSeq< A, B, C>.Inst.Apply(
+                            ApplSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -60233,8 +60233,8 @@ namespace LanguageExt
         /// <returns>`Task<IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, Task<IEnumerable<A>> fa) =>
-            FTask< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
-                 MTask< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => FSeq< A, B>.Inst.Apply(
+            ApplTask< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MTask< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
                      MSeq< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -60250,11 +60250,11 @@ namespace LanguageExt
         /// <returns>`Task<IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<IEnumerable<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<IEnumerable<A>> fa, Task<IEnumerable<B>> fb) =>
-            FTask< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+            ApplTask< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
                 MTask< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
                     (IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
-                            FSeq< A, B, C>.Inst.Apply(
+                            ApplSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -60527,8 +60527,8 @@ namespace LanguageExt
         /// <returns>`Try<IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Try<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, Try<IEnumerable<A>> fa) =>
-            FTry< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
-                 MTry< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => FSeq< A, B>.Inst.Apply(
+            ApplTry< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MTry< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
                      MSeq< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -60544,11 +60544,11 @@ namespace LanguageExt
         /// <returns>`Try<IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Try<IEnumerable<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Try<IEnumerable<A>> fa, Try<IEnumerable<B>> fb) =>
-            FTry< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+            ApplTry< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
                 MTry< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
                     (IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
-                            FSeq< A, B, C>.Inst.Apply(
+                            ApplSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -60821,8 +60821,8 @@ namespace LanguageExt
         /// <returns>`TryAsync<IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<IEnumerable<A>> fa) =>
-            FTryAsync< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
-                 MTryAsync< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => FSeq< A, B>.Inst.Apply(
+            ApplTryAsync< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MTryAsync< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
                      MSeq< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -60838,11 +60838,11 @@ namespace LanguageExt
         /// <returns>`TryAsync<IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<IEnumerable<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<IEnumerable<A>> fa, TryAsync<IEnumerable<B>> fb) =>
-            FTryAsync< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+            ApplTryAsync< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
                 MTryAsync< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
                     (IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
-                            FSeq< A, B, C>.Inst.Apply(
+                            ApplSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -61115,8 +61115,8 @@ namespace LanguageExt
         /// <returns>`TryOption<IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOption<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<IEnumerable<A>> fa) =>
-            FTryOption< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
-                 MTryOption< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => FSeq< A, B>.Inst.Apply(
+            ApplTryOption< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MTryOption< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
                      MSeq< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -61132,11 +61132,11 @@ namespace LanguageExt
         /// <returns>`TryOption<IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOption<IEnumerable<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOption<IEnumerable<A>> fa, TryOption<IEnumerable<B>> fb) =>
-            FTryOption< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+            ApplTryOption< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
                 MTryOption< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
                     (IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
-                            FSeq< A, B, C>.Inst.Apply(
+                            ApplSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -61409,8 +61409,8 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<IEnumerable<A>> fa) =>
-            FTryOptionAsync< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
-                 MTryOptionAsync< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => FSeq< A, B>.Inst.Apply(
+            ApplTryOptionAsync< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MTryOptionAsync< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
                      MSeq< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -61426,11 +61426,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<IEnumerable<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<IEnumerable<A>> fa, TryOptionAsync<IEnumerable<B>> fb) =>
-            FTryOptionAsync< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+            ApplTryOptionAsync< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
                 MTryOptionAsync< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
                     (IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
-                            FSeq< A, B, C>.Inst.Apply(
+                            ApplSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -61703,8 +61703,8 @@ namespace LanguageExt
         /// <returns>`IEnumerable<IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static IEnumerable<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<IEnumerable<A>> fa) =>
-            FSeq< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
-                 MSeq< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => FSeq< A, B>.Inst.Apply(
+            ApplSeq< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MSeq< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
                      MSeq< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -61720,11 +61720,11 @@ namespace LanguageExt
         /// <returns>`IEnumerable<IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static IEnumerable<IEnumerable<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, IEnumerable<IEnumerable<A>> fa, IEnumerable<IEnumerable<B>> fb) =>
-            FSeq< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+            ApplSeq< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
                 MSeq< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
                     (IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
-                            FSeq< A, B, C>.Inst.Apply(
+                            ApplSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -61997,8 +61997,8 @@ namespace LanguageExt
         /// <returns>`Set<IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Set<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, Set<IEnumerable<A>> fa) =>
-            FSet< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
-                 MSet< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => FSeq< A, B>.Inst.Apply(
+            ApplSet< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MSet< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
                      MSeq< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -62014,11 +62014,11 @@ namespace LanguageExt
         /// <returns>`Set<IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Set<IEnumerable<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Set<IEnumerable<A>> fa, Set<IEnumerable<B>> fb) =>
-            FSet< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+            ApplSet< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
                 MSet< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
                     (IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
-                            FSeq< A, B, C>.Inst.Apply(
+                            ApplSeq< A, B, C>.Inst.Apply(
                                 MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
@@ -62349,8 +62349,8 @@ namespace LanguageExt
         /// <returns>`Arr<Set<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Arr<Set<B>> ApplyT< A, B>(this Func<A, B> fab, Arr<Set<A>> fa) =>
-            FArr< Set<A>, Set<B>>.Inst.Apply(
-                 MArr< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => FSet< A, B>.Inst.Apply(
+            ApplArr< Set<A>, Set<B>>.Inst.Apply(
+                 MArr< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
                      MSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -62366,11 +62366,11 @@ namespace LanguageExt
         /// <returns>`Arr<Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Arr<Set<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Arr<Set<A>> fa, Arr<Set<B>> fb) =>
-            FArr< Set<A>, Set<B>, Set<C>>.Inst.Apply(
+            ApplArr< Set<A>, Set<B>, Set<C>>.Inst.Apply(
                 MArr< Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
                     (Set<A> a) =>
                         (Set<B> b) =>
-                            FSet< A, B, C>.Inst.Apply(
+                            ApplSet< A, B, C>.Inst.Apply(
                                 MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -62693,8 +62693,8 @@ namespace LanguageExt
         /// <returns>`HashSet<Set<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static HashSet<Set<B>> ApplyT< A, B>(this Func<A, B> fab, HashSet<Set<A>> fa) =>
-            FHashSet< Set<A>, Set<B>>.Inst.Apply(
-                 MHashSet< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => FSet< A, B>.Inst.Apply(
+            ApplHashSet< Set<A>, Set<B>>.Inst.Apply(
+                 MHashSet< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
                      MSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -62710,11 +62710,11 @@ namespace LanguageExt
         /// <returns>`HashSet<Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static HashSet<Set<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, HashSet<Set<A>> fa, HashSet<Set<B>> fb) =>
-            FHashSet< Set<A>, Set<B>, Set<C>>.Inst.Apply(
+            ApplHashSet< Set<A>, Set<B>, Set<C>>.Inst.Apply(
                 MHashSet< Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
                     (Set<A> a) =>
                         (Set<B> b) =>
-                            FSet< A, B, C>.Inst.Apply(
+                            ApplSet< A, B, C>.Inst.Apply(
                                 MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -63037,8 +63037,8 @@ namespace LanguageExt
         /// <returns>`Lst<Set<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Lst<Set<B>> ApplyT< A, B>(this Func<A, B> fab, Lst<Set<A>> fa) =>
-            FLst< Set<A>, Set<B>>.Inst.Apply(
-                 MLst< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => FSet< A, B>.Inst.Apply(
+            ApplLst< Set<A>, Set<B>>.Inst.Apply(
+                 MLst< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
                      MSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -63054,11 +63054,11 @@ namespace LanguageExt
         /// <returns>`Lst<Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Lst<Set<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Lst<Set<A>> fa, Lst<Set<B>> fb) =>
-            FLst< Set<A>, Set<B>, Set<C>>.Inst.Apply(
+            ApplLst< Set<A>, Set<B>, Set<C>>.Inst.Apply(
                 MLst< Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
                     (Set<A> a) =>
                         (Set<B> b) =>
-                            FSet< A, B, C>.Inst.Apply(
+                            ApplSet< A, B, C>.Inst.Apply(
                                 MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -63381,8 +63381,8 @@ namespace LanguageExt
         /// <returns>`Option<Set<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Option<Set<B>> ApplyT< A, B>(this Func<A, B> fab, Option<Set<A>> fa) =>
-            FOption< Set<A>, Set<B>>.Inst.Apply(
-                 MOption< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => FSet< A, B>.Inst.Apply(
+            ApplOption< Set<A>, Set<B>>.Inst.Apply(
+                 MOption< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
                      MSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -63398,11 +63398,11 @@ namespace LanguageExt
         /// <returns>`Option<Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Option<Set<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Option<Set<A>> fa, Option<Set<B>> fb) =>
-            FOption< Set<A>, Set<B>, Set<C>>.Inst.Apply(
+            ApplOption< Set<A>, Set<B>, Set<C>>.Inst.Apply(
                 MOption< Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
                     (Set<A> a) =>
                         (Set<B> b) =>
-                            FSet< A, B, C>.Inst.Apply(
+                            ApplSet< A, B, C>.Inst.Apply(
                                 MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -63725,8 +63725,8 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<Set<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionUnsafe<Set<B>> ApplyT< A, B>(this Func<A, B> fab, OptionUnsafe<Set<A>> fa) =>
-            FOptionUnsafe< Set<A>, Set<B>>.Inst.Apply(
-                 MOptionUnsafe< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => FSet< A, B>.Inst.Apply(
+            ApplOptionUnsafe< Set<A>, Set<B>>.Inst.Apply(
+                 MOptionUnsafe< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
                      MSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -63742,11 +63742,11 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe<Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionUnsafe<Set<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<Set<A>> fa, OptionUnsafe<Set<B>> fb) =>
-            FOptionUnsafe< Set<A>, Set<B>, Set<C>>.Inst.Apply(
+            ApplOptionUnsafe< Set<A>, Set<B>, Set<C>>.Inst.Apply(
                 MOptionUnsafe< Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
                     (Set<A> a) =>
                         (Set<B> b) =>
-                            FSet< A, B, C>.Inst.Apply(
+                            ApplSet< A, B, C>.Inst.Apply(
                                 MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -64069,8 +64069,8 @@ namespace LanguageExt
         /// <returns>`Either<L, Set<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Either<L, Set<B>> ApplyT<L, A, B>(this Func<A, B> fab, Either<L, Set<A>> fa) =>
-            FEither<L, Set<A>, Set<B>>.Inst.Apply(
-                 MEither<L, Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => FSet< A, B>.Inst.Apply(
+            ApplEither<L, Set<A>, Set<B>>.Inst.Apply(
+                 MEither<L, Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
                      MSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -64086,11 +64086,11 @@ namespace LanguageExt
         /// <returns>`Either<L, Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Either<L, Set<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Either<L, Set<A>> fa, Either<L, Set<B>> fb) =>
-            FEither<L, Set<A>, Set<B>, Set<C>>.Inst.Apply(
+            ApplEither<L, Set<A>, Set<B>, Set<C>>.Inst.Apply(
                 MEither<L, Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
                     (Set<A> a) =>
                         (Set<B> b) =>
-                            FSet< A, B, C>.Inst.Apply(
+                            ApplSet< A, B, C>.Inst.Apply(
                                 MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -64413,8 +64413,8 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, Set<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherUnsafe<L, Set<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, Set<A>> fa) =>
-            FEitherUnsafe<L, Set<A>, Set<B>>.Inst.Apply(
-                 MEitherUnsafe<L, Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => FSet< A, B>.Inst.Apply(
+            ApplEitherUnsafe<L, Set<A>, Set<B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
                      MSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -64430,11 +64430,11 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe<L, Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherUnsafe<L, Set<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, Set<A>> fa, EitherUnsafe<L, Set<B>> fb) =>
-            FEitherUnsafe<L, Set<A>, Set<B>, Set<C>>.Inst.Apply(
+            ApplEitherUnsafe<L, Set<A>, Set<B>, Set<C>>.Inst.Apply(
                 MEitherUnsafe<L, Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
                     (Set<A> a) =>
                         (Set<B> b) =>
-                            FSet< A, B, C>.Inst.Apply(
+                            ApplSet< A, B, C>.Inst.Apply(
                                 MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -64757,8 +64757,8 @@ namespace LanguageExt
         /// <returns>`Task<Set<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<Set<B>> ApplyT< A, B>(this Func<A, B> fab, Task<Set<A>> fa) =>
-            FTask< Set<A>, Set<B>>.Inst.Apply(
-                 MTask< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => FSet< A, B>.Inst.Apply(
+            ApplTask< Set<A>, Set<B>>.Inst.Apply(
+                 MTask< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
                      MSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -64774,11 +64774,11 @@ namespace LanguageExt
         /// <returns>`Task<Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<Set<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<Set<A>> fa, Task<Set<B>> fb) =>
-            FTask< Set<A>, Set<B>, Set<C>>.Inst.Apply(
+            ApplTask< Set<A>, Set<B>, Set<C>>.Inst.Apply(
                 MTask< Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
                     (Set<A> a) =>
                         (Set<B> b) =>
-                            FSet< A, B, C>.Inst.Apply(
+                            ApplSet< A, B, C>.Inst.Apply(
                                 MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -65101,8 +65101,8 @@ namespace LanguageExt
         /// <returns>`Try<Set<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Try<Set<B>> ApplyT< A, B>(this Func<A, B> fab, Try<Set<A>> fa) =>
-            FTry< Set<A>, Set<B>>.Inst.Apply(
-                 MTry< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => FSet< A, B>.Inst.Apply(
+            ApplTry< Set<A>, Set<B>>.Inst.Apply(
+                 MTry< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
                      MSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -65118,11 +65118,11 @@ namespace LanguageExt
         /// <returns>`Try<Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Try<Set<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Try<Set<A>> fa, Try<Set<B>> fb) =>
-            FTry< Set<A>, Set<B>, Set<C>>.Inst.Apply(
+            ApplTry< Set<A>, Set<B>, Set<C>>.Inst.Apply(
                 MTry< Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
                     (Set<A> a) =>
                         (Set<B> b) =>
-                            FSet< A, B, C>.Inst.Apply(
+                            ApplSet< A, B, C>.Inst.Apply(
                                 MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -65445,8 +65445,8 @@ namespace LanguageExt
         /// <returns>`TryAsync<Set<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<Set<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<Set<A>> fa) =>
-            FTryAsync< Set<A>, Set<B>>.Inst.Apply(
-                 MTryAsync< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => FSet< A, B>.Inst.Apply(
+            ApplTryAsync< Set<A>, Set<B>>.Inst.Apply(
+                 MTryAsync< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
                      MSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -65462,11 +65462,11 @@ namespace LanguageExt
         /// <returns>`TryAsync<Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<Set<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<Set<A>> fa, TryAsync<Set<B>> fb) =>
-            FTryAsync< Set<A>, Set<B>, Set<C>>.Inst.Apply(
+            ApplTryAsync< Set<A>, Set<B>, Set<C>>.Inst.Apply(
                 MTryAsync< Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
                     (Set<A> a) =>
                         (Set<B> b) =>
-                            FSet< A, B, C>.Inst.Apply(
+                            ApplSet< A, B, C>.Inst.Apply(
                                 MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -65789,8 +65789,8 @@ namespace LanguageExt
         /// <returns>`TryOption<Set<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOption<Set<B>> ApplyT< A, B>(this Func<A, B> fab, TryOption<Set<A>> fa) =>
-            FTryOption< Set<A>, Set<B>>.Inst.Apply(
-                 MTryOption< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => FSet< A, B>.Inst.Apply(
+            ApplTryOption< Set<A>, Set<B>>.Inst.Apply(
+                 MTryOption< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
                      MSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -65806,11 +65806,11 @@ namespace LanguageExt
         /// <returns>`TryOption<Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOption<Set<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOption<Set<A>> fa, TryOption<Set<B>> fb) =>
-            FTryOption< Set<A>, Set<B>, Set<C>>.Inst.Apply(
+            ApplTryOption< Set<A>, Set<B>, Set<C>>.Inst.Apply(
                 MTryOption< Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
                     (Set<A> a) =>
                         (Set<B> b) =>
-                            FSet< A, B, C>.Inst.Apply(
+                            ApplSet< A, B, C>.Inst.Apply(
                                 MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -66133,8 +66133,8 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<Set<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<Set<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<Set<A>> fa) =>
-            FTryOptionAsync< Set<A>, Set<B>>.Inst.Apply(
-                 MTryOptionAsync< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => FSet< A, B>.Inst.Apply(
+            ApplTryOptionAsync< Set<A>, Set<B>>.Inst.Apply(
+                 MTryOptionAsync< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
                      MSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -66150,11 +66150,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync<Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<Set<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<Set<A>> fa, TryOptionAsync<Set<B>> fb) =>
-            FTryOptionAsync< Set<A>, Set<B>, Set<C>>.Inst.Apply(
+            ApplTryOptionAsync< Set<A>, Set<B>, Set<C>>.Inst.Apply(
                 MTryOptionAsync< Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
                     (Set<A> a) =>
                         (Set<B> b) =>
-                            FSet< A, B, C>.Inst.Apply(
+                            ApplSet< A, B, C>.Inst.Apply(
                                 MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -66477,8 +66477,8 @@ namespace LanguageExt
         /// <returns>`IEnumerable<Set<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static IEnumerable<Set<B>> ApplyT< A, B>(this Func<A, B> fab, IEnumerable<Set<A>> fa) =>
-            FSeq< Set<A>, Set<B>>.Inst.Apply(
-                 MSeq< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => FSet< A, B>.Inst.Apply(
+            ApplSeq< Set<A>, Set<B>>.Inst.Apply(
+                 MSeq< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
                      MSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -66494,11 +66494,11 @@ namespace LanguageExt
         /// <returns>`IEnumerable<Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static IEnumerable<Set<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, IEnumerable<Set<A>> fa, IEnumerable<Set<B>> fb) =>
-            FSeq< Set<A>, Set<B>, Set<C>>.Inst.Apply(
+            ApplSeq< Set<A>, Set<B>, Set<C>>.Inst.Apply(
                 MSeq< Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
                     (Set<A> a) =>
                         (Set<B> b) =>
-                            FSet< A, B, C>.Inst.Apply(
+                            ApplSet< A, B, C>.Inst.Apply(
                                 MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
         /// <summary>
@@ -66821,8 +66821,8 @@ namespace LanguageExt
         /// <returns>`Set<Set<B>>` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Set<Set<B>> ApplyT< A, B>(this Func<A, B> fab, Set<Set<A>> fa) =>
-            FSet< Set<A>, Set<B>>.Inst.Apply(
-                 MSet< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => FSet< A, B>.Inst.Apply(
+            ApplSet< Set<A>, Set<B>>.Inst.Apply(
+                 MSet< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
                      MSet< Func<A, B>>.Inst.Return(fab), 
                      a)),
                  fa);
@@ -66838,11 +66838,11 @@ namespace LanguageExt
         /// <returns>`Set<Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Set<Set<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Set<Set<A>> fa, Set<Set<B>> fb) =>
-            FSet< Set<A>, Set<B>, Set<C>>.Inst.Apply(
+            ApplSet< Set<A>, Set<B>, Set<C>>.Inst.Apply(
                 MSet< Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
                     (Set<A> a) =>
                         (Set<B> b) =>
-                            FSet< A, B, C>.Inst.Apply(
+                            ApplSet< A, B, C>.Inst.Apply(
                                 MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }

@@ -5,6 +5,23 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
+    public struct ApplOptional<OptionalA, OptionalB, OA, OB, A, B> :
+        Functor<OA, OB, A, B>,
+        BiFunctor<OA, OB, Unit, A, B>
+        where OptionalA : struct, Optional<OA, A>
+        where OptionalB : struct, Optional<OB, B>
+    {
+        public static readonly ApplOptional<OptionalA, OptionalB, OA, OB, A, B> Inst = default(ApplOptional<OptionalA, OptionalB, OA, OB, A, B>);
+
+        [Pure]
+        public OB BiMap(OA ma, Func<Unit, B> fa, Func<A, B> fb) =>
+            FOptional<OptionalA, OptionalB, OA, OB, A, B>.Inst.BiMap(ma, fa, fb);
+
+        [Pure]
+        public OB Map(OA ma, Func<A, B> f) =>
+            FOptional<OptionalA, OptionalB, OA, OB, A, B>.Inst.Map(ma, f);
+    }
+
     public struct ApplOptional<OptionFAB, OptionFA, OptionFB, FAB, FA, FB, A, B> : 
         Applicative<FAB, FA, FB, A, B>
             where OptionFAB : struct, Optional<FAB, Func<A, B>>

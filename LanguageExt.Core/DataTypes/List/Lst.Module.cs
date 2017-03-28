@@ -992,7 +992,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
         [Pure]
         public static IEnumerable<B> apply<A, B>(IEnumerable<Func<A, B>> fabc, IEnumerable<A> fa) =>
-            FSeq<A, B>.Inst.Apply(fabc, fa);
+            ApplSeq<A, B>.Inst.Apply(fabc, fa);
 
         /// <summary>
         /// Apply an IEnumerable of values to an IEnumerable of functions
@@ -1002,7 +1002,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
         [Pure]
         public static IEnumerable<B> apply<A, B>(Func<A, B> fabc, IEnumerable<A> fa) =>
-            FSeq<A, B>.Inst.Apply(new[] { fabc }, fa);
+            ApplSeq<A, B>.Inst.Apply(new[] { fabc }, fa);
 
         /// <summary>
         /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1013,7 +1013,7 @@ namespace LanguageExt
         /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
         [Pure]
         public static IEnumerable<Func<B, C>> apply<A, B, C>(IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa) =>
-            FSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa);
+            ApplSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa);
 
         /// <summary>
         /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1024,7 +1024,7 @@ namespace LanguageExt
         /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
         [Pure]
         public static IEnumerable<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, IEnumerable<A> fa) =>
-            FSeq<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa);
+            ApplSeq<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa);
 
         /// <summary>
         /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1035,7 +1035,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
         [Pure]
         public static IEnumerable<C> apply<A, B, C>( IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-            FSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa, fb);
+            ApplSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa, fb);
 
         /// <summary>
         /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1046,7 +1046,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
         [Pure]
         public static IEnumerable<C> apply<A, B, C>(Func<A, B, C> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-            FSeq<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa, fb);
+            ApplSeq<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa, fb);
 
         /// <summary>
         /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1057,7 +1057,7 @@ namespace LanguageExt
         /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
         [Pure]
         public static IEnumerable<Func<B, C>> apply<A, B, C>(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa) =>
-            FSeq<A, B, C>.Inst.Apply(fabc, fa);
+            ApplSeq<A, B, C>.Inst.Apply(fabc, fa);
 
         /// <summary>
         /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1068,7 +1068,7 @@ namespace LanguageExt
         /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
         [Pure]
         public static IEnumerable<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, IEnumerable<A> fa) =>
-            FSeq<A, B, C>.Inst.Apply(new[] { fabc }, fa);
+            ApplSeq<A, B, C>.Inst.Apply(new[] { fabc }, fa);
 
         /// <summary>
         /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1079,7 +1079,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
         [Pure]
         public static IEnumerable<C> apply<A, B, C>(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-            FSeq<A, B, C>.Inst.Apply(fabc, fa, fb);
+            ApplSeq<A, B, C>.Inst.Apply(fabc, fa, fb);
 
         /// <summary>
         /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1090,7 +1090,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
         [Pure]
         public static IEnumerable<C> apply<A, B, C>(Func<A, Func<B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-            FSeq<A, B, C>.Inst.Apply(new[] { fabc }, fa, fb);
+            ApplSeq<A, B, C>.Inst.Apply(new[] { fabc }, fa, fb);
 
         /// <summary>
         /// Evaluate fa, then fb, ignoring the result of fa
@@ -1100,7 +1100,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
         public static IEnumerable<B> action<A, B>(IEnumerable<A> fa, IEnumerable<B> fb) =>
-            FSeq<A, B>.Inst.Action(fa, fb);
+            ApplSeq<A, B>.Inst.Action(fa, fb);
 
 
         /// <summary>

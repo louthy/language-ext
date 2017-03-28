@@ -107,7 +107,7 @@ namespace LanguageExt
             where MONADC : struct, Monad<MC, C> =>
                 default(MONADA).Bind<MONADC, MC, C>( self,    t => 
                 default(MONADB).Bind<MONADC, MC, C>( bind(t), u => 
-                default(MONADC).Return(_ => project(t, u))));
+                default(MONADC).Return(project(t, u))));
 
         [Pure]
         public static IEnumerable<C> SelectMany<MONADA, MA, A, B, C>(

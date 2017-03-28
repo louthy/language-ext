@@ -21,7 +21,7 @@
         T("TryAsync"),
         T("TryOption"), 
         T("TryOptionAsync"),
-        T2("FSeq", "MSeq", "IEnumerable"),
+        T2("ApplSeq", "MSeq", "IEnumerable"),
         T("Set"),
     };
 
@@ -215,7 +215,7 @@ namespace LanguageExt
 
     public TypeDesc T(string name, params string[] args)
     {
-        return new TypeDesc("F"+name, "M"+name, name,args);
+        return new TypeDesc("Appl"+name, "M"+name, name,args);
     }
 
     public TypeDesc T2(string fname, string mname, string name, params string[] args)

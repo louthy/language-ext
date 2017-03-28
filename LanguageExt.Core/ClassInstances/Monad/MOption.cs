@@ -21,10 +21,15 @@ namespace LanguageExt.ClassInstances
         public Option<A> None => Option<A>.None;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Option<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
-            ma.IsSome && f != null
-                ? f(ma.Value)
-                : default(MONADB).Fail();
+        public MB Bind<MonadB, MB, B>(Option<A> ma, Func<A, MB> f) where MonadB : struct, Monad<Unit, Unit, MB, B> =>
+            ma.IsLazy
+                ? default(MonadB).Id(_ =>
+                    ma.IsSome && f != null
+                        ? f(ma.Value)
+                        : default(MonadB).Fail())
+                : ma.IsSome && f != null
+                    ? f(ma.Value)
+                    : default(MonadB).Fail();
 
         [Pure]
         public Option<A> Fail(object err) =>
@@ -36,18 +41,22 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Option<A> Plus(Option<A> a, Option<A> b) =>
-            a.IsSome
-                ? a
-                : b;
+            a.IsLazy
+                ? default(MOption<A>).Id(_ =>
+                    a.IsSome
+                        ? a
+                        : b)
+                : a.IsSome
+                    ? a
+                    : b;
 
         [Pure]
-        public Option<A> Return(Func<Unit, A> f)
-        {
-            var x = f(unit);
-            return isnull(x)
-                ? Option<A>.None
-                : new Option<A>(new SomeValue<A>(x));
-        }
+        public Option<A> Return(Func<Unit, A> f) =>
+            new Option<A>(OptionData.Lazy(() =>
+            {
+                var a = f(unit);
+                return (!a.IsNull(), a);
+            }));
 
         [Pure]
         public Option<A> Zero() =>
@@ -172,16 +181,22 @@ namespace LanguageExt.ClassInstances
                 None: () => Choice1(unit));
 
         [Pure]
-        public Option<A> Some(A value) =>
-            Option<A>.Some(value);
+        public Option<A> Some(A x) =>
+            x.IsNull()
+                ? throw new ArgumentNullException("Option doesn't support null values.  Use OptionUnsafe if this is desired behaviour")
+                : new Option<A>(OptionData.Some(x));
 
         [Pure]
-        public Option<A> Optional(A value) =>
-            Prelude.Optional(value);
+        public Option<A> Optional(A x) =>
+            new Option<A>(OptionData.Optional(x));
 
         [Pure]
         public Option<A> Id(Func<Unit, Option<A>> ma) =>
-            ma(unit);
+            new Option<A>(OptionData.Lazy(() =>
+            {
+                var a = ma(unit);
+                return (a.IsSome, a.Value);
+            }));
 
         [Pure]
         public Option<A> BindReturn(Unit _, Option<A> mb) =>
@@ -189,7 +204,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Option<A> Return(A x) =>
-            Return(_ => x);
+            Optional(x);
 
         [Pure]
         public Option<A> IdAsync(Func<Unit, Task<Option<A>>> ma) =>

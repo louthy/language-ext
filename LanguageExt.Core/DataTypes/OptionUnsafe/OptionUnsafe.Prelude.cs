@@ -69,7 +69,7 @@ namespace LanguageExt
             value.IsNone;
 
         /// <summary>
-        /// Create a Some of T (OptionUnsafe<T>)
+        /// Create a `Some` of `T` (`OptionUnsafe<T>`)
         /// </summary>
         /// <typeparam name="T">T</typeparam>
         /// <param name="value">Non-null value to be made optional</param>
@@ -78,6 +78,17 @@ namespace LanguageExt
         [Pure]
         public static OptionUnsafe<T> SomeUnsafe<T>(T value) =>
             default(MOptionUnsafe<T>).Return(value);
+
+        /// <summary>
+        /// Create a lazy `Some` of `T` (`OptionUnsafe<T>`)
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="value">Non-null value to be made optional</param>
+        /// <returns>Option<T> in a Some state or throws ValueIsNullException
+        /// if isnull(value).</returns>
+        [Pure]
+        public static OptionUnsafe<T> SomeUnsafe<T>(Func<Unit, T> f) =>
+            MOptionUnsafe<T>.Inst.Return(f);
 
         /// <summary>
         /// Invokes the action if OptionUnsafe is in the Some state, otherwise nothing happens.
@@ -137,7 +148,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
         public static OptionUnsafe<B> apply<A, B>(OptionUnsafe<Func<A, B>> fab, OptionUnsafe<A> fa) =>
-            FOptionUnsafe<A, B>.Inst.Apply(fab, fa);
+            ApplOptionUnsafe<A, B>.Inst.Apply(fab, fa);
 
         /// <summary>
         /// Apply
@@ -147,7 +158,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
         public static OptionUnsafe<B> apply<A, B>(Func<A, B> fab, OptionUnsafe<A> fa) =>
-            FOptionUnsafe<A, B>.Inst.Apply(fab, fa);
+            ApplOptionUnsafe<A, B>.Inst.Apply(fab, fa);
 
         /// <summary>
         /// Apply
@@ -159,7 +170,7 @@ namespace LanguageExt
         [Pure]
         public static OptionUnsafe<C> apply<A, B, C>(OptionUnsafe<Func<A, B, C>> fabc, OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
             from x in fabc
-            from y in FOptionUnsafe<A, B, C>.Inst.Apply(curry(x), fa, fb)
+            from y in ApplOptionUnsafe<A, B, C>.Inst.Apply(curry(x), fa, fb)
             select y;
 
         /// <summary>
@@ -171,7 +182,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static OptionUnsafe<C> apply<A, B, C>(Func<A, B, C> fabc, OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
-            FOptionUnsafe<A, B, C>.Inst.Apply(curry(fabc), fa, fb);
+            ApplOptionUnsafe<A, B, C>.Inst.Apply(curry(fabc), fa, fb);
 
         /// <summary>
         /// Apply
@@ -182,7 +193,7 @@ namespace LanguageExt
         [Pure]
         public static OptionUnsafe<Func<B, C>> apply<A, B, C>(OptionUnsafe<Func<A, B, C>> fabc, OptionUnsafe<A> fa) =>
             from x in fabc
-            from y in FOptionUnsafe<A, B, C>.Inst.Apply(curry(x), fa)
+            from y in ApplOptionUnsafe<A, B, C>.Inst.Apply(curry(x), fa)
             select y;
 
         /// <summary>
@@ -193,7 +204,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static OptionUnsafe<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, OptionUnsafe<A> fa) =>
-            FOptionUnsafe<A, B, C>.Inst.Apply(curry(fabc), fa);
+            ApplOptionUnsafe<A, B, C>.Inst.Apply(curry(fabc), fa);
 
         /// <summary>
         /// Apply
@@ -203,7 +214,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static OptionUnsafe<Func<B, C>> apply<A, B, C>(OptionUnsafe<Func<A, Func<B, C>>> fabc, OptionUnsafe<A> fa) =>
-            FOptionUnsafe<A, B, C>.Inst.Apply(fabc, fa);
+            ApplOptionUnsafe<A, B, C>.Inst.Apply(fabc, fa);
 
         /// <summary>
         /// Apply
@@ -213,7 +224,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static OptionUnsafe<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, OptionUnsafe<A> fa) =>
-            FOptionUnsafe<A, B, C>.Inst.Apply(fabc, fa);
+            ApplOptionUnsafe<A, B, C>.Inst.Apply(fabc, fa);
 
         /// <summary>
         /// Evaluate fa, then fb, ignoring the result of fa
@@ -223,7 +234,7 @@ namespace LanguageExt
         /// <returns>Applicative of type Option<B></returns>
         [Pure]
         public static OptionUnsafe<B> action<A, B>(OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
-            FOptionUnsafe<A, B>.Inst.Action(fa, fb);
+            ApplOptionUnsafe<A, B>.Inst.Action(fa, fb);
 
         /// <summary>
         /// <para>

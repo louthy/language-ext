@@ -957,7 +957,7 @@ public static class TryAsyncExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static TryAsync<B> Apply<A, B>(this TryAsync<Func<A, B>> fab, TryAsync<A> fa) =>
-        FTryAsync<A, B>.Inst.Apply(fab, fa);
+        ApplTryAsync<A, B>.Inst.Apply(fab, fa);
 
     /// <summary>
     /// Apply
@@ -967,7 +967,7 @@ public static class TryAsyncExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static TryAsync<B> Apply<A, B>(this Func<A, B> fab, TryAsync<A> fa) =>
-        FTryAsync<A, B>.Inst.Apply(TryAsync(fab), fa);
+        ApplTryAsync<A, B>.Inst.Apply(TryAsync(fab), fa);
 
     /// <summary>
     /// Apply
@@ -978,7 +978,7 @@ public static class TryAsyncExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static TryAsync<C> Apply<A, B, C>(this TryAsync<Func<A, B, C>> fabc, TryAsync<A> fa, TryAsync<B> fb) =>
-        fabc.Bind(f => FTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
+        fabc.Bind(f => ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
 
     /// <summary>
     /// Apply
@@ -989,7 +989,7 @@ public static class TryAsyncExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static TryAsync<C> Apply<A, B, C>(this Func<A, B, C> fabc, TryAsync<A> fa, TryAsync<B> fb) =>
-        FTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
+        ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
 
     /// <summary>
     /// Apply
@@ -999,7 +999,7 @@ public static class TryAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static TryAsync<Func<B, C>> Apply<A, B, C>(this TryAsync<Func<A, B, C>> fabc, TryAsync<A> fa) =>
-        fabc.Bind(f => FTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa));
+        fabc.Bind(f => ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa));
 
     /// <summary>
     /// Apply
@@ -1009,7 +1009,7 @@ public static class TryAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static TryAsync<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, TryAsync<A> fa) =>
-        FTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
+        ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
 
     /// <summary>
     /// Apply
@@ -1019,7 +1019,7 @@ public static class TryAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static TryAsync<Func<B, C>> Apply<A, B, C>(this TryAsync<Func<A, Func<B, C>>> fabc, TryAsync<A> fa) =>
-        FTryAsync<A, B, C>.Inst.Apply(fabc, fa);
+        ApplTryAsync<A, B, C>.Inst.Apply(fabc, fa);
 
     /// <summary>
     /// Apply
@@ -1029,7 +1029,7 @@ public static class TryAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static TryAsync<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, TryAsync<A> fa) =>
-        FTryAsync<A, B, C>.Inst.Apply(TryAsync(fabc), fa);
+        ApplTryAsync<A, B, C>.Inst.Apply(TryAsync(fabc), fa);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -1039,7 +1039,7 @@ public static class TryAsyncExtensions
     /// <returns>Applicative of type Option<B></returns>
     [Pure]
     public static TryAsync<B> Action<A, B>(this TryAsync<A> fa, TryAsync<B> fb) =>
-        FTryAsync<A, B>.Inst.Action(fa, fb);
+        ApplTryAsync<A, B>.Inst.Action(fa, fb);
 
     /// <summary>
     /// Compare the bound value of Try(x) to Try(y).  If either of the

@@ -7,8 +7,7 @@ namespace LanguageExt.ClassInstances
 {
     public struct FEither<L, R, R2> : 
         Functor<Either<L, R>, Either<L, R2>, R, R2>,
-        BiFunctor<Either<L, R>, Either<L, R2>, L, R, R2>,
-        Applicative<Either<L, Func<R, R2>>, Either<L, R>, Either<L, R2>, R, R2>
+        BiFunctor<Either<L, R>, Either<L, R2>, L, R, R2>
     {
         public static readonly FEither<L, R, R2> Inst = default(FEither<L, R, R2>);
 
@@ -25,27 +24,10 @@ namespace LanguageExt.ClassInstances
                 Choice1: Either<L, R2>.Left,
                 Choice2: b => Either<L, R2>.Right(f(b)),
                 Bottom: () => Either<L, R2>.Bottom);
-
-        [Pure]
-        public Either<L, R2> Apply(Either<L, Func<R, R2>> fab, Either<L, R> fa) =>
-            from f in fab
-            from a in fa
-            select f(a);
-
-        [Pure]
-        public Either<L, R2> Action(Either<L, R> fa, Either<L, R2> fb) =>
-            from a in fa
-            from b in fb
-            select b;
-
-        [Pure]
-        public Either<L, R> Pure(R x) =>
-            Right<L, R>(x);
     }
 
     public struct FEitherBi<L, R, L2, R2> :
-        BiFunctor<Either<L, R>, Either<L2, R2>, L, R, L2, R2>,
-        Applicative<Either<L, Func<R, R2>>, Either<L, R>, Either<L, R2>, R, R2>
+        BiFunctor<Either<L, R>, Either<L2, R2>, L, R, L2, R2>
     {
         public static readonly FEitherBi<L, R, L2, R2> Inst = default(FEitherBi<L, R, L2, R2>);
 
@@ -55,44 +37,5 @@ namespace LanguageExt.ClassInstances
                 Choice1: a => Either<L2, R2>.Left(Check.NullReturn(fa(a))),
                 Choice2: b => Either<L2, R2>.Right(Check.NullReturn(fb(b))),
                 Bottom: () => Either<L2, R2>.Bottom);
-
-        [Pure]
-        public Either<L, R2> Apply(Either<L, Func<R, R2>> fab, Either<L, R> fa) =>
-            from f in fab
-            from a in fa
-            select f(a);
-
-        [Pure]
-        public Either<L, R2> Action(Either<L, R> fa, Either<L, R2> fb) =>
-            from a in fa
-            from b in fb
-            select b;
-
-        [Pure]
-        public Either<L, R> Pure(R x) =>
-            Right<L, R>(x);
-    }
-
-    public struct FEither<L, A, B, C> :
-        Applicative<Either<L, Func<A, Func<B, C>>>, Either<L, Func<B, C>>, Either<L, A>, Either<L, B>, Either<L, C>, A, B, C>
-    {
-        public static readonly FEither<L, A, B, C> Inst = default(FEither<L, A, B, C>);
-
-        [Pure]
-        public Either<L, Func<B, C>> Apply(Either<L, Func<A, Func<B, C>>> fab, Either<L, A> fa) =>
-            from f in fab
-            from a in fa
-            select f(a);
-
-        [Pure]
-        public Either<L, C> Apply(Either<L, Func<A, Func<B, C>>> fab, Either<L, A> fa, Either<L, B> fb) =>
-            from f in fab
-            from a in fa
-            from b in fb
-            select f(a)(b);
-
-        [Pure]
-        public Either<L, A> Pure(A x) =>
-            Right<L, A>(x);
     }
 }

@@ -38,7 +38,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void ApplyTryAsync1()
         {
-            var op = FTryAsync<int>.Inst.Apply(
+            var op = ApplTryAsync<int>.Inst.Apply(
                 TryAsync<Func<int, Func<int, int>>>(x => y => x + y),
                 GetValueOne(),
                 GetValueTwo()

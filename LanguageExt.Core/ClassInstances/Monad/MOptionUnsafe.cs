@@ -21,13 +21,15 @@ namespace LanguageExt.ClassInstances
         public OptionUnsafe<A> None => OptionUnsafe<A>.None;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(OptionUnsafe<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
-        {
-            if (f == null) throw new ArgumentNullException(nameof(f));
-            return ma.IsSome && f != null
-                ? f(ma.Value)
-                : default(MONADB).Fail(ValueIsNoneException.Default);
-        }
+        public MB Bind<MONADB, MB, B>(OptionUnsafe<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
+            ma.IsLazy
+                ? default(MONADB).Id(_ =>
+                    ma.IsSome && f != null
+                        ? f(ma.Value)
+                        : default(MONADB).Fail(ValueIsNoneException.Default))
+                : ma.IsSome && f != null
+                    ? f(ma.Value)
+                    : default(MONADB).Fail(ValueIsNoneException.Default);
 
         [Pure]
         public OptionUnsafe<A> Fail(object err) =>
@@ -39,13 +41,22 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<A> Plus(OptionUnsafe<A> a, OptionUnsafe<A> b) =>
-            a.IsSome
-                ? a
-                : b;
+            a.IsLazy
+                ? Id(_ =>
+                      a.IsSome
+                          ? a
+                          : b)
+                : a.IsSome
+                    ? a
+                    : b;
 
         [Pure]
         public OptionUnsafe<A> Return(Func<Unit, A> f) =>
-            new OptionUnsafe<A>(new SomeValue<A>(f(unit)));
+            new OptionUnsafe<A>(OptionData.Lazy(() =>
+            {
+                var a = f(unit);
+                return (true, a);
+            }));
 
         [Pure]
         public OptionUnsafe<A> Zero() =>
@@ -170,16 +181,20 @@ namespace LanguageExt.ClassInstances
                 None: () => Choice1(unit));
 
         [Pure]
-        public OptionUnsafe<A> Some(A value) =>
-            OptionUnsafe<A>.Some(value);
+        public OptionUnsafe<A> Some(A x) =>
+            new OptionUnsafe<A>(OptionData.Some(x));
 
         [Pure]
-        public OptionUnsafe<A> Optional(A value) =>
-            OptionUnsafe<A>.Some(value);
+        public OptionUnsafe<A> Optional(A x) =>
+            new OptionUnsafe<A>(OptionData.Some(x));
 
         [Pure]
         public OptionUnsafe<A> Id(Func<Unit, OptionUnsafe<A>> ma) =>
-            ma(unit);
+            new OptionUnsafe<A>(OptionData.Lazy(() =>
+            {
+                var a = ma(unit);
+                return (a.IsSome, a.Value);
+            }));
 
         [Pure]
         public OptionUnsafe<A> BindReturn(Unit _, OptionUnsafe<A> mb) =>
@@ -187,7 +202,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<A> Return(A x) =>
-            Return(_ => x);
+            Optional(x);
 
         [Pure]
         public OptionUnsafe<A> IdAsync(Func<Unit, Task<OptionUnsafe<A>>> ma) =>

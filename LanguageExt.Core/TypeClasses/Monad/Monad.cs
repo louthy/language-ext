@@ -49,7 +49,7 @@ namespace LanguageExt.TypeClasses
         /// Lazy monad constructor function.  Provide the bound value `A` to construct 
         /// a new monad of type `MA`.  This varies from the 'standard' construction
         /// of monadic types in that it takes an input parameter.  This function allows
-        /// monadics that take parameters (like `Reader` and `State`) to be unified with 
+        /// monads that take parameters (like `Reader` and `State`) to be unified with 
         /// non-parametric monads like (`Option`, `Either`, etc.), which take `Unit` as their
         /// input argument.
         /// </summary>
@@ -197,7 +197,7 @@ namespace LanguageExt.TypeClasses
         /// that returns a `Task<MA>` rather than `MA`.  It's a form of double-dispatch like the `BindReturn` 
         /// function.  It hands context to the type that knows how to construct.  This facilitates the 
         /// unification of Monads that are asynchronous in nature (like `TryAsync`, `TryOptionAsync`, `Task`)
-        /// with ones that arent't (`State`, `Reader`, `Writer`, `Option`, `Try`, `Lst`, `Either`, etc.)
+        /// with ones that aren't (`State`, `Reader`, `Writer`, `Option`, `Try`, `Lst`, `Either`, etc.)
         /// </summary>
         /// <remarks>
         /// This is the async version of `Id(ma)`.  It allows the asynchronous type to return without waiting

@@ -100,7 +100,7 @@ public static class OptionUnsafeExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static OptionUnsafe<B> Apply<A, B>(this OptionUnsafe<Func<A, B>> fab, OptionUnsafe<A> fa) =>
-        FOptionUnsafe<A, B>.Inst.Apply(fab, fa);
+        ApplOptionUnsafe<A, B>.Inst.Apply(fab, fa);
 
     /// <summary>
     /// Apply
@@ -110,7 +110,7 @@ public static class OptionUnsafeExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static OptionUnsafe<B> Apply<A, B>(this Func<A, B> fab, OptionUnsafe<A> fa) =>
-        FOptionUnsafe<A, B>.Inst.Apply(fab, fa);
+        ApplOptionUnsafe<A, B>.Inst.Apply(fab, fa);
 
     /// <summary>
     /// Apply
@@ -122,7 +122,7 @@ public static class OptionUnsafeExtensions
     [Pure]
     public static OptionUnsafe<C> Apply<A, B, C>(this OptionUnsafe<Func<A, B, C>> fabc, OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
         from x in fabc
-        from y in FOptionUnsafe<A, B, C>.Inst.Apply(curry(x), fa, fb)
+        from y in ApplOptionUnsafe<A, B, C>.Inst.Apply(curry(x), fa, fb)
         select y;
 
     /// <summary>
@@ -134,7 +134,7 @@ public static class OptionUnsafeExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static OptionUnsafe<C> Apply<A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
-        FOptionUnsafe<A, B, C>.Inst.Apply(curry(fabc), fa, fb);
+        ApplOptionUnsafe<A, B, C>.Inst.Apply(curry(fabc), fa, fb);
 
     /// <summary>
     /// Apply
@@ -145,7 +145,7 @@ public static class OptionUnsafeExtensions
     [Pure]
     public static OptionUnsafe<Func<B, C>> Apply<A, B, C>(this OptionUnsafe<Func<A, B, C>> fabc, OptionUnsafe<A> fa) =>
         from x in fabc
-        from y in FOptionUnsafe<A, B, C>.Inst.Apply(curry(x), fa)
+        from y in ApplOptionUnsafe<A, B, C>.Inst.Apply(curry(x), fa)
         select y;
 
     /// <summary>
@@ -156,7 +156,7 @@ public static class OptionUnsafeExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static OptionUnsafe<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<A> fa) =>
-        FOptionUnsafe<A, B, C>.Inst.Apply(curry(fabc), fa);
+        ApplOptionUnsafe<A, B, C>.Inst.Apply(curry(fabc), fa);
 
     /// <summary>
     /// Apply
@@ -166,7 +166,7 @@ public static class OptionUnsafeExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static OptionUnsafe<Func<B, C>> Apply<A, B, C>(this OptionUnsafe<Func<A, Func<B, C>>> fabc, OptionUnsafe<A> fa) =>
-        FOptionUnsafe<A, B, C>.Inst.Apply(fabc, fa);
+        ApplOptionUnsafe<A, B, C>.Inst.Apply(fabc, fa);
 
     /// <summary>
     /// Apply
@@ -176,7 +176,7 @@ public static class OptionUnsafeExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static OptionUnsafe<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, OptionUnsafe<A> fa) =>
-        FOptionUnsafe<A, B, C>.Inst.Apply(fabc, fa);
+        ApplOptionUnsafe<A, B, C>.Inst.Apply(fabc, fa);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -186,7 +186,7 @@ public static class OptionUnsafeExtensions
     /// <returns>Applicative of type Option<B></returns>
     [Pure]
     public static OptionUnsafe<B> Action<A, B>(this OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
-        FOptionUnsafe<A, B>.Inst.Action(fa, fb);
+        ApplOptionUnsafe<A, B>.Inst.Action(fa, fb);
 
 
     /// <summary>
