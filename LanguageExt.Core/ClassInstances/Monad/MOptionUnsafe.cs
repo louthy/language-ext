@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 namespace LanguageExt.ClassInstances
 {
     public struct MOptionUnsafe<A> :
-        Choice<OptionUnsafe<A>, Unit, A>,
+        Alternative<OptionUnsafe<A>, Unit, A>,
         Monad<OptionUnsafe<A>, A>,
         Optional<OptionUnsafe<A>, A>,
         Foldable<OptionUnsafe<A>, A>,
-        BiFoldable<OptionUnsafe<A>, Unit, A>
+        BiFoldable<OptionUnsafe<A>, A, Unit>
     {
         public static readonly MOptionUnsafe<A> Inst = default(MOptionUnsafe<A>);
 
@@ -123,25 +123,25 @@ namespace LanguageExt.ClassInstances
         };
 
         [Pure]
-        public S BiFold<S>(OptionUnsafe<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
+        public S BiFold<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb)
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
             return ma.IsNone
-                ? fa(state, unit)
-                : fb(state, ma.Value);
+                ? fa(state, ma.Value)
+                : fb(state, unit);
         }
 
         [Pure]
-        public S BiFoldBack<S>(OptionUnsafe<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
+        public S BiFoldBack<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb)
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
             return ma.IsNone
-                ? fa(state, unit)
-                : fb(state, ma.Value);
+                ? fa(state, ma.Value)
+                : fb(state, unit);
         }
 
         [Pure]
@@ -151,11 +151,11 @@ namespace LanguageExt.ClassInstances
                 : 0;
 
         [Pure]
-        public bool IsChoice1(OptionUnsafe<A> choice) =>
+        public bool IsLeft(OptionUnsafe<A> choice) =>
             choice.IsNone;
 
         [Pure]
-        public bool IsChoice2(OptionUnsafe<A> choice) =>
+        public bool IsRight(OptionUnsafe<A> choice) =>
             choice.IsSome;
 
         [Pure]
@@ -163,22 +163,22 @@ namespace LanguageExt.ClassInstances
             false;
 
         [Pure]
-        public C Match<C>(OptionUnsafe<A> choice, Func<Unit, C> Choice1, Func<A, C> Choice2, Func<C> Bottom = null) =>
+        public C Match<C>(OptionUnsafe<A> choice, Func<Unit, C> Left, Func<A, C> Right, Func<C> Bottom = null) =>
             choice.MatchUnsafe(
-                Some: Choice2,
-                None: () => Choice1(unit));
+                Some: Right,
+                None: () => Left(unit));
 
         [Pure]
-        public Unit Match(OptionUnsafe<A> choice, Action<Unit> Choice1, Action<A> Choice2, Action Bottom = null) =>
+        public Unit Match(OptionUnsafe<A> choice, Action<Unit> Left, Action<A> Right, Action Bottom = null) =>
             choice.MatchUnsafe(
-                Some: Choice2,
-                None: () => Choice1(unit));
+                Some: Right,
+                None: () => Left(unit));
 
         [Pure]
-        public C MatchUnsafe<C>(OptionUnsafe<A> choice, Func<Unit, C> Choice1, Func<A, C> Choice2, Func<C> Bottom = null) =>
+        public C MatchUnsafe<C>(OptionUnsafe<A> choice, Func<Unit, C> Left, Func<A, C> Right, Func<C> Bottom = null) =>
             choice.MatchUnsafe(
-                Some: Choice2,
-                None: () => Choice1(unit));
+                Some: Right,
+                None: () => Left(unit));
 
         [Pure]
         public OptionUnsafe<A> Some(A x) =>
@@ -207,5 +207,37 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionUnsafe<A> IdAsync(Func<Unit, Task<OptionUnsafe<A>>> ma) =>
             ma(unit).Result;
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldAsync<S>(OptionUnsafe<A> fa, S state, Func<S, A, S> f) => _ =>
+            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldAsync<S>(OptionUnsafe<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
+            fa.MatchUnsafe(
+                Some: r => f(state, r),
+                None: () => Task.FromResult(state));
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldBackAsync<S>(OptionUnsafe<A> fa, S state, Func<S, A, S> f) => _ =>
+             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldBackAsync<S>(OptionUnsafe<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
+            fa.MatchUnsafe(
+                Some: r => f(state, r),
+                None: () => Task.FromResult(state));
+
+        [Pure]
+        public Func<Unit, Task<int>> CountAsync(OptionUnsafe<A> fa) => _ =>
+            Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public OptionUnsafe<A> Empty() =>
+            OptionUnsafe<A>.None;
+
+        [Pure]
+        public OptionUnsafe<A> Append(OptionUnsafe<A> x, OptionUnsafe<A> y) =>
+            Plus(x, y);
     }
 }

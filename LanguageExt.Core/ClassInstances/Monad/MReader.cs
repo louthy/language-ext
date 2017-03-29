@@ -87,5 +87,49 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Reader<Env, A> IdAsync(Func<Env, Task<Reader<Env, A>>> ma) => env =>
             ma(env).Result(env);
+
+        [Pure]
+        public Func<Env, Task<S>> FoldAsync<S>(Reader<Env, A> fa, S state, Func<S, A, S> f) => env =>
+        {
+            var rdr = from a in fa
+                      select f(state, a);
+
+            return Task.FromResult(rdr(env).Value);
+        };
+
+        [Pure]
+        public Func<Env, Task<S>> FoldAsync<S>(Reader<Env, A> fa, S state, Func<S, A, Task<S>> f) => env =>
+        {
+            var rdr = from a in fa
+                      select f(state, a);
+
+            return rdr(env).Value;
+        };
+
+        [Pure]
+        public Func<Env, Task<S>> FoldBackAsync<S>(Reader<Env, A> fa, S state, Func<S, A, S> f) => env =>
+        {
+            var rdr = from a in fa
+                      select f(state, a);
+
+            return Task.FromResult(rdr(env).Value);
+        };
+
+        [Pure]
+        public Func<Env, Task<S>> FoldBackAsync<S>(Reader<Env, A> fa, S state, Func<S, A, Task<S>> f) => env =>
+        {
+            var rdr = from a in fa
+                      select f(state, a);
+
+            return rdr(env).Value;
+        };
+
+        [Pure]
+        public Func<Env, Task<int>> CountAsync(Reader<Env, A> fa) => env =>
+        {
+            var rdr = from a in fa
+                      select 1;
+            return Task.FromResult(rdr(env).Value);
+        };
     }
 }

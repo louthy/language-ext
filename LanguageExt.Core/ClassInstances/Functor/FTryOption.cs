@@ -7,12 +7,12 @@ namespace LanguageExt.ClassInstances
 {
     public struct FTryOption<A, B> : 
         Functor<TryOption<A>, TryOption<B>, A, B>,
-        BiFunctor<TryOption<A>, TryOption<B>, Unit, A, B>
+        BiFunctor<TryOption<A>, TryOption<B>, A, Unit, B>
     {
         public static readonly FTryOption<A, B> Inst = default(FTryOption<A, B>);
 
         [Pure]
-        public TryOption<B> BiMap(TryOption<A> ma, Func<Unit, B> fa, Func<A, B> fb) =>
+        public TryOption<B> BiMap(TryOption<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
             FOptional<MTryOption<A>, MTryOption<B>, TryOption<A>, TryOption<B>, A, B>.Inst.BiMap(ma, fa, fb);
 
         [Pure]

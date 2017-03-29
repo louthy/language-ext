@@ -11,8 +11,7 @@ namespace LanguageExt.ClassInstances
     public struct MNullable<A> :
         Optional<A?, A>,
         Monad<A?, A>,
-        Foldable<A?, A>,
-        BiFoldable<A?, Unit, A>
+        BiFoldable<A?, A, Unit>
         where A : struct
     {
         public static readonly MNullable<A> Inst = default(MNullable<A>);
@@ -96,16 +95,16 @@ namespace LanguageExt.ClassInstances
                 : state);
 
         [Pure]
-        public S BiFold<S>(A? ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb) =>
+        public S BiFold<S>(A? ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
             Check.NullReturn(!ma.HasValue
-                ? fa(state, unit)
-                : fb(state, ma.Value));
+                ? fa(state, ma.Value)
+                : fb(state, unit));
 
         [Pure]
-        public S BiFoldBack<S>(A? ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb) =>
+        public S BiFoldBack<S>(A? ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
             Check.NullReturn(!ma.HasValue
-                ? fa(state, unit)
-                : fb(state, ma.Value));
+                ? fa(state, ma.Value)
+                : fb(state, unit));
 
         [Pure]
         public Func<Unit, int> Count(A? ma) => _ =>
@@ -136,5 +135,29 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public A? IdAsync(Func<Unit, Task<A?>> ma) =>
             ma(unit).Result;
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldAsync<S>(A? fa, S state, Func<S, A, S> f) => _ =>
+            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldAsync<S>(A? fa, S state, Func<S, A, Task<S>> f) => _ =>
+            fa.Match(
+                Some: r => f(state, r),
+                None: () => Task.FromResult(state));
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldBackAsync<S>(A? fa, S state, Func<S, A, S> f) => _ =>
+             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldBackAsync<S>(A? fa, S state, Func<S, A, Task<S>> f) => _ =>
+            fa.Match(
+                Some: r => f(state, r),
+                None: () => Task.FromResult(state));
+
+        [Pure]
+        public Func<Unit, Task<int>> CountAsync(A? fa) => _ =>
+            Task.FromResult(Inst.Count(fa)(_));
     }
 }

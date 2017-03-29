@@ -13,16 +13,16 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Either<L, R2> BiMap(Either<L, R> ma, Func<L, R2> fa, Func<R, R2> fb) =>
-            default(MEither<L, R>).Match(ma,
-                Choice1: a => Either<L, R2>.Right(Check.NullReturn(fa(a))),
-                Choice2: b => Either<L, R2>.Right(Check.NullReturn(fb(b))),
+            ma.Match(
+                Left: a => Either<L, R2>.Right(Check.NullReturn(fa(a))),
+                Right: b => Either<L, R2>.Right(Check.NullReturn(fb(b))),
                 Bottom: () => Either<L, R2>.Bottom);
 
         [Pure]
         public Either<L, R2> Map(Either<L, R> ma, Func<R, R2> f) =>
-            default(MEither<L, R>).Match(ma,
-                Choice1: Either<L, R2>.Left,
-                Choice2: b => Either<L, R2>.Right(f(b)),
+             ma.Match(
+                Left: Either<L, R2>.Left,
+                Right: b => Either<L, R2>.Right(f(b)),
                 Bottom: () => Either<L, R2>.Bottom);
     }
 
@@ -33,9 +33,9 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Either<L2, R2> BiMap(Either<L, R> ma, Func<L, L2> fa, Func<R, R2> fb) =>
-            default(MEither<L, R>).Match(ma,
-                Choice1: a => Either<L2, R2>.Left(Check.NullReturn(fa(a))),
-                Choice2: b => Either<L2, R2>.Right(Check.NullReturn(fb(b))),
+             ma.Match(
+                Left: a => Either<L2, R2>.Left(Check.NullReturn(fa(a))),
+                Right: b => Either<L2, R2>.Right(Check.NullReturn(fb(b))),
                 Bottom: () => Either<L2, R2>.Bottom);
     }
 }

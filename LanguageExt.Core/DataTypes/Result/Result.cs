@@ -16,6 +16,8 @@ namespace LanguageExt
     /// <typeparam name="A">Bound value type</typeparam>
     public struct Result<A> : IEquatable<Result<A>>
     {
+        public static readonly Result<A> None = new Result<A>();
+
         readonly bool IsValid;
         internal readonly A Value;
         internal Exception Exception;

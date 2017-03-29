@@ -7,13 +7,13 @@ namespace LanguageExt.ClassInstances
 {
     public struct ApplOptionUnsafe<A, B> : 
         Functor<OptionUnsafe<A>, OptionUnsafe<B>, A, B>,
-        BiFunctor<OptionUnsafe<A>, OptionUnsafe<B>, Unit, A, B>,
+        BiFunctor<OptionUnsafe<A>, OptionUnsafe<B>, A, Unit, B>,
         Applicative<OptionUnsafe<Func<A, B>>, OptionUnsafe<A>, OptionUnsafe<B>, A, B>
     {
         public static readonly ApplOptionUnsafe<A, B> Inst = default(ApplOptionUnsafe<A, B>);
 
         [Pure]
-        public OptionUnsafe<B> BiMap(OptionUnsafe<A> ma, Func<Unit, B> fa, Func<A, B> fb) =>
+        public OptionUnsafe<B> BiMap(OptionUnsafe<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
             FOptionUnsafe<A, B>.Inst.BiMap(ma, fa, fb);
 
         [Pure]

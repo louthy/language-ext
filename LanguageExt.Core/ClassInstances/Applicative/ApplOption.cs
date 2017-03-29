@@ -7,13 +7,13 @@ namespace LanguageExt.ClassInstances
 {
     public struct ApplOption<A, B> : 
         Functor<Option<A>, Option<B>, A, B>,
-        BiFunctor<Option<A>, Option<B>, Unit, A, B>,
+        BiFunctor<Option<A>, Option<B>, A, Unit, B>,
         Applicative<Option<Func<A, B>>, Option<A>, Option<B>, A, B>
     {
         public static readonly ApplOption<A, B> Inst = default(ApplOption<A, B>);
 
         [Pure]
-        public Option<B> BiMap(Option<A> ma, Func<Unit, B> fa, Func<A, B> fb) =>
+        public Option<B> BiMap(Option<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
             FOption<A, B>.Inst.BiMap(ma, fa, fb);
 
         [Pure]

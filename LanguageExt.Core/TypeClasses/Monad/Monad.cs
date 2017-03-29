@@ -11,7 +11,10 @@ namespace LanguageExt.TypeClasses
     /// <typeparam name="MA">The data-type to make monadic</typeparam>
     /// <typeparam name="A">The data-type bound value</typeparam>
     [Typeclass]
-    public interface Monad<MA, A> : Monad<Unit, Unit, MA, A>, Foldable<MA, A>
+    public interface Monad<MA, A> : 
+        Monad<Unit, Unit, MA, A>, 
+        Foldable<MA, A>,
+        FoldableAsync<MA, A>
     {
         /// <summary>
         /// Monad constructor function.  Provide the bound value A to construct
@@ -30,7 +33,9 @@ namespace LanguageExt.TypeClasses
     /// <typeparam name="MA">The data-type to make monadic</typeparam>
     /// <typeparam name="A">The data-type bound value</typeparam>
     [Typeclass]
-    public interface Monad<Env, Out, MA, A> : Foldable<Env, MA, A>
+    public interface Monad<Env, Out, MA, A> : 
+        Foldable<Env, MA, A>,
+        FoldableAsync<Env, MA, A>
     {
         /// <summary>
         /// Monadic bind

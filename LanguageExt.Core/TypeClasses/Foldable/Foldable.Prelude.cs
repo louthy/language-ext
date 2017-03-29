@@ -141,7 +141,7 @@ namespace LanguageExt
         /// <returns>True if empty, False otherwise</returns>
         [Pure]
         public static int count<FOLD, F, A>(F fa) where FOLD : Foldable<F, A> =>
-            default(FOLD).Fold(fa, 0, (s, _) => s + 1)(unit);
+            default(FOLD).Count(fa)(unit);
 
         /// <summary>
         /// Does the element occur in the structure?

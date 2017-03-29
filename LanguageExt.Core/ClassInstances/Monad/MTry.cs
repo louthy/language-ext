@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 namespace LanguageExt.ClassInstances
 {
     public struct MTry<A> :
+        Alternative<Try<A>, Unit, A>,
         Optional<Try<A>, A>,
         Monad<Try<A>, A>,
-        Foldable<Try<A>, A>,
-        BiFoldable<Try<A>, Unit, A>
+        BiFoldable<Try<A>, A, Unit>
     {
         public static readonly MTry<A> Inst = default(MTry<A>);
 
@@ -119,23 +119,23 @@ namespace LanguageExt.ClassInstances
         };
 
         [Pure]
-        public S BiFold<S>(Try<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
+        public S BiFold<S>(Try<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb)
         {
             var res = ma.Try();
             if (res.IsFaulted)
-                return fa(state, unit);
+                return fb(state, unit);
             else
-                return fb(state, res.Value);
+                return fa(state, res.Value);
         }
 
         [Pure]
-        public S BiFoldBack<S>(Try<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
+        public S BiFoldBack<S>(Try<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb)
         {
             var res = ma.Try();
             if (res.IsFaulted)
-                return fa(state, unit);
+                return fb(state, unit);
             else
-                return fb(state, res.Value);
+                return fa(state, res.Value);
         }
 
         [Pure]
@@ -167,5 +167,33 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Try<A> IdAsync(Func<Unit, Task<Try<A>>> ma) =>
             ma(unit).Result;
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldAsync<S>(Try<A> fa, S state, Func<S, A, S> f) => _ =>
+            Task.FromResult(fa.Map(a => f(state, a)).IfFail(state));
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldAsync<S>(Try<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
+            fa.Map(a => f(state, a)).IfFail(Task.FromResult(state));
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldBackAsync<S>(Try<A> fa, S state, Func<S, A, S> f) => _ =>
+            Task.FromResult(fa.Map(a => f(state, a)).IfFail(state));
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldBackAsync<S>(Try<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
+            fa.Map(a => f(state, a)).IfFail(Task.FromResult(state));
+
+        [Pure]
+        public Func<Unit, Task<int>> CountAsync(Try<A> fa) => _ =>
+            Task.FromResult(fa.Map(a => 1).IfFail(0));
+
+        [Pure]
+        public Try<A> Empty() =>
+            none;
+
+        [Pure]
+        public Try<A> Append(Try<A> x, Try<A> y) =>
+            Plus(x, y);
     }
 }

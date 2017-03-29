@@ -8,13 +8,13 @@ namespace LanguageExt.ClassInstances
 {
     public struct ApplTask<A, B> : 
         Functor<Task<A>, Task<B>, A, B>,
-        BiFunctor<Task<A>, Task<B>, Unit, A, B>,
+        BiFunctor<Task<A>, Task<B>, A, Unit, B>,
         Applicative<Task<Func<A, B>>, Task<A>, Task<B>, A, B>
     {
         public static readonly ApplTask<A, B> Inst = default(ApplTask<A, B>);
 
         [Pure]
-        public Task<B> BiMap(Task<A> ma, Func<Unit, B> fa, Func<A, B> fb) =>
+        public Task<B> BiMap(Task<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
             FTask<A, B>.Inst.BiMap(ma, fa, fb);
 
         [Pure]
@@ -88,14 +88,14 @@ namespace LanguageExt.ClassInstances
 
     public struct ApplTask<A> :
         Functor<Task<A>, Task<A>, A, A>,
-        BiFunctor<Task<A>, Task<A>, Unit, A, A>,
+        BiFunctor<Task<A>, Task<A>, A, Unit, A>,
         Applicative<Task<Func<A, A>>, Task<A>, Task<A>, A, A>,
         Applicative<Task<Func<A, Func<A, A>>>, Task<Func<A, A>>, Task<A>, Task<A>, Task<A>, A, A, A>
     {
         public static readonly ApplTask<A> Inst = default(ApplTask<A>);
 
         [Pure]
-        public Task<A> BiMap(Task<A> ma, Func<Unit, A> fa, Func<A, A> fb) =>
+        public Task<A> BiMap(Task<A> ma, Func<A, A> fa, Func<Unit, A> fb) =>
             FOptional<MTask<A>, MTask<A>, Task<A>, Task<A>, A, A>.Inst.BiMap(ma, fa, fb);
 
         [Pure]

@@ -45,9 +45,9 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Either<L2, R2> BiMap(Either<L, R> ma, Func<L, L2> fa, Func<R, R2> fb) =>
-            default(MEither<L, R>).Match(ma,
-                Choice1: a => Either<L2, R2>.Left(Check.NullReturn(fa(a))),
-                Choice2: b => Either<L2, R2>.Right(Check.NullReturn(fb(b))),
+            ma.Match(
+                Right: b => Either<L2, R2>.Right(Check.NullReturn(fb(b))),
+                Left:  a => Either<L2, R2>.Left(Check.NullReturn(fa(a))),
                 Bottom: () => Either<L2, R2>.Bottom);
 
         [Pure]

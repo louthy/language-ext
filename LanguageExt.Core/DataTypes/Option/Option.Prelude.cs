@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Threading.Tasks;
-using LanguageExt;
-using static LanguageExt.TypeClass;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 

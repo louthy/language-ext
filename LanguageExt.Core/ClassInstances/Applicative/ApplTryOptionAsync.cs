@@ -8,13 +8,13 @@ namespace LanguageExt.ClassInstances
 {
     public struct ApplTryOptionAsync<A, B> : 
         Functor<TryOptionAsync<A>, TryOptionAsync<B>, A, B>,
-        BiFunctor<TryOptionAsync<A>, TryOptionAsync<B>, Unit, A, B>,
+        BiFunctor<TryOptionAsync<A>, TryOptionAsync<B>, A, Unit, B>,
         Applicative<TryOptionAsync<Func<A, B>>, TryOptionAsync<A>, TryOptionAsync<B>, A, B>
     {
         public static readonly ApplTryOptionAsync<A, B> Inst = default(ApplTryOptionAsync<A, B>);
 
         [Pure]
-        public TryOptionAsync<B> BiMap(TryOptionAsync<A> ma, Func<Unit, B> fa, Func<A, B> fb) =>
+        public TryOptionAsync<B> BiMap(TryOptionAsync<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
             FTryOptionAsync<A, B>.Inst.BiMap(ma, fa, fb);
 
         [Pure]
@@ -101,14 +101,14 @@ namespace LanguageExt.ClassInstances
 
     public struct ApplTryOptionAsync<A> :
         Functor<TryOptionAsync<A>, TryOptionAsync<A>, A, A>,
-        BiFunctor<TryOptionAsync<A>, TryOptionAsync<A>, Unit, A, A>,
+        BiFunctor<TryOptionAsync<A>, TryOptionAsync<A>, A, Unit, A>,
         Applicative<TryOptionAsync<Func<A, A>>, TryOptionAsync<A>, TryOptionAsync<A>, A, A>,
         Applicative<TryOptionAsync<Func<A, Func<A, A>>>, TryOptionAsync<Func<A, A>>, TryOptionAsync<A>, TryOptionAsync<A>, TryOptionAsync<A>, A, A, A>
     {
         public static readonly ApplTryOptionAsync<A> Inst = default(ApplTryOptionAsync<A>);
 
         [Pure]
-        public TryOptionAsync<A> BiMap(TryOptionAsync<A> ma, Func<Unit, A> fa, Func<A, A> fb) =>
+        public TryOptionAsync<A> BiMap(TryOptionAsync<A> ma, Func<A, A> fa, Func<Unit, A> fb) =>
             FOptional<MTryOptionAsync<A>, MTryOptionAsync<A>, TryOptionAsync<A>, TryOptionAsync<A>, A, A>.Inst.BiMap(ma, fa, fb);
 
         [Pure]

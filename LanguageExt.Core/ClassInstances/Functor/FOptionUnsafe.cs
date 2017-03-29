@@ -7,12 +7,12 @@ namespace LanguageExt.ClassInstances
 {
     public struct FOptionUnsafe<A, B> : 
         Functor<OptionUnsafe<A>, OptionUnsafe<B>, A, B>,
-        BiFunctor<OptionUnsafe<A>, OptionUnsafe<B>, Unit, A, B>
+        BiFunctor<OptionUnsafe<A>, OptionUnsafe<B>, A, Unit, B>
     {
         public static readonly FOptionUnsafe<A, B> Inst = default(FOptionUnsafe<A, B>);
 
         [Pure]
-        public OptionUnsafe<B> BiMap(OptionUnsafe<A> ma, Func<Unit, B> fa, Func<A, B> fb) =>
+        public OptionUnsafe<B> BiMap(OptionUnsafe<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
             FOptional<
                 MOptionUnsafe<A>, MOptionUnsafe<B>, 
                 OptionUnsafe<A>, OptionUnsafe<B>, 

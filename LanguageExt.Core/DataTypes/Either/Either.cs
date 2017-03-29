@@ -43,8 +43,8 @@ namespace LanguageExt
     {
         public readonly static Either<L, R> Bottom = new Either<L, R>();
 
-        readonly R right;
-        readonly L left;
+        internal readonly R right;
+        internal readonly L left;
 
         private Either(R right)
         {
@@ -178,7 +178,7 @@ namespace LanguageExt
         /// <returns>The return value of the invoked function</returns>
         [Pure]
         public Ret Match<Ret>(Func<R, Ret> Right, Func<L, Ret> Left, Func<Ret> Bottom = null) =>
-            MEither<L, R>.Inst.Match(this, Left, Right, Bottom);
+            Check.NullReturn(MatchUnsafe(Right, Left, Bottom));
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the Either
@@ -190,7 +190,17 @@ namespace LanguageExt
         /// <returns>The return value of the invoked function</returns>
         [Pure]
         public Ret MatchUnsafe<Ret>(Func<R, Ret> Right, Func<L, Ret> Left, Func<Ret> Bottom = null) =>
-            MEither<L, R>.Inst.MatchUnsafe(this, Left, Right, Bottom);
+            State == EitherStatus.IsBottom
+                ? Bottom == null
+                    ? throw new BottomException()
+                    : Bottom()
+                : State == EitherStatus.IsLeft
+                    ? Left == null
+                        ? throw new ArgumentNullException(nameof(Left))
+                        : Left(left)
+                    : Right == null
+                        ? throw new ArgumentNullException(nameof(Right))
+                        : Right(right);
 
         /// <summary>
         /// Invokes the Right or Left action depending on the state of the Either
@@ -199,8 +209,26 @@ namespace LanguageExt
         /// <param name="Left">Action to invoke if in a Left state</param>
         /// <returns>Unit</returns>
         /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
-        public Unit Match(Action<R> Right, Action<L> Left, Action Bottom = null) =>
-            MEither<L, R>.Inst.Match(this, Left, Right, Bottom);
+        public Unit Match(Action<R> Right, Action<L> Left, Action Bottom = null)
+        {
+            if (State == EitherStatus.IsRight && Right != null)
+            {
+                Right(right);
+            }
+            else if (State == EitherStatus.IsLeft && Left != null)
+            {
+                Left(left);
+            }
+            else if (State == EitherStatus.IsBottom && Bottom != null)
+            {
+                Bottom();
+            }
+            else if (State == EitherStatus.IsBottom && Bottom == null)
+            {
+                throw new BottomException();
+            }
+            return unit;
+        }
 
         /// <summary>
         /// Match the two states of the Either and return a promise for a non-null R2.
@@ -238,7 +266,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeft(Func<R> Left) =>
-            ifChoice1<MEither<L, R>, Either<L, R>, L, R>(this, Left);
+            ifLeft<MEither<L, R>, Either<L, R>, L, R>(this, Left);
 
         /// <summary>
         /// Executes the leftMap function if the Either is in a Left state.
@@ -248,7 +276,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeft(Func<L, R> leftMap) =>
-            ifChoice1<MEither<L, R>, Either<L, R>, L, R>(this, leftMap);
+            ifLeft<MEither<L, R>, Either<L, R>, L, R>(this, leftMap);
 
         /// <summary>
         /// Returns the rightValue if the Either is in a Left state.
@@ -258,7 +286,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeft(R rightValue) =>
-            ifChoice1<MEither<L, R>, Either<L, R>, L, R>(this, rightValue);
+            ifLeft<MEither<L, R>, Either<L, R>, L, R>(this, rightValue);
 
         /// <summary>
         /// Executes the Left action if the Either is in a Left state.
@@ -266,7 +294,7 @@ namespace LanguageExt
         /// <param name="Left">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         public Unit IfLeft(Action<L> Left) =>
-            ifChoice1<MEither<L, R>, Either<L, R>, L, R>(this, Left);
+            ifLeft<MEither<L, R>, Either<L, R>, L, R>(this, Left);
 
         /// <summary>
         /// Invokes the Right action if the Either is in a Right state, otherwise does nothing
@@ -274,7 +302,7 @@ namespace LanguageExt
         /// <param name="Right">Action to invoke</param>
         /// <returns>Unit</returns>
         public Unit IfRight(Action<R> Right) =>
-            ifChoice2<MEither<L, R>, Either<L, R>, L, R>(this, Right);
+            ifRight<MEither<L, R>, Either<L, R>, L, R>(this, Right);
 
         /// <summary>
         /// Returns the leftValue if the Either is in a Right state.
@@ -284,7 +312,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRight(L leftValue) =>
-            ifChoice2<MEither<L, R>, Either<L, R>, L, R>(this, leftValue);
+            ifRight<MEither<L, R>, Either<L, R>, L, R>(this, leftValue);
 
         /// <summary>
         /// Returns the result of Right() if the Either is in a Right state.
@@ -294,7 +322,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRight(Func<L> Right) =>
-            ifChoice2<MEither<L, R>, Either<L, R>, L, R>(this, Right);
+            ifRight<MEither<L, R>, Either<L, R>, L, R>(this, Right);
 
         /// <summary>
         /// Returns the result of rightMap if the Either is in a Right state.
@@ -304,7 +332,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRight(Func<R, L> rightMap) =>
-            ifChoice2<MEither<L, R>, Either<L, R>, L, R>(this, rightMap);
+            ifRight<MEither<L, R>, Either<L, R>, L, R>(this, rightMap);
 
         /// <summary>
         /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
@@ -383,7 +411,7 @@ namespace LanguageExt
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
         [Pure]
         public Lst<R> RightToList() =>
-            choice2ToList<MEither<L, R>, Either<L, R>, L, R>(this);
+            rightToList<MEither<L, R>, Either<L, R>, L, R>(this);
 
         /// <summary>
         /// Project the Either into an ImmutableArray R
@@ -391,7 +419,7 @@ namespace LanguageExt
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
         public Arr<R> RightToArray() =>
-            choice2ToArray<MEither<L, R>, Either<L, R>, L, R>(this);
+            rightToArray<MEither<L, R>, Either<L, R>, L, R>(this);
 
         /// <summary>
         /// Project the Either into a Lst R
@@ -399,7 +427,7 @@ namespace LanguageExt
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
         [Pure]
         public Lst<L> LeftToList() =>
-            choice1ToList<MEither<L, R>, Either<L, R>, L, R>(this);
+            leftToList<MEither<L, R>, Either<L, R>, L, R>(this);
 
         /// <summary>
         /// Project the Either into an ImmutableArray R
@@ -407,7 +435,7 @@ namespace LanguageExt
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
         public Arr<L> LeftToArray() =>
-            choice1ToArray<MEither<L, R>, Either<L, R>, L, R>(this);
+            leftToArray<MEither<L, R>, Either<L, R>, L, R>(this);
 
         /// <summary>
         /// Project the Either into a IEnumerable R
@@ -415,7 +443,7 @@ namespace LanguageExt
         /// <returns>If the Either is in a Right state, a IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
         [Pure]
         public IEnumerable<R> RightAsEnumerable() =>
-            choice2AsEnumerable<MEither<L, R>, Either<L, R>, L, R>(this);
+            rightAsEnumerable<MEither<L, R>, Either<L, R>, L, R>(this);
 
         /// <summary>
         /// Project the Either into a IEnumerable L
@@ -423,7 +451,7 @@ namespace LanguageExt
         /// <returns>If the Either is in a Left state, a IEnumerable of L with one item.  A zero length IEnumerable L otherwise</returns>
         [Pure]
         public IEnumerable<L> LeftAsEnumerable() =>
-            choice1AsEnumerable<MEither<L, R>, Either<L, R>, L, R>(this);
+            leftAsEnumerable<MEither<L, R>, Either<L, R>, L, R>(this);
 
         /// <summary>
         /// Convert the Either to an Option
@@ -535,7 +563,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public TResult MatchUntyped<TResult>(Func<object, TResult> Right, Func<object, TResult> Left) =>
-            matchUntyped<MEither<L, R>, Either<L, R>, L, R, TResult>(this, Choice1: Left, Choice2: Right);
+            matchUntyped<MEither<L, R>, Either<L, R>, L, R, TResult>(this, Left: Left, Right: Right);
 
         /// <summary>
         /// Find out the underlying Right type

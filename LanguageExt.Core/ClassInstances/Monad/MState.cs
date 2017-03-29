@@ -87,5 +87,51 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public State<S, A> IdAsync(Func<S, Task<State<S, A>>> ma) => state =>
             ma(state).Result(state);
+
+        [Pure]
+        public Func<S, Task<FoldState>> FoldAsync<FoldState>(State<S, A> fa, FoldState state, Func<FoldState, A, FoldState> f) => env =>
+        {
+            var mr = from a in fa
+                     select f(state, a);
+
+            return Task.FromResult(mr(env).Value);
+        };
+
+        [Pure]
+        public Func<S, Task<FoldState>> FoldAsync<FoldState>(State<S, A> fa, FoldState state, Func<FoldState, A, Task<FoldState>> f) => env =>
+        {
+            var mr = from a in fa
+                     select f(state, a);
+
+            return mr(env).Value;
+        };
+
+        [Pure]
+        public Func<S, Task<FoldState>> FoldBackAsync<FoldState>(State<S, A> fa, FoldState state, Func<FoldState, A, FoldState> f) => env =>
+        {
+            var mr = from a in fa
+                     select f(state, a);
+
+            return Task.FromResult(mr(env).Value);
+        };
+
+        [Pure]
+        public Func<S, Task<FoldState>> FoldBackAsync<FoldState>(State<S, A> fa, FoldState state, Func<FoldState, A, Task<FoldState>> f) => env =>
+        {
+            var mr = from a in fa
+                     select f(state, a);
+
+            return mr(env).Value;
+        };
+
+        [Pure]
+        public Func<S, Task<int>> CountAsync(State<S, A> fa) => env =>
+        {
+            var mr = from a in fa
+                     select 1;
+
+            return Task.FromResult(mr(env).Value);
+        };
+
     }
 }

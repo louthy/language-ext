@@ -24,12 +24,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public bool Equals(CH x, CH y) =>
             default(CHOICE).Match(x,
-                Choice1: a =>
-                    default(CHOICE).Match(y, Choice1: b => equals<EQA, A>(a, b),
-                                             Choice2: _ => false),
-                Choice2: a =>
-                    default(CHOICE).Match(y, Choice1: _ => false,
-                                             Choice2: b => equals<EQB, B>(a, b)),
+                Left: a =>
+                    default(CHOICE).Match(y, Left: b => equals<EQA, A>(a, b),
+                                             Right: _ => false),
+                Right: a =>
+                    default(CHOICE).Match(y, Left: _ => false,
+                                             Right: b => equals<EQB, B>(a, b)),
                 Bottom: () => default(CHOICE).IsBottom(y));
 
         /// <summary>
@@ -40,8 +40,8 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(CH x) =>
             default(CHOICE).Match(x,
-                Choice1: a => a.IsNull() ? 0 : a.GetHashCode(),
-                Choice2: a => a.IsNull() ? 0 : a.GetHashCode());
+                Left: a => a.IsNull() ? 0 : a.GetHashCode(),
+                Right: a => a.IsNull() ? 0 : a.GetHashCode());
     }
 
     /// <summary>
@@ -62,12 +62,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public bool Equals(CH x, CH y) =>
             default(CHOICE).Match(x,
-                Choice1: a =>
-                    default(CHOICE).Match(y, Choice1: b => true,
-                                             Choice2: _ => false),
-                Choice2: a =>
-                    default(CHOICE).Match(y, Choice1: _ => false,
-                                             Choice2: b => equals<EQB, B>(a, b)),
+                Left: a =>
+                    default(CHOICE).Match(y, Left: b => true,
+                                             Right: _ => false),
+                Right: a =>
+                    default(CHOICE).Match(y, Left: _ => false,
+                                             Right: b => equals<EQB, B>(a, b)),
                 Bottom: () => default(CHOICE).IsBottom(y));
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(CH x) =>
             default(CHOICE).Match(x,
-                Choice1: a => a.IsNull() ? 0 : a.GetHashCode(),
-                Choice2: a => a.IsNull() ? 0 : a.GetHashCode());
+                Left: a => a.IsNull() ? 0 : a.GetHashCode(),
+                Right: a => a.IsNull() ? 0 : a.GetHashCode());
     }
 }

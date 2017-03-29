@@ -31,10 +31,7 @@ namespace LanguageExt
         /// value:
         /// An array of byte values in little-endian order.
         ///
-        /// </remarks><exceptions>
-        /// T:System.ArgumentNullException:
-        /// value is null.
-        /// </exceptions>
+        /// </remarks>
         public bigint(byte[] value)
         {
             Value = new BigInteger(value);
@@ -61,11 +58,7 @@ namespace LanguageExt
         /// value:
         /// A double-precision floating-point value.
         ///
-        /// </remarks><exceptions>
-        /// T:System.OverflowException:
-        /// The value of value is System.Double.NaN.-or-The value of value is System.Double.NegativeInfinity.-or-The
-        /// value of value is System.Double.PositiveInfinity.
-        /// </exceptions>
+        /// </remarks>
         public bigint(double value)
         {
             Value = new BigInteger(value);
@@ -105,11 +98,7 @@ namespace LanguageExt
         /// value:
         /// A single-precision floating-point value.
         ///
-        /// </remarks><exceptions>
-        /// T:System.OverflowException:
-        /// The value of value is System.Single.NaN.-or-The value of value is System.Single.NegativeInfinity.-or-The
-        /// value of value is System.Single.PositiveInfinity.
-        /// </exceptions>
+        /// </remarks>
         public bigint(float value)
         {
             Value = new BigInteger(value);
@@ -277,10 +266,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// The quotient of the division.
         ///
-        /// </returns><exceptions>
-        /// T:System.DivideByZeroException:
-        /// divisor is 0 (zero).
-        /// </exceptions>
+        /// </returns>
         public static bigint Divide(bigint dividend, bigint divisor) =>
             BigInteger.Divide(dividend.Value, divisor.Value);
 
@@ -297,10 +283,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// The quotient and remainder of the division as a tuple
         ///
-        /// </returns><exceptions>
-        /// T:System.DivideByZeroException:
-        /// divisor is 0 (zero).
-        /// </exceptions>
+        /// </returns>
         public static (bigint Quotient, bigint Remainder) DivRem(bigint dividend, bigint divisor)
         {
             var res = BigInteger.DivRem(dividend.Value, divisor.Value, out BigInteger rem);
@@ -334,10 +317,7 @@ namespace LanguageExt
         /// The natural (base e) logarithm of value, as shown in the table in the Remarks
         /// section.
         ///
-        /// </returns><exceptions>
-        /// T:System.ArgumentOutOfRangeException:
-        /// The natural log of value is out of range of the System.Double data type.
-        /// </exceptions>
+        /// </returns>
         public static double Log(bigint value) =>
             BigInteger.Log(value.Value);
 
@@ -354,10 +334,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// The base baseValue logarithm of value, as shown in the table in the Remarks section.
         ///
-        /// </returns><exceptions>
-        /// T:System.ArgumentOutOfRangeException:
-        /// The log of value is out of range of the System.Double data type.
-        /// </exceptions>
+        /// </returns>
         public static double Log(bigint value, double baseValue) =>
             BigInteger.Log(value.Value, baseValue);
 
@@ -371,10 +348,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// The base 10 logarithm of value, as shown in the table in the Remarks section.
         ///
-        /// </returns><exceptions>
-        /// T:System.ArgumentOutOfRangeException:
-        /// The base 10 log of value is out of range of the System.Double data type.
-        /// </exceptions>
+        /// </returns>
         public static double Log10(bigint value) =>
             BigInteger.Log10(value.Value);
 
@@ -426,13 +400,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// The remainder after dividing valueexponent by modulus.
         ///
-        /// </returns><exceptions>
-        /// T:System.DivideByZeroException:
-        /// modulus is zero.
-        ///
-        /// T:System.ArgumentOutOfRangeException:
-        /// exponent is negative.
-        /// </exceptions>
+        /// </returns>
         public static bigint ModPow(bigint value, bigint exponent, bigint modulus) =>
             new bigint(BigInteger.ModPow(value.Value, exponent.Value, modulus.Value));
 
@@ -480,18 +448,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// A value that is equivalent to the number specified in the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.ArgumentException:
-        /// style is not a System.Globalization.NumberStyles value.-or-style includes the
-        /// System.Globalization.NumberStyles.AllowHexSpecifier or System.Globalization.NumberStyles.HexNumber
-        /// flag along with another value.
-        ///
-        /// T:System.ArgumentNullException:
-        /// value is null.
-        ///
-        /// T:System.FormatException:
-        /// value does not comply with the input pattern specified by System.Globalization.NumberStyles.
-        /// </exceptions>
+        /// </returns>
         public static bigint Parse(string value, NumberStyles style) =>
             new bigint(BigInteger.Parse(value, style));
 
@@ -509,13 +466,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// A value that is equivalent to the number specified in the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.ArgumentNullException:
-        /// value is null.
-        ///
-        /// T:System.FormatException:
-        /// value is not in the correct format.
-        /// </exceptions>
+        /// </returns>
         public static bigint Parse(string value, IFormatProvider provider) =>
             new bigint(BigInteger.Parse(value, provider));
 
@@ -530,13 +481,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// A value that is equivalent to the number specified in the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.ArgumentNullException:
-        /// value is null.
-        ///
-        /// T:System.FormatException:
-        /// value is not in the correct format.
-        /// </exceptions>
+        /// </returns>
         public static bigint Parse(string value) =>
             new bigint(BigInteger.Parse(value));
 
@@ -558,18 +503,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// A value that is equivalent to the number specified in the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.ArgumentException:
-        /// style is not a System.Globalization.NumberStyles value.-or-style includes the
-        /// System.Globalization.NumberStyles.AllowHexSpecifier or System.Globalization.NumberStyles.HexNumber
-        /// flag along with another value.
-        ///
-        /// T:System.ArgumentNullException:
-        /// value is null.
-        ///
-        /// T:System.FormatException:
-        /// value does not comply with the input pattern specified by style.
-        /// </exceptions>
+        /// </returns>
         public static bigint Parse(string value, NumberStyles style, IFormatProvider provider) =>
             new bigint(BigInteger.Parse(value, style, provider));
 
@@ -586,10 +520,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// The result of raising value to the exponent power.
         ///
-        /// </returns><exceptions>
-        /// T:System.ArgumentOutOfRangeException:
-        /// The value of the exponent parameter is negative.
-        /// </exceptions>
+        /// </returns>
         public static bigint Pow(bigint value, int exponent) =>
             new bigint(BigInteger.Pow(value.Value, exponent));
 
@@ -607,10 +538,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// The remainder after dividing dividend by divisor.
         ///
-        /// </returns><exceptions>
-        /// T:System.DivideByZeroException:
-        /// divisor is 0 (zero).
-        /// </exceptions>
+        /// </returns>
         public static bigint Remainder(bigint dividend, bigint divisor) =>
             new bigint(BigInteger.Remainder(dividend.Value, divisor.Value));
 
@@ -650,12 +578,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// Optional value 
         ///
-        /// </returns><exceptions>
-        /// T:System.ArgumentException:
-        /// style is not a System.Globalization.NumberStyles value.-or-style includes the
-        /// System.Globalization.NumberStyles.AllowHexSpecifier or System.Globalization.NumberStyles.HexNumber
-        /// flag along with another value.
-        /// </exceptions>
+        /// </returns>
         public static Option<bigint> TryParse(string value, NumberStyles style, IFormatProvider provider) =>
             BigInteger.TryParse(value, style, provider, out BigInteger res)
                 ? Some(new bigint(res))
@@ -672,10 +595,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// Optional value 
         ///
-        /// </returns><exceptions>
-        /// T:System.ArgumentNullException:
-        /// value is null.
-        /// </exceptions>
+        /// </returns>
         public static Option<bigint> TryParse(string value) =>
             BigInteger.TryParse(value, out BigInteger res)
                 ? Some(new bigint(res))
@@ -870,10 +790,7 @@ namespace LanguageExt
         /// The string representation of the current bigint value in
         /// the format specified by the format parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.FormatException:
-        /// format is not a valid format string.
-        /// </exceptions>
+        /// </returns>
         public string ToString(string format) =>
             Value.ToString(format);
 
@@ -909,10 +826,7 @@ namespace LanguageExt
         /// The string representation of the current bigint value as
         /// specified by the format and provider parameters.
         ///
-        /// </returns><exceptions>
-        /// T:System.FormatException:
-        /// format is not a valid format string.
-        /// </exceptions>
+        /// </returns>
         public string ToString(string format, IFormatProvider provider) =>
             Value.ToString(format, provider);
 
@@ -1045,10 +959,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// The integral result of the division.
         ///
-        /// </returns><exceptions>
-        /// T:System.DivideByZeroException:
-        /// divisor is 0 (zero).
-        /// </exceptions>
+        /// </returns>
         public static bigint operator /(bigint dividend, bigint divisor) =>
             new bigint(dividend.Value / divisor.Value);
 
@@ -1066,10 +977,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// The remainder that results from the division.
         ///
-        /// </returns><exceptions>
-        /// T:System.DivideByZeroException:
-        /// divisor is 0 (zero).
-        /// </exceptions>
+        /// </returns>
         public static bigint operator %(bigint dividend, bigint divisor) =>
             new bigint(dividend.Value % divisor.Value);
 
@@ -2019,11 +1927,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// An object that contains the value of the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.OverflowException:
-        /// value is System.Double.NaN.-or-value is System.Double.PositiveInfinity.-or-value
-        /// is System.Double.NegativeInfinity.
-        /// </exceptions>
+        /// </returns>
         public static explicit operator bigint(double value) =>
             new bigint(value);
 
@@ -2038,10 +1942,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// An object that contains the value of the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.OverflowException:
-        /// value is less than System.Byte.MinValue. -or-value is greater than System.Byte.MaxValue.
-        /// </exceptions>
+        /// </returns>
         public static explicit operator byte(bigint value) =>
             (byte)value.Value;
 
@@ -2055,10 +1956,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// An object that contains the value of the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.OverflowException:
-        /// value is less than System.Byte.MinValue. -or-value is greater than System.Byte.MaxValue.
-        /// </exceptions>
+        /// </returns>
         public static implicit operator BigInteger(bigint value) =>
             value.Value;
 
@@ -2073,10 +1971,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// An object that contains the value of the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.OverflowException:
-        /// value is less than System.Decimal.MinValue.-or-value is greater than System.Decimal.MaxValue.
-        /// </exceptions>
+        /// </returns>
         public static explicit operator decimal(bigint value) =>
             (decimal)value.Value;
 
@@ -2105,10 +2000,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// An object that contains the value of the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.OverflowException:
-        /// value is less than System.Int16.MinValue.-or-value is greater than System.Int16.MaxValue.
-        /// </exceptions>
+        /// </returns>
         public static explicit operator short(bigint value) =>
             (short)value.Value;
 
@@ -2123,10 +2015,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// An object that contains the value of the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.OverflowException:
-        /// value is less than System.Int64.MinValue.-or-value is greater than System.Int64.MaxValue.
-        /// </exceptions>
+        /// </returns>
         public static explicit operator long(bigint value) =>
             (long)value.Value;
 
@@ -2141,10 +2030,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// An object that contains the value of the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.OverflowException:
-        /// value is less than System.SByte.MinValue.-or-value is greater than System.SByte.MaxValue.
-        /// </exceptions>
+        /// </returns>
         public static explicit operator sbyte(bigint value) =>
             (sbyte)value.Value;
 
@@ -2159,10 +2045,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// An object that contains the value of the value parameter
         ///
-        /// </returns><exceptions>
-        /// T:System.OverflowException:
-        /// value is less than System.UInt16.MinValue.-or-value is greater than System.UInt16.MaxValue.
-        /// </exceptions>
+        /// </returns>
         public static explicit operator ushort(bigint value) =>
             (ushort)value.Value;
 
@@ -2177,10 +2060,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// An object that contains the value of the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.OverflowException:
-        /// value is less than System.UInt32.MinValue.-or-value is greater than System.UInt32.MaxValue.
-        /// </exceptions>
+        /// </returns>
         public static explicit operator uint(bigint value) =>
             (uint)value.Value;
 
@@ -2195,10 +2075,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// An object that contains the value of the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.OverflowException:
-        /// value is less than System.UInt64.MinValue.-or-value is greater than System.UInt64.MaxValue.
-        /// </exceptions>
+        /// </returns>
         public static explicit operator ulong(bigint value) =>
             (ulong)value.Value;
 
@@ -2213,11 +2090,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// An object that contains the value of the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.OverflowException:
-        /// value is System.Single.NaN.-or-value is System.Single.PositiveInfinity.-or-value
-        /// is System.Single.NegativeInfinity.
-        /// </exceptions>
+        /// </returns>
         public static explicit operator bigint(float value) =>
             new bigint(value);
 
@@ -2232,10 +2105,7 @@ namespace LanguageExt
         /// </remarks><returns>
         /// An object that contains the value of the value parameter.
         ///
-        /// </returns><exceptions>
-        /// T:System.OverflowException:
-        /// value is less than System.Int32.MinValue.-or-value is greater than System.Int32.MaxValue.
-        /// </exceptions>
+        /// </returns>
         public static explicit operator int(bigint value) =>
             (int)value.Value;
 

@@ -658,7 +658,7 @@ namespace LanguageExt
         /// <returns>An enumerable of L</returns>
         [Pure]
         public static IEnumerable<L> lefts<L, R>(IEnumerable<Either<L, R>> self) =>
-            choice1s<MEither<L, R>, Either<L, R>, L, R>(self);
+            lefts<MEither<L, R>, Either<L, R>, L, R>(self);
 
         /// <summary>
         /// Extracts from a list of 'Either' all the 'Right' elements.
@@ -670,7 +670,7 @@ namespace LanguageExt
         /// <returns>An enumerable of L</returns>
         [Pure]
         public static IEnumerable<R> rights<L, R>(IEnumerable<Either<L, R>> self) =>
-            choice2s<MEither<L, R>, Either<L, R>, L, R>(self);
+            rights<MEither<L, R>, Either<L, R>, L, R>(self);
 
         /// <summary>
         /// Partitions a list of 'Either' into two lists.

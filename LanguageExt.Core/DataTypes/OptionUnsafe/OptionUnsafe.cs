@@ -544,7 +544,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, Unit, S> None) =>
-            MOptionUnsafe<A>.Inst.BiFold(this, state, None, Some);
+            MOptionUnsafe<A>.Inst.BiFold(this, state, Some, None);
 
         /// <summary>
         /// <para>
@@ -568,7 +568,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, S> None) =>
-            MOptionUnsafe<A>.Inst.BiFold(this, state, (s, _) => None(s), Some);
+            MOptionUnsafe<A>.Inst.BiFold(this, state, Some, (s, _) => None(s));
 
         /// <summary>
         /// Projection from one value to another
@@ -579,7 +579,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionUnsafe<B> BiMap<B>(Func<A, B> Some, Func<Unit, B> None) =>
-            FOptionUnsafe<A, B>.Inst.BiMap(this, None, Some);
+            FOptionUnsafe<A, B>.Inst.BiMap(this, Some, None);
 
         /// <summary>
         /// Projection from one value to another
@@ -590,7 +590,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionUnsafe<B> BiMap<B>(Func<A, B> Some, Func<B> None) =>
-            FOptionUnsafe<A, B>.Inst.BiMap(this, _ => None(), Some);
+            FOptionUnsafe<A, B>.Inst.BiMap(this, Some, _ => None());
 
         /// <summary>
         /// <para>
@@ -637,7 +637,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiForAll(Func<A, bool> Some, Func<Unit, bool> None) =>
-            biForAll<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(this, None, Some);
+            biForAll<MOptionUnsafe<A>, OptionUnsafe<A>, A, Unit>(this, Some, None);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
@@ -653,7 +653,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiForAll(Func<A, bool> Some, Func<bool> None) =>
-            biForAll<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(this, _ => None(), Some);
+            biForAll<MOptionUnsafe<A>, OptionUnsafe<A>, A, Unit>(this, Some, _ => None());
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
@@ -683,7 +683,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiExists(Func<A, bool> Some, Func<Unit, bool> None) =>
-            biExists<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(this, None, Some);
+            biExists<MOptionUnsafe<A>, OptionUnsafe<A>, A, Unit>(this, Some, None);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
@@ -698,7 +698,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiExists(Func<A, bool> Some, Func<bool> None) =>
-            biExists<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(this, _ => None(), Some);
+            biExists<MOptionUnsafe<A>, OptionUnsafe<A>, A, Unit>(this, Some, _ => None());
 
         /// <summary>
         /// Invoke an action for the bound value (if in a Some state)
@@ -715,7 +715,7 @@ namespace LanguageExt
         /// <param name="None">Action to invoke if in a None state</param>
         [Pure]
         public Unit BiIter(Action<A> Some, Action<Unit> None) =>
-            biIter<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(this, None, Some);
+            biIter<MOptionUnsafe<A>, OptionUnsafe<A>, A, Unit>(this, Some, None);
 
         /// <summary>
         /// Invoke an action depending on the state of the OptionUnsafe
@@ -724,7 +724,7 @@ namespace LanguageExt
         /// <param name="None">Action to invoke if in a None state</param>
         [Pure]
         public Unit BiIter(Action<A> Some, Action None) =>
-            biIter<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(this, _ => None(), Some);
+            biIter<MOptionUnsafe<A>, OptionUnsafe<A>, A, Unit>(this, Some, _ => None());
 
         /// <summary>
         /// Apply a predicate to the bound value (if in a Some state)

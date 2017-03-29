@@ -107,5 +107,60 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Writer<MonoidW, W, A> IdAsync(Func<Unit, Task<Writer<MonoidW, W, A>>> ma) => () =>
             ma(unit).Result();
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldAsync<S>(Writer<MonoidW, W, A> fa, S state, Func<S, A, S> f) => env =>
+        {
+            var mr = from a in fa
+                     select f(state, a);
+
+            var r = mr();
+
+            return Task.FromResult(r.IsBottom ? state : r.Value);
+        };
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldAsync<S>(Writer<MonoidW, W, A> fa, S state, Func<S, A, Task<S>> f) => env =>
+        {
+            var mr = from a in fa
+                     select f(state, a);
+
+            var r = mr();
+
+            return r.IsBottom ? Task.FromResult(state) : r.Value;
+        };
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldBackAsync<S>(Writer<MonoidW, W, A> fa, S state, Func<S, A, S> f) => env =>
+        {
+            var mr = from a in fa
+                     select f(state, a);
+
+            var r = mr();
+
+            return Task.FromResult(r.IsBottom ? state : r.Value);
+        };
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldBackAsync<S>(Writer<MonoidW, W, A> fa, S state, Func<S, A, Task<S>> f) => env =>
+        {
+            var mr = from a in fa
+                     select f(state, a);
+
+            var r = mr();
+
+            return r.IsBottom ? Task.FromResult(state) : r.Value;
+        };
+
+        [Pure]
+        public Func<Unit, Task<int>> CountAsync(Writer<MonoidW, W, A> fa) => env =>
+        {
+            var mr = from a in fa
+                     select 1;
+
+            var r = mr();
+
+            return Task.FromResult(r.IsBottom ? 0 : 1);
+        };
     }
 }

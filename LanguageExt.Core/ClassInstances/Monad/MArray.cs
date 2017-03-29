@@ -100,5 +100,43 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public A[] IdAsync(Func<Unit, Task<A[]>> ma) =>
             ma(unit).Result;
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldAsync<S>(A[] fa, S state, Func<S, A, S> f) => _ =>
+            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldAsync<S>(A[] fa, S state, Func<S, A, Task<S>> f) => _ =>
+        {
+            Task<S> s = Task.FromResult(state);
+            foreach (var item in fa)
+            {
+                s = from x in s
+                    from y in f(x, item)
+                    select y;
+            }
+            return s;
+        };
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldBackAsync<S>(A[] fa, S state, Func<S, A, S> f) => _ =>
+             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldBackAsync<S>(A[] fa, S state, Func<S, A, Task<S>> f) => _ =>
+        {
+            Task<S> s = Task.FromResult(state);
+            foreach (var item in fa.Reverse())
+            {
+                s = from x in s
+                    from y in f(x, item)
+                    select y;
+            }
+            return s;
+        };
+
+        [Pure]
+        public Func<Unit, Task<int>> CountAsync(A[] fa) => _ =>
+            Task.FromResult(Inst.Count(fa)(_));
     }
 }

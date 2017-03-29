@@ -46,8 +46,8 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public EitherUnsafe<L2, R2> BiMap(EitherUnsafe<L, R> ma, Func<L, L2> fa, Func<R, R2> fb) =>
             default(MEitherUnsafe<L, R>).Match(ma,
-                Choice1: a => EitherUnsafe<L2, R2>.Left(Check.NullReturn(fa(a))),
-                Choice2: b => EitherUnsafe<L2, R2>.Right(Check.NullReturn(fb(b))),
+                Left: a => EitherUnsafe<L2, R2>.Left(Check.NullReturn(fa(a))),
+                Right: b => EitherUnsafe<L2, R2>.Right(Check.NullReturn(fb(b))),
                 Bottom: () => EitherUnsafe<L2, R2>.Bottom);
 
         [Pure]

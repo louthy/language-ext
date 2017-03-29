@@ -21,11 +21,11 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public static R matchUntyped<CHOICE, CH, A, B, R>(CH ma, Func<object, R> Choice1, Func<object, R> Choice2, Func<R> Bottom = null)
+        public static R matchUntyped<CHOICE, CH, A, B, R>(CH ma, Func<object, R> Left, Func<object, R> Right, Func<R> Bottom = null)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: x => Choice1(x),
-                Choice2: y => Choice2(y),
+                Left: x => Left(x),
+                Right: y => Right(y),
                 Bottom: Bottom);
 
         /// <summary>
@@ -37,8 +37,8 @@ namespace LanguageExt
         public static Arr<B> toArray<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: x => new B[0],
-                Choice2: y => new B[1] { y },
+                Left: x => new B[0],
+                Right: y => new B[1] { y },
                 Bottom: () => new B[0]);
 
         /// <summary>
@@ -69,8 +69,8 @@ namespace LanguageExt
         public static Either<A, B> toEither<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: Left<A, B>,
-                Choice2: Right<A, B>);
+                Left: Left<A, B>,
+                Right: Right<A, B>);
 
         /// <summary>
         /// Convert the structure to an EitherUnsafe
@@ -79,8 +79,8 @@ namespace LanguageExt
         public static EitherUnsafe<A, B> toEitherUnsafe<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: LeftUnsafe<A, B>,
-                Choice2: RightUnsafe<A, B>);
+                Left: LeftUnsafe<A, B>,
+                Right: RightUnsafe<A, B>);
 
         /// <summary>
         /// Convert the structure to a Option
@@ -89,8 +89,8 @@ namespace LanguageExt
         public static Option<B> toOption<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: _ => Option<B>.None,
-                Choice2:      Option<B>.Some,
+                Left: _ => Option<B>.None,
+                Right:      Option<B>.Some,
                 Bottom: () => Option<B>.None);
 
         /// <summary>
@@ -100,8 +100,8 @@ namespace LanguageExt
         public static OptionUnsafe<B> toOptionUnsafe<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: _ => OptionUnsafe<B>.None,
-                Choice2:      OptionUnsafe<B>.Some,
+                Left: _ => OptionUnsafe<B>.None,
+                Right:      OptionUnsafe<B>.Some,
                 Bottom: () => OptionUnsafe<B>.None);
 
         /// <summary>
@@ -111,71 +111,71 @@ namespace LanguageExt
         public static TryOption<B> toTryOption<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> => () =>
                 default(CHOICE).Match(ma,
-                    Choice1: _ => Option<B>.None,
-                    Choice2:      Option<B>.Some,
+                    Left: _ => Option<B>.None,
+                    Right:      Option<B>.Some,
                     Bottom: () => Option<B>.None);
 
         [Pure]
-        public static Task<R> matchAsync<CHOICE, CH, A, B, R>(CH ma, Func<A, R> Choice1, Func<B, Task<R>> Choice2)
+        public static Task<R> matchAsync<CHOICE, CH, A, B, R>(CH ma, Func<A, R> Left, Func<B, Task<R>> Right)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: a => Task.FromResult(Choice1(a)),
-                Choice2: b => Choice2(b));
+                Left: a => Task.FromResult(Left(a)),
+                Right: b => Right(b));
 
         [Pure]
-        public static Task<R> matchAsync<CHOICE, CH, A, B, R>(CH ma, Func<A, Task<R>> Choice1, Func<B, Task<R>> Choice2)
+        public static Task<R> matchAsync<CHOICE, CH, A, B, R>(CH ma, Func<A, Task<R>> Left, Func<B, Task<R>> Right)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma, 
-                Choice1: a => Choice1(a),
-                Choice2: b => Choice2(b));
+                Left: a => Left(a),
+                Right: b => Right(b));
 
         [Pure]
-        public static IObservable<R> matchObservable<CHOICE, CH, A, B, R>(CH ma, Func<A, R> Choice1, Func<B, IObservable<R>> Choice2)
+        public static IObservable<R> matchObservable<CHOICE, CH, A, B, R>(CH ma, Func<A, R> Left, Func<B, IObservable<R>> Right)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: a => Observable.Return(Choice1(a)),
-                Choice2: b => Choice2(b));
+                Left: a => Observable.Return(Left(a)),
+                Right: b => Right(b));
 
         [Pure]
-        public static IObservable<R> matchObservable<CHOICE, CH, A, B, R>(CH ma, Func<A, IObservable<R>> Choice1, Func<B, IObservable<R>> Choice2)
+        public static IObservable<R> matchObservable<CHOICE, CH, A, B, R>(CH ma, Func<A, IObservable<R>> Left, Func<B, IObservable<R>> Right)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: a => Choice1(a),
-                Choice2: b => Choice2(b));
+                Left: a => Left(a),
+                Right: b => Right(b));
 
         [Pure]
-        public static B ifChoice1<CHOICE, CH, A, B>(CH ma, Func<B> Left)
+        public static B ifLeft<CHOICE, CH, A, B>(CH ma, Func<B> Left)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: _ => Left(),
-                Choice2: identity);
+                Left: _ => Left(),
+                Right: identity);
 
         [Pure]
-        public static B ifChoice1<CHOICE, CH, A, B>(CH ma, Func<A, B> leftMap)
+        public static B ifLeft<CHOICE, CH, A, B>(CH ma, Func<A, B> leftMap)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: leftMap,
-                Choice2: identity);
+                Left: leftMap,
+                Right: identity);
 
         [Pure]
-        public static B ifChoice1<CHOICE, CH, A, B>(CH ma, B rightValue)
+        public static B ifLeft<CHOICE, CH, A, B>(CH ma, B rightValue)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: _ => rightValue,
-                Choice2: identity);
+                Left: _ => rightValue,
+                Right: identity);
 
-        public static Unit ifChoice1<CHOICE, CH, A, B>(CH ma, Action<A> Left)
+        public static Unit ifLeft<CHOICE, CH, A, B>(CH ma, Action<A> Left)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: a => { Left(a); return unit; },
-                Choice2: a => { return unit; },
+                Left: a => { Left(a); return unit; },
+                Right: a => { return unit; },
                 Bottom: () => { return unit; });
 
-        public static Unit ifChoice2<CHOICE, CH, A, B>(CH ma, Action<B> Right)
+        public static Unit ifRight<CHOICE, CH, A, B>(CH ma, Action<B> Right)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: a => { return unit; },
-                Choice2: b => { Right(b); return unit; },
+                Left: a => { return unit; },
+                Right: b => { Right(b); return unit; },
                 Bottom: () => { return unit; });
 
         /// <summary>
@@ -185,11 +185,11 @@ namespace LanguageExt
         /// <param name="leftValue">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
-        public static A ifChoice2<CHOICE, CH, A, B>(CH ma, A leftValue)
+        public static A ifRight<CHOICE, CH, A, B>(CH ma, A leftValue)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: identity,
-                Choice2: _ => leftValue);
+                Left: identity,
+                Right: _ => leftValue);
 
         /// <summary>
         /// Returns the result of Right() if the Either is in a Right state.
@@ -198,11 +198,11 @@ namespace LanguageExt
         /// <param name="Right">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
-        public static A ifChoice2<CHOICE, CH, A, B>(CH ma, Func<A> Right)
+        public static A ifRight<CHOICE, CH, A, B>(CH ma, Func<A> Right)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: identity,
-                Choice2: _ => Right());
+                Left: identity,
+                Right: _ => Right());
 
         /// <summary>
         /// Returns the result of rightMap if the Either is in a Right state.
@@ -211,58 +211,58 @@ namespace LanguageExt
         /// <param name="rightMap">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
-        public static A ifChoice2<CHOICE, CH, A, B>(CH ma, Func<B, A> rightMap)
+        public static A ifRight<CHOICE, CH, A, B>(CH ma, Func<B, A> rightMap)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: identity,
-                Choice2: rightMap);
+                Left: identity,
+                Right: rightMap);
 
         /// <summary>
         /// Project the Either into a Lst R
         /// </summary>
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
         [Pure]
-        public static Lst<B> choice2ToList<CHOICE, CH, A, B>(CH ma)
+        public static Lst<B> rightToList<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
-            choice2AsEnumerable<CHOICE, CH, A, B>(ma).Freeze();
+            rightAsEnumerable<CHOICE, CH, A, B>(ma).Freeze();
 
         /// <summary>
         /// Project the Either into an ImmutableArray R
         /// </summary>
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
-        public static Arr<B> choice2ToArray<CHOICE, CH, A, B>(CH ma)
+        public static Arr<B> rightToArray<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
-            toArray<B>(choice2AsEnumerable<CHOICE, CH, A, B>(ma));
+            toArray<B>(rightAsEnumerable<CHOICE, CH, A, B>(ma));
 
         /// <summary>
         /// Project the Either into a Lst R
         /// </summary>
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
         [Pure]
-        public static Lst<A> choice1ToList<CHOICE, CH, A, B>(CH ma)
+        public static Lst<A> leftToList<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
-            choice1AsEnumerable<CHOICE, CH, A, B>(ma).Freeze();
+            leftAsEnumerable<CHOICE, CH, A, B>(ma).Freeze();
 
         /// <summary>
         /// Project the Either into an ImmutableArray R
         /// </summary>
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
-        public static Arr<A> choice1ToArray<CHOICE, CH, A, B>(CH ma)
+        public static Arr<A> leftToArray<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
-            toArray<A>(choice1AsEnumerable<CHOICE, CH, A, B>(ma));
+            toArray<A>(leftAsEnumerable<CHOICE, CH, A, B>(ma));
 
         /// <summary>
         /// Project the Either into a IEnumerable R
         /// </summary>
         /// <returns>If the Either is in a Right state, a IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
         [Pure]
-        public static IEnumerable<B> choice2AsEnumerable<CHOICE, CH, A, B>(CH ma)
+        public static IEnumerable<B> rightAsEnumerable<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma, 
-                Choice1: _ => new B[0],
-                Choice2: b => new B[1] { b },
+                Left: _ => new B[0],
+                Right: b => new B[1] { b },
                 Bottom: () => new B[0]);
 
         /// <summary>
@@ -270,19 +270,19 @@ namespace LanguageExt
         /// </summary>
         /// <returns>If the Either is in a Left state, a IEnumerable of L with one item.  A zero length IEnumerable L otherwise</returns>
         [Pure]
-        public static IEnumerable<A> choice1AsEnumerable<CHOICE, CH, A, B>(CH ma)
+        public static IEnumerable<A> leftAsEnumerable<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: a => new A[1] { a },
-                Choice2: _ => new A[0],
+                Left: a => new A[1] { a },
+                Right: _ => new A[0],
                 Bottom: () => new A[0]);
 
         [Pure]
         public static int hashCode<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Choice1: a => a?.GetHashCode() ?? 0,
-                Choice2: b => b?.GetHashCode() ?? 0,
+                Left: a => a?.GetHashCode() ?? 0,
+                Right: b => b?.GetHashCode() ?? 0,
                 Bottom: () => -1
                 );
 
@@ -295,17 +295,17 @@ namespace LanguageExt
         /// <param name="ma">Either list</param>
         /// <returns>An enumerable of L</returns>
         [Pure]
-        public static IEnumerable<A> choice1s<CHOICE, CH, A, B>(IEnumerable<CH> ma)
+        public static IEnumerable<A> lefts<CHOICE, CH, A, B>(IEnumerable<CH> ma)
             where CHOICE : struct, Choice<CH, A, B>
         {
             foreach (var item in ma)
             {
-                if (default(CHOICE).IsChoice1(item))
+                if (default(CHOICE).IsLeft(item))
                 {
                     yield return default(CHOICE).Match(
                         item,
-                        Choice1: x => x,
-                        Choice2: y => default(A),
+                        Left: x => x,
+                        Right: y => default(A),
                         Bottom: () => default(A));
                 }
             }
@@ -320,17 +320,17 @@ namespace LanguageExt
         /// <param name="ma">Choice  list</param>
         /// <returns>An enumerable of L</returns>
         [Pure]
-        public static IEnumerable<B> choice2s<CHOICE, CH, A, B>(IEnumerable<CH> ma)
+        public static IEnumerable<B> rights<CHOICE, CH, A, B>(IEnumerable<CH> ma)
             where CHOICE : struct, Choice<CH, A, B>
         {
             foreach (var item in ma)
             {
-                if (default(CHOICE).IsChoice2(item))
+                if (default(CHOICE).IsRight(item))
                 {
                     yield return default(CHOICE).Match(
                         item,
-                        Choice1: x => default(B),
-                        Choice2: y => y,
+                        Left: x => default(B),
+                        Right: y => y,
                         Bottom: () => default(B));
                 }
             }
@@ -349,7 +349,7 @@ namespace LanguageExt
         [Pure]
         public static Tuple<IEnumerable<A>, IEnumerable<B>> partition<CHOICE, CH, A, B>(IEnumerable<CH> ma)
             where CHOICE : struct, Choice<CH, A, B> =>
-            Tuple(choice1s<CHOICE, CH, A, B>(ma), choice2s<CHOICE, CH, A, B>(ma));
+            Tuple(lefts<CHOICE, CH, A, B>(ma), rights<CHOICE, CH, A, B>(ma));
 
     }
 }

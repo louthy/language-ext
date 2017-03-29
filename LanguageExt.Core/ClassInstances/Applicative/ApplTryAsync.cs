@@ -8,13 +8,13 @@ namespace LanguageExt.ClassInstances
 {
     public struct ApplTryAsync<A, B> : 
         Functor<TryAsync<A>, TryAsync<B>, A, B>,
-        BiFunctor<TryAsync<A>, TryAsync<B>, Unit, A, B>,
+        BiFunctor<TryAsync<A>, TryAsync<B>, A, Unit, B>,
         Applicative<TryAsync<Func<A, B>>, TryAsync<A>, TryAsync<B>, A, B>
     {
         public static readonly ApplTryAsync<A, B> Inst = default(ApplTryAsync<A, B>);
 
         [Pure]
-        public TryAsync<B> BiMap(TryAsync<A> ma, Func<Unit, B> fa, Func<A, B> fb) =>
+        public TryAsync<B> BiMap(TryAsync<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
             FTryAsync<A, B>.Inst.BiMap(ma, fa, fb);
 
         [Pure]
@@ -101,19 +101,23 @@ namespace LanguageExt.ClassInstances
 
     public struct ApplTryAsync<A> :
         Functor<TryAsync<A>, TryAsync<A>, A, A>,
-        BiFunctor<TryAsync<A>, TryAsync<A>, Unit, A, A>,
+        BiFunctor<TryAsync<A>, TryAsync<A>, A, Unit, A>,
         Applicative<TryAsync<Func<A, A>>, TryAsync<A>, TryAsync<A>, A, A>,
         Applicative<TryAsync<Func<A, Func<A, A>>>, TryAsync<Func<A, A>>, TryAsync<A>, TryAsync<A>, TryAsync<A>, A, A, A>
     {
         public static readonly ApplTryAsync<A> Inst = default(ApplTryAsync<A>);
 
         [Pure]
-        public TryAsync<A> BiMap(TryAsync<A> ma, Func<Unit, A> fa, Func<A, A> fb) =>
-            FOptional<MTryAsync<A>, MTryAsync<A>, TryAsync<A>, TryAsync<A>, A, A>.Inst.BiMap(ma, fa, fb);
+        public TryAsync<A> BiMap(TryAsync<A> ma, Func<A, A> fa, Func<Unit, A> fb) => () =>
+            ma.Match(
+                Succ: a => new Result<A>(fa(a)),
+                Fail: _ => new Result<A>(fb(unit)));
 
         [Pure]
-        public TryAsync<A> Map(TryAsync<A> ma, Func<A, A> f) =>
-            FOptional<MTryAsync<A>, MTryAsync<A>, TryAsync<A>, TryAsync<A>, A, A>.Inst.Map(ma, f);
+        public TryAsync<A> Map(TryAsync<A> ma, Func<A, A> f) => () =>
+            ma.Match(
+                Succ: a => new Result<A>(f(a)),
+                Fail: e => new Result<A>(e));
 
         [Pure]
         public TryAsync<A> Apply(TryAsync<Func<A, A>> fab, TryAsync<A> fa) =>

@@ -11,7 +11,7 @@ namespace LanguageExt.ClassInstances
     public struct MTask<A> :
         Optional<Task<A>, A>,
         Monad<Task<A>, A>,
-        BiFoldable<Task<A>, Unit, A>
+        BiFoldable<Task<A>, A, Unit>
     {
         public static readonly MTask<A> Inst = default(MTask<A>);
 
@@ -111,21 +111,21 @@ namespace LanguageExt.ClassInstances
         };
 
         [Pure]
-        public S BiFold<S>(Task<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
+        public S BiFold<S>(Task<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb)
         {
             if (ma.IsFaulted)
-                return fa(state, unit);
+                return fb(state, unit);
             else
-                return fb(state, ma.Result);
+                return fa(state, ma.Result);
         }
 
         [Pure]
-        public S BiFoldBack<S>(Task<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
+        public S BiFoldBack<S>(Task<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb)
         {
             if (ma.IsFaulted)
-                return fa(state, unit);
+                return fb(state, unit);
             else
-                return fb(state, ma.Result);
+                return fa(state, ma.Result);
         }
 
         [Pure]
@@ -159,5 +159,31 @@ namespace LanguageExt.ClassInstances
             from ta in ma(unit)
             from a in ta
             select a;
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldAsync<S>(Task<A> fa, S state, Func<S, A, S> f) => _ =>
+            from a in fa
+            select f(state, a);
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldAsync<S>(Task<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
+            from a in fa
+            from s in f(state, a)
+            select s;
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldBackAsync<S>(Task<A> fa, S state, Func<S, A, S> f) => _ =>
+            from a in fa
+            select f(state, a);
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldBackAsync<S>(Task<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
+            from a in fa
+            from s in f(state, a)
+            select s;
+
+        [Pure]
+        public Func<Unit, Task<int>> CountAsync(Task<A> fa) => _ =>
+            Task.FromResult(Inst.Count(fa)(_));
     }
 }

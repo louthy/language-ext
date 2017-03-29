@@ -575,7 +575,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, Unit, S> None) =>
-            MOption<A>.Inst.BiFold(this, state, None, Some);
+            MOption<A>.Inst.BiFold(this, state, Some, None);
 
         /// <summary>
         /// <para>
@@ -600,7 +600,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, S> None) =>
-            MOption<A>.Inst.BiFold(this, state, (s, _) => None(s), Some);
+            MOption<A>.Inst.BiFold(this, state, Some, (s, _) => None(s));
 
         /// <summary>
         /// Projection from one value to another
@@ -611,7 +611,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public Option<B> BiMap<B>(Func<A, B> Some, Func<Unit, B> None) =>
-            FOption<A, B>.Inst.BiMap(this, None, Some);
+            FOption<A, B>.Inst.BiMap(this, Some, None);
 
         /// <summary>
         /// Projection from one value to another
@@ -622,7 +622,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public Option<B> BiMap<B>(Func<A, B> Some, Func<B> None) =>
-            FOption<A, B>.Inst.BiMap(this, _ => None(), Some);
+            FOption<A, B>.Inst.BiMap(this, Some, _ => None());
 
         /// <summary>
         /// <para>
@@ -669,7 +669,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiForAll(Func<A, bool> Some, Func<Unit, bool> None) =>
-            biForAll<MOption<A>, Option<A>, Unit, A>(this, None, Some);
+            biForAll<MOption<A>, Option<A>, A, Unit>(this, Some, None);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -685,7 +685,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiForAll(Func<A, bool> Some, Func<bool> None) =>
-            biForAll<MOption<A>, Option<A>, Unit, A>(this, _ => None(), Some);
+            biForAll<MOption<A>, Option<A>, A, Unit>(this, Some, _ => None());
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -715,7 +715,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiExists(Func<A, bool> Some, Func<Unit, bool> None) =>
-            biExists<MOption<A>, Option<A>, Unit, A>(this, None, Some);
+            biExists<MOption<A>, Option<A>, A, Unit>(this, Some, None);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -730,7 +730,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiExists(Func<A, bool> Some, Func<bool> None) =>
-            biExists<MOption<A>, Option<A>, Unit, A>(this, _ => None(), Some);
+            biExists<MOption<A>, Option<A>, A, Unit>(this, Some, _ => None());
 
         /// <summary>
         /// Invoke an action for the bound value (if in a Some state)
@@ -747,7 +747,7 @@ namespace LanguageExt
         /// <param name="None">Action to invoke if in a None state</param>
         [Pure]
         public Unit BiIter(Action<A> Some, Action<Unit> None) =>
-            biIter<MOption<A>, Option<A>, Unit, A>(this, None, Some);
+            biIter<MOption<A>, Option<A>, A, Unit>(this, Some, None);
 
         /// <summary>
         /// Invoke an action depending on the state of the Option
@@ -756,7 +756,7 @@ namespace LanguageExt
         /// <param name="None">Action to invoke if in a None state</param>
         [Pure]
         public Unit BiIter(Action<A> Some, Action None) =>
-            biIter<MOption<A>, Option<A>, Unit, A>(this, _ => None(), Some);
+            biIter<MOption<A>, Option<A>, A, Unit>(this, Some, _ => None());
 
         /// <summary>
         /// Apply a predicate to the bound value (if in a Some state)
@@ -818,9 +818,15 @@ namespace LanguageExt
                 ? Optional(await map(Value))
                 : Option<B>.None;
 
+        /// <summary>
+        /// Get an enumerator for the Option
+        /// </summary>
         public IEnumerator<A> GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
+        /// <summary>
+        /// Get an enumerator for the Option
+        /// </summary>
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
     }

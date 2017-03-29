@@ -14,6 +14,8 @@ namespace LanguageExt.ClassInstances
     /// <typeparam name="A"></typeparam>
     public struct MIdentity<A> : Monad<Identity<A>, A>
     {
+        public static readonly MIdentity<A> Inst = new MIdentity<A>();
+
         [Pure]
         public MB Bind<MONADB, MB, B>(Identity<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             f(ma.Value);
@@ -67,5 +69,25 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Identity<A> IdAsync(Func<Unit, Task<Identity<A>>> ma) =>
             ma(unit).Result;
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldAsync<S>(Identity<A> fa, S state, Func<S, A, S> f) => _ =>
+            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldAsync<S>(Identity<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
+            f(state, fa.Value);
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldBackAsync<S>(Identity<A> fa, S state, Func<S, A, S> f) => _ =>
+             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
+
+        [Pure]
+        public Func<Unit, Task<S>> FoldBackAsync<S>(Identity<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
+            f(state, fa.Value);
+
+        [Pure]
+        public Func<Unit, Task<int>> CountAsync(Identity<A> fa) => _ =>
+            Task.FromResult(Inst.Count(fa)(_));
     }
 }

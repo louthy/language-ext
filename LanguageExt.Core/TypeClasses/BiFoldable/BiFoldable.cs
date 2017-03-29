@@ -4,7 +4,7 @@ using System.Diagnostics.Contracts;
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface BiFoldable<F, A, B> : Foldable<F, B>
+    public interface BiFoldable<F, A, B>
     {
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary

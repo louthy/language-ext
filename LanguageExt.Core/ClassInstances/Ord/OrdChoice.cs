@@ -30,12 +30,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int Compare(CH x, CH y) =>
             default(CHOICE).Match( x,
-                Choice1: a =>
-                    default(CHOICE).Match(y, Choice1: b => compare<ORDA, A>(a, b),
-                                             Choice2: _ => 1),
-                Choice2: a =>
-                    default(CHOICE).Match(y, Choice1: _ => -1,
-                                             Choice2: b => compare<ORDB, B>(a, b)));
+                Left: a =>
+                    default(CHOICE).Match(y, Left: b => compare<ORDA, A>(a, b),
+                                             Right: _ => 1),
+                Right: a =>
+                    default(CHOICE).Match(y, Left: _ => -1,
+                                             Right: b => compare<ORDB, B>(a, b)));
 
         /// <summary>
         /// Equality test
@@ -46,12 +46,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public bool Equals(CH x, CH y) =>
             default(CHOICE).Match(x,
-                Choice1: a =>
-                    default(CHOICE).Match(y, Choice1: b => equals<ORDA, A>(a, b),
-                                             Choice2: _ => false),
-                Choice2: a =>
-                    default(CHOICE).Match(y, Choice1: _ => false,
-                                             Choice2: b => equals<ORDB, B>(a, b)));
+                Left: a =>
+                    default(CHOICE).Match(y, Left: b => equals<ORDA, A>(a, b),
+                                             Right: _ => false),
+                Right: a =>
+                    default(CHOICE).Match(y, Left: _ => false,
+                                             Right: b => equals<ORDB, B>(a, b)));
 
 
         /// <summary>
@@ -61,8 +61,8 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(CH x) =>
             default(CHOICE).Match(x,
-                Choice1: a => a.IsNull() ? 0 : a.GetHashCode(),
-                Choice2: b => b.IsNull() ? 0 : b.GetHashCode());
+                Left: a => a.IsNull() ? 0 : a.GetHashCode(),
+                Right: b => b.IsNull() ? 0 : b.GetHashCode());
     }
 
     /// <summary>
@@ -88,12 +88,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int Compare(CH x, CH y) =>
             default(CHOICE).Match(x,
-                Choice1: a =>
-                    default(CHOICE).Match(y, Choice1: b => 0,
-                               Choice2: _ => 1),
-                Choice2: a =>
-                    default(CHOICE).Match(y, Choice1: _ => -1,
-                               Choice2: b => compare<ORD, B>(a, b)));
+                Left: a =>
+                    default(CHOICE).Match(y, Left: b => 0,
+                               Right: _ => 1),
+                Right: a =>
+                    default(CHOICE).Match(y, Left: _ => -1,
+                               Right: b => compare<ORD, B>(a, b)));
 
         /// <summary>
         /// Equality test
@@ -104,12 +104,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public bool Equals(CH x, CH y) =>
             default(CHOICE).Match(x,
-                Choice1: a =>
-                    default(CHOICE).Match(y, Choice1: b => true,
-                               Choice2: _ => false),
-                Choice2: a =>
-                    default(CHOICE).Match(y, Choice1: _ => false,
-                               Choice2: b => equals<ORD, B>(a, b)));
+                Left: a =>
+                    default(CHOICE).Match(y, Left: b => true,
+                               Right: _ => false),
+                Right: a =>
+                    default(CHOICE).Match(y, Left: _ => false,
+                               Right: b => equals<ORD, B>(a, b)));
 
         /// <summary>
         /// Get the hash-code of the provided value
@@ -118,7 +118,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(CH x) =>
             default(CHOICE).Match(x,
-                Choice1: a => a.IsNull() ? 0 : a.GetHashCode(),
-                Choice2: b => b.IsNull() ? 0 : b.GetHashCode());
+                Left: a => a.IsNull() ? 0 : a.GetHashCode(),
+                Right: b => b.IsNull() ? 0 : b.GetHashCode());
     }
 }
