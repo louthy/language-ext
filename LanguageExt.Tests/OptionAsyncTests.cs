@@ -36,7 +36,6 @@ namespace LanguageExt.Tests
 
             Option<int> opt = 4;
             Unit unit = await opt.ToAsync().IfSome(i => DoWork());
-            unit = ifSome(opt, x => DoWork());
         }
 
         public Task DoWork()
