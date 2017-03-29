@@ -808,17 +808,6 @@ namespace LanguageExt
             Map(curry(func));
 
         /// <summary>
-        /// Apply a map operation that returns a Task result
-        /// </summary>
-        /// <typeparam name="B">Type of the bound result value</typeparam>
-        /// <param name="map">Mapping function to apply</param>
-        /// <returns>A task</returns>
-        public async Task<Option<B>> MapAsync<B>(Func<A, Task<B>> map) =>
-            IsSome
-                ? Optional(await map(Value))
-                : Option<B>.None;
-
-        /// <summary>
         /// Get an enumerator for the Option
         /// </summary>
         public IEnumerator<A> GetEnumerator() =>

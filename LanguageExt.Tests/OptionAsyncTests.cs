@@ -40,6 +40,21 @@ namespace LanguageExt.Tests
             Unit unit = await opt.ToAsync().IfSome(i => DoWork());
         }
 
+        [Fact]
+        public async void InitialTests2()
+        {
+            var mc = Some(10).MatchAsync(
+                Some: x => Task.FromResult(x * 10),
+                None: () => 0
+            );
+
+            Assert.True(await mc == 100);
+
+
+            Option<int> opt = 4;
+            Unit unit = await opt.IfSomeAsync(i => DoWork());
+        }
+
         public Task DoWork()
         {
             return Task.Run(() => Console.WriteLine("here"));

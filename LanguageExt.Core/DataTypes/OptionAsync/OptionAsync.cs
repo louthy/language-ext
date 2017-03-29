@@ -5,10 +5,7 @@ using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
-using System.ComponentModel;
 using System.Threading.Tasks;
-using System.Runtime.Serialization;
-using System.Collections;
 
 namespace LanguageExt
 {
@@ -159,6 +156,16 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionAsync<B> Map<B>(Func<A, B> f) =>
+            FOptionAsync<A, B>.Inst.Map(this, f);
+
+        /// <summary>
+        /// Projection from one value to another 
+        /// </summary>
+        /// <typeparam name="B">Resulting functor value type</typeparam>
+        /// <param name="f">Projection function</param>
+        /// <returns>Mapped functor</returns>
+        [Pure]
+        public OptionAsync<B> Map<B>(Func<A, Task<B>> f) =>
             FOptionAsync<A, B>.Inst.Map(this, f);
 
         /// <summary>
