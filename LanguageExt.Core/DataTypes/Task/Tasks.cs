@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LanguageExt.ClassInstances;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace LanguageExt
         [Pure]
         public static async Task<bool> ForAll<A, B>(A a, IEnumerable<Func<A, B>> fs, Func<B, bool> pred)
         {
-            var tasks = fs.Map(f => Task.Run(() => f(a))).ToList();
+            var tasks = toSet<OrdTask<B>, Task<B>>(fs.Map(f => Task.Run(() => f(a))));
 
             while (tasks.Count > 0)
             {
@@ -21,7 +22,7 @@ namespace LanguageExt
                 {
                     return false;
                 }
-                tasks.Remove(completed);
+                tasks = tasks.Remove(completed);
             }
             return true;
         }
@@ -29,7 +30,7 @@ namespace LanguageExt
         [Pure]
         public static async Task<bool> ForAll<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred)
         {
-            var tasks = fs.ToList();
+            var tasks = toSet<OrdTask<A>, Task<A>>(fs);
 
             while (tasks.Count > 0)
             {
@@ -38,7 +39,7 @@ namespace LanguageExt
                 {
                     return false;
                 }
-                tasks.Remove(completed);
+                tasks = tasks.Remove(completed);
             }
             return true;
         }
@@ -46,7 +47,7 @@ namespace LanguageExt
         [Pure]
         public static async Task<bool> Exists<A, B>(A a, IEnumerable<Func<A, B>> fs, Func<B, bool> pred)
         {
-            var tasks = fs.Map(f => Task.Run(() => f(a))).ToList();
+            var tasks = toSet<OrdTask<B>, Task<B>>(fs.Map(f => Task.Run(() => f(a))));
 
             while (tasks.Count > 0)
             {
@@ -56,7 +57,7 @@ namespace LanguageExt
                 {
                     return res;
                 }
-                tasks.Remove(completed);
+                tasks = tasks.Remove(completed);
             }
 
             return false;
@@ -65,7 +66,7 @@ namespace LanguageExt
         [Pure]
         public static async Task<bool> Exists<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred)
         {
-            var tasks = fs.ToList();
+            var tasks = toSet<OrdTask<A>, Task<A>>(fs);
 
             while (tasks.Count > 0)
             {
@@ -75,7 +76,7 @@ namespace LanguageExt
                 {
                     return res;
                 }
-                tasks.Remove(completed);
+                tasks = tasks.Remove(completed);
             }
             return false;
         }

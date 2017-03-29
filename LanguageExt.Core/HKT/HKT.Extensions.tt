@@ -13,6 +13,7 @@
         T("HashSet"),
         T("Lst"),
         T("Option"),
+        T("OptionAsync"),
         T("OptionUnsafe"),
         T("Either", "L"),
         T("EitherUnsafe", "L"),

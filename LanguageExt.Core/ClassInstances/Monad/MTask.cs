@@ -5,6 +5,7 @@ using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace LanguageExt.ClassInstances
 {
@@ -15,8 +16,15 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly MTask<A> Inst = default(MTask<A>);
 
+        static Task<A> FromExcept()
+        {
+            var tcs = new TaskCompletionSource<A>();
+            tcs.SetException(BottomException.Default);
+            return tcs.Task;
+        }
+
         [Pure]
-        public Task<A> None => Task.Run<A>(() => raise<A>(new BottomException()));
+        public Task<A> None => FromExcept();
 
         [Pure]
         public MB Bind<MONADB, MB, B>(Task<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
@@ -33,17 +41,22 @@ namespace LanguageExt.ClassInstances
         public Task<A> Fail(Exception err = null) =>
             Task.Run(() => raise<A>(err ?? new BottomException()));
 
+        
+
         [Pure]
         public async Task<A> Plus(Task<A> ma, Task<A> mb)
         {
+            var tasks = Set<OrdTask<A>, Task<A>>(ma, mb);
+
             // Run in parallel
-            for (int i = 0; i < 2; i++)
+            while(tasks.Count > 0)
             {
                 // Return first one that completes
-                var completed = await Task.WhenAny(ma, mb);
+                var completed = await Task.WhenAny(tasks);
                 if (!completed.IsFaulted) return completed.Result;
+                tasks = tasks.Remove(completed);
             }
-            throw new BottomException();
+            return await None;
         }
 
         /// <summary>

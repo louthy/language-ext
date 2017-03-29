@@ -50,9 +50,19 @@ namespace LanguageExt.Tests
 
             Assert.True(await mc == 100);
 
-
             Option<int> opt = 4;
             Unit unit = await opt.IfSomeAsync(i => DoWork());
+        }
+
+        [Fact]
+        public async void InitialTests3()
+        {
+            var mc = Task.FromResult(Some(10)).MatchAsync(
+                Some: x => Task.FromResult(x * 10),
+                None: () => 0
+            );
+
+            Assert.True(await mc == 100);
         }
 
         public Task DoWork()
@@ -90,7 +100,20 @@ namespace LanguageExt.Tests
 
             Assert.True(tasks[0].Status == TaskStatus.RanToCompletion);
             Assert.True(tasks[1].Status == TaskStatus.RanToCompletion);
+        }
 
+        [Fact]
+        public async void SequenceFlip()
+        {
+            Task<Option<int>> taskOpt = Task.Run(() => Some(10));
+
+            Option<Task<int>> optTask = taskOpt.Sequence();
+
+            var res = await optTask.IfNone(0.AsTask());
+
+            Assert.True(res == 10);
+
+            taskOpt = optTask.Sequence();
         }
     }
 }

@@ -1145,6 +1145,290 @@ namespace LanguageExt
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Arr<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Arr<OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Arr<OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Arr<OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MArr<OptionAsync<A>>, Arr<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Arr<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Arr<OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Arr<OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(Arr<OptionAsync<A>> ma) =>
+            Trans<MArr<OptionAsync<A>>, Arr<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Arr<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Arr<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Arr<OptionAsync<B>> bindT< A, B>(Arr<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MArr<OptionAsync<A>>, Arr<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MArr<OptionAsync<B>>, Arr<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Arr<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<Arr<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Arr<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Arr<B>>`</returns>
+        [Pure]
+        public static OptionAsync<Arr<B>> traverse< A, B>(Arr<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MArr<OptionAsync<A>>, Arr<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<Arr<B>>, OptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Arr<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<Arr<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Arr<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Arr<A>>`</returns>
+        [Pure]
+        public static OptionAsync<Arr<A>> sequence< A>(Arr<OptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Arr<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Arr<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Arr<OptionAsync<B>> mapT< A, B>(Arr<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MArr<OptionAsync<A>>, Arr<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MArr<OptionAsync<B>>, Arr<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Arr<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Arr<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<OptionAsync<A>>, Arr<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Arr<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Arr<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MArr<OptionAsync<A>>, Arr<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Arr<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Arr<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MArr<OptionAsync<A>>, Arr<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Arr<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Arr<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MArr<OptionAsync<A>>, Arr<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Arr<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Arr<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Arr<OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MArr<OptionAsync<A>>, Arr<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Arr<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Arr<OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Arr<OptionAsync<A>> filterT< A>(Arr<OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MArr<OptionAsync<A>>, Arr<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MArr<OptionAsync<A>>, Arr<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Arr<OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static Arr<OptionAsync<A>> plusT<NUM,  A>(Arr<OptionAsync<A>> x, Arr<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Arr<OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static Arr<OptionAsync<A>> subtractT<NUM,  A>(Arr<OptionAsync<A>> x, Arr<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Arr<OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Arr<OptionAsync<A>> productT<NUM,  A>(Arr<OptionAsync<A>> x, Arr<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Arr<OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Arr<OptionAsync<A>> divideT<NUM,  A>(Arr<OptionAsync<A>> x, Arr<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Arr<OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Arr<OptionAsync<A>> appendT<SEMI,  A>(Arr<OptionAsync<A>> x, Arr<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Arr<OptionAsync<A>> x, Arr<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Arr<OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Arr<OptionAsync<A>> x, Arr<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Arr<OptionAsync<A>>`</param>
+        /// <returns>`Arr<OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Arr<OptionAsync<B>> applyT< A, B>(Func<A, B> fab, Arr<OptionAsync<A>> fa) =>
+            ApplArr< OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MArr< Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Arr<OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `Arr<OptionAsync<A>>`</param>
+        /// <returns>`Arr<OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Arr<OptionAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, Arr<OptionAsync<A>> fa, Arr<OptionAsync<B>> fb) =>
+            ApplArr< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MArr< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionUnsafeT
     {
         /// <summary>
@@ -5119,6 +5403,290 @@ namespace LanguageExt
                         (Option<B> b) =>
                             ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `HashSet<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet<OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `HashSet<OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(HashSet<OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MHashSet<OptionAsync<A>>, HashSet<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `HashSet<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet<OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `HashSet<OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(HashSet<OptionAsync<A>> ma) =>
+            Trans<MHashSet<OptionAsync<A>>, HashSet<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`HashSet<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static HashSet<OptionAsync<B>> bindT< A, B>(HashSet<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MHashSet<OptionAsync<A>>, HashSet<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MHashSet<OptionAsync<B>>, HashSet<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `HashSet<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<HashSet<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<HashSet<B>>`</returns>
+        [Pure]
+        public static OptionAsync<HashSet<B>> traverse< A, B>(HashSet<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<OptionAsync<A>>, HashSet<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<HashSet<B>>, OptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `HashSet<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<HashSet<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<HashSet<A>>`</returns>
+        [Pure]
+        public static OptionAsync<HashSet<A>> sequence< A>(HashSet<OptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`HashSet<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static HashSet<OptionAsync<B>> mapT< A, B>(HashSet<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MHashSet<OptionAsync<A>>, HashSet<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MHashSet<OptionAsync<B>>, HashSet<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `HashSet<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(HashSet<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<OptionAsync<A>>, HashSet<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `HashSet<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(HashSet<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MHashSet<OptionAsync<A>>, HashSet<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(HashSet<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MHashSet<OptionAsync<A>>, HashSet<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(HashSet<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MHashSet<OptionAsync<A>>, HashSet<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `HashSet<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(HashSet<OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MHashSet<OptionAsync<A>>, HashSet<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`HashSet<OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static HashSet<OptionAsync<A>> filterT< A>(HashSet<OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MHashSet<OptionAsync<A>>, HashSet<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MHashSet<OptionAsync<A>>, HashSet<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`HashSet<OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static HashSet<OptionAsync<A>> plusT<NUM,  A>(HashSet<OptionAsync<A>> x, HashSet<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`HashSet<OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static HashSet<OptionAsync<A>> subtractT<NUM,  A>(HashSet<OptionAsync<A>> x, HashSet<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`HashSet<OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static HashSet<OptionAsync<A>> productT<NUM,  A>(HashSet<OptionAsync<A>> x, HashSet<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`HashSet<OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static HashSet<OptionAsync<A>> divideT<NUM,  A>(HashSet<OptionAsync<A>> x, HashSet<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`HashSet<OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static HashSet<OptionAsync<A>> appendT<SEMI,  A>(HashSet<OptionAsync<A>> x, HashSet<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(HashSet<OptionAsync<A>> x, HashSet<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`HashSet<OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(HashSet<OptionAsync<A>> x, HashSet<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `HashSet<OptionAsync<A>>`</param>
+        /// <returns>`HashSet<OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static HashSet<OptionAsync<B>> applyT< A, B>(Func<A, B> fab, HashSet<OptionAsync<A>> fa) =>
+            ApplHashSet< OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MHashSet< Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `HashSet<OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `HashSet<OptionAsync<A>>`</param>
+        /// <returns>`HashSet<OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static HashSet<OptionAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, HashSet<OptionAsync<A>> fa, HashSet<OptionAsync<B>> fb) =>
+            ApplHashSet< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MHashSet< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
     public static partial class OptionUnsafeT
@@ -9097,6 +9665,290 @@ namespace LanguageExt
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Lst<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Lst<OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Lst<OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Lst<OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MLst<OptionAsync<A>>, Lst<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Lst<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Lst<OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Lst<OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(Lst<OptionAsync<A>> ma) =>
+            Trans<MLst<OptionAsync<A>>, Lst<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Lst<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Lst<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Lst<OptionAsync<B>> bindT< A, B>(Lst<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MLst<OptionAsync<A>>, Lst<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MLst<OptionAsync<B>>, Lst<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Lst<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<Lst<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Lst<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Lst<B>>`</returns>
+        [Pure]
+        public static OptionAsync<Lst<B>> traverse< A, B>(Lst<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MLst<OptionAsync<A>>, Lst<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<Lst<B>>, OptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Lst<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<Lst<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Lst<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Lst<A>>`</returns>
+        [Pure]
+        public static OptionAsync<Lst<A>> sequence< A>(Lst<OptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Lst<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Lst<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Lst<OptionAsync<B>> mapT< A, B>(Lst<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MLst<OptionAsync<A>>, Lst<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MLst<OptionAsync<B>>, Lst<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Lst<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Lst<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<OptionAsync<A>>, Lst<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Lst<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Lst<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MLst<OptionAsync<A>>, Lst<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Lst<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Lst<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MLst<OptionAsync<A>>, Lst<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Lst<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Lst<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MLst<OptionAsync<A>>, Lst<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Lst<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Lst<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Lst<OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MLst<OptionAsync<A>>, Lst<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Lst<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Lst<OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Lst<OptionAsync<A>> filterT< A>(Lst<OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MLst<OptionAsync<A>>, Lst<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MLst<OptionAsync<A>>, Lst<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Lst<OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static Lst<OptionAsync<A>> plusT<NUM,  A>(Lst<OptionAsync<A>> x, Lst<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Lst<OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static Lst<OptionAsync<A>> subtractT<NUM,  A>(Lst<OptionAsync<A>> x, Lst<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Lst<OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Lst<OptionAsync<A>> productT<NUM,  A>(Lst<OptionAsync<A>> x, Lst<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Lst<OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Lst<OptionAsync<A>> divideT<NUM,  A>(Lst<OptionAsync<A>> x, Lst<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Lst<OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Lst<OptionAsync<A>> appendT<SEMI,  A>(Lst<OptionAsync<A>> x, Lst<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Lst<OptionAsync<A>> x, Lst<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Lst<OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Lst<OptionAsync<A>> x, Lst<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Lst<OptionAsync<A>>`</param>
+        /// <returns>`Lst<OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Lst<OptionAsync<B>> applyT< A, B>(Func<A, B> fab, Lst<OptionAsync<A>> fa) =>
+            ApplLst< OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MLst< Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Lst<OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `Lst<OptionAsync<A>>`</param>
+        /// <returns>`Lst<OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Lst<OptionAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, Lst<OptionAsync<A>> fa, Lst<OptionAsync<B>> fb) =>
+            ApplLst< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MLst< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionUnsafeT
     {
         /// <summary>
@@ -13073,6 +13925,290 @@ namespace LanguageExt
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Option<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Option<OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Option<OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Option<OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOption<OptionAsync<A>>, Option<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Option<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Option<OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Option<OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(Option<OptionAsync<A>> ma) =>
+            Trans<MOption<OptionAsync<A>>, Option<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Option<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Option<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Option<OptionAsync<B>> bindT< A, B>(Option<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MOption<OptionAsync<A>>, Option<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MOption<OptionAsync<B>>, Option<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Option<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<Option<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Option<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Option<B>>`</returns>
+        [Pure]
+        public static OptionAsync<Option<B>> traverse< A, B>(Option<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MOption<OptionAsync<A>>, Option<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<Option<B>>, OptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Option<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<Option<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Option<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Option<A>>`</returns>
+        [Pure]
+        public static OptionAsync<Option<A>> sequence< A>(Option<OptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Option<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Option<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Option<OptionAsync<B>> mapT< A, B>(Option<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MOption<OptionAsync<A>>, Option<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MOption<OptionAsync<B>>, Option<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Option<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Option<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<OptionAsync<A>>, Option<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Option<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Option<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<OptionAsync<A>>, Option<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Option<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Option<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MOption<OptionAsync<A>>, Option<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Option<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Option<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MOption<OptionAsync<A>>, Option<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Option<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Option<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Option<OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MOption<OptionAsync<A>>, Option<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Option<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Option<OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Option<OptionAsync<A>> filterT< A>(Option<OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MOption<OptionAsync<A>>, Option<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MOption<OptionAsync<A>>, Option<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Option<OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static Option<OptionAsync<A>> plusT<NUM,  A>(Option<OptionAsync<A>> x, Option<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Option<OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static Option<OptionAsync<A>> subtractT<NUM,  A>(Option<OptionAsync<A>> x, Option<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Option<OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Option<OptionAsync<A>> productT<NUM,  A>(Option<OptionAsync<A>> x, Option<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Option<OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Option<OptionAsync<A>> divideT<NUM,  A>(Option<OptionAsync<A>> x, Option<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Option<OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Option<OptionAsync<A>> appendT<SEMI,  A>(Option<OptionAsync<A>> x, Option<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Option<OptionAsync<A>> x, Option<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Option<OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Option<OptionAsync<A>> x, Option<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Option<OptionAsync<A>>`</param>
+        /// <returns>`Option<OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Option<OptionAsync<B>> applyT< A, B>(Func<A, B> fab, Option<OptionAsync<A>> fa) =>
+            ApplOption< OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MOption< Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Option<OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `Option<OptionAsync<A>>`</param>
+        /// <returns>`Option<OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Option<OptionAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, Option<OptionAsync<A>> fa, Option<OptionAsync<B>> fb) =>
+            ApplOption< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MOption< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionUnsafeT
     {
         /// <summary>
@@ -15916,6 +17052,4266 @@ namespace LanguageExt
     public static partial class ArrT
     {
         /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<Arr<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Arr<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<Arr<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionAsync<Arr<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<Arr<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Arr<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<Arr<A>>`</returns>
+        [Pure]
+        public static int countT< A>(OptionAsync<Arr<A>> ma) =>
+            Trans<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Arr<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<Arr<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Arr<B>> bindT< A, B>(OptionAsync<Arr<A>> ma, Func<A, Arr<B>> f) =>
+            Trans<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Bind<MOptionAsync<Arr<B>>, OptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<Arr<A>>`, traverses the inner
+        /// values of type `A`, and returns `Arr<OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Arr<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Arr<OptionAsync<B>>`</returns>
+        [Pure]
+        public static Arr<OptionAsync<B>> traverse< A, B>(OptionAsync<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Traverse<MArr<OptionAsync<B>>, Arr<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<Arr<A>>`, traverses the inner
+        /// values of type `A`, and returns `Arr<OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Arr<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Arr<OptionAsync<A>>`</returns>
+        [Pure]
+        public static Arr<OptionAsync<A>> sequence< A>(OptionAsync<Arr<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Arr<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Arr<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Arr<B>> mapT< A, B>(OptionAsync<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Map<MOptionAsync<Arr<B>>, OptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<Arr<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionAsync<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<Arr<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionAsync<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Arr<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionAsync<Arr<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Arr<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionAsync<Arr<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<Arr<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Arr<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionAsync<Arr<A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Arr<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<Arr<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<Arr<A>> filterT< A>(OptionAsync<Arr<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Bind<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MArr<A>).Return(a)
+                        : default(MArr<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Arr<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<Arr<A>> plusT<NUM,  A>(OptionAsync<Arr<A>> x, OptionAsync<Arr<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Arr<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<Arr<A>> subtractT<NUM,  A>(OptionAsync<Arr<A>> x, OptionAsync<Arr<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Arr<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<Arr<A>> productT<NUM,  A>(OptionAsync<Arr<A>> x, OptionAsync<Arr<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Arr<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<Arr<A>> divideT<NUM,  A>(OptionAsync<Arr<A>> x, OptionAsync<Arr<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Arr<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<Arr<A>> appendT<SEMI,  A>(OptionAsync<Arr<A>> x, OptionAsync<Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionAsync<Arr<A>> x, OptionAsync<Arr<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Arr<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionAsync<Arr<A>> x, OptionAsync<Arr<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<Arr<A>>`</param>
+        /// <returns>`OptionAsync<Arr<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<Arr<B>> applyT< A, B>(Func<A, B> fab, OptionAsync<Arr<A>> fa) =>
+            ApplOptionAsync< Arr<A>, Arr<B>>.Inst.Apply(
+                 MOptionAsync< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
+                     MArr< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<Arr<A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<Arr<A>>`</param>
+        /// <returns>`OptionAsync<Arr<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<Arr<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionAsync<Arr<A>> fa, OptionAsync<Arr<B>> fb) =>
+            ApplOptionAsync< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+                MOptionAsync< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
+                    (Arr<A> a) =>
+                        (Arr<B> b) =>
+                            ApplArr< A, B, C>.Inst.Apply(
+                                MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class HashSetT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<HashSet<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<HashSet<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<HashSet<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionAsync<HashSet<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<HashSet<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<HashSet<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<HashSet<A>>`</returns>
+        [Pure]
+        public static int countT< A>(OptionAsync<HashSet<A>> ma) =>
+            Trans<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<HashSet<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<HashSet<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<HashSet<B>> bindT< A, B>(OptionAsync<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
+            Trans<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Bind<MOptionAsync<HashSet<B>>, OptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<HashSet<A>>`, traverses the inner
+        /// values of type `A`, and returns `HashSet<OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<HashSet<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`HashSet<OptionAsync<B>>`</returns>
+        [Pure]
+        public static HashSet<OptionAsync<B>> traverse< A, B>(OptionAsync<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Traverse<MHashSet<OptionAsync<B>>, HashSet<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<HashSet<A>>`, traverses the inner
+        /// values of type `A`, and returns `HashSet<OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<HashSet<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`HashSet<OptionAsync<A>>`</returns>
+        [Pure]
+        public static HashSet<OptionAsync<A>> sequence< A>(OptionAsync<HashSet<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<HashSet<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<HashSet<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<HashSet<B>> mapT< A, B>(OptionAsync<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Map<MOptionAsync<HashSet<B>>, OptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<HashSet<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionAsync<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<HashSet<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionAsync<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<HashSet<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionAsync<HashSet<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<HashSet<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionAsync<HashSet<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<HashSet<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<HashSet<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionAsync<HashSet<A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<HashSet<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<HashSet<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<HashSet<A>> filterT< A>(OptionAsync<HashSet<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Bind<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MHashSet<A>).Return(a)
+                        : default(MHashSet<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<HashSet<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<HashSet<A>> plusT<NUM,  A>(OptionAsync<HashSet<A>> x, OptionAsync<HashSet<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<HashSet<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<HashSet<A>> subtractT<NUM,  A>(OptionAsync<HashSet<A>> x, OptionAsync<HashSet<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<HashSet<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<HashSet<A>> productT<NUM,  A>(OptionAsync<HashSet<A>> x, OptionAsync<HashSet<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<HashSet<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<HashSet<A>> divideT<NUM,  A>(OptionAsync<HashSet<A>> x, OptionAsync<HashSet<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<HashSet<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<HashSet<A>> appendT<SEMI,  A>(OptionAsync<HashSet<A>> x, OptionAsync<HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionAsync<HashSet<A>> x, OptionAsync<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<HashSet<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionAsync<HashSet<A>> x, OptionAsync<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<HashSet<A>>`</param>
+        /// <returns>`OptionAsync<HashSet<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<HashSet<B>> applyT< A, B>(Func<A, B> fab, OptionAsync<HashSet<A>> fa) =>
+            ApplOptionAsync< HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MOptionAsync< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
+                     MHashSet< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<HashSet<A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<HashSet<A>>`</param>
+        /// <returns>`OptionAsync<HashSet<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<HashSet<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionAsync<HashSet<A>> fa, OptionAsync<HashSet<B>> fb) =>
+            ApplOptionAsync< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+                MOptionAsync< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
+                    (HashSet<A> a) =>
+                        (HashSet<B> b) =>
+                            ApplHashSet< A, B, C>.Inst.Apply(
+                                MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class LstT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<Lst<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Lst<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<Lst<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionAsync<Lst<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<Lst<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Lst<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<Lst<A>>`</returns>
+        [Pure]
+        public static int countT< A>(OptionAsync<Lst<A>> ma) =>
+            Trans<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Lst<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<Lst<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Lst<B>> bindT< A, B>(OptionAsync<Lst<A>> ma, Func<A, Lst<B>> f) =>
+            Trans<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Bind<MOptionAsync<Lst<B>>, OptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<Lst<A>>`, traverses the inner
+        /// values of type `A`, and returns `Lst<OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Lst<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Lst<OptionAsync<B>>`</returns>
+        [Pure]
+        public static Lst<OptionAsync<B>> traverse< A, B>(OptionAsync<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Traverse<MLst<OptionAsync<B>>, Lst<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<Lst<A>>`, traverses the inner
+        /// values of type `A`, and returns `Lst<OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Lst<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Lst<OptionAsync<A>>`</returns>
+        [Pure]
+        public static Lst<OptionAsync<A>> sequence< A>(OptionAsync<Lst<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Lst<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Lst<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Lst<B>> mapT< A, B>(OptionAsync<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Map<MOptionAsync<Lst<B>>, OptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<Lst<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionAsync<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<Lst<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionAsync<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Lst<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionAsync<Lst<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Lst<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionAsync<Lst<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<Lst<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Lst<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionAsync<Lst<A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Lst<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<Lst<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<Lst<A>> filterT< A>(OptionAsync<Lst<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Bind<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MLst<A>).Return(a)
+                        : default(MLst<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Lst<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<Lst<A>> plusT<NUM,  A>(OptionAsync<Lst<A>> x, OptionAsync<Lst<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Lst<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<Lst<A>> subtractT<NUM,  A>(OptionAsync<Lst<A>> x, OptionAsync<Lst<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Lst<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<Lst<A>> productT<NUM,  A>(OptionAsync<Lst<A>> x, OptionAsync<Lst<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Lst<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<Lst<A>> divideT<NUM,  A>(OptionAsync<Lst<A>> x, OptionAsync<Lst<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Lst<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<Lst<A>> appendT<SEMI,  A>(OptionAsync<Lst<A>> x, OptionAsync<Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionAsync<Lst<A>> x, OptionAsync<Lst<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Lst<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionAsync<Lst<A>> x, OptionAsync<Lst<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<Lst<A>>`</param>
+        /// <returns>`OptionAsync<Lst<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<Lst<B>> applyT< A, B>(Func<A, B> fab, OptionAsync<Lst<A>> fa) =>
+            ApplOptionAsync< Lst<A>, Lst<B>>.Inst.Apply(
+                 MOptionAsync< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
+                     MLst< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<Lst<A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<Lst<A>>`</param>
+        /// <returns>`OptionAsync<Lst<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<Lst<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionAsync<Lst<A>> fa, OptionAsync<Lst<B>> fb) =>
+            ApplOptionAsync< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+                MOptionAsync< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
+                    (Lst<A> a) =>
+                        (Lst<B> b) =>
+                            ApplLst< A, B, C>.Inst.Apply(
+                                MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class OptionT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<Option<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Option<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<Option<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionAsync<Option<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<Option<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Option<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<Option<A>>`</returns>
+        [Pure]
+        public static int countT< A>(OptionAsync<Option<A>> ma) =>
+            Trans<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Option<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<Option<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Option<B>> bindT< A, B>(OptionAsync<Option<A>> ma, Func<A, Option<B>> f) =>
+            Trans<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Bind<MOptionAsync<Option<B>>, OptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<Option<A>>`, traverses the inner
+        /// values of type `A`, and returns `Option<OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Option<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Option<OptionAsync<B>>`</returns>
+        [Pure]
+        public static Option<OptionAsync<B>> traverse< A, B>(OptionAsync<Option<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Traverse<MOption<OptionAsync<B>>, Option<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<Option<A>>`, traverses the inner
+        /// values of type `A`, and returns `Option<OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Option<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Option<OptionAsync<A>>`</returns>
+        [Pure]
+        public static Option<OptionAsync<A>> sequence< A>(OptionAsync<Option<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Option<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Option<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Option<B>> mapT< A, B>(OptionAsync<Option<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Map<MOptionAsync<Option<B>>, OptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<Option<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionAsync<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<Option<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionAsync<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Option<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionAsync<Option<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Option<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionAsync<Option<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<Option<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Option<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionAsync<Option<A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Option<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<Option<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<Option<A>> filterT< A>(OptionAsync<Option<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Bind<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOption<A>).Return(a)
+                        : default(MOption<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Option<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<Option<A>> plusT<NUM,  A>(OptionAsync<Option<A>> x, OptionAsync<Option<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Option<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<Option<A>> subtractT<NUM,  A>(OptionAsync<Option<A>> x, OptionAsync<Option<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Option<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<Option<A>> productT<NUM,  A>(OptionAsync<Option<A>> x, OptionAsync<Option<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Option<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<Option<A>> divideT<NUM,  A>(OptionAsync<Option<A>> x, OptionAsync<Option<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Option<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<Option<A>> appendT<SEMI,  A>(OptionAsync<Option<A>> x, OptionAsync<Option<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionAsync<Option<A>> x, OptionAsync<Option<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Option<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionAsync<Option<A>> x, OptionAsync<Option<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<Option<A>>`</param>
+        /// <returns>`OptionAsync<Option<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<Option<B>> applyT< A, B>(Func<A, B> fab, OptionAsync<Option<A>> fa) =>
+            ApplOptionAsync< Option<A>, Option<B>>.Inst.Apply(
+                 MOptionAsync< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
+                     MOption< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<Option<A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<Option<A>>`</param>
+        /// <returns>`OptionAsync<Option<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<Option<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionAsync<Option<A>> fa, OptionAsync<Option<B>> fb) =>
+            ApplOptionAsync< Option<A>, Option<B>, Option<C>>.Inst.Apply(
+                MOptionAsync< Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
+                    (Option<A> a) =>
+                        (Option<B> b) =>
+                            ApplOption< A, B, C>.Inst.Apply(
+                                MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionAsync<OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(OptionAsync<OptionAsync<A>> ma) =>
+            Trans<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<OptionAsync<B>> bindT< A, B>(OptionAsync<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<OptionAsync<B>>`</returns>
+        [Pure]
+        public static OptionAsync<OptionAsync<B>> traverse< A, B>(OptionAsync<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<OptionAsync<A>>`</returns>
+        [Pure]
+        public static OptionAsync<OptionAsync<A>> sequence< A>(OptionAsync<OptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<OptionAsync<B>> mapT< A, B>(OptionAsync<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionAsync<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionAsync<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionAsync<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionAsync<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionAsync<OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<OptionAsync<A>> filterT< A>(OptionAsync<OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<OptionAsync<A>> plusT<NUM,  A>(OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<OptionAsync<A>> subtractT<NUM,  A>(OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<OptionAsync<A>> productT<NUM,  A>(OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<OptionAsync<A>> divideT<NUM,  A>(OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<OptionAsync<A>> appendT<SEMI,  A>(OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<OptionAsync<A>>`</param>
+        /// <returns>`OptionAsync<OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<OptionAsync<B>> applyT< A, B>(Func<A, B> fab, OptionAsync<OptionAsync<A>> fa) =>
+            ApplOptionAsync< OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MOptionAsync< Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<OptionAsync<A>>`</param>
+        /// <returns>`OptionAsync<OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<OptionAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionAsync<OptionAsync<A>> fa, OptionAsync<OptionAsync<B>> fb) =>
+            ApplOptionAsync< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MOptionAsync< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class OptionUnsafeT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<OptionUnsafe<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionUnsafe<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<OptionUnsafe<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionAsync<OptionUnsafe<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<OptionUnsafe<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionUnsafe<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<OptionUnsafe<A>>`</returns>
+        [Pure]
+        public static int countT< A>(OptionAsync<OptionUnsafe<A>> ma) =>
+            Trans<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionUnsafe<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<OptionUnsafe<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<OptionUnsafe<B>> bindT< A, B>(OptionAsync<OptionUnsafe<A>> ma, Func<A, OptionUnsafe<B>> f) =>
+            Trans<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Bind<MOptionAsync<OptionUnsafe<B>>, OptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<OptionUnsafe<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionUnsafe<OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionUnsafe<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionUnsafe<OptionAsync<B>>`</returns>
+        [Pure]
+        public static OptionUnsafe<OptionAsync<B>> traverse< A, B>(OptionAsync<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Traverse<MOptionUnsafe<OptionAsync<B>>, OptionUnsafe<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<OptionUnsafe<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionUnsafe<OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionUnsafe<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionUnsafe<OptionAsync<A>>`</returns>
+        [Pure]
+        public static OptionUnsafe<OptionAsync<A>> sequence< A>(OptionAsync<OptionUnsafe<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionUnsafe<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<OptionUnsafe<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<OptionUnsafe<B>> mapT< A, B>(OptionAsync<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Map<MOptionAsync<OptionUnsafe<B>>, OptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionUnsafe<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionAsync<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionUnsafe<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionAsync<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionUnsafe<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionAsync<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionUnsafe<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionAsync<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<OptionUnsafe<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionUnsafe<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionAsync<OptionUnsafe<A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<OptionUnsafe<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<OptionUnsafe<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<OptionUnsafe<A>> filterT< A>(OptionAsync<OptionUnsafe<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Bind<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionUnsafe<A>).Return(a)
+                        : default(MOptionUnsafe<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<OptionUnsafe<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<OptionUnsafe<A>> plusT<NUM,  A>(OptionAsync<OptionUnsafe<A>> x, OptionAsync<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<OptionUnsafe<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<OptionUnsafe<A>> subtractT<NUM,  A>(OptionAsync<OptionUnsafe<A>> x, OptionAsync<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<OptionUnsafe<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<OptionUnsafe<A>> productT<NUM,  A>(OptionAsync<OptionUnsafe<A>> x, OptionAsync<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<OptionUnsafe<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<OptionUnsafe<A>> divideT<NUM,  A>(OptionAsync<OptionUnsafe<A>> x, OptionAsync<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<OptionUnsafe<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<OptionUnsafe<A>> appendT<SEMI,  A>(OptionAsync<OptionUnsafe<A>> x, OptionAsync<OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionAsync<OptionUnsafe<A>> x, OptionAsync<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<OptionUnsafe<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionAsync<OptionUnsafe<A>> x, OptionAsync<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<OptionUnsafe<A>>`</param>
+        /// <returns>`OptionAsync<OptionUnsafe<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<OptionUnsafe<B>> applyT< A, B>(Func<A, B> fab, OptionAsync<OptionUnsafe<A>> fa) =>
+            ApplOptionAsync< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MOptionAsync< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
+                     MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<OptionUnsafe<A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<OptionUnsafe<A>>`</param>
+        /// <returns>`OptionAsync<OptionUnsafe<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<OptionUnsafe<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionAsync<OptionUnsafe<A>> fa, OptionAsync<OptionUnsafe<B>> fb) =>
+            ApplOptionAsync< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+                MOptionAsync< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
+                    (OptionUnsafe<A> a) =>
+                        (OptionUnsafe<B> b) =>
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
+                                MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class EitherT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<Either<L, A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Either<L, A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<Either<L, A>>`</returns>
+        [Pure]
+        public static A sumT<NumA, L, A>(OptionAsync<Either<L, A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<Either<L, A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Either<L, A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<Either<L, A>>`</returns>
+        [Pure]
+        public static int countT<L, A>(OptionAsync<Either<L, A>> ma) =>
+            Trans<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Either<L, A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<Either<L, B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Either<L, B>> bindT<L, A, B>(OptionAsync<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
+            Trans<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Bind<MOptionAsync<Either<L, B>>, OptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<Either<L, A>>`, traverses the inner
+        /// values of type `A`, and returns `Either<L, OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Either<L, A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Either<L, OptionAsync<B>>`</returns>
+        [Pure]
+        public static Either<L, OptionAsync<B>> traverse<L, A, B>(OptionAsync<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Traverse<MEither<L, OptionAsync<B>>, Either<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<Either<L, A>>`, traverses the inner
+        /// values of type `A`, and returns `Either<L, OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse<L, A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Either<L, A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Either<L, OptionAsync<A>>`</returns>
+        [Pure]
+        public static Either<L, OptionAsync<A>> sequence<L, A>(OptionAsync<Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Either<L, A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Either<L, B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Either<L, B>> mapT<L, A, B>(OptionAsync<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Map<MOptionAsync<Either<L, B>>, OptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<Either<L, A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S, L, A>(OptionAsync<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<Either<L, A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S, L, A>(OptionAsync<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Either<L, A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT<L, A>(OptionAsync<Either<L, A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Either<L, A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT<L, A>(OptionAsync<Either<L, A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<Either<L, A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Either<L, A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT<L, A>(OptionAsync<Either<L, A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Either<L, A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<Either<L, A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<Either<L, A>> filterT<L, A>(OptionAsync<Either<L, A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Bind<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MEither<L, A>).Return(a)
+                        : default(MEither<L, A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Either<L, A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<Either<L, A>> plusT<NUM, L, A>(OptionAsync<Either<L, A>> x, OptionAsync<Either<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Either<L, A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<Either<L, A>> subtractT<NUM, L, A>(OptionAsync<Either<L, A>> x, OptionAsync<Either<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Either<L, A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<Either<L, A>> productT<NUM, L, A>(OptionAsync<Either<L, A>> x, OptionAsync<Either<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Either<L, A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<Either<L, A>> divideT<NUM, L, A>(OptionAsync<Either<L, A>> x, OptionAsync<Either<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Either<L, A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<Either<L, A>> appendT<SEMI, L, A>(OptionAsync<Either<L, A>> x, OptionAsync<Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD, L, A>(OptionAsync<Either<L, A>> x, OptionAsync<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Either<L, A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ, L, A>(OptionAsync<Either<L, A>> x, OptionAsync<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<Either<L, A>>`</param>
+        /// <returns>`OptionAsync<Either<L, B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<Either<L, B>> applyT<L, A, B>(Func<A, B> fab, OptionAsync<Either<L, A>> fa) =>
+            ApplOptionAsync< Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MOptionAsync< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
+                     MEither<L, Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<Either<L, A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<Either<L, A>>`</param>
+        /// <returns>`OptionAsync<Either<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<Either<L, C>> applyT<L, A, B, C>(Func<A, B, C> fabc, OptionAsync<Either<L, A>> fa, OptionAsync<Either<L, B>> fb) =>
+            ApplOptionAsync< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+                MOptionAsync< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
+                    (Either<L, A> a) =>
+                        (Either<L, B> b) =>
+                            ApplEither<L, A, B, C>.Inst.Apply(
+                                MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class EitherUnsafeT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<EitherUnsafe<L, A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<EitherUnsafe<L, A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<EitherUnsafe<L, A>>`</returns>
+        [Pure]
+        public static A sumT<NumA, L, A>(OptionAsync<EitherUnsafe<L, A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<EitherUnsafe<L, A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<EitherUnsafe<L, A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<EitherUnsafe<L, A>>`</returns>
+        [Pure]
+        public static int countT<L, A>(OptionAsync<EitherUnsafe<L, A>> ma) =>
+            Trans<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<EitherUnsafe<L, A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<EitherUnsafe<L, B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<EitherUnsafe<L, B>> bindT<L, A, B>(OptionAsync<EitherUnsafe<L, A>> ma, Func<A, EitherUnsafe<L, B>> f) =>
+            Trans<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Bind<MOptionAsync<EitherUnsafe<L, B>>, OptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<EitherUnsafe<L, A>>`, traverses the inner
+        /// values of type `A`, and returns `EitherUnsafe<L, OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<EitherUnsafe<L, A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherUnsafe<L, OptionAsync<B>>`</returns>
+        [Pure]
+        public static EitherUnsafe<L, OptionAsync<B>> traverse<L, A, B>(OptionAsync<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Traverse<MEitherUnsafe<L, OptionAsync<B>>, EitherUnsafe<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<EitherUnsafe<L, A>>`, traverses the inner
+        /// values of type `A`, and returns `EitherUnsafe<L, OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse<L, A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<EitherUnsafe<L, A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherUnsafe<L, OptionAsync<A>>`</returns>
+        [Pure]
+        public static EitherUnsafe<L, OptionAsync<A>> sequence<L, A>(OptionAsync<EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<EitherUnsafe<L, A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<EitherUnsafe<L, B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<EitherUnsafe<L, B>> mapT<L, A, B>(OptionAsync<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Map<MOptionAsync<EitherUnsafe<L, B>>, OptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<EitherUnsafe<L, A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S, L, A>(OptionAsync<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<EitherUnsafe<L, A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S, L, A>(OptionAsync<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<EitherUnsafe<L, A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT<L, A>(OptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<EitherUnsafe<L, A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT<L, A>(OptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<EitherUnsafe<L, A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<EitherUnsafe<L, A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT<L, A>(OptionAsync<EitherUnsafe<L, A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<EitherUnsafe<L, A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<EitherUnsafe<L, A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<EitherUnsafe<L, A>> filterT<L, A>(OptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Bind<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MEitherUnsafe<L, A>).Return(a)
+                        : default(MEitherUnsafe<L, A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<EitherUnsafe<L, A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<EitherUnsafe<L, A>> plusT<NUM, L, A>(OptionAsync<EitherUnsafe<L, A>> x, OptionAsync<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<EitherUnsafe<L, A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<EitherUnsafe<L, A>> subtractT<NUM, L, A>(OptionAsync<EitherUnsafe<L, A>> x, OptionAsync<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<EitherUnsafe<L, A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<EitherUnsafe<L, A>> productT<NUM, L, A>(OptionAsync<EitherUnsafe<L, A>> x, OptionAsync<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<EitherUnsafe<L, A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<EitherUnsafe<L, A>> divideT<NUM, L, A>(OptionAsync<EitherUnsafe<L, A>> x, OptionAsync<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<EitherUnsafe<L, A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<EitherUnsafe<L, A>> appendT<SEMI, L, A>(OptionAsync<EitherUnsafe<L, A>> x, OptionAsync<EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD, L, A>(OptionAsync<EitherUnsafe<L, A>> x, OptionAsync<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<EitherUnsafe<L, A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ, L, A>(OptionAsync<EitherUnsafe<L, A>> x, OptionAsync<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<EitherUnsafe<L, A>>`</param>
+        /// <returns>`OptionAsync<EitherUnsafe<L, B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<EitherUnsafe<L, B>> applyT<L, A, B>(Func<A, B> fab, OptionAsync<EitherUnsafe<L, A>> fa) =>
+            ApplOptionAsync< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MOptionAsync< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
+                     MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<EitherUnsafe<L, A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<EitherUnsafe<L, A>>`</param>
+        /// <returns>`OptionAsync<EitherUnsafe<L, B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<EitherUnsafe<L, C>> applyT<L, A, B, C>(Func<A, B, C> fabc, OptionAsync<EitherUnsafe<L, A>> fa, OptionAsync<EitherUnsafe<L, B>> fb) =>
+            ApplOptionAsync< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+                MOptionAsync< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
+                    (EitherUnsafe<L, A> a) =>
+                        (EitherUnsafe<L, B> b) =>
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
+                                MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class TaskT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<Task<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Task<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<Task<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionAsync<Task<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<Task<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Task<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<Task<A>>`</returns>
+        [Pure]
+        public static int countT< A>(OptionAsync<Task<A>> ma) =>
+            Trans<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Task<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<Task<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Task<B>> bindT< A, B>(OptionAsync<Task<A>> ma, Func<A, Task<B>> f) =>
+            Trans<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Bind<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<Task<A>>`, traverses the inner
+        /// values of type `A`, and returns `Task<OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Task<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Task<OptionAsync<B>>`</returns>
+        [Pure]
+        public static Task<OptionAsync<B>> traverse< A, B>(OptionAsync<Task<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Traverse<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<Task<A>>`, traverses the inner
+        /// values of type `A`, and returns `Task<OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Task<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Task<OptionAsync<A>>`</returns>
+        [Pure]
+        public static Task<OptionAsync<A>> sequence< A>(OptionAsync<Task<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Task<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Task<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Task<B>> mapT< A, B>(OptionAsync<Task<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Map<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<Task<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionAsync<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<Task<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionAsync<Task<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Task<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionAsync<Task<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Task<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionAsync<Task<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<Task<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Task<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionAsync<Task<A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Task<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<Task<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<Task<A>> filterT< A>(OptionAsync<Task<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>
+                .Inst.Bind<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MTask<A>).Return(a)
+                        : default(MTask<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Task<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<Task<A>> plusT<NUM,  A>(OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Task<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<Task<A>> subtractT<NUM,  A>(OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Task<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<Task<A>> productT<NUM,  A>(OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Task<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<Task<A>> divideT<NUM,  A>(OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Task<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<Task<A>> appendT<SEMI,  A>(OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Task<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<Task<A>>`</param>
+        /// <returns>`OptionAsync<Task<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<Task<B>> applyT< A, B>(Func<A, B> fab, OptionAsync<Task<A>> fa) =>
+            ApplOptionAsync< Task<A>, Task<B>>.Inst.Apply(
+                 MOptionAsync< Func<Task<A>, Task<B>>>.Inst.Return((Task<A> a) => ApplTask< A, B>.Inst.Apply(
+                     MTask< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<Task<A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<Task<A>>`</param>
+        /// <returns>`OptionAsync<Task<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<Task<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionAsync<Task<A>> fa, OptionAsync<Task<B>> fb) =>
+            ApplOptionAsync< Task<A>, Task<B>, Task<C>>.Inst.Apply(
+                MOptionAsync< Func<Task<A>, Func<Task<B>, Task<C>>>>.Inst.Return(
+                    (Task<A> a) =>
+                        (Task<B> b) =>
+                            ApplTask< A, B, C>.Inst.Apply(
+                                MTask< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class TryT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<Try<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Try<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<Try<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionAsync<Try<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<Try<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Try<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<Try<A>>`</returns>
+        [Pure]
+        public static int countT< A>(OptionAsync<Try<A>> ma) =>
+            Trans<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Try<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<Try<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Try<B>> bindT< A, B>(OptionAsync<Try<A>> ma, Func<A, Try<B>> f) =>
+            Trans<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Bind<MOptionAsync<Try<B>>, OptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<Try<A>>`, traverses the inner
+        /// values of type `A`, and returns `Try<OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Try<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Try<OptionAsync<B>>`</returns>
+        [Pure]
+        public static Try<OptionAsync<B>> traverse< A, B>(OptionAsync<Try<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Traverse<MTry<OptionAsync<B>>, Try<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<Try<A>>`, traverses the inner
+        /// values of type `A`, and returns `Try<OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Try<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Try<OptionAsync<A>>`</returns>
+        [Pure]
+        public static Try<OptionAsync<A>> sequence< A>(OptionAsync<Try<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Try<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Try<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Try<B>> mapT< A, B>(OptionAsync<Try<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Map<MOptionAsync<Try<B>>, OptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<Try<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionAsync<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<Try<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionAsync<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Try<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionAsync<Try<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Try<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionAsync<Try<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<Try<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Try<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionAsync<Try<A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Try<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<Try<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<Try<A>> filterT< A>(OptionAsync<Try<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Bind<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MTry<A>).Return(a)
+                        : default(MTry<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Try<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<Try<A>> plusT<NUM,  A>(OptionAsync<Try<A>> x, OptionAsync<Try<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Try<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<Try<A>> subtractT<NUM,  A>(OptionAsync<Try<A>> x, OptionAsync<Try<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Try<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<Try<A>> productT<NUM,  A>(OptionAsync<Try<A>> x, OptionAsync<Try<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Try<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<Try<A>> divideT<NUM,  A>(OptionAsync<Try<A>> x, OptionAsync<Try<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Try<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<Try<A>> appendT<SEMI,  A>(OptionAsync<Try<A>> x, OptionAsync<Try<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionAsync<Try<A>> x, OptionAsync<Try<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Try<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionAsync<Try<A>> x, OptionAsync<Try<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<Try<A>>`</param>
+        /// <returns>`OptionAsync<Try<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<Try<B>> applyT< A, B>(Func<A, B> fab, OptionAsync<Try<A>> fa) =>
+            ApplOptionAsync< Try<A>, Try<B>>.Inst.Apply(
+                 MOptionAsync< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
+                     MTry< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<Try<A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<Try<A>>`</param>
+        /// <returns>`OptionAsync<Try<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<Try<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionAsync<Try<A>> fa, OptionAsync<Try<B>> fb) =>
+            ApplOptionAsync< Try<A>, Try<B>, Try<C>>.Inst.Apply(
+                MOptionAsync< Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
+                    (Try<A> a) =>
+                        (Try<B> b) =>
+                            ApplTry< A, B, C>.Inst.Apply(
+                                MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class TryAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<TryAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<TryAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionAsync<TryAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<TryAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<TryAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(OptionAsync<TryAsync<A>> ma) =>
+            Trans<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<TryAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<TryAsync<B>> bindT< A, B>(OptionAsync<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
+            Trans<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Bind<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<TryAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `TryAsync<OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`TryAsync<OptionAsync<B>>`</returns>
+        [Pure]
+        public static TryAsync<OptionAsync<B>> traverse< A, B>(OptionAsync<TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Traverse<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<TryAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `TryAsync<OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`TryAsync<OptionAsync<A>>`</returns>
+        [Pure]
+        public static TryAsync<OptionAsync<A>> sequence< A>(OptionAsync<TryAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<TryAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<TryAsync<B>> mapT< A, B>(OptionAsync<TryAsync<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Map<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionAsync<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionAsync<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionAsync<TryAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionAsync<TryAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<TryAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionAsync<TryAsync<A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<TryAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<TryAsync<A>> filterT< A>(OptionAsync<TryAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>
+                .Inst.Bind<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MTryAsync<A>).Return(a)
+                        : default(MTryAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<TryAsync<A>> plusT<NUM,  A>(OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<TryAsync<A>> subtractT<NUM,  A>(OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<TryAsync<A>> productT<NUM,  A>(OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<TryAsync<A>> divideT<NUM,  A>(OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<TryAsync<A>> appendT<SEMI,  A>(OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<TryAsync<A>>`</param>
+        /// <returns>`OptionAsync<TryAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<TryAsync<B>> applyT< A, B>(Func<A, B> fab, OptionAsync<TryAsync<A>> fa) =>
+            ApplOptionAsync< TryAsync<A>, TryAsync<B>>.Inst.Apply(
+                 MOptionAsync< Func<TryAsync<A>, TryAsync<B>>>.Inst.Return((TryAsync<A> a) => ApplTryAsync< A, B>.Inst.Apply(
+                     MTryAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<TryAsync<A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<TryAsync<A>>`</param>
+        /// <returns>`OptionAsync<TryAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<TryAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionAsync<TryAsync<A>> fa, OptionAsync<TryAsync<B>> fb) =>
+            ApplOptionAsync< TryAsync<A>, TryAsync<B>, TryAsync<C>>.Inst.Apply(
+                MOptionAsync< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>.Inst.Return(
+                    (TryAsync<A> a) =>
+                        (TryAsync<B> b) =>
+                            ApplTryAsync< A, B, C>.Inst.Apply(
+                                MTryAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class TryOptionT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<TryOption<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOption<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<TryOption<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionAsync<TryOption<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<TryOption<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOption<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<TryOption<A>>`</returns>
+        [Pure]
+        public static int countT< A>(OptionAsync<TryOption<A>> ma) =>
+            Trans<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOption<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<TryOption<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<TryOption<B>> bindT< A, B>(OptionAsync<TryOption<A>> ma, Func<A, TryOption<B>> f) =>
+            Trans<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Bind<MOptionAsync<TryOption<B>>, OptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<TryOption<A>>`, traverses the inner
+        /// values of type `A`, and returns `TryOption<OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOption<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`TryOption<OptionAsync<B>>`</returns>
+        [Pure]
+        public static TryOption<OptionAsync<B>> traverse< A, B>(OptionAsync<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Traverse<MTryOption<OptionAsync<B>>, TryOption<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<TryOption<A>>`, traverses the inner
+        /// values of type `A`, and returns `TryOption<OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOption<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`TryOption<OptionAsync<A>>`</returns>
+        [Pure]
+        public static TryOption<OptionAsync<A>> sequence< A>(OptionAsync<TryOption<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOption<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<TryOption<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<TryOption<B>> mapT< A, B>(OptionAsync<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Map<MOptionAsync<TryOption<B>>, OptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOption<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionAsync<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOption<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionAsync<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOption<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionAsync<TryOption<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOption<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionAsync<TryOption<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<TryOption<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOption<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionAsync<TryOption<A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOption<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<TryOption<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<TryOption<A>> filterT< A>(OptionAsync<TryOption<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Bind<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MTryOption<A>).Return(a)
+                        : default(MTryOption<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryOption<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<TryOption<A>> plusT<NUM,  A>(OptionAsync<TryOption<A>> x, OptionAsync<TryOption<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryOption<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<TryOption<A>> subtractT<NUM,  A>(OptionAsync<TryOption<A>> x, OptionAsync<TryOption<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryOption<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<TryOption<A>> productT<NUM,  A>(OptionAsync<TryOption<A>> x, OptionAsync<TryOption<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryOption<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<TryOption<A>> divideT<NUM,  A>(OptionAsync<TryOption<A>> x, OptionAsync<TryOption<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryOption<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<TryOption<A>> appendT<SEMI,  A>(OptionAsync<TryOption<A>> x, OptionAsync<TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionAsync<TryOption<A>> x, OptionAsync<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryOption<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionAsync<TryOption<A>> x, OptionAsync<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<TryOption<A>>`</param>
+        /// <returns>`OptionAsync<TryOption<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<TryOption<B>> applyT< A, B>(Func<A, B> fab, OptionAsync<TryOption<A>> fa) =>
+            ApplOptionAsync< TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MOptionAsync< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
+                     MTryOption< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<TryOption<A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<TryOption<A>>`</param>
+        /// <returns>`OptionAsync<TryOption<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<TryOption<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionAsync<TryOption<A>> fa, OptionAsync<TryOption<B>> fb) =>
+            ApplOptionAsync< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+                MOptionAsync< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
+                    (TryOption<A> a) =>
+                        (TryOption<B> b) =>
+                            ApplTryOption< A, B, C>.Inst.Apply(
+                                MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class TryOptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<TryOptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<TryOptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionAsync<TryOptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<TryOptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<TryOptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(OptionAsync<TryOptionAsync<A>> ma) =>
+            Trans<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<TryOptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<TryOptionAsync<B>> bindT< A, B>(OptionAsync<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
+            Trans<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Bind<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<TryOptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `TryOptionAsync<OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`TryOptionAsync<OptionAsync<B>>`</returns>
+        [Pure]
+        public static TryOptionAsync<OptionAsync<B>> traverse< A, B>(OptionAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Traverse<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<TryOptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `TryOptionAsync<OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`TryOptionAsync<OptionAsync<A>>`</returns>
+        [Pure]
+        public static TryOptionAsync<OptionAsync<A>> sequence< A>(OptionAsync<TryOptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<TryOptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<TryOptionAsync<B>> mapT< A, B>(OptionAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Map<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<TryOptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionAsync<TryOptionAsync<A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<TryOptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<TryOptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<TryOptionAsync<A>> filterT< A>(OptionAsync<TryOptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>
+                .Inst.Bind<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MTryOptionAsync<A>).Return(a)
+                        : default(MTryOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryOptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<TryOptionAsync<A>> plusT<NUM,  A>(OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryOptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<TryOptionAsync<A>> subtractT<NUM,  A>(OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryOptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<TryOptionAsync<A>> productT<NUM,  A>(OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryOptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<TryOptionAsync<A>> divideT<NUM,  A>(OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryOptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<TryOptionAsync<A>> appendT<SEMI,  A>(OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<TryOptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<TryOptionAsync<A>>`</param>
+        /// <returns>`OptionAsync<TryOptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<TryOptionAsync<B>> applyT< A, B>(Func<A, B> fab, OptionAsync<TryOptionAsync<A>> fa) =>
+            ApplOptionAsync< TryOptionAsync<A>, TryOptionAsync<B>>.Inst.Apply(
+                 MOptionAsync< Func<TryOptionAsync<A>, TryOptionAsync<B>>>.Inst.Return((TryOptionAsync<A> a) => ApplTryOptionAsync< A, B>.Inst.Apply(
+                     MTryOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<TryOptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<TryOptionAsync<A>>`</param>
+        /// <returns>`OptionAsync<TryOptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<TryOptionAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionAsync<TryOptionAsync<A>> fa, OptionAsync<TryOptionAsync<B>> fb) =>
+            ApplOptionAsync< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>.Inst.Apply(
+                MOptionAsync< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>.Inst.Return(
+                    (TryOptionAsync<A> a) =>
+                        (TryOptionAsync<B> b) =>
+                            ApplTryOptionAsync< A, B, C>.Inst.Apply(
+                                MTryOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class IEnumerableT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<IEnumerable<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<IEnumerable<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<IEnumerable<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionAsync<IEnumerable<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<IEnumerable<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<IEnumerable<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<IEnumerable<A>>`</returns>
+        [Pure]
+        public static int countT< A>(OptionAsync<IEnumerable<A>> ma) =>
+            Trans<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<IEnumerable<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<IEnumerable<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<IEnumerable<B>> bindT< A, B>(OptionAsync<IEnumerable<A>> ma, Func<A, IEnumerable<B>> f) =>
+            Trans<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Bind<MOptionAsync<IEnumerable<B>>, OptionAsync<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<IEnumerable<A>>`, traverses the inner
+        /// values of type `A`, and returns `IEnumerable<OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<IEnumerable<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`IEnumerable<OptionAsync<B>>`</returns>
+        [Pure]
+        public static IEnumerable<OptionAsync<B>> traverse< A, B>(OptionAsync<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Traverse<MSeq<OptionAsync<B>>, IEnumerable<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<IEnumerable<A>>`, traverses the inner
+        /// values of type `A`, and returns `IEnumerable<OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<IEnumerable<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`IEnumerable<OptionAsync<A>>`</returns>
+        [Pure]
+        public static IEnumerable<OptionAsync<A>> sequence< A>(OptionAsync<IEnumerable<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<IEnumerable<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<IEnumerable<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<IEnumerable<B>> mapT< A, B>(OptionAsync<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Map<MOptionAsync<IEnumerable<B>>, OptionAsync<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<IEnumerable<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionAsync<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<IEnumerable<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionAsync<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<IEnumerable<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionAsync<IEnumerable<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<IEnumerable<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionAsync<IEnumerable<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<IEnumerable<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<IEnumerable<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionAsync<IEnumerable<A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<IEnumerable<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<IEnumerable<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<IEnumerable<A>> filterT< A>(OptionAsync<IEnumerable<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>
+                .Inst.Bind<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MSeq<A>, IEnumerable<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MSeq<A>).Return(a)
+                        : default(MSeq<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<IEnumerable<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<IEnumerable<A>> plusT<NUM,  A>(OptionAsync<IEnumerable<A>> x, OptionAsync<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<IEnumerable<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<IEnumerable<A>> subtractT<NUM,  A>(OptionAsync<IEnumerable<A>> x, OptionAsync<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<IEnumerable<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<IEnumerable<A>> productT<NUM,  A>(OptionAsync<IEnumerable<A>> x, OptionAsync<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<IEnumerable<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<IEnumerable<A>> divideT<NUM,  A>(OptionAsync<IEnumerable<A>> x, OptionAsync<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<IEnumerable<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<IEnumerable<A>> appendT<SEMI,  A>(OptionAsync<IEnumerable<A>> x, OptionAsync<IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionAsync<IEnumerable<A>> x, OptionAsync<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<IEnumerable<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionAsync<IEnumerable<A>> x, OptionAsync<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<IEnumerable<A>>`</param>
+        /// <returns>`OptionAsync<IEnumerable<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<IEnumerable<B>> applyT< A, B>(Func<A, B> fab, OptionAsync<IEnumerable<A>> fa) =>
+            ApplOptionAsync< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MOptionAsync< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplSeq< A, B>.Inst.Apply(
+                     MSeq< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<IEnumerable<A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<IEnumerable<A>>`</param>
+        /// <returns>`OptionAsync<IEnumerable<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<IEnumerable<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionAsync<IEnumerable<A>> fa, OptionAsync<IEnumerable<B>> fb) =>
+            ApplOptionAsync< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+                MOptionAsync< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
+                    (IEnumerable<A> a) =>
+                        (IEnumerable<B> b) =>
+                            ApplSeq< A, B, C>.Inst.Apply(
+                                MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class SetT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionAsync<Set<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Set<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionAsync<Set<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionAsync<Set<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionAsync<Set<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Set<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionAsync<Set<A>>`</returns>
+        [Pure]
+        public static int countT< A>(OptionAsync<Set<A>> ma) =>
+            Trans<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Set<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync<Set<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Set<B>> bindT< A, B>(OptionAsync<Set<A>> ma, Func<A, Set<B>> f) =>
+            Trans<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Bind<MOptionAsync<Set<B>>, OptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionAsync<Set<A>>`, traverses the inner
+        /// values of type `A`, and returns `Set<OptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Set<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Set<OptionAsync<B>>`</returns>
+        [Pure]
+        public static Set<OptionAsync<B>> traverse< A, B>(OptionAsync<Set<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Traverse<MSet<OptionAsync<B>>, Set<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionAsync<Set<A>>`, traverses the inner
+        /// values of type `A`, and returns `Set<OptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Set<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Set<OptionAsync<A>>`</returns>
+        [Pure]
+        public static Set<OptionAsync<A>> sequence< A>(OptionAsync<Set<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Set<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Set<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Set<B>> mapT< A, B>(OptionAsync<Set<A>> ma, Func<A, B> f) =>
+            Trans<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Map<MOptionAsync<Set<B>>, OptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<Set<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionAsync<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionAsync<Set<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionAsync<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Set<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionAsync<Set<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Set<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionAsync<Set<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync<Set<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Set<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionAsync<Set<A>> ma, Action<A> f) =>
+            Trans<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync<Set<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionAsync<Set<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionAsync<Set<A>> filterT< A>(OptionAsync<Set<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Bind<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MSet<A>).Return(a)
+                        : default(MSet<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Set<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionAsync<Set<A>> plusT<NUM,  A>(OptionAsync<Set<A>> x, OptionAsync<Set<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Set<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionAsync<Set<A>> subtractT<NUM,  A>(OptionAsync<Set<A>> x, OptionAsync<Set<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Set<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionAsync<Set<A>> productT<NUM,  A>(OptionAsync<Set<A>> x, OptionAsync<Set<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Set<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionAsync<Set<A>> divideT<NUM,  A>(OptionAsync<Set<A>> x, OptionAsync<Set<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Set<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionAsync<Set<A>> appendT<SEMI,  A>(OptionAsync<Set<A>> x, OptionAsync<Set<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionAsync<Set<A>> x, OptionAsync<Set<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionAsync<Set<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionAsync<Set<A>> x, OptionAsync<Set<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<Set<A>>`</param>
+        /// <returns>`OptionAsync<Set<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionAsync<Set<B>> applyT< A, B>(Func<A, B> fab, OptionAsync<Set<A>> fa) =>
+            ApplOptionAsync< Set<A>, Set<B>>.Inst.Apply(
+                 MOptionAsync< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
+                     MSet< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionAsync<Set<A>>`</param>
+        /// <param name="fb">Monad of `OptionAsync<Set<A>>`</param>
+        /// <returns>`OptionAsync<Set<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionAsync<Set<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionAsync<Set<A>> fa, OptionAsync<Set<B>> fb) =>
+            ApplOptionAsync< Set<A>, Set<B>, Set<C>>.Inst.Apply(
+                MOptionAsync< Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
+                    (Set<A> a) =>
+                        (Set<B> b) =>
+                            ApplSet< A, B, C>.Inst.Apply(
+                                MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class ArrT
+    {
+        /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionUnsafe<Arr<A>>`
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -17047,6 +22443,290 @@ namespace LanguageExt
                         (Option<B> b) =>
                             ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionUnsafe<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe<OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionUnsafe<OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionUnsafe<OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionUnsafe<OptionAsync<A>>, OptionUnsafe<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionUnsafe<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe<OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionUnsafe<OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(OptionUnsafe<OptionAsync<A>> ma) =>
+            Trans<MOptionUnsafe<OptionAsync<A>>, OptionUnsafe<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionUnsafe<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionUnsafe<OptionAsync<B>> bindT< A, B>(OptionUnsafe<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MOptionUnsafe<OptionAsync<A>>, OptionUnsafe<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MOptionUnsafe<OptionAsync<B>>, OptionUnsafe<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionUnsafe<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<OptionUnsafe<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<OptionUnsafe<B>>`</returns>
+        [Pure]
+        public static OptionAsync<OptionUnsafe<B>> traverse< A, B>(OptionUnsafe<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<OptionAsync<A>>, OptionUnsafe<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<OptionUnsafe<B>>, OptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionUnsafe<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<OptionUnsafe<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<OptionUnsafe<A>>`</returns>
+        [Pure]
+        public static OptionAsync<OptionUnsafe<A>> sequence< A>(OptionUnsafe<OptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionUnsafe<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionUnsafe<OptionAsync<B>> mapT< A, B>(OptionUnsafe<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<OptionAsync<A>>, OptionUnsafe<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MOptionUnsafe<OptionAsync<B>>, OptionUnsafe<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionUnsafe<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionUnsafe<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<OptionAsync<A>>, OptionUnsafe<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionUnsafe<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionUnsafe<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<OptionAsync<A>>, OptionUnsafe<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionUnsafe<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionUnsafe<OptionAsync<A>>, OptionUnsafe<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionUnsafe<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionUnsafe<OptionAsync<A>>, OptionUnsafe<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionUnsafe<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionUnsafe<OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MOptionUnsafe<OptionAsync<A>>, OptionUnsafe<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionUnsafe<OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionUnsafe<OptionAsync<A>> filterT< A>(OptionUnsafe<OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionUnsafe<OptionAsync<A>>, OptionUnsafe<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MOptionUnsafe<OptionAsync<A>>, OptionUnsafe<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionUnsafe<OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionUnsafe<OptionAsync<A>> plusT<NUM,  A>(OptionUnsafe<OptionAsync<A>> x, OptionUnsafe<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionUnsafe<OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionUnsafe<OptionAsync<A>> subtractT<NUM,  A>(OptionUnsafe<OptionAsync<A>> x, OptionUnsafe<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionUnsafe<OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionUnsafe<OptionAsync<A>> productT<NUM,  A>(OptionUnsafe<OptionAsync<A>> x, OptionUnsafe<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionUnsafe<OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionUnsafe<OptionAsync<A>> divideT<NUM,  A>(OptionUnsafe<OptionAsync<A>> x, OptionUnsafe<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionUnsafe<OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionUnsafe<OptionAsync<A>> appendT<SEMI,  A>(OptionUnsafe<OptionAsync<A>> x, OptionUnsafe<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionUnsafe<OptionAsync<A>> x, OptionUnsafe<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionUnsafe<OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionUnsafe<OptionAsync<A>> x, OptionUnsafe<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionUnsafe<OptionAsync<A>>`</param>
+        /// <returns>`OptionUnsafe<OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionUnsafe<OptionAsync<B>> applyT< A, B>(Func<A, B> fab, OptionUnsafe<OptionAsync<A>> fa) =>
+            ApplOptionUnsafe< OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MOptionUnsafe< Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionUnsafe<OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `OptionUnsafe<OptionAsync<A>>`</param>
+        /// <returns>`OptionUnsafe<OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionUnsafe<OptionAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionUnsafe<OptionAsync<A>> fa, OptionUnsafe<OptionAsync<B>> fb) =>
+            ApplOptionUnsafe< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MOptionUnsafe< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
     public static partial class OptionUnsafeT
@@ -21025,6 +26705,290 @@ namespace LanguageExt
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Either<L, OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Either<L, OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Either<L, OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA, L, A>(Either<L, OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MEither<L, OptionAsync<A>>, Either<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Either<L, OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Either<L, OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Either<L, OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT<L, A>(Either<L, OptionAsync<A>> ma) =>
+            Trans<MEither<L, OptionAsync<A>>, Either<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Either<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Either<L, OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Either<L, OptionAsync<B>> bindT<L, A, B>(Either<L, OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MEither<L, OptionAsync<A>>, Either<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MEither<L, OptionAsync<B>>, Either<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Either<L, OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<Either<L, B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Either<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Either<L, B>>`</returns>
+        [Pure]
+        public static OptionAsync<Either<L, B>> traverse<L, A, B>(Either<L, OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, OptionAsync<A>>, Either<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<Either<L, B>>, OptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Either<L, OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<Either<L, A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse<L, A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Either<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Either<L, A>>`</returns>
+        [Pure]
+        public static OptionAsync<Either<L, A>> sequence<L, A>(Either<L, OptionAsync<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Either<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Either<L, OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Either<L, OptionAsync<B>> mapT<L, A, B>(Either<L, OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, OptionAsync<A>>, Either<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MEither<L, OptionAsync<B>>, Either<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Either<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S, L, A>(Either<L, OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, OptionAsync<A>>, Either<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Either<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S, L, A>(Either<L, OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, OptionAsync<A>>, Either<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Either<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT<L, A>(Either<L, OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MEither<L, OptionAsync<A>>, Either<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Either<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT<L, A>(Either<L, OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MEither<L, OptionAsync<A>>, Either<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Either<L, OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Either<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT<L, A>(Either<L, OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MEither<L, OptionAsync<A>>, Either<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Either<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Either<L, OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Either<L, OptionAsync<A>> filterT<L, A>(Either<L, OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MEither<L, OptionAsync<A>>, Either<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MEither<L, OptionAsync<A>>, Either<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Either<L, OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static Either<L, OptionAsync<A>> plusT<NUM, L, A>(Either<L, OptionAsync<A>> x, Either<L, OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Either<L, OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static Either<L, OptionAsync<A>> subtractT<NUM, L, A>(Either<L, OptionAsync<A>> x, Either<L, OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Either<L, OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Either<L, OptionAsync<A>> productT<NUM, L, A>(Either<L, OptionAsync<A>> x, Either<L, OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Either<L, OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Either<L, OptionAsync<A>> divideT<NUM, L, A>(Either<L, OptionAsync<A>> x, Either<L, OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Either<L, OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Either<L, OptionAsync<A>> appendT<SEMI, L, A>(Either<L, OptionAsync<A>> x, Either<L, OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD, L, A>(Either<L, OptionAsync<A>> x, Either<L, OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Either<L, OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ, L, A>(Either<L, OptionAsync<A>> x, Either<L, OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Either<L, OptionAsync<A>>`</param>
+        /// <returns>`Either<L, OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Either<L, OptionAsync<B>> applyT<L, A, B>(Func<A, B> fab, Either<L, OptionAsync<A>> fa) =>
+            ApplEither<L, OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MEither<L, Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Either<L, OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `Either<L, OptionAsync<A>>`</param>
+        /// <returns>`Either<L, OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Either<L, OptionAsync<C>> applyT<L, A, B, C>(Func<A, B, C> fabc, Either<L, OptionAsync<A>> fa, Either<L, OptionAsync<B>> fb) =>
+            ApplEither<L, OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MEither<L, Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionUnsafeT
     {
         /// <summary>
@@ -24999,6 +30963,290 @@ namespace LanguageExt
                         (Option<B> b) =>
                             ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherUnsafe<L, OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe<L, OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherUnsafe<L, OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA, L, A>(EitherUnsafe<L, OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MEitherUnsafe<L, OptionAsync<A>>, EitherUnsafe<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherUnsafe<L, OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe<L, OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherUnsafe<L, OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT<L, A>(EitherUnsafe<L, OptionAsync<A>> ma) =>
+            Trans<MEitherUnsafe<L, OptionAsync<A>>, EitherUnsafe<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherUnsafe<L, OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherUnsafe<L, OptionAsync<B>> bindT<L, A, B>(EitherUnsafe<L, OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MEitherUnsafe<L, OptionAsync<A>>, EitherUnsafe<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MEitherUnsafe<L, OptionAsync<B>>, EitherUnsafe<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `EitherUnsafe<L, OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<EitherUnsafe<L, B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<EitherUnsafe<L, B>>`</returns>
+        [Pure]
+        public static OptionAsync<EitherUnsafe<L, B>> traverse<L, A, B>(EitherUnsafe<L, OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, OptionAsync<A>>, EitherUnsafe<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<EitherUnsafe<L, B>>, OptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `EitherUnsafe<L, OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<EitherUnsafe<L, A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse<L, A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<EitherUnsafe<L, A>>`</returns>
+        [Pure]
+        public static OptionAsync<EitherUnsafe<L, A>> sequence<L, A>(EitherUnsafe<L, OptionAsync<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherUnsafe<L, OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherUnsafe<L, OptionAsync<B>> mapT<L, A, B>(EitherUnsafe<L, OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, OptionAsync<A>>, EitherUnsafe<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MEitherUnsafe<L, OptionAsync<B>>, EitherUnsafe<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherUnsafe<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S, L, A>(EitherUnsafe<L, OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, OptionAsync<A>>, EitherUnsafe<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherUnsafe<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S, L, A>(EitherUnsafe<L, OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, OptionAsync<A>>, EitherUnsafe<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT<L, A>(EitherUnsafe<L, OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MEitherUnsafe<L, OptionAsync<A>>, EitherUnsafe<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT<L, A>(EitherUnsafe<L, OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MEitherUnsafe<L, OptionAsync<A>>, EitherUnsafe<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherUnsafe<L, OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT<L, A>(EitherUnsafe<L, OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MEitherUnsafe<L, OptionAsync<A>>, EitherUnsafe<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe<L, OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherUnsafe<L, OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherUnsafe<L, OptionAsync<A>> filterT<L, A>(EitherUnsafe<L, OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MEitherUnsafe<L, OptionAsync<A>>, EitherUnsafe<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MEitherUnsafe<L, OptionAsync<A>>, EitherUnsafe<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherUnsafe<L, OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherUnsafe<L, OptionAsync<A>> plusT<NUM, L, A>(EitherUnsafe<L, OptionAsync<A>> x, EitherUnsafe<L, OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherUnsafe<L, OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherUnsafe<L, OptionAsync<A>> subtractT<NUM, L, A>(EitherUnsafe<L, OptionAsync<A>> x, EitherUnsafe<L, OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherUnsafe<L, OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherUnsafe<L, OptionAsync<A>> productT<NUM, L, A>(EitherUnsafe<L, OptionAsync<A>> x, EitherUnsafe<L, OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherUnsafe<L, OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherUnsafe<L, OptionAsync<A>> divideT<NUM, L, A>(EitherUnsafe<L, OptionAsync<A>> x, EitherUnsafe<L, OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherUnsafe<L, OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherUnsafe<L, OptionAsync<A>> appendT<SEMI, L, A>(EitherUnsafe<L, OptionAsync<A>> x, EitherUnsafe<L, OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD, L, A>(EitherUnsafe<L, OptionAsync<A>> x, EitherUnsafe<L, OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherUnsafe<L, OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ, L, A>(EitherUnsafe<L, OptionAsync<A>> x, EitherUnsafe<L, OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherUnsafe<L, OptionAsync<A>>`</param>
+        /// <returns>`EitherUnsafe<L, OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherUnsafe<L, OptionAsync<B>> applyT<L, A, B>(Func<A, B> fab, EitherUnsafe<L, OptionAsync<A>> fa) =>
+            ApplEitherUnsafe<L, OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherUnsafe<L, OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `EitherUnsafe<L, OptionAsync<A>>`</param>
+        /// <returns>`EitherUnsafe<L, OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherUnsafe<L, OptionAsync<C>> applyT<L, A, B, C>(Func<A, B, C> fabc, EitherUnsafe<L, OptionAsync<A>> fa, EitherUnsafe<L, OptionAsync<B>> fb) =>
+            ApplEitherUnsafe<L, OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MEitherUnsafe<L, Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
     public static partial class OptionUnsafeT
@@ -28977,6 +35225,290 @@ namespace LanguageExt
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Task<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Task<OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Task<OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Task<OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Task<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Task<OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Task<OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(Task<OptionAsync<A>> ma) =>
+            Trans<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Task<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<OptionAsync<B>> bindT< A, B>(Task<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Task<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<Task<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Task<B>>`</returns>
+        [Pure]
+        public static OptionAsync<Task<B>> traverse< A, B>(Task<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Task<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<Task<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Task<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Task<A>>`</returns>
+        [Pure]
+        public static OptionAsync<Task<A>> sequence< A>(Task<OptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Task<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<OptionAsync<B>> mapT< A, B>(Task<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Task<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Task<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Task<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Task<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Task<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Task<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Task<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Task<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Task<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Task<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Task<OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Task<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Task<OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Task<OptionAsync<A>> filterT< A>(Task<OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Task<OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static Task<OptionAsync<A>> plusT<NUM,  A>(Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Task<OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static Task<OptionAsync<A>> subtractT<NUM,  A>(Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Task<OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Task<OptionAsync<A>> productT<NUM,  A>(Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Task<OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Task<OptionAsync<A>> divideT<NUM,  A>(Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Task<OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Task<OptionAsync<A>> appendT<SEMI,  A>(Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Task<OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Task<OptionAsync<A>>`</param>
+        /// <returns>`Task<OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Task<OptionAsync<B>> applyT< A, B>(Func<A, B> fab, Task<OptionAsync<A>> fa) =>
+            ApplTask< OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MTask< Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Task<OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `Task<OptionAsync<A>>`</param>
+        /// <returns>`Task<OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Task<OptionAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, Task<OptionAsync<A>> fa, Task<OptionAsync<B>> fb) =>
+            ApplTask< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MTask< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionUnsafeT
     {
         /// <summary>
@@ -32951,6 +39483,290 @@ namespace LanguageExt
                         (Option<B> b) =>
                             ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Try<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Try<OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Try<OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Try<OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MTry<OptionAsync<A>>, Try<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Try<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Try<OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Try<OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(Try<OptionAsync<A>> ma) =>
+            Trans<MTry<OptionAsync<A>>, Try<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Try<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Try<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Try<OptionAsync<B>> bindT< A, B>(Try<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MTry<OptionAsync<A>>, Try<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MTry<OptionAsync<B>>, Try<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Try<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<Try<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Try<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Try<B>>`</returns>
+        [Pure]
+        public static OptionAsync<Try<B>> traverse< A, B>(Try<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTry<OptionAsync<A>>, Try<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<Try<B>>, OptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Try<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<Try<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Try<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Try<A>>`</returns>
+        [Pure]
+        public static OptionAsync<Try<A>> sequence< A>(Try<OptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Try<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Try<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Try<OptionAsync<B>> mapT< A, B>(Try<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTry<OptionAsync<A>>, Try<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MTry<OptionAsync<B>>, Try<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Try<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Try<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<OptionAsync<A>>, Try<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Try<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Try<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<OptionAsync<A>>, Try<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Try<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Try<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MTry<OptionAsync<A>>, Try<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Try<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Try<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MTry<OptionAsync<A>>, Try<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Try<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Try<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Try<OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MTry<OptionAsync<A>>, Try<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Try<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Try<OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Try<OptionAsync<A>> filterT< A>(Try<OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MTry<OptionAsync<A>>, Try<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MTry<OptionAsync<A>>, Try<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Try<OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static Try<OptionAsync<A>> plusT<NUM,  A>(Try<OptionAsync<A>> x, Try<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Try<OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static Try<OptionAsync<A>> subtractT<NUM,  A>(Try<OptionAsync<A>> x, Try<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Try<OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Try<OptionAsync<A>> productT<NUM,  A>(Try<OptionAsync<A>> x, Try<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Try<OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Try<OptionAsync<A>> divideT<NUM,  A>(Try<OptionAsync<A>> x, Try<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Try<OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Try<OptionAsync<A>> appendT<SEMI,  A>(Try<OptionAsync<A>> x, Try<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Try<OptionAsync<A>> x, Try<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Try<OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Try<OptionAsync<A>> x, Try<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Try<OptionAsync<A>>`</param>
+        /// <returns>`Try<OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Try<OptionAsync<B>> applyT< A, B>(Func<A, B> fab, Try<OptionAsync<A>> fa) =>
+            ApplTry< OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MTry< Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Try<OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `Try<OptionAsync<A>>`</param>
+        /// <returns>`Try<OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Try<OptionAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, Try<OptionAsync<A>> fa, Try<OptionAsync<B>> fb) =>
+            ApplTry< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MTry< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
     public static partial class OptionUnsafeT
@@ -36929,6 +43745,290 @@ namespace LanguageExt
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `TryAsync<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync<OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `TryAsync<OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(TryAsync<OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `TryAsync<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync<OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `TryAsync<OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(TryAsync<OptionAsync<A>> ma) =>
+            Trans<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryAsync<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<OptionAsync<B>> bindT< A, B>(TryAsync<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `TryAsync<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<TryAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<TryAsync<B>>`</returns>
+        [Pure]
+        public static OptionAsync<TryAsync<B>> traverse< A, B>(TryAsync<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `TryAsync<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<TryAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<TryAsync<A>>`</returns>
+        [Pure]
+        public static OptionAsync<TryAsync<A>> sequence< A>(TryAsync<OptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`TryAsync<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<OptionAsync<B>> mapT< A, B>(TryAsync<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `TryAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(TryAsync<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `TryAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(TryAsync<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(TryAsync<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(TryAsync<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `TryAsync<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(TryAsync<OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`TryAsync<OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static TryAsync<OptionAsync<A>> filterT< A>(TryAsync<OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryAsync<OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static TryAsync<OptionAsync<A>> plusT<NUM,  A>(TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryAsync<OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static TryAsync<OptionAsync<A>> subtractT<NUM,  A>(TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryAsync<OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static TryAsync<OptionAsync<A>> productT<NUM,  A>(TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryAsync<OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static TryAsync<OptionAsync<A>> divideT<NUM,  A>(TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryAsync<OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static TryAsync<OptionAsync<A>> appendT<SEMI,  A>(TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryAsync<OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `TryAsync<OptionAsync<A>>`</param>
+        /// <returns>`TryAsync<OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static TryAsync<OptionAsync<B>> applyT< A, B>(Func<A, B> fab, TryAsync<OptionAsync<A>> fa) =>
+            ApplTryAsync< OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MTryAsync< Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `TryAsync<OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `TryAsync<OptionAsync<A>>`</param>
+        /// <returns>`TryAsync<OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static TryAsync<OptionAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, TryAsync<OptionAsync<A>> fa, TryAsync<OptionAsync<B>> fb) =>
+            ApplTryAsync< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MTryAsync< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionUnsafeT
     {
         /// <summary>
@@ -40903,6 +48003,290 @@ namespace LanguageExt
                         (Option<B> b) =>
                             ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `TryOption<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption<OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `TryOption<OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(TryOption<OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MTryOption<OptionAsync<A>>, TryOption<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `TryOption<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption<OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `TryOption<OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(TryOption<OptionAsync<A>> ma) =>
+            Trans<MTryOption<OptionAsync<A>>, TryOption<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOption<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOption<OptionAsync<B>> bindT< A, B>(TryOption<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MTryOption<OptionAsync<A>>, TryOption<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MTryOption<OptionAsync<B>>, TryOption<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `TryOption<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<TryOption<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<TryOption<B>>`</returns>
+        [Pure]
+        public static OptionAsync<TryOption<B>> traverse< A, B>(TryOption<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<OptionAsync<A>>, TryOption<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<TryOption<B>>, OptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `TryOption<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<TryOption<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<TryOption<A>>`</returns>
+        [Pure]
+        public static OptionAsync<TryOption<A>> sequence< A>(TryOption<OptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`TryOption<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOption<OptionAsync<B>> mapT< A, B>(TryOption<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<OptionAsync<A>>, TryOption<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MTryOption<OptionAsync<B>>, TryOption<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `TryOption<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(TryOption<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<OptionAsync<A>>, TryOption<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `TryOption<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(TryOption<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<OptionAsync<A>>, TryOption<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(TryOption<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MTryOption<OptionAsync<A>>, TryOption<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(TryOption<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MTryOption<OptionAsync<A>>, TryOption<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `TryOption<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(TryOption<OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MTryOption<OptionAsync<A>>, TryOption<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`TryOption<OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static TryOption<OptionAsync<A>> filterT< A>(TryOption<OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MTryOption<OptionAsync<A>>, TryOption<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MTryOption<OptionAsync<A>>, TryOption<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOption<OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static TryOption<OptionAsync<A>> plusT<NUM,  A>(TryOption<OptionAsync<A>> x, TryOption<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOption<OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static TryOption<OptionAsync<A>> subtractT<NUM,  A>(TryOption<OptionAsync<A>> x, TryOption<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOption<OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static TryOption<OptionAsync<A>> productT<NUM,  A>(TryOption<OptionAsync<A>> x, TryOption<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOption<OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static TryOption<OptionAsync<A>> divideT<NUM,  A>(TryOption<OptionAsync<A>> x, TryOption<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOption<OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static TryOption<OptionAsync<A>> appendT<SEMI,  A>(TryOption<OptionAsync<A>> x, TryOption<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(TryOption<OptionAsync<A>> x, TryOption<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOption<OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(TryOption<OptionAsync<A>> x, TryOption<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `TryOption<OptionAsync<A>>`</param>
+        /// <returns>`TryOption<OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static TryOption<OptionAsync<B>> applyT< A, B>(Func<A, B> fab, TryOption<OptionAsync<A>> fa) =>
+            ApplTryOption< OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MTryOption< Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `TryOption<OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `TryOption<OptionAsync<A>>`</param>
+        /// <returns>`TryOption<OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static TryOption<OptionAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, TryOption<OptionAsync<A>> fa, TryOption<OptionAsync<B>> fb) =>
+            ApplTryOption< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MTryOption< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
     public static partial class OptionUnsafeT
@@ -44881,6 +52265,290 @@ namespace LanguageExt
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `TryOptionAsync<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync<OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `TryOptionAsync<OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(TryOptionAsync<OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `TryOptionAsync<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync<OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `TryOptionAsync<OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(TryOptionAsync<OptionAsync<A>> ma) =>
+            Trans<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOptionAsync<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<OptionAsync<B>> bindT< A, B>(TryOptionAsync<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `TryOptionAsync<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<TryOptionAsync<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<TryOptionAsync<B>>`</returns>
+        [Pure]
+        public static OptionAsync<TryOptionAsync<B>> traverse< A, B>(TryOptionAsync<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `TryOptionAsync<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<TryOptionAsync<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<TryOptionAsync<A>>`</returns>
+        [Pure]
+        public static OptionAsync<TryOptionAsync<A>> sequence< A>(TryOptionAsync<OptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`TryOptionAsync<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<OptionAsync<B>> mapT< A, B>(TryOptionAsync<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `TryOptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(TryOptionAsync<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `TryOptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(TryOptionAsync<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(TryOptionAsync<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(TryOptionAsync<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `TryOptionAsync<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(TryOptionAsync<OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`TryOptionAsync<OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static TryOptionAsync<OptionAsync<A>> filterT< A>(TryOptionAsync<OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOptionAsync<OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static TryOptionAsync<OptionAsync<A>> plusT<NUM,  A>(TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOptionAsync<OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static TryOptionAsync<OptionAsync<A>> subtractT<NUM,  A>(TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOptionAsync<OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static TryOptionAsync<OptionAsync<A>> productT<NUM,  A>(TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOptionAsync<OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static TryOptionAsync<OptionAsync<A>> divideT<NUM,  A>(TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOptionAsync<OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static TryOptionAsync<OptionAsync<A>> appendT<SEMI,  A>(TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOptionAsync<OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `TryOptionAsync<OptionAsync<A>>`</param>
+        /// <returns>`TryOptionAsync<OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static TryOptionAsync<OptionAsync<B>> applyT< A, B>(Func<A, B> fab, TryOptionAsync<OptionAsync<A>> fa) =>
+            ApplTryOptionAsync< OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MTryOptionAsync< Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `TryOptionAsync<OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `TryOptionAsync<OptionAsync<A>>`</param>
+        /// <returns>`TryOptionAsync<OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static TryOptionAsync<OptionAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, TryOptionAsync<OptionAsync<A>> fa, TryOptionAsync<OptionAsync<B>> fb) =>
+            ApplTryOptionAsync< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MTryOptionAsync< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionUnsafeT
     {
         /// <summary>
@@ -48857,6 +56525,290 @@ namespace LanguageExt
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `IEnumerable<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable<OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `IEnumerable<OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(IEnumerable<OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MSeq<OptionAsync<A>>, IEnumerable<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `IEnumerable<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable<OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `IEnumerable<OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(IEnumerable<OptionAsync<A>> ma) =>
+            Trans<MSeq<OptionAsync<A>>, IEnumerable<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`IEnumerable<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static IEnumerable<OptionAsync<B>> bindT< A, B>(IEnumerable<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MSeq<OptionAsync<A>>, IEnumerable<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MSeq<OptionAsync<B>>, IEnumerable<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `IEnumerable<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<IEnumerable<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<IEnumerable<B>>`</returns>
+        [Pure]
+        public static OptionAsync<IEnumerable<B>> traverse< A, B>(IEnumerable<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MSeq<OptionAsync<A>>, IEnumerable<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<IEnumerable<B>>, OptionAsync<IEnumerable<B>>, MSeq<B>, IEnumerable<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `IEnumerable<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<IEnumerable<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<IEnumerable<A>>`</returns>
+        [Pure]
+        public static OptionAsync<IEnumerable<A>> sequence< A>(IEnumerable<OptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`IEnumerable<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static IEnumerable<OptionAsync<B>> mapT< A, B>(IEnumerable<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MSeq<OptionAsync<A>>, IEnumerable<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MSeq<OptionAsync<B>>, IEnumerable<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `IEnumerable<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(IEnumerable<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<OptionAsync<A>>, IEnumerable<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `IEnumerable<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(IEnumerable<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSeq<OptionAsync<A>>, IEnumerable<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(IEnumerable<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MSeq<OptionAsync<A>>, IEnumerable<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(IEnumerable<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MSeq<OptionAsync<A>>, IEnumerable<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `IEnumerable<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(IEnumerable<OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MSeq<OptionAsync<A>>, IEnumerable<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`IEnumerable<OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static IEnumerable<OptionAsync<A>> filterT< A>(IEnumerable<OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MSeq<OptionAsync<A>>, IEnumerable<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MSeq<OptionAsync<A>>, IEnumerable<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`IEnumerable<OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static IEnumerable<OptionAsync<A>> plusT<NUM,  A>(IEnumerable<OptionAsync<A>> x, IEnumerable<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`IEnumerable<OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static IEnumerable<OptionAsync<A>> subtractT<NUM,  A>(IEnumerable<OptionAsync<A>> x, IEnumerable<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`IEnumerable<OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static IEnumerable<OptionAsync<A>> productT<NUM,  A>(IEnumerable<OptionAsync<A>> x, IEnumerable<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`IEnumerable<OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static IEnumerable<OptionAsync<A>> divideT<NUM,  A>(IEnumerable<OptionAsync<A>> x, IEnumerable<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`IEnumerable<OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static IEnumerable<OptionAsync<A>> appendT<SEMI,  A>(IEnumerable<OptionAsync<A>> x, IEnumerable<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(IEnumerable<OptionAsync<A>> x, IEnumerable<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`IEnumerable<OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(IEnumerable<OptionAsync<A>> x, IEnumerable<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `IEnumerable<OptionAsync<A>>`</param>
+        /// <returns>`IEnumerable<OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static IEnumerable<OptionAsync<B>> applyT< A, B>(Func<A, B> fab, IEnumerable<OptionAsync<A>> fa) =>
+            ApplSeq< OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MSeq< Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `IEnumerable<OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `IEnumerable<OptionAsync<A>>`</param>
+        /// <returns>`IEnumerable<OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static IEnumerable<OptionAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, IEnumerable<OptionAsync<A>> fa, IEnumerable<OptionAsync<B>> fb) =>
+            ApplSeq< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MSeq< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionUnsafeT
     {
         /// <summary>
@@ -52831,6 +60783,290 @@ namespace LanguageExt
                         (Option<B> b) =>
                             ApplOption< A, B, C>.Inst.Apply(
                                 MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class OptionAsyncT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Set<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Set<OptionAsync<A>>` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Set<OptionAsync<A>>`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Set<OptionAsync<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MSet<OptionAsync<A>>, Set<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Set<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Set<OptionAsync<A>>` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Set<OptionAsync<A>>`</returns>
+        [Pure]
+        public static int countT< A>(Set<OptionAsync<A>> ma) =>
+            Trans<MSet<OptionAsync<A>>, Set<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Set<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Set<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Set<OptionAsync<B>> bindT< A, B>(Set<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
+            Trans<MSet<OptionAsync<A>>, Set<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MSet<OptionAsync<B>>, Set<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Set<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<Set<B>>` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Set<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Set<B>>`</returns>
+        [Pure]
+        public static OptionAsync<Set<B>> traverse< A, B>(Set<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MSet<OptionAsync<A>>, Set<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Traverse<MOptionAsync<Set<B>>, OptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Set<OptionAsync<A>>`, traverses the inner
+        /// values of type `A`, and returns `OptionAsync<Set<A>>`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Set<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionAsync<Set<A>>`</returns>
+        [Pure]
+        public static OptionAsync<Set<A>> sequence< A>(Set<OptionAsync<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Set<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Set<OptionAsync<B>>` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Set<OptionAsync<B>> mapT< A, B>(Set<OptionAsync<A>> ma, Func<A, B> f) =>
+            Trans<MSet<OptionAsync<A>>, Set<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Map<MSet<OptionAsync<B>>, Set<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Set<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Set<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<OptionAsync<A>>, Set<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Set<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Set<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MSet<OptionAsync<A>>, Set<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Set<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Set<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MSet<OptionAsync<A>>, Set<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Set<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Set<OptionAsync<A>> ma, Func<A, bool> f) =>
+            Trans<MSet<OptionAsync<A>>, Set<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Set<OptionAsync<A>>`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Set<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Set<OptionAsync<A>> ma, Action<A> f) =>
+            Trans<MSet<OptionAsync<A>>, Set<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Set<OptionAsync<A>>` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Set<OptionAsync<A>>` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Set<OptionAsync<A>> filterT< A>(Set<OptionAsync<A>> ma, Func<A, bool> pred) =>
+            Trans<MSet<OptionAsync<A>>, Set<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>
+                .Inst.Bind<MSet<OptionAsync<A>>, Set<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionAsync<A>).Return(a)
+                        : default(MOptionAsync<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Set<OptionAsync<A>>` which is the result of performing x + y</returns>
+        [Pure]
+        public static Set<OptionAsync<A>> plusT<NUM,  A>(Set<OptionAsync<A>> x, Set<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Set<OptionAsync<A>>` which is the result of performing x - y</returns>
+        [Pure]
+        public static Set<OptionAsync<A>> subtractT<NUM,  A>(Set<OptionAsync<A>> x, Set<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Set<OptionAsync<A>>` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Set<OptionAsync<A>> productT<NUM,  A>(Set<OptionAsync<A>> x, Set<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Set<OptionAsync<A>>` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Set<OptionAsync<A>> divideT<NUM,  A>(Set<OptionAsync<A>> x, Set<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Set<OptionAsync<A>>` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Set<OptionAsync<A>> appendT<SEMI,  A>(Set<OptionAsync<A>> x, Set<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Set<OptionAsync<A>> x, Set<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Set<OptionAsync<A>>` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Set<OptionAsync<A>> x, Set<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Set<OptionAsync<A>>`</param>
+        /// <returns>`Set<OptionAsync<B>>` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Set<OptionAsync<B>> applyT< A, B>(Func<A, B> fab, Set<OptionAsync<A>> fa) =>
+            ApplSet< OptionAsync<A>, OptionAsync<B>>.Inst.Apply(
+                 MSet< Func<OptionAsync<A>, OptionAsync<B>>>.Inst.Return((OptionAsync<A> a) => ApplOptionAsync< A, B>.Inst.Apply(
+                     MOptionAsync< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Set<OptionAsync<A>>`</param>
+        /// <param name="fb">Monad of `Set<OptionAsync<A>>`</param>
+        /// <returns>`Set<OptionAsync<B>>` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Set<OptionAsync<C>> applyT< A, B, C>(Func<A, B, C> fabc, Set<OptionAsync<A>> fa, Set<OptionAsync<B>> fb) =>
+            ApplSet< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>.Inst.Apply(
+                MSet< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>.Inst.Return(
+                    (OptionAsync<A> a) =>
+                        (OptionAsync<B> b) =>
+                            ApplOptionAsync< A, B, C>.Inst.Apply(
+                                MOptionAsync< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
     public static partial class OptionUnsafeT
