@@ -149,36 +149,6 @@ namespace LanguageExt.ClassInstances
                 ? 1
                 : 0;
 
-        //[Pure]
-        //public bool IsLeft(Option<A> choice) =>
-        //    choice.IsNone;
-
-        //[Pure]
-        //public bool IsRight(Option<A> choice) =>
-        //    choice.IsSome;
-
-        //[Pure]
-        //public bool IsBottom(Option<A> choice) =>
-        //    false;
-
-        //[Pure]
-        //public C Match<C>(Option<A> choice, Func<Unit, C> Left, Func<A, C> Right, Func<C> Bottom = null) =>
-        //    choice.Match(
-        //        Some: Right,
-        //        None: () => Left(unit));
-
-        //[Pure]
-        //public Unit Match(Option<A> choice, Action<Unit> Left, Action<A> Right, Action Bottom = null) =>
-        //    choice.Match(
-        //        Some: Right,
-        //        None: () => Left(unit));
-
-        //[Pure]
-        //public C MatchUnsafe<C>(Option<A> choice, Func<Unit, C> Left, Func<A, C> Right, Func<C> Bottom = null) =>
-        //    choice.Match(
-        //        Some: Right,
-        //        None: () => Left(unit));
-
         [Pure]
         public Option<A> Some(A x) =>
             x.IsNull()

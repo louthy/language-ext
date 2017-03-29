@@ -15,7 +15,7 @@ public static class TaskExtensions
     public static Task<A> FromException<A>(Exception ex)
     {
         var ei = System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex);
-        return new Task<A>(() =>
+        return Task.Run<A>(() =>
         {
             ei.Throw();
             return default(A);

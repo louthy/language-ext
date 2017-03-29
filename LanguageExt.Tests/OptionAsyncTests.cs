@@ -4,7 +4,9 @@ using System.Text;
 using Xunit;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
 using System.Threading.Tasks;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt.Tests
 {
@@ -23,7 +25,7 @@ namespace LanguageExt.Tests
                      from b in mb
                      select a + b;
 
-            Assert.True(await mr.IfNone(0) == 10);
+            Assert.True(await mr.IfNone(0) == 30);
 
 
             var mc = Some(10).ToAsync().Match(
@@ -40,7 +42,40 @@ namespace LanguageExt.Tests
 
         public Task DoWork()
         {
-            return Task.CompletedTask;
+            return Task.Run(() => Console.WriteLine("here"));
+        }
+
+        [Fact]
+        public async void Issue206()
+        {
+            var sync = new object();
+            var tasks = new List<Task>();
+            var output = new List<string>();
+
+            Console.WriteLine("OptionAsync");
+            OptionAsync<int> optAsync = Some(4).ToAsync();
+            var tskOptionAsync = optAsync.IfSome(async (i) =>
+            {
+                var x = DoWork();
+
+                lock(sync)
+                {
+                    tasks.Add(x);
+                    output.Add($"Inner id {x.Id}");
+                }
+
+                await x;
+            });
+            lock (sync)
+            {
+                output.Add($"Outer id {tskOptionAsync.Id}");
+                tasks.Add(tskOptionAsync);
+            }
+            await tskOptionAsync;
+
+            Assert.True(tasks[0].Status == TaskStatus.RanToCompletion);
+            Assert.True(tasks[1].Status == TaskStatus.RanToCompletion);
+
         }
     }
 }
