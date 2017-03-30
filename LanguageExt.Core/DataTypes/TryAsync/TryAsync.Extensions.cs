@@ -859,7 +859,7 @@ public static class TryAsyncExtensions
             });
 
     [Pure]
-    public static Task<Result<T>> Try<T>(this TryAsync<T> self)
+    public static async Task<Result<T>> Try<T>(this TryAsync<T> self)
     {
         try
         {
@@ -867,23 +867,20 @@ public static class TryAsyncExtensions
             {
                 throw new ArgumentNullException("this");
             }
-            return Task.Run(() =>
+            try
             {
-                try
-                {
-                    return self();
-                }
-                catch(Exception e)
-                {
-                    TryConfig.ErrorLogger(e);
-                    return Task.FromResult(new Result<T>(e));
-                }
-            });
+                return await self();
+            }
+            catch(Exception e)
+            {
+                TryConfig.ErrorLogger(e);
+                return new Result<T>(e);
+            }
         }
         catch (Exception e)
         {
             TryConfig.ErrorLogger(e);
-            return Task.FromResult(new Result<T>(e));
+            return new Result<T>(e);
         }
     }
 

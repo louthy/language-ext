@@ -16,15 +16,8 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly MTask<A> Inst = default(MTask<A>);
 
-        static Task<A> FromExcept()
-        {
-            var tcs = new TaskCompletionSource<A>();
-            tcs.SetException(BottomException.Default);
-            return tcs.Task;
-        }
-
         [Pure]
-        public Task<A> None => FromExcept();
+        public Task<A> None => BottomException.Default.AsFailedTask<A>();
 
         [Pure]
         public MB Bind<MONADB, MB, B>(Task<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
@@ -39,9 +32,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Task<A> Fail(Exception err = null) =>
-            Task.Run(() => raise<A>(err ?? new BottomException()));
-
-        
+            (err ?? new BottomException()).AsFailedTask<A>();
 
         [Pure]
         public async Task<A> Plus(Task<A> ma, Task<A> mb)

@@ -40,7 +40,7 @@ namespace LanguageExt
         /// </summary>
         public static Task<Unit> ifSomeAsync<OPT, OA, A>(OA opt, Func<A, Task> f)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(opt, a => Task.Run(async () => { await f(a); return unit; }) , noneIgnoreF);
+            default(OPT).MatchAsync(opt, async a => { await f(a); return unit; } , noneIgnoreF);
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 

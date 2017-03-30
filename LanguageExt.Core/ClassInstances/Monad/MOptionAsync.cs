@@ -73,7 +73,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionAsync<A> Return(Func<Unit, A> f) =>
             new OptionAsync<A>(OptionDataAsync.Lazy(() =>
-                Task.Run<Result<A>>(() =>
+                Task.Run(() =>
                 {
                     var a = f(unit);
                     return a.IsNull()

@@ -11,15 +11,11 @@ using static LanguageExt.Prelude;
 
 public static class TaskExtensions
 {
-
-    public static Task<A> FromException<A>(Exception ex)
+    public static Task<A> AsFailedTask<A>(this Exception ex)
     {
-        var ei = System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex);
-        return Task.Run<A>(() =>
-        {
-            ei.Throw();
-            return default(A);
-        });
+        var tcs = new TaskCompletionSource<A>();
+        tcs.SetException(ex);
+        return tcs.Task;
     }
 
     /// <summary>

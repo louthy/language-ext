@@ -511,45 +511,43 @@ public static class TaskTryExtensions
         self.ToAsync().AsString();
 
     [Pure]
-    public static Task<Try<B>> Bind<A, B>(this Task<Try<A>> self, Func<A, Task<Try<B>>> binder) => 
-        Task.Run((async () =>
+    public static async Task<Try<B>> Bind<A, B>(this Task<Try<A>> self, Func<A, Task<Try<B>>> binder)
+    {
+        try
+        {
+            var resA = await self;
+            var a = resA.Try();
+            return a.IsFaulted
+                ? new Try<B>(() => new Result<B>(a.Exception))
+                : await binder(a.Value);
+        }
+        catch (Exception e)
+        {
+            return new Try<B>(() => new Result<B>(e));
+        }
+    }
+
+    [Pure]
+    public async static Task<Try<C>> SelectMany<A, B, C>(
+        this Task<Try<A>> self,
+        Func<A, Task<Try<B>>> bind,
+        Func<A, B, C> project)
         {
             try
             {
                 var resA = await self;
                 var a = resA.Try();
-                return a.IsFaulted
-                    ? new Try<B>(() => new Result<B>(a.Exception))
-                    : await binder(a.Value);
+                if (a.IsFaulted) return new Try<C>(() => new Result<C>(a.Exception));
+                var resB = await bind(a.Value);
+                var b = resB.Try();
+                if (b.IsFaulted) return new Try<C>(() => new Result<C>(b.Exception));
+                return new Try<C>(() => project(a.Value, b.Value));
             }
-            catch (Exception e)
+            catch(Exception e)
             {
-                return new Try<B>(() => new Result<B>(e));
+                return new Try<C>(() => new Result<C>(e));
             }
-        }));
-
-    [Pure]
-    public static Task<Try<C>> SelectMany<A, B, C>(
-        this Task<Try<A>> self,
-        Func<A, Task<Try<B>>> bind,
-        Func<A, B, C> project) =>
-            Task.Run((async () =>
-            {
-                try
-                {
-                    var resA = await self;
-                    var a = resA.Try();
-                    if (a.IsFaulted) return new Try<C>(() => new Result<C>(a.Exception));
-                    var resB = await bind(a.Value);
-                    var b = resB.Try();
-                    if (b.IsFaulted) return new Try<C>(() => new Result<C>(b.Exception));
-                    return new Try<C>(() => project(a.Value, b.Value));
-                }
-                catch(Exception e)
-                {
-                    return new Try<C>(() => new Result<C>(e));
-                }
-            }));
+        }
     
     [Pure]
     public static Task<int> Sum(this Task<Try<int>> self) =>

@@ -22,32 +22,30 @@ namespace LanguageExt.ClassInstances
             FTask<A, B>.Inst.Map(ma, f);
 
         [Pure]
-        public Task<B> Apply(Task<Func<A, B>> fab, Task<A> fa) =>
-            Task.Run(async () =>
-            {
-                await Task.WhenAll(fab, fa);
+        public async Task<B> Apply(Task<Func<A, B>> fab, Task<A> fa)
+        {
+            await Task.WhenAll(fab, fa);
 
-                if (fab.IsFaulted) throw fab.Exception;
-                if (fa.IsFaulted) throw fa.Exception;
+            if (fab.IsFaulted) throw fab.Exception;
+            if (fa.IsFaulted) throw fa.Exception;
 
-                return fab.Result(fa.Result);
-            });
+            return fab.Result(fa.Result);
+        }
 
         [Pure]
         public Task<A> Pure(A x) =>
             MTask<A>.Inst.Return(x);
 
         [Pure]
-        public Task<B> Action(Task<A> fa, Task<B> fb) =>
-            Task.Run(async () =>
-            {
-                await Task.WhenAll(fa, fb);
+        public async Task<B> Action(Task<A> fa, Task<B> fb)
+        {
+            await Task.WhenAll(fa, fb);
 
-                if (fa.IsFaulted) throw fa.Exception;
-                if (fb.IsFaulted) throw fb.Exception;
+            if (fa.IsFaulted) throw fa.Exception;
+            if (fb.IsFaulted) throw fb.Exception;
 
-                return fb.Result;
-            });
+            return fb.Result;
+        }
     }
 
     public struct ApplTask<A, B, C> :
@@ -56,29 +54,27 @@ namespace LanguageExt.ClassInstances
         public static readonly ApplTask<A, B, C> Inst = default(ApplTask<A, B, C>);
 
         [Pure]
-        public Task<Func<B, C>> Apply(Task<Func<A, Func<B, C>>> fabc, Task<A> fa) =>
-            Task.Run(async () =>
-            {
-                await Task.WhenAll(fabc, fa);
+        public async Task<Func<B, C>> Apply(Task<Func<A, Func<B, C>>> fabc, Task<A> fa)
+        {
+            await Task.WhenAll(fabc, fa);
 
-                if (fabc.IsFaulted) throw fabc.Exception;
-                if (fa.IsFaulted) throw fa.Exception;
+            if (fabc.IsFaulted) throw fabc.Exception;
+            if (fa.IsFaulted) throw fa.Exception;
 
-                return fabc.Result(fa.Result);
-            });
+            return fabc.Result(fa.Result);
+        }
 
         [Pure]
-        public Task<C> Apply(Task<Func<A, Func<B, C>>> fabc, Task<A> fa, Task<B> fb) =>
-            Task.Run(async () =>
-            {
-                await Task.WhenAll(fabc, fa, fb);
+        public async Task<C> Apply(Task<Func<A, Func<B, C>>> fabc, Task<A> fa, Task<B> fb)
+        {
+            await Task.WhenAll(fabc, fa, fb);
 
-                if (fabc.IsFaulted) throw fabc.Exception;
-                if (fa.IsFaulted) throw fa.Exception;
-                if (fb.IsFaulted) throw fb.Exception;
+            if (fabc.IsFaulted) throw fabc.Exception;
+            if (fa.IsFaulted) throw fa.Exception;
+            if (fb.IsFaulted) throw fb.Exception;
 
-                return fabc.Result(fa.Result)(fb.Result);
-            });
+            return fabc.Result(fa.Result)(fb.Result);
+        }
 
         [Pure]
         public Task<A> Pure(A x) =>
@@ -103,57 +99,52 @@ namespace LanguageExt.ClassInstances
             FOptional<MTask<A>, MTask<A>, Task<A>, Task<A>, A, A>.Inst.Map(ma, f);
 
         [Pure]
-        public Task<A> Apply(Task<Func<A, A>> fab, Task<A> fa) =>
-            Task.Run(async () =>
-            {
-                await Task.WhenAll(fab, fa);
+        public async Task<A> Apply(Task<Func<A, A>> fab, Task<A> fa)
+        {
+            await Task.WhenAll(fab, fa);
 
-                if (fab.IsFaulted) throw fab.Exception;
-                if (fa.IsFaulted) throw fa.Exception;
+            if (fab.IsFaulted) throw fab.Exception;
+            if (fa.IsFaulted) throw fa.Exception;
 
-                return fab.Result(fa.Result);
-            });
-
+            return fab.Result(fa.Result);
+        }
 
         [Pure]
         public Task<A> Pure(A x) =>
             MTask<A>.Inst.Return(x);
 
         [Pure]
-        public Task<A> Action(Task<A> fa, Task<A> fb) =>
-            Task.Run(async () =>
-            {
-                await Task.WhenAll(fa, fb);
+        public async Task<A> Action(Task<A> fa, Task<A> fb)
+        {
+            await Task.WhenAll(fa, fb);
 
-                if (fa.IsFaulted) throw fa.Exception;
-                if (fb.IsFaulted) throw fb.Exception;
+            if (fa.IsFaulted) throw fa.Exception;
+            if (fb.IsFaulted) throw fb.Exception;
 
-                return fb.Result;
-            });
-
-        [Pure]
-        public Task<Func<A, A>> Apply(Task<Func<A, Func<A, A>>> fabc, Task<A> fa) =>
-            Task.Run(async () =>
-            {
-                await Task.WhenAll(fabc, fa);
-
-                if (fabc.IsFaulted) throw fabc.Exception;
-                if (fa.IsFaulted) throw fa.Exception;
-
-                return fabc.Result(fa.Result);
-            });
+            return fb.Result;
+        }
 
         [Pure]
-        public Task<A> Apply(Task<Func<A, Func<A, A>>> fabc, Task<A> fa, Task<A> fb) =>
-            Task.Run(async () =>
-            {
-                await Task.WhenAll(fabc, fa, fb);
+        public async Task<Func<A, A>> Apply(Task<Func<A, Func<A, A>>> fabc, Task<A> fa)
+        {
+            await Task.WhenAll(fabc, fa);
 
-                if (fabc.IsFaulted) throw fabc.Exception;
-                if (fa.IsFaulted) throw fa.Exception;
-                if (fb.IsFaulted) throw fb.Exception;
+            if (fabc.IsFaulted) throw fabc.Exception;
+            if (fa.IsFaulted) throw fa.Exception;
 
-                return fabc.Result(fa.Result)(fb.Result);
-            });
+            return fabc.Result(fa.Result);
+        }
+
+        [Pure]
+        public async Task<A> Apply(Task<Func<A, Func<A, A>>> fabc, Task<A> fa, Task<A> fb)
+        {
+            await Task.WhenAll(fabc, fa, fb);
+
+            if (fabc.IsFaulted) throw fabc.Exception;
+            if (fa.IsFaulted) throw fa.Exception;
+            if (fb.IsFaulted) throw fb.Exception;
+
+            return fabc.Result(fa.Result)(fb.Result);
+        }
     }
 }

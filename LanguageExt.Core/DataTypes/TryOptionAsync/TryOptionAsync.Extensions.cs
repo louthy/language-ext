@@ -1454,7 +1454,7 @@ public static class TryOptionAsyncExtensions
             });
 
     [Pure]
-    public static Task<OptionalResult<T>> Try<T>(this TryOptionAsync<T> self)
+    public static async Task<OptionalResult<T>> Try<T>(this TryOptionAsync<T> self)
     {
         try
         {
@@ -1462,23 +1462,20 @@ public static class TryOptionAsyncExtensions
             {
                 throw new ArgumentNullException("this");
             }
-            return Task.Run(() =>
+            try
             {
-                try
-                {
-                    return self();
-                }
-                catch(Exception e)
-                {
-                    TryConfig.ErrorLogger(e);
-                    return Task.FromResult(new OptionalResult<T>(e));
-                }
-            });
+                return await self();
+            }
+            catch(Exception e)
+            {
+                TryConfig.ErrorLogger(e);
+                return new OptionalResult<T>(e);
+            }
         }
         catch (Exception e)
         {
             TryConfig.ErrorLogger(e);
-            return Task.FromResult(new OptionalResult<T>(e));
+            return new OptionalResult<T>(e);
         }
     }
 
