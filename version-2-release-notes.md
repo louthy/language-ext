@@ -53,6 +53,8 @@ Scroll down to the section on Ad-hoc polymorphism for more details.
 `Set<OrdA, A> where OrdA : struct, Ord<A>`  | Ordering is done by `default(OrdA).Compare(a,b)`.  Existence testing is with `default(OrdA).Equals(a,b)`
 `Map<EqA, A, B>`                            | Ordering is done by `default(OrdA).Compare(a,b)`.  Existence testing is with `default(OrdA).Equals(a,b)`
 `Arr<A>`                                    | Immutable array.  Has the same access speed as the built-in array type, but with immutable cells.  Modification is expensive, due to the entire array being copied per operation (although for very small arrays this would be more efficient than `Lst<T>` or `Set<T>`).
+`Lst<PredList, A> where PredList : struct, Pred<ListInfo>` | This allows lists to run a predicate on the `Count` property of the list after construction.  
+`Lst<PredList, PredItem, A> where PredItem : struct, Pred<A>` | This allows lists to run a predicate on the `Count` property of the list after construction and on items as they're being added to the list.  
 
 As you can see above there are new type-safe key versions of `Set`, `HashSet`, `Map`, and `HashMap`.  Imagine you want to sort the value of a set of strings in a case-insensitive way (without losing information by calling `value.ToLower()`).
 ```c#
@@ -62,7 +64,59 @@ The resulting type would be incompatible with:
 ```c#
     Set<TString, string>, or Set<TStringOrdinal, string>
 ```
-And is therefore more type-safe than just using Set<string>.  Examples: https://github.com/louthy/language-ext/blob/type-classes/LanguageExt.Tests/SetTests.cs 
+And is therefore more type-safe than just using Set<string>.  [Examples](https://github.com/louthy/language-ext/blob/type-classes/LanguageExt.Tests/SetTests.cs)
+
+The two new predicate versions of `Lst` allow for properties of the list to travel with the type.  So for example this shows how you can enforce a list to be non-empty:
+```c#
+    public int Product(Lst<NonEmpty, int> list) =>
+        list.Fold(1, (s, x) => s * x);
+```
+There are implicit conversion operators between `Lst<A>` and `Lst<PredList, A>`, and between `Lst<A>` and `Lst<PredList, PredItem, A>`.  They don't need to reallocate the collection, but converting to a more constrained type will cause the validation to run.  This is very light for constructing `Lst<PredList, A>`, but will cause every item in the list to be validated for `Lst<PredList, PredItem, A>`.
+
+And so it's possible to do this:
+```c#
+    Lst<int> list = List<int>();
+
+    var res = Product(list);  // ArgumentOutOfRangeException
+```
+That will throw an `ArgumentOutOfRangeException` because the list is empty.  Whereas this is fine:
+```c#
+    Lst<int> list = List<int>(1, 2, 3, 4, 5);
+
+    var res = Product(list); // 120
+```
+To construct the predicate list types directly, call:
+```c#
+    Lst<NonEmpty, int> list = List<NonEmpty, int>(1, 2, 3, 4, 5);
+```
+The second type of predicate `Lst` is `Lst<PredList, PredItem, A>`.  `PredItem` is a predicate that's run against every item being added to the list.  Once the item is in the list it won't be checked again (because it's an immutable list).
+
+For example, this is a `Lst` that can't be empty and won't accept `null` items.
+```c#
+    var x = List<NonEmpty, NonNullItems<string>, string>("1", "2", "3");
+```
+Obviously declaring types like this gets quite bulky quite quickly.  So only using them for method arguments is definitely a good approach:
+```c#
+    public string Divify(Lst<NonEmpty, NonNullItems<string>, string> items) =>
+        String.Join(items.Map(x => $"<div>{x}</div>"));
+```
+Then `Divify` can be invoked thus:
+```c#
+    var res = Divify(List("1", "2", "3")); 
+
+    // "<div>1</div><div>2</div><div>3</div>"
+```
+But as mentioned above, the implicit conversion from `Lst<string>` to `Lst<NonEmpty, NonNullItems<string>, string>` will run the `NonNullItems<string>` predicate for each item in the `Lst`.
+
+Built-in are some standard `Pred<ListInfo>` implementations:
+
+* `AnySize` - Always succeeds
+* `CountRange<MIN, MAX>` - Limits the `Count` to be >= MIN and <= MAX
+* `MaxCount<MAX>` - As above but with no lower bound
+* `NonEmpty` - List must have at least one item
+
+And by default there are lots of `Pred<A>` implementations.  See the `NewType` discussion later.
+
 ### Non-nullable types: 
 
 In the ongoing quest to make it safer to write C# code, these types are all now structs and therefore can't be `null`:

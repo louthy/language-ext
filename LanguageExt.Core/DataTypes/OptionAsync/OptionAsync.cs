@@ -342,30 +342,6 @@ namespace LanguageExt
         public TryAsync<A> ToTry() =>
             toTryAsync<MOptionAsync<A>, OptionAsync<A>, A>(this);
 
-        ///// <summary>
-        ///// Fluent pattern matching.  Provide a Some handler and then follow
-        ///// on fluently with .None(...) to complete the matching operation.
-        ///// This is for dispatching actions, use Some<A,B>(...) to return a value
-        ///// from the match operation.
-        ///// </summary>
-        ///// <param name="f">The Some(x) match operation</param>
-        //[Pure]
-        //public SomeUnitContext<MOptionAsync<A>, OptionAsync<A>, A> Some(Action<A> f) =>
-        //    new SomeUnitContext<MOptionAsync<A>, OptionAsync<A>, A>(this, f, false);
-
-        ///// <summary>
-        ///// Fluent pattern matching.  Provide a Some handler and then follow
-        ///// on fluently with .None(...) to complete the matching operation.
-        ///// This is for returning a value from the match operation, to dispatch
-        ///// an action instead, use Some<A>(...)
-        ///// </summary>
-        ///// <typeparam name="B">Match operation return value type</typeparam>
-        ///// <param name="f">The Some(x) match operation</param>
-        ///// <returns>The result of the match operation</returns>
-        //[Pure]
-        //public SomeContext<MOptionAsync<A>, OptionAsync<A>, A, B> Some<B>(Func<A, B> f) =>
-        //    new SomeContext<MOptionAsync<A>, OptionAsync<A>, A, B>(this, f, false);
-
         /// <summary>
         /// Match the two states of the Option and return a non-null R.
         /// </summary>

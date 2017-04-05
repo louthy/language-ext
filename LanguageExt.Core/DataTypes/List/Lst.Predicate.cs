@@ -296,5 +296,13 @@ namespace LanguageExt
         [Pure]
         public Arr<A> ToArray() =>
             toArray(this);
-   }
+
+        [Pure]
+        public static implicit operator Lst<PRED, A>(Lst<A> list) =>
+            new Lst<PRED, A>(list.Value);
+
+        [Pure]
+        public static implicit operator Lst<A>(Lst<PRED, A> list) =>
+            new Lst<A>(list.Value);
+    }
 }

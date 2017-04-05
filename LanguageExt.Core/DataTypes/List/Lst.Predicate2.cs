@@ -329,5 +329,19 @@ namespace LanguageExt
         [Pure]
         public Arr<A> ToArray() =>
             toArray(this);
-   }
+
+        [Pure]
+        public static implicit operator Lst<PredList, PredItem, A>(Lst<A> list)
+        {
+            foreach(var item in list)
+            {
+                if (!default(PredItem).True(item)) throw new InvalidCastException("Implicit converson has failed the PredItem constraint");
+            }
+            return new Lst<PredList, PredItem, A>(list.Value);
+        }
+
+        [Pure]
+        public static implicit operator Lst<A>(Lst<PredList, PredItem, A> list) =>
+            new Lst<A>(list.Value);
+    }
 }
