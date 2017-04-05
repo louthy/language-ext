@@ -38,7 +38,7 @@ namespace LanguageExt
         where PRED : struct, Pred<A>
         where SELF : FloatType<SELF, FLOATING, A, PRED>
     {
-        protected readonly A Value;
+        public readonly A Value;
 
         /// <summary>
         /// Constructor function
@@ -53,7 +53,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Null values are not accepted</exception>
         public FloatType(A value)
         {
-            if(!default(PRED).True(value)) throw new ArgumentOutOfRangeException(nameof(value),value,$"Argument failed {typeof(SELF).Name} FloatType predicate");
+            if(!default(PRED).True(value)) throw new ArgumentOutOfRangeException(nameof(value));
             if (isnull(value)) throw new ArgumentNullException(nameof(value));
             Value = value;
         }

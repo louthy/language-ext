@@ -51,9 +51,11 @@ namespace LanguageExt
             }
         }
 
-        internal static Lst<A> Wrap(LstInternal<A> list) =>
-            new Lst<A>(list);
+        internal static LstInternal<A> Wrap(ListItem<A> list, bool rev) =>
+            new LstInternal<A>(list, rev);
 
+        internal LstInternal<A> Wrap(ListItem<A> list) =>
+            new LstInternal<A>(list, Rev);
 
         /// <summary>
         /// Ctor
@@ -116,27 +118,27 @@ namespace LanguageExt
         /// Add an item to the end of the list
         /// </summary>
         [Pure]
-        public Lst<A> Add(A value) =>
-            new Lst<A>(ListModule.Insert(Root, value, Rev ? 0 : Root.Count), Rev);
+        public LstInternal<A> Add(A value) =>
+            Wrap(ListModule.Insert(Root, value, Rev ? 0 : Root.Count), Rev);
 
         /// <summary>
         /// Add a range of items to the end of the list
         /// </summary>
         [Pure]
-        public Lst<A> AddRange(IEnumerable<A> items)
+        public LstInternal<A> AddRange(IEnumerable<A> items)
         {
-            if (items == null) return Wrap(this);
+            if (items == null) return this;
             var lst = new List<A>(Rev ? items.Reverse() : items);
             var tree = ListModule.FromList(lst, 0, lst.Count);
-            return new Lst<A>(ListModule.Insert(Root, tree, Rev ? 0 : Root.Count), Rev);
+            return Wrap(ListModule.Insert(Root, tree, Rev ? 0 : Root.Count), Rev);
         }
 
         /// <summary>
         /// Clear the list
         /// </summary>
         [Pure]
-        public Lst<A> Clear() =>
-            Lst<A>.Empty;
+        public LstInternal<A> Clear() =>
+            LstInternal<A>.Empty;
 
         /// <summary>
         /// Get enumerator
@@ -177,24 +179,24 @@ namespace LanguageExt
         /// Insert value at specified index
         /// </summary>
         [Pure]
-        public Lst<A> Insert(int index, A value)
+        public LstInternal<A> Insert(int index, A value)
         {
             if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
-            return new Lst<A>(ListModule.Insert(Root, value, Rev ? Count - index - 1 : index), Rev);
+            return Wrap(ListModule.Insert(Root, value, Rev ? Count - index - 1 : index), Rev);
         }
 
         /// <summary>
         /// Insert range of values at specified index
         /// </summary>
         [Pure]
-        public Lst<A> InsertRange(int index, IEnumerable<A> items)
+        public LstInternal<A> InsertRange(int index, IEnumerable<A> items)
         {
-            if (items == null) return Wrap(this);
+            if (items == null) return this;
             if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
 
             var lst = new List<A>(Rev ? items.Reverse() : items);
             var tree = ListModule.FromList(lst, 0, lst.Count);
-            return new Lst<A>(ListModule.Insert(Root, tree, Rev ? Count - index - 1 : index), Rev);
+            return Wrap(ListModule.Insert(Root, tree, Rev ? Count - index - 1 : index), Rev);
         }
 
         /// <summary>
@@ -208,28 +210,28 @@ namespace LanguageExt
         /// Remove an item from the list
         /// </summary>
         [Pure]
-        public Lst<A> Remove(A value) => 
+        public LstInternal<A> Remove(A value) => 
             Remove(value, Comparer<A>.Default);
 
         /// <summary>
         /// Remove an item from the list
         /// </summary>
         [Pure]
-        public Lst<A> Remove(A value, IComparer<A> equalityComparer)
+        public LstInternal<A> Remove(A value, IComparer<A> equalityComparer)
         {
             var index = ListModule.Find(Root, value, 0, Count, equalityComparer);
             return index >= 0 && index < Count
-                ? new Lst<A>(ListModule.Remove(Root, index), Rev)
-                : Wrap(this);
+                ? Wrap(ListModule.Remove(Root, index), Rev)
+                : this;
         }
 
         /// <summary>
         /// Remove all items that match a predicate
         /// </summary>
         [Pure]
-        public Lst<A> RemoveAll(Predicate<A> pred)
+        public LstInternal<A> RemoveAll(Predicate<A> pred)
         {
-            var self = Wrap(this);
+            var self = this;
             int index = 0;
             foreach (var item in this)
             {
@@ -251,22 +253,22 @@ namespace LanguageExt
         /// <param name="index"></param>
         /// <returns></returns>
         [Pure]
-        public Lst<A> RemoveAt(int index)
+        public LstInternal<A> RemoveAt(int index)
         {
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-            return new Lst<A>(ListModule.Remove(Root, Rev ? Count - index - 1 : index), Rev);
+            return Wrap(ListModule.Remove(Root, Rev ? Count - index - 1 : index), Rev);
         }
 
         /// <summary>
         /// Remove a range of items
         /// </summary>
         [Pure]
-        public Lst<A> RemoveRange(int index, int count)
+        public LstInternal<A> RemoveRange(int index, int count)
         {
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
             if (index + count >= Root.Count) throw new IndexOutOfRangeException();
 
-            var self = Wrap(this);
+            var self = this;
             for (; count > 0; count--)
             {
                 self = self.RemoveAt(index);
@@ -278,11 +280,11 @@ namespace LanguageExt
         /// Set an item at the specified index
         /// </summary>
         [Pure]
-        public Lst<A> SetItem(int index, A value)
+        public LstInternal<A> SetItem(int index, A value)
         {
             if (isnull(value)) throw new ArgumentNullException(nameof(value));
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-            return new Lst<A>(ListModule.SetItem(Root,value,index),Rev);
+            return new LstInternal<A>(ListModule.SetItem(Root,value,index),Rev);
         }
 
         [Pure]
@@ -307,11 +309,11 @@ namespace LanguageExt
         /// Reverse the order of the items in the list
         /// </summary>
         [Pure]
-        public Lst<A> Reverse()
+        public LstInternal<A> Reverse()
         {
             // This is currenty buggy, so going the safe (and less efficient) route for now
             // return new Lst<T>(Root, !Rev);
-            return new Lst<A>(this.AsEnumerable().Reverse());
+            return new LstInternal<A>(this.AsEnumerable().Reverse());
         }
 
         /// <summary>
@@ -331,14 +333,14 @@ namespace LanguageExt
         /// Map
         /// </summary>
         [Pure]
-        public Lst<U> Map<U>(Func<A, U> map) =>
-            new Lst<U>(ListModule.Map(Root,map),Rev);
+        public LstInternal<U> Map<U>(Func<A, U> map) =>
+            new LstInternal<U>(ListModule.Map(Root, map), Rev);
 
         /// <summary>
         /// Filter
         /// </summary>
         [Pure]
-        public Lst<A> Filter(Func<A, bool> pred)
+        public LstInternal<A> Filter(Func<A, bool> pred)
         {
             var filtered = new List<A>();
             foreach (var item in this)
@@ -349,33 +351,33 @@ namespace LanguageExt
                 }
             }
             var root = ListModule.FromList(filtered, 0, filtered.Count);
-            return new Lst<A>(root, Rev);
+            return Wrap(root, Rev);
         }
 
         [Pure]
         public static LstInternal<A> operator +(LstInternal<A> lhs, A rhs) =>
-            Wrap(lhs).Add(rhs).Value;
+            lhs.Add(rhs);
 
         [Pure]
-        public static Lst<A> operator +(A rhs, LstInternal<A> lhs) =>
-            rhs.Cons(Wrap(lhs));
+        public static LstInternal<A> operator +(A rhs, LstInternal<A> lhs) =>
+            new LstInternal<A>(rhs.Cons(lhs));
 
         [Pure]
-        public static Lst<A> operator +(LstInternal<A> lhs, LstInternal<A> rhs) =>
-            Wrap(lhs).Append(Wrap(rhs));
+        public static LstInternal<A> operator +(LstInternal<A> lhs, LstInternal<A> rhs) =>
+            lhs.Append(rhs);
 
         [Pure]
-        public Lst<A> Append(Lst<A> rhs) =>
+        public LstInternal<A> Append(LstInternal<A> rhs) =>
             AddRange(rhs);
 
         [Pure]
         public static LstInternal<A> operator -(LstInternal<A> lhs, LstInternal<A> rhs) =>
-            lhs.Subtract(Wrap(rhs)).Value;
+            lhs.Subtract(rhs);
 
         [Pure]
-        public Lst<A> Subtract(Lst<A> rhs)
+        public LstInternal<A> Subtract(LstInternal<A> rhs)
         {
-            var self = Wrap(this);
+            var self = this;
             foreach (var item in rhs)
             {
                 self = self.Remove(item);

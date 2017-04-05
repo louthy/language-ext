@@ -52,7 +52,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Null values are not accepted</exception>
         public NumType(A value)
         {
-            if(!default(PRED).True(value)) throw new ArgumentOutOfRangeException(nameof(value),value,$"Argument failed {typeof(NUMTYPE).Name} NumType predicate");
+            if(!default(PRED).True(value)) throw new ArgumentOutOfRangeException(nameof(value));
             if (isnull(value)) throw new ArgumentNullException(nameof(value));
             Value = value;
         }

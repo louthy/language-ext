@@ -301,6 +301,41 @@ namespace LanguageExt
                 ? (Lst<T>)items
                 : new Lst<T>(items);
 
+
+
+        /// <summary>
+        /// Create an immutable list
+        /// </summary>
+        [Pure]
+        public static Lst<PRED, T> List<PRED, T>() where PRED : struct, Pred<IReadOnlyList<T>> =>
+            new Lst<PRED, T>(new T[0]);
+
+        /// <summary>
+        /// Create an immutable list
+        /// </summary>
+        [Pure]
+        public static Lst<PRED, T> List<PRED, T>(T x, params T[] xs) where PRED : struct, Pred<IReadOnlyList<T>> =>
+            new Lst<PRED, T>(x.Cons(xs));
+
+        /// <summary>
+        /// Create an immutable list
+        /// </summary>
+        [Pure]
+        public static Lst<PRED, T> toList<PRED, T>(Arr<T> items) where PRED : struct, Pred<IReadOnlyList<T>> =>
+            new Lst<PRED, T>(items.Value);
+
+        /// <summary>
+        /// Create an immutable list
+        /// </summary>
+        [Pure]
+        public static Lst<PRED, T> toList<PRED, T>(IEnumerable<T> items) where PRED : struct, Pred<IReadOnlyList<T>> =>
+            items is Lst<PRED, T>
+                ? (Lst<PRED, T>)items
+                : new Lst<PRED, T>(items);
+
+
+
+
         /// <summary>
         /// Create an immutable queue
         /// </summary>

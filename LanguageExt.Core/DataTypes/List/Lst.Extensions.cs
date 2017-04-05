@@ -766,6 +766,16 @@ public static class ListExtensions
         LanguageExt.List.freeze(list);
 
     /// <summary>
+    /// Convert any enumerable into an immutable Lst T
+    /// </summary>
+    /// <typeparam name="T">Enumerable item type</typeparam>
+    /// <param name="list">Enumerable to convert</param>
+    /// <returns>Lst of T</returns>
+    [Pure]
+    public static Lst<PRED, T> Freeze<PRED, T>(this IEnumerable<T> list) where PRED : struct, Pred<IReadOnlyList<T>> =>
+        LanguageExt.List.freeze<PRED, T>(list);
+
+    /// <summary>
     /// Convert the enumerable to an immutable array
     /// </summary>
     [Pure]

@@ -27,7 +27,7 @@ namespace LanguageExt
         where PRED    : struct, Pred<A>
         where NEWTYPE : NewType<NEWTYPE, A, PRED>
     {
-        protected readonly A Value;
+        public readonly A Value;
 
         /// <summary>
         /// Constructor function
@@ -42,7 +42,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Null values are not accepted</exception>
         public NewType(A value)
         {
-            if (!default(PRED).True(value)) throw new ArgumentOutOfRangeException(nameof(value), value, $"Argument failed {typeof(NEWTYPE).Name} NewType predicate");
+            if (!default(PRED).True(value)) throw new ArgumentOutOfRangeException(nameof(value));
+            if (isnull(value)) throw new ArgumentNullException(nameof(value));
             Value = value;
         }
 
