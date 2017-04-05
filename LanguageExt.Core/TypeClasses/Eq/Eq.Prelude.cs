@@ -65,6 +65,31 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
+        public static bool equals<EQA, EQB, A, B>(Either<A, B> x, Either<A, B> y)
+            where EQA : struct, Eq<A>
+            where EQB : struct, Eq<B> =>
+            EqChoice<EQA, EQB, MEither<A, B>, Either<A, B>, A, B>.Inst.Equals(x, y);
+
+        /// <summary>
+        /// Structural equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public static bool equals<EQA, EQB, A, B>(EitherUnsafe<A, B> x, EitherUnsafe<A, B> y)
+            where EQA : struct, Eq<A>
+            where EQB : struct, Eq<B> =>
+            EqChoice<EQA, EQB, MEitherUnsafe<A, B>, EitherUnsafe<A, B>, A, B>.Inst.Equals(x, y);
+
+
+        /// <summary>
+        /// Structural equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
         public static bool equals<EQ, A>(A? x, A? y)
             where EQ : struct, Eq<A>
             where A : struct =>
