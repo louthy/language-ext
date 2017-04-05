@@ -475,6 +475,29 @@ public static class ListExtensions
         LanguageExt.List.rev(list);
 
     /// <summary>
+    /// Reverses the list (Reverse in LINQ)
+    /// </summary>
+    /// <typeparam name="A">List item type</typeparam>
+    /// <param name="list">Listto reverse</param>
+    /// <returns>Reversed list</returns>
+    [Pure]
+    public static Lst<PredList, A> Rev<PredList, A>(this Lst<PredList, A> list) 
+        where PredList : struct, Pred<ListInfo> =>
+        LanguageExt.List.rev(list);
+
+    /// <summary>
+    /// Reverses the list (Reverse in LINQ)
+    /// </summary>
+    /// <typeparam name="A">List item type</typeparam>
+    /// <param name="list">Listto reverse</param>
+    /// <returns>Reversed list</returns>
+    [Pure]
+    public static Lst<PredList, PredItem, A> Rev<PredList, PredItem, A>(this Lst<PredList, PredItem, A> list) 
+        where PredList : struct, Pred<ListInfo>
+        where PredItem : struct, Pred<A> =>
+        LanguageExt.List.rev(list);
+
+    /// <summary>
     /// Applies a function 'folder' to each element of the collection, threading an accumulator 
     /// argument through the computation. The fold function takes the state argument, and 
     /// applies the function 'folder' to it and the first element of the list. Then, it feeds this 
@@ -912,10 +935,52 @@ public static class ListExtensions
         new Lst<B>(self.AsEnumerable().Select(map));
 
     /// <summary>
+    /// LINQ Select implementation for Lst
+    /// </summary>
+    [Pure]
+    public static Lst<PredList, B> Select<PredList, A, B>(this Lst<PredList, A> self, Func<A, B> map)
+        where PredList : struct, Pred<ListInfo> =>
+        new Lst<PredList, B>(self.AsEnumerable().Select(map));
+
+    /// <summary>
     /// Monadic bind function for Lst that returns an IEnumerable
     /// </summary>
     [Pure]
     public static IEnumerable<B> BindEnumerable<A, B>(this Lst<A> self, Func<A, Lst<B>> binder)
+    {
+        foreach (var t in self)
+        {
+            foreach (var u in binder(t))
+            {
+                yield return u;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Monadic bind function for Lst that returns an IEnumerable
+    /// </summary>
+    [Pure]
+    public static IEnumerable<B> BindEnumerable<PredList, A, B>(this Lst<PredList, A> self, Func<A, Lst<PredList, B>> binder) 
+        where PredList : struct, Pred<ListInfo>
+    {
+        foreach (var t in self)
+        {
+            foreach (var u in binder(t))
+            {
+                yield return u;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Monadic bind function for Lst that returns an IEnumerable
+    /// </summary>
+    [Pure]
+    public static IEnumerable<B> BindEnumerable<PredList, PredItemA, PredItemB, A, B>(this Lst<PredList, PredItemA, A> self, Func<A, Lst<PredList, PredItemB, B>> binder)
+        where PredList : struct, Pred<ListInfo>
+        where PredItemA : struct, Pred<A>
+        where PredItemB : struct, Pred<B>
     {
         foreach (var t in self)
         {
@@ -934,6 +999,24 @@ public static class ListExtensions
         new Lst<B>(self.BindEnumerable(binder));
 
     /// <summary>
+    /// Monadic bind function
+    /// </summary>
+    [Pure]
+    public static Lst<PredList, B> Bind<PredList, A, B>(this Lst<PredList, A> self, Func<A, Lst<PredList, B>> binder)
+        where PredList : struct, Pred<ListInfo> =>
+        new Lst<PredList, B>(self.BindEnumerable(binder));
+
+    /// <summary>
+    /// Monadic bind function
+    /// </summary>
+    [Pure]
+    public static Lst<PredList, PredItemB, B> Bind<PredList, PredItemA, PredItemB, A, B>(this Lst<PredList, PredItemA, A> self, Func<A, Lst<PredList, PredItemB, B>> binder)
+        where PredList : struct, Pred<ListInfo>
+        where PredItemA : struct, Pred<A>
+        where PredItemB : struct, Pred<B> =>
+        new Lst<PredList, PredItemB, B>(self.BindEnumerable(binder));
+
+    /// <summary>
     /// Returns the number of items in the Lst T
     /// </summary>
     /// <typeparam name="A">Item type</typeparam>
@@ -944,10 +1027,40 @@ public static class ListExtensions
         self.Count;
 
     /// <summary>
+    /// Returns the number of items in the Lst T
+    /// </summary>
+    /// <typeparam name="A">Item type</typeparam>
+    /// <param name="list">List to count</param>
+    /// <returns>The number of items in the list</returns>
+    [Pure]
+    public static int Count<PredList, A>(this Lst<PredList, A> self) where PredList : struct, Pred<ListInfo> =>
+        self.Count;
+
+    /// <summary>
+    /// Returns the number of items in the Lst T
+    /// </summary>
+    /// <typeparam name="A">Item type</typeparam>
+    /// <param name="list">List to count</param>
+    /// <returns>The number of items in the list</returns>
+    [Pure]
+    public static int Count<PredList, PredItem, A>(this Lst<PredList, PredItem, A> self) 
+        where PredList : struct, Pred<ListInfo>
+        where PredItem : struct, Pred<A> =>
+        self.Count;
+
+    /// <summary>
     /// LINQ bind implementation for Lst
     /// </summary>
     [Pure]
     public static Lst<C> SelectMany<A, B, C>(this Lst<A> self, Func<A, Lst<B>> bind, Func<A, B, C> project) =>
+        self.Bind(t => bind(t).Map(u => project(t, u)));
+
+    /// <summary>
+    /// LINQ bind implementation for Lst
+    /// </summary>
+    [Pure]
+    public static Lst<PredList, C> SelectMany<PredList, A, B, C>(this Lst<PredList, A> self, Func<A, Lst<PredList, B>> bind, Func<A, B, C> project) 
+        where PredList : struct, Pred<ListInfo> =>
         self.Bind(t => bind(t).Map(u => project(t, u)));
 
     /// <summary>

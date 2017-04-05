@@ -46,5 +46,18 @@ namespace LanguageExt.Tests
                 x = x.Add(6);
             });
         }
+
+        [Fact]
+        public void NoNullItems()
+        {
+            var x = List<AnySize, NonNullItems<string>, string>("one", "two", "three");
+
+            x = x.Add("four");
+
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                x = x.Add(null);
+            });
+        }
     }
 }

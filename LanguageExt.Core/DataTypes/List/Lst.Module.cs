@@ -292,6 +292,29 @@ namespace LanguageExt
             list.Reverse();
 
         /// <summary>
+        /// Reverses the list (Reverse in LINQ)
+        /// </summary>
+        /// <typeparam name="T">List item type</typeparam>
+        /// <param name="list">List to reverse</param>
+        /// <returns>Reversed list</returns>
+        [Pure]
+        public static Lst<PredList, T> rev<PredList, T>(Lst<PredList, T> list) 
+            where PredList : struct, Pred<ListInfo> =>
+            list.Reverse();
+
+        /// <summary>
+        /// Reverses the list (Reverse in LINQ)
+        /// </summary>
+        /// <typeparam name="T">List item type</typeparam>
+        /// <param name="list">List to reverse</param>
+        /// <returns>Reversed list</returns>
+        [Pure]
+        public static Lst<PredList, PredItem, T> rev<PredList, PredItem, T>(Lst<PredList, PredItem, T> list) 
+            where PredList : struct, Pred<ListInfo>
+            where PredItem : struct, Pred<T> =>
+            list.Reverse();
+
+        /// <summary>
         /// Concatenate two enumerables (Concat in LINQ)
         /// </summary>
         /// <typeparam name="T">Enumerable item type</typeparam>
