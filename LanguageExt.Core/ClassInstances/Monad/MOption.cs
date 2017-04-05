@@ -4,6 +4,7 @@ using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
 using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
@@ -12,7 +13,8 @@ namespace LanguageExt.ClassInstances
         Alternative<Option<A>, Unit, A>,
         Optional<Option<A>, A>,
         Monad<Option<A>, A>,
-        BiFoldable<Option<A>, A, Unit>
+        BiFoldable<Option<A>, A, Unit>,
+        Eq<Option<A>>
     {
         public static readonly MOption<A> Inst = default(MOption<A>);
 
@@ -210,5 +212,13 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(Option<A> fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public bool Equals(Option<A> x, Option<A> y) =>
+            equals<EqDefault<A>, A>(x, y);
+
+        [Pure]
+        public int GetHashCode(Option<A> x) =>
+            EqOpt<EqDefault<A>, MOption<A>, Option<A>, A>.Inst.GetHashCode(x);
     }
 }

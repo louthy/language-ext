@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 
@@ -13,7 +14,8 @@ namespace LanguageExt.ClassInstances
         Monad<OptionUnsafe<A>, A>,
         Optional<OptionUnsafe<A>, A>,
         Foldable<OptionUnsafe<A>, A>,
-        BiFoldable<OptionUnsafe<A>, A, Unit>
+        BiFoldable<OptionUnsafe<A>, A, Unit>,
+        Eq<OptionUnsafe<A>>
     {
         public static readonly MOptionUnsafe<A> Inst = default(MOptionUnsafe<A>);
 
@@ -239,5 +241,13 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionUnsafe<A> Append(OptionUnsafe<A> x, OptionUnsafe<A> y) =>
             Plus(x, y);
+
+        [Pure]
+        public bool Equals(OptionUnsafe<A> x, OptionUnsafe<A> y) =>
+            equals<EqDefault<A>, A>(x, y);
+
+        [Pure]
+        public int GetHashCode(OptionUnsafe<A> x) =>
+            EqOpt<EqDefault<A>, MOptionUnsafe<A>, OptionUnsafe<A>, A>.Inst.GetHashCode(x);
     }
 }

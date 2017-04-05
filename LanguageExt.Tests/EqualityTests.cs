@@ -4,6 +4,8 @@ using static LanguageExt.Prelude;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using LanguageExt.TypeClasses;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExtTests
 {
@@ -134,5 +136,57 @@ namespace LanguageExtTests
 
         public static bool IsDefault<T>(T obj) =>
             EqualityComparer<T>.Default.Equals(obj, default(T));
+
+
+        [Fact]
+        public static void OptionMonadEqualityTests1()
+        {
+            var optionx = Some(123);
+            var optiony = Some(123);
+
+            var optionr = IsEqual<EqInt, MOption<int>, Option<int>, int>(optionx, optiony);
+
+            Assert.True(optionr);
+        }
+
+        [Fact]
+        public static void OptionMonadEqualityTests2()
+        {
+            var optionx = Some("ABC");
+            var optiony = Some("abc");
+
+            var optionr = IsEqual<EqStringCurrentCultureIgnoreCase, MOption<string>, Option<string>, string>(optionx, optiony);
+
+            Assert.True(optionr);
+        }
+
+        [Fact]
+        public static void EitherMonadEqualityTests1()
+        {
+            var optionx = Right<Exception, int>(123);
+            var optiony = Right<Exception, int>(123);
+
+            var optionr = IsEqual<EqInt, MEither<Exception, int>, Either<Exception, int>, int>(optionx, optiony);
+
+            Assert.True(optionr);
+        }
+
+        [Fact]
+        public static void EitherMonadEqualityTests2()
+        {
+            var optionx = Right<Exception, string>("ABC");
+            var optiony = Right<Exception, string>("abc");
+
+            var optionr = IsEqual<EqStringCurrentCultureIgnoreCase, MEither<Exception, string>, Either<Exception, string>, string>(optionx, optiony);
+
+            Assert.True(optionr);
+        }
+
+        public static bool IsEqual<EqA, MonadA, MA, A>(MA mx, MA my)
+            where EqA : struct, Eq<A>
+            where MonadA : struct, Monad<MA, A> =>
+            default(MonadA).Fold(mx, false, (s1, x) =>
+                default(MonadA).Fold(my, false, (s2, y) =>
+                    default(EqA).Equals(x, y))(unit))(unit);
     }
 }

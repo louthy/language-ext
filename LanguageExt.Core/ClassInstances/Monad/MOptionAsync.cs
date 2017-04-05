@@ -251,6 +251,7 @@ namespace LanguageExt.ClassInstances
         public OptionAsync<A> Append(OptionAsync<A> x, OptionAsync<A> y) =>
             Plus(x, y);
 
+        [Pure]
         public Func<Unit, Task<S>> FoldAsync<S>(OptionAsync<A> ma, S state, Func<S, A, S> f) => async _ => 
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
@@ -260,6 +261,7 @@ namespace LanguageExt.ClassInstances
                 : state);
         };
 
+        [Pure]
         public Func<Unit, Task<S>> FoldAsync<S>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> f) => async _ =>
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
@@ -269,17 +271,21 @@ namespace LanguageExt.ClassInstances
                 : state);
         };
 
+        [Pure]
         public Func<Unit, Task<S>> FoldBackAsync<S>(OptionAsync<A> ma, S state, Func<S, A, S> f) =>
             FoldAsync(ma, state, f);
 
+        [Pure]
         public Func<Unit, Task<S>> FoldBackAsync<S>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> f) => 
             FoldAsync(ma, state, f);
 
+        [Pure]
         public Func<Unit, Task<int>> CountAsync(OptionAsync<A> ma) => async _ =>
             await ma.IsSome
                 ? 1
                 : 0;
 
+        [Pure]
         public async Task<S> BiFoldAsync<S>(OptionAsync<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb)
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
@@ -290,6 +296,7 @@ namespace LanguageExt.ClassInstances
                 : fb(state, unit));
         }
 
+        [Pure]
         public async Task<S> BiFoldAsync<S>(OptionAsync<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, Task<S>> fb)
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
@@ -300,6 +307,7 @@ namespace LanguageExt.ClassInstances
                 : await fb(state, unit));
         }
 
+        [Pure]
         public async Task<S> BiFoldAsync<S>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> fa, Func<S, Unit, S> fb)
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
@@ -310,6 +318,7 @@ namespace LanguageExt.ClassInstances
                 : fb(state, unit));
         }
 
+        [Pure]
         public async Task<S> BiFoldAsync<S>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> fa, Func<S, Unit, Task<S>> fb)
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
@@ -320,15 +329,19 @@ namespace LanguageExt.ClassInstances
                 : await fb(state, unit));
         }
 
+        [Pure]
         public Task<S> BiFoldBackAsync<S>(OptionAsync<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
             BiFoldAsync(ma, state, fa, fb);
 
+        [Pure]
         public Task<S> BiFoldBackAsync<S>(OptionAsync<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, Task<S>> fb) =>
             BiFoldAsync(ma, state, fa, fb);
 
+        [Pure]
         public Task<S> BiFoldBackAsync<S>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> fa, Func<S, Unit, S> fb) =>
             BiFoldAsync(ma, state, fa, fb);
 
+        [Pure]
         public Task<S> BiFoldBackAsync<S>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> fa, Func<S, Unit, Task<S>> fb) =>
             BiFoldAsync(ma, state, fa, fb);
     }

@@ -2,6 +2,7 @@
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt
 {
@@ -44,6 +45,26 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
+        public static bool equals<EQ, L, R>(Either<L, R> x, Either<L, R> y) where EQ : struct, Eq<R> =>
+            EqChoice<EQ, MEither<L, R>, Either<L, R>, L, R>.Inst.Equals(x, y);
+
+        /// <summary>
+        /// Structural equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public static bool equals<EQ, L, R>(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where EQ : struct, Eq<R> =>
+            EqChoice<EQ, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Equals(x, y);
+
+        /// <summary>
+        /// Structural equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
         public static bool equals<EQ, A>(A? x, A? y)
             where EQ : struct, Eq<A>
             where A : struct =>
@@ -78,6 +99,56 @@ namespace LanguageExt
         [Pure]
         public static bool equals<EQ, A>(Lst<A> x, Lst<A> y) where EQ : struct, Eq<A> =>
             EqLst<EQ, A>.Inst.Equals(x, y);
+
+        /// <summary>
+        /// Structural equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public static bool equals<EQ, A>(HashSet<A> x, HashSet<A> y) where EQ : struct, Eq<A> =>
+            EqHashSet<EQ, A>.Inst.Equals(x, y);
+
+        /// <summary>
+        /// Structural equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public static bool equals<EQ, A>(Que<A> x, Que<A> y) where EQ : struct, Eq<A> =>
+            EqQue<EQ, A>.Inst.Equals(x, y);
+
+        /// <summary>
+        /// Structural equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public static bool equals<EQ, A>(Set<A> x, Set<A> y) where EQ : struct, Eq<A> =>
+            EqSet<EQ, A>.Inst.Equals(x, y);
+
+        /// <summary>
+        /// Structural equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public static bool equals<EQ, A>(Arr<A> x, Arr<A> y) where EQ : struct, Eq<A> =>
+            EqArr<EQ, A>.Inst.Equals(x, y);
+
+        /// <summary>
+        /// Structural equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public static bool equals<EQ, A>(A[] x, A[] y) where EQ : struct, Eq<A> =>
+            EqArray<EQ, A>.Inst.Equals(x, y);
 
         /// <summary>
         /// Structural equality test
