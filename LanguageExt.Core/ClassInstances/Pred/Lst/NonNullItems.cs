@@ -5,15 +5,9 @@ using System.Text;
 
 namespace LanguageExt.ClassInstances.Pred
 {
-    public struct NonNullItems<A> : Pred<IReadOnlyList<A>>
+    public struct NonNullItems<A> : Pred<A>
     {
-        public bool True(IReadOnlyList<A> value)
-        {
-            foreach(var item in value)
-            {
-                if (item.IsNull()) return false;
-            }
-            return true;
-        }
+        public bool True(A value) => 
+            !value.IsNull();
     }
 }

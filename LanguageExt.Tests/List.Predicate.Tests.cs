@@ -11,7 +11,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void UninitialisedEmptyListThrows()
         {
-            var x = new Lst<NonEmpty<int>, int>();
+            var x = new Lst<NonEmpty, int>();
 
             Assert.Throws<BottomException>(() =>
             {
@@ -22,7 +22,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void EmptyListThrows()
         {
-            var x = List<NonEmpty<int>, int>(1, 2, 3, 4);
+            var x = List<NonEmpty, int>(1, 2, 3, 4);
 
             x = x.RemoveAt(0);
             x = x.RemoveAt(0);
@@ -37,7 +37,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void RangeListThrows()
         {
-            var x = List<MaxCount<int, I5>, int>(1, 2, 3, 4);
+            var x = List<MaxCount<I5>, int>(1, 2, 3, 4);
 
             x = x.Add(5);
 

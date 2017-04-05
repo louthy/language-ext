@@ -4,14 +4,14 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances.Pred
 {
-    public struct CountRange<A, MIN, MAX> : Pred<IReadOnlyList<A>>
+    public struct CountRange<MIN, MAX> : Pred<ListInfo>
         where MIN : struct, Const<int>
         where MAX : struct, Const<int>
     {
-        public static readonly CountRange<A, MIN, MAX> Is = default(CountRange<A, MIN, MAX>);
+        public static readonly CountRange<MIN, MAX> Is = default(CountRange<MIN, MAX>);
 
         [Pure]
-        public bool True(IReadOnlyList<A> value) =>
+        public bool True(ListInfo value) =>
             value.Count >= default(MIN).Value && value.Count <= default(MAX).Value;
     }
 }

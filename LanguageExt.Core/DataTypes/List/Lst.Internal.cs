@@ -7,6 +7,7 @@ using System.ComponentModel;
 using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
+using LanguageExt.ClassInstances.Pred;
 
 namespace LanguageExt
 {
@@ -33,7 +34,7 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        internal LstInternal(IEnumerable<A> initial)
+        internal LstInternal(IEnumerable<A> initial, Pred<A> pred)
         {
             hashCode = 0;
             this.root = ListItem<A>.Empty;
@@ -46,6 +47,10 @@ namespace LanguageExt
             else
             {
                 var lst = new List<A>(initial);
+                foreach(var item in lst)
+                {
+                    if (!pred.True(item)) throw new ArgumentOutOfRangeException("item in list");
+                }
                 this.root = ListModule.FromList(lst, 0, lst.Count());
                 Rev = false;
             }
@@ -189,12 +194,16 @@ namespace LanguageExt
         /// Insert range of values at specified index
         /// </summary>
         [Pure]
-        public LstInternal<A> InsertRange(int index, IEnumerable<A> items)
+        public LstInternal<A> InsertRange(int index, IEnumerable<A> items, Pred<A> pred)
         {
             if (items == null) return this;
             if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
 
             var lst = new List<A>(Rev ? items.Reverse() : items);
+            foreach(var item in items)
+            {
+                if (!pred.True(item)) throw new ArgumentOutOfRangeException(nameof(items));
+            }
             var tree = ListModule.FromList(lst, 0, lst.Count);
             return Wrap(ListModule.Insert(Root, tree, Rev ? Count - index - 1 : index), Rev);
         }
@@ -313,7 +322,7 @@ namespace LanguageExt
         {
             // This is currenty buggy, so going the safe (and less efficient) route for now
             // return new Lst<T>(Root, !Rev);
-            return new LstInternal<A>(this.AsEnumerable().Reverse());
+            return new LstInternal<A>(this.AsEnumerable().Reverse(), default(True<A>));
         }
 
         /// <summary>
@@ -360,7 +369,7 @@ namespace LanguageExt
 
         [Pure]
         public static LstInternal<A> operator +(A rhs, LstInternal<A> lhs) =>
-            new LstInternal<A>(rhs.Cons(lhs));
+            new LstInternal<A>(rhs.Cons(lhs), default(True<A>));
 
         [Pure]
         public static LstInternal<A> operator +(LstInternal<A> lhs, LstInternal<A> rhs) =>

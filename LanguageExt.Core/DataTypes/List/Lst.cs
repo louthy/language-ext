@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
+using LanguageExt.ClassInstances.Pred;
 
 namespace LanguageExt
 {
@@ -31,7 +32,7 @@ namespace LanguageExt
         /// </summary>
         public Lst(IEnumerable<A> initial)
         {
-            value = new LstInternal<A>(initial);
+            value = new LstInternal<A>(initial, default(True<A>));
         }
 
         /// <summary>
@@ -139,7 +140,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public Lst<A> InsertRange(int index, IEnumerable<A> items) =>
-            Wrap(Value.InsertRange(index, items));
+            Wrap(Value.InsertRange(index, items, default(True<A>)));
 
         /// <summary>
         /// Find the last index of an item in the list

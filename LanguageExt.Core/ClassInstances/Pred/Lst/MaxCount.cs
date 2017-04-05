@@ -4,13 +4,13 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances.Pred
 {
-    public struct MaxCount<A, MAX> : Pred<IReadOnlyList<A>>
+    public struct MaxCount<MAX> : Pred<ListInfo>
         where MAX : struct, Const<int>
     {
-        public static readonly MaxCount<A, MAX> Is = default(MaxCount<A, MAX>);
+        public static readonly MaxCount<MAX> Is = default(MaxCount<MAX>);
 
         [Pure]
-        public bool True(IReadOnlyList<A> value) =>
+        public bool True(ListInfo value) =>
             value.Count <= default(MAX).Value;
     }
 }

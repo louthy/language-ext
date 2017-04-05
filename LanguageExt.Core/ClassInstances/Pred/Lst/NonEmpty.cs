@@ -8,9 +8,9 @@ namespace LanguageExt.ClassInstances.Pred
     /// <summary>
     /// Lst must be non-empty
     /// </summary>
-    public struct NonEmpty<A> : Pred<IReadOnlyList<A>>
+    public struct NonEmpty : Pred<ListInfo>
     {
-        public bool True(IReadOnlyList<A> value) =>
+        public bool True(ListInfo value) =>
             (value?.Count ?? 0) != 0;
     }
 }

@@ -5,22 +5,22 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 using LanguageExt.TypeClasses;
-using LanguageExt.ClassInstances.Pred;
 
 namespace LanguageExt
 {
     /// <summary>
     /// Immutable list with validation predicate
     /// </summary>
-    /// <typeparam name="PRED">Predicate instance to run when the type is constructed</typeparam>
+    /// <typeparam name="PredItem">Predicate instance to run when the type is constructed</typeparam>
     /// <typeparam name="A">Value type</typeparam>
     [Serializable]
-    public struct Lst<PRED, A> :
+    public struct Lst<PredList, PredItem, A> :
         IEnumerable<A>, 
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
         ListInfo
-        where PRED : struct, Pred<ListInfo>
+        where PredList : struct, Pred<ListInfo>
+        where PredItem : struct, Pred<A>
     {
         readonly LstInternal<A> value;
 
@@ -30,8 +30,8 @@ namespace LanguageExt
         public Lst(IEnumerable<A> initial)
         {
             if (initial == null) throw new NullReferenceException(nameof(initial));
-            value = new LstInternal<A>(initial, default(True<A>));
-            if (!default(PRED).True(this)) throw new ArgumentOutOfRangeException(nameof(value));
+            value = new LstInternal<A>(initial, default(PredItem));
+            if (!default(PredList).True(this)) throw new ArgumentOutOfRangeException(nameof(value));
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace LanguageExt
         {
             if (root == null) throw new NullReferenceException(nameof(root));
             value = new LstInternal<A>(root, rev);
-            if (!default(PRED).True(this)) throw new ArgumentOutOfRangeException(nameof(value));
+            if (!default(PredList).True(this)) throw new ArgumentOutOfRangeException(nameof(value));
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace LanguageExt
         {
             value = root;
             if (root == null) throw new NullReferenceException(nameof(root));
-            if (!default(PRED).True(this)) throw new ArgumentOutOfRangeException(nameof(value));
+            if (!default(PredList).True(this)) throw new ArgumentOutOfRangeException(nameof(value));
         }
 
         LstInternal<A> Value
@@ -69,11 +69,12 @@ namespace LanguageExt
         ListItem<A> Root =>
             Value.Root;
 
-        Lst<PRED, A> Wrap(LstInternal<A> list) =>
-            new Lst<PRED, A>(list);
+        Lst<PredList, PredItem, A> Wrap(LstInternal<A> list)=>
+            new Lst<PredList, PredItem, A>(list);
 
-        static Lst<PRED, T> Wrap<T>(LstInternal<T> list) =>
-            new Lst<PRED, T>(list);
+        static Lst<PredList, PREDITEM, T> Wrap<PREDITEM, T>(LstInternal<T> list) 
+            where PREDITEM : struct, Pred<T> =>
+                new Lst<PredList, PREDITEM, T>(list);
 
         /// <summary>
         /// Index accessor
@@ -115,15 +116,26 @@ namespace LanguageExt
         /// Add an item to the end of the list
         /// </summary>
         [Pure]
-        public Lst<PRED, A> Add(A value) =>
-            Wrap(Value.Add(value));
+        public Lst<PredList, PredItem, A> Add(A value) =>
+            default(PredItem).True(value)
+                ? Wrap(Value.Add(value))
+                : throw new ArgumentOutOfRangeException(nameof(value));
 
         /// <summary>
         /// Add a range of items to the end of the list
         /// </summary>
         [Pure]
-        public Lst<PRED, A> AddRange(IEnumerable<A> items) =>
-            Wrap(Value.AddRange(items));
+        public Lst<PredList, PredItem, A> AddRange(IEnumerable<A> items)
+        {
+            var pred = default(PredItem);
+            var self = Value;
+            foreach(var item in items)
+            {
+                if(!pred.True(item)) throw new ArgumentOutOfRangeException(nameof(items));
+                self = self.Add(item);
+            }
+            return new Lst<PredList, PredItem, A>(self);
+        }
 
         /// <summary>
         /// Get enumerator
@@ -143,15 +155,17 @@ namespace LanguageExt
         /// Insert value at specified index
         /// </summary>
         [Pure]
-        public Lst<PRED, A> Insert(int index, A value) =>
-            Wrap(Value.Insert(index, value));
+        public Lst<PredList, PredItem, A> Insert(int index, A value) =>
+            default(PredItem).True(value)
+                ? Wrap(Value.Insert(index, value))
+                : throw new ArgumentOutOfRangeException(nameof(value));
 
         /// <summary>
         /// Insert range of values at specified index
         /// </summary>
         [Pure]
-        public Lst<PRED, A> InsertRange(int index, IEnumerable<A> items) =>
-            Wrap(Value.InsertRange(index, items, default(True<A>)));
+        public Lst<PredList, PredItem, A> InsertRange(int index, IEnumerable<A> items) =>
+            Wrap(Value.InsertRange(index, items, default(PredItem)));
 
         /// <summary>
         /// Find the last index of an item in the list
@@ -164,21 +178,21 @@ namespace LanguageExt
         /// Remove an item from the list
         /// </summary>
         [Pure]
-        public Lst<PRED, A> Remove(A value) =>
+        public Lst<PredList, PredItem, A> Remove(A value) =>
             Wrap(Value.Remove(value));
 
         /// <summary>
         /// Remove an item from the list
         /// </summary>
         [Pure]
-        public Lst<PRED, A> Remove(A value, IComparer<A> equalityComparer) =>
+        public Lst<PredList, PredItem, A> Remove(A value, IComparer<A> equalityComparer) =>
             Wrap(Value.Remove(value, equalityComparer));
 
         /// <summary>
         /// Remove all items that match a predicate
         /// </summary>
         [Pure]
-        public Lst<PRED, A> RemoveAll(Predicate<A> pred) =>
+        public Lst<PredList, PredItem, A> RemoveAll(Predicate<A> pred) =>
             Wrap(Value.RemoveAll(pred));
 
         /// <summary>
@@ -187,22 +201,24 @@ namespace LanguageExt
         /// <param name="index"></param>
         /// <returns></returns>
         [Pure]
-        public Lst<PRED, A> RemoveAt(int index) =>
+        public Lst<PredList, PredItem, A> RemoveAt(int index) =>
             Wrap(Value.RemoveAt(index));
 
         /// <summary>
         /// Remove a range of items
         /// </summary>
         [Pure]
-        public Lst<PRED, A> RemoveRange(int index, int count) =>
+        public Lst<PredList, PredItem, A> RemoveRange(int index, int count) =>
             Wrap(Value.RemoveRange(index, count));
 
         /// <summary>
         /// Set an item at the specified index
         /// </summary>
         [Pure]
-        public Lst<PRED, A> SetItem(int index, A value) =>
-            Wrap(Value.SetItem(index, value));
+        public Lst<PredList, PredItem, A> SetItem(int index, A value) =>
+            default(PredItem).True(value)
+                ? Wrap(Value.SetItem(index, value))
+                : throw new ArgumentOutOfRangeException(nameof(value));
 
         [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
@@ -220,7 +236,7 @@ namespace LanguageExt
         /// Reverse the order of the items in the list
         /// </summary>
         [Pure]
-        public Lst<PRED, A> Reverse() =>
+        public Lst<PredList, PredItem, A> Reverse() =>
             Wrap(Value.Reverse());
 
         /// <summary>
@@ -234,43 +250,60 @@ namespace LanguageExt
         /// Map
         /// </summary>
         [Pure]
-        public Lst<PRED, U> Map<U>(Func<A, U> map) =>
-            Wrap(Value.Map(map));
+        public Lst<PredList, PREDU, U> Map<PREDU, U>(Func<A, U> map) where PREDU : struct, Pred<U> =>
+            Wrap<PREDU, U>(Value.Map(a =>
+            {
+                var u = map(a);
+                if (!default(PREDU).True(u)) throw new ArgumentOutOfRangeException("result of map");
+                return u;
+            }));
+
+        /// <summary>
+        /// Map
+        /// </summary>
+        [Pure]
+        public Lst<PredList, PredItem, A> Map(Func<A, A> map)=>
+            Wrap(Value.Map(a =>
+            {
+                var b = map(a);
+                if (!default(PredItem).True(b)) throw new ArgumentOutOfRangeException("result of map");
+                return b;
+            }));
 
         /// <summary>
         /// Filter
         /// </summary>
         [Pure]
-        public Lst<PRED, A> Filter(Func<A, bool> pred) =>
+        public Lst<PredList, PredItem, A> Filter(Func<A, bool> pred) =>
             Wrap(Value.Filter(pred));
 
         [Pure]
-        public static Lst<PRED, A> operator +(Lst<PRED, A> lhs, A rhs) =>
+        public static Lst<PredList, PredItem, A> operator +(Lst<PredList, PredItem, A> lhs, A rhs) =>
             lhs.Add(rhs);
 
         [Pure]
-        public static Lst<PRED, A> operator +(A lhs, Lst<PRED, A> rhs) =>
-            new Lst<PRED, A>(lhs.Cons(rhs));
+        public static Lst<PredList, PredItem, A> operator +(A lhs, Lst<PredList, PredItem, A> rhs) =>
+            new Lst<PredList, PredItem, A>(lhs.Cons(rhs));
 
         [Pure]
-        public static Lst<PRED, A> operator +(Lst<PRED, A> lhs, Lst<PRED, A> rhs) =>
+        public static Lst<PredList, PredItem, A> operator +(Lst<PredList, PredItem, A> lhs, Lst<PredList, PredItem, A> rhs) =>
             lhs.Append(rhs);
 
         [Pure]
-        public Lst<PRED, A> Append(Lst<PRED, A> rhs) =>
-            new Lst<PRED, A>(Value.Append(rhs));
+        public Lst<PredList, PredItem, A> Append(Lst<PredList, PredItem, A> rhs) =>
+            new Lst<PredList, PredItem, A>(Value.Append(rhs));
 
         [Pure]
-        public static Lst<PRED, A> operator -(Lst<PRED, A> lhs, Lst<PRED, A> rhs) =>
+        public static Lst<PredList, PredItem, A> operator -(Lst<PredList, PredItem, A> lhs, Lst<PredList, PredItem, A> rhs) =>
             lhs.Subtract(rhs);
 
         [Pure]
-        public Lst<PRED, A> Subtract(Lst<PRED, A> rhs) =>
+        public Lst<PredList, PredItem, A> Subtract(Lst<PredList, PredItem, A> rhs) =>
             Wrap(Value.Subtract(rhs.Value));
 
         [Pure]
         public override bool Equals(object obj) =>
-            obj is Lst<PRED, A> && Equals((Lst<PRED, A>)obj);
+            obj is Lst<PredList, PredItem, A> && Equals((Lst<PredList, PredItem, A>)obj);
 
         /// <summary>
         /// Get the hash code
@@ -282,15 +315,15 @@ namespace LanguageExt
             Value.GetHashCode();
 
         [Pure]
-        public bool Equals(Lst<PRED, A> other) =>
+        public bool Equals(Lst<PredList, PredItem, A> other) =>
             Value.Equals(other.Value);
 
         [Pure]
-        public static bool operator ==(Lst<PRED, A> lhs, Lst<PRED, A> rhs) =>
+        public static bool operator ==(Lst<PredList, PredItem, A> lhs, Lst<PredList, PredItem, A> rhs) =>
             lhs.Value.Equals(rhs.Value);
 
         [Pure]
-        public static bool operator !=(Lst<PRED, A> lhs, Lst<PRED, A> rhs) =>
+        public static bool operator !=(Lst<PredList, PredItem, A> lhs, Lst<PredList, PredItem, A> rhs) =>
             !(lhs == rhs);
 
         [Pure]

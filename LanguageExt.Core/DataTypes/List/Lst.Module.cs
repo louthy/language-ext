@@ -687,8 +687,20 @@ namespace LanguageExt
         /// <param name="list">Enumerable to convert</param>
         /// <returns>Lst of T</returns>
         [Pure]
-        public static Lst<PRED, T> freeze<PRED, T>(IEnumerable<T> list) where PRED : struct, Pred<IReadOnlyList<T>> =>
-            toList<PRED, T>(list);
+        public static Lst<PredList, T> freeze<PredList, T>(IEnumerable<T> list) where PredList : struct, Pred<ListInfo> =>
+            toList<PredList, T>(list);
+
+        /// <summary>
+        /// Convert any enumerable into an immutable Lst T
+        /// </summary>
+        /// <typeparam name="T">Enumerable item type</typeparam>
+        /// <param name="list">Enumerable to convert</param>
+        /// <returns>Lst of T</returns>
+        [Pure]
+        public static Lst<PredList, PredItem, T> freeze<PredList, PredItem, T>(IEnumerable<T> list)
+            where PredItem : struct, Pred<T>
+            where PredList : struct, Pred<ListInfo> =>
+                toList<PredList, PredItem, T>(list);
 
         /// <summary>
         /// Joins two enumerables together either into a single enumerable

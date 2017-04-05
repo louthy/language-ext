@@ -307,31 +307,71 @@ namespace LanguageExt
         /// Create an immutable list
         /// </summary>
         [Pure]
-        public static Lst<PRED, T> List<PRED, T>() where PRED : struct, Pred<IReadOnlyList<T>> =>
-            new Lst<PRED, T>(new T[0]);
+        public static Lst<PredList, T> List<PredList, T>() where PredList : struct, Pred<ListInfo> =>
+            new Lst<PredList, T>(new T[0]);
 
         /// <summary>
         /// Create an immutable list
         /// </summary>
         [Pure]
-        public static Lst<PRED, T> List<PRED, T>(T x, params T[] xs) where PRED : struct, Pred<IReadOnlyList<T>> =>
-            new Lst<PRED, T>(x.Cons(xs));
+        public static Lst<PredList, T> List<PredList, T>(T x, params T[] xs) where PredList : struct, Pred<ListInfo> =>
+            new Lst<PredList, T>(x.Cons(xs));
 
         /// <summary>
         /// Create an immutable list
         /// </summary>
         [Pure]
-        public static Lst<PRED, T> toList<PRED, T>(Arr<T> items) where PRED : struct, Pred<IReadOnlyList<T>> =>
-            new Lst<PRED, T>(items.Value);
+        public static Lst<PredList, T> toList<PredList, T>(Arr<T> items) where PredList : struct, Pred<ListInfo> =>
+            new Lst<PredList, T>(items.Value);
 
         /// <summary>
         /// Create an immutable list
         /// </summary>
         [Pure]
-        public static Lst<PRED, T> toList<PRED, T>(IEnumerable<T> items) where PRED : struct, Pred<IReadOnlyList<T>> =>
-            items is Lst<PRED, T>
-                ? (Lst<PRED, T>)items
-                : new Lst<PRED, T>(items);
+        public static Lst<PredList, T> toList<PredList, T>(IEnumerable<T> items) where PredList : struct, Pred<ListInfo> =>
+            items is Lst<PredList, T>
+                ? (Lst<PredList, T>)items
+                : new Lst<PredList, T>(items);
+
+        
+
+        /// <summary>
+        /// Create an immutable list
+        /// </summary>
+        [Pure]
+        public static Lst<PredList, PredItem, T> List<PredList, PredItem, T>() 
+            where PredItem : struct, Pred<T>
+            where PredList : struct, Pred<ListInfo>  =>
+            new Lst<PredList, PredItem, T>(new T[0]);
+
+        /// <summary>
+        /// Create an immutable list
+        /// </summary>
+        [Pure]
+        public static Lst<PredList, PredItem, T> List<PredList, PredItem, T>(T x, params T[] xs) 
+            where PredItem : struct, Pred<T>
+            where PredList : struct, Pred<ListInfo>  =>
+            new Lst<PredList, PredItem, T>(x.Cons(xs));
+
+        /// <summary>
+        /// Create an immutable list
+        /// </summary>
+        [Pure]
+        public static Lst<PredList, PredItem, T> toList<PredList, PredItem, T>(Arr<T> items) 
+            where PredItem : struct, Pred<T>
+            where PredList : struct, Pred<ListInfo>  =>
+            new Lst<PredList, PredItem, T>(items.Value);
+
+        /// <summary>
+        /// Create an immutable list
+        /// </summary>
+        [Pure]
+        public static Lst<PredList, PredItem, T> toList<PredList, PredItem, T>(IEnumerable<T> items) 
+            where PredItem : struct, Pred<T>
+            where PredList : struct, Pred<ListInfo>  =>
+            items is Lst<PredList, PredItem, T>
+                ? (Lst<PredList, PredItem, T>)items
+                : new Lst<PredList, PredItem, T>(items);
 
 
 
