@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances.Pred
 {
-    public struct Equal<A, EQ, CONST> : Pred<A>
+    public struct Equal<EQ, A, CONST> : Pred<A>
         where EQ    : struct, Eq<A>
         where CONST : struct, Const<A>
     {
-        public static readonly Equal<A, EQ, CONST> Is = default(Equal<A, EQ, CONST>);
+        public static readonly Equal<EQ, A, CONST> Is = default(Equal<EQ, A, CONST>);
 
         [Pure]
         public bool True(A value) =>

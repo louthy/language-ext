@@ -12,7 +12,7 @@ namespace LanguageExt.ClassInstances.Pred
 
         [Pure]
         public bool True(char value) =>
-            Range<char, TChar, MIN, MAX>.Is.True(value);
+            Range<TChar, char, MIN, MAX>.Is.True(value);
     }
 
     public struct Char<CH> : Pred<char>

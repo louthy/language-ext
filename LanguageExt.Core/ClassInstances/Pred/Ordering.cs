@@ -8,44 +8,44 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances.Pred
 {
-    public struct GreaterThan<A, ORD, CONST> : Pred<A>
+    public struct GreaterThan<ORD, A, CONST> : Pred<A>
         where ORD : struct, Ord<A>
         where CONST : struct, Const<A>
     {
-        public static readonly GreaterThan<A, ORD, CONST> Is = default(GreaterThan<A, ORD, CONST>);
+        public static readonly GreaterThan<ORD, A, CONST> Is = default(GreaterThan<ORD, A, CONST>);
 
         [Pure]
         public bool True(A value) =>
             default(ORD).Compare(value, default(CONST).Value) > 0;
     }
 
-    public struct LessThan<A, ORD, CONST> : Pred<A>
+    public struct LessThan<ORD, A, CONST> : Pred<A>
         where ORD : struct, Ord<A>
         where CONST : struct, Const<A>
     {
-        public static readonly LessThan<A, ORD, CONST> Is = default(LessThan<A, ORD, CONST>);
+        public static readonly LessThan<ORD, A, CONST> Is = default(LessThan<ORD, A, CONST>);
 
         [Pure]
         public bool True(A value) =>
             default(ORD).Compare(value, default(CONST).Value) < 0;
     }
 
-    public struct GreaterOrEq<A, ORD, CONST> : Pred<A>
+    public struct GreaterOrEq<ORD, A, CONST> : Pred<A>
         where ORD : struct, Ord<A>
         where CONST : struct, Const<A>
     {
-        public static readonly GreaterOrEq<A, ORD, CONST> Is = default(GreaterOrEq<A, ORD, CONST>);
+        public static readonly GreaterOrEq<ORD, A, CONST> Is = default(GreaterOrEq<ORD, A, CONST>);
 
         [Pure]
         public bool True(A value) =>
             default(ORD).Compare(value, default(CONST).Value) >= 0;
     }
 
-    public struct LessOrEq<A, ORD, CONST> : Pred<A>
+    public struct LessOrEq<ORD, A, CONST> : Pred<A>
         where ORD   : struct, Ord<A>
         where CONST : struct, Const<A>
     {
-        public static readonly LessOrEq<A, ORD, CONST> Is = default(LessOrEq<A, ORD, CONST>);
+        public static readonly LessOrEq<ORD, A, CONST> Is = default(LessOrEq<ORD, A, CONST>);
 
         [Pure]
         public bool True(A value) =>

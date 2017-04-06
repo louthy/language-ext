@@ -11,6 +11,6 @@ namespace LanguageExt.ClassInstances.Pred
 
         [Pure]
         public bool True(string value) =>
-            Range<int, TInt, NMin, NMax>.Is.True(value?.Length ?? 0);
+            Range<TInt, int, NMin, NMax>.Is.True(value?.Length ?? 0);
     }
 }

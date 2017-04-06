@@ -15,12 +15,12 @@ namespace LanguageExtTests
         public Metres(int value) : base(value) { }
     }
 
-    public class Hours : NumType<Hours, TInt, int, ForAll<int, GreaterOrEq<int, TInt, I0>, LessThan<int, TInt, I24>>>
+    public class Hours : NumType<Hours, TInt, int, ForAll<int, GreaterOrEq<TInt, int, I0>, LessThan<TInt, int, I24>>>
     {
         public Hours(int value) : base(value) { }
     }
 
-    public class Seconds : NumType<Seconds,  TInt, int, Range<int, TInt, I0, I59>>
+    public class Seconds : NumType<Seconds,  TInt, int, Range<TInt, int, I0, I59>>
     {
         public Seconds(int value) : base(value) { }
     }
