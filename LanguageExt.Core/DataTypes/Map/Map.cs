@@ -541,6 +541,70 @@ namespace LanguageExt
             x.Value == y.Value;
 
         [Pure]
+        public static implicit operator Map<K, V>(ValueTuple<(K, V)> items) =>
+            new Map<K, V>(new [] { items.Item1 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2, items.Item3 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V), (K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13, items.Item14 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13, items.Item14, items.Item15 });
+
+        [Pure]
+        public static implicit operator Map<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new Map<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13, items.Item14, items.Item15, items.Item16 });
+
+        [Pure]
         public static bool operator ==(Map<K, V> lhs, Map<K, V> rhs) =>
             lhs.Value == rhs.Value;
 

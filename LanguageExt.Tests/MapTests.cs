@@ -22,9 +22,7 @@ namespace LanguageExtTests
         [Fact]
         public void MapGeneratorAndMatchTest()
         {
-            var m2 = Map( Tuple(1, "a"),
-                          Tuple(2, "b"),
-                          Tuple(3, "c") );
+            Map<int, string> m2 = ((1, "a"), (2, "b"), (3, "c"));
 
             m2 = add(m2, 100, "world");
 
