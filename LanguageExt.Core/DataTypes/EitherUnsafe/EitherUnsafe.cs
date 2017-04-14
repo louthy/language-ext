@@ -436,6 +436,46 @@ namespace LanguageExt
             toTryOption<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) < 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs <= rhs</returns>
+        [Pure]
+        public static bool operator <=(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) <= 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs > rhs</returns>
+        [Pure]
+        public static bool operator >(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) < 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs >= rhs</returns>
+        [Pure]
+        public static bool operator >=(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) <= 0;
+
+        /// <summary>
         /// Equality operator override
         /// </summary>
         [Pure]

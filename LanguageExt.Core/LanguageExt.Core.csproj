@@ -9,7 +9,7 @@
     <DefineConstants>COREFX</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageVersion>2.0.50-beta</PackageVersion>
+    <PackageVersion>2.0.52-beta</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>

@@ -478,6 +478,46 @@ namespace LanguageExt
             toTryOption<MEither<L, R>, Either<L, R>, L, R>(this);
 
         /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <(Either<L, R> lhs, Either<L, R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) < 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs <= rhs</returns>
+        [Pure]
+        public static bool operator <=(Either<L, R> lhs, Either<L, R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) <= 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs > rhs</returns>
+        [Pure]
+        public static bool operator >(Either<L, R> lhs, Either<L, R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) < 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs >= rhs</returns>
+        [Pure]
+        public static bool operator >=(Either<L, R> lhs, Either<L, R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) <= 0;
+
+        /// <summary>
         /// Equality operator override
         /// </summary>
         [Pure]

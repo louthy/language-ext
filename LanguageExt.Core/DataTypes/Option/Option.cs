@@ -120,6 +120,46 @@ namespace LanguageExt
             None;
 
         /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <(Option<A> lhs, Option<A> rhs) =>
+            compare<OrdDefault<A>,A>(lhs, rhs) < 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs <= rhs</returns>
+        [Pure]
+        public static bool operator <=(Option<A> lhs, Option<A> rhs) =>
+            compare<OrdDefault<A>, A>(lhs, rhs) <= 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs > rhs</returns>
+        [Pure]
+        public static bool operator >(Option<A> lhs, Option<A> rhs) =>
+            compare<OrdDefault<A>, A>(lhs, rhs) < 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs >= rhs</returns>
+        [Pure]
+        public static bool operator >=(Option<A> lhs, Option<A> rhs) =>
+            compare<OrdDefault<A>, A>(lhs, rhs) <= 0;
+
+        /// <summary>
         /// Equality operator
         /// </summary>
         /// <remarks>
