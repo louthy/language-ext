@@ -88,13 +88,14 @@ There is also:
 * [`LanguageExt.HashSet`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashSet_.htm)
 * [`LanguageExt.Stack` ](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Stack_.htm)
 * [`LanguageExt.TypeClass`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TypeClass_.htm)
+* [`LanguageExt.ClassInstances`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.ClassInstances/index.htm)
 * [`LanguageExt.Parsec`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/index.htm)
 * [`LanguageExt.Parsec.Char`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Char_.htm)
 * [`LanguageExt.Parsec.Expr`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Expr_.htm)
 * [`LanguageExt.Parsec.Prim`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Prim_.htm)
 * `LanguageExt.Parsec.Token`
 * [`LanguageExt.Parsec.Indent`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Indent_.htm)
-* `LanguageExt.UnitsOfMeasure`
+* [`LanguageExt.UnitsOfMeasure`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.UnitsOfMeasure/index.htm)
 
 
 _(more on those later)_
