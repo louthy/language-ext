@@ -88,13 +88,14 @@ There is also:
 * [`LanguageExt.HashSet`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashSet_.htm)
 * [`LanguageExt.Stack` ](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Stack_.htm)
 * [`LanguageExt.TypeClass`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TypeClass_.htm)
+* [`LanguageExt.ClassInstances`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.ClassInstances/index.htm)
 * [`LanguageExt.Parsec`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/index.htm)
 * [`LanguageExt.Parsec.Char`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Char_.htm)
 * [`LanguageExt.Parsec.Expr`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Expr_.htm)
 * [`LanguageExt.Parsec.Prim`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Prim_.htm)
 * `LanguageExt.Parsec.Token`
 * [`LanguageExt.Parsec.Indent`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Indent_.htm)
-* `LanguageExt.UnitsOfMeasure`
+* [`LanguageExt.UnitsOfMeasure`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.UnitsOfMeasure/index.htm)
 
 
 _(more on those later)_
@@ -189,7 +190,7 @@ For example:
     var sumA = (1, 2, 3).Sum<TInt, int>();                                   // 6
     var sumB = (2, 4, 8).Product<TInt, int>();                               // 64
     var flag = ("one", "two", "three").Contains<TString, string>("one");     // true
-	var str = ("Hello", " ", "World").Concat<TString, string>();             // "Hello World"
+    var str = ("Hello", " ", "World").Concat<TString, string>();             // "Hello World"
     var list = (List(1, 2, 3), List(4, 5, 6)).Concat<TLst<int>, Lst<int>>(); // [1,2,3,4,5,6]
 ```
 
@@ -287,7 +288,7 @@ operators and constructors:
     }
 
     // Implicitly converts to a None of int
-    Option<int> GetValue() => 
+    Option<int> GetValue()
     {
         return None;
     }
@@ -942,6 +943,505 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
 * `DateTime.TryParse` becomes `parseDateTime`
 
 _any others you think should be included, please get in touch_
+
+
+### Ad-hoc polymorphism
+
+Ad-hoc polymorphism has long been believed to not be possible in C#.  However with some cunning it is.  Ad-hoc polymorphism allows programmers to add traits to a type later.  For example in C# it would be amazing if we had an interface called `INumeric` for numeric types like `int`, `long`, `double`, etc.  The reason this doesn't exist is if you write a function like:
+```c#
+    INumeric Add(INumeric x, INumeric y) => x + y;
+```
+Then it would cause boxing.  Which is slow (well, slower).  I can only assume that's why it wasn't added by the BCL team.  Anyway, it's possible to create a numeric type, very much like a type-class in Haskell, and ad-hoc _instances_ of the numeric _type-class_ that allow for generic numeric operations without boxing.  
+
+> From now on I will call them type-classes and class-instances, or just instances.  This is not exactly the same as Haskell's type-classes.  If anything it's closer to Scala's implicits.  However to make it easier to discuss them I will steal from Haskell's lexicon.
+
+#### `Num<A>`
+
+So for example, this is how to create a number type-class:
+```c#
+    public interface Num<A>
+    {
+        A Add(A x, A b);
+        A Subtract(A x, A b);
+        ...
+    }
+```
+Notice how there are two arguments to `Add` and `Subtract`.  Normally if I was going to implement this `interface` the left-hand-side of the `Add` and `Subtract` would be `this`.  I will implement the _ad-hoc_ class-instance to demonstrate why that is:
+```c#
+    public struct TInt : Num<int>
+    {
+        public int Add(int x, int b) => x + y;
+        public int Subtract(int x, int b) => x + y;
+        ...
+    }
+```
+See how `TInt` is a `struct`?  Structs have a useful property in C# in that they can't be `null`.  So we can invoke the operations like so:
+```c#
+    int r = default(TInt).Add(10, 20);
+```
+The important thing to note is that `default(TInt)` gets optimisied out in a release build, so there's no cost to the invocation of `Add`.  The `Add` and `Subtract` methods both take `int` and return `int`.  So therefore there's no boxing at all.
+
+If we now implement `TFloat`:
+```c#
+    public struct TFloat : Num<float>
+    {
+        public float Add(float x, float b) => x + y;
+        public float Subtract(float x, float b) => x + y;
+        ...
+    }
+```
+Then we can see how a general function could be written to take any numeric type:
+```c#
+    public A DoubleIt<NumA, A>(A x) where NumA : struct, Num<A> =>
+        default(NumA).Add(x, x);
+```
+The important bit is the `NumA` generic argument, and the constraint of `struct, Num<A>`.  That allows us to call `default(NumA)` to get the type-class instance and invoke `Add`.
+
+And so this can now be called by:
+```c#
+    int a    = DoubleIt<TInt, int>(5);        // 10
+    double b = DoubleIt<TFloat, float>(5.25); // 10.5
+```
+By expanding the amount of operations that the `Num<A>` type-class can do, you can perform any numeric operation you like.  If you like you can add new numeric types (say for complex numbers, or whatever), where the rules of the type are kept in the _ad-hoc_ instance.
+
+Luckily you don't need to do that, because I have created the `Num<A>` type (in the `LanguageExt.TypeClasses` namespace), as well as `Floating<A>` (with all of the operations from `Math`; like `Sin`, `Cos`, `Exp`, etc.).  `Num<A>` also has a base-type of `Arithmetic<A>` which supports `Plus`, `Subtract`, `Product`, `Negate`.  This is for types which don't need the full spec of the `Num<A>` type.  I have also mapped all of the core numeric types to instances: `TInt`, `TShort`, `TLong`, `TFloat`, `TDouble`, `TDecimal`, `TBigInt`, etc.  So it's possible to write truly generic numeric code once.
+
+> There's no getting around the fact that providing the class-instance in the generic arguments list is annoying (and later you'll see how annoying).  The Roslyn team are looking into a type-classes like feature for a future version of C# (variously named: 'Concepts' or 'Shapes').  So this will I'm sure be rectified, and when it is, it will be implemented exactly as I am using them here.  
+> 
+> Until then the pain of providing the generic arguments must continue.  You do however get a _super-powered C#_ in the mean-time.  
+> 
+> The need to write this kind of super-generic code is rare; but when you need it, _you need it_ - and right now this is simply the most powerful way.
+
+#### `Eq<A>`
+
+Next up is `Eq<A>`.  Equality testing in C# is an absolute nightmare.  From the different semantics of `Eqauls` and `==`, to `IEqualityComparer`, and the enormous hack which is `EqualityComparer.Default` (which doesn't blow up at compile-time if your code is wrong).
+
+The `Eq<A>` type-class looks like this:
+```c#
+    public interface Eq<A>
+    {
+        bool Equals(A x, A y);
+        int GetHashCode(A x);
+    }
+```
+There are `Eq` prefixed instances for all common types (`EqInt`, `EqString`, `EqGuid` etc.), as well as for all of the types in this library (`EqLst`, `EqSet`, `EqTry`, etc).  All of the numeric types (`TInt`, `TDouble`, etc.) also implement `Eq<A>`.
+
+To make it slightly prettier to use in code, you can use the `Prelude` `equals` function:
+```c#
+    bool x = equals<EqInt>(1, 1); // True
+```
+Or use `default` as shown before:
+```c#
+    bool x = default(EqInt).Equals(1, 1); // True
+```
+One final way is:
+```c#
+    bool x = EqInt.Inst.Equals(1, 1);
+```
+`Inst` is defined on all of the instances in lang-ext, but it's not an 'official feature'.  Anybody could implement an ad-hoc implementation of `Eq<A>` and not provide an `Inst`. 
+
+For example you may call this directly:
+```c#
+    bool x = EqLst.Inst.Equals(List(1,2,3), List(1,2,3)); // true
+```
+Because you may be concerned about calling:
+```c#
+    bool x = List(1,2,3) == List(1,2,3); // ?
+```
+... as all C# programmers are at some point, because we have no idea most of the time whether `==` does what we think it should.  
+
+> Just FYI `List(1,2,3) == List(1,2,3)` does work properly!  As do all types in language-ext.
+
+There are two variants of the immutable `HashSet` in language-ext:
+```c#
+    HashSet<A>
+    HashSet<EqA, A> where EqA : struct, Eq<A>
+```
+What's interesting about the second one is that the equality _definition_ is baked into the type.  So this:
+```c#
+    HashSet<EqString, string> 
+```
+Is not compatible with:
+```c#
+    HashSet<EqStringOrdinalIgnoreCase, string> 
+```
+And if you think about that, it's right.  The strings that are used as keys in the `HashSet<EqString, string>` do not have the same properties as the strings in `HashSet<EqStringOrdinalIgnoreCase, string>`.  So even though they're both strings, they have different semantics (which cause wildly different behaviour for things like set intersection, unions, etc.)
+
+Now compare that to `HashSet<T>` in the BCL, or `ImmutableHashSet<T>` in `System.Collections.Immutable`, where two different sets with different `IEqualityComparer` types injected will cause undefined results when used together.
+
+> That's hopefully a small glimpse into the potential for improving type-safeness in C#.
+
+#### `Ord<A>`
+
+`Ord` is for ordering.  i.e. a `IComparable` replacement.  By the way, these names `Eq`, `Ord`, `Num`, are all lifted from Haskell.  I much prefer the short concise names that still convey meaning than the bulky and often clumsy names of the BCL.
+
+This is `Ord<A>`, it derives from `Eq<A>`
+```c#
+    public interface Ord<A> : Eq<A>
+    {
+        int Compare(A x, A y);
+    }
+```
+Usage should be self-explanatory now, but the important thing to note here is that because 'type classes' are just interfaces, they can also have an inheritance hierarchy.
+
+This is a slightly more complex example:
+```c#
+    public struct OrdArray<ORD, A> : Ord<A[]>
+        where ORD : struct, Ord<A>
+    {
+        public int Compare(A[] mx, A[] my)
+        {
+            if (ReferenceEquals(mx, my)) return 0;
+            if (ReferenceEquals(mx, null)) return -1;
+            if (ReferenceEquals(my, null)) return 1;
+
+            var cmp = mx.Length.CompareTo(my.Length);
+            if (cmp == 0)
+            {
+                for(var i = 0; i < mx.Length; i++)
+                {
+                    cmp = default(ORD).Compare(mx[i], my[i]);
+                    if (cmp != 0) return cmp;
+                }
+                return 0;
+            }
+            else
+            {
+                return cmp;
+            }
+        }
+
+        public bool Equals(A[] x, A[] y) =>
+            default(EqArray<ORD, A>).Equals(x, y);
+
+        public int GetHashCode(A[] x) =>
+            hash(x);
+    }
+```
+The `OrdArray` which is an `Ord<A[]>`, does itself also take an `ORD` generic argument, which allows the contents of the array to be compared:
+```c#
+    int x = OrdArray<TInt, int>.Inst.Compare(Array(1,2), Array(1,2)); // 0
+```
+
+#### `Semigroup<A>`
+
+This is where we start going a little more abstract.  Semigroups are a feature of category theory, which is soooo not important for this discussion.  They represent an associative binary operation, which can be invoked by calling `Append`.
+```c#
+    public interface Semigroup<A>
+    {
+        A Append(A x, A y);
+    }
+```
+Positive numbers (for example) form a semigroup.  I won't dwell on it too long, because although the `Append` function is super-useful, nearly everything that falls into the `Semigroup` category is also a `Monoid`...
+
+#### `Monoid<A>`
+
+A monoid has something that a semigroup doesn't, and that's the concept of identity (often meaning 'empty' or 'zero').  It looks like this:
+
+```c#
+    public interface Monoid<A> : Semigroup<A>
+    {
+        A Empty();
+    }
+```
+This comes with some helper functions in `LanguageExt.TypeClass`:
+```c#
+    public static partial class TypeClass
+    {
+        public static A mempty<MONOID, A>() where MONOID : struct, Monoid<A> =>
+            default(MONOID).Empty();
+
+        public static A mconcat<MONOID, A>(IEnumerable<A> xs) where MONOID : struct, Monoid<A> =>
+            xs.Fold(mempty<MONOID, A>(), (s, x) => append<MONOID, A>(s, x));
+
+        public static A mconcat<MONOID, A>(params A[] xs) where MONOID : struct, Monoid<A> =>
+            xs.Fold(mempty<MONOID, A>(), (s, x) => append<MONOID, A>(s, x));
+    }
+```
+Now the semigroup `Append` comes to life.  Examples of monoids are: `TInt`, `MLst`, `TString`, etc.  i.e.
+```c#
+    var x = mconcat<TString, string>("Hello", " ", "World");   // "Hello World"
+    var y = mconcat<TLst<int>, Lst<int>>(List(1), List(2, 3)); // [1,2,3]
+    var z = mconcat<TInt, int>(1, 2, 3, 4, 5);                 // 15
+```
+The `Empty()` function is what provides the _identity value_ for the concat operations.  So for `string` it's `""`, for `Lst<T>` it's `[]` and for `int` it's `0`.  So a monoid is a semigroup with a _zero_.
+
+It's surprising how much _stuff_ just starts working when you know your type is a monoid.  For example in language-ext version 1 there is a monadic type called `Writer<W, T>`.  The writer monad collects a _log_ as well as returning the bound value.  In version 1 the log had to be an `IEnumerable<W>`, which isn't super flexible.  In language-ext version 2 the type looks like this:
+
+```c#
+    public class Writer<MonoidW, W, A> where MonoidW : struct, Monoid<W>
+    {
+        ...
+    }
+```
+So now it can be a running numeric total, or a `Lst<W>`, or a `Set<W>`, or whatever monoid _you_ dream up.  
+
+### Higher-kinds
+
+Higher-order polymorphism would allow us to define a type like so:
+```c#
+    public interface MyType<M<A>>
+    {
+        M<B> Foo<B>(M<A> ma);
+    }
+```
+Where not only is the `A` parametric, but so it `M`.  So for example if I wanted to implement `MyType` for `Option<A>` I could do:
+```c#
+    public class MyOptionType<A> : MyType<Option<A>>
+    {
+        public Option<B> Foo<B>(Option<A> ma) => ...;
+    }
+```
+It would be soooo nice if C# (well, the _immutable_ CLR) would support this.  But it doesn't.  So we need to find ways around it.  The way I am using for language-ext is:
+```c#
+    public interface MyType<MA, A>
+    {
+        MB Foo<MB, B>(MA ma);
+    }
+
+    public class MyOptionType<A> : MyType<Option<A>, A>
+    {
+        public MB Foo<MB, B>(Option<A> ma) => ...;
+    }
+```
+#### `Monad`
+This is where some of the difficulties come in.  How do we return an `MB` if we don't know what it is?  This is a problem for the `Monad` type.  This is a simplified version:
+```c#
+    public interface Monad<MA, A>
+    {
+        MB Bind<MB, B>(MA ma, Func<B, MB> bind);
+        MA Return(A a);
+        MA Fail(Exception e = null);
+    }
+```
+Looking at the prototype for `Bind` it seems at first glance that the `bind` argument will give us the `MB` value we want.  But an `Option` might be in a `None` state, in which case it shouldn't run `bind`.
+```c#
+    public MB Bind<MB, B>(Option<A> ma, Func<A, MB> bind) =>
+        ma.IsSome
+            ? bind(ma.Value)
+            : ??? ; // What do we return here?
+```
+The key is to use constraints.  But it also requires an extra generic paramter for `Bind`:
+```c#
+    public interface Monad<MA, A>
+    {
+        MB Bind<MonadB, MB, B>(MA ma, Func<B, MB> bind) 
+            where MonadB : struct, Monad<MB, B>;
+
+        MA Return(A a);
+        MA Fail(Exception e = null);
+    }
+```
+So we now know that `MonadB` is a class-instance of the `Monad<MB, B>` type-class.  So we can now do this:
+```c#
+    public MB Bind<MB, B>(Option<A> ma, Func<A, MB> f) 
+        where MonadB : struct, Monad<MB, B> =>
+            ma.IsSome
+                ? f(ma.Value)
+                : default(MonadB).Fail();
+```
+The eagle eyed reader will notice that this actually allows binding to any resulting monad (not just `Option<B>`).  I'm not an academic, but I'm sure there will be someone throwing their toys out of their prams at this point.  However, it works, it's type-safe, and it's efficient. 
+
+[The actual definition of `Monad`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.TypeClasses/Monad_Env_Out_MA_A.htm) is more complex than this, in order to unify monadic types that take arguments (`Reader` and `State`) and monads that carry internal state (`Writer` and `State`), as well as to support asynchronous monads (`TryAsync` and `TryOption`).  I won't muddy the waters too much right now, but unified and type-safe they are.  There are no hacks.
+
+You should see that the `Return` and `Fail` functions are trivial to implement:
+```c#
+    public Option<A> Return(A a) =>
+        Optional(a);
+
+    public Option<A> Fail(Exception e = null) =>
+        None;
+```
+What that means is that any function that has been constrained by a monad instance can create new instances of them:
+```c#
+    public M CreateNewIntegerMonad<MonadInt, M, int>(int x) 
+        where MonadInt : struct, Monad<M, int> =>
+            default(MonadInt).Return(x);
+```
+This is one of the key breakthroughs.  Imagine trying to create a `Monad` type the _old way_:
+```c#
+    public interface Monad<A>
+    {
+        Monad<B> Bind<B>(Func<A, Monad<B>> bind);
+    }
+
+    public class Option<A> : Monad<A>
+    {
+        public Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> bind) =>
+            IsSome
+                ? bind(Value)
+                : None;
+    }
+
+    public Monad<int> CreateNewIntegerMonad(int x) =>
+        ????; // How?
+```
+Maybe we could parameterise it?
+```c#
+    public Monad<int> CreateNewIntegerMonad<M>(int x) where M : Monad<int> =>
+        ????; // We still can't call new M(x)
+```
+But that doesn't work either because we still can't call `new M(x)`.  Being able to paramterise generic functions at the point where you know the concrete types (and therefore know the concrete class-instance) means that the generic functions can invoke the instance functions to create the concrete types.
+
+Here's a super generic example of a function that takes two monad arguments, they're both of the same type, and their bound values are `Num<A>`.
+```c#
+    public static MA Add<MonadA, MA, NumA, A>(MA ma, MA mb)
+        where MonadA  : struct, Monad<MA, A>
+        where NumA    : struct, Num<A> =>
+            default(MonadA).Bind<MonadA, MA, A>(ma, a =>
+            default(MonadA).Bind<MonadA, MA, A>(mb, b =>
+            default(MonadA).Return(default(NumA).Plus(a, b))));
+```
+You may notice that the two `Bind` calls followed by the `Return` are basically a much less attractive version of this:
+```c#
+        from a in ma
+        from b in mb
+        select default(NumA).Plus(a, b);
+```
+And so I can now add two options:
+```c#
+    var x = Some(10);
+    var y = Some(20);
+    var z = Option<int>.None;
+
+    var r1 = Add<MOption<int>, Option<int>, TInt, int>(x, y); // Some(30)
+    var r2 = Add<MOption<int>, Option<int>, TInt, int>(x, z); // None
+
+    Assert.True(r1 == Some(30));
+    Assert.True(r2 == None);
+```
+Or two lists:
+```c#
+    var x = List(1, 2, 3);
+    var y = List(4, 5, 6);
+    var z = List<int>();
+
+    var r1 = Add<MLst<int>, Lst<int>, TInt, int>(x, y);
+    var r2 = Add<MLst<int>, Lst<int>, TInt, int>(x, z);
+
+    Assert.True(r1 == List(5, 6, 7,  6, 7, 8,  7, 8, 9));
+    Assert.True(r2 == z);
+```
+Or any two monads.  They will follow the built in rules for the type, and produce concrete values efficiently and without any boxing or dynamic casting. 
+
+### Transformer types
+
+Because using the super-generic stuff is hard, and most of the time not needed.  I have kept the transformer types, but they're now implemented in terms of the instance types.  There is a new [`MonadTrans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/MonadTrans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm) type-class and a default instance called [`Trans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Trans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm).
+
+For every pair of nested monads: `Lst<Option<A>>`, `Try<Either<L, A>>`, etc.  there are the following extension methods (this is for `Arr<Lst<A>>`):
+```c#
+A SumT<NumA, A>(this Arr<Lst<A>> ma);
+
+int CountT<A>(this Arr<Lst<A>> ma);
+
+Arr<Lst<B>> BindT<A, B>(this Arr<Lst<A>> ma, Func<A, Lst<B>> f);
+
+Lst<Arr<B>> Traverse<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+
+Lst<Arr<A>> Sequence<A>(this Arr<Lst<A>> ma);
+
+Arr<Lst<B>> MapT<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+
+S FoldT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
+
+S FoldBackT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
+
+bool ExistsT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
+
+bool ForAllT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
+
+Unit IterT<A>(this Arr<Lst<A>> ma, Action<A> f);
+
+Arr<Lst<A>> FilterT< A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
+
+Arr<Lst<A>> Where<A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
+
+Arr<Lst<A>> Select<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+
+Arr<Lst<C>> SelectMany<A, B, C>(
+        this Arr<Lst<A>> ma,
+        Func<A, Lst<B>> bind,
+        Func<A, B, C> project);
+
+Arr<Lst<A>> PlusT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+
+Arr<Lst<A>> SubtractT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+
+Arr<Lst<A>> ProductT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A> =>
+        ApplyT(default(NUM).Product, x, y);
+
+Arr<Lst<A>> DivideT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+
+AppendT<SEMI, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where SEMI : struct, Semigroup<A>;
+
+int CompareT<ORD, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where ORD : struct, Ord<A>;
+
+bool EqualsT<EQ, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where EQ : struct, Eq<A>;
+
+Arr<Lst<A>> ApplyT<A, B>(this Func<A, B> fab, Arr<Lst<A>> fa);
+
+Arr<Lst<C>> ApplyT<A, B, C>(this Func<A, B, C> fabc, Arr<Lst<A>> fa, Arr<Lst<A>> fb);
+```
+The number of functions has increased dramatically.  Some of the special ones are `Traverse` and `Sequence` which flips the inner and outer types.  So for example:
+```c#
+    Lst<Option<int>> x = List(Some(1), Some(2), Some(3), Some(4), Some(5));
+    Option<Lst<int>> y = x.Sequence();
+
+    Assert.True(y == Some(List(1, 2, 3, 4, 5)));
+```
+As you can see, the list is now inside the option.
+```c#
+    Lst<Option<int>> x = List(Some(1), Some(2), Some(3), None, Some(5));
+    Option<Lst<int>> y = x.Sequence();
+
+    Assert.True(y == None);
+```
+In this case there is a `None` in the `Lst` so when the `Lst<Option<>>` becomes a `Option<Lst<>>` the rules of the `Option` take over, and one `None` means all `None`.
+
+This can be quite useful for `Either`:
+```c#
+    var x = List<Either<string, int>>(1, 2, 3, 4, "error");
+
+    var y = x.Sequence();
+
+    Assert.True(y.IsLeft && y == "error");
+```
+This collects the first error it finds, or returns `Right` if there is no error. 
+
+`Traverse` is the same as `Sequence` except it applies a mapping function to each bound value as it's transforming the types.  Here's an example that runs 6 tasks in parallel, and collects their results:
+
+```c#
+    var start = DateTime.UtcNow;
+
+    var f1 = Task.Run(() => { Thread.Sleep(3000); return 1; });
+    var f2 = Task.Run(() => { Thread.Sleep(3000); return 2; });
+    var f3 = Task.Run(() => { Thread.Sleep(3000); return 3; });
+    var f4 = Task.Run(() => { Thread.Sleep(3000); return 4; });
+    var f5 = Task.Run(() => { Thread.Sleep(3000); return 5; });
+    var f6 = Task.Run(() => { Thread.Sleep(3000); return 6; });
+
+    var res = await List(f1, f2, f3, f4, f5, f6).Traverse(x => x * 2);
+
+    Assert.True(toSet(res) == Set(2, 4, 6, 8, 10, 12));
+
+    var ms = (int)(DateTime.UtcNow - start).TotalMilliseconds;
+    Assert.True(ms < 3500, $"Took {ms} ticks");
+```
+So there is a List of Tasks that becomes a single awaitable Task of List.
+
+As well as the extensions, there are also static classes for the transformer types.  There is one for each type of monad.  So for example, `Option` has a `LanguageExt.OptionT` type.  Whenever you have a pair of nested monads, and `Option` is the inner monad, then you would use `OptionT`:
+```c#
+    var ma = List(Some(1),Some(2),Some(3),Some(4),Some(5));
+
+    var total = OptionT.foldT(ma, 0, (s, x) => s + x); // 15
+    var total = OptionT.sumT<TInt, int>(ma); // 15
+    var mb    = OptionT.filterT(ma, x > 3); // List(Some(3), Some(4))
+```
+
+I could go on endlessly about the new types.  There are so many.  But for the release notes I think I should wrap it up.  It's worth taking a look at the API documentation for the [type-classes](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.TypeClasses/index.htm) and the [instances](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.ClassInstances/index.htm)
+
+
+
 
 
 
