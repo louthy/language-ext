@@ -453,41 +453,6 @@ public static class SeqExtensions
          Seq(Enumerable.Distinct(list, new EqCompare<T>((a, b) => compare.IfNone(EqualityComparer<K>.Default.Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0)));
 
     /// <summary>
-    /// Returns a new sequence with the first 'count' items from the sequence provided
-    /// </summary>
-    /// <typeparam name="T">sequence item type</typeparam>
-    /// <param name="list">sequence</param>
-    /// <param name="count">Number of items to take</param>
-    /// <returns>A new sequence with the first 'count' items from the sequence provided</returns>
-    [Pure]
-    public static Seq<T> Take<T>(this Seq<T> list, int count) =>
-        Seq(Enumerable.Take(list, count));
-
-    /// <summary>
-    /// Iterate the sequence, yielding items if they match the predicate provided, and stopping 
-    /// as soon as one doesn't
-    /// </summary>
-    /// <typeparam name="T">sequence item type</typeparam>
-    /// <param name="list">sequence</param>
-    /// <param name="count">Number of items to take</param>
-    /// <returns>A new sequence with the first items that match the predicate</returns>
-    [Pure]
-    public static Seq<T> TakeWhile<T>(this Seq<T> list, Func<T, bool> pred) =>
-        Seq(Enumerable.TakeWhile(list, pred));
-
-    /// <summary>
-    /// Iterate the sequence, yielding items if they match the predicate provided, and stopping 
-    /// as soon as one doesn't.  An index value is also provided to the predicate function.
-    /// </summary>
-    /// <typeparam name="T">sequence item type</typeparam>
-    /// <param name="list">sequence</param>
-    /// <param name="count">Number of items to take</param>
-    /// <returns>A new sequence with the first items that match the predicate</returns>
-    [Pure]
-    public static Seq<T> TakeWhile<T>(this Seq<T> list, Func<T, int, bool> pred) =>
-        Seq(Enumerable.TakeWhile(list, pred));
-
-    /// <summary>
     /// Apply a sequence of values to a sequence of functions
     /// </summary>
     /// <param name="fabc">sequence of functions</param>

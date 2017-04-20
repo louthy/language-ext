@@ -9,7 +9,7 @@ namespace LanguageExt
         /// <summary>
         /// Construct a new sequence
         /// </summary>
-        internal SeqCons(A head, Seq<A> tail) : base(head, tail.Count + 1) =>
+        internal SeqCons(A head, Seq<A> tail) : base(head, tail.count == -1 ? -1 : tail.Count + 1) =>
             this.tail = tail;
 
         public static Seq<A> New(A head, Seq<A> tail) =>

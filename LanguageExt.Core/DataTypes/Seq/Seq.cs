@@ -17,7 +17,7 @@ namespace LanguageExt
     {
         public static readonly Seq<A> Empty = SeqEmpty<A>.Default;
         public readonly A head;
-        int count = -1;
+        internal int count = -1;
 
         /// <summary>
         /// Construct a new sequence
@@ -59,7 +59,9 @@ namespace LanguageExt
         /// <returns>Number of items in the sequence</returns>
         public int Count =>
             count == -1
-                ? count = AsEnumerable().Count()
+                ? count = Tail.count == -1
+                    ? WalkAndCount()
+                    : Tail.count + 1
                 : count;
 
         /// <summary>
@@ -382,9 +384,104 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Take count items
+        /// </summary>
+        public virtual Seq<A> Take(int count)
+        {
+            if(this.count != -1 && this.count <= count)
+            {
+                // Short-cut out.  There aren't enough items in the sequence, or there are
+                // exactly the right amount (but no more).  So we just return ourselves
+                // knowing that the Take operation is valid.
+                return this;
+            }
+
+            IEnumerable<A> Yield(int num, Seq<A> current)
+            {
+                while (num > 0 && !current.IsEmpty)
+                {
+                    yield return current.Head;
+                    current = current.Tail;
+                    count--;
+                }
+            }
+            return Seq(Yield(count, this));
+        }
+
+        /// <summary>
+        /// Iterate the sequence, yielding items if they match the predicate 
+        /// provided, and stopping as soon as one doesn't
+        /// </summary>
+        /// <returns>A new sequence with the first items that match the 
+        /// predicate</returns>
+        public virtual Seq<A> TakeWhile(Func<A, bool> pred)
+        {
+            IEnumerable<A> Yield(Func<A, bool> f, Seq<A> current)
+            {
+                while (!current.IsEmpty && f(current.Head))
+                {
+                    yield return current.Head;
+                    current = current.Tail;
+                    count--;
+                }
+            }
+            return Seq(Yield(pred, this));
+        }
+
+        /// <summary>
+        /// Iterate the sequence, yielding items if they match the predicate 
+        /// provided, and stopping as soon as one doesn't.  An index value is 
+        /// also provided to the predicate function.
+        /// </summary>
+        /// <returns>A new sequence with the first items that match the 
+        /// predicate</returns>
+        public virtual Seq<A> TakeWhile(Func<A, int, bool> pred)
+        {
+            IEnumerable<A> Yield(Func<A, int, bool> f, Seq<A> current)
+            {
+                int index = 0;
+                while (!current.IsEmpty && f(current.Head, index))
+                {
+                    yield return current.Head;
+                    current = current.Tail;
+                    count--;
+                    index++;
+                }
+            }
+            return Seq(Yield(pred, this));
+        }
+
+
+        /// <summary>
         /// Compare to another sequence
         /// </summary>
         public int CompareTo(ISeq<A> other) =>
             default(OrdSeq<OrdDefault<A>, A>).Compare(this, other);
+
+        /// <summary>
+        /// Count the sequence by walking it, but also remember the counts
+        /// so we don't need to do this again.
+        /// </summary>
+        int WalkAndCount()
+        {
+            if (this.count > -1) return this.count;
+
+            int count = 0;
+            Seq<A> current = this;
+            while (!current.IsEmpty)
+            {
+                count++;
+                current = current.Tail;
+            }
+
+            current = this;
+            while (!current.IsEmpty)
+            {
+                current.count = count;
+                current = current.Tail;
+                count--;
+            }
+            return this.count;
+        }
     }
 }

@@ -699,7 +699,7 @@ namespace LanguageExt
         /// <returns>A new sequence with the first 'count' items from the sequence provided</returns>
         [Pure]
         public static Seq<T> take<T>(Seq<T> list, int count) =>
-            Seq(list.Take(count));
+            list.Take(count);
 
         /// <summary>
         /// Iterate the sequence, yielding items if they match the predicate provided, and stopping 
@@ -711,7 +711,7 @@ namespace LanguageExt
         /// <returns>A new sequence with the first items that match the predicate</returns>
         [Pure]
         public static Seq<T> takeWhile<T>(Seq<T> list, Func<T, bool> pred) =>
-            Seq(list.TakeWhile(pred));
+            list.TakeWhile(pred);
 
         /// <summary>
         /// Iterate the sequence, yielding items if they match the predicate provided, and stopping 
@@ -854,7 +854,6 @@ namespace LanguageExt
         public static Seq<B> action<A, B>(Seq<A> fa, Seq<B> fb) =>
             ApplSeq<A, B>.Inst.Action(fa, fb);
 
-
         /// <summary>
         /// The tails function returns all final segments of the argument, longest first. For example:
         /// 
@@ -899,13 +898,13 @@ namespace LanguageExt
         /// remainder of the list:
         /// </summary>
         /// <example>
-        /// Seq.span(List(1,2,3,4,1,2,3,4), x => x &lt; 3) == (List(1,2),List(3,4,1,2,3,4))
+        /// Seq.span(Seq(1,2,3,4,1,2,3,4), x => x &lt; 3) == (Seq(1,2), Seq(3,4,1,2,3,4))
         /// </example>
         /// <example>
-        /// Seq.span(List(1,2,3), x => x &lt; 9) == (List(1,2,3),List())
+        /// Seq.span(Seq(1,2,3), x => x &lt; 9) == (Seq(1,2,3), Seq())
         /// </example>
         /// <example>
-        /// Seq.span(List(1,2,3), x => x &lt; 0) == (List(),List(1,2,3))
+        /// Seq.span(Seq(1,2,3), x => x &lt; 0) == (Seq(), Seq(1,2,3))
         /// </example>
         /// <typeparam name="T">List element type</typeparam>
         /// <param name="self">List</param>
@@ -925,6 +924,5 @@ namespace LanguageExt
             }
             return (self.Take(index), self.Skip(index));
         }
-
     }
 }

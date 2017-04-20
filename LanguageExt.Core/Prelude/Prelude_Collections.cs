@@ -756,8 +756,8 @@ namespace LanguageExt
         public static Seq<A> Seq<A>(IEnumerable<A> value) =>
             value == null
                 ? Empty
-                : value is Seq<A>
-                    ? (Seq<A>)value
+                : value is Seq<A> seq
+                    ? seq
                     : SeqEnumerable<A>.New(value);
 
         /// <summary>

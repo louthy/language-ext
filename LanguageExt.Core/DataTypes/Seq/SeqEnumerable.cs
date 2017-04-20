@@ -61,6 +61,7 @@ namespace LanguageExt
                 else
                 {
                     tail = Empty;
+                    count = 1;
                 }
             }
             return tail;

@@ -173,5 +173,27 @@ namespace LanguageExt
         /// Skip count items
         /// </summary>
         Seq<A> Skip(int count);
+
+        /// <summary>
+        /// Take count items
+        /// </summary>
+        Seq<A> Take(int count);
+
+        /// <summary>
+        /// Iterate the sequence, yielding items if they match the predicate 
+        /// provided, and stopping as soon as one doesn't
+        /// </summary>
+        /// <returns>A new sequence with the first items that match the 
+        /// predicate</returns>
+        Seq<A> TakeWhile(Func<A, bool> pred);
+
+        /// <summary>
+        /// Iterate the sequence, yielding items if they match the predicate 
+        /// provided, and stopping as soon as one doesn't.  An index value is 
+        /// also provided to the predicate function.
+        /// </summary>
+        /// <returns>A new sequence with the first items that match the 
+        /// predicate</returns>
+        Seq<A> TakeWhile(Func<A, int, bool> pred);
     }
 }
