@@ -836,15 +836,22 @@ namespace LanguageExt
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
+        [Pure]
         public IEnumerator<(K Key, V Value)> GetEnumerator() =>
             new MapModule.MapEnumerator<K, V>(Root, Rev, 0);
 
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
+        [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
             MapModule.AsEnumerable(this).GetEnumerator();
 
+        [Pure]
+        public Seq<(K Key, V Value)> ToSeq() =>
+            Seq(MapModule.AsEnumerable(this));
+
+        [Pure]
         public IEnumerable<(K Key, V Value)> AsEnumerable() =>
             MapModule.AsEnumerable(this);
 

@@ -14,7 +14,8 @@ namespace LanguageExt
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value</typeparam>
     public struct HashMap<EqK, K, V> :
-        IEnumerable<(K Key, V Value)>
+        IEnumerable<(K Key, V Value)>,
+        IEquatable<HashMap<EqK, K, V>>
         where EqK : struct, Eq<K>
     {
         public static readonly HashMap<EqK, K, V> Empty = new HashMap<EqK, K, V>(HashMapInternal<EqK, K, V>.Empty);
@@ -550,6 +551,11 @@ namespace LanguageExt
         IEnumerator IEnumerable.GetEnumerator() =>
             Value.GetEnumerator();
 
+        [Pure]
+        public Seq<(K Key, V Value)> ToSeq() =>
+            Seq(Value.AsEnumerable());
+
+        [Pure]
         public IEnumerable<(K Key, V Value)> AsEnumerable() =>
             Value.AsEnumerable();
 
@@ -820,6 +826,10 @@ namespace LanguageExt
         [Pure]
         public S Fold<S>(S state, Func<S, V, S> folder) =>
             Values.Fold(state, folder);
+
+        [Pure]
+        public bool Equals(HashMap<EqK, K, V> other) =>
+            Value == other.Value;
 
         [Pure]
         public static implicit operator HashMap<EqK, K, V>(ValueTuple<(K, V)> items) =>

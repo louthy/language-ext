@@ -21,7 +21,8 @@ namespace LanguageExt
     /// <typeparam name="V">Value type</typeparam>
     [Serializable]
     public struct Map<K, V> :
-        IEnumerable<(K Key, V Value)>
+        IEnumerable<(K Key, V Value)>,
+        IEquatable<Map<K, V>>
     {
         readonly MapInternal<OrdDefault<K>, K, V> value;
 
@@ -518,15 +519,22 @@ namespace LanguageExt
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
+        [Pure]
         public IEnumerator<(K Key, V Value)> GetEnumerator() => 
             Value.GetEnumerator();
 
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
+        [Pure]
         IEnumerator IEnumerable.GetEnumerator() => 
             Value.GetEnumerator();
 
+        [Pure]
+        public Seq<(K Key, V Value)> ToSeq() =>
+            Seq(this);
+
+        [Pure]
         public IEnumerable<(K Key, V Value)> AsEnumerable() => 
             Value.AsEnumerable();
 
@@ -537,8 +545,8 @@ namespace LanguageExt
             new Map<K, V>(MapInternal<OrdDefault<K>, K, V>.Empty);
 
         [Pure]
-        public bool Equals(Map<K, V> x, Map<K, V> y) =>
-            x.Value == y.Value;
+        public bool Equals(Map<K, V> y) =>
+            Value == y.Value;
 
         [Pure]
         public static implicit operator Map<K, V>(ValueTuple<(K, V)> items) =>

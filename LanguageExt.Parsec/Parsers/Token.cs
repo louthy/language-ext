@@ -406,7 +406,7 @@ namespace LanguageExt.Parsec
             from _ in ch(c)
             select code;
 
-        static readonly Lst<Tuple<char, char>> escMap =
-                List.zip("abfnrtv\\\"\'", "\a\b\f\n\r\t\v\\\"\'").Freeze();
+        static readonly Lst<(char, char)> escMap =
+            List.zip("abfnrtv\\\"\'", "\a\b\f\n\r\t\v\\\"\'").Freeze();
     }
 }

@@ -115,7 +115,16 @@ namespace LanguageExt
             Func<A, IEnumerable<B>> bind,
             Func<A, B, C> project)
             where MONADA : struct, Monad<MA, A> =>
-            default(MONADA).Bind<MSeq<C>, IEnumerable<C>, C>(self, a =>
+            default(MONADA).Bind<MEnumerable<C>, IEnumerable<C>, C>(self, a =>
+                bind(a).Select(b => project(a, b)));
+
+        [Pure]
+        public static Seq<C> SelectMany<MONADA, MA, A, B, C>(
+            MA self,
+            Func<A, Seq<B>> bind,
+            Func<A, B, C> project)
+            where MONADA : struct, Monad<MA, A> =>
+            default(MONADA).Bind<MSeq<C>, Seq<C>, C>(self, a =>
                 bind(a).Select(b => project(a, b)));
 
         /// <summary>

@@ -256,7 +256,7 @@ public static class ListExtensions
     /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
     [Pure]
     public static IEnumerable<B> Apply<A, B>(this IEnumerable<Func<A, B>> fabc, IEnumerable<A> fa) =>
-        ApplSeq<A, B>.Inst.Apply(fabc, fa);
+        ApplEnumerable<A, B>.Inst.Apply(fabc, fa);
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions
@@ -266,7 +266,7 @@ public static class ListExtensions
     /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
     [Pure]
     public static IEnumerable<B> Apply<A, B>(this Func<A, B> fabc, IEnumerable<A> fa) =>
-        ApplSeq<A, B>.Inst.Apply(new[] { fabc }, fa);
+        ApplEnumerable<A, B>.Inst.Apply(new[] { fabc }, fa);
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -277,7 +277,7 @@ public static class ListExtensions
     /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
     [Pure]
     public static IEnumerable<Func<B, C>> Apply<A, B, C>(this IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa) =>
-        ApplSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa);
+        ApplEnumerable<A, B, C>.Inst.Apply(fabc.Map(curry), fa);
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -288,7 +288,7 @@ public static class ListExtensions
     /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
     [Pure]
     public static IEnumerable<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, IEnumerable<A> fa) =>
-        ApplSeq<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa);
+        ApplEnumerable<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa);
 
     /// <summary>
     /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -299,7 +299,7 @@ public static class ListExtensions
     /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
     [Pure]
     public static IEnumerable<C> Apply<A, B, C>(this IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa, fb);
+        ApplEnumerable<A, B, C>.Inst.Apply(fabc.Map(curry), fa, fb);
 
     /// <summary>
     /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -310,7 +310,7 @@ public static class ListExtensions
     /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
     [Pure]
     public static IEnumerable<C> Apply<A, B, C>(this Func<A, B, C> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplSeq<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa, fb);
+        ApplEnumerable<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa, fb);
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -321,7 +321,7 @@ public static class ListExtensions
     /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
     [Pure]
     public static IEnumerable<Func<B, C>> Apply<A, B, C>(this IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa) =>
-        ApplSeq<A, B, C>.Inst.Apply(fabc, fa);
+        ApplEnumerable<A, B, C>.Inst.Apply(fabc, fa);
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -332,7 +332,7 @@ public static class ListExtensions
     /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
     [Pure]
     public static IEnumerable<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, IEnumerable<A> fa) =>
-        ApplSeq<A, B, C>.Inst.Apply(new[] { fabc }, fa);
+        ApplEnumerable<A, B, C>.Inst.Apply(new[] { fabc }, fa);
 
     /// <summary>
     /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -343,7 +343,7 @@ public static class ListExtensions
     /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
     [Pure]
     public static IEnumerable<C> Apply<A, B, C>(this IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplSeq<A, B, C>.Inst.Apply(fabc, fa, fb);
+        ApplEnumerable<A, B, C>.Inst.Apply(fabc, fa, fb);
 
     /// <summary>
     /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -354,7 +354,7 @@ public static class ListExtensions
     /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
     [Pure]
     public static IEnumerable<C> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplSeq<A, B, C>.Inst.Apply(new[] { fabc }, fa, fb);
+        ApplEnumerable<A, B, C>.Inst.Apply(new[] { fabc }, fa, fb);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -364,7 +364,7 @@ public static class ListExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static IEnumerable<B> Action<A, B>(this IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplSeq<A, B>.Inst.Action(fa, fb);
+        ApplEnumerable<A, B>.Inst.Action(fa, fb);
 
     /// <summary>
     /// Projects the values in the enumerable using a map function into a new enumerable (Select in LINQ).
@@ -896,20 +896,20 @@ public static class ListExtensions
     /// remainder of the list:
     /// </summary>
     /// <example>
-    /// List.span(List(1,2,3,4,1,2,3,4), x => x &lt; 3) == Tuple(List(1,2),List(3,4,1,2,3,4))
+    /// List.span(List(1,2,3,4,1,2,3,4), x => x &lt; 3) == (List(1,2),List(3,4,1,2,3,4))
     /// </example>
     /// <example>
-    /// List.span(List(1,2,3), x => x &lt; 9) == Tuple(List(1,2,3),List())
+    /// List.span(List(1,2,3), x => x &lt; 9) == (List(1,2,3),List())
     /// </example>
     /// <example>
-    /// List.span(List(1,2,3), x => x &lt; 0) == Tuple(List(),List(1,2,3))
+    /// List.span(List(1,2,3), x => x &lt; 0) == (List(),List(1,2,3))
     /// </example>
     /// <typeparam name="T">List element type</typeparam>
     /// <param name="self">List</param>
     /// <param name="pred">Predicate</param>
     /// <returns>Split list</returns>
     [Pure]
-    public static Tuple<IEnumerable<T>, IEnumerable<T>> Span<T>(this IEnumerable<T> self, Func<T, bool> pred) =>
+    public static (IEnumerable<T>, IEnumerable<T>) Span<T>(this IEnumerable<T> self, Func<T, bool> pred) =>
         LanguageExt.List.span(self, pred);
 
     /// <summary>

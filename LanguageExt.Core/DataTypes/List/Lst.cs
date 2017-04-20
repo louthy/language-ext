@@ -16,7 +16,8 @@ namespace LanguageExt
     public struct Lst<A> :
         IEnumerable<A>, 
         IReadOnlyList<A>,
-        IReadOnlyCollection<A>
+        IReadOnlyCollection<A>,
+        IEquatable<Lst<A>>
     {
         /// <summary>
         /// Empty list
@@ -200,6 +201,14 @@ namespace LanguageExt
         [Pure]
         IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
             new ListModule.ListEnumerator<A>(Root, Rev, 0);
+
+        [Pure]
+        public Seq<A> ToSeq() =>
+            Seq(this);
+
+        [Pure]
+        public IEnumerable<A> AsEnumerable() =>
+            this;
 
         [Pure]
         public IEnumerable<A> Skip(int amount) =>

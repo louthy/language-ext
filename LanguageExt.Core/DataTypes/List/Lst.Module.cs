@@ -745,8 +745,8 @@ namespace LanguageExt
         /// <param name="zipper">Join function</param>
         /// <returns>Joined enumerable of tuples</returns>
         [Pure]
-        public static IEnumerable<Tuple<T, U>> zip<T, U>(IEnumerable<T> list, IEnumerable<U> other) =>
-            list.Zip(other, (t, u) => Tuple(t, u));
+        public static IEnumerable<(T Left, U Right)> zip<T, U>(IEnumerable<T> list, IEnumerable<U> other) =>
+            list.Zip(other, (t, u) => (t, u));
 
         /// <summary>
         /// Returns the number of items in the enumerable
@@ -1037,7 +1037,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
         [Pure]
         public static IEnumerable<B> apply<A, B>(IEnumerable<Func<A, B>> fabc, IEnumerable<A> fa) =>
-            ApplSeq<A, B>.Inst.Apply(fabc, fa);
+            ApplEnumerable<A, B>.Inst.Apply(fabc, fa);
 
         /// <summary>
         /// Apply an IEnumerable of values to an IEnumerable of functions
@@ -1047,7 +1047,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
         [Pure]
         public static IEnumerable<B> apply<A, B>(Func<A, B> fabc, IEnumerable<A> fa) =>
-            ApplSeq<A, B>.Inst.Apply(new[] { fabc }, fa);
+            ApplEnumerable<A, B>.Inst.Apply(new[] { fabc }, fa);
 
         /// <summary>
         /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1058,7 +1058,7 @@ namespace LanguageExt
         /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
         [Pure]
         public static IEnumerable<Func<B, C>> apply<A, B, C>(IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa) =>
-            ApplSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa);
+            ApplEnumerable<A, B, C>.Inst.Apply(fabc.Map(curry), fa);
 
         /// <summary>
         /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1069,7 +1069,7 @@ namespace LanguageExt
         /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
         [Pure]
         public static IEnumerable<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, IEnumerable<A> fa) =>
-            ApplSeq<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa);
+            ApplEnumerable<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa);
 
         /// <summary>
         /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1080,7 +1080,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
         [Pure]
         public static IEnumerable<C> apply<A, B, C>( IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-            ApplSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa, fb);
+            ApplEnumerable<A, B, C>.Inst.Apply(fabc.Map(curry), fa, fb);
 
         /// <summary>
         /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1091,7 +1091,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
         [Pure]
         public static IEnumerable<C> apply<A, B, C>(Func<A, B, C> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-            ApplSeq<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa, fb);
+            ApplEnumerable<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa, fb);
 
         /// <summary>
         /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1102,7 +1102,7 @@ namespace LanguageExt
         /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
         [Pure]
         public static IEnumerable<Func<B, C>> apply<A, B, C>(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa) =>
-            ApplSeq<A, B, C>.Inst.Apply(fabc, fa);
+            ApplEnumerable<A, B, C>.Inst.Apply(fabc, fa);
 
         /// <summary>
         /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1113,7 +1113,7 @@ namespace LanguageExt
         /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
         [Pure]
         public static IEnumerable<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, IEnumerable<A> fa) =>
-            ApplSeq<A, B, C>.Inst.Apply(new[] { fabc }, fa);
+            ApplEnumerable<A, B, C>.Inst.Apply(new[] { fabc }, fa);
 
         /// <summary>
         /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1124,7 +1124,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
         [Pure]
         public static IEnumerable<C> apply<A, B, C>(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-            ApplSeq<A, B, C>.Inst.Apply(fabc, fa, fb);
+            ApplEnumerable<A, B, C>.Inst.Apply(fabc, fa, fb);
 
         /// <summary>
         /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1135,7 +1135,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
         [Pure]
         public static IEnumerable<C> apply<A, B, C>(Func<A, Func<B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-            ApplSeq<A, B, C>.Inst.Apply(new[] { fabc }, fa, fb);
+            ApplEnumerable<A, B, C>.Inst.Apply(new[] { fabc }, fa, fb);
 
         /// <summary>
         /// Evaluate fa, then fb, ignoring the result of fa
@@ -1145,7 +1145,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
         public static IEnumerable<B> action<A, B>(IEnumerable<A> fa, IEnumerable<B> fb) =>
-            ApplSeq<A, B>.Inst.Action(fa, fb);
+            ApplEnumerable<A, B>.Inst.Action(fa, fb);
 
 
         /// <summary>
@@ -1172,20 +1172,20 @@ namespace LanguageExt
         /// remainder of the list:
         /// </summary>
         /// <example>
-        /// List.span(List(1,2,3,4,1,2,3,4), x => x &lt; 3) == Tuple(List(1,2),List(3,4,1,2,3,4))
+        /// List.span(List(1,2,3,4,1,2,3,4), x => x &lt; 3) == (List(1,2),List(3,4,1,2,3,4))
         /// </example>
         /// <example>
-        /// List.span(List(1,2,3), x => x &lt; 9) == Tuple(List(1,2,3),List())
+        /// List.span(List(1,2,3), x => x &lt; 9) == (List(1,2,3),List())
         /// </example>
         /// <example>
-        /// List.span(List(1,2,3), x => x &lt; 0) == Tuple(List(),List(1,2,3))
+        /// List.span(List(1,2,3), x => x &lt; 0) == (List(),List(1,2,3))
         /// </example>
         /// <typeparam name="T">List element type</typeparam>
         /// <param name="self">List</param>
         /// <param name="pred">Predicate</param>
         /// <returns>Split list</returns>
         [Pure]
-        public static Tuple<IEnumerable<T>, IEnumerable<T>> span<T>(IEnumerable<T> self, Func<T, bool> pred)
+        public static (IEnumerable<T>, IEnumerable<T>) span<T>(IEnumerable<T> self, Func<T, bool> pred)
         {
             int index = 0;
             foreach (var item in self)
@@ -1196,7 +1196,7 @@ namespace LanguageExt
                 }
                 index++;
             }
-            return Tuple(self.Take(index), self.Skip(index));
+            return (self.Take(index), self.Skip(index));
         }
     }
 

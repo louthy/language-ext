@@ -27,19 +27,24 @@ namespace LanguageExt
                 : None;
 
         /// <summary>
+        /// Convert Nullable to Seq (0..1 entries)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self">Value to convert</param>
+        /// <returns>Zero or One values, depending on HasValue</returns>
+        [Pure]
+        public static Seq<A> ToSeq<A>(this A? self) where A : struct =>
+            Seq(self);
+
+        /// <summary>
         /// Convert NullableT to IEnumerableT (0..1 entries)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="self">Value to convert</param>
         /// <returns>Zero or One enumerable values, depending on HasValue</returns>
         [Pure]
-        public static IEnumerable<T> AsEnumerable<T>(this T? self) where T : struct
-        {
-            if (self.HasValue)
-            {
-                yield return self.Value;
-            }
-        }
+        public static Seq<T> AsEnumerable<T>(this T? self) where T : struct =>
+            Seq(self);
 
         /// <summary>
         /// Match the two states of the Nullable and return a non-null R.

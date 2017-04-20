@@ -22,7 +22,8 @@
         T("TryAsync"),
         T("TryOption"), 
         T("TryOptionAsync"),
-        T2("ApplSeq", "MSeq", "IEnumerable"),
+        T2("ApplEnumerable", "MEnumerable", "IEnumerable"),
+        T("Seq"),
         T("Set"),
     };
 

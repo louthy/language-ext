@@ -42,18 +42,30 @@ public static class StateExtensions
         self;
 
     [Pure]
-    public static State<S, IEnumerable<A>> AsEnumerable<S, A>(this State<S, A> self) =>
-        self.Select(x => (new A[1] { x }).AsEnumerable());
+    public static State<S, Seq<A>> ToSeq<S, A>(this State<S, A> self) =>
+        self.Select(x => x.Cons(Empty));
 
     [Pure]
-    public static IEnumerable<A> AsEnumerable<S, A>(this State<S, A> self, S state)
+    public static Seq<A> ToSeq<S, A>(this State<S, A> self, S state)
     {
-        var (x, s, b) = self(state);
-        if (!b)
+        IEnumerable<A> Yield()
         {
-            yield return x;
+            var (x, s, b) = self(state);
+            if (!b)
+            {
+                yield return x;
+            }
         }
+        return Seq(Yield());
     }
+
+    [Pure]
+    public static State<S, Seq<A>> AsEnumerable<S, A>(this State<S, A> self) =>
+        ToSeq(self);
+
+    [Pure]
+    public static Seq<A> AsEnumerable<S, A>(this State<S, A> self, S state) =>
+        ToSeq(self, state);
 
     [Pure]
     public static State<S, int> Count<S>(this State<S, int> self) =>

@@ -106,7 +106,7 @@ public static partial class OptionAsyncExtensions
     /// </summary>
     /// <returns>An enumerable sequence of zero or one items</returns>
     [Pure]
-    public static Task<IEnumerable<A>> ToSeqAsync<A>(this Option<A> self) =>
+    public static Task<Seq<A>> ToSeqAsync<A>(this Option<A> self) =>
         toSeqAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync());
 
     /// <summary>
@@ -114,7 +114,7 @@ public static partial class OptionAsyncExtensions
     /// </summary>
     /// <returns>An enumerable of zero or one items</returns>
     [Pure]
-    public static Task<IEnumerable<A>> AsEnumerableAsync<A>(this Option<A> self) =>
+    public static Task<Seq<A>> AsEnumerableAsync<A>(this Option<A> self) =>
         asEnumerableAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync());
 
     /// <summary>

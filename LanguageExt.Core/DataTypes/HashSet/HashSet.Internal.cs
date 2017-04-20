@@ -57,7 +57,7 @@ namespace LanguageExt
             count = set.count;
             hashCode = set.hashCode;
         }
-        
+
         [Pure]
         public A this[A key] =>
             Find(key).IfNone(() => failwith<A>("Key doesn't exist in set"));
@@ -364,6 +364,9 @@ namespace LanguageExt
 
         public IEnumerator<A> GetEnumerator() =>
             AsEnumerable().GetEnumerator();
+
+        public Seq<A> ToSeq() =>
+            Seq(hashTable.Values.Bind(x => x));
 
         public IEnumerable<A> AsEnumerable() =>
             hashTable.Values.Bind(x => x);

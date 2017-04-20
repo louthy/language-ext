@@ -369,7 +369,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable sequence of zero or one items</returns>
         [Pure]
-        public IEnumerable<A> ToSeq() =>
+        public Seq<A> ToSeq() =>
             toSeq<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this);
 
         /// <summary>
@@ -377,7 +377,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public IEnumerable<A> AsEnumerable() =>
+        public Seq<A> AsEnumerable() =>
             asEnumerable<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this);
 
         /// <summary>

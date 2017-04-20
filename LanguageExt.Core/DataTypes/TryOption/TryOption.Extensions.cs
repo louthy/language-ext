@@ -614,14 +614,17 @@ public static class TryOptionExtensions
     }
 
     [Pure]
-    public static IEnumerable<A> AsEnumerable<A>(this TryOption<A> self)
+    public static Seq<A> ToSeq<A>(this TryOption<A> self)
     {
         var res = TryOptionExtensions.Try(self);
-        if (res.Value.IsSome)
-        {
-            yield return res.Value.Value;
-        }
+        return res.Value.IsSome
+            ? res.Value.Value.Cons(Empty)
+            : Empty;
     }
+
+    [Pure]
+    public static Seq<A> AsEnumerable<A>(this TryOption<A> self) =>
+        self.ToSeq();
 
     [Pure]
     public static Lst<A> ToList<A>(this TryOption<A> self) =>

@@ -258,24 +258,24 @@ namespace LanguageExt
         /// </summary>
         /// <returns>If the Either is in a Right state, a IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
         [Pure]
-        public static IEnumerable<B> rightAsEnumerable<CHOICE, CH, A, B>(CH ma)
+        public static Seq<B> rightAsEnumerable<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma, 
-                Left: _ => new B[0],
-                Right: b => new B[1] { b },
-                Bottom: () => new B[0]);
+                Left: _ => Empty,
+                Right: b => b.Cons(Empty),
+                Bottom: () => Empty);
 
         /// <summary>
         /// Project the Either into a IEnumerable L
         /// </summary>
         /// <returns>If the Either is in a Left state, a IEnumerable of L with one item.  A zero length IEnumerable L otherwise</returns>
         [Pure]
-        public static IEnumerable<A> leftAsEnumerable<CHOICE, CH, A, B>(CH ma)
+        public static Seq<A> leftAsEnumerable<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
-                Left: a => new A[1] { a },
-                Right: _ => new A[0],
-                Bottom: () => new A[0]);
+                Left: a => a.Cons(Empty),
+                Right: _ => Empty,
+                Bottom: () => Empty);
 
         [Pure]
         public static int hashCode<CHOICE, CH, A, B>(CH ma)

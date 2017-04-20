@@ -447,13 +447,12 @@ public static class TryExtensions
     });
 
     [Pure]
-    public static IEnumerable<A> AsEnumerable<A>(this Try<A> self)
+    public static Seq<A> AsEnumerable<A>(this Try<A> self)
     {
         var res = self.Try();
-        if (!res.IsFaulted)
-        {
-            yield return res.Value;
-        }
+        return res.IsFaulted
+            ? Empty
+            : res.Value.Cons(Empty);
     }
 
     [Pure]

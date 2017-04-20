@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Collections;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -52,6 +53,7 @@ namespace LanguageExt
         /// <param name="from">The minimum value in the range</param>
         /// <param name="to">The maximum value in the range</param>
         /// <param name="step">The size of each step in the range</param>
+        [Pure]
         public static SELF FromMinMax(A min, A max, A step) =>
             Ctor(min, max, step);
 
@@ -61,6 +63,7 @@ namespace LanguageExt
         /// <param name="from">The minimum value in the range</param>
         /// <param name="count">The number of items in the range</param>
         /// <param name="step">The size of each step in the range</param>
+        [Pure]
         public static SELF FromCount(A min, A count, A step) =>
             Ctor(min, M.Plus(min, M.Subtract(M.Product(count, step), step)), step);
 
@@ -70,6 +73,7 @@ namespace LanguageExt
         /// <param name="from">The minimum value in the range</param>
         /// <param name="to">The maximum value in the range</param>
         /// <param name="step">The size of each step in the range</param>
+        [Pure]
         protected Range(A from, A to, A step)
         {
             From = from;
@@ -85,6 +89,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value">Value to test</param>
         /// <returns>True if the value provided is in range</returns>
+        [Pure]
         public bool InRange(A value)
         {
             var from = M.Compare(From, To) > 0 ? To : From;
@@ -99,6 +104,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="other">The range to test</param>
         /// <returns>True if the range provided overlaps this range</returns>
+        [Pure]
         public bool Overlaps(SELF other)
         {
             var xfrom = M.Compare(From, To) > 0 ? To : From;
@@ -110,6 +116,11 @@ namespace LanguageExt
                    M.Compare(yfrom, xto) < 0;
         }
 
+        [Pure]
+        public Seq<A> ToSeq() =>
+            Prelude.Seq(AsEnumerable());
+
+        [Pure]
         public IEnumerable<A> AsEnumerable()
         {
             if (StepIsAscending)
@@ -128,12 +139,15 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public IEnumerator<A> GetEnumerator() => 
             AsEnumerable().GetEnumerator();
 
+        [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
+        [Pure]
         public S Fold<S>(S state, Func<S, A, S> f)
         {
             foreach(var x in AsEnumerable())

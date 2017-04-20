@@ -183,6 +183,16 @@ namespace LanguageExt
         /// <returns>True if x and y are equal</returns>
         [Pure]
         public static bool equals<EQ, A>(IEnumerable<A> x, IEnumerable<A> y) where EQ : struct, Eq<A> =>
+            EqEnumerable<EQ, A>.Inst.Equals(x, y);
+
+        /// <summary>
+        /// Structural equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public static bool equals<EQ, A>(Seq<A> x, Seq<A> y) where EQ : struct, Eq<A> =>
             EqSeq<EQ, A>.Inst.Equals(x, y);
 
         /// <summary>

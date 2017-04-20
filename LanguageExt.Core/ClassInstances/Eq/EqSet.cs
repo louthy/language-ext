@@ -27,7 +27,7 @@ namespace LanguageExt.ClassInstances
             {
                 enumx.MoveNext();
                 enumy.MoveNext();
-                if (default(EQ).Equals(enumx.Current, enumy.Current)) return false;
+                if (!default(EQ).Equals(enumx.Current, enumy.Current)) return false;
             }
             return true;
         }

@@ -116,14 +116,18 @@ namespace LanguageExt
         /// </summary>
         /// <returns>IEnumerable of T</returns>
         [Pure]
-        public IEnumerable<T> AsEnumerable()
+        public Seq<T> AsEnumerable()
         {
-            var self = this;
-            while (self.Count != 0)
+            IEnumerable<T> Yield()
             {
-                yield return self.value;
-                self = self.tail;
+                var self = this;
+                while (self.Count != 0)
+                {
+                    yield return self.value;
+                    self = self.tail;
+                }
             }
+            return Prelude.Seq(Yield());
         }
 
         /// <summary>

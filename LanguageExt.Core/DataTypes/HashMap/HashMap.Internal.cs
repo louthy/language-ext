@@ -915,6 +915,9 @@ namespace LanguageExt
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
+        public Seq<(K Key, V Value)> ToSeq() =>
+            Seq(hashTable.Values.Bind(x => x));
+
         public IEnumerable<(K Key, V Value)> AsEnumerable() =>
             hashTable.Values.Bind(x => x);
 

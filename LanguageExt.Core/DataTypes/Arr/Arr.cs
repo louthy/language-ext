@@ -375,6 +375,14 @@ namespace LanguageExt
             Value.AsEnumerable().GetEnumerator();
 
         [Pure]
+        IEnumerable<A> AsEnumerable() =>
+            this;
+
+        [Pure]
+        Seq<A> ToSeq() =>
+            Seq(this);
+
+        [Pure]
         public IEnumerable<A> Skip(int amount) =>
             Value.Skip(amount);
 

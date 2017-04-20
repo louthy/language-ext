@@ -56,10 +56,23 @@ namespace LanguageExt
             return hashCode = hash(this.AsEnumerable());
         }
 
-        public IEnumerable<A> AsEnumerable()
+        public Seq<A> AsEnumerable()
         {
-            var iter = GetEnumerator();
-            while(iter.MoveNext())
+            IEnumerable<A> Yield()
+            {
+                var iter = GetEnumerator();
+                while (iter.MoveNext())
+                {
+                    yield return iter.Current;
+                }
+            }
+            return Seq(Yield());
+        }
+
+        public IEnumerable<A> Skip(int amount)
+        {
+            var iter = new SetModule.SetEnumerator<A>(set, false, amount);
+            while (iter.MoveNext())
             {
                 yield return iter.Current;
             }

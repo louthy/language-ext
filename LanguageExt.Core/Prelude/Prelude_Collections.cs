@@ -10,19 +10,69 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
-        /// Construct a list from head and tail
-        /// head becomes the first item in the list
-        /// Is lazy
+        /// Represents an empty sequence
         /// </summary>
+        public static readonly SeqEmpty Empty = new SeqEmpty();
+
+        /// <summary>
+        /// Construct a list from head and tail head becomes the first item in 
+        /// the list.  
+        /// </summary>
+        /// <typeparam name="A">Type of the items in the sequence</typeparam>
+        /// <param name="head">Head item in the sequence</param>
+        /// <param name="tail">Tail of the sequence</param>
+        /// <returns></returns>
         [Pure]
-        public static IEnumerable<T> Cons<T>(this T head, IEnumerable<T> tail)
-        {
-            yield return head;
-            foreach (var item in tail)
-            {
-                yield return item;
-            }
-        }
+        public static Seq<A> Cons<A>(this A head) =>
+            SeqCons<A>.New(head, SeqEmpty<A>.Default);
+
+        /// <summary>
+        /// Construct a list from head and tail head becomes the first item in 
+        /// the list.  
+        /// </summary>
+        /// <typeparam name="A">Type of the items in the sequence</typeparam>
+        /// <param name="head">Head item in the sequence</param>
+        /// <param name="tail">Tail of the sequence</param>
+        /// <returns></returns>
+        [Pure]
+        public static Seq<A> Cons<A>(this A head, Seq<A> tail) =>
+            SeqCons<A>.New(head, tail);
+
+        /// <summary>
+        /// Construct a list from head and tail head becomes the first item in 
+        /// the list.  
+        /// </summary>
+        /// <typeparam name="A">Type of the items in the sequence</typeparam>
+        /// <param name="head">Head item in the sequence</param>
+        /// <param name="tail">Tail of the sequence</param>
+        /// <returns></returns>
+        [Pure]
+        public static Seq<A> Cons<A>(this A head, A[] tail) =>
+            SeqArray<A>.New(head, tail);
+
+        /// <summary>
+        /// Construct a list from head and tail head becomes the first item in 
+        /// the list.  
+        /// </summary>
+        /// <typeparam name="A">Type of the items in the sequence</typeparam>
+        /// <param name="head">Head item in the sequence</param>
+        /// <param name="tail">Tail of the sequence</param>
+        /// <returns></returns>
+        [Pure]
+        public static Seq<A> Cons<A>(this A head, Arr<A> tail) =>
+            SeqArr<A>.New(head, tail);
+
+        /// <summary>
+        /// Construct a list from head and tail; head becomes the first item in 
+        /// the list.  
+        /// </summary>
+        /// <typeparam name="A">Type of the items in the sequence</typeparam>
+        /// <param name="head">Head item in the sequence</param>
+        /// <param name="tail">Tail of the sequence</param>
+        /// <returns></returns>
+        [Pure]
+        public static Seq<A> Cons<A>(this A head, IEnumerable<A> tail) =>
+            SeqEnumerable<A>.New(head, tail);
 
         /// <summary>
         /// Construct a list from head and tail
@@ -45,8 +95,8 @@ namespace LanguageExt
         ///     Can go in a positive direction ('a'..'z') as well as negative ('z'..'a')
         /// </summary>
         [Pure]
-        public static IEnumerable<char> Range(char from, char to) =>
-            CharRange.FromMinMax(from, to);
+        public static Seq<char> Range(char from, char to) =>
+            Seq(CharRange.FromMinMax(from, to));
 
         /// <summary>
         /// Lazily generate integers from any number of provided ranges
@@ -671,214 +721,370 @@ namespace LanguageExt
                    Some,
                    None);
 
+
         /// <summary>
-        /// Convert any value to an enumerable
+        /// Construct a sequence from any value
         ///     T     : [x]
         ///     null  : []
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seqOne<T>(T value) =>
-            value.IsNull() ? new T[0] : new T[1] { value };
+        public static Seq<A> SeqOne<A>(A value) =>
+            value.IsNull() ? Empty : SeqCons<A>.New(value, Empty);
 
         /// <summary>
-        /// Convert a nullable to an enumerable
+        /// Construct an empty Seq
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>() =>
+            Empty;
+
+        /// <summary>
+        /// Construct a sequence from a nullable
         ///     HasValue == true  : [x]
         ///     HasValue == false : []
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(T? value) where T : struct =>
-            value.AsEnumerable();
+        public static Seq<A> Seq<A>(A? value) where A : struct =>
+            value == null ? Empty : SeqCons<A>.New(value.Value, Empty);
 
         /// <summary>
-        /// Convert an Enumerable to an Enumerable
-        /// Deals with `value == null` by returning `[]`
+        /// Construct a sequence from an Enumerable
+        /// Deals with `value == null` by returning `[]` and also memoizes the
+        /// items in the enumerable as they're being consumed.
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(IEnumerable<T> value) =>
-            value?.AsEnumerable() ?? new T[0];
+        public static Seq<A> Seq<A>(IEnumerable<A> value) =>
+            value == null
+                ? Empty
+                : value is Seq<A>
+                    ? (Seq<A>)value
+                    : SeqEnumerable<A>.New(value);
 
         /// <summary>
-        /// Convert an option to an enumerable
+        /// Construct a sequence from an array
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(A[] value) =>
+            value == null
+                ? Empty
+                : SeqArray<A>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from an array
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(A a, A b) =>
+            SeqCons<A>.New(a, SeqCons<A>.New(b, Empty));
+
+        /// <summary>
+        /// Construct a sequence from an array
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(A a, A b, params A[] cs) =>
+            SeqCons<A>.New(a, SeqArray<A>.New(b, cs));
+
+        /// <summary>
+        /// Construct a sequence from an immutable array
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(Arr<A> value) =>
+            SeqArr<A>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from a list
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(Lst<A> value) =>
+            SeqLst<A>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from a list
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<PredList, A>(Lst<PredList, A> value) 
+            where PredList : struct, Pred<ListInfo> =>
+                SeqEnumerable<A>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from a list
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<PredList, PredItem, A>(Lst<PredList, PredItem, A> value) 
+            where PredList : struct, Pred<ListInfo>
+            where PredItem : struct, Pred<A> =>
+                SeqEnumerable<A>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from a map
+        /// </summary>
+        [Pure]
+        public static Seq<(A Key, B Value)> Seq<A, B>(Map<A, B> value) =>
+            SeqEnumerable<(A Key, B Value)>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from a map
+        /// </summary>
+        [Pure]
+        public static Seq<(A Key, B Value)> Seq<OrdA, A, B>(Map<OrdA, A, B> value) 
+            where OrdA : struct, Ord<A> =>
+                SeqEnumerable<(A Key, B Value)>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from a hash map
+        /// </summary>
+        [Pure]
+        public static Seq<(A Key, B Value)> Seq<A, B>(HashMap<A, B> value) =>
+            SeqEnumerable<(A Key, B Value)>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from a hash map
+        /// </summary>
+        [Pure]
+        public static Seq<(A Key, B Value)> Seq<EqA, A, B>(HashMap<EqA, A, B> value)
+            where EqA : struct, Eq<A> =>
+                SeqEnumerable<(A Key, B Value)>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from a set
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(Set<A> value) =>
+            SeqEnumerable<A>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from a set
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<OrdA, A>(Set<OrdA, A> value)
+            where OrdA : struct, Ord<A> =>
+                SeqEnumerable<A>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from a hash set
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(HashSet<A> value) =>
+            SeqEnumerable<A>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from a hash set
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<EqA, A>(HashSet<EqA, A> value)
+            where EqA : struct, Eq<A> =>
+                SeqEnumerable<A>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from a stack
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(Stck<A> value) =>
+            SeqEnumerable<A>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from a queue
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(Que<A> value) =>
+            SeqEnumerable<A>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from an option
         ///     Some(x) : [x]
         ///     None    : []
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(Option<T> value) =>
-            value.AsEnumerable();
+        public static Seq<A> Seq<A>(Option<A> value) =>
+            value.IsSome
+                ? SeqCons<A>.New(value.Value, Empty)
+                : Empty;
 
         /// <summary>
-        /// Convert an option to an enumerable
+        /// Construct a sequence from an option
         ///     Some(x) : [x]
         ///     None    : []
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(OptionUnsafe<T> value) =>
-            value.AsEnumerable();
+        public static Seq<A> Seq<A>(OptionUnsafe<A> value) =>
+            value.IsSome
+                ? SeqCons<A>.New(value.Value, Empty)
+                : Empty;
 
         /// <summary>
-        /// Convert an either to an enumerable
+        /// Construct a sequence from an either
         ///     Right(x) : [x]
         ///     Left(y)  : []
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<L, T>(Either<L, T> value) =>
-            value.RightAsEnumerable();
+        public static Seq<R> Seq<L, R>(Either<L, R> value) =>
+            value.IsRight
+                ? SeqCons<R>.New(value.RightValue, Empty)
+                : Empty;
 
         /// <summary>
-        /// Convert an either to an enumerable
+        /// Construct a sequence from an either
         ///     Right(x) : [x]
         ///     Left(y)  : []
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<L, T>(EitherUnsafe<L, T> value) =>
-            value.RightAsEnumerable();
+        public static Seq<R> Seq<L, R>(EitherUnsafe<L, R> value) =>
+            value.IsRight
+                ? SeqCons<R>.New(value.RightValue, Empty)
+                : Empty;
 
         /// <summary>
-        /// Convert a Try to an enumerable
+        /// Construct a sequence from a Try
         ///     Succ(x) : [x]
         ///     Fail(e) : []
         ///     null    : []
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(Try<T> value) =>
-            value?.AsEnumerable() ?? new T[0];
+        public static Seq<A> Seq<A>(Try<A> value) =>
+            Seq(value?.ToOption() ?? Option<A>.None);
 
         /// <summary>
-        /// Convert a TryOption to an enumerable
-        ///     Succ(x) : [x]
-        ///     Fail(e) : []
-        ///     None    : []
-        ///     null    : []
-        /// </summary>
-        [Pure]
-        public static IEnumerable<T> seq<T>(TryOption<T> value) =>
-            value?.AsEnumerable() ?? new T[0];
-
-        /// <summary>
-        /// Convert a TryOption to an enumerable
+        /// Construct a sequence from a TryOption
         ///     Succ(x) : [x]
         ///     Fail(e) : []
         ///     None    : []
         ///     null    : []
         /// </summary>
         [Pure]
-        public static Task<IEnumerable<T>> seq<T>(TryAsync<T> value) =>
-            value?.AsEnumerable() ?? Task.FromResult(new T[0].AsEnumerable());
+        public static Seq<A> Seq<A>(TryOption<A> value) =>
+            Seq(value?.ToOption() ?? Option<A>.None);
 
         /// <summary>
-        /// Convert a TryOption to an enumerable
+        /// Construct a sequence from a TryOption
         ///     Succ(x) : [x]
         ///     Fail(e) : []
         ///     None    : []
         ///     null    : []
         /// </summary>
         [Pure]
-        public static Task<IEnumerable<T>> seq<T>(TryOptionAsync<T> value) =>
-            value?.AsEnumerable() ?? Task.FromResult(new T[0].AsEnumerable());
+        public static Task<Seq<T>> Seq<T>(TryAsync<T> value) =>
+            value?.AsEnumerable() ?? Task.FromResult(LanguageExt.Seq<T>.Empty);
 
         /// <summary>
-        /// Convert a tuple to an enumerable
+        /// Construct a sequence from a TryOption
+        ///     Succ(x) : [x]
+        ///     Fail(e) : []
+        ///     None    : []
+        ///     null    : []
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(Tuple<T> tup) =>
+        public static Task<Seq<T>> Seq<T>(TryOptionAsync<T> value) =>
+            value?.AsEnumerable() ?? Task.FromResult(LanguageExt.Seq<T>.Empty);
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(Tuple<A> tup) =>
             tup == null
-                ? new T[0]
-                : new[] { tup.Item1 };
+                ? Empty
+                : SeqCons<A>.New(tup.Item1, Empty);
 
         /// <summary>
-        /// Convert a tuple to an enumerable
+        /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(Tuple<T, T> tup) =>
+        public static Seq<A> Seq<A>(Tuple<A, A> tup) =>
             tup == null
-                ? new T[0]
-                : new[] { tup.Item1, tup.Item2 };
+                ? Empty
+                : SeqArray<A>.New(new[] { tup.Item1, tup.Item2 });
 
         /// <summary>
-        /// Convert a tuple to an enumerable
+        /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(Tuple<T, T, T> tup) =>
+        public static Seq<A> Seq<A>(Tuple<A, A, A> tup) =>
             tup == null
-                ? new T[0]
-                : new[] { tup.Item1, tup.Item2, tup.Item3 };
+                ? Empty
+                : SeqArray<A>.New(new[] { tup.Item1, tup.Item2, tup.Item3 });
 
         /// <summary>
-        /// Convert a tuple to an enumerable
+        /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(Tuple<T, T, T, T> tup) =>
+        public static Seq<A> Seq<A>(Tuple<A, A, A, A> tup) =>
             tup == null
-                ? new T[0]
-                : new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4 };
+                ? Empty
+                : SeqArray<A>.New(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4 });
 
         /// <summary>
-        /// Convert a tuple to an enumerable
+        /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(Tuple<T, T, T, T, T> tup) =>
+        public static Seq<A> Seq<A>(Tuple<A, A, A, A, A> tup) =>
             tup == null
-                ? new T[0]
-                : new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5 };
+                ? Empty
+                : SeqArray<A>.New(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5 });
 
         /// <summary>
-        /// Convert a tuple to an enumerable
+        /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(Tuple<T, T, T, T, T, T> tup) =>
+        public static Seq<A> Seq<A>(Tuple<A, A, A, A, A, A> tup) =>
             tup == null
-                ? new T[0]
-                : new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6 };
+                ? Empty
+                : SeqArray<A>.New(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6 });
 
         /// <summary>
-        /// Convert a tuple to an enumerable
+        /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(Tuple<T, T, T, T, T, T, T> tup) =>
+        public static Seq<A> Seq<A>(Tuple<A, A, A, A, A, A, A> tup) =>
             tup == null
-                ? new T[0]
-                : new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 };
+                ? Empty
+                : SeqArray<A>.New(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 });
 
         /// <summary>
-        /// Convert a tuple to an enumerable
+        /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(ValueTuple<T, T> tup) =>
-            new[] { tup.Item1, tup.Item2 };
+        public static Seq<A> Seq<A>(ValueTuple<A> tup) =>
+            SeqCons<A>.New(tup.Item1, Empty);
 
         /// <summary>
-        /// Convert a tuple to an enumerable
+        /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(ValueTuple<T, T, T> tup) =>
-            new[] { tup.Item1, tup.Item2, tup.Item3 };
+        public static Seq<A> Seq<A>(ValueTuple<A, A> tup) =>
+            SeqArray<A>.New(new[] { tup.Item1, tup.Item2 });
 
         /// <summary>
-        /// Convert a tuple to an enumerable
+        /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(ValueTuple<T, T, T, T> tup) =>
-            new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4 };
+        public static Seq<A> Seq<A>(ValueTuple<A, A, A> tup) =>
+            SeqArray<A>.New(new[] { tup.Item1, tup.Item2, tup.Item3 });
 
         /// <summary>
-        /// Convert a tuple to an enumerable
+        /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(ValueTuple<T, T, T, T, T> tup) =>
-            new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5 };
+        public static Seq<A> Seq<A>(ValueTuple<A, A, A, A> tup) =>
+            SeqArray<A>.New(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4 });
 
         /// <summary>
-        /// Convert a tuple to an enumerable
+        /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(ValueTuple<T, T, T, T, T, T> tup) =>
-            new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6 };
+        public static Seq<A> Seq<A>(ValueTuple<A, A, A, A, A> tup) =>
+            SeqArray<A>.New(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5 });
 
         /// <summary>
-        /// Convert a tuple to an enumerable
+        /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq<T>(ValueTuple<T, T, T, T, T, T, T> tup) =>
-            new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 };
+        public static Seq<A> Seq<A>(ValueTuple<A, A, A, A, A, A> tup) =>
+            SeqArray<A>.New(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6 });
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(ValueTuple<A, A, A, A, A, A, A> tup) =>
+            SeqArray<A>.New(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 });
     }
 }

@@ -43,12 +43,16 @@ public static class ReaderExt
     }
 
     [Pure]
-    public static Reader<Env, IEnumerable<A>> AsEnumerable<Env, A>(this Reader<Env, A> self) =>
-        self.Map(x => (new A[1] { x }).AsEnumerable());
+    public static Reader<Env, Seq<A>> AsEnumerable<Env, A>(this Reader<Env, A> self) =>
+        self.Map(x => x.Cons(Empty));
 
     [Pure]
-    public static IEnumerable<A> AsEnumerable<Env, A>(this Reader<Env, A> self, Env env) =>
-        self.Map(x => new[] { x }.AsEnumerable()).Run(env).IfNoneOrFail(new A[0].AsEnumerable());
+    public static Seq<A> ToSeq<Env, A>(this Reader<Env, A> self, Env env) =>
+        self.Map(x => x.Cons(Empty)).Run(env).IfNoneOrFail(Empty);
+
+    [Pure]
+    public static Seq<A> AsEnumerable<Env, A>(this Reader<Env, A> self, Env env) =>
+        ToSeq(self, env);
 
     public static Reader<Env, Unit> Iter<Env, A>(this Reader<Env, A> self, Action<A> action) =>
         self.Map(x => { action(x); return unit; });

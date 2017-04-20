@@ -1391,11 +1391,15 @@ public static class TryOptionAsyncExtensions
     });
 
     [Pure]
-    public static Task<IEnumerable<A>> AsEnumerable<A>(this TryOptionAsync<A> self) =>
+    public static Task<Seq<A>> ToSeq<A>(this TryOptionAsync<A> self) =>
         self.Match(
-            Some: v  => (IEnumerable<A>)new A[1] { v },
-            None: () => (IEnumerable<A>)new A[0],
-            Fail: x  => (IEnumerable<A>)new A[0]);
+            Some: v => v.Cons(Empty),
+            None: () => Empty,
+            Fail: x => Empty);
+
+    [Pure]
+    public static Task<Seq<A>> AsEnumerable<A>(this TryOptionAsync<A> self) =>
+        self.ToSeq();
 
     [Pure]
     public static async Task<Lst<A>> ToList<A>(this TryOptionAsync<A> self) =>

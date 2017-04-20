@@ -68,8 +68,12 @@ namespace LanguageExt
             new Que<T>(Value.Enqueue(value));
 
         [Pure]
+        public Seq<T> ToSeq() =>
+            Seq(Value);
+
+        [Pure]
         public IEnumerable<T> AsEnumerable() =>
-            Value.AsEnumerable();
+            Value;
 
         [Pure]
         public IEnumerator<T> GetEnumerator() =>

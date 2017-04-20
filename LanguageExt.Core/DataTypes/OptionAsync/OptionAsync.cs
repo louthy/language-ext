@@ -261,7 +261,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable sequence of zero or one items</returns>
         [Pure]
-        public Task<IEnumerable<A>> ToSeq() =>
+        public Task<Seq<A>> ToSeq() =>
             toSeqAsync<MOptionAsync<A>, OptionAsync<A>, A>(this);
 
         /// <summary>
@@ -269,7 +269,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public Task<IEnumerable<A>> AsEnumerable() =>
+        public Task<Seq<A>> AsEnumerable() =>
             asEnumerableAsync<MOptionAsync<A>, OptionAsync<A>, A>(this);
 
         /// <summary>

@@ -65,8 +65,8 @@ namespace LanguageExt
         /// <param name="fa">Foldable</param>
         /// <returns>Sequence of As</returns>
         [Pure]
-        public static IEnumerable<A> toSeq<FOLD, F, A>(F fa) where FOLD : Foldable<F, A> =>
-            default(FOLD).FoldBack(fa, new A[0].AsEnumerable(), (s, x) => x.Cons(s))(unit);
+        public static Seq<A> toSeq<FOLD, F, A>(F fa) where FOLD : Foldable<F, A> =>
+            default(FOLD).FoldBack(fa, Seq<A>.Empty, (s, x) => x.Cons(s))(unit);
 
 
         /// <summary>
@@ -77,8 +77,8 @@ namespace LanguageExt
         /// <param name="self">Foldable to performt the operation on</param>
         /// <returns>Sequence of As that represent the value(s) in the structure</returns>
         [Pure]
-        public static IEnumerable<B> collect<FOLD, F, A, B>(F self, Func<A, B> f) where FOLD : Foldable<F, A> =>
-            default(FOLD).FoldBack(self, new B[0].AsEnumerable(), (s, x) => f(x).Cons(s))(unit);
+        public static Seq<B> collect<FOLD, F, A, B>(F self, Func<A, B> f) where FOLD : Foldable<F, A> =>
+            default(FOLD).FoldBack(self, Seq<B>.Empty, (s, x) => f(x).Cons(s))(unit);
 
         /// <summary>
         /// Get the first item in a foldable structure

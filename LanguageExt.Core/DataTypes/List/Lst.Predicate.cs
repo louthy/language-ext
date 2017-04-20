@@ -19,6 +19,7 @@ namespace LanguageExt
         IEnumerable<A>, 
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
+        IEquatable<Lst<PRED, A>>,
         ListInfo
         where PRED : struct, Pred<ListInfo>
     {
@@ -211,6 +212,14 @@ namespace LanguageExt
         [Pure]
         IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
             new ListModule.ListEnumerator<A>(Root, Rev, 0);
+
+        [Pure]
+        public Seq<A> ToSeq() =>
+            Seq(this);
+
+        [Pure]
+        public IEnumerable<A> AsEnumerable() =>
+            this;
 
         [Pure]
         public IEnumerable<A> Skip(int amount) =>

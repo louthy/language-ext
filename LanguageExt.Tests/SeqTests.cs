@@ -12,8 +12,8 @@ namespace LanguageExt.Tests
         {
             var x = "test";
 
-            Assert.True(seqOne(x).Count() == 1);
-            Assert.True(seqOne(x).Head() == x);
+            Assert.True(SeqOne(x).Count() == 1);
+            Assert.True(SeqOne(x).Head() == x);
         }
 
         [Fact]
@@ -21,7 +21,7 @@ namespace LanguageExt.Tests
         {
             string x = null;
 
-            Assert.True(seq(x).Count() == 0);
+            Assert.True(Seq(x).Count() == 0);
         }
 
         [Fact]
@@ -29,10 +29,15 @@ namespace LanguageExt.Tests
         {
             var x = new[] { "a", "b", "c" };
 
-            Assert.True(seq(x).Count() == 3);
-            Assert.True(seq(x).Head() == "a");
-            Assert.True(seq(x).Tail().Head() == "b");
-            Assert.True(seq(x).Tail().Tail().Head() == "c");
+            var y = Seq(x);
+
+            var res = Seq(x).Tail().AsEnumerable().ToList();
+
+
+            Assert.True(Seq(x).Count() == 3);
+            Assert.True(Seq(x).Head() == "a");
+            Assert.True(Seq(x).Tail().Head() == "b");
+            Assert.True(Seq(x).Tail().Tail().Head() == "c");
         }
 
         [Fact]
@@ -40,7 +45,7 @@ namespace LanguageExt.Tests
         {
             string[] x = null;
 
-            Assert.True(seq(x).Count() == 0);
+            Assert.True(Seq(x).Count() == 0);
         }
     }
 }

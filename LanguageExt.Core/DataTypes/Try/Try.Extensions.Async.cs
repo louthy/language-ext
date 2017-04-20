@@ -412,7 +412,11 @@ public static class TryExtensionsAsync
         self.FilterAsync(pred);
 
     [Pure]
-    public static Task<IEnumerable<A>> AsEnumerableAsync<A>(this Try<A> self) =>
+    public static Task<Seq<A>> ToSeqAsync<A>(this Try<A> self) =>
+        self.ToAsync().ToSeq();
+
+    [Pure]
+    public static Task<Seq<A>> AsEnumerableAsync<A>(this Try<A> self) =>
         self.ToAsync().AsEnumerable();
 
     [Pure]

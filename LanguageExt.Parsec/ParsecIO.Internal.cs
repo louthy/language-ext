@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static LanguageExt.Prelude;
 using static LanguageExt.Parsec.Common;
 using static LanguageExt.Parsec.PrimT;
 using static LanguageExt.Parsec.ParserResultIO;
@@ -80,14 +81,14 @@ namespace LanguageExt.Parsec
         ///     select x.Cons(y);
         /// 
         /// </summary>
-        public static Parser<I, IEnumerable<O>> chaini<I, O>(Parser<I, O>[] ps) =>
+        public static Parser<I, Seq<O>> chaini<I, O>(Parser<I, O>[] ps) =>
             ps.Length == 0
-                ? unexpected<I, IEnumerable<O>>("chain parser with 0 items")
+                ? unexpected<I, Seq<O>>("chain parser with 0 items")
                 : inp =>
             {
                 if( ps.Length == 1)
                 {
-                    return ps[0].Map(x => new[] { x }.AsEnumerable())(inp);
+                    return ps[0].Map(x => x.Cons())(inp);
                 }
 
                 var current = inp;
@@ -106,12 +107,12 @@ namespace LanguageExt.Parsec
                         // cerr
                         if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                         {
-                            return ConsumedError<I, IEnumerable<O>>(t.Reply.Error);
+                            return ConsumedError<I, Seq<O>>(t.Reply.Error);
                         }
                         // eerr
                         else if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.Error)
                         {
-                            return EmptyError<I, IEnumerable<O>>(t.Reply.Error);
+                            return EmptyError<I, Seq<O>>(t.Reply.Error);
                         }
                         // cok
                         else if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
@@ -136,12 +137,12 @@ namespace LanguageExt.Parsec
                             // cok, cerr
                             if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                             {
-                                return ConsumedError<I, IEnumerable<O>>(t.Reply.Error);
+                                return ConsumedError<I, Seq<O>>(t.Reply.Error);
                             }
                             // cok, eerr
                             else if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.Error)
                             {
-                                return ConsumedError<I, IEnumerable<O>>(mergeError(error, t.Reply.Error));
+                                return ConsumedError<I, Seq<O>>(mergeError(error, t.Reply.Error));
                             }
                             // cok, cok
                             else if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
@@ -149,7 +150,7 @@ namespace LanguageExt.Parsec
                                 if (count == 0)
                                 {
                                     results.Add(t.Reply.Result);
-                                    return ConsumedOK<I, IEnumerable<O>>(results, t.Reply.State, t.Reply.Error);
+                                    return ConsumedOK(Seq(results), t.Reply.State, t.Reply.Error);
                                 }
                                 else
                                 {
@@ -166,7 +167,7 @@ namespace LanguageExt.Parsec
                                 {
                                     // cok, eok -> cok  (not a typo, this should be -> cok)
                                     results.Add(t.Reply.Result);
-                                    return ConsumedOK<I, IEnumerable<O>>(results, t.Reply.State, mergeError(error, t.Reply.Error));
+                                    return ConsumedOK(Seq(results), t.Reply.State, mergeError(error, t.Reply.Error));
                                 }
                                 else
                                 {
@@ -181,12 +182,12 @@ namespace LanguageExt.Parsec
                             // eok, cerr
                             if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                             {
-                                return ConsumedError<I, IEnumerable<O>>(t.Reply.Error);
+                                return ConsumedError<I, Seq<O>>(t.Reply.Error);
                             }
                             // eok, eerr
                             else if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.Error)
                             {
-                                return EmptyError<I, IEnumerable<O>>(mergeError(error, t.Reply.Error));
+                                return EmptyError<I, Seq<O>>(mergeError(error, t.Reply.Error));
                             }
                             // eok, cok
                             else if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
@@ -194,7 +195,7 @@ namespace LanguageExt.Parsec
                                 if (count == 0)
                                 {
                                     results.Add(t.Reply.Result);
-                                    return ConsumedOK<I, IEnumerable<O>>(results, t.Reply.State, t.Reply.Error);
+                                    return ConsumedOK(Seq(results), t.Reply.State, t.Reply.Error);
                                 }
                                 else
                                 {
@@ -210,7 +211,7 @@ namespace LanguageExt.Parsec
                                 if (count == 0)
                                 {
                                     results.Add(t.Reply.Result);
-                                    return EmptyOK<I, IEnumerable<O>>(results, t.Reply.State, mergeError(error, t.Reply.Error));
+                                    return EmptyOK(Seq(results), t.Reply.State, mergeError(error, t.Reply.Error));
                                 }
                                 else
                                 {
@@ -222,13 +223,13 @@ namespace LanguageExt.Parsec
                         }
                     }
                 }
-                return ConsumedOK<I, IEnumerable<O>>(results, current, error);
+                return ConsumedOK(Seq(results), current, error);
             };
 
 
-        public static Parser<I, IEnumerable<O>> counti<I, O>(int n, Parser<I, O> p) =>
+        public static Parser<I, Seq<O>> counti<I, O>(int n, Parser<I, O> p) =>
            n <= 0
-                ? result<I, IEnumerable<O>>(new O [0].AsEnumerable())
+                ? result<I, Seq<O>>(Seq<O>.Empty)
                 : from x in p
                   from y in counti(n-1, p)
                   select x.Cons(y);

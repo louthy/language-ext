@@ -702,8 +702,12 @@ public static class TaskTryOptionExtensions
         self.ToAsync().Where(pred);
 
     [Pure]
-    public static Task<IEnumerable<A>> AsEnumerable<A>(this Task<TryOption<A>> self) =>
+    public static Task<Seq<A>> AsEnumerable<A>(this Task<TryOption<A>> self) =>
         self.ToAsync().AsEnumerable();
+
+    [Pure]
+    public static Task<Seq<A>> ToSeq<A>(this Task<TryOption<A>> self) =>
+        self.ToAsync().ToSeq();
 
     [Pure]
     public static Task<Lst<A>> ToList<A>(this Task<TryOption<A>> self) =>

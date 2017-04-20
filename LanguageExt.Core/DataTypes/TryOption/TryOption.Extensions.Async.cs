@@ -693,7 +693,11 @@ public static class TryOptionExtensionsAsync
         self.ToAsync().Where(pred);
 
     [Pure]
-    public static Task<IEnumerable<A>> AsEnumerableAsync<A>(this TryOption<A> self) =>
+    public static Task<Seq<A>> ToSeqAsync<A>(this TryOption<A> self) =>
+        self.ToAsync().ToSeq();
+
+    [Pure]
+    public static Task<Seq<A>> AsEnumerableAsync<A>(this TryOption<A> self) =>
         self.ToAsync().AsEnumerable();
 
     [Pure]

@@ -495,7 +495,11 @@ public static class TaskTryExtensions
         select new Try<A>(() => x);
 
     [Pure]
-    public static Task<IEnumerable<A>> AsEnumerable<A>(this Task<Try<A>> self) =>
+    public static Task<Seq<A>> ToSeq<A>(this Task<Try<A>> self) =>
+        self.ToAsync().ToSeq();
+
+    [Pure]
+    public static Task<Seq<A>> AsEnumerable<A>(this Task<Try<A>> self) =>
         self.ToAsync().AsEnumerable();
 
     [Pure]

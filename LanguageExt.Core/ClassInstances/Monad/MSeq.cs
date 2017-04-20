@@ -11,97 +11,101 @@ using System.Threading.Tasks;
 namespace LanguageExt.ClassInstances
 {
     /// <summary>
-    /// Enumerable type-class instance
+    /// Seq type-class instance
     /// </summary>
     /// <typeparam name="A"></typeparam>
     public struct MSeq<A> :
-        Monad<IEnumerable<A>, A>,
-        Eq<IEnumerable<A>>,
-        Monoid<IEnumerable<A>>
+        Monad<Seq<A>, A>,
+        Eq<Seq<A>>,
+        Monoid<Seq<A>>
     {
         public static readonly MSeq<A> Inst = default(MSeq<A>);
 
         [Pure]
-        public IEnumerable<A> Append(IEnumerable<A> x, IEnumerable<A> y) =>
-            x.Concat(y);
+        public Seq<A> Append(Seq<A> x, Seq<A> y) =>
+            Seq(x.Concat(y));
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(IEnumerable<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
-            traverse<MSeq<A>, MONADB, IEnumerable<A>, MB, A, B>(ma, f);
+        public MB Bind<MONADB, MB, B>(Seq<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
+            traverse<MSeq<A>, MONADB, Seq<A>, MB, A, B>(ma, f);
 
         [Pure]
-        public Func<Unit, int> Count(IEnumerable<A> fa) => _ =>
+        public Func<Unit, int> Count(Seq<A> fa) => _ =>
             fa.Count();
 
         [Pure]
-        public IEnumerable<A> Subtract(IEnumerable<A> x, IEnumerable<A> y) =>
-            Enumerable.Except(x, y);
+        public Seq<A> Subtract(Seq<A> x, Seq<A> y) =>
+            Seq(Enumerable.Except(x, y));
 
         [Pure]
-        public IEnumerable<A> Empty() =>
-            new A[0];
+        public Seq<A> Empty() =>
+            Seq<A>.Empty;
 
         [Pure]
-        public bool Equals(IEnumerable<A> x, IEnumerable<A> y) =>
+        public bool Equals(Seq<A> x, Seq<A> y) =>
             Enumerable.SequenceEqual(x, y);
 
         [Pure]
-        public IEnumerable<A> Fail(object err) =>
+        public Seq<A> Fail(object err) =>
             Empty();
 
         [Pure]
-        public IEnumerable<A> Fail(Exception err = null) =>
+        public Seq<A> Fail(Exception err = null) =>
             Empty();
 
         [Pure]
-        public Func<Unit, S> Fold<S>(IEnumerable<A> fa, S state, Func<S, A, S> f) => _ =>
+        public Func<Unit, S> Fold<S>(Seq<A> fa, S state, Func<S, A, S> f) => _ =>
             fa.Fold(state, f);
 
         [Pure]
-        public Func<Unit, S> FoldBack<S>(IEnumerable<A> fa, S state, Func<S, A, S> f) => _ => 
+        public Func<Unit, S> FoldBack<S>(Seq<A> fa, S state, Func<S, A, S> f) => _ => 
             fa.FoldBack(state, f);
 
         [Pure]
-        public IEnumerable<A> Plus(IEnumerable<A> ma, IEnumerable<A> mb)
+        public Seq<A> Plus(Seq<A> ma, Seq<A> mb)
         {
-            foreach (var a in ma) yield return a;
-            foreach (var b in mb) yield return b;
+            IEnumerable<A> Yield()
+            {
+                foreach (var a in ma) yield return a;
+                foreach (var b in mb) yield return b;
+            }
+            return Seq(Yield());
         }
 
         [Pure]
-        public IEnumerable<A> Zero() =>
+        public Seq<A> Zero() =>
             Empty();
 
         [Pure]
-        public IEnumerable<A> Return(Func<Unit, A> f) =>
-            new[] { f(unit) };
+        public Seq<A> Return(Func<Unit, A> f) =>
+            f(unit).Cons();
 
         [Pure]
-        public int GetHashCode(IEnumerable<A> x) =>
+        public int GetHashCode(Seq<A> x) =>
             hash(x);
 
         [Pure]
-        public IEnumerable<A> Id(Func<Unit, IEnumerable<A>> ma) =>
+        public Seq<A> Id(Func<Unit, Seq<A>> ma) =>
             ma(unit);
 
         [Pure]
-        public IEnumerable<A> BindReturn(Unit maOutput, IEnumerable<A> mb) =>
+        public Seq<A> BindReturn(Unit maOutput, Seq<A> mb) =>
             mb;
 
         [Pure]
-        public IEnumerable<A> Return(A x) =>
+        public Seq<A> Return(A x) =>
             Return(_ => x);
 
         [Pure]
-        public IEnumerable<A> IdAsync(Func<Unit, Task<IEnumerable<A>>> ma) =>
+        public Seq<A> IdAsync(Func<Unit, Task<Seq<A>>> ma) =>
             ma(unit).Result;
 
         [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(IEnumerable<A> fa, S state, Func<S, A, S> f) => _ =>
+        public Func<Unit, Task<S>> FoldAsync<S>(Seq<A> fa, S state, Func<S, A, S> f) => _ =>
             Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
 
         [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(IEnumerable<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
+        public Func<Unit, Task<S>> FoldAsync<S>(Seq<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
         {
             Task<S> s = Task.FromResult(state);
             foreach (var item in fa)
@@ -114,11 +118,11 @@ namespace LanguageExt.ClassInstances
         };
 
         [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(IEnumerable<A> fa, S state, Func<S, A, S> f) => _ =>
+        public Func<Unit, Task<S>> FoldBackAsync<S>(Seq<A> fa, S state, Func<S, A, S> f) => _ =>
              Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
 
         [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(IEnumerable<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
+        public Func<Unit, Task<S>> FoldBackAsync<S>(Seq<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
         {
             Task<S> s = Task.FromResult(state);
             foreach (var item in fa.Reverse())
@@ -131,7 +135,7 @@ namespace LanguageExt.ClassInstances
         };
 
         [Pure]
-        public Func<Unit, Task<int>> CountAsync(IEnumerable<A> fa) => _ =>
+        public Func<Unit, Task<int>> CountAsync(Seq<A> fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
     }
 }

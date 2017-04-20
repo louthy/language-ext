@@ -111,8 +111,8 @@ namespace LanguageExt
                 : new QueInternal<T>(forward, backward.Push(value));
 
         [Pure]
-        public IEnumerable<T> AsEnumerable() =>
-            forward.AsEnumerable().Concat(BackwardRev);
+        public Seq<T> AsEnumerable() =>
+            Seq(forward.AsEnumerable().Concat(BackwardRev));
 
         [Pure]
         public IEnumerator<T> GetEnumerator() =>

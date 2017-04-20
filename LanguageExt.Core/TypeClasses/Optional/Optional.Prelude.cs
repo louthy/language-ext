@@ -155,9 +155,9 @@ namespace LanguageExt
         /// <param name="ma">Option</param>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public static IEnumerable<A> asEnumerable<OPT, OA, A>(OA ma)
+        public static Seq<A> asEnumerable<OPT, OA, A>(OA ma)
             where OPT : struct, Optional<OA, A> =>
-            toArray<OPT, OA, A>(ma).AsEnumerable();
+            Seq(toArray<OPT, OA, A>(ma));
 
         /// <summary>
         /// Convert the structure to an Either

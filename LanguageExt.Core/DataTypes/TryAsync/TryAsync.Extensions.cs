@@ -798,10 +798,16 @@ public static class TryAsyncExtensions
     });
 
     [Pure]
-    public static Task<IEnumerable<A>> AsEnumerable<A>(this TryAsync<A> self) =>
+    public static Task<Seq<A>> ToSeq<A>(this TryAsync<A> self) =>
         self.Match(
-            Succ: v => new A[1] { v }.AsEnumerable(),
-            Fail: x => new A[0].AsEnumerable());
+            Succ: v => v.Cons(Empty),
+            Fail: x => Empty);
+
+    [Pure]
+    public static Task<Seq<A>> AsEnumerable<A>(this TryAsync<A> self) =>
+        self.Match(
+            Succ: v => v.Cons(Empty),
+            Fail: x => Empty);
 
     [Pure]
     public static async Task<Lst<A>> ToList<A>(this TryAsync<A> self) =>

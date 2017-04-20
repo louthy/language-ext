@@ -63,13 +63,14 @@ namespace LanguageExt
         }
 
         [Pure]
-        public IEnumerable<A> AsEnumerable()
-        {
-            if(initialised)
-            {
-                yield return value;
-            }
-        }
+        public Seq<A> ToSeq() =>
+            initialised
+                ? value.Cons(Empty)
+                : Empty;
+
+        [Pure]
+        public Seq<A> AsEnumerable() =>
+            ToSeq();
 
         [Pure]
         public IEnumerator<A> GetEnumerator() =>

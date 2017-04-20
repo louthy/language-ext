@@ -329,7 +329,7 @@ namespace LanguageExt
         [Pure]
         public static Task<Lst<A>> toListAsync<OPT, OA, A>(OA ma)
             where OPT : struct, OptionalAsync<OA, A> =>
-            toArrayAsync<OPT, OA, A>(ma).Map(arr => Prelude.toList(arr));
+            toArrayAsync<OPT, OA, A>(ma).Map(Prelude.toList);
 
         /// <summary>
         /// Convert the Option to an enumerable of zero or one items
@@ -338,9 +338,9 @@ namespace LanguageExt
         /// <param name="ma">Option</param>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public static Task<IEnumerable<A>> asEnumerableAsync<OPT, OA, A>(OA ma)
+        public static Task<Seq<A>> asEnumerableAsync<OPT, OA, A>(OA ma)
             where OPT : struct, OptionalAsync<OA, A> =>
-            toArrayAsync<OPT, OA, A>(ma).Map(arr => arr.AsEnumerable());
+            toArrayAsync<OPT, OA, A>(ma).Map(Prelude.Seq);
 
         /// <summary>
         /// Convert the structure to an Either

@@ -8,88 +8,88 @@ using System.Diagnostics.Contracts;
 namespace LanguageExt.ClassInstances
 {
     public struct ApplSeq<A, B> :
-        Functor<IEnumerable<A>, IEnumerable<B>, A, B>,
-        Applicative<IEnumerable<Func<A, B>>, IEnumerable<A>, IEnumerable<B>, A, B>
+        Functor<Seq<A>, Seq<B>, A, B>,
+        Applicative<Seq<Func<A, B>>, Seq<A>, Seq<B>, A, B>
     {
         public static readonly ApplSeq<A, B> Inst = default(ApplSeq<A, B>);
 
         [Pure]
-        public IEnumerable<B> Action(IEnumerable<A> fa, IEnumerable<B> fb) =>
+        public Seq<B> Action(Seq<A> fa, Seq<B> fb) =>
             from a in fa
             from b in fb
             select b;
 
         [Pure]
-        public IEnumerable<B> Apply(IEnumerable<Func<A, B>> fab, IEnumerable<A> fa) =>
+        public Seq<B> Apply(Seq<Func<A, B>> fab, Seq<A> fa) =>
             from f in fab
             from a in fa
             select f(a);
 
         [Pure]
-        public IEnumerable<B> Map(IEnumerable<A> ma, Func<A, B> f) =>
+        public Seq<B> Map(Seq<A> ma, Func<A, B> f) =>
             FSeq<A, B>.Inst.Map(ma, f);
 
         [Pure]
-        public IEnumerable<A> Pure(A x) =>
-            List.create(x);
+        public Seq<A> Pure(A x) =>
+            Seq.create(x);
     }
 
     public struct ApplSeq<A, B, C> :
-        Applicative<IEnumerable<Func<A, Func<B, C>>>, IEnumerable<Func<B, C>>, IEnumerable<A>, IEnumerable<B>, IEnumerable<C>, A, B, C>
+        Applicative<Seq<Func<A, Func<B, C>>>, Seq<Func<B, C>>, Seq<A>, Seq<B>, Seq<C>, A, B, C>
     {
         public static readonly ApplSeq<A, B, C> Inst = default(ApplSeq<A, B, C>);
 
         [Pure]
-        public IEnumerable<Func<B, C>> Apply(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa) =>
+        public Seq<Func<B, C>> Apply(Seq<Func<A, Func<B, C>>> fabc, Seq<A> fa) =>
             from f in fabc
             from a in fa
             select f(a);
 
         [Pure]
-        public IEnumerable<C> Apply(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
+        public Seq<C> Apply(Seq<Func<A, Func<B, C>>> fabc, Seq<A> fa, Seq<B> fb) =>
             from f in fabc
             from a in fa
             from b in fb
             select f(a)(b);
 
         [Pure]
-        public IEnumerable<A> Pure(A x) =>
-            List.create(x);
+        public Seq<A> Pure(A x) =>
+            Seq.create(x);
     }
 
     public struct ApplSeq<A> :
-        Applicative<IEnumerable<Func<A, A>>, IEnumerable<A>, IEnumerable<A>, A, A>,
-        Applicative<IEnumerable<Func<A, Func<A, A>>>, IEnumerable<Func<A, A>>, IEnumerable<A>, IEnumerable<A>, IEnumerable<A>, A, A, A>
+        Applicative<Seq<Func<A, A>>, Seq<A>, Seq<A>, A, A>,
+        Applicative<Seq<Func<A, Func<A, A>>>, Seq<Func<A, A>>, Seq<A>, Seq<A>, Seq<A>, A, A, A>
     {
         public static readonly ApplSeq<A> Inst = default(ApplSeq<A>);
 
         [Pure]
-        public IEnumerable<A> Action(IEnumerable<A> fa, IEnumerable<A> fb) =>
+        public Seq<A> Action(Seq<A> fa, Seq<A> fb) =>
             from a in fa
             from b in fb
             select b;
 
         [Pure]
-        public IEnumerable<A> Apply(IEnumerable<Func<A, A>> fab, IEnumerable<A> fa) =>
+        public Seq<A> Apply(Seq<Func<A, A>> fab, Seq<A> fa) =>
             from f in fab
             from a in fa
             select f(a);
 
         [Pure]
-        public IEnumerable<Func<A, A>> Apply(IEnumerable<Func<A, Func<A, A>>> fabc, IEnumerable<A> fa) =>
+        public Seq<Func<A, A>> Apply(Seq<Func<A, Func<A, A>>> fabc, Seq<A> fa) =>
             from f in fabc
             from a in fa
             select f(a);
 
         [Pure]
-        public IEnumerable<A> Apply(IEnumerable<Func<A, Func<A, A>>> fabc, IEnumerable<A> fa, IEnumerable<A> fb) =>
+        public Seq<A> Apply(Seq<Func<A, Func<A, A>>> fabc, Seq<A> fa, Seq<A> fb) =>
             from f in fabc
             from a in fa
             from b in fb
             select f(a)(b);
 
         [Pure]
-        public IEnumerable<A> Pure(A x) =>
-            List.create(x);
+        public Seq<A> Pure(A x) =>
+            Seq.create(x);
     }
 }

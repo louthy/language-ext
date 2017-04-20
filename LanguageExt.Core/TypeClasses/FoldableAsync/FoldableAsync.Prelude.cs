@@ -98,8 +98,8 @@ namespace LanguageExt
         /// <param name="fa">Foldable</param>
         /// <returns>Sequence of As</returns>
         [Pure]
-        public static Task<IEnumerable<A>> toSeqAsync<FOLD, F, A>(F fa) where FOLD : FoldableAsync<F, A> =>
-            default(FOLD).FoldBackAsync(fa, new A[0].AsEnumerable(), (s, x) => x.Cons(s))(unit);
+        public static Task<Seq<A>> toSeqAsync<FOLD, F, A>(F fa) where FOLD : FoldableAsync<F, A> =>
+            default(FOLD).FoldBackAsync(fa, Seq<A>.Empty, (s, x) => x.Cons(s))(unit);
 
 
         /// <summary>

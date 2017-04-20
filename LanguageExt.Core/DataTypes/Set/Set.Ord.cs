@@ -465,6 +465,10 @@ namespace LanguageExt
             $"Set[{Count}]";
 
         [Pure]
+        public Seq<A> ToSeq() =>
+            Prelude.Seq(this);
+
+        [Pure]
         public IEnumerable<A> AsEnumerable() => this;
 
         [Pure]
@@ -506,5 +510,9 @@ namespace LanguageExt
             }
             return new Set<OrdA, A>(Yield(), true);
         }
+
+        [Pure]
+        public IEnumerable<A> Skip(int amount) =>
+            Value.Skip(amount);
     }
 }

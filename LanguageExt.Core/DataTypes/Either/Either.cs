@@ -438,11 +438,25 @@ namespace LanguageExt
             leftToArray<MEither<L, R>, Either<L, R>, L, R>(this);
 
         /// <summary>
+        /// Convert either to sequence of 0 or 1 right values
+        /// </summary>
+        [Pure]
+        public Seq<R> RightToSeq() =>
+            RightAsEnumerable();
+
+        /// <summary>
+        /// Convert either to sequence of 0 or 1 right values
+        /// </summary>
+        [Pure]
+        public Seq<L> LeftToSeq() =>
+            LeftAsEnumerable();
+
+        /// <summary>
         /// Project the Either into a IEnumerable R
         /// </summary>
         /// <returns>If the Either is in a Right state, a IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
         [Pure]
-        public IEnumerable<R> RightAsEnumerable() =>
+        public Seq<R> RightAsEnumerable() =>
             rightAsEnumerable<MEither<L, R>, Either<L, R>, L, R>(this);
 
         /// <summary>
@@ -450,7 +464,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>If the Either is in a Left state, a IEnumerable of L with one item.  A zero length IEnumerable L otherwise</returns>
         [Pure]
-        public IEnumerable<L> LeftAsEnumerable() =>
+        public Seq<L> LeftAsEnumerable() =>
             leftAsEnumerable<MEither<L, R>, Either<L, R>, L, R>(this);
 
         /// <summary>

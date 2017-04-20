@@ -79,13 +79,22 @@ namespace LanguageExt
             AsEnumerable().GetEnumerator();
 
         /// <summary>
+        /// Returns the stack as a Sq.  The first item in the sequence
+        /// will be the item at the top of the stack.
+        /// </summary>
+        /// <returns>IEnumerable of T</returns>
+        [Pure]
+        public Seq<T> ToSeq() =>
+            Seq(Value);
+
+        /// <summary>
         /// Returns the stack as an IEnumerable.  The first item in the enumerable
         /// will be the item at the top of the stack.
         /// </summary>
         /// <returns>IEnumerable of T</returns>
         [Pure]
         public IEnumerable<T> AsEnumerable() =>
-            Value.AsEnumerable();
+            Value;
 
         /// <summary>
         /// Return the item on the top of the stack without affecting the stack itself

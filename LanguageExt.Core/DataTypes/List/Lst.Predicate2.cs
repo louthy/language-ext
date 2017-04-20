@@ -18,6 +18,7 @@ namespace LanguageExt
         IEnumerable<A>, 
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
+        IEquatable<Lst<PredList, PredItem, A>>,
         ListInfo
         where PredList : struct, Pred<ListInfo>
         where PredItem : struct, Pred<A>
@@ -143,6 +144,14 @@ namespace LanguageExt
         [Pure]
         public IEnumerator<A> GetEnumerator() =>
             new ListModule.ListEnumerator<A>(Root,Rev,0);
+
+        [Pure]
+        public Seq<A> ToSeq() =>
+            Seq(this);
+
+        [Pure]
+        public IEnumerable<A> AsEnumerable() =>
+            this;
 
         /// <summary>
         /// Find the index of an item

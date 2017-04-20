@@ -298,15 +298,22 @@ namespace LanguageExt
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
+        [Pure]
         public IEnumerator<A> GetEnumerator() =>
             Value.GetEnumerator();
 
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
+        [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
             Value.GetEnumerator();
 
+        [Pure]
+        public Seq<A> ToSeq() =>
+            Prelude.Seq(this);
+
+        [Pure]
         public IEnumerable<A> AsEnumerable() =>
             this;
 
