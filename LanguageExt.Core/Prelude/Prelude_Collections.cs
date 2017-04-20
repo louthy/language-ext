@@ -616,88 +616,23 @@ namespace LanguageExt
             items.AsQueryable();
 
         /// <summary>
-        /// List matching
+        /// List pattern matching
         /// </summary>
         [Pure]
-        public static R match<T, R>(IEnumerable<T> list,
-            Func<R> Empty,
-            Func<T, IEnumerable<T>, R> More) =>
-            list.Match(Empty, More);
+        public static B match<A, B>(IEnumerable<A> list,
+            Func<B> Empty,
+            Func<A, Seq<A>, B> More) =>
+            Seq(list).Match(Empty, More);
 
         /// <summary>
-        /// List matching
+        /// List pattern matching
         /// </summary>
         [Pure]
         public static R match<T, R>(IEnumerable<T> list,
             Func<R> Empty,
             Func<T, R> One,
-            Func<T, IEnumerable<T>, R> More ) =>
-            list.Match(Empty, One, More);
-
-        /// <summary>
-        /// List matching
-        /// </summary>
-        [Pure]
-        public static R match<T, R>(IEnumerable<T> list,
-            Func<R> Empty,
-            Func<T, R> One,
-            Func<T, T, R> Two,
-            Func<T, T, IEnumerable<T>, R> More) =>
-            list.Match(Empty, One, Two, More);
-
-        /// <summary>
-        /// List matching
-        /// </summary>
-        [Pure]
-        public static R match<T, R>(IEnumerable<T> list,
-            Func<R> Empty,
-            Func<T, R> One,
-            Func<T, T, R> Two,
-            Func<T, T, T, R> Three,
-            Func<T, T, T, IEnumerable<T>, R> More) =>
-            list.Match(Empty, One, Two, Three, More);
-
-        /// <summary>
-        /// List matching
-        /// </summary>
-        [Pure]
-        public static R match<T, R>(IEnumerable<T> list,
-            Func<R> Empty,
-            Func<T, R> One,
-            Func<T, T, R> Two,
-            Func<T, T, T, R> Three,
-            Func<T, T, T, T, R> Four,
-            Func<T, T, T, T, IEnumerable<T>, R> More) =>
-            list.Match(Empty, One, Two, Three, Four, More);
-
-        /// <summary>
-        /// List matching
-        /// </summary>
-        [Pure]
-        public static R match<T, R>(IEnumerable<T> list,
-            Func<R> Empty,
-            Func<T, R> One,
-            Func<T, T, R> Two,
-            Func<T, T, T, R> Three,
-            Func<T, T, T, T, R> Four,
-            Func<T, T, T, T, T, R> Five,
-            Func<T, T, T, T, T, IEnumerable<T>, R> More) =>
-            list.Match(Empty, One, Two, Three, Four, Five, More);
-
-        /// <summary>
-        /// List matching
-        /// </summary>
-        [Pure]
-        public static R match<T, R>(IEnumerable<T> list,
-            Func<R> Empty,
-            Func<T, R> One,
-            Func<T, T, R> Two,
-            Func<T, T, T, R> Three,
-            Func<T, T, T, T, R> Four,
-            Func<T, T, T, T, T, R> Five,
-            Func<T, T, T, T, T, T, R> Six,
-            Func<T, T, T, T, T, T, IEnumerable<T>, R> More) =>
-            list.Match(Empty, One, Two, Three, Four, Five, Six, More);
+            Func<T, Seq<T>, R> More) =>
+            Seq(list).Match(Empty, One, More);
 
         [Pure]
         public static R match<K, V, R>(Map<K, V> map, K key, Func<V, R> Some, Func<R> None) =>
