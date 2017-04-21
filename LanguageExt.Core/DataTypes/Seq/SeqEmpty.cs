@@ -18,7 +18,7 @@ namespace LanguageExt
     /// <summary>
     /// Represents the Empty node at the end of a sequence
     /// </summary>
-    public class SeqEmpty<A> : Seq<A>
+    internal class SeqEmpty<A> : Seq<A>
     {
         public static SeqEmpty<A> Default = new SeqEmpty<A>();
 

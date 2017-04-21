@@ -881,8 +881,7 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>Differs from `tails` in implementation only.  The `tailsr` uses recursive processing
         /// whereas `tails` uses a while loop aggregation followed by a reverse.  For small sequences 
-        /// `tailsr` is probably more efficient.
-        /// of the `Se` </remarks>
+        /// `tailsr` is probably more efficient. </remarks>
         /// <typeparam name="A">Seq item type</typeparam>
         /// <param name="self">Seq</param>
         /// <returns>Seq of Seq of A</returns>

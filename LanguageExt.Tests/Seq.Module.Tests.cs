@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using static LanguageExt.Prelude;
 
@@ -168,6 +171,53 @@ namespace LanguageExt.Tests
             Assert.True(counter == 10);
             Assert.True(cnt4 == 5);
             Assert.True(cnt3 == 6);
+        }
+
+        /// <summary>
+        /// Runs 1000 tasks that sums the same lazy Seq to
+        /// make sure we get the same result as a synchronous
+        /// sum.
+        /// </summary>
+        [Fact]
+        public void ParallelTests()
+        {
+            var sum = Range(1, 10000).Sum();
+
+            var seq = Seq(Range(1, 10000));
+
+            var tasks = new List<Task<int>>();
+            foreach(var x in Range(1, 1000))
+            {
+                tasks.Add(Task.Run(() => seq.Sum()));
+            }
+
+            Task.WaitAll(tasks.ToArray());
+
+            foreach(var task in tasks)
+            {
+                Assert.True(task.Result == sum);
+            }
+        }
+
+        [Fact]
+        public void BigFoldBack()
+        {
+            var seq = Range(1, 10000).ToSeq();
+            var prime = seq.Count; // Force eval
+
+            Stopwatch watch1 = Stopwatch.StartNew();
+
+            var count1 = seq.FoldBack(0, (s, x) => s + 1);
+
+            watch1.Stop();
+
+            Stopwatch watch2 = Stopwatch.StartNew();
+
+            var count2 = seq.FoldBackRec(0, (s, x) => s + 1);
+
+            watch2.Stop();
+
+            Assert.True(watch1.ElapsedTicks > watch2.ElapsedTicks);
         }
     }
 }

@@ -11,6 +11,24 @@ using LanguageExt.ClassInstances;
 public static class ListExtensions
 {
     /// <summary>
+    /// Converts an enumerable to a `Seq`
+    /// </summary>
+    public static Seq<A> ToSeq<A>(this IEnumerable<A> enumerable) =>
+        Seq(enumerable);
+
+    /// <summary>
+    /// Converts an enumerable to a `Seq`
+    /// </summary>
+    public static Seq<A> ToSeq<A>(this IList<A> enumerable) =>
+        Seq(enumerable);
+
+    /// <summary>
+    /// Converts an array to a `Seq`
+    /// </summary>
+    public static Seq<A> ToSeq<A>(this A[] array) =>
+        Seq(array);
+
+    /// <summary>
     /// Concatenate two enumerables (Concat in LINQ)
     /// </summary>
     /// <typeparam name="A">Enumerable item type</typeparam>

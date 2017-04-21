@@ -272,7 +272,9 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Fold the sequence from the last item to the first
+        /// Fold the sequence from the last item to the first.  For 
+        /// sequences that are not lazy and are less than 5000 items
+        /// long, FoldBackRec is called instead, because it is faster.
         /// </summary>
         /// <typeparam name="S">State type</typeparam>
         /// <param name="state">Initial state</param>
@@ -280,12 +282,47 @@ namespace LanguageExt
         /// <returns>Aggregated state</returns>
         public S FoldBack<S>(S state, Func<S, A, S> f)
         {
-            foreach(var item in AsEnumerable().Reverse())
-            { 
-                state = f(state, item);
+            if (count != -1 && count < 5000)
+            {
+                // Recursive fold is faster, but will blow the stack bank
+                // if we use it with sequences that are too large
+                return FoldBackRec(state, f);
+            }
+
+            var stack = count == -1
+                ? new Stack<A>()
+                : new Stack<A>(count + 1);
+
+            var current = this;
+            int itemCount = 0;
+            while(!current.IsEmpty)
+            {
+                stack.Push(current.Head);
+                current = current.Tail;
+                itemCount++;
+            }
+            this.count = itemCount;
+
+            for (var i = 0; i < itemCount; i++)
+            {
+                state = f(state, stack.Pop());
             }
             return state;
         }
+
+        /// <summary>
+        /// Fold the sequence (recursively) from the last item to the 
+        /// first.  This is faster than FoldBack, but be wary of calling 
+        /// this with sequences that are large, you can blow the stack.
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="f">Fold function</param>
+        /// <returns>Aggregated state</returns>
+        public S FoldBackRec<S>(S state, Func<S, A, S> f) =>
+            IsEmpty
+                ? state
+                : f(Tail.FoldBackRec(state, f), Head);
 
         /// <summary>
         /// Returns true if the supplied predicate returns true for any

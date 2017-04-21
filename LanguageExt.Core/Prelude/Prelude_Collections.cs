@@ -729,6 +729,13 @@ namespace LanguageExt
         /// Construct a sequence from a list
         /// </summary>
         [Pure]
+        public static Seq<A> Seq<A>(IList<A> value) =>
+            SeqList<A>.New(value);
+
+        /// <summary>
+        /// Construct a sequence from a list
+        /// </summary>
+        [Pure]
         public static Seq<A> Seq<A>(Lst<A> value) =>
             SeqLst<A>.New(value);
 

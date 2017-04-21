@@ -20,6 +20,18 @@ namespace LanguageExt
             this.index = index;
         }
 
+        /// <summary>
+        /// Stream as an enumerable
+        /// </summary>
+        public override IEnumerable<A> AsEnumerable()
+        {
+            yield return Head;
+            foreach(var item in list.Skip(index))
+            {
+                yield return item;
+            }
+        }
+
         public static Seq<A> New(A head, Lst<A> seq) =>
             new SeqLst<A>(head, seq.GetEnumerator(), seq, 0);
 
