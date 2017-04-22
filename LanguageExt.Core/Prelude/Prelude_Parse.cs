@@ -162,5 +162,15 @@ namespace LanguageExt
                 ? Some(result)
                 : None;
         }
+
+        [Pure]
+        public static Option<IEnum> parseEnum<IEnum>(string value)
+            where IEnum: struct
+        {
+            IEnum result;
+            return Enum.TryParse(value, out result)
+                ? Some(result)
+                : None;
+        }
     }
 }
