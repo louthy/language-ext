@@ -1,10 +1,10 @@
-# Version 2 (BETA) Release Notes
+# Version 2 Release Notes
 
-Version 2.0 of Language-Ext is now in beta.  This is a major overhaul of every type in the system.  I have also broken out the `LanguageExt.Process` actor system into its own repo, it is now named *Echo*, so if you're using that you should [head over to the repo](https://github.com/louthy/echo-process) and follow that.  It's still in alpha at the moment, it's feature complete, it just needs more testing, so it's lagging behind at the moment.
+Version 2.0 of Language-Ext is now in released.  This is a major overhaul of every type in the system.  I have also broken out the `LanguageExt.Process` actor system into its own repo, it is now named *Echo*, so if you're using that you should [head over to the repo](https://github.com/louthy/echo-process) and follow that.  It's still in alpha - it's feature complete, it just needs more testing - so it's lagging behind at the moment.  If you're using both lang-ext Core and the Echo Process system then wait until the Echo Process system is released before migrating to the new Core.
 
 Version 2.0 of Language-Ext actually just started out as a branch where I was trying out a new technique for doing ad-hoc polymorphism in C# (think somewhere between Haskell typeclasses and Scala implicits).  
 
-I didn't expect it to lead to an entire re-write.  So a word of warning, there are many areas that I know will be breaking changes, but some I don't.  Breaking changes will 99% of the time be compile time errors (rather than changes in behaviour that silently affect your code).  So although I don't expect any major issues, I would put aside an afternoon to fix up any compilation breakages.  
+I didn't expect it to lead to an entire re-write.  So a word of warning, there are many areas that I know will be breaking changes, but some I don't.  Breaking changes will 99% of the time be compile time errors (rather than changes in behaviour that silently affect your code).  So although I don't expect any major issues, For any large projects I would put aside an afternoon to fix up any compilation breakages.  
 
 Often the breakages are for things like rectifying naming inconsistencies (for example some bi-map functions were named `Map`, some named `BiMap`, they're all now `BiMap`), another example is that all collection types (`Lst`, `Map`, etc.) are now structs.  So any code that does this will fail to compile:
 ```c
@@ -46,6 +46,7 @@ Scroll down to the section on Ad-hoc polymorphism for more details.
 
  Type                                       | Description
 --------------------------------------------|--------------
+`Seq<A>`                                    | Cons-like, singly-linked list
 `HashSet<A>`                                | Ordering is done by `GetHashCode()`.  Existence testing is with `EqualityComparer<A>.Default.Equals(a,b)`
 `HashMap<A, B>`                             | Ordering is done by `GetHashCode()`.  Existence testing is with `EqualityComparer<A>.Default.Equals(a,b)`
 `HashSet<EqA, A> where EqA : struct, Eq<A>` | Ordering is done by `GetHashCode()`.  Existence testing is with `default(EqA).Equals(a,b)`
@@ -116,6 +117,244 @@ Built-in are some standard `Pred<ListInfo>` implementations:
 * `NonEmpty` - List must have at least one item
 
 And by default there are lots of `Pred<A>` implementations.  See the `NewType` discussion later.
+
+### Seq<A>
+
+A new feature is the type [`Seq<A>`](https://github.com/louthy/language-ext/tree/master/LanguageExt.Core/DataTypes/Seq) which derives from [`ISeq<A>`](https://github.com/louthy/language-ext/blob/master/LanguageExt.Core/DataTypes/Seq/ISeq.cs), which in turn is an `IEnumerable<A>`.
+
+It works very much like `cons` in functional languages (although not a real cons, as that's not a workable solution in C#).  It's a singly-linked list, with two key properties: `Head` which is the item at the head of the sequence, and `Tail` which is the rest of the sequence.  You can convert any existing collection type (as well as `IEnumerable` types) to a `Seq<A>` by calling the `Seq` constructor:
+```c#
+    var seq1 = Seq(List(1, 2, 3, 4, 5));    // Lst<A> -> Seq<A>
+    var seq2 = Seq(Arr(1, 2, 3, 4, 5));     // Arr<A> -> Seq<A>
+    var seq3 = Seq(new [] {1, 2, 3, 4, 5}); // A[] -> Seq<A>
+    ...    
+```
+As well as construct them directly:
+```c#
+    var seq1 = Seq(1, 2, 3, 4, 5);
+
+    var seq2 = 1.Cons(2.Cons(3.Cons(4.Cons(5.Cons(Empty)))));
+```
+In practice if you're using `Cons` you don't need to provide `Empty`:
+```c#
+    var seq = 1.Cons();   // Creates a sequence with one item in
+```
+The primary benefits are:
+* Immutable
+* Thread-safe
+* Much lighter weight than using `Lst<A>` (although `Lst<A>` is very efficient, it is still an AVL tree behind the scenes)
+* Maintains the original type for `Lst<A>`, `Arr<A>`, and arrays.  So if you construct a `Seq` from one of those types, the `Seq` then gains extra powers for random lookups (`Skip`), and length queries (`Count`).
+* If you construct a `Seq` with an `IEnumerable` then it maintains its laziness, but also __guarantees that each item in the original `IEnumerable` is only ever enumerated once.__
+* Obviously easier to type `Seq` than `IEnumerable`!
+* `Count` works by default for all non-`IEnumerable` sources.  If you construct with an `IEnumerable` then `Count` will only cause a single evaluation of the underlying `IEnumerable` (and subsequent access to the seq for anything else doesn't cause additional evaluation)
+* Efficient pattern matching on the `Seq`, which again doesn't cause multiple evaluations of the underling collection.
+
+`Seq` has a bigger interface than `IEnumerable` which allows for various bespoke optimisations depending on the underlying collection; which is especially powerful for the LINQ operators like `Skip`, `Take`, `TakeWhile`, 
+
+```c#
+    public interface ISeq<A> : 
+        IEnumerable<A>, 
+        IEquatable<ISeq<A>>, 
+        IComparable<ISeq<A>>
+    {
+        /// <summary>
+        /// Head of the sequence
+        /// </summary>
+        A Head { get; }
+
+        /// <summary>
+        /// Head of the sequence
+        /// </summary>
+        Option<A> HeadOrNone();
+
+        /// <summary>
+        /// Tail of the sequence
+        /// </summary>
+        Seq<A> Tail { get; }
+
+        /// <summary>
+        /// True if this cons node is the Empty node
+        /// </summary>
+        bool IsEmpty { get; }
+
+        /// <summary>
+        /// Returns the number of items in the sequence
+        /// </summary>
+        /// <returns>Number of items in the sequence</returns>
+        int Count { get; }
+
+        /// <summary>
+        /// Match empty sequence, or multi-item sequence
+        /// </summary>
+        /// <typeparam name="B">Return value type</typeparam>
+        /// <param name="Empty">Match for an empty list</param>
+        /// <param name="Tail">Match for a non-empty</param>
+        /// <returns>Result of match function invoked</returns>
+        B Match<B>(
+            Func<B> Empty,
+            Func<A, Seq<A>, B> Tail);
+
+        /// <summary>
+        /// Match empty sequence, or one item sequence, or multi-item sequence
+        /// </summary>
+        /// <typeparam name="B">Return value type</typeparam>
+        /// <param name="Empty">Match for an empty list</param>
+        /// <param name="Tail">Match for a non-empty</param>
+        /// <returns>Result of match function invoked</returns>
+        B Match<B>(
+            Func<B> Empty,
+            Func<A, B> Head,
+            Func<A, Seq<A>, B> Tail);
+
+        /// <summary>
+        /// Match empty sequence, or multi-item sequence
+        /// </summary>
+        /// <typeparam name="B">Return value type</typeparam>
+        /// <param name="Empty">Match for an empty list</param>
+        /// <param name="Seq">Match for a non-empty</param>
+        /// <returns>Result of match function invoked</returns>
+        B Match<B>(
+            Func<B> Empty,
+            Func<Seq<A>, B> Seq);
+
+        /// <summary>
+        /// Match empty sequence, or one item sequence, or multi-item sequence
+        /// </summary>
+        /// <typeparam name="B">Return value type</typeparam>
+        /// <param name="Empty">Match for an empty list</param>
+        /// <param name="Tail">Match for a non-empty</param>
+        /// <returns>Result of match function invoked</returns>
+        B Match<B>(
+            Func<B> Empty,
+            Func<A, B> Head,
+            Func<Seq<A>, B> Tail);
+
+        /// <summary>
+        /// Map the sequence using the function provided
+        /// </summary>
+        /// <typeparam name="B"></typeparam>
+        /// <param name="f">Mapping function</param>
+        /// <returns>Mapped sequence</returns>
+        Seq<B> Map<B>(Func<A, B> f);
+
+        /// <summary>
+        /// Map the sequence using the function provided
+        /// </summary>
+        /// <typeparam name="B"></typeparam>
+        /// <param name="f">Mapping function</param>
+        /// <returns>Mapped sequence</returns>
+        Seq<B> Select<B>(Func<A, B> f);
+
+        /// <summary>
+        /// Filter the items in the sequence
+        /// </summary>
+        /// <param name="f">Predicate to apply to the items</param>
+        /// <returns>Filtered sequence</returns>
+        Seq<A> Filter(Func<A, bool> f);
+
+        /// <summary>
+        /// Filter the items in the sequence
+        /// </summary>
+        /// <param name="f">Predicate to apply to the items</param>
+        /// <returns>Filtered sequence</returns>
+        Seq<A> Where(Func<A, bool> f);
+
+        /// <summary>
+        /// Monadic bind (flatmap) of the sequence
+        /// </summary>
+        /// <typeparam name="B">Bound return value type</typeparam>
+        /// <param name="f">Bind function</param>
+        /// <returns>Flatmapped sequence</returns>
+        Seq<B> Bind<B>(Func<A, Seq<B>> f);
+
+        /// <summary>
+        /// Monadic bind (flatmap) of the sequence
+        /// </summary>
+        /// <typeparam name="B">Bound return value type</typeparam>
+        /// <param name="bind">Bind function</param>
+        /// <returns>Flatmapped sequence</returns>
+        Seq<C> SelectMany<B, C>(Func<A, Seq<B>> bind, Func<A, B, C> project);
+
+        /// <summary>
+        /// Fold the sequence from the first item to the last
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="f">Fold function</param>
+        /// <returns>Aggregated state</returns>
+        S Fold<S>(S state, Func<S, A, S> f);
+
+        /// <summary>
+        /// Fold the sequence from the last item to the first
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="f">Fold function</param>
+        /// <returns>Aggregated state</returns>
+        S FoldBack<S>(S state, Func<S, A, S> f);
+
+        /// <summary>
+        /// Returns true if the supplied predicate returns true for any
+        /// item in the sequence.  False otherwise.
+        /// </summary>
+        /// <param name="f">Predicate to apply</param>
+        /// <returns>True if the supplied predicate returns true for any
+        /// item in the sequence.  False otherwise.</returns>
+        bool Exists(Func<A, bool> f);
+
+        /// <summary>
+        /// Returns true if the supplied predicate returns true for all
+        /// items in the sequence.  False otherwise.  If there is an 
+        /// empty sequence then true is returned.
+        /// </summary>
+        /// <param name="f">Predicate to apply</param>
+        /// <returns>True if the supplied predicate returns true for all
+        /// items in the sequence.  False otherwise.  If there is an 
+        /// empty sequence then true is returned.</returns>
+        bool ForAll(Func<A, bool> f);
+
+        /// <summary>
+        /// Skip count items
+        /// </summary>
+        Seq<A> Skip(int count);
+
+        /// <summary>
+        /// Take count items
+        /// </summary>
+        Seq<A> Take(int count);
+
+        /// <summary>
+        /// Iterate the sequence, yielding items if they match the predicate 
+        /// provided, and stopping as soon as one doesn't
+        /// </summary>
+        /// <returns>A new sequence with the first items that match the 
+        /// predicate</returns>
+        Seq<A> TakeWhile(Func<A, bool> pred);
+
+        /// <summary>
+        /// Iterate the sequence, yielding items if they match the predicate 
+        /// provided, and stopping as soon as one doesn't.  An index value is 
+        /// also provided to the predicate function.
+        /// </summary>
+        /// <returns>A new sequence with the first items that match the 
+        /// predicate</returns>
+        Seq<A> TakeWhile(Func<A, int, bool> pred);
+    }
+```
+
+__Breaking changes__
+
+* Previously there were functions in the `Prelude` called `seq` which took many types and turned them into `IEnumerable<A>`.  Now they're constructing `Seq<A>` I have renamed them to `Seq` in line with other constructor functions.  
+* Where sensible in the rest of the API I have changed `AsEnumerable()` to return a `Seq<A>`.  This is for types which are unlikely to have large sequences (like `Option`, `Either`, `Try`, etc.);  You may find casting issues in those situations, but the types returned are obviously more useful, so it feels like a win.  Let me know if you have issues (All the major types have a `ToSeq()` method where appropriate, for convenience).
+* In `LanguageExt.Parsec` any parsers that previously returned `IEnumerable<A>` now return `Seq<A>`; I noticed when using the `Parsec` library extensively that I would often use `ToArray()` or `Freeze()` to force strict evaluation of a `IEnumerable` result.  Now you don't have to, but you may see some casting issues.
+* `Match` and `match` for `IEnumerable` previously allowed for matching up to six items in six separate lambdas.  They're now gone because I doubt anybody uses them, and they're slightly unwieldy.  Now they use `Seq` behind the scenes to remove any multiple evaluations during the matching process:
+```c#
+        static int Sum(Seq<int> seq) =>
+            seq.Match(
+                ()      => 0,
+                x       => x,
+                (x, xs) => x + Sum(xs));
+```
 
 ### Non-nullable types: 
 
@@ -547,7 +786,6 @@ As `Try` has got its `TryAsync` pairing, so has `TryOption` now got `TryOptionAs
         int z2 = await y2.IfNoneOrFail(0);
     }
 ```
-
 
 ### Ad-hoc polymorphism
 
