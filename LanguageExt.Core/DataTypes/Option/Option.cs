@@ -147,7 +147,7 @@ namespace LanguageExt
         /// <returns>True if lhs > rhs</returns>
         [Pure]
         public static bool operator >(Option<A> lhs, Option<A> rhs) =>
-            compare<OrdDefault<A>, A>(lhs, rhs) < 0;
+            compare<OrdDefault<A>, A>(lhs, rhs) > 0;
 
         /// <summary>
         /// Comparison operator
@@ -157,7 +157,7 @@ namespace LanguageExt
         /// <returns>True if lhs >= rhs</returns>
         [Pure]
         public static bool operator >=(Option<A> lhs, Option<A> rhs) =>
-            compare<OrdDefault<A>, A>(lhs, rhs) <= 0;
+            compare<OrdDefault<A>, A>(lhs, rhs) >= 0;
 
         /// <summary>
         /// Equality operator
