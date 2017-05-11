@@ -6,5 +6,5 @@ You can join them in supporting language-ext development by [pledging on Patreon
 
 ### $10
 
-* Nick Darvey
+* [Nick Darvey](https://github.com/NickDarvey)
 
