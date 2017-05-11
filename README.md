@@ -19,6 +19,9 @@ Nu-get package | Description
 __Twitter:__ 
 https://twitter.com/paullouth
 
+## Supporting language-ext
+
+language-ext is an MIT-licensed open source project. Its ongoing development is made possible thanks to the support by these awesome [backers](/BACKERS.md). If you'd like to join them, check out the [language-ext Patreon campaign](https://www.patreon.com/louthy).
 
 ## Introduction
 One of the great features of C#6+ is that it allows us to treat static classes like namespaces.  This means that we can use static 
