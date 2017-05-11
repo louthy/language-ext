@@ -54,11 +54,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<A> Return(Func<Unit, A> f) =>
-            new OptionUnsafe<A>(OptionData.Lazy(() =>
-            {
-                var a = f(unit);
-                return (true, a);
-            }));
+            new OptionUnsafe<A>(OptionData.Lazy(() => (true, f(unit))));
 
         [Pure]
         public OptionUnsafe<A> Zero() =>

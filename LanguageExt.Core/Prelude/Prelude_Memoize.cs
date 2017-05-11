@@ -119,10 +119,8 @@ namespace LanguageExt
                     this.onFinalise = onFinalise;
                 }
 
-                ~OnFinalise()
-                {
-                    onFinalise();
-                }
+                ~OnFinalise() =>
+                    onFinalise?.Invoke();
             }
 
             ConcurrentDictionary<T, WeakReference<OnFinalise<R>>> dict = new ConcurrentDictionary<T, WeakReference<OnFinalise<R>>>();
@@ -132,7 +130,7 @@ namespace LanguageExt
                     new OnFinalise<R>(() =>
                         {
                             WeakReference<OnFinalise<R>> ignore = null;
-                            dict.TryRemove(key, out ignore);
+                            dict?.TryRemove(key, out ignore);
                         },
                         addFunc(key)));
 

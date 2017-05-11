@@ -263,14 +263,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool IsLazy =>
-            (data ?? OptionData<A>.None).IsLazy;
+            data.IsLazy;
 
         /// <summary>
         /// Is the option in a Some state
         /// </summary>
         [Pure]
         public bool IsSome =>
-            (data ?? OptionData<A>.None).IsSome;
+            data.IsSome;
 
         /// <summary>
         /// Is the option in a None state
@@ -283,7 +283,7 @@ namespace LanguageExt
         /// Helper accessor for the bound value
         /// </summary>
         internal A Value =>
-            (data ?? OptionData<A>.None).Value;
+            data.Value;
 
         /// <summary>
         /// Projection from one value to another 
