@@ -164,10 +164,10 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static Option<IEnum> parseEnum<IEnum>(string value)
-            where IEnum: struct
+        public static Option<TEnum> parseEnum<TEnum>(string value)
+            where TEnum: struct
         {
-            IEnum result;
+            TEnum result;
             return Enum.TryParse(value, out result)
                 ? Some(result)
                 : None;
