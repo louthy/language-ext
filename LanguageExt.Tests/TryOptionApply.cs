@@ -14,6 +14,8 @@ namespace LanguageExtTests
         TryOption<int> seven = () => 7;
         TryOption<int> fail = () => failwith<int>("fail");
 
+        TryOption<int> none = () => Option<int>.None;
+
         [Fact]
         public void ApplySuccArgs()
         {
@@ -51,7 +53,7 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void ApplyNoneArgsF()
+        public void ApplyFailArgsF()
         {
             var comp = apply(apply(tryadd, fail), four);
 
@@ -59,20 +61,59 @@ namespace LanguageExtTests
                 Some: x => Assert.True(false),
                 None: () => Assert.True(false),
                 Fail: ex => Assert.True(ex.Message == "fail")
-                );
+            );
+        }
+
+        [Fact]
+        public void ApplyFailArgsF2()
+        {
+            var comp = apply(tryadd, fail, four);
+
+            comp.Match(
+                Some: x => Assert.True(false),
+                None: () => Assert.True(false),
+                Fail: ex => Assert.True(ex.Message == "fail")
+            );
+        }
+
+        [Fact]
+        public void ApplyNoneArgs()
+        {
+            var comp = tryadd
+                .Apply(none)
+                .Apply(four);
+
+            comp.Match(
+                Some: x => Assert.True(false),
+                None: () => Assert.True(true),
+                Fail: ex => Assert.True(false)
+            );
+        }
+
+        [Fact]
+        public void ApplyNoneArgsF()
+        {
+            var comp = apply(apply(tryadd, none), four);
+
+            comp.Match(
+                Some: x => Assert.True(false),
+                None: () => Assert.True(true),
+                Fail: ex => Assert.True(false)
+            );
         }
 
         [Fact]
         public void ApplyNoneArgsF2()
         {
-            var comp = apply(tryadd, fail, four);
+            var comp = apply(tryadd, none, four);
 
             comp.Match(
-                Some: x  => Assert.True(false),
-                None: () => Assert.True(false),
-                Fail: ex => Assert.True(ex.Message == "fail")
-                );
+                Some: x => Assert.True(false),
+                None: () => Assert.True(true),
+                Fail: ex => Assert.True(false)
+            );
         }
+
 
         [Fact]
         public void ApplicativeLawHolds()
