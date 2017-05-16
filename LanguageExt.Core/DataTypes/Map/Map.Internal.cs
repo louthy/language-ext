@@ -548,7 +548,7 @@ namespace LanguageExt
         [Pure]
         public IEnumerable<(K Key, V Value)> Skip(int amount)
         {
-            var enumer = new MapModule.MapEnumerator<K, V>(Root, Rev, amount);
+            var enumer = new MapEnumerator<K, V>(Root, Rev, amount);
             while (enumer.MoveNext())
             {
                 yield return enumer.Current;
@@ -783,8 +783,11 @@ namespace LanguageExt
         {
             get
             {
-                return from x in MapModule.AsEnumerable(this)
-                       select x.Key;
+                var iter = new MapKeyEnumerator<K, V>(Root, Rev, 0);
+                while (iter.MoveNext())
+                {
+                    yield return iter.Current;
+                }
             }
         }
 
@@ -796,8 +799,11 @@ namespace LanguageExt
         {
             get
             {
-                return from x in MapModule.AsEnumerable(this)
-                       select x.Value;
+                var iter = new MapValueEnumerator<K, V>(Root, Rev, 0);
+                while(iter.MoveNext())
+                {
+                    yield return iter.Current;
+                }
             }
         }
 
@@ -814,7 +820,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K Key, V Value), KR> keySelector, Func<(K Key, V Value), VR> valueSelector) =>
-            AsEnumerable().ToDictionary(x => keySelector(x), x => valueSelector(x));
+            AsEnumerable().ToDictionary(keySelector, valueSelector);
 
         /// <summary>
         /// Enumerable of in-order tuples that make up the map
@@ -832,34 +838,38 @@ namespace LanguageExt
         public IEnumerable<(K Key, V Value)> ValueTuples =>
             AsEnumerable().Map(kv => (kv.Key, kv.Value));
 
-        #region IEnumerable interface
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
         [Pure]
         public IEnumerator<(K Key, V Value)> GetEnumerator() =>
-            new MapModule.MapEnumerator<K, V>(Root, Rev, 0);
+            new MapEnumerator<K, V>(Root, Rev, 0);
 
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
         [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
-            MapModule.AsEnumerable(this).GetEnumerator();
+            new MapEnumerator<K, V>(Root, Rev, 0);
 
         [Pure]
         public Seq<(K Key, V Value)> ToSeq() =>
-            Seq(MapModule.AsEnumerable(this));
+            Seq(AsEnumerable());
 
         [Pure]
-        public IEnumerable<(K Key, V Value)> AsEnumerable() =>
-            MapModule.AsEnumerable(this);
+        public IEnumerable<(K Key, V Value)> AsEnumerable()
+        {
+            var iter = new MapEnumerator<K, V>(Root, Rev, 0);
+            while (iter.MoveNext())
+            {
+                yield return iter.Current;
+            }
+        }
 
         IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-            (from x in MapModule.AsEnumerable(this)
-             select new KeyValuePair<K, V>(x.Key, x.Value)).GetEnumerator();
-        #endregion
+            AsEnumerable().Map(ToKeyValuePair).GetEnumerator();
 
+        static KeyValuePair<K, V> ToKeyValuePair((K Key, V Value) kv) => new KeyValuePair<K, V>(kv.Key, kv.Value);
 
         internal MapInternal<OrdK, K, V> SetRoot(MapItem<K, V> root) =>
             new MapInternal<OrdK, K, V>(root, Rev);
@@ -900,12 +910,7 @@ namespace LanguageExt
 
     internal interface IMapItem<K, V>
     {
-        K Key
-        {
-            get;
-        }
-
-        V Value
+        (K Key, V Value) KeyValue
         {
             get;
         }
@@ -916,7 +921,7 @@ namespace LanguageExt
         ISerializable,
         IMapItem<K, V>
     {
-        internal static readonly MapItem<K, V> Empty = new MapItem<K, V>(0, 0, default(K), default(V), null, null);
+        internal static readonly MapItem<K, V> Empty = new MapItem<K, V>(0, 0, (default(K), default(V)), null, null);
 
         internal bool IsEmpty => Count == 0;
         internal readonly int Count;
@@ -927,12 +932,11 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        internal MapItem(byte height, int count, K key, V value, MapItem<K, V> left, MapItem<K, V> right)
+        internal MapItem(byte height, int count, (K Key, V Value) keyValue, MapItem<K, V> left, MapItem<K, V> right)
         {
             Count = count;
             Height = height;
-            Key = key;
-            Value = value;
+            KeyValue = keyValue;
             Left = left;
             Right = right;
         }
@@ -942,8 +946,9 @@ namespace LanguageExt
         /// </summary>
         internal MapItem(SerializationInfo info, StreamingContext context)
         {
-            Key = (K)info.GetValue("Key", typeof(K));
-            Value = (V)info.GetValue("Value", typeof(V));
+            var key = (K)info.GetValue("Key", typeof(K));
+            var value = (V)info.GetValue("Value", typeof(V));
+            KeyValue = (key, value);
             Count = 1;
             Height = 1;
             Left = Empty;
@@ -955,8 +960,8 @@ namespace LanguageExt
         /// </summary>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Key", Key, typeof(K));
-            info.AddValue("Value", Value, typeof(V));
+            info.AddValue("Key", KeyValue.Key, typeof(K));
+            info.AddValue("Value", KeyValue.Value, typeof(V));
         }
 
         internal int BalanceFactor =>
@@ -964,13 +969,7 @@ namespace LanguageExt
                 ? 0
                 : ((int)Left.Height) - ((int)Right.Height);
 
-        public K Key
-        {
-            get;
-            private set;
-        }
-
-        public V Value
+        public (K Key, V Value) KeyValue
         {
             get;
             private set;
@@ -987,7 +986,7 @@ namespace LanguageExt
             }
 
             state = Fold(node.Left, state, folder);
-            state = folder(state, node.Key, node.Value);
+            state = folder(state, node.KeyValue.Key, node.KeyValue.Value);
             state = Fold(node.Right, state, folder);
             return state;
         }
@@ -1000,7 +999,7 @@ namespace LanguageExt
             }
 
             state = Fold(node.Left, state, folder);
-            state = folder(state, node.Value);
+            state = folder(state, node.KeyValue.Value);
             state = Fold(node.Right, state, folder);
             return state;
         }
@@ -1014,56 +1013,56 @@ namespace LanguageExt
         public static bool ForAll<K, V>(MapItem<K, V> node, Func<K, V, bool> pred) =>
             node.IsEmpty
                 ? true
-                : pred(node.Key, node.Value)
+                : pred(node.KeyValue.Key, node.KeyValue.Value)
                     ? ForAll(node.Left, pred) && ForAll(node.Right, pred)
                     : false;
 
         public static bool Exists<K, V>(MapItem<K, V> node, Func<K, V, bool> pred) =>
             node.IsEmpty
                 ? false
-                : pred(node.Key, node.Value)
+                : pred(node.KeyValue.Key, node.KeyValue.Value)
                     ? true
                     : Exists(node.Left, pred) || Exists(node.Right, pred);
 
         public static MapItem<K, V> Filter<K, V>(MapItem<K, V> node, Func<K, V, bool> pred) =>
             node.IsEmpty
                 ? node
-                : pred(node.Key, node.Value)
-                    ? Balance(Make(node.Key, node.Value, Filter(node.Left, pred), Filter(node.Right, pred)))
+                : pred(node.KeyValue.Key, node.KeyValue.Value)
+                    ? Balance(Make(node.KeyValue, Filter(node.Left, pred), Filter(node.Right, pred)))
                     : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
 
         public static MapItem<K, V> Filter<K, V>(MapItem<K, V> node, Func<V, bool> pred) =>
             node.IsEmpty
                 ? node
-                : pred(node.Value)
-                    ? Balance(Make(node.Key, node.Value, Filter(node.Left, pred), Filter(node.Right, pred)))
+                : pred(node.KeyValue.Value)
+                    ? Balance(Make(node.KeyValue, Filter(node.Left, pred), Filter(node.Right, pred)))
                     : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
 
         public static MapItem<K, U> Map<K, V, U>(MapItem<K, V> node, Func<V, U> mapper) =>
             node.IsEmpty
                 ? MapItem<K, U>.Empty
-                : new MapItem<K, U>(node.Height, node.Count, node.Key, mapper(node.Value), Map(node.Left, mapper), Map(node.Right, mapper));
+                : new MapItem<K, U>(node.Height, node.Count, (node.KeyValue.Key, mapper(node.KeyValue.Value)), Map(node.Left, mapper), Map(node.Right, mapper));
 
         public static MapItem<K, U> Map<K, V, U>(MapItem<K, V> node, Func<K, V, U> mapper) =>
             node.IsEmpty
                 ? MapItem<K, U>.Empty
-                : new MapItem<K, U>(node.Height, node.Count, node.Key, mapper(node.Key, node.Value), Map(node.Left, mapper), Map(node.Right, mapper));
+                : new MapItem<K, U>(node.Height, node.Count, (node.KeyValue.Key, mapper(node.KeyValue.Key, node.KeyValue.Value)), Map(node.Left, mapper), Map(node.Right, mapper));
 
         public static MapItem<K, V> Add<OrdK, K, V>(MapItem<K, V> node, K key, V value)
             where OrdK : struct, Ord<K>
         {
             if (node.IsEmpty)
             {
-                return new MapItem<K, V>(1, 1, key, value, MapItem<K, V>.Empty, MapItem<K, V>.Empty);
+                return new MapItem<K, V>(1, 1, (key, value), MapItem<K, V>.Empty, MapItem<K, V>.Empty);
             }
-            var cmp = default(OrdK).Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.KeyValue.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, node.Value, Add<OrdK, K, V>(node.Left, key, value), node.Right));
+                return Balance(Make(node.KeyValue, Add<OrdK, K, V>(node.Left, key, value), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Value, node.Left, Add<OrdK, K, V>(node.Right, key, value)));
+                return Balance(Make(node.KeyValue, node.Left, Add<OrdK, K, V>(node.Right, key, value)));
             }
             else
             {
@@ -1078,18 +1077,18 @@ namespace LanguageExt
             {
                 throw new ArgumentException("Key not found in Map");
             }
-            var cmp = default(OrdK).Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.KeyValue.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, node.Value, SetItem<OrdK, K, V>(node.Left, key, value), node.Right));
+                return Balance(Make(node.KeyValue, SetItem<OrdK, K, V>(node.Left, key, value), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Value, node.Left, SetItem<OrdK, K, V>(node.Right, key, value)));
+                return Balance(Make(node.KeyValue, node.Left, SetItem<OrdK, K, V>(node.Right, key, value)));
             }
             else
             {
-                return new MapItem<K, V>(node.Height, node.Count, node.Key, value, node.Left, node.Right);
+                return new MapItem<K, V>(node.Height, node.Count, (node.KeyValue.Key, value), node.Left, node.Right);
             }
         }
 
@@ -1100,18 +1099,18 @@ namespace LanguageExt
             {
                 return node;
             }
-            var cmp = default(OrdK).Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.KeyValue.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, node.Value, TrySetItem<OrdK, K, V>(node.Left, key, value), node.Right));
+                return Balance(Make(node.KeyValue, TrySetItem<OrdK, K, V>(node.Left, key, value), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Value, node.Left, TrySetItem<OrdK, K, V>(node.Right, key, value)));
+                return Balance(Make(node.KeyValue, node.Left, TrySetItem<OrdK, K, V>(node.Right, key, value)));
             }
             else
             {
-                return new MapItem<K, V>(node.Height, node.Count, node.Key, value, node.Left, node.Right);
+                return new MapItem<K, V>(node.Height, node.Count, (node.KeyValue.Key, value), node.Left, node.Right);
             }
         }
 
@@ -1120,16 +1119,16 @@ namespace LanguageExt
         {
             if (node.IsEmpty)
             {
-                return new MapItem<K, V>(1, 1, key, value, MapItem<K, V>.Empty, MapItem<K, V>.Empty);
+                return new MapItem<K, V>(1, 1, (key, value), MapItem<K, V>.Empty, MapItem<K, V>.Empty);
             }
-            var cmp = default(OrdK).Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.KeyValue.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, node.Value, TryAdd<OrdK, K, V>(node.Left, key, value), node.Right));
+                return Balance(Make(node.KeyValue, TryAdd<OrdK, K, V>(node.Left, key, value), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Value, node.Left, TryAdd<OrdK, K, V>(node.Right, key, value)));
+                return Balance(Make(node.KeyValue, node.Left, TryAdd<OrdK, K, V>(node.Right, key, value)));
             }
             else
             {
@@ -1142,27 +1141,27 @@ namespace LanguageExt
         {
             if (node.IsEmpty)
             {
-                return new MapItem<K, V>(1, 1, key, value, MapItem<K, V>.Empty, MapItem<K, V>.Empty);
+                return new MapItem<K, V>(1, 1, (key, value), MapItem<K, V>.Empty, MapItem<K, V>.Empty);
             }
-            var cmp = default(OrdK).Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.KeyValue.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, node.Value, AddOrUpdate<OrdK, K, V>(node.Left, key, value), node.Right));
+                return Balance(Make(node.KeyValue, AddOrUpdate<OrdK, K, V>(node.Left, key, value), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Value, node.Left, AddOrUpdate<OrdK, K, V>(node.Right, key, value)));
+                return Balance(Make(node.KeyValue, node.Left, AddOrUpdate<OrdK, K, V>(node.Right, key, value)));
             }
             else
             {
-                return new MapItem<K, V>(node.Height, node.Count, node.Key, value, node.Left, node.Right);
+                return new MapItem<K, V>(node.Height, node.Count, (node.KeyValue.Key, value), node.Left, node.Right);
             }
         }
 
         public static MapItem<K, V> AddTreeToRight<K, V>(MapItem<K, V> node, MapItem<K, V> toAdd) =>
             node.IsEmpty
                 ? toAdd
-                : Balance(Make(node.Key, node.Value, node.Left, AddTreeToRight(node.Right, toAdd)));
+                : Balance(Make(node.KeyValue, node.Left, AddTreeToRight(node.Right, toAdd)));
 
         public static MapItem<K, V> Remove<OrdK, K, V>(MapItem<K, V> node, K key)
             where OrdK : struct, Ord<K>
@@ -1171,14 +1170,14 @@ namespace LanguageExt
             {
                 return node;
             }
-            var cmp = default(OrdK).Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.KeyValue.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, node.Value, Remove<OrdK, K, V>(node.Left, key), node.Right));
+                return Balance(Make(node.KeyValue, Remove<OrdK, K, V>(node.Left, key), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Value, node.Left, Remove<OrdK, K, V>(node.Right, key)));
+                return Balance(Make(node.KeyValue, node.Left, Remove<OrdK, K, V>(node.Right, key)));
             }
             else
             {
@@ -1193,7 +1192,7 @@ namespace LanguageExt
             {
                 throw new ArgumentException("Key not found in Map");
             }
-            var cmp = default(OrdK).Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.KeyValue.Key);
             if (cmp < 0)
             {
                 return Find<OrdK, K, V>(node.Left, key);
@@ -1204,14 +1203,8 @@ namespace LanguageExt
             }
             else
             {
-                return node.Value;
+                return node.KeyValue.Value;
             }
-        }
-
-        public static IEnumerable<(K Key, V Value)> AsEnumerable<OrdK, K, V>(MapInternal<OrdK, K, V> node)
-            where OrdK : struct, Ord<K>
-        {
-            return node;
         }
 
         /// <summary>
@@ -1225,14 +1218,14 @@ namespace LanguageExt
             {
                 yield break;
             }
-            if (default(OrdK).Compare(node.Key, a) < 0)
+            if (default(OrdK).Compare(node.KeyValue.Key, a) < 0)
             {
                 foreach (var item in FindRange<OrdK, K, V>(node.Right, a, b))
                 {
                     yield return item;
                 }
             }
-            else if (default(OrdK).Compare(node.Key, b) > 0)
+            else if (default(OrdK).Compare(node.KeyValue.Key, b) > 0)
             {
                 foreach (var item in FindRange<OrdK, K, V>(node.Left, a, b))
                 {
@@ -1245,7 +1238,7 @@ namespace LanguageExt
                 {
                     yield return item;
                 }
-                yield return node.Value;
+                yield return node.KeyValue.Value;
                 foreach (var item in FindRange<OrdK, K, V>(node.Right, a, b))
                 {
                     yield return item;
@@ -1260,7 +1253,7 @@ namespace LanguageExt
             {
                 return None;
             }
-            var cmp = default(OrdK).Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.KeyValue.Key);
             if (cmp < 0)
             {
                 return TryFind<OrdK, K, V>(node.Left, key);
@@ -1271,7 +1264,7 @@ namespace LanguageExt
             }
             else
             {
-                return Some(node.Value);
+                return Some(node.KeyValue.Value);
             }
         }
 
@@ -1287,7 +1280,7 @@ namespace LanguageExt
             }
             if (!node.Left.IsEmpty && node.Left.Count == amount)
             {
-                return Balance(Make(node.Key, node.Value, MapItem<K, V>.Empty, node.Right));
+                return Balance(Make(node.KeyValue, MapItem<K, V>.Empty, node.Right));
             }
             if (!node.Left.IsEmpty && node.Left.Count == amount - 1)
             {
@@ -1302,16 +1295,19 @@ namespace LanguageExt
             var remaining = amount - node.Left.Count - newleft.Count;
             if (remaining > 0)
             {
-                return Skip(Balance(Make(node.Key, node.Value, newleft, node.Right)), remaining);
+                return Skip(Balance(Make(node.KeyValue, newleft, node.Right)), remaining);
             }
             else
             {
-                return Balance(Make(node.Key, node.Value, newleft, node.Right));
+                return Balance(Make(node.KeyValue, newleft, node.Right));
             }
         }
 
+        public static MapItem<K, V> Make<K, V>((K,V) kv, MapItem<K, V> l, MapItem<K, V> r) =>
+            new MapItem<K, V>((byte)(1 + Math.Max(l.Height, r.Height)), l.Count + r.Count + 1, kv, l, r);
+
         public static MapItem<K, V> Make<K, V>(K k, V v, MapItem<K, V> l, MapItem<K, V> r) =>
-            new MapItem<K, V>((byte)(1 + Math.Max(l.Height, r.Height)), l.Count + r.Count + 1, k, v, l, r);
+            new MapItem<K, V>((byte)(1 + Math.Max(l.Height, r.Height)), l.Count + r.Count + 1, (k, v), l, r);
 
         public static MapItem<K, V> Balance<K, V>(MapItem<K, V> node) =>
             node.BalanceFactor >= 2
@@ -1327,116 +1323,21 @@ namespace LanguageExt
         public static MapItem<K, V> RotRight<K, V>(MapItem<K, V> node) =>
             node.IsEmpty || node.Left.IsEmpty
                 ? node
-                : Make(node.Left.Key, node.Left.Value, node.Left.Left, Make(node.Key, node.Value, node.Left.Right, node.Right));
+                : Make(node.Left.KeyValue, node.Left.Left, Make(node.KeyValue, node.Left.Right, node.Right));
 
         public static MapItem<K, V> RotLeft<K, V>(MapItem<K, V> node) =>
             node.IsEmpty || node.Right.IsEmpty
                 ? node
-                : Make(node.Right.Key, node.Right.Value, Make(node.Key, node.Value, node.Left, node.Right.Left), node.Right.Right);
+                : Make(node.Right.KeyValue, Make(node.KeyValue, node.Left, node.Right.Left), node.Right.Right);
 
         public static MapItem<K, V> DblRotRight<K, V>(MapItem<K, V> node) =>
             node.IsEmpty
                 ? node
-                : RotRight(Make(node.Key, node.Value, RotLeft(node.Left), node.Right));
+                : RotRight(Make(node.KeyValue, RotLeft(node.Left), node.Right));
 
         public static MapItem<K, V> DblRotLeft<K, V>(MapItem<K, V> node) =>
             node.IsEmpty
                 ? node
-                : RotLeft(Make(node.Key, node.Value, node.Left, RotRight(node.Right)));
-
-        public class MapEnumerator<K, V> : IEnumerator<(K Key, V Value)>
-        {
-            static ObjectPool<Stack<MapItem<K, V>>> pool = new ObjectPool<Stack<MapItem<K, V>>>(32, () => new Stack<MapItem<K, V>>(32));
-
-            Stack<MapItem<K, V>> stack;
-            MapItem<K, V> map;
-            int left;
-            bool rev;
-            int start;
-
-            public MapEnumerator(MapItem<K, V> root, bool rev, int start)
-            {
-                this.rev = rev;
-                this.start = start;
-                map = root;
-                stack = pool.GetItem();
-                Reset();
-            }
-
-            private MapItem<K, V> NodeCurrent
-            {
-                get;
-                set;
-            }
-
-            public (K Key, V Value) Current => (NodeCurrent.Key, NodeCurrent.Value);
-            object IEnumerator.Current => (NodeCurrent.Key, NodeCurrent.Value);
-
-            public void Dispose()
-            {
-                if (stack != null)
-                {
-                    pool.Release(stack);
-                    stack = null;
-                }
-            }
-
-            private MapItem<K, V> Next(MapItem<K, V> node) =>
-                rev ? node.Left : node.Right;
-
-            private MapItem<K, V> Prev(MapItem<K, V> node) =>
-                rev ? node.Right : node.Left;
-
-            private void Push(MapItem<K, V> node)
-            {
-                while (!node.IsEmpty)
-                {
-                    stack.Push(node);
-                    node = Prev(node);
-                }
-            }
-
-            public bool MoveNext()
-            {
-                if (left > 0 && stack.Count > 0)
-                {
-                    NodeCurrent = stack.Pop();
-                    Push(Next(NodeCurrent));
-                    left--;
-                    return true;
-                }
-
-                NodeCurrent = null;
-                return false;
-            }
-
-            public void Reset()
-            {
-                var skip = rev ? map.Count - start - 1 : start;
-
-                stack.Clear();
-                NodeCurrent = map;
-                left = map.Count;
-
-                while (!NodeCurrent.IsEmpty && skip != Prev(NodeCurrent).Count)
-                {
-                    if (skip < Prev(NodeCurrent).Count)
-                    {
-                        stack.Push(NodeCurrent);
-                        NodeCurrent = Prev(NodeCurrent);
-                    }
-                    else
-                    {
-                        skip -= Prev(NodeCurrent).Count + 1;
-                        NodeCurrent = Next(NodeCurrent);
-                    }
-                }
-
-                if (!NodeCurrent.IsEmpty)
-                {
-                    stack.Push(NodeCurrent);
-                }
-            }
-        }
+                : RotLeft(Make(node.KeyValue, node.Left, RotRight(node.Right)));
     }
 }

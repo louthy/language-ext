@@ -491,7 +491,7 @@ namespace LanguageExt
         public static bool ForAll<K, V>(MapItem<K, V> node, Func<K, V, bool> pred) =>
             node.IsEmpty
                 ? true
-                : pred(node.Key, node.Value)
+                : pred(node.KeyValue.Key, node.KeyValue.Value)
                     ? ForAll(node.Left, pred) && ForAll(node.Right, pred)
                     : false;
 

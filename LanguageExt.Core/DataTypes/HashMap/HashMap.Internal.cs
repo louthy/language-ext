@@ -960,7 +960,7 @@ namespace LanguageExt
             AsEnumerable().Map(kv => new KeyValuePair<K, V>(kv.Item1, kv.Item2)).GetEnumerator();
     }
 
-    class HMapKeyValue<K, V> : IMapItem<K, V>
+    class HMapKeyValue<K, V> 
     {
         public K Key { get; }
         public V Value { get; }

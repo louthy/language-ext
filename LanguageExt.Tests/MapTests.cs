@@ -221,5 +221,35 @@ namespace LanguageExtTests
 
             Assert.True(m.CountT() == 2);
         }
+
+        [Fact]
+        public void MapValuesTest()
+        {
+            var m = Map((1, 1), (2, 2), (3, 3), (4, 4), (5, 5));
+
+            var vs = Seq(m.Values);
+
+            Assert.True(vs.Head == 1);
+            Assert.True(vs.Tail.Head == 2);
+            Assert.True(vs.Tail.Tail.Head == 3);
+            Assert.True(vs.Tail.Tail.Tail.Head == 4);
+            Assert.True(vs.Tail.Tail.Tail.Tail.Head == 5);
+            Assert.True(vs.Count == 5);
+        }
+
+        [Fact]
+        public void MapKeysTest()
+        {
+            var m = Map((1, 1), (2, 2), (3, 3), (4, 4), (5, 5));
+
+            var vs = Seq(m.Keys);
+
+            Assert.True(vs.Head == 1);
+            Assert.True(vs.Tail.Head == 2);
+            Assert.True(vs.Tail.Tail.Head == 3);
+            Assert.True(vs.Tail.Tail.Tail.Head == 4);
+            Assert.True(vs.Tail.Tail.Tail.Tail.Head == 5);
+            Assert.True(vs.Count == 5);
+        }
     }
 }
