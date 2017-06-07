@@ -12,7 +12,7 @@ extensions to the language itself.
 
 #### [API Reference](https://louthy.github.io/language-ext)
 
-#### [Issues with documentation and examples](https://github.com/louthy/language-ext/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3A%22examples%20%2F%20documentation%22%20)
+#### [Issues that contain documentation and examples](https://github.com/louthy/language-ext/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3A%22examples%20%2F%20documentation%22%20)
 
 ## Nu-get
 
