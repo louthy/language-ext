@@ -8,7 +8,13 @@ C# Functional Language Extensions
 This library uses and abuses the features of C# 6+ to provide a functional 'Base class library', that, if you squint, can look like 
 extensions to the language itself.
 
+## Reference
+
 #### [API Reference](https://louthy.github.io/language-ext)
+
+#### [Closed issues with documentation and examples](https://github.com/louthy/language-ext/issues?q=is%3Aissue+label%3A%22examples+%2F+documentation%22+is%3Aclosed)
+
+## Nu-get
 
 Nu-get package | Description
 ---------------|-------------
