@@ -963,7 +963,7 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
 _any others you think should be included, please get in touch_
 
 
-### Ad-hoc polymorphism
+## Ad-hoc polymorphism
 
 Ad-hoc polymorphism has long been believed to not be possible in C#.  However with some cunning it is.  Ad-hoc polymorphism allows programmers to add traits to a type later.  For example in C# it would be amazing if we had an interface called `INumeric` for numeric types like `int`, `long`, `double`, etc.  The reason this doesn't exist is if you write a function like:
 ```c#
