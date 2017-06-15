@@ -8,7 +8,13 @@ C# Functional Language Extensions
 This library uses and abuses the features of C# 6+ to provide a functional 'Base class library', that, if you squint, can look like 
 extensions to the language itself.
 
+## Reference
+
 #### [API Reference](https://louthy.github.io/language-ext)
+
+#### [Issues that contain documentation and examples](https://github.com/louthy/language-ext/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3A%22examples%20%2F%20documentation%22%20)
+
+## Nu-get
 
 Nu-get package | Description
 ---------------|-------------
@@ -957,7 +963,7 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
 _any others you think should be included, please get in touch_
 
 
-### Ad-hoc polymorphism
+## Ad-hoc polymorphism
 
 Ad-hoc polymorphism has long been believed to not be possible in C#.  However with some cunning it is.  Ad-hoc polymorphism allows programmers to add traits to a type later.  For example in C# it would be amazing if we had an interface called `INumeric` for numeric types like `int`, `long`, `double`, etc.  The reason this doesn't exist is if you write a function like:
 ```c#
