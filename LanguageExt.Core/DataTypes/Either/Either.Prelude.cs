@@ -661,6 +661,18 @@ namespace LanguageExt
             lefts<MEither<L, R>, Either<L, R>, L, R>(self);
 
         /// <summary>
+        /// Extracts from a list of 'Either' all the 'Left' elements.
+        /// All the 'Left' elements are extracted in order.
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="self">Either list</param>
+        /// <returns>An enumerable of L</returns>
+        [Pure]
+        public static Seq<L> lefts<L, R>(Seq<Either<L, R>> self) =>
+            lefts<MEither<L, R>, Either<L, R>, L, R>(self);
+
+        /// <summary>
         /// Extracts from a list of 'Either' all the 'Right' elements.
         /// All the 'Right' elements are extracted in order.
         /// </summary>
@@ -670,6 +682,18 @@ namespace LanguageExt
         /// <returns>An enumerable of L</returns>
         [Pure]
         public static IEnumerable<R> rights<L, R>(IEnumerable<Either<L, R>> self) =>
+            rights<MEither<L, R>, Either<L, R>, L, R>(self);
+
+        /// <summary>
+        /// Extracts from a list of 'Either' all the 'Right' elements.
+        /// All the 'Right' elements are extracted in order.
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="self">Either list</param>
+        /// <returns>An enumerable of L</returns>
+        [Pure]
+        public static Seq<R> rights<L, R>(Seq<Either<L, R>> self) =>
             rights<MEither<L, R>, Either<L, R>, L, R>(self);
 
         /// <summary>
@@ -683,7 +707,21 @@ namespace LanguageExt
         /// <param name="self">Either list</param>
         /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
         [Pure]
-        public static Tuple<IEnumerable<L>, IEnumerable<R>> partition<L, R>(IEnumerable<Either<L, R>> self) =>
+        public static (IEnumerable<L> Lefts, IEnumerable<R> Rights) partition<L, R>(IEnumerable<Either<L, R>> self) =>
+            partition<MEither<L, R>, Either<L, R>, L, R>(self);
+
+        /// <summary>
+        /// Partitions a list of 'Either' into two lists.
+        /// All the 'Left' elements are extracted, in order, to the first
+        /// component of the output.  Similarly the 'Right' elements are extracted
+        /// to the second component of the output.
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="self">Either list</param>
+        /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
+        [Pure]
+        public static (Seq<L> Lefts, Seq<R> Rights) partition<L, R>(Seq<Either<L, R>> self) =>
             partition<MEither<L, R>, Either<L, R>, L, R>(self);
     }
 }

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using LanguageExt;
 using static LanguageExt.Prelude;
+using Xunit;
 
 namespace LanguageExt.Tests
 {
@@ -32,10 +35,6 @@ namespace LanguageExt.Tests
         static Task<Either<Exception, int>> addUser(UserMapping user) =>
             Right<Exception, int>(user.ToString().Length).AsTask();
 
-        static void Test()
-        {
-            //TypeClass.equals()
-        }
     }
 
     public class ADUser : NewType<ADUser, string> { public ADUser(string u) : base(u) { } }

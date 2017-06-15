@@ -579,7 +579,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Add operator - performs a union of the two sets
+        /// Add operator + performs a union of the two sets
         /// </summary>
         /// <param name="lhs">Left hand side set</param>
         /// <param name="rhs">Right hand side set</param>
@@ -589,7 +589,7 @@ namespace LanguageExt
             lhs.Append(rhs);
 
         /// <summary>
-        /// Add operator - performs a union of the two sets
+        /// Append performs a union of the two sets
         /// </summary>
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Unioned set</returns>

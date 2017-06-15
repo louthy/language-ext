@@ -369,7 +369,7 @@ namespace LanguageExt
             Value.CopyTo(array, index);
 
         /// <summary>
-        /// Add operator - performs a union of the two sets
+        /// Add operator + performs a union of the two sets
         /// </summary>
         /// <param name="lhs">Left hand side set</param>
         /// <param name="rhs">Right hand side set</param>
@@ -379,7 +379,7 @@ namespace LanguageExt
             Wrap(lhs.Value + rhs.Value);
 
         /// <summary>
-        /// Add operator - performs a union of the two sets
+        /// Append performs a union of the two sets
         /// </summary>
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Unioned set</returns>

@@ -1,7 +1,6 @@
 ﻿using System;
-using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
-using static LanguageExt.Prelude;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {

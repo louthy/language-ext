@@ -1,7 +1,5 @@
-﻿using LanguageExt.TypeClasses;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using static LanguageExt.TypeClass;
+﻿using System.Diagnostics.Contracts;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {

@@ -1,6 +1,9 @@
 ﻿using System;
 
-[AttributeUsage(AttributeTargets.Interface)]
-public class TypeclassAttribute : Attribute
+namespace LanguageExt.Attributes
 {
+    [AttributeUsage(AttributeTargets.Interface)]
+    public class TypeclassAttribute : Attribute
+    {
+    }
 }
