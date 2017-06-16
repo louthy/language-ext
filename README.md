@@ -965,7 +965,7 @@ _any others you think should be included, please get in touch_
 
 ## Ad-hoc polymorphism
 
-> _This is where things get a little crazy!  This section is taking what's possible with C# to its limits.  None of what follows is essential for 99% of the use cases for this library.  However, the seasoned C# programmer will recognise some of the issues raised (like no common numeric base-type); and experienced functional programmers will recognise the category theory creeping in...  Just remember, this is all optional, but also pretty powerful if you want to go for it.
+> _This is where things get a little crazy!  This section is taking what's possible with C# to its limits.  None of what follows is essential for 99% of the use cases for this library.  However, the seasoned C# programmer will recognise some of the issues raised (like no common numeric base-type); and experienced functional programmers will recognise the category theory creeping in...  Just remember, this is all optional, but also pretty powerful if you want to go for it_.
 
 Ad-hoc polymorphism has long been believed to not be possible in C#.  However with some cunning it is.  Ad-hoc polymorphism allows programmers to add traits to a type later.  For example in C# it would be amazing if we had an interface called `INumeric` for numeric types like `int`, `long`, `double`, etc.  The reason this doesn't exist is if you write a function like:
 ```c#
