@@ -811,9 +811,9 @@ _`Map<K,V>` is an implementation of an AVL Tree (self balancing binary tree).  T
 Also you can pass in a list of tuples or key-value pairs:
 
 ```C#
-    var people = Map( Tuple(1, "Rod"),
-                      Tuple(2, "Jane"),
-                      Tuple(3, "Freddy") );
+    var people = Map((1, "Rod"),
+                     (2, "Jane"),
+                     (3, "Freddy"));
 ```
 To read an item call:
 ```C#
