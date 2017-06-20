@@ -486,15 +486,17 @@ There's a kind of cheat way to do it in C# through extension methods.  It still 
 For example, below is a list of optional integers: `Lst<Option<int>>` (see lists later).  We want to double all of the `Some` values, leave the `None` alone and keep everything in the list:
 
 ```C#
-    using LanguageExt.Trans;  // Required for all transformer extension methods
+    using LanguageExt;
+    using static LanguageExt.Prelude;
+    using LanguageExt.ClassInstances;    // Required for TInt on Sum (see ad-hoc polymorphism later)
 
     var list = List(Some(1), None, Some(2), None, Some(3));
-    
-    var presum = list.SumT();                                // 6
-    
-    list  = list.MapT( x => x * 2 );
-    
-    var postsum = list.SumT();                               // 12
+
+    var presum = list.SumT<TInt, int>();                                // 6
+
+    list = list.MapT(x => x * 2);
+
+    var postsum = list.SumT<TInt, int>();
 ```
 Notice the use of `MapT` instead of `Map` (and `SumT` instead of `Sum`).  If we used `Map` (equivalent to `Select` in `LINQ`), it would look like this:
 ```C#
