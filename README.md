@@ -486,15 +486,17 @@ There's a kind of cheat way to do it in C# through extension methods.  It still 
 For example, below is a list of optional integers: `Lst<Option<int>>` (see lists later).  We want to double all of the `Some` values, leave the `None` alone and keep everything in the list:
 
 ```C#
-    using LanguageExt.Trans;  // Required for all transformer extension methods
+    using LanguageExt;
+    using static LanguageExt.Prelude;
+    using LanguageExt.ClassInstances;    // Required for TInt on Sum (see ad-hoc polymorphism later)
 
     var list = List(Some(1), None, Some(2), None, Some(3));
-    
-    var presum = list.SumT();                                // 6
-    
-    list  = list.MapT( x => x * 2 );
-    
-    var postsum = list.SumT();                               // 12
+
+    var presum = list.SumT<TInt, int>();                                // 6
+
+    list = list.MapT(x => x * 2);
+
+    var postsum = list.SumT<TInt, int>();
 ```
 Notice the use of `MapT` instead of `Map` (and `SumT` instead of `Sum`).  If we used `Map` (equivalent to `Select` in `LINQ`), it would look like this:
 ```C#
@@ -811,9 +813,9 @@ _`Map<K,V>` is an implementation of an AVL Tree (self balancing binary tree).  T
 Also you can pass in a list of tuples or key-value pairs:
 
 ```C#
-    var people = Map( Tuple(1, "Rod"),
-                      Tuple(2, "Jane"),
-                      Tuple(3, "Freddy") );
+    var people = Map((1, "Rod"),
+                     (2, "Jane"),
+                     (3, "Freddy"));
 ```
 To read an item call:
 ```C#
@@ -964,6 +966,8 @@ _any others you think should be included, please get in touch_
 
 
 ## Ad-hoc polymorphism
+
+> _This is where things get a little crazy!  This section is taking what's possible with C# to its limits.  None of what follows is essential for 99% of the use cases for this library.  However, the seasoned C# programmer will recognise some of the issues raised (like no common numeric base-type); and experienced functional programmers will recognise the category theory creeping in...  Just remember, this is all optional, but also pretty powerful if you want to go for it_.
 
 Ad-hoc polymorphism has long been believed to not be possible in C#.  However with some cunning it is.  Ad-hoc polymorphism allows programmers to add traits to a type later.  For example in C# it would be amazing if we had an interface called `INumeric` for numeric types like `int`, `long`, `double`, etc.  The reason this doesn't exist is if you write a function like:
 ```c#
