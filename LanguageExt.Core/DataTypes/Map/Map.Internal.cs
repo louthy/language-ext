@@ -906,6 +906,35 @@ namespace LanguageExt
             }
             return self;
         }
+
+        [Pure]
+        public static bool operator ==(MapInternal<OrdK, K, V> lhs, MapInternal<OrdK, K, V> rhs) =>
+            lhs.Equals(rhs);
+
+        [Pure]
+        public static bool operator !=(MapInternal<OrdK, K, V> lhs, MapInternal<OrdK, K, V> rhs) =>
+            !(lhs == rhs);
+
+        [Pure]
+        public bool Equals(MapInternal<OrdK, K, V> rhs)
+        {
+            if (ReferenceEquals(this, rhs)) return true;
+            if (Count != rhs.Count) return false;
+            if (hashCode != 0 && rhs.hashCode != 0 && hashCode != rhs.hashCode) return false;
+
+            var iterA = GetEnumerator();
+            var iterB = rhs.GetEnumerator();
+            var count = Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                iterA.MoveNext();
+                iterB.MoveNext();
+                if (!default(OrdK).Equals(iterA.Current.Key, iterB.Current.Key)) return false;
+                if (!EqualityComparer<V>.Default.Equals(iterA.Current.Value, iterB.Current.Value)) return false;
+            }
+            return true;
+        }
     }
 
     internal interface IMapItem<K, V>

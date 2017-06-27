@@ -546,7 +546,7 @@ namespace LanguageExt
 
         [Pure]
         public bool Equals(Map<K, V> y) =>
-            Value == y.Value;
+            Value.Equals(y.Value);
 
         [Pure]
         public static implicit operator Map<K, V>(ValueTuple<(K, V)> items) =>

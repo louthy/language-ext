@@ -249,6 +249,33 @@ namespace LanguageExt
         /// Not function, for prettifying code and removing the need to 
         /// use the ! operator.
         /// </summary>
+        /// <param name="f">Predicate function to perform the not operation on</param>
+        /// <returns>!f</returns>
+        public static Func<A, bool> not<A>(Func<A, bool> f) => 
+            x => !f(x);
+
+        /// <summary>
+        /// Not function, for prettifying code and removing the need to 
+        /// use the ! operator.
+        /// </summary>
+        /// <param name="f">Predicate function to perform the not operation on</param>
+        /// <returns>!f</returns>
+        public static Func<A, B, bool> not<A, B>(Func<A, B, bool> f) => 
+            (x, y) => !f(x, y);
+
+        /// <summary>
+        /// Not function, for prettifying code and removing the need to 
+        /// use the ! operator.
+        /// </summary>
+        /// <param name="f">Predicate function to perform the not operation on</param>
+        /// <returns>!f</returns>
+        public static Func<A, B, C, bool> not<A, B, C>(Func<A, B, C, bool> f) => 
+            (x, y, z) => !f(x, y, z);
+
+        /// <summary>
+        /// Not function, for prettifying code and removing the need to 
+        /// use the ! operator.
+        /// </summary>
         /// <param name="value">Value to perform the not operation on</param>
         /// <returns>!value</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

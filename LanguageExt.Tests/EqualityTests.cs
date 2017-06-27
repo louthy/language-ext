@@ -147,6 +147,7 @@ namespace LanguageExtTests
             var optionr = IsEqual<EqInt, MOption<int>, Option<int>, int>(optionx, optiony);
 
             Assert.True(optionr);
+            Assert.True(optionx == optiony);
         }
 
         [Fact]
@@ -158,6 +159,8 @@ namespace LanguageExtTests
             var optionr = IsEqual<EqStringCurrentCultureIgnoreCase, MOption<string>, Option<string>, string>(optionx, optiony);
 
             Assert.True(optionr);
+
+            Assert.True(optionx != optiony);
         }
 
         [Fact]
@@ -167,8 +170,9 @@ namespace LanguageExtTests
             var optiony = Right<Exception, int>(123);
 
             var optionr = IsEqual<EqInt, MEither<Exception, int>, Either<Exception, int>, int>(optionx, optiony);
-
             Assert.True(optionr);
+
+            Assert.True(optionx == optiony);
         }
 
         [Fact]
@@ -180,6 +184,7 @@ namespace LanguageExtTests
             var optionr = IsEqual<EqStringCurrentCultureIgnoreCase, MEither<Exception, string>, Either<Exception, string>, string>(optionx, optiony);
 
             Assert.True(optionr);
+            Assert.True(optionx != optiony);
         }
 
         public static bool IsEqual<EqA, MonadA, MA, A>(MA mx, MA my)
