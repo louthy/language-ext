@@ -464,10 +464,9 @@ namespace LanguageExt
         /// <returns>Folded state and FloatType bound value</returns>
         public virtual S FoldBack<S>(S state, Func<S, A, S> folder) =>
             folder(state, Value);
-        
-        /// <summary>
-        /// Sum
-        /// </summary>
-        public virtual A Sum() => Value;
+
+        [Pure]
+        public static SELF FromInteger(int value) =>
+            New(default(FLOATING).FromInteger(value));
     }
 }

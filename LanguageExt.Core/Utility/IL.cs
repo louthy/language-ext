@@ -27,7 +27,7 @@ namespace LanguageExt
                 })
                 .FirstOrDefault();
 
-            if (ctorPred == null) throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}");
+            if (ctorInfo == null) throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}");
 
             var ctorParams = ctorInfo.GetParameters();
 
@@ -66,7 +66,7 @@ namespace LanguageExt
                 })
                 .FirstOrDefault();
 
-            if (ctorPred == null) throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}");
+            if (ctorInfo == null) throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}");
 
             var ctorParams = ctorInfo.GetParameters();
 
@@ -107,7 +107,7 @@ namespace LanguageExt
                 })
                 .FirstOrDefault();
 
-            if (ctorPred == null) throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}");
+            if (ctorInfo == null) throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}");
 
             var ctorParams = ctorInfo.GetParameters();
 
@@ -150,7 +150,7 @@ namespace LanguageExt
                 })
                 .FirstOrDefault();
 
-            if (ctorPred == null) throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}");
+            if (ctorInfo == null) throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}");
 
             var ctorParams = ctorInfo.GetParameters();
 

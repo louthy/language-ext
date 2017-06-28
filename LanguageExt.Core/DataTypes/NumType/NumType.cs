@@ -20,13 +20,13 @@ namespace LanguageExt
     ///
     /// Will not accept null values
     /// </summary>
-    /// <typeparam name="NUMTYPE">Self reference type - i.e. class Metres : NumType<Metres, ... ></typeparam>
+    /// <typeparam name="SELF">Self reference type - i.e. class Metres : NumType<Metres, ... ></typeparam>
     /// <typeparam name="NUM">Num of A, e.g. TInt, TDouble, TFloat, etc.</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     [Serializable]
-    public abstract class NumType<NUMTYPE, NUM, A> : NumType<NUMTYPE, NUM, A, True<A>>
+    public abstract class NumType<SELF, NUM, A> : NumType<SELF, NUM, A, True<A>>
         where NUM     : struct, Num<A>
-        where NUMTYPE : NumType<NUMTYPE, NUM, A, True<A>>
+        where SELF : NumType<SELF, NUM, A, True<A>>
     {
         /// <summary>
         /// Constructor
@@ -41,7 +41,7 @@ namespace LanguageExt
         /// Explicit conversion operator for extracting the bound value
         /// </summary>
         [Pure]
-        public static explicit operator A(NumType<NUMTYPE, NUM, A> type) =>
+        public static explicit operator A(NumType<SELF, NUM, A> type) =>
             type.Value;
     }
 }

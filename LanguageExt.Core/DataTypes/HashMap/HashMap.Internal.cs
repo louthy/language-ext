@@ -960,6 +960,10 @@ namespace LanguageExt
             AsEnumerable().Map(kv => new KeyValuePair<K, V>(kv.Item1, kv.Item2)).GetEnumerator();
 
         [Pure]
+        public override bool Equals(object obj) =>
+            Equals(obj as HashMapInternal<EqK, K, V>);
+
+        [Pure]
         public static bool operator ==(HashMapInternal<EqK, K, V> lhs, HashMapInternal<EqK, K, V> rhs) =>
             lhs.Equals(rhs);
 

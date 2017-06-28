@@ -908,6 +908,10 @@ namespace LanguageExt
         }
 
         [Pure]
+        public override bool Equals(object obj) =>
+            Equals(obj as MapInternal<OrdK, K, V>);
+
+        [Pure]
         public static bool operator ==(MapInternal<OrdK, K, V> lhs, MapInternal<OrdK, K, V> rhs) =>
             lhs.Equals(rhs);
 
