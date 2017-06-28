@@ -426,6 +426,14 @@ namespace LanguageExt
         public Seq<L> LeftAsEnumerable() =>
             leftAsEnumerable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
+        [Pure]
+        public Validation<L, R> ToValidation() =>
+            IsBottom
+                ? throw new BottomException()
+                : IsRight
+                    ? Success<L, R>(right)
+                    : Fail<L, R>(left);
+
         /// <summary>
         /// Convert the EitherUnsafe to an Option
         /// </summary>
@@ -478,7 +486,7 @@ namespace LanguageExt
         /// <returns>True if lhs > rhs</returns>
         [Pure]
         public static bool operator >(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
-            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) < 0;
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) > 0;
 
         /// <summary>
         /// Comparison operator
@@ -488,7 +496,7 @@ namespace LanguageExt
         /// <returns>True if lhs >= rhs</returns>
         [Pure]
         public static bool operator >=(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
-            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) <= 0;
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) >= 0;
 
         /// <summary>
         /// Equality operator override

@@ -225,6 +225,15 @@ public static class TryExtensions
     }
 
     [Pure]
+    public static Validation<Exception, A> ToValidation<A>(this Try<A> self)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail<Exception, A>(res.Exception)
+            : Success<Exception, A>(res.Value);
+    }
+
+    [Pure]
     public static Either<Exception, A> ToEither<A>(this Try<A> self)
     {
         var res = self.Try();

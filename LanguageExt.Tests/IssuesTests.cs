@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using LanguageExt;
+using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using Xunit;
 

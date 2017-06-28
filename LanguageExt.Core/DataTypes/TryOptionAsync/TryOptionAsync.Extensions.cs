@@ -687,6 +687,13 @@ public static class TryOptionAsyncExtensions
                     : None());
 
     [Pure]
+    public static Task<Validation<Exception, Option<A>>> ToValidation<A>(this TryOptionAsync<A> self) =>
+        self.Match(
+            Some: v => Success<Exception, Option<A>>(Option<A>.Some(v)),
+            None: () => Success<Exception, Option<A>>(Option<A>.None),
+            Fail: e => Fail<Exception, Option<A>>(e));
+
+    [Pure]
     public static Task<Option<A>> ToOption<A>(this TryOptionAsync<A> self) =>
         self.Match(
             Some: v  => Option<A>.Some(v),

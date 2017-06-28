@@ -76,26 +76,20 @@ namespace LanguageExt.ClassInstances
                 : None();
 
         [Pure]
-        public Func<Unit, S> Fold<S>(Either<L, R> foldable, S state, Func<S, R, S> f)
-        {
-            var self = this;
-            return u => Check.NullReturn(
+        public Func<Unit, S> Fold<S>(Either<L, R> foldable, S state, Func<S, R, S> f) =>
+            u => Check.NullReturn(
                 foldable.Match(
                     Left:  _ => state,
                     Right: _ => f(state, foldable.RightValue),
                     Bottom: () => state));
-        }
 
         [Pure]
-        public Func<Unit, S> FoldBack<S>(Either<L, R> foldable, S state, Func<S, R, S> f)
-        {
-            var self = this;
-            return u => Check.NullReturn(
+        public Func<Unit, S> FoldBack<S>(Either<L, R> foldable, S state, Func<S, R, S> f) =>
+            u => Check.NullReturn(
                 foldable.Match(
                     Left:  _ => state,
                     Right: _ => f(state, foldable.RightValue),
                     Bottom: () => state));
-        }
 
         [Pure]
         public S BiFold<S>(Either<L, R> foldable, S state, Func<S, L, S> fa, Func<S, R, S> fb) =>

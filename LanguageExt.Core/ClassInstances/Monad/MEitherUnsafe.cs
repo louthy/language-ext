@@ -74,26 +74,20 @@ namespace LanguageExt.ClassInstances
                 : None();
 
         [Pure]
-        public Func<Unit, S> Fold<S>(EitherUnsafe<L, R> foldable, S state, Func<S, R, S> f)
-        {
-            var self = this;
-            return u => 
-                self.Match(foldable,
+        public Func<Unit, S> Fold<S>(EitherUnsafe<L, R> foldable, S state, Func<S, R, S> f) =>
+            u =>
+                foldable.MatchUnsafe(
                     Left: _ => state,
                     Right: _ => f(state, foldable.RightValue),
                     Bottom: () => state);
-        }
 
         [Pure]
-        public Func<Unit, S> FoldBack<S>(EitherUnsafe<L, R> foldable, S state, Func<S, R, S> f)
-        {
-            var self = this;
-            return u => 
-                self.Match(foldable,
+        public Func<Unit, S> FoldBack<S>(EitherUnsafe<L, R> foldable, S state, Func<S, R, S> f) =>
+            u =>
+                foldable.MatchUnsafe(
                     Left: _ => state,
                     Right: _ => f(state, foldable.RightValue),
                     Bottom: () => state);
-        }
 
         [Pure]
         public S BiFold<S>(EitherUnsafe<L, R> foldable, S state, Func<S, L, S> fa, Func<S, R, S> fb) =>

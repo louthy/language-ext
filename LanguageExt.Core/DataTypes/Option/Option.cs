@@ -373,6 +373,12 @@ namespace LanguageExt
         public Seq<A> AsEnumerable() =>
             asEnumerable<MOption<A>, Option<A>, A>(this);
 
+        [Pure]
+        public Validation<FAIL, A> ToValidation<FAIL>(FAIL defaultFailureValue) =>
+            IsSome
+                ? Success<FAIL, A>(Value)
+                : Fail<FAIL, A>(defaultFailureValue);
+
         /// <summary>
         /// Convert the structure to an Either
         /// </summary>

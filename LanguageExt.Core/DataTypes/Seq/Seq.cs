@@ -16,7 +16,7 @@ namespace LanguageExt
     public abstract class Seq<A> : ISeq<A>
     {
         public static readonly Seq<A> Empty = SeqEmpty<A>.Default;
-        public readonly A head;
+        readonly A head;
         internal int count = -1;
 
         /// <summary>
