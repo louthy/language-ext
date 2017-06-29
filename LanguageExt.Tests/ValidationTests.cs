@@ -18,17 +18,26 @@ namespace LanguageExt.Tests
         public void ValidCreditCardTest()
         {
             // Valid test
-            var res1 = ValidateCreditCard("Paul", "1234567891012345", "10", "2020");
-            Assert.True(res1.IsSuccess);
+            var res = ValidateCreditCard("Paul", "1234567891012345", "10", "2020");
+
+            res.Match(
+                Succ: cc =>
+                {
+                    Assert.True(cc.CardHolder == "Paul");
+                    Assert.True(cc.Month == 10);
+                    Assert.True(cc.Year == 2020);
+                    Assert.True(cc.Number == "1234567891012345");
+                },
+                Fail: err => Assert.True(false, "should never get here"));
         }
 
         [Fact]
         public void InValidCreditCardNumberTest()
         {
-            var res2 = ValidateCreditCard("Paul", "ABCDEF567891012345", "10", "2020");
-            Assert.True(res2.IsFail);
+            var res = ValidateCreditCard("Paul", "ABCDEF567891012345", "10", "2020");
+            Assert.True(res.IsFail);
 
-            res2.Match(
+            res.Match(
                 Succ: _ => Assert.True(false, "should never get here"),
                 Fail: errors =>
                 {
@@ -41,10 +50,10 @@ namespace LanguageExt.Tests
         [Fact]
         public void ExpiredAndInValidCreditCardNumberTest()
         {
-            var res2 = ValidateCreditCard("Paul", "ABCDEF567891012345", "1", "2001");
-            Assert.True(res2.IsFail);
+            var res = ValidateCreditCard("Paul", "ABCDEF567891012345", "1", "2001");
+            Assert.True(res.IsFail);
 
-            res2.Match(
+            res.Match(
                 Succ: _ => Assert.True(false, "should never get here"),
                 Fail: errors =>
                 {
