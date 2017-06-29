@@ -185,8 +185,6 @@ namespace LanguageExt
 
 
 
-
-
         public static Validation<FAIL, R> Apply<FAIL, A, B, R>(
             this ValueTuple<
                 Validation<FAIL, A>,
@@ -305,5 +303,109 @@ namespace LanguageExt
                      items.Item6.SuccessValue,
                      items.Item7.SuccessValue
                      ));
+
+        public static Validation<FAIL, R> Apply<FAIL, A, B, C, D, E, F, G, H, R>(
+            this (
+                Validation<FAIL, A>,
+                Validation<FAIL, B>,
+                Validation<FAIL, C>,
+                Validation<FAIL, D>,
+                Validation<FAIL, E>,
+                Validation<FAIL, F>,
+                Validation<FAIL, G>,
+                Validation<FAIL, H>
+                ) items,
+            Func<A, B, C, D, E, F, G, H, R> f) =>
+            items.Item1
+                 .Disjunction(items.Item2)
+                 .Disjunction(items.Item3)
+                 .Disjunction(items.Item4)
+                 .Disjunction(items.Item5)
+                 .Disjunction(items.Item6)
+                 .Disjunction(items.Item7)
+                 .Disjunction(items.Item8)
+                 .Map(_ => f(
+                     items.Item1.SuccessValue,
+                     items.Item2.SuccessValue,
+                     items.Item3.SuccessValue,
+                     items.Item4.SuccessValue,
+                     items.Item5.SuccessValue,
+                     items.Item6.SuccessValue,
+                     items.Item7.SuccessValue,
+                     items.Item8.SuccessValue
+                     ));
+
+        public static Validation<FAIL, R> Apply<FAIL, A, B, C, D, E, F, G, H, I, R>(
+            this (
+                Validation<FAIL, A>,
+                Validation<FAIL, B>,
+                Validation<FAIL, C>,
+                Validation<FAIL, D>,
+                Validation<FAIL, E>,
+                Validation<FAIL, F>,
+                Validation<FAIL, G>,
+                Validation<FAIL, H>,
+                Validation<FAIL, I>
+                ) items,
+            Func<A, B, C, D, E, F, G, H, I, R> f) =>
+            items.Item1
+                 .Disjunction(items.Item2)
+                 .Disjunction(items.Item3)
+                 .Disjunction(items.Item4)
+                 .Disjunction(items.Item5)
+                 .Disjunction(items.Item6)
+                 .Disjunction(items.Item7)
+                 .Disjunction(items.Item8)
+                 .Disjunction(items.Item9)
+                 .Map(_ => f(
+                     items.Item1.SuccessValue,
+                     items.Item2.SuccessValue,
+                     items.Item3.SuccessValue,
+                     items.Item4.SuccessValue,
+                     items.Item5.SuccessValue,
+                     items.Item6.SuccessValue,
+                     items.Item7.SuccessValue,
+                     items.Item8.SuccessValue,
+                     items.Item9.SuccessValue
+                     ));
+
+        public static Validation<FAIL, R> Apply<FAIL, A, B, C, D, E, F, G, H, I, J, R>(
+            this (
+                Validation<FAIL, A>,
+                Validation<FAIL, B>,
+                Validation<FAIL, C>,
+                Validation<FAIL, D>,
+                Validation<FAIL, E>,
+                Validation<FAIL, F>,
+                Validation<FAIL, G>,
+                Validation<FAIL, H>,
+                Validation<FAIL, I>,
+                Validation<FAIL, J>
+                ) items,
+            Func<A, B, C, D, E, F, G, H, I, J, R> f) =>
+            items.Item1
+                 .Disjunction(items.Item2)
+                 .Disjunction(items.Item3)
+                 .Disjunction(items.Item4)
+                 .Disjunction(items.Item5)
+                 .Disjunction(items.Item6)
+                 .Disjunction(items.Item7)
+                 .Disjunction(items.Item8)
+                 .Disjunction(items.Item9)
+                 .Disjunction(items.Item10)
+                 .Map(_ => f(
+                     items.Item1.SuccessValue,
+                     items.Item2.SuccessValue,
+                     items.Item3.SuccessValue,
+                     items.Item4.SuccessValue,
+                     items.Item5.SuccessValue,
+                     items.Item6.SuccessValue,
+                     items.Item7.SuccessValue,
+                     items.Item8.SuccessValue,
+                     items.Item9.SuccessValue,
+                     items.Item10.SuccessValue
+                     ));
+
+
     }
 }
