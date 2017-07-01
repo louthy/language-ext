@@ -23,20 +23,17 @@ namespace LanguageExt.ClassInstances
         public S BiFold<S>(Validation<FAIL, SUCCESS> foldable, S state, Func<S, FAIL, S> fa, Func<S, SUCCESS, S> fb) =>
             foldable.Match(
                 Fail:    f => f.Fold(state, fa),
-                Succ:    s => fb(state, s),
-                Bottom: () => state);
+                Succ:    s => fb(state, s));
 
         public S BiFoldBack<S>(Validation<FAIL, SUCCESS> foldable, S state, Func<S, FAIL, S> fa, Func<S, SUCCESS, S> fb) =>
             foldable.Match(
                 Fail: f => f.FoldBack(state, fa),
-                Succ: s => fb(state, s),
-                Bottom: () => state);
+                Succ: s => fb(state, s));
 
         public Func<Unit, int> Count(Validation<FAIL, SUCCESS> fa) => _ =>
             fa.Match(
                 Fail: f => 0,
-                Succ: s => 1,
-                Bottom: () => 0);
+                Succ: s => 1);
 
         public Validation<FAIL, SUCCESS> Empty() =>
             Validation<FAIL, SUCCESS>.Fail(Seq<FAIL>.Empty);
@@ -44,17 +41,15 @@ namespace LanguageExt.ClassInstances
         public Func<Unit, S> Fold<S>(Validation<FAIL, SUCCESS> fa, S state, Func<S, SUCCESS, S> f) => _ => 
             fa.Match(
                 Fail: x => state,
-                Succ: s => f(state, s),
-                Bottom: () => state);
+                Succ: s => f(state, s));
 
         public Func<Unit, S> FoldBack<S>(Validation<FAIL, SUCCESS> fa, S state, Func<S, SUCCESS, S> f) => _ =>
             fa.Match(
                 Fail: x => state,
-                Succ: s => f(state, s),
-                Bottom: () => state);
+                Succ: s => f(state, s));
 
         public bool IsBottom(Validation<FAIL, SUCCESS> choice) =>
-            choice.IsBottom;
+            false;
 
         public bool IsLeft(Validation<FAIL, SUCCESS> choice) =>
             choice.IsFail;
@@ -66,12 +61,12 @@ namespace LanguageExt.ClassInstances
             false;
 
         public C Match<C>(Validation<FAIL, SUCCESS> choice, Func<Seq<FAIL>, C> Left, Func<SUCCESS, C> Right, Func<C> Bottom = null) =>
-            choice.Match(Right, Left, Bottom);
+            choice.Match(Right, Left);
 
         public Unit Match(Validation<FAIL, SUCCESS> choice, Action<Seq<FAIL>> Left, Action<SUCCESS> Right, Action Bottom = null) =>
-            choice.Match(Right, Left, Bottom);
+            choice.Match(Right, Left);
 
         public C MatchUnsafe<C>(Validation<FAIL, SUCCESS> choice, Func<Seq<FAIL>, C> Left, Func<SUCCESS, C> Right, Func<C> Bottom = null) =>
-            choice.MatchUnsafe(Right, Left, Bottom);
+            choice.MatchUnsafe(Right, Left);
     }
 }

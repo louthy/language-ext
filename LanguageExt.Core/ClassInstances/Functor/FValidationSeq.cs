@@ -15,14 +15,12 @@ namespace LanguageExt.ClassInstances
         public Validation<FAIL, SUCCESS2> BiMap(Validation<FAIL, SUCCESS> ma, Func<Seq<FAIL>, SUCCESS2> fa, Func<SUCCESS, SUCCESS2> fb) =>
             ma.Match(
                 Fail:    a => Validation<FAIL, SUCCESS2>.Success(Check.NullReturn(fa(a))),
-                Succ:    b => Validation<FAIL, SUCCESS2>.Success(Check.NullReturn(fb(b))),
-                Bottom: () => Validation<FAIL, SUCCESS2>.Bottom);
+                Succ:    b => Validation<FAIL, SUCCESS2>.Success(Check.NullReturn(fb(b))));
 
         [Pure]
         public Validation<FAIL, SUCCESS2> Map(Validation<FAIL, SUCCESS> ma, Func<SUCCESS, SUCCESS2> f) =>
              ma.Match(
                 Fail: Validation<FAIL, SUCCESS2>.Fail,
-                Succ: b => Validation<FAIL, SUCCESS2>.Success(f(b)),
-                Bottom: () => Validation<FAIL, SUCCESS2>.Bottom);
+                Succ: b => Validation<FAIL, SUCCESS2>.Success(f(b)));
     }
 }

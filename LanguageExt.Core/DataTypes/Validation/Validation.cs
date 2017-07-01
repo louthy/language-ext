@@ -28,14 +28,10 @@ namespace LanguageExt
         IEquatable<SUCCESS>
         where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL>
     {
-        public readonly static Validation<MonoidFail, FAIL, SUCCESS> Bottom = new Validation<MonoidFail, FAIL, SUCCESS>();
-        internal static Validation<MonoidFail, FAIL, SUCCESS> Default = new Validation<MonoidFail, FAIL, SUCCESS>(default(SUCCESS));
-
         public enum StateType : byte
         {
-            Bottom,
-            Success,
-            Fail
+            Fail,
+            Success
         }
 
         readonly FAIL fail;
@@ -58,15 +54,8 @@ namespace LanguageExt
             this.state = StateType.Fail;
         }
 
-        internal FAIL FailValue => fail;
+        internal FAIL FailValue => isnull(fail) ? default(MonoidFail).Empty() : fail;
         internal SUCCESS SuccessValue => success;
-        
-        /// <summary>
-        /// Is the `Validation` in a `Bottom` state?
-        /// </summary>
-        [Pure]
-        public bool IsBottom =>
-            state == StateType.Bottom;
 
         [Pure]
         public bool IsFail =>
@@ -78,7 +67,7 @@ namespace LanguageExt
 
         IEnumerable<ValidationData<MonoidFail, FAIL, SUCCESS>> Enum()
         {
-            yield return new ValidationData<MonoidFail, FAIL, SUCCESS>(IsBottom, success, fail);
+            yield return new ValidationData<MonoidFail, FAIL, SUCCESS>(success, FailValue);
         }
 
         public IEnumerator<ValidationData<MonoidFail, FAIL, SUCCESS>> GetEnumerator() =>
@@ -129,7 +118,7 @@ namespace LanguageExt
             if (IsSuccess && other.IsSuccess) return this;
             if (IsSuccess) return new Validation<MonoidFail, FAIL, SUCCESS>(other.FailValue);
             if (other.IsSuccess) return this;
-            return new Validation<MonoidFail, FAIL, SUCCESS>(default(MonoidFail).Append(fail, other.FailValue));
+            return new Validation<MonoidFail, FAIL, SUCCESS>(default(MonoidFail).Append(FailValue, other.FailValue));
         }
 
         /// <summary>
@@ -138,11 +127,10 @@ namespace LanguageExt
         /// <typeparam name="Ret">Return type</typeparam>
         /// <param name="Succ">Function to invoke if in a `Success` state</param>
         /// <param name="Fail">Function to invoke if in a `Fail` state</param>
-        /// <exception cref="BottomException">Thrown if matching on an `Validation` in a `Bottom` state</exception>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
-        public Ret Match<Ret>(Func<SUCCESS, Ret> Succ, Func<FAIL, Ret> Fail, Func<Ret> Bottom = null) =>
-            Check.NullReturn(MatchUnsafe(Succ, Fail, Bottom));
+        public Ret Match<Ret>(Func<SUCCESS, Ret> Succ, Func<FAIL, Ret> Fail) =>
+            Check.NullReturn(MatchUnsafe(Succ, Fail));
 
         /// <summary>
         /// Invokes the `Succ` or `Fail` function depending on the state of the `Validation`
@@ -150,22 +138,16 @@ namespace LanguageExt
         /// <typeparam name="Ret">Return type</typeparam>
         /// <param name="Succ">Function to invoke if in a `Success` state</param>
         /// <param name="Fail">Function to invoke if in a `Fail` state</param>
-        /// <exception cref="BottomException">Thrown if matching on an `Validation` in a `Bottom` state and
-        /// no bottom function provided</exception>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
-        public Ret MatchUnsafe<Ret>(Func<SUCCESS, Ret> Succ, Func<FAIL, Ret> Fail, Func<Ret> Bottom = null) =>
-            IsBottom
-                ? Bottom == null
-                    ? throw new BottomException()
-                    : Bottom()
-                : IsFail
-                    ? Fail == null
-                        ? throw new ArgumentNullException(nameof(Fail))
-                        : Fail(fail)
-                    : Succ == null
-                        ? throw new ArgumentNullException(nameof(Succ))
-                        : Succ(success);
+        public Ret MatchUnsafe<Ret>(Func<SUCCESS, Ret> Succ, Func<FAIL, Ret> Fail) =>
+            IsFail
+                ? Fail == null
+                    ? throw new ArgumentNullException(nameof(Fail))
+                    : Fail(FailValue)
+                : Succ == null
+                    ? throw new ArgumentNullException(nameof(Succ))
+                    : Succ(success);
 
         /// <summary>
         /// Invokes the `Succ` or `Fail` action depending on the state of the `Validation`
@@ -173,21 +155,11 @@ namespace LanguageExt
         /// <param name="Succ">Action to invoke if in a `Success` state</param>
         /// <param name="Fail">Action to invoke if in a `Fail` state</param>
         /// <returns>Unit</returns>
-        /// <exception cref="BottomException">Thrown if matching on an `Validation` in a `Bottom` state 
-        /// with no bottom function provided</exception>
-        public Unit Match(Action<SUCCESS> Succ, Action<FAIL> Fail, Action Bottom = null)
+        public Unit Match(Action<SUCCESS> Succ, Action<FAIL> Fail)
         {
-            if (IsBottom && Bottom != null)
+            if (IsFail)
             {
-                Bottom();
-            }
-            else if (IsBottom && Bottom == null)
-            {
-                throw new BottomException();
-            }
-            else if (IsFail)
-            {
-                Fail(fail);
+                Fail(FailValue);
             }
             else 
             {
@@ -307,15 +279,11 @@ namespace LanguageExt
         /// <returns>String representation of the Validation</returns>
         [Pure]
         public override string ToString() =>
-            IsBottom
-                ? "Bottom"
-                : IsSuccess
-                    ? isnull(success)
-                        ? "Success(null)"
-                        : $"Success({success})"
-                    : isnull(fail)
-                        ? "Fail(null)"
-                        : $"Fail({fail})";
+            IsSuccess
+                ? isnull(success)
+                    ? "Success(null)"
+                    : $"Success({success})"
+                : $"Fail({FailValue})";
 
         /// <summary>
         /// Returns a hash code of the wrapped value of the Validation
@@ -518,18 +486,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static bool operator true(Validation<MonoidFail, FAIL, SUCCESS> value) =>
-            value.IsBottom
-                ? false
-                : value.IsSuccess;
+            value.IsSuccess;
 
         /// <summary>
         /// Override of the False operator to return True if the Validation is Fail
         /// </summary>
         [Pure]
         public static bool operator false(Validation<MonoidFail, FAIL, SUCCESS> value) =>
-            value.IsBottom
-                ? false
-                : value.IsFail;
+            value.IsFail;
 
         /// <summary>
         /// CompareTo override
@@ -594,7 +558,7 @@ namespace LanguageExt
         /// <returns>1 if the Validation is in a Success state, 0 otherwise.</returns>
         [Pure]
         public int Count() =>
-            IsBottom || IsFail
+            IsFail
                 ? 0
                 : 1;
 
@@ -698,7 +662,6 @@ namespace LanguageExt
         /// <param name="self">Validation to check existence of</param>
         /// <param name="Success">Success predicate</param>
         /// <param name="Fail">Fail predicate</param>
-        /// <returns>True if the predicate returns True.  False otherwise or if the Validation is in a bottom state.</returns>
         [Pure]
         public bool BiExists(Func<SUCCESS, bool> Success, Func<FAIL, bool> Fail) =>
             biExists<FoldValidation<MonoidFail, FAIL, SUCCESS>, Validation<MonoidFail, FAIL, SUCCESS>, FAIL, SUCCESS>(this, Fail, Success);
@@ -747,7 +710,7 @@ namespace LanguageExt
         public Validation<MonoidFail, FAIL, U> Bind<U>(Func<SUCCESS, Validation<MonoidFail, FAIL, U>> f) =>
             IsSuccess
                 ? f(success)
-                : Validation<MonoidFail, FAIL, U>.Fail(fail);
+                : Validation<MonoidFail, FAIL, U>.Fail(FailValue);
 
         [Pure]
         public Validation<MonoidFail, FAIL, V> SelectMany<U, V>(Func<SUCCESS, Validation<MonoidFail, FAIL, U>> bind, Func<SUCCESS, U, V> project)
@@ -755,7 +718,7 @@ namespace LanguageExt
             var t = success;
             return IsSuccess
                 ? bind(t).Map(u => project(t, u))
-                : Validation<MonoidFail, FAIL, V>.Fail(fail);
+                : Validation<MonoidFail, FAIL, V>.Fail(FailValue);
         }
     }
 }
