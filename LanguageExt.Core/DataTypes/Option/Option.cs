@@ -313,6 +313,15 @@ namespace LanguageExt
             MOption<A>.Inst.Bind<MOption<B>, Option<B>, B>(this, f);
 
         /// <summary>
+        /// Bi-bind.  Allows mapping of both monad states
+        /// </summary>
+        [Pure]
+        public Option<B> BiBind<B>(Func<A, Option<B>> Some, Func<Option<B>> None) =>
+            IsSome
+                ? Some(Value)
+                : None();
+
+        /// <summary>
         /// Monad bind operation
         /// </summary>
         [Pure]

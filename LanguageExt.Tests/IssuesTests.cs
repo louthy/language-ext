@@ -35,7 +35,6 @@ namespace LanguageExt.Tests
 
         static Task<Either<Exception, int>> addUser(UserMapping user) =>
             Right<Exception, int>(user.ToString().Length).AsTask();
-
     }
 
     public class ADUser : NewType<ADUser, string> { public ADUser(string u) : base(u) { } }

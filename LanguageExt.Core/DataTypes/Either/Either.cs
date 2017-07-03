@@ -857,6 +857,15 @@ namespace LanguageExt
             MEither<L, R>.Inst.Bind<MEither<L, Ret>, Either<L, Ret>, Ret>(this, binder);
 
         /// <summary>
+        /// Bi-bind.  Allows mapping of both monad states
+        /// </summary>
+        [Pure]
+        public Either<L, B> BiBind<B>(Func<R, Either<L, B>> Right, Func<L, Either<L, B>> Left) =>
+            IsRight
+                ? Right(RightValue)
+                : Left(LeftValue);
+
+        /// <summary>
         /// Filter the Either
         /// </summary>
         /// <remarks>

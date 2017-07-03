@@ -826,6 +826,15 @@ namespace LanguageExt
             MEitherUnsafe<L, R>.Inst.Bind<MEitherUnsafe<L, Ret>, EitherUnsafe<L, Ret>, Ret>(this, binder);
 
         /// <summary>
+        /// Bi-bind.  Allows mapping of both monad states
+        /// </summary>
+        [Pure]
+        public EitherUnsafe<L, B> BiBind<B>(Func<R, EitherUnsafe<L, B>> Right, Func<L, EitherUnsafe<L, B>> Left) =>
+            IsRight
+                ? Right(RightValue)
+                : Left(LeftValue);
+
+        /// <summary>
         /// Filter the EitherUnsafe
         /// </summary>
         /// <remarks>

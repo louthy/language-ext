@@ -712,6 +712,15 @@ namespace LanguageExt
                 ? f(success)
                 : Validation<MonoidFail, FAIL, U>.Fail(FailValue);
 
+        /// <summary>
+        /// Bi-bind.  Allows mapping of both monad states
+        /// </summary>
+        [Pure]
+        public Validation<MonoidFail, FAIL, B> BiBind<B>(Func<SUCCESS, Validation<MonoidFail, FAIL, B>> Succ, Func<FAIL, Validation<MonoidFail, FAIL, B>> Fail) =>
+            IsSuccess
+                ? Succ(SuccessValue)
+                : Fail(FailValue);
+
         [Pure]
         public Validation<MonoidFail, FAIL, V> SelectMany<U, V>(Func<SUCCESS, Validation<MonoidFail, FAIL, U>> bind, Func<SUCCESS, U, V> project)
         {

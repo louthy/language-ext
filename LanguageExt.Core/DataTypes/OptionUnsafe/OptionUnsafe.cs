@@ -320,6 +320,15 @@ namespace LanguageExt
             MOptionUnsafe<A>.Inst.Bind<MOptionUnsafe<B>, OptionUnsafe<B>, B>(this, f);
 
         /// <summary>
+        /// Bi-bind.  Allows mapping of both monad states
+        /// </summary>
+        [Pure]
+        public OptionUnsafe<B> BiBind<B>(Func<A, OptionUnsafe<B>> Some, Func<OptionUnsafe<B>> None) =>
+            IsSome
+                ? Some(Value)
+                : None();
+
+        /// <summary>
         /// Monad bind operation
         /// </summary>
         [Pure]
