@@ -171,7 +171,7 @@ It started out trying to deal with issues in C#, that after using Haskell and F#
 * The awful 'out' parameter
 
 ## Poor tuple support
-I've been crying out for proper tuple support for ages.  When this library was created we we're no closer (C# 6).  
+I've been crying out for proper tuple support for ages.  When this library was created we were no closer (C# 6).  
 The standard way of creating them is ugly `Tuple.Create(foo,bar)` compared to functional languages where the syntax is often 
 `(foo,bar)` and to consume them you must work with the standard properties of `Item1`...`ItemN`.  Luckily now in C# 7
 we can use: `(foo,bar)`.  But for those that can't:
