@@ -42,7 +42,8 @@ namespace LanguageExt
         IComparable<EitherUnsafe<L, R>>,
         IComparable<R>,
         IEquatable<EitherUnsafe<L, R>>,
-        IEquatable<R>
+        IEquatable<R>,
+        ISerializable
     {
         public readonly static EitherUnsafe<L, R> Bottom = new EitherUnsafe<L, R>();
 
@@ -67,6 +68,37 @@ namespace LanguageExt
             this.State = EitherStatus.IsLeft;
             this.right = default(R);
             this.left = left;
+        }
+
+        [Pure]
+        public EitherUnsafe(SerializationInfo info, StreamingContext context)
+        {
+            State = (EitherStatus)info.GetValue("State", typeof(EitherStatus));
+            switch (State)
+            {
+                case EitherStatus.IsBottom:
+                    right = default(R);
+                    left = default(L);
+                    break;
+                case EitherStatus.IsRight:
+                    right = (R)info.GetValue("Right", typeof(R));
+                    left = default(L);
+                    break;
+                case EitherStatus.IsLeft:
+                    left = (L)info.GetValue("Left", typeof(L));
+                    right = default(R);
+                    break;
+
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("State", State);
+            if (IsRight) info.AddValue("Right", right);
+            if (IsLeft) info.AddValue("Left", left);
         }
 
         /// <summary>

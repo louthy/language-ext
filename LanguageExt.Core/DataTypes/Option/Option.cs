@@ -29,11 +29,13 @@ namespace LanguageExt
     ///     Ord         : OrdOpt
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
+    [Serializable]
     public struct Option<A> :
         IEnumerable<A>,
         IOptional,
         IEquatable<Option<A>>,
-        IComparable<Option<A>>
+        IComparable<Option<A>>,
+        ISerializable
     {
         readonly OptionData<A> data;
 
@@ -68,6 +70,20 @@ namespace LanguageExt
             this.data = first.Length == 0
                 ? OptionData<A>.None
                 : OptionData.Optional(first[0]);
+        }
+
+        [Pure]
+        public Option(SerializationInfo info, StreamingContext context)
+        {
+            var isSome = (bool)info.GetValue("IsSome", typeof(bool));
+            var value = (A)info.GetValue("Value", typeof(A));
+            data = isSome ? new OptionData<A>(OptionState.Some, value, null) : OptionData<A>.None;
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("IsSome", IsSome);
+            info.AddValue("Value", data.Value);
         }
 
         /// <summary>

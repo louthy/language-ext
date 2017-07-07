@@ -121,10 +121,9 @@ namespace LanguageExt
         [Pure]
         public static R matchUntyped<OPT, OA, A, R>(OA ma, Func<object, R> Some, Func<R> None)
             where OPT : struct, Optional<OA, A> =>
-            default(OPT).Match( ma,
+            default(OPT).MatchUnsafe(ma,
                 Some: x => Some(x),
-                None: () => None()
-            );
+                None: () => None());
 
         /// <summary>
         /// Convert the Option to an enumerable of zero or one items
