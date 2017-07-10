@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances.Pred;
+using LanguageExt.ClassInstances;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -93,6 +95,25 @@ namespace LanguageExt
 
         static Lst<T> Wrap<T>(LstInternal<T> list) =>
             new Lst<T>(list);
+
+        /// <summary>
+        /// Find if a value is in the collection
+        /// </summary>
+        /// <param name="value">Value to test</param>
+        /// <returns>True if collection contains value</returns>
+        [Pure]
+        public bool Contains(A value) =>
+            Value.Find(a => default(EqDefault<A>).Equals(a,value)).IsSome;
+
+        /// <summary>
+        /// Contains with provided Eq class instance
+        /// </summary>
+        /// <typeparam name="EqA">Eq class instance</typeparam>
+        /// <param name="value">Value to test</param>
+        /// <returns>True if collection contains value</returns>
+        [Pure]
+        public bool Contains<EqA>(A value) where EqA : struct, Eq<A> =>
+            Value.Find(a => default(EqA).Equals(a, value)).IsSome;
 
         /// <summary>
         /// Add an item to the end of the list
