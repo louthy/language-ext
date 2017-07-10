@@ -76,14 +76,21 @@ namespace LanguageExt
         public Option(SerializationInfo info, StreamingContext context)
         {
             var isSome = (bool)info.GetValue("IsSome", typeof(bool));
-            var value = (A)info.GetValue("Value", typeof(A));
-            data = isSome ? new OptionData<A>(OptionState.Some, value, null) : OptionData<A>.None;
+            if(isSome)
+            {
+                var value = (A)info.GetValue("Value", typeof(A));
+                data = OptionData.Optional(value);
+            }
+            else
+            {
+                data = OptionData.None<A>();
+            }
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("IsSome", IsSome);
-            info.AddValue("Value", data.Value);
+            if(IsSome) info.AddValue("Value", Value);
         }
 
         /// <summary>
