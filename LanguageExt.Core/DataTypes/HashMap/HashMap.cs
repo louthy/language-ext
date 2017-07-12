@@ -569,7 +569,7 @@ namespace LanguageExt
 
         [Pure]
         public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) && obj is HashMap<K, V> && Equals(this, (HashMap<K, V>)obj);
+            !ReferenceEquals(obj, null) && obj is HashMap<K, V> && Equals((HashMap<K, V>)obj);
 
         [Pure]
         public override int GetHashCode() =>

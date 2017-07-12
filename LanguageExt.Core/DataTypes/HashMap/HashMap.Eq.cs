@@ -587,7 +587,7 @@ namespace LanguageExt
 
         [Pure]
         public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) && obj is HashMap<EqK, K, V> && Equals(this, (HashMap<EqK, K, V>)obj);
+            !ReferenceEquals(obj, null) && obj is HashMap<EqK, K, V> && Equals((HashMap<EqK, K, V>)obj);
 
         [Pure]
         public override int GetHashCode() =>

@@ -630,7 +630,7 @@ namespace LanguageExt
 
         [Pure]
         public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) && obj is Map<K, V> && Equals(this, (Map<K, V>)obj);
+            !ReferenceEquals(obj, null) && obj is Map<K, V> && Equals((Map<K, V>)obj);
 
         [Pure]
         public override int GetHashCode() =>
