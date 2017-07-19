@@ -480,11 +480,11 @@ namespace LanguageExt
         public IEnumerable<V> Values => Value.Values;
 
         /// <summary>
-        /// Convert the map to an IDictionary
+        /// Convert the map to an `IReadOnlyDictionary<K, V>`
         /// </summary>
         /// <returns></returns>
         [Pure]
-        public IDictionary<K, V> ToDictionary() => Value.ToDictionary();
+        public IReadOnlyDictionary<K, V> ToDictionary() => Value.ToDictionary();
 
         /// <summary>
         /// Map the map the a dictionary

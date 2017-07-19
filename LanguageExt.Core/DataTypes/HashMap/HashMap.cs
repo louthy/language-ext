@@ -510,7 +510,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns></returns>
         [Pure]
-        public IDictionary<K, V> ToDictionary() =>
+        public IReadOnlyDictionary<K, V> ToDictionary() =>
             Value.ToDictionary();
 
         /// <summary>

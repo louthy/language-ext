@@ -808,12 +808,12 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Convert the map to an IDictionary
+        /// Convert the map to an `IReadOnlyDictionary<K, V>`
         /// </summary>
         /// <returns></returns>
         [Pure]
-        public IDictionary<K, V> ToDictionary() =>
-            new Dictionary<K, V>((IDictionary<K, V>)this);
+        public IReadOnlyDictionary<K, V> ToDictionary() =>
+            this;
 
         /// <summary>
         /// Map the map the a dictionary
