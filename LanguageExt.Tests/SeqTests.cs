@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using static LanguageExt.Prelude;
@@ -46,6 +47,27 @@ namespace LanguageExt.Tests
             string[] x = null;
 
             Assert.True(Seq(x).Count() == 0);
+        }
+
+        [Fact]
+        public void TakeTest()
+        {
+            IEnumerable<int> Numbers()
+            {
+                for (int i = 0; i < Int32.MaxValue; i++)
+                {
+                    yield return i;
+                }
+            }
+
+            var seq = Numbers().ToSeq();
+
+            var a = seq.Take(5).Sum();
+            Assert.True(a == 10);
+
+            var b = seq.Skip(5).Take(5).Sum();
+            Assert.True(b == 35);
+
         }
     }
 }

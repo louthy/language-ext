@@ -439,7 +439,7 @@ namespace LanguageExt
                 {
                     yield return current.Head;
                     current = current.Tail;
-                    count--;
+                    num--;
                 }
             }
             return Seq(Yield(count, this));

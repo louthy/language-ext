@@ -37,6 +37,32 @@ namespace LanguageExt.Tests
         static Task<Either<Exception, int>> addUser(UserMapping user) =>
             Right<Exception, int>(user.ToString().Length).AsTask();
 
+        static Try<int> addUser2(UserMapping user) => () =>
+            user.ToString().Length;
+
+        static Try<UserMapping> createUserMapping2(ADUser user) => () =>
+            UserMapping.New(user.ToString() + " mapped");
+
+        [Fact]
+        public TryAsync<int> Issue207_5() =>
+            from us in TryAsync<ADUser>(() => throw new Exception("fail"))
+            from mu in createUserMapping2(us).ToAsync()
+            from id in addUser2(mu).ToAsync()
+            select id;
+
+        [Fact]
+        public Task<Either<Exception, int>> Issue207_3() =>
+            from us in Left<Exception, ADUser>(new Exception("fail")).AsTask()
+            from mu in createUserMapping(us).AsTask()
+            from id in addUser(mu)
+            select id;
+
+        [Fact]
+        public Task<Either<Exception, int>> Issue207_4() =>
+            Left<Exception, ADUser>(new Exception("fail")).AsTask()
+                .BindT(createUserMapping)
+                .BindT(addUser);
+
         static void EqPar()
         {
             var eq = par<string, string, bool>(equals<EqStringOrdinalIgnoreCase, string>, "abc");

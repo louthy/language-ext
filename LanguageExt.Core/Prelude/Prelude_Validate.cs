@@ -406,6 +406,289 @@ namespace LanguageExt
                      items.Item10.SuccessValue
                      ));
 
+        public static Validation<FAIL, R> Apply<FAIL, A, B, C, D, E, F, G, H, I, J, K, R>(
+            this (
+                Validation<FAIL, A>,
+                Validation<FAIL, B>,
+                Validation<FAIL, C>,
+                Validation<FAIL, D>,
+                Validation<FAIL, E>,
+                Validation<FAIL, F>,
+                Validation<FAIL, G>,
+                Validation<FAIL, H>,
+                Validation<FAIL, I>,
+                Validation<FAIL, J>,
+                Validation<FAIL, K>
+                ) items,
+            Func<A, B, C, D, E, F, G, H, I, J, K, R> f) =>
+            items.Item1
+                 .Disjunction(items.Item2)
+                 .Disjunction(items.Item3)
+                 .Disjunction(items.Item4)
+                 .Disjunction(items.Item5)
+                 .Disjunction(items.Item6)
+                 .Disjunction(items.Item7)
+                 .Disjunction(items.Item8)
+                 .Disjunction(items.Item9)
+                 .Disjunction(items.Item10)
+                 .Disjunction(items.Item11)
+                 .Map(_ => f(
+                     items.Item1.SuccessValue,
+                     items.Item2.SuccessValue,
+                     items.Item3.SuccessValue,
+                     items.Item4.SuccessValue,
+                     items.Item5.SuccessValue,
+                     items.Item6.SuccessValue,
+                     items.Item7.SuccessValue,
+                     items.Item8.SuccessValue,
+                     items.Item9.SuccessValue,
+                     items.Item10.SuccessValue,
+                     items.Item11.SuccessValue
+                     ));
 
+        public static Validation<FAIL, R> Apply<FAIL, A, B, C, D, E, F, G, H, I, J, K, L, R>(
+            this (
+                Validation<FAIL, A>,
+                Validation<FAIL, B>,
+                Validation<FAIL, C>,
+                Validation<FAIL, D>,
+                Validation<FAIL, E>,
+                Validation<FAIL, F>,
+                Validation<FAIL, G>,
+                Validation<FAIL, H>,
+                Validation<FAIL, I>,
+                Validation<FAIL, J>,
+                Validation<FAIL, K>,
+                Validation<FAIL, L>
+                ) items,
+            Func<A, B, C, D, E, F, G, H, I, J, K, L, R> f) =>
+            items.Item1
+                 .Disjunction(items.Item2)
+                 .Disjunction(items.Item3)
+                 .Disjunction(items.Item4)
+                 .Disjunction(items.Item5)
+                 .Disjunction(items.Item6)
+                 .Disjunction(items.Item7)
+                 .Disjunction(items.Item8)
+                 .Disjunction(items.Item9)
+                 .Disjunction(items.Item10)
+                 .Disjunction(items.Item11)
+                 .Disjunction(items.Item12)
+                 .Map(_ => f(
+                     items.Item1.SuccessValue,
+                     items.Item2.SuccessValue,
+                     items.Item3.SuccessValue,
+                     items.Item4.SuccessValue,
+                     items.Item5.SuccessValue,
+                     items.Item6.SuccessValue,
+                     items.Item7.SuccessValue,
+                     items.Item8.SuccessValue,
+                     items.Item9.SuccessValue,
+                     items.Item10.SuccessValue,
+                     items.Item11.SuccessValue,
+                     items.Item12.SuccessValue
+                     ));
+
+        public static Validation<FAIL, R> Apply<FAIL, A, B, C, D, E, F, G, H, I, J, K, L, M, R>(
+            this (
+                Validation<FAIL, A>,
+                Validation<FAIL, B>,
+                Validation<FAIL, C>,
+                Validation<FAIL, D>,
+                Validation<FAIL, E>,
+                Validation<FAIL, F>,
+                Validation<FAIL, G>,
+                Validation<FAIL, H>,
+                Validation<FAIL, I>,
+                Validation<FAIL, J>,
+                Validation<FAIL, K>,
+                Validation<FAIL, L>,
+                Validation<FAIL, M>
+                ) items,
+            Func<A, B, C, D, E, F, G, H, I, J, K, L, M, R> f) =>
+            items.Item1
+                 .Disjunction(items.Item2)
+                 .Disjunction(items.Item3)
+                 .Disjunction(items.Item4)
+                 .Disjunction(items.Item5)
+                 .Disjunction(items.Item6)
+                 .Disjunction(items.Item7)
+                 .Disjunction(items.Item8)
+                 .Disjunction(items.Item9)
+                 .Disjunction(items.Item10)
+                 .Disjunction(items.Item11)
+                 .Disjunction(items.Item12)
+                 .Disjunction(items.Item13)
+                 .Map(_ => f(
+                     items.Item1.SuccessValue,
+                     items.Item2.SuccessValue,
+                     items.Item3.SuccessValue,
+                     items.Item4.SuccessValue,
+                     items.Item5.SuccessValue,
+                     items.Item6.SuccessValue,
+                     items.Item7.SuccessValue,
+                     items.Item8.SuccessValue,
+                     items.Item9.SuccessValue,
+                     items.Item10.SuccessValue,
+                     items.Item11.SuccessValue,
+                     items.Item12.SuccessValue,
+                     items.Item13.SuccessValue
+                     ));
+
+        public static Validation<FAIL, R> Apply<FAIL, A, B, C, D, E, F, G, H, I, J, K, L, M, N, R>(
+            this (
+                Validation<FAIL, A>,
+                Validation<FAIL, B>,
+                Validation<FAIL, C>,
+                Validation<FAIL, D>,
+                Validation<FAIL, E>,
+                Validation<FAIL, F>,
+                Validation<FAIL, G>,
+                Validation<FAIL, H>,
+                Validation<FAIL, I>,
+                Validation<FAIL, J>,
+                Validation<FAIL, K>,
+                Validation<FAIL, L>,
+                Validation<FAIL, M>,
+                Validation<FAIL, N>
+                ) items,
+            Func<A, B, C, D, E, F, G, H, I, J, K, L, M, N, R> f) =>
+            items.Item1
+                 .Disjunction(items.Item2)
+                 .Disjunction(items.Item3)
+                 .Disjunction(items.Item4)
+                 .Disjunction(items.Item5)
+                 .Disjunction(items.Item6)
+                 .Disjunction(items.Item7)
+                 .Disjunction(items.Item8)
+                 .Disjunction(items.Item9)
+                 .Disjunction(items.Item10)
+                 .Disjunction(items.Item11)
+                 .Disjunction(items.Item12)
+                 .Disjunction(items.Item13)
+                 .Disjunction(items.Item14)
+                 .Map(_ => f(
+                     items.Item1.SuccessValue,
+                     items.Item2.SuccessValue,
+                     items.Item3.SuccessValue,
+                     items.Item4.SuccessValue,
+                     items.Item5.SuccessValue,
+                     items.Item6.SuccessValue,
+                     items.Item7.SuccessValue,
+                     items.Item8.SuccessValue,
+                     items.Item9.SuccessValue,
+                     items.Item10.SuccessValue,
+                     items.Item11.SuccessValue,
+                     items.Item12.SuccessValue,
+                     items.Item13.SuccessValue,
+                     items.Item14.SuccessValue
+                     ));
+
+        public static Validation<FAIL, R> Apply<FAIL, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, R>(
+            this (
+                Validation<FAIL, A>,
+                Validation<FAIL, B>,
+                Validation<FAIL, C>,
+                Validation<FAIL, D>,
+                Validation<FAIL, E>,
+                Validation<FAIL, F>,
+                Validation<FAIL, G>,
+                Validation<FAIL, H>,
+                Validation<FAIL, I>,
+                Validation<FAIL, J>,
+                Validation<FAIL, K>,
+                Validation<FAIL, L>,
+                Validation<FAIL, M>,
+                Validation<FAIL, N>,
+                Validation<FAIL, O>
+                ) items,
+            Func<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, R> f) =>
+            items.Item1
+                 .Disjunction(items.Item2)
+                 .Disjunction(items.Item3)
+                 .Disjunction(items.Item4)
+                 .Disjunction(items.Item5)
+                 .Disjunction(items.Item6)
+                 .Disjunction(items.Item7)
+                 .Disjunction(items.Item8)
+                 .Disjunction(items.Item9)
+                 .Disjunction(items.Item10)
+                 .Disjunction(items.Item11)
+                 .Disjunction(items.Item12)
+                 .Disjunction(items.Item13)
+                 .Disjunction(items.Item14)
+                 .Disjunction(items.Item15)
+                 .Map(_ => f(
+                     items.Item1.SuccessValue,
+                     items.Item2.SuccessValue,
+                     items.Item3.SuccessValue,
+                     items.Item4.SuccessValue,
+                     items.Item5.SuccessValue,
+                     items.Item6.SuccessValue,
+                     items.Item7.SuccessValue,
+                     items.Item8.SuccessValue,
+                     items.Item9.SuccessValue,
+                     items.Item10.SuccessValue,
+                     items.Item11.SuccessValue,
+                     items.Item12.SuccessValue,
+                     items.Item13.SuccessValue,
+                     items.Item14.SuccessValue,
+                     items.Item15.SuccessValue
+                     ));
+
+        public static Validation<FAIL, R> Apply<FAIL, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, R>(
+            this (
+                Validation<FAIL, A>,
+                Validation<FAIL, B>,
+                Validation<FAIL, C>,
+                Validation<FAIL, D>,
+                Validation<FAIL, E>,
+                Validation<FAIL, F>,
+                Validation<FAIL, G>,
+                Validation<FAIL, H>,
+                Validation<FAIL, I>,
+                Validation<FAIL, J>,
+                Validation<FAIL, K>,
+                Validation<FAIL, L>,
+                Validation<FAIL, M>,
+                Validation<FAIL, N>,
+                Validation<FAIL, O>,
+                Validation<FAIL, P>
+                ) items,
+            Func<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, R> f) =>
+            items.Item1
+                 .Disjunction(items.Item2)
+                 .Disjunction(items.Item3)
+                 .Disjunction(items.Item4)
+                 .Disjunction(items.Item5)
+                 .Disjunction(items.Item6)
+                 .Disjunction(items.Item7)
+                 .Disjunction(items.Item8)
+                 .Disjunction(items.Item9)
+                 .Disjunction(items.Item10)
+                 .Disjunction(items.Item11)
+                 .Disjunction(items.Item12)
+                 .Disjunction(items.Item13)
+                 .Disjunction(items.Item14)
+                 .Disjunction(items.Item15)
+                 .Disjunction(items.Item16)
+                 .Map(_ => f(
+                     items.Item1.SuccessValue,
+                     items.Item2.SuccessValue,
+                     items.Item3.SuccessValue,
+                     items.Item4.SuccessValue,
+                     items.Item5.SuccessValue,
+                     items.Item6.SuccessValue,
+                     items.Item7.SuccessValue,
+                     items.Item8.SuccessValue,
+                     items.Item9.SuccessValue,
+                     items.Item10.SuccessValue,
+                     items.Item11.SuccessValue,
+                     items.Item12.SuccessValue,
+                     items.Item13.SuccessValue,
+                     items.Item14.SuccessValue,
+                     items.Item15.SuccessValue,
+                     items.Item16.SuccessValue
+                     ));
     }
 }
