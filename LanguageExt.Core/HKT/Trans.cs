@@ -72,11 +72,6 @@ namespace LanguageExt
                         MInner.Bind<NewOuterMonad, NewOuterType, NewInnerType>(innerA, a =>
                             default(NewOuterMonad).Return(default(NewInnerMonad).Return(f(a))))))(unit);
 
-        //public OuterType Plus(OuterType ma, OuterType mb) =>
-        //    MOuter.Bind<OuterMonad, OuterType, InnerType>(ma, a =>
-        //       MOuter.Bind<OuterMonad, OuterType, InnerType>(mb, b =>
-        //          MOuter.Return(MInner.Plus(a, b))));
-
         public OuterType Plus(OuterType ma, OuterType mb) =>
             MOuter.Apply(MInner.Plus, ma, mb);
 

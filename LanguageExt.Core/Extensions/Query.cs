@@ -12,19 +12,8 @@ namespace LanguageExt
     {
         public static T head<T>(IQueryable<T> list) => list.First();
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("headSafe has been deprecated, please use headOrNone")]
-        public static Option<T> headSafe<T>(IQueryable<T> list) =>
-            (from x in list
-             select Some(x))
-            .DefaultIfEmpty(None)
-            .FirstOrDefault();
-
         public static Option<T> headOrNone<T>(IQueryable<T> list) =>
-            (from x in list
-             select Some(x))
-            .DefaultIfEmpty(None)
-            .FirstOrDefault();
+            list.ToSeq().HeadOrNone();
 
         public static IQueryable<T> tail<T>(IQueryable<T> list) =>
             Queryable.Skip(list, 1);
@@ -136,11 +125,6 @@ public static class QueryExtensions
 {
     public static T Head<T>(this IQueryable<T> list) =>
         LanguageExt.Query.head(list);
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    [Obsolete("HeadSafe has been deprecated, please use HeadOrNone")]
-    public static Option<T> HeadSafe<T>(this IQueryable<T> list) =>
-        LanguageExt.Query.headSafe(list);
 
     public static Option<T> HeadOrNone<T>(this IQueryable<T> list) =>
         LanguageExt.Query.headOrNone(list);
