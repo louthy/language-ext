@@ -386,5 +386,18 @@ namespace LanguageExt.ClassInstances
                 ma,
                 Some: x => fa(state, x),
                 None: () => fb(state, unit));
+
+        [Pure]
+        public TryAsync<A> Apply(Func<A, A, A> f, TryAsync<A> fa, TryAsync<A> fb) => async () =>
+        {
+            // Run in parallel
+            var resA = fa.Try();
+            var resB = fb.Try();
+            var completed = await Task.WhenAll(resA, resB);
+
+            return !completed[0].IsFaulted && !completed[1].IsFaulted
+                ? f(completed[0].Value, completed[0].Value)
+                : throw new AggregateException(Seq(completed[0].Exception, completed[1].Exception).Where(e => e != null));
+        };
     }
 }

@@ -50,18 +50,6 @@ namespace LanguageExt.Tests
             from id in addUser2(mu).ToAsync()
             select id;
 
-        [Fact]
-        public Task<Either<Exception, int>> Issue207_3() =>
-            from us in Left<Exception, ADUser>(new Exception("fail")).AsTask()
-            from mu in createUserMapping(us).AsTask()
-            from id in addUser(mu)
-            select id;
-
-        [Fact]
-        public Task<Either<Exception, int>> Issue207_4() =>
-            Left<Exception, ADUser>(new Exception("fail")).AsTask()
-                .BindT(createUserMapping)
-                .BindT(addUser);
 
         static void EqPar()
         {

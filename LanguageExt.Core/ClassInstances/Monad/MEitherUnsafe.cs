@@ -241,5 +241,11 @@ namespace LanguageExt.ClassInstances
                 : choice.State == EitherStatus.IsLeft
                     ? Left(choice.left)
                     : Right(choice.right);
+
+        [Pure]
+        public EitherUnsafe<L, R> Apply(Func<R, R, R> f, EitherUnsafe<L, R> fa, EitherUnsafe<L, R> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

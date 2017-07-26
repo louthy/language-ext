@@ -200,5 +200,11 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public TryOption<A> Append(TryOption<A> x, TryOption<A> y) =>
             Plus(x, y);
+
+        [Pure]
+        public TryOption<A> Apply(Func<A, A, A> f, TryOption<A> fa, TryOption<A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

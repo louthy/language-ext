@@ -133,5 +133,10 @@ namespace LanguageExt.ClassInstances
             return Task.FromResult(mr(env).Value);
         };
 
+        [Pure]
+        public State<S, A> Apply(Func<A, A, A> f, State<S, A> fa, State<S, A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

@@ -89,5 +89,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(Identity<A> fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public Identity<A> Apply(Func<A, A, A> f, Identity<A> fa, Identity<A> fb) =>
+            default(MIdentity<A>).Bind<MIdentity<A>, Identity<A>, A>(fa, a =>
+            default(MIdentity<A>).Bind<MIdentity<A>, Identity<A>, A>(fb, b =>
+            default(MIdentity<A>).Return(_ => f(a, b))));
+
     }
 }

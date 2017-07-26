@@ -252,5 +252,12 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         [Pure]
         MA Zero();
+
+        /// <summary>
+        /// Apply - used to facilitate default behavior for monad transformers 
+        /// NOTE: Don't rely on this, it may not be a permanent addition to the project
+        /// </summary>
+        [Pure]
+        MA Apply(Func<A, A, A> faac, MA fa, MA fb);
     }
 }

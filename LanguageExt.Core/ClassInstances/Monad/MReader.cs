@@ -131,5 +131,11 @@ namespace LanguageExt.ClassInstances
                       select 1;
             return Task.FromResult(rdr(env).Value);
         };
+
+        [Pure]
+        public Reader<Env, A> Apply(Func<A, A, A> f, Reader<Env, A> fa, Reader<Env, A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

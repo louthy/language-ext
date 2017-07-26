@@ -162,5 +162,11 @@ namespace LanguageExt.ClassInstances
 
             return Task.FromResult(r.IsBottom ? 0 : 1);
         };
+
+        [Pure]
+        public Writer<MonoidW, W, A> Apply(Func<A, A, A> f, Writer<MonoidW, W, A> fa, Writer<MonoidW, W, A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

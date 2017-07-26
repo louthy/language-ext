@@ -130,5 +130,11 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(Set<A> fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public Set<A> Apply(Func<A, A, A> f, Set<A> fa, Set<A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

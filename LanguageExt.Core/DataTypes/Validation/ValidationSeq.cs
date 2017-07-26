@@ -96,6 +96,17 @@ namespace LanguageExt
                 ? throw new ValueIsNullException()
                 : Fail(value);
 
+        /// <summary>
+        /// Implicit conversion operator from `FAIL` to `Validation<MonoidFail, FAIL, SUCCESS>`
+        /// </summary>
+        /// <param name="value">`value`, must not be `null`.</param>
+        /// <exception cref="ValueIsNullException">`value` is `null`</exception>
+        [Pure]
+        public static implicit operator Validation<FAIL, SUCCESS>(FAIL value) =>
+            isnull(value)
+                ? throw new ValueIsNullException()
+                : Fail(SeqOne(value));
+
         [Pure]
         public Validation<FAIL, SUCCESS> Disjunction<SUCCESSB>(Validation<FAIL, SUCCESSB> other)
         {
@@ -537,6 +548,7 @@ namespace LanguageExt
         [Pure]
         public bool Equals(Validation<FAIL, SUCCESS> other) =>
             EqChoice<
+                MSeq<FAIL>,
                 EqDefault<SUCCESS>, 
                 FoldValidation<FAIL, SUCCESS>, 
                 Validation<FAIL, SUCCESS>,

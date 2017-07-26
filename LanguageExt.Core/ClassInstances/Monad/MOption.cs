@@ -220,5 +220,11 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Option<A> x) =>
             EqOpt<EqDefault<A>, MOption<A>, Option<A>, A>.Inst.GetHashCode(x);
+
+        [Pure]
+        public Option<A> Apply(Func<A, A, A> f, Option<A> fa, Option<A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

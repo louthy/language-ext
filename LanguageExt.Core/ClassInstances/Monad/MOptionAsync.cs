@@ -344,5 +344,17 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Task<S> BiFoldBackAsync<S>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> fa, Func<S, Unit, Task<S>> fb) =>
             BiFoldAsync(ma, state, fa, fb);
+
+        [Pure]
+        public OptionAsync<A> Apply(Func<A, A, A> f, OptionAsync<A> fa, OptionAsync<A> fb) => 
+            new Task<Option<A>>(() =>
+            {
+                var ta = fa.ToOption();
+                var tb = fb.ToOption();
+                Task.WaitAll(ta, tb);
+                return !ta.IsFaulted && !tb.IsFaulted && ta.Result.IsSome && tb.Result.IsSome
+                    ? Option<A>.Some(f(ta.Result.Value, tb.Result.Value))
+                    : Option<A>.None;
+            }).ToAsync();
     }
 }

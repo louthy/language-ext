@@ -25,6 +25,7 @@
         T2("ApplEnumerable", "MEnumerable", "IEnumerable"),
         T("Seq"),
         T("Set"),
+        T("Validation", "FAIL"),
     };
 
     string header   = System.IO.File.ReadAllText(this.Host.ResolvePath("HKT.Extensions.Header.Template.txt"));

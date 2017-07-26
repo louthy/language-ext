@@ -132,5 +132,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(Que<A> fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public Que<A> Apply(Func<A, A, A> f, Que<A> fa, Que<A> fb) =>
+            toQueue(
+                from a in fa
+                from b in fb
+                select f(a, b));
     }
 }

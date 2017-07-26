@@ -171,5 +171,32 @@ namespace LanguageExt.Tests
             Assert.True(y.IsLeft && y == "error");
         }
 
+        [Fact]
+        public static void SeqValidation1()
+        {
+            var x = Seq<Validation<string, int>>(1, 2, "error 1", 3, 4, "error 2");
+
+            var y = x.Sequence();
+
+            Assert.True(y.IsFail && y == Seq("error 1", "error 2"));
+
+            y.Match(
+                Succ: s => Assert.True(false),
+                Fail: e =>
+                {
+                    Assert.True(e.Head == "error 1");
+                    Assert.True(e.Tail.Head == "error 2");
+                });
+        }
+
+        [Fact]
+        public static void SeqValidation2()
+        {
+            var x = Seq<Validation<string, int>>(1, 2, 3, 4, 5);
+
+            var y = x.Sequence();
+
+            Assert.True(y.IsSuccess && y == Seq(1, 2, 3, 4, 5));
+        }
     }
 }

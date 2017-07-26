@@ -189,5 +189,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(Task<A> fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public async Task<A> Apply(Func<A, A, A> f, Task<A> fa, Task<A> fb) 
+        {
+            await Task.WhenAll(fa, fb);
+            return !fa.IsFaulted && !fb.IsFaulted
+                ? f(fa.Result, fb.Result)
+                : throw fa.Exception;
+        }
     }
 }

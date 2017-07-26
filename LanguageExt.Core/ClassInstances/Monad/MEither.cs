@@ -245,5 +245,10 @@ namespace LanguageExt.ClassInstances
                     ? Left(choice.left)
                     : Right(choice.right);
 
+        [Pure]
+        public Either<L, R> Apply(Func<R, R, R> f, Either<L, R> fa, Either<L, R> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

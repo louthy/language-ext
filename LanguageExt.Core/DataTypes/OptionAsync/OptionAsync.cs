@@ -42,8 +42,8 @@ namespace LanguageExt
         /// <param name="value">Value to bind, must be non-null</param>
         /// <returns>Option of A</returns>
         [Pure]
-        public static Option<A> Some(A value) =>
-            value;
+        public static OptionAsync<A> Some(A value) =>
+            new OptionAsync<A>(new OptionDataAsync<A>(OptionState.Some, value, null));
 
         /// <summary>
         /// Takes the value-type OptionV<A>
