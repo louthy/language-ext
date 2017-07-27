@@ -30,12 +30,12 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public Try<A> Fail(object err) =>
-            Try<A>(BottomException.Default);
-
-        [Pure]
-        public Try<A> Fail(Exception err = null) =>
-            Try<A>(err ?? BottomException.Default);
+        public Try<A> Fail(object err = null) =>
+            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
+                ? Try<A>((A)(dynamic)err)
+                : err != null && err is Exception
+                    ? Try<A>((Exception)err)
+                    : Try<A>(BottomException.Default);
 
         [Pure]
         public Try<A> Plus(Try<A> ma, Try<A> mb) => () =>

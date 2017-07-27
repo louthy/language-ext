@@ -28,18 +28,16 @@ namespace LanguageExt.ClassInstances
                 ? default(MONADB).Id(_ =>
                     ma.IsSome && f != null
                         ? f(ma.Value)
-                        : default(MONADB).Fail(ValueIsNoneException.Default))
+                        : default(MONADB).Fail(OptionUnsafe<A>.None))
                 : ma.IsSome && f != null
                     ? f(ma.Value)
-                    : default(MONADB).Fail(ValueIsNoneException.Default);
+                    : default(MONADB).Fail(OptionUnsafe<A>.None);
 
         [Pure]
-        public OptionUnsafe<A> Fail(object err) =>
-            OptionUnsafe<A>.None;
-
-        [Pure]
-        public OptionUnsafe<A> Fail(Exception err = null) =>
-            OptionUnsafe<A>.None;
+        public OptionUnsafe<A> Fail(object err = null) =>
+            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
+                ? OptionUnsafe<A>.Some((A)(dynamic)err)
+                : OptionUnsafe<A>.None;
 
         [Pure]
         public OptionUnsafe<A> Plus(OptionUnsafe<A> a, OptionUnsafe<A> b) =>

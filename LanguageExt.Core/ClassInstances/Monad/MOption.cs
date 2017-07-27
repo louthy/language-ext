@@ -27,18 +27,16 @@ namespace LanguageExt.ClassInstances
                 ? default(MonadB).Id(_ =>
                     ma.IsSome && f != null
                         ? f(ma.Value)
-                        : default(MonadB).Fail())
+                        : default(MonadB).Fail(Option<A>.None))
                 : ma.IsSome && f != null
                     ? f(ma.Value)
-                    : default(MonadB).Fail();
+                    : default(MonadB).Fail(Option<A>.None);
 
         [Pure]
-        public Option<A> Fail(object err) =>
-            Option<A>.None;
-
-        [Pure]
-        public Option<A> Fail(Exception err = null) =>
-            Option<A>.None;
+        public Option<A> Fail(object err = null) =>
+            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
+                ? Option<A>.Some((A)(dynamic)err)
+                : Option<A>.None;
 
         [Pure]
         public Option<A> Plus(Option<A> a, Option<A> b) =>

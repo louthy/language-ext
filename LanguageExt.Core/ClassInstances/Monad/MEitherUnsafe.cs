@@ -23,14 +23,12 @@ namespace LanguageExt.ClassInstances
                 Bottom: () => default(MONADB).Fail(BottomException.Default));
 
         [Pure]
-        public EitherUnsafe<L, R> Fail(object err) =>
-            err is L
-                ? EitherUnsafe<L, R>.Left((L)err)
-                : EitherUnsafe<L, R>.Bottom;
-
-        [Pure]
-        public EitherUnsafe<L, R> Fail(Exception err = null) =>
-            EitherUnsafe<L, R>.Bottom;
+        public EitherUnsafe<L, R> Fail(object err = null) =>
+            err != null && Cast.IsCastableTo(err.GetType(), typeof(L))
+                ? EitherUnsafe<L, R>.Left((L)(dynamic)err)
+                : err != null && Cast.IsCastableTo(err.GetType(), typeof(L))
+                    ? EitherUnsafe<L, R>.Right((R)(dynamic)err)
+                    : EitherUnsafe<L, R>.Bottom;
 
         [Pure]
         public EitherUnsafe<L, R> Plus(EitherUnsafe<L, R> ma, EitherUnsafe<L, R> mb) =>

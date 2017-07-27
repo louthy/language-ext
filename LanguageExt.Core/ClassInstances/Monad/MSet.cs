@@ -46,11 +46,7 @@ namespace LanguageExt.ClassInstances
             x == y;
 
         [Pure]
-        public Set<A> Fail(object err) =>
-            Empty();
-
-        [Pure]
-        public Set<A> Fail(Exception err = null) =>
+        public Set<A> Fail(object err = null) =>
             Empty();
 
         [Pure]

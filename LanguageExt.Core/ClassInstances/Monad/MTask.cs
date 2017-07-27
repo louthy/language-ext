@@ -27,12 +27,12 @@ namespace LanguageExt.ClassInstances
                     : f(task.Result)));
 
         [Pure]
-        public Task<A> Fail(object err) =>
-            None;
-
-        [Pure]
-        public Task<A> Fail(Exception err = null) =>
-            (err ?? new BottomException()).AsFailedTask<A>();
+        public Task<A> Fail(object err = null) =>
+            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
+                ? Return((A)(dynamic)err)
+                : err != null && err is Exception
+                    ? ((Exception)err).AsFailedTask<A>()
+                    : None;
 
         [Pure]
         public async Task<A> Plus(Task<A> ma, Task<A> mb)

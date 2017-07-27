@@ -29,11 +29,11 @@ namespace LanguageExt.ClassInstances
                     return task.IsFaulted
                         ? default(MONADB).Fail(task.Exception)
                         : task.IsCanceled
-                            ? default(MONADB).Fail()
+                            ? default(MONADB).Fail(new TaskCanceledException())
                             : task.Result.IsFaulted
                                 ? default(MONADB).Fail(task.Result.Exception)
                                 : task.Result.IsBottom
-                                    ? default(MONADB).Fail()
+                                    ? default(MONADB).Fail(new TaskCanceledException())
                                     : f(task.Result.Value);
                 }
                 catch (Exception e)
@@ -68,12 +68,12 @@ namespace LanguageExt.ClassInstances
             mb;
 
         [Pure]
-        public TryAsync<A> Fail(object err) =>
-            TryAsync<A>(BottomException.Default);
-
-        [Pure]
-        public TryAsync<A> Fail(Exception err = null) =>
-            TryAsync<A>(err ?? BottomException.Default);
+        public TryAsync<A> Fail(object err = null) =>
+            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
+                ? TryAsync<A>((A)(dynamic)err)
+                : err != null && err is Exception
+                    ? TryAsync<A>((Exception)err)
+                    : TryAsync<A>(BottomException.Default);
 
         [Pure]
         public TryAsync<A> Plus(TryAsync<A> ma, TryAsync<A> mb) => async () =>

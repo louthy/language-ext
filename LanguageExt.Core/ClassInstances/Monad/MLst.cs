@@ -47,11 +47,7 @@ namespace LanguageExt.ClassInstances
             Enumerable.SequenceEqual(x, y);
 
         [Pure]
-        public Lst<A> Fail(object err) =>
-            Empty();
-
-        [Pure]
-        public Lst<A> Fail(Exception err = null) =>
+        public Lst<A> Fail(object err = null) =>
             Empty();
 
         [Pure]

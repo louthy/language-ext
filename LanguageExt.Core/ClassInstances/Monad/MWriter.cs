@@ -32,12 +32,10 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public Writer<MonoidW, W, A> Fail(Exception err = null) =>
-            () => (default(A), default(MonoidW).Empty(), true);
-
-        [Pure]
-        public Writer<MonoidW, W, A> Fail(object err) =>
-            () => (default(A), default(MonoidW).Empty(), true);
+        public Writer<MonoidW, W, A> Fail(object err = null) =>
+            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
+                ? new Writer<MonoidW, W, A>(() => ((A)(dynamic)err, default(MonoidW).Empty(), false))
+                : new Writer<MonoidW, W, A>(() => (default(A), default(MonoidW).Empty(), true));
 
         [Pure]
         public Writer<MonoidW, W, A> Writer(A value, W output) =>

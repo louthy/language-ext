@@ -46,11 +46,7 @@ namespace LanguageExt.ClassInstances
             x == y;
 
         [Pure]
-        public Stck<A> Fail(object err) =>
-            Stck<A>.Empty;
-
-        [Pure]
-        public Stck<A> Fail(Exception err = null) =>
+        public Stck<A> Fail(object err = null) =>
             Stck<A>.Empty;
 
         [Pure]

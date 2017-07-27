@@ -50,6 +50,21 @@ namespace LanguageExt.Tests
             from id in addUser2(mu).ToAsync()
             select id;
 
+        [Fact]
+        public void Issue208()
+        {
+            var r2 = from a in Task.FromResult(Option<int>.None)
+                     from b in Task.FromResult(Some(1))
+                     select a + b;
+
+            Assert.True(r2.Result == None);
+
+            var r = from a in Task.FromResult(Left<Error, int>(Error.New("error 1")))
+                    from b in Task.FromResult(Right<Error, int>(1))
+                    select a + b;
+
+            Assert.True(r.Result == Left<Error, int>(Error.New("error 1")));
+        }
 
         static void EqPar()
         {
@@ -59,5 +74,4 @@ namespace LanguageExt.Tests
 
     public class ADUser : NewType<ADUser, string> { public ADUser(string u) : base(u) { } }
     public class UserMapping : NewType<UserMapping, string> { public UserMapping(string u) : base(u) { } }
-
 }

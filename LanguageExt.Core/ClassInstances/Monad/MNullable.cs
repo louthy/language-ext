@@ -26,12 +26,10 @@ namespace LanguageExt.ClassInstances
                 : default(MONADB).Fail(ValueIsNoneException.Default);
 
         [Pure]
-        public A? Fail(object err) =>
-            null;
-
-        [Pure]
-        public A? Fail(Exception err = null) =>
-            null;
+        public A? Fail(object err = null) =>
+            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
+                ? new Nullable<A>((A)(dynamic)err)
+                : null;
 
         [Pure]
         public A? Plus(A? a, A? b) =>

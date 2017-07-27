@@ -47,11 +47,7 @@ namespace LanguageExt.ClassInstances
             x == y;
 
         [Pure]
-        public HashSet<A> Fail(object err) =>
-            Empty();
-
-        [Pure]
-        public HashSet<A> Fail(Exception err = null) =>
+        public HashSet<A> Fail(object err = null) =>
             Empty();
 
         [Pure]

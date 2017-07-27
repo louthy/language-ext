@@ -33,7 +33,7 @@ namespace LanguageExt.ClassInstances
                           }
                           else
                           {
-                              return default(MonadB).Fail();
+                              return default(MonadB).Fail(OptionAsync<A>.None);
                           }
                       });
                   })
@@ -45,17 +45,15 @@ namespace LanguageExt.ClassInstances
                       }
                       else
                       {
-                          return default(MonadB).Fail();
+                          return default(MonadB).Fail(OptionAsync<A>.None);
                       }
                   });
 
         [Pure]
-        public OptionAsync<A> Fail(object err) =>
-            OptionAsync<A>.None;
-
-        [Pure]
-        public OptionAsync<A> Fail(Exception err = null) =>
-            OptionAsync<A>.None;
+        public OptionAsync<A> Fail(object err = null) =>
+            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
+                ? OptionAsync<A>.Some((A)(dynamic)err)
+                : OptionAsync<A>.None;
 
         [Pure]
         public OptionAsync<A> Plus(OptionAsync<A> a, OptionAsync<A> b) =>

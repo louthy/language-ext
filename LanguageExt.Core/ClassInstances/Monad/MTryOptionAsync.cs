@@ -35,11 +35,11 @@ namespace LanguageExt.ClassInstances
                     return task.IsFaulted
                         ? default(MONADB).Fail(task.Exception)
                         : task.IsCanceled
-                            ? default(MONADB).Fail()
+                            ? default(MONADB).Fail(new TaskCanceledException())
                             : task.Result.IsFaulted
                                 ? default(MONADB).Fail(task.Result.Exception)
                                 : task.Result.Value.IsNone || task.Result.IsBottom
-                                    ? default(MONADB).Fail()
+                                    ? default(MONADB).Fail(new TaskCanceledException())
                                     : f(task.Result.Value.Value);
                 }
                 catch(Exception e)
@@ -49,14 +49,12 @@ namespace LanguageExt.ClassInstances
             }));
 
         [Pure]
-        public TryOptionAsync<A> Fail(object err) =>
-            TryOptionAsync<A>(Option<A>.None);
-
-        [Pure]
-        public TryOptionAsync<A> Fail(Exception err = null) =>
-            err == null
-                ? TryOptionAsync<A>(Option<A>.None)
-                : TryOptionAsync<A>(err);
+        public TryOptionAsync<A> Fail(object err = null) =>
+            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
+                ? TryOptionAsync((A)(dynamic)err)
+                : err != null && err is Exception
+                    ? TryOptionAsync<A>((Exception)err)
+                    : TryOptionAsync(Option<A>.None);
 
         [Pure]
         public TryOptionAsync<A> Plus(TryOptionAsync<A> ma, TryOptionAsync<A> mb) => async () =>

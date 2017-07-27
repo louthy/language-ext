@@ -23,12 +23,10 @@ namespace LanguageExt.ClassInstances
             });
 
         [Pure]
-        public Reader<Env, A> Fail(object err) =>
-            _ => (default(A), true);
-
-        [Pure]
-        public Reader<Env, A> Fail(Exception err = null) =>
-            _ => (default(A), true);
+        public Reader<Env, A> Fail(object err = null) =>
+            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
+                ? new Reader<Env, A>(_ => ((A)(dynamic)err, false))
+                : new Reader<Env, A>(_ => (default(A), true));
 
         [Pure]
         public Reader<Env, A> Reader(Func<Env, A> f) => env => 

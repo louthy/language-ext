@@ -105,18 +105,14 @@ namespace LanguageExt.ClassInstances
                     : 0);
 
         [Pure]
-        public Validation<FAIL, SUCCESS> Fail(Exception err = null) =>
-            Validation<FAIL, SUCCESS>.Fail(Seq<FAIL>.Empty);
-
-        [Pure]
         public Validation<FAIL, SUCCESS> Fail(Seq<FAIL> err) =>
             Validation<FAIL, SUCCESS>.Fail(err);
 
         [Pure]
-        public Validation<FAIL, SUCCESS> Fail(object err) =>
-            err is Seq<FAIL>
-                ? Validation<FAIL, SUCCESS>.Fail((Seq<FAIL>)err)
-                : Validation<FAIL, SUCCESS>.Fail(Seq<FAIL>.Empty);
+        public Validation<FAIL, SUCCESS> Fail(object err = null) =>
+            err is Seq<FAIL> ? Validation<FAIL, SUCCESS>.Fail((Seq<FAIL>)err)
+          : err is SUCCESS   ? Validation<FAIL, SUCCESS>.Success((SUCCESS)err)
+          : Validation<FAIL, SUCCESS>.Fail(Seq<FAIL>.Empty);
 
 
         [Pure]
