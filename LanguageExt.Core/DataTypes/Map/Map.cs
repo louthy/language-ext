@@ -896,5 +896,83 @@ namespace LanguageExt
         [Pure]
         public S Fold<S>(S state, Func<S, V, S> folder) =>
             MapModule.Fold(Value.Root, state, folder);
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public Map<K, V> Union(Map<K, V> other, Func<K, V, V, V> merge)
+        {
+            var map = this;
+            foreach(var right in other)
+            {
+                map = map.AddOrUpdate(right.Key, 
+                    Some: x  => merge(right.Key, x, right.Value), 
+                    None: () => right.Value);
+            }
+            return map;
+        }
+
+        /// <summary>
+        /// Intersect two maps.  Only keys that are in both maps are
+        /// returned.  The merge function is called for every resulting
+        /// key.
+        [Pure]
+        public Map<K, V> Intersect(Map<K, V> other, Func<K, V, V, V> merge)
+        {
+            var map = Map<K, V>.Empty;
+            foreach (var right in other)
+            {
+                var left = Find(right.Key);
+                if (left.IsSome)
+                {
+                    map = map.Add(right.Key, merge(right.Key, left.Value, right.Value));
+                }
+            }
+            return map;
+        }
+
+        /// <summary>
+        /// Map differencing based on key.  this - other.
+        /// </summary>
+        [Pure]
+        public Map<K, V> Except(Map<K, V> other)
+        {
+            var map = this;
+            foreach (var right in other)
+            {
+                if (map.ContainsKey(right.Key))
+                {
+                    map = map.Remove(right.Key);
+                }
+            }
+            return map;
+        }
+
+        /// <summary>
+        /// Keys that are in both maps are dropped and the remaining
+        /// items are merged and returned.
+        /// </summary>
+        [Pure]
+        public Map<K, V> SymmetricExcept(Map<K, V> other)
+        {
+            var map = Map<K, V>.Empty;
+            foreach (var left in this)
+            {
+                if (!other.ContainsKey(left.Key))
+                {
+                    map = map.Add(left.Key, left.Value);
+                }
+            }
+            foreach (var right in other)
+            {
+                if (!ContainsKey(right.Key))
+                {
+                    map = map.Add(right.Key, right.Value);
+                }
+            }
+            return map;
+        }
     }
 }

@@ -251,5 +251,60 @@ namespace LanguageExtTests
             Assert.True(vs.Tail.Tail.Tail.Tail.Head == 5);
             Assert.True(vs.Count == 5);
         }
+
+        [Fact]
+        public void MapUnionTest1()
+        {
+            var x = Map((1, 1), (2, 2), (3, 3));
+            var y = Map((1, 1), (2, 2), (3, 3));
+
+            var z = x.Union(y, (k, l, r) => l + r);
+
+            Assert.True(z == Map((1, 2), (2, 4), (3, 6)));
+        }
+
+        [Fact]
+        public void MapUnionTest2()
+        {
+            var x = Map((1, 1), (2, 2), (3, 3));
+            var y = Map((4, 4), (5, 5), (6, 6));
+
+            var z = x.Union(y, (k, l, r) => l + r);
+
+            Assert.True(z == Map((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6)));
+        }
+
+        [Fact]
+        public void MapIntesectTest1()
+        {
+            var x = Map(        (2, 2), (3, 3));
+            var y = Map((1, 1), (2, 2)        );
+
+            var z = x.Intersect(y, (k, l, r) => l + r);
+
+            Assert.True(z == Map((2, 4)));
+        }
+
+        [Fact]
+        public void MapExceptTest()
+        {
+            var x = Map((1, 1), (2, 2), (3, 3));
+            var y = Map((1, 1));
+
+            var z = x.Except(y);
+
+            Assert.True(z == Map((2, 2), (3, 3)));
+        }
+
+        [Fact]
+        public void MapSymmetricExceptTest()
+        {
+            var x = Map((1, 1), (2, 2), (3, 3));
+            var y = Map((1, 1),         (3, 3));
+
+            var z = x.Except(y);
+
+            Assert.True(z == Map((2, 2)));
+        }
     }
 }

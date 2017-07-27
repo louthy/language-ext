@@ -54,17 +54,10 @@ namespace LanguageExt.Tests
         [Fact]
         public void Issue208()
         {
-            var r = from a in Task.FromResult(Left<Error, int>(Error.New("error 1")))
-                    from b in Task.FromResult(Right<Error, int>(1))
+            var r = from a in Task.FromResult(Left<Exception, int>(new Exception("error 1")))
+                    from b in Task.FromResult(Right<Exception, int>(1))
                     select a + b;
 
-            Assert.True(r.Result == Left<Error, int>(Error.New("error 1")));
-
-            var r2 = from a in Task.FromResult(Option<int>.None)
-                     from b in Task.FromResult(Some(1))
-                     select a + b;
-
-            Assert.True(r2.Result == None);
         }
 
         static void EqPar()

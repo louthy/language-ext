@@ -700,5 +700,36 @@ namespace LanguageExt
         [Pure]
         public static Map<OrdK, K, V> Freeze<OrdK, K, V>(this IDictionary<K, V> dict) where OrdK : struct, Ord<K> =>
             toMap<OrdK, K, V>(dict.AsEnumerable());
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, V> union<OrdK, K, V>(Map<OrdK, K, V> left, Map<OrdK, K, V> right, Func<K, V, V, V> merge) where OrdK : struct, Ord<K> =>
+            left.Union(right, merge);
+
+        /// <summary>
+        /// Intersect two maps.  Only keys that are in both maps are
+        /// returned.  The merge function is called for every resulting
+        /// key.
+        [Pure]
+        public static Map<OrdK, K, V> intersect<OrdK, K, V>(Map<OrdK, K, V> left, Map<OrdK, K, V> right, Func<K, V, V, V> merge) where OrdK : struct, Ord<K> =>
+            left.Intersect(right, merge);
+
+        /// <summary>
+        /// Map differencing based on key.  this - other.
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, V> except<OrdK, K, V>(Map<OrdK, K, V> left, Map<OrdK, K, V> right) where OrdK : struct, Ord<K> =>
+            left.Except(right);
+
+        /// <summary>
+        /// Keys that are in both maps are dropped and the remaining
+        /// items are merged and returned.
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, V> symmetricExcept<OrdK, K, V>(Map<OrdK, K, V> left, Map<OrdK, K, V> right) where OrdK : struct, Ord<K> =>
+            left.SymmetricExcept(right);
     }
 }

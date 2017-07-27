@@ -912,5 +912,82 @@ namespace LanguageExt
         public static implicit operator Map<OrdK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
             new Map<OrdK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13, items.Item14, items.Item15, items.Item16 });
 
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public Map<OrdK, K, V> Union(Map<OrdK, K, V> other, Func<K, V, V, V> merge)
+        {
+            var map = this;
+            foreach(var right in other)
+            {
+                map = map.AddOrUpdate(right.Key, 
+                    Some: x  => merge(right.Key, x, right.Value), 
+                    None: () => right.Value);
+            }
+            return map;
+        }
+
+        /// <summary>
+        /// Intersect two maps.  Only keys that are in both maps are
+        /// returned.  The merge function is called for every resulting
+        /// key.
+        [Pure]
+        public Map<OrdK, K, V> Intersect(Map<OrdK, K, V> other, Func<K, V, V, V> merge)
+        {
+            var map = Map<OrdK, K, V>.Empty;
+            foreach (var right in other)
+            {
+                var left = Find(right.Key);
+                if (left.IsSome)
+                {
+                    map = map.Add(right.Key, merge(right.Key, left.Value, right.Value));
+                }
+            }
+            return map;
+        }
+
+        /// <summary>
+        /// Map differencing based on key.  this - other.
+        /// </summary>
+        [Pure]
+        public Map<OrdK, K, V> Except(Map<OrdK, K, V> other)
+        {
+            var map = this;
+            foreach (var right in other)
+            {
+                if (map.ContainsKey(right.Key))
+                {
+                    map = map.Remove(right.Key);
+                }
+            }
+            return map;
+        }
+
+        /// <summary>
+        /// Keys that are in both maps are dropped and the remaining
+        /// items are merged and returned.
+        /// </summary>
+        [Pure]
+        public Map<OrdK, K, V> SymmetricExcept(Map<OrdK, K, V> other)
+        {
+            var map = Map<OrdK, K, V>.Empty;
+            foreach (var left in this)
+            {
+                if (!other.ContainsKey(left.Key))
+                {
+                    map = map.Add(left.Key, left.Value);
+                }
+            }
+            foreach (var right in other)
+            {
+                if (!ContainsKey(right.Key))
+                {
+                    map = map.Add(right.Key, right.Value);
+                }
+            }
+            return map;
+        }
     }
 }
