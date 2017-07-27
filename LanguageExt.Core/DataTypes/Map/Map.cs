@@ -915,6 +915,40 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public Map<K, V> Union<V2, R>(Map<K, V2> other, Func<K, V, V2, V> Merge, Func<V2, V> Map)
+        {
+            var result = this;
+            foreach (var right in other)
+            {
+                result = result.AddOrUpdate(right.Key,
+                    Some: x  => Merge(right.Key, x, right.Value),
+                    None: () => Map(right.Value));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public Map<K, V2> Union<V2, R>(Map<K, V2> other, Func<K, V, V2, V2> Merge, Func<V, V2> Map)
+        {
+            var result = other;
+            foreach (var left in this)
+            {
+                result = result.AddOrUpdate(left.Key,
+                    Some: x  => Merge(left.Key, left.Value, x),
+                    None: () => Map(left.Value));
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Intersect two maps.  Only keys that are in both maps are
         /// returned.  The merge function is called for every resulting
         /// key.

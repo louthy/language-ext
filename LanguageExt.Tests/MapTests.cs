@@ -258,7 +258,7 @@ namespace LanguageExtTests
             var x = Map((1, 1), (2, 2), (3, 3));
             var y = Map((1, 1), (2, 2), (3, 3));
 
-            var z = x.Union(y, (k, l, r) => l + r);
+            var z = union(x, y, (k, l, r) => l + r);
 
             Assert.True(z == Map((1, 2), (2, 4), (3, 6)));
         }
@@ -269,7 +269,7 @@ namespace LanguageExtTests
             var x = Map((1, 1), (2, 2), (3, 3));
             var y = Map((4, 4), (5, 5), (6, 6));
 
-            var z = x.Union(y, (k, l, r) => l + r);
+            var z = union(x, y, (k, l, r) => l + r);
 
             Assert.True(z == Map((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6)));
         }
@@ -280,7 +280,7 @@ namespace LanguageExtTests
             var x = Map(        (2, 2), (3, 3));
             var y = Map((1, 1), (2, 2)        );
 
-            var z = x.Intersect(y, (k, l, r) => l + r);
+            var z = intersect(x, y, (k, l, r) => l + r);
 
             Assert.True(z == Map((2, 4)));
         }
@@ -291,7 +291,7 @@ namespace LanguageExtTests
             var x = Map((1, 1), (2, 2), (3, 3));
             var y = Map((1, 1));
 
-            var z = x.Except(y);
+            var z = except(x, y);
 
             Assert.True(z == Map((2, 2), (3, 3)));
         }
@@ -302,7 +302,7 @@ namespace LanguageExtTests
             var x = Map((1, 1), (2, 2), (3, 3));
             var y = Map((1, 1),         (3, 3));
 
-            var z = x.Except(y);
+            var z = symmetricExcept(x, y);
 
             Assert.True(z == Map((2, 2)));
         }
