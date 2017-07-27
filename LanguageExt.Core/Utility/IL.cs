@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -31,7 +32,6 @@ namespace LanguageExt
 
             var ctorParams = ctorInfo.GetParameters();
 
-            var boundType = typeof(A);
             var dynamic = new DynamicMethod("CreateInstance",
                                             ctorInfo.DeclaringType,
                                             ctorParams.Select(p => p.ParameterType).ToArray(),
@@ -70,7 +70,6 @@ namespace LanguageExt
 
             var ctorParams = ctorInfo.GetParameters();
 
-            var boundType = typeof(A);
             var dynamic = new DynamicMethod("CreateInstance",
                                             ctorInfo.DeclaringType,
                                             ctorParams.Select(p => p.ParameterType).ToArray(),
@@ -111,7 +110,6 @@ namespace LanguageExt
 
             var ctorParams = ctorInfo.GetParameters();
 
-            var boundType = typeof(A);
             var dynamic = new DynamicMethod("CreateInstance",
                                             ctorInfo.DeclaringType,
                                             ctorParams.Select(p => p.ParameterType).ToArray(),
@@ -154,7 +152,6 @@ namespace LanguageExt
 
             var ctorParams = ctorInfo.GetParameters();
 
-            var boundType = typeof(A);
             var dynamic = new DynamicMethod("CreateInstance",
                                             ctorInfo.DeclaringType,
                                             ctorParams.Select(p => p.ParameterType).ToArray(),
@@ -169,6 +166,89 @@ namespace LanguageExt
             il.Emit(OpCodes.Ret);
 
             return (Func<A, B, C, D, R>)dynamic.CreateDelegate(typeof(Func<A, B, C, D, R>));
+        }
+
+        /// <summary>
+        /// Emits the IL to invoke a static method
+        /// </summary>
+        public static Option<Func<object, R>> Func1<TYPE, R>(Type arg1, Func<MethodInfo, bool> methodPred = null)
+        {
+            methodPred = methodPred ?? (_ => true);
+
+            var methodInfo = typeof(TYPE)
+                .GetTypeInfo()
+                .DeclaredMethods
+                .Where(x =>
+                {
+                    if (!x.IsStatic) return false;
+                    var ps = x.GetParameters();
+                    if (ps.Length != 1) return false;
+                    if (ps[0].ParameterType != arg1) return false;
+                    return methodPred(x);
+                })
+                .FirstOrDefault();
+
+            if (methodInfo == null) return None;
+
+            var methodParams = methodInfo.GetParameters();
+
+            var dynamic = new DynamicMethod("CreateInstance",
+                                            typeof(R),
+                                            methodParams.Select(p => typeof(object)).ToArray(),
+                                            true);
+
+            var il = dynamic.GetILGenerator();
+            il.DeclareLocal(typeof(R));
+            il.Emit(OpCodes.Ldarg_0);
+            if (arg1.GetTypeInfo().IsValueType)
+            {
+                il.Emit(OpCodes.Unbox_Any, arg1);
+            }
+            else
+            {
+                il.Emit(OpCodes.Castclass, arg1);
+            }
+            il.Emit(OpCodes.Call, methodInfo);
+            il.Emit(OpCodes.Ret);
+
+            return (Func<object, R>)dynamic.CreateDelegate(typeof(Func<object, R>));
+        }
+
+        /// <summary>
+        /// Emits the IL to invoke a static method
+        /// </summary>
+        public static Option<Func<A, R>> Func1<TYPE, A, R>(Func<MethodInfo, bool> methodPred = null)
+        {
+            methodPred = methodPred ?? (_ => true);
+
+            var methodInfo = typeof(TYPE)
+                .GetTypeInfo()
+                .DeclaredMethods
+                .Where(x =>
+                {
+                    if (!x.IsStatic) return false;
+                    var ps = x.GetParameters();
+                    if (ps.Length != 1) return false;
+                    if (ps[0].ParameterType != typeof(A)) return false;
+                    return methodPred(x);
+                })
+                .FirstOrDefault();
+
+            if (methodInfo == null) return None;
+
+            var methodParams = methodInfo.GetParameters();
+
+            var dynamic = new DynamicMethod("CreateInstance",
+                                            typeof(R),
+                                            methodParams.Select(p => p.ParameterType).ToArray(),
+                                            true);
+
+            var il = dynamic.GetILGenerator();
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Call, methodInfo);
+            il.Emit(OpCodes.Ret);
+
+            return (Func<A, R>)dynamic.CreateDelegate(typeof(Func<A, R>));
         }
     }
 }

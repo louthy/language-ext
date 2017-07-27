@@ -35,9 +35,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<A> Fail(object err = null) =>
-            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
-                ? OptionUnsafe<A>.Some((A)(dynamic)err)
-                : OptionUnsafe<A>.None;
+            OptionUnsafe<A>.None;
 
         [Pure]
         public OptionUnsafe<A> Plus(OptionUnsafe<A> a, OptionUnsafe<A> b) =>

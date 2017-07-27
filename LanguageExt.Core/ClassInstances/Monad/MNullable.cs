@@ -27,9 +27,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public A? Fail(object err = null) =>
-            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
-                ? new Nullable<A>((A)(dynamic)err)
-                : null;
+            null;
 
         [Pure]
         public A? Plus(A? a, A? b) =>

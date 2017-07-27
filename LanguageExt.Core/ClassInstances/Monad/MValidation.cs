@@ -107,11 +107,9 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Validation<MonoidFail, FAIL, SUCCESS> Fail(object err = null) =>
-            err != null && err is FAIL                                       ? Validation<MonoidFail, FAIL, SUCCESS>.Fail((FAIL)err)
-          : err != null && err is SUCCESS                                    ? Validation<MonoidFail, FAIL, SUCCESS>.Success((SUCCESS)err)
-          : err != null && Cast.IsCastableTo(err.GetType(), typeof(FAIL))    ? Validation<MonoidFail, FAIL, SUCCESS>.Fail((FAIL)(dynamic)err)
-          : err != null && Cast.IsCastableTo(err.GetType(), typeof(SUCCESS)) ? Validation<MonoidFail, FAIL, SUCCESS>.Success((SUCCESS)(dynamic)err)
-          : Validation<MonoidFail, FAIL, SUCCESS>.Fail(default(MonoidFail).Empty());
+            err != null && err is FAIL
+                ? Validation<MonoidFail, FAIL, SUCCESS>.Fail((FAIL)err)
+                : Validation<MonoidFail, FAIL, SUCCESS>.Fail(default(MonoidFail).Empty());
 
         [Pure]
         public Func<Unit, Task<S>> FoldAsync<S>(Validation<MonoidFail, FAIL, SUCCESS> fa, S state, Func<S, SUCCESS, S> f) => _ =>

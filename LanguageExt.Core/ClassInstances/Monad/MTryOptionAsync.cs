@@ -50,11 +50,9 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryOptionAsync<A> Fail(object err = null) =>
-            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
-                ? TryOptionAsync((A)(dynamic)err)
-                : err != null && err is Exception
-                    ? TryOptionAsync<A>((Exception)err)
-                    : TryOptionAsync(Option<A>.None);
+            err != null && err is Exception
+                ? TryOptionAsync<A>((Exception)err)
+                : TryOptionAsync(Option<A>.None);
 
         [Pure]
         public TryOptionAsync<A> Plus(TryOptionAsync<A> ma, TryOptionAsync<A> mb) => async () =>

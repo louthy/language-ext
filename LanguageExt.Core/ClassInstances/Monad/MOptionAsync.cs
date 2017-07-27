@@ -51,9 +51,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionAsync<A> Fail(object err = null) =>
-            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
-                ? OptionAsync<A>.Some((A)(dynamic)err)
-                : OptionAsync<A>.None;
+            OptionAsync<A>.None;
 
         [Pure]
         public OptionAsync<A> Plus(OptionAsync<A> a, OptionAsync<A> b) =>

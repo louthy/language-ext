@@ -34,9 +34,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Option<A> Fail(object err = null) =>
-            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
-                ? Option<A>.Some((A)(dynamic)err)
-                : Option<A>.None;
+            Option<A>.None;
 
         [Pure]
         public Option<A> Plus(Option<A> a, Option<A> b) =>

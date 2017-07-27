@@ -30,9 +30,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Identity<A> Fail(object err = null) =>
-            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
-                ? new Identity<A>((A)(dynamic)err)
-                : Identity<A>.Bottom;
+            Identity<A>.Bottom;
 
         [Pure]
         public Func<Unit, S> Fold<S>(Identity<A> fa, S state, Func<S, A, S> f) =>

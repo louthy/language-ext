@@ -24,11 +24,9 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public EitherUnsafe<L, R> Fail(object err = null) =>
-            err != null && Cast.IsCastableTo(err.GetType(), typeof(L))
-                ? EitherUnsafe<L, R>.Left((L)(dynamic)err)
-                : err != null && Cast.IsCastableTo(err.GetType(), typeof(L))
-                    ? EitherUnsafe<L, R>.Right((R)(dynamic)err)
-                    : EitherUnsafe<L, R>.Bottom;
+            err != null && err is L
+                ? EitherUnsafe<L, R>.Left((L)err)
+                : EitherUnsafe<L, R>.Bottom;
 
         [Pure]
         public EitherUnsafe<L, R> Plus(EitherUnsafe<L, R> ma, EitherUnsafe<L, R> mb) =>

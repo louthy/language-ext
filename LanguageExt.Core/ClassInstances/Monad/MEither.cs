@@ -26,11 +26,9 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Either<L, R> Fail(object err = null) =>
-            err != null && Cast.IsCastableTo(err.GetType(), typeof(L))
-                ? Either<L, R>.Left((L)(dynamic)err)
-                : err != null && Cast.IsCastableTo(err.GetType(), typeof(R))
-                    ? Either<L, R>.Right((R)(dynamic)err)
-                    : Either<L, R>.Bottom;
+            err != null && err is L
+                ? Either<L, R>.Left((L)err)
+                : Either<L, R>.Bottom;
 
         [Pure]
         public Either<L, R> Plus(Either<L, R> ma, Either<L, R> mb) =>

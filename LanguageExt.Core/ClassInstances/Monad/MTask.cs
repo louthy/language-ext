@@ -28,11 +28,9 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Task<A> Fail(object err = null) =>
-            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
-                ? Return((A)(dynamic)err)
-                : err != null && err is Exception
-                    ? ((Exception)err).AsFailedTask<A>()
-                    : None;
+            err != null && err is Exception
+                ? ((Exception)err).AsFailedTask<A>()
+                : default(MTask<A>).None;
 
         [Pure]
         public async Task<A> Plus(Task<A> ma, Task<A> mb)

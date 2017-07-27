@@ -27,9 +27,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public State<S, A> Fail(object err = null) =>
-            err != null && Cast.IsCastableTo(err.GetType(), typeof(A))
-                ? new State<S, A>(state => ((A)(dynamic)err, state, false))
-                : new State<S, A>(state => (default(A), state, true));
+            new State<S, A>(state => (default(A), state, true));
 
         [Pure]
         public State<S, S> Get() => state =>
