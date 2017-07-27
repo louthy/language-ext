@@ -112,7 +112,9 @@ namespace LanguageExt.ClassInstances
         public Validation<FAIL, SUCCESS> Fail(object err = null) =>
             err is Seq<FAIL> 
                 ? Validation<FAIL, SUCCESS>.Fail((Seq<FAIL>)err)
-                : Validation<FAIL, SUCCESS>.Fail(Seq<FAIL>.Empty);
+                : err is FAIL 
+                    ? Validation < FAIL, SUCCESS>.Fail(SeqOne((FAIL)err))
+                    : Validation<FAIL, SUCCESS>.Fail(Seq<FAIL>.Empty);
 
 
         [Pure]

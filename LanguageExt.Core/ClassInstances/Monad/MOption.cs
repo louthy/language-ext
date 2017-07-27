@@ -27,10 +27,10 @@ namespace LanguageExt.ClassInstances
                 ? default(MonadB).Id(_ =>
                     ma.IsSome && f != null
                         ? f(ma.Value)
-                        : default(MonadB).Fail(Option<A>.None))
+                        : default(MonadB).Fail(ValueIsNoneException.Default))
                 : ma.IsSome && f != null
                     ? f(ma.Value)
-                    : default(MonadB).Fail(Option<A>.None);
+                    : default(MonadB).Fail(ValueIsNoneException.Default);
 
         [Pure]
         public Option<A> Fail(object err = null) =>

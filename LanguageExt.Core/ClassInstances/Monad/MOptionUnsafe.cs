@@ -28,10 +28,10 @@ namespace LanguageExt.ClassInstances
                 ? default(MONADB).Id(_ =>
                     ma.IsSome && f != null
                         ? f(ma.Value)
-                        : default(MONADB).Fail(OptionUnsafe<A>.None))
+                        : default(MONADB).Fail(ValueIsNoneException.Default))
                 : ma.IsSome && f != null
                     ? f(ma.Value)
-                    : default(MONADB).Fail(OptionUnsafe<A>.None);
+                    : default(MONADB).Fail(ValueIsNoneException.Default);
 
         [Pure]
         public OptionUnsafe<A> Fail(object err = null) =>

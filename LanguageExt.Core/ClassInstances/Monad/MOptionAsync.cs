@@ -33,7 +33,7 @@ namespace LanguageExt.ClassInstances
                           }
                           else
                           {
-                              return default(MonadB).Fail(OptionAsync<A>.None);
+                              return default(MonadB).Fail(ValueIsNoneException.Default);
                           }
                       });
                   })
@@ -45,7 +45,7 @@ namespace LanguageExt.ClassInstances
                       }
                       else
                       {
-                          return default(MonadB).Fail(OptionAsync<A>.None);
+                          return default(MonadB).Fail(ValueIsNoneException.Default);
                       }
                   });
 
