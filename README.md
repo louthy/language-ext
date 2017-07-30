@@ -170,18 +170,18 @@ It started out trying to deal with issues in C#, that after using Haskell and F#
 * [Void isn't a real type](#Void-isn't-a-real-type)
 * [Mutable lists and dictionaries](#Mutable-lists-and-dictionaries)
    * [Lists](#Lists)
-   * [List pattern matching](#List pattern matching)
+   * [List pattern matching](#List-pattern-matching)
    * [Maps](#Maps)
 * [Difficulty in creating immutable record types](#Difficulty-in-creating-immutable-record-types)
 * [The awful 'out' parameter](#The-awful-'out'-parameter)
 * [The lack of ad-hoc polymorphism](#Ad-hoc-polymorphism)
-   (`Num<A>`)[#Num<A>]
-   (`Eq<A>`)[#Eq<A>]
-   (`Ord<A>`)[#Ord<A>]
-   (`Semigroup<A>`)[#Semigroup<A>]
-   (`Monoid<A>`)[#Monoid<A>]
-   (`Monad`)[#Monad]
-   (Transformer types)[#Transformer-types]
+   * [`Num<A>`](#Num<A>)
+   * [`Eq<A>`](#Eq<A>)
+   * [`Ord<A>`](#Ord<A>)
+   * [`Semigroup<A>`](#Semigroup<A>)
+   * [`Monoid<A>`](#Monoid<A>)
+   * [`Monad`](#Monad)
+   * [Transformer types](#Transformer-types)
 
    
 
