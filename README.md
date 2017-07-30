@@ -144,6 +144,7 @@ Location | Feature | Description
 `Core` | `TryAsync<A>` | [Asynchronous exception handling lazy monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TryAsync_A.htm)
 `Core` | `TryOption<A>` | [Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TryOption_A.htm) 'Fail' that catches exceptions
 `Core` | `TryOptionAsync<A>` | [Asynchronous Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TryOptionAsync_A.htm) 'Fail' that catches exceptions
+`Core` | `Record<A>` | [Base type for creating record types](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Record_RECORDTYPE.htm)  with automatic structural equality, ordering, and hash code calculation.
 `Core` | `Reader<E, A>` | [Reader monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Reader_Env_A.htm)
 `Core` | `Writer<MonoidW, W, T>` | [Writer monad that logs to a `W` constrained to be a Monoid](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Writer_MonoidW_W_A.htm)
 `Core` | `State<S, A>` | [State monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/State_S_A.htm)
@@ -154,21 +155,38 @@ Location | Feature | Description
 `Core` | `FloatType<SELF, FLOATING, A, PRED>` | [Haskell `newtype` equivalent but for real numeric types](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/FloatType_SELF_FLOATING_A_PRED.htm) i.e: `class Hours : FloatType<Hours, TDouble, double> { public Hours(double value) : base(value) { } }`.  The resulting type is: equatable, comparable, foldable, a functor, a monoid, a semigroup, monadic, iterable, and can have complex artithmetic operations performed upon it.
 `Core` | `Nullable<T>` extensions | [Extension methods for `Nullable<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/NullableExtensions_.htm) that make it into a functor, applicative, foldable, iterable and a monad
 `Core` | `Task<T>` extensions | [Extension methods for `Task<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/TaskExtensions_.htm) that make it into a functor, applicative, foldable, iterable and a monad
+`Core` | `Validation<FAIL,SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Validation_FAIL_SUCCESS.htm) for collecting multiple errors before aborting an operation
+`Core` | `Validation<MonoidFail, FAIL, SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Validation_FAIL_SUCCESS.htm) for collecting multiple errors before aborting an operation, uses the supplied monoid in the first generic argument to collect the failure values.
 `Core` | Monad transformers | A higher kinded type (ish)
-`Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#curry<T1, T2, R>)
-`Core` | Partial application | [the process of fixing a number of arguments to a function, producing another function of smaller arity](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#par<T1, T2, R>)
-`Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#memo<T, R>)
+`Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#curry&lt;T1,%20T2,%20R&gt;)
+`Core` | Partial application | [the process of fixing a number of arguments to a function, producing another function of smaller arity](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#par&lt;T1,%20T2,%20R&gt;)
+`Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#memo&lt;T,%20R&gt;)
 `Core` | [Improved lambda type inference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#fun<R>) | `var add = fun( (int x, int y) => x + y)`
 `Core` | [`IObservable<T>` extensions](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/ObservableExt_.htm)  |
 
 It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
 
-* Poor tuple support
-* Null reference problem
-* Lack of lambda and expression inference 
-* Void isn't a real type
-* Mutable lists and dictionaries
-* The awful 'out' parameter
+* [Poor tuple support](#poor-tuple-support)
+* [Null reference problem](#null-reference-problem)
+    * [Option](#option)
+* [Lack of lambda and expression inference](#lack-of-lambda-and-expression-inference)
+* [Void isn't a real type](#void-isn't-a-real-type)
+* [Mutable lists and dictionaries](#mutable-lists-and-dictionaries)
+   * [Lists](#lists)
+   * [List pattern matching](#list-pattern-matching)
+   * [Maps](#maps)
+* [Difficulty in creating immutable record types](#difficulty-in-creating-immutable-record-types)
+* [The awful 'out' parameter](#the-awful-'out'-parameter)
+* [The lack of ad-hoc polymorphism](#ad-hoc-polymorphism)
+   * [`Num<A>`](#num<A>)
+   * [`Eq<A>`](#eq<A>)
+   * [`Ord<A>`](#ord<A>)
+   * [`Semigroup<A>`](#semigroup<A>)
+   * [`Monoid<A>`](#monoid<A>)
+   * [`Monad`](#monad)
+   * [Transformer types](#transformer-types)
+
+   
 
 ## Poor tuple support
 I've been crying out for proper tuple support for ages.  When this library was created we were no closer (C# 6).  
@@ -886,6 +904,88 @@ _Note, there are only fluent versions of the transformer functions._
 * `TrySetItemT`
 * `FoldT`
 * more coming...
+
+## Difficulty in creating immutable record types 
+
+It's no secret that implementing immutable record types, with structural equality, structural ordering, and efficient hashing solutions is a real manual head-ache of implementing `Equals`, `GetHashCode`, deriving from `IEquatable<A>`, `IComparer<A>`, and implementing the operators: `==`, `!=`, `<`, `<=`, `>`, `>=`.  It is a constant maintenance headache of making sure they're kept up to date when new fields are added to the type - with no compilation errors if you forget to do it.
+
+## `Record<A>`
+
+This can now be achieved simply by deriving your type from `Record<A>` where `A` is the type you want to have structural equality and ordering.  i.e.
+```c#
+    public class TestClass : Record<TestClass>
+    {
+        public readonly int X;
+        public readonly string Y;
+        public readonly Guid Z;
+
+        public TestClass(int x, string y, Guid z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+    }
+```
+This gives you Equals, IEquatable.Equals, IComparer.CompareTo, GetHashCode, operator==, operator!=, operator>, operator>=, operator<, and operator<= implemented by default.
+
+Note that only *fields* are used in the structural comparisons and hash-code building.  So if you want to use properties then they must be backed by fields.  
+
+> No reflection is used to achieve this result, the `Record` type builds the IL directly, and so it's as efficient as writing the code by hand.
+
+There are some [unit tests](https://github.com/louthy/language-ext/blob/master/LanguageExt.Tests/RecordTypesTest.cs) to see this in action.
+
+## `RecordType<A>`
+
+You can also use the 'toolkit' that `Record<A>` uses to build this functionality in your own bespoke types (perhaps if you want to use this for `struct` comparisons or if you can't derive directly from `Record<A>`, or maybe you just want some of the functionality for ad-hoc behaviour):  
+
+The toolkit is composed of four functions:
+
+```c#
+    RecordType<A>.Hash(record);
+```
+This will provide the hash-code for the record of type `A` provided.  It can be used for your default `GetHashCode()` implementation.
+```c#
+    RecordType<A>.Equality(record, obj);
+```
+This provides structural equality with the record of type `A` and the record of type `object`.  The types must match for the equality to pass.  It can be used for your default `Equals(object)` implementation.
+```c#
+    RecordType<A>.EqualityTyped(record1, record2);
+```
+This provides structural equality with the record of type `A` and another record of type `A`.  It can be used for your default `Equals(a, b)` method for the `IEquatable<A>` implementation.
+```c#
+    RecordType<A>.Compare(this, other);
+```
+This provides a structural ordering comparison with the record of type `A` and another record the record of type `A`.  It can be used for your default `CompareTo(a, b)` method for the `IComparable<A>` implementation.
+
+Below is the toolkit in use,  it's used to build a `struct` type that has structural equality, ordering, and hash-code implementation.
+```c#
+    public class TestStruct : IEquatable<TestStruct>, IComparable<TestStruct>
+    {
+        public readonly int X;
+        public readonly string Y;
+        public readonly Guid Z;
+
+        public TestStruct(int x, string y, Guid z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+
+        public override int GetHashCode() =>
+            RecordType<TestStruct>.Hash(this);
+
+        public override bool Equals(object obj) =>
+            RecordType<TestStruct>.Equality(this, obj);
+
+        public int CompareTo(TestStruct other) =>
+            RecordType<TestStruct>.Compare(this, other);
+
+        public bool Equals(TestStruct other) =>
+            RecordType<TestStruct>.EqualityTyped(this, other);
+    }
+```
 
 ## The awful `out` parameter
 This has to be one of the most awful patterns in C#:
