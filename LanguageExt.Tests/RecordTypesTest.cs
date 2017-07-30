@@ -1,4 +1,6 @@
-﻿using System;
+﻿using LanguageExt.ClassInstances;
+using LanguageExt.TypeClasses;
+using System;
 using Xunit;
 
 namespace LanguageExt.Tests
@@ -159,6 +161,39 @@ namespace LanguageExt.Tests
             var y = new TestClass(2, "Hello", Guid.Empty);
             var z = new TestClass(1, "Jello", Guid.Empty);
 
+            Assert.True(GenericCompare<OrdRecord<TestClass>, TestClass>(x, y) < 0);
+            Assert.True(GenericCompare<OrdRecord<TestClass>, TestClass>(x, y) <= 0);
+            Assert.True(GenericCompare<OrdRecord<TestClass>, TestClass>(y, x) > 0);
+            Assert.True(GenericCompare<OrdRecord<TestClass>, TestClass>(y, x) >= 0);
+
+            Assert.True(GenericCompare<OrdRecord<TestClass>, TestClass>(x, z) < 0);
+            Assert.True(GenericCompare<OrdRecord<TestClass>, TestClass>(x, z) <= 0);
+            Assert.True(GenericCompare<OrdRecord<TestClass>, TestClass>(z, x) > 0);
+            Assert.True(GenericCompare<OrdRecord<TestClass>, TestClass>(z, x) >= 0);
+        }
+
+        [Fact]
+        public void EqClassInstanceTest()
+        {
+            var x = new TestClass(1, "Hello", Guid.Empty);
+            var y = new TestClass(1, "Hello", Guid.Empty);
+            var z = new TestClass(2, "Hello", Guid.Empty);
+
+            var resA = GenericEquals<EqRecord<TestClass>,TestClass>(x, y);
+            var resB = GenericEquals<EqRecord<TestClass>,TestClass>(x, z);
+
+            Assert.True(resA);
+            Assert.False(resB);
+        }
+
+
+        [Fact]
+        public void OrdClassInstanceTest()
+        {
+            var x = new TestClass(1, "Hello", Guid.Empty);
+            var y = new TestClass(2, "Hello", Guid.Empty);
+            var z = new TestClass(1, "Jello", Guid.Empty);
+
             Assert.True(x.CompareTo(y) < 0);
             Assert.True(x.CompareTo(y) <= 0);
             Assert.True(y.CompareTo(x) > 0);
@@ -169,5 +204,12 @@ namespace LanguageExt.Tests
             Assert.True(z.CompareTo(x) > 0);
             Assert.True(z.CompareTo(x) >= 0);
         }
+
+        public bool GenericEquals<EqA, A>(A x, A y) where EqA : struct, Eq<A> =>
+            default(EqA).Equals(x, y);
+
+        public int GenericCompare<OrdA, A>(A x, A y) where OrdA : struct, Ord<A> =>
+            default(OrdA).Compare(x, y);
+
     }
 }
