@@ -912,21 +912,68 @@ namespace LanguageExt
         public static implicit operator Map<OrdK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
             new Map<OrdK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13, items.Item14, items.Item15, items.Item16 });
 
+
         /// <summary>
         /// Union two maps.  The merge function is called keys are
         /// present in both map.
         /// </summary>
         [Pure]
-        public Map<OrdK, K, V> Union(Map<OrdK, K, V> other, Func<K, V, V, V> merge)
+        public Map<OrdK, K, V> Union(Map<OrdK, K, V> other, WhenMatched<K, V, V, V> Merge) =>
+            Union(other, (k, v) => v, (k, v) => v, Merge);
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public Map<OrdK, K, V> Union<V2>(Map<OrdK, K, V2> other, WhenMissing<K, V2, V> MapRight, WhenMatched<K, V, V2, V> Merge) =>
+            Union(other, (k, v) => v, MapRight, Merge);
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public Map<OrdK, K, V2> Union<V2>(Map<OrdK, K, V2> other, WhenMissing<K, V, V2> MapLeft, WhenMatched<K, V, V2, V2> Merge) =>
+            Union(other, MapLeft, (k, v) => v, Merge);
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public Map<OrdK, K, R> Union<V2, R>(Map<OrdK, K, V2> other, WhenMissing<K, V, R> MapLeft, WhenMissing<K, V2, R> MapRight, WhenMatched<K, V, V2, R> Merge)
         {
-            var map = this;
-            foreach(var right in other)
+            // TODO: Look into more optimal solution
+
+            if (MapLeft == null) throw new ArgumentNullException(nameof(MapLeft));
+            if (MapRight == null) throw new ArgumentNullException(nameof(MapRight));
+            if (Merge == null) throw new ArgumentNullException(nameof(Merge));
+
+            var result = Map<OrdK, K, R>.Empty;
+            foreach (var right in other)
             {
-                map = map.AddOrUpdate(right.Key, 
-                    Some: x  => merge(right.Key, x, right.Value), 
-                    None: () => right.Value);
+                var key = right.Key;
+                var left = Find(key);
+                if (left.IsSome)
+                {
+                    result = result.Add(key, Merge(key, left.Value, right.Value));
+                }
+                else
+                {
+                    result = result.Add(key, MapRight(key, right.Value));
+                }
             }
-            return map;
+            foreach (var left in this)
+            {
+                var key = left.Key;
+                var right = other.Find(key);
+                if (right.IsNone)
+                {
+                    result = result.Add(key, MapLeft(key, left.Value));
+                }
+            }
+            return result;
         }
 
         /// <summary>
@@ -934,15 +981,19 @@ namespace LanguageExt
         /// returned.  The merge function is called for every resulting
         /// key.
         [Pure]
-        public Map<OrdK, K, V> Intersect(Map<OrdK, K, V> other, Func<K, V, V, V> merge)
+        public Map<OrdK, K, R> Intersect<V2, R>(Map<OrdK, K, V2> other, WhenMatched<K, V, V2, R> Merge)
         {
-            var map = Map<OrdK, K, V>.Empty;
+            // TODO: Look into more optimal solution
+
+            if (Merge == null) throw new ArgumentNullException(nameof(Merge));
+
+            var map = Map<OrdK, K, R>.Empty;
             foreach (var right in other)
             {
                 var left = Find(right.Key);
                 if (left.IsSome)
                 {
-                    map = map.Add(right.Key, merge(right.Key, left.Value, right.Value));
+                    map = map.Add(right.Key, Merge(right.Key, left.Value, right.Value));
                 }
             }
             return map;
@@ -954,6 +1005,8 @@ namespace LanguageExt
         [Pure]
         public Map<OrdK, K, V> Except(Map<OrdK, K, V> other)
         {
+            // TODO: Look into more optimal solution
+
             var map = this;
             foreach (var right in other)
             {
@@ -972,6 +1025,8 @@ namespace LanguageExt
         [Pure]
         public Map<OrdK, K, V> SymmetricExcept(Map<OrdK, K, V> other)
         {
+            // TODO: Look into more optimal solution
+
             var map = Map<OrdK, K, V>.Empty;
             foreach (var left in this)
             {
