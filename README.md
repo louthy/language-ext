@@ -890,7 +890,7 @@ _Note, there are only fluent versions of the transformer functions._
 
 ## Difficulty in creating immutable record types 
 
-It's no secret that implementing immutable record types, with structural equality, structural ordering, and efficient hashing solutions is a real manual head-ache of implementing `Equals`, `GetHashCode`, deriving from `IEquatable<A>`, `IComparer<A>`, and implementing the operators: `==`, `!=`, `<`, `<=`, `>`, `>=`.  And it is a constant maintenance headache of making sure they're kept up to date when new fields are added to the type.
+It's no secret that implementing immutable record types, with structural equality, structural ordering, and efficient hashing solutions is a real manual head-ache of implementing `Equals`, `GetHashCode`, deriving from `IEquatable<A>`, `IComparer<A>`, and implementing the operators: `==`, `!=`, `<`, `<=`, `>`, `>=`.  It is a constant maintenance headache of making sure they're kept up to date when new fields are added to the type - with no compilation errors if you forget to do it.
 
 ## `Record<A>`
 
@@ -910,38 +910,38 @@ This can now be achieved simply by deriving your type from `Record<A>` where `A`
         }
     }
 ```
-This gives you `Equals`, `IEquatable.Equals`, `IComparer.CompareTo`, `GetHashCode`, `operator==`, `operator!=`, `operator>`, `operator>=`, `operator<`, and `operator<=` implemented by default.  
+This gives you Equals, IEquatable.Equals, IComparer.CompareTo, GetHashCode, operator==, operator!=, operator>, operator>=, operator<, and operator<= implemented by default.
 
 Note that only *fields* are used in the structural comparisons and hash-code building.  So if you want to use properties then they must be backed by fields.  
 
-No reflection is used to achieve this result, the `Record` type builds the IL directly, and so it's as efficient as writing the code by hand.
+> No reflection is used to achieve this result, the `Record` type builds the IL directly, and so it's as efficient as writing the code by hand.
 
 There are some [unit tests](https://github.com/louthy/language-ext/blob/master/LanguageExt.Tests/RecordTypesTest.cs) to see this in action.
 
 ## `RecordType<A>`
 
-You can also use the 'toolkit' that the `Record<A>` type uses to build this functionality in your own code (perhaps if you want to use this for `struct` comparisons or if you can't derive directly from `Record<A>`, or maybe you just want some of the functionality for ad-hoc behaviour):  
+You can also use the 'toolkit' that `Record<A>` uses to build this functionality in your own bespoke types (perhaps if you want to use this for `struct` comparisons or if you can't derive directly from `Record<A>`, or maybe you just want some of the functionality for ad-hoc behaviour):  
 
 The toolkit is composed of four functions:
 
 ```c#
     RecordType<A>.Hash(record);
 ```
-This will provide the hash-code for the record of type `A` provided.  This can be used for your default `GetHashCode()` implementation.
+This will provide the hash-code for the record of type `A` provided.  It can be used for your default `GetHashCode()` implementation.
 ```c#
     RecordType<A>.Equality(record, obj);
 ```
-This provides structural equality with the record of type `A` and the record of type `object`.  The types must match for the equality to pass.  This can be used for your default `Equals(obj)` implementation.
+This provides structural equality with the record of type `A` and the record of type `object`.  The types must match for the equality to pass.  It can be used for your default `Equals(object)` implementation.
 ```c#
     RecordType<A>.EqualityTyped(record1, record2);
 ```
-This provides structural equality with the record of type `A` and another record the record of type `A`.  It can be used for your default `Equals(a, b)` for `IEquatable<A>` implementation.
+This provides structural equality with the record of type `A` and another record of type `A`.  It can be used for your default `Equals(a, b)` method for the `IEquatable<A>` implementation.
 ```c#
     RecordType<A>.Compare(this, other);
 ```
-This provides a structural ordering comparison with the record of type `A` and another record the record of type `A`.  It can be used for your default `CompareTo(a, b)` for `IComparable<A>` implementation.
+This provides a structural ordering comparison with the record of type `A` and another record the record of type `A`.  It can be used for your default `CompareTo(a, b)` method for the `IComparable<A>` implementation.
 
-Below is the toolkit in use to build a `struct` type that has structural equality, ordering, and hash-code implementation.
+Below is the toolkit in use,  it's used to build a `struct` type that has structural equality, ordering, and hash-code implementation.
 ```c#
     public class TestStruct : IEquatable<TestStruct>, IComparable<TestStruct>
     {
