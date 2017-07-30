@@ -39,6 +39,6 @@ namespace LanguageExt
             RecordType<RECORDTYPE>.Compare((RECORDTYPE)(object)this, other);
 
         public bool Equals(RECORDTYPE other) =>
-            RecordType<RECORDTYPE>.Equality((RECORDTYPE)(object)this, other);
+            RecordType<RECORDTYPE>.EqualityTyped((RECORDTYPE)(object)this, other);
     }
 }
