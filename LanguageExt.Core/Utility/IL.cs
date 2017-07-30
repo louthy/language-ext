@@ -459,8 +459,7 @@ namespace LanguageExt
                     il.MarkLabel(useZero);
 
                 }
-
-                // Multiply by 16777619 and Xor
+                // hashCode = hashCode ^ 16777619 + field.GetHashCode()
                 il.Emit(OpCodes.Add);
                 il.Emit(OpCodes.Xor);
             }
