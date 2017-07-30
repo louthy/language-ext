@@ -155,33 +155,33 @@ Location | Feature | Description
 `Core` | `Nullable<T>` extensions | [Extension methods for `Nullable<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/NullableExtensions_.htm) that make it into a functor, applicative, foldable, iterable and a monad
 `Core` | `Task<T>` extensions | [Extension methods for `Task<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/TaskExtensions_.htm) that make it into a functor, applicative, foldable, iterable and a monad
 `Core` | Monad transformers | A higher kinded type (ish)
-`Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#curry<T1, T2, R>)
-`Core` | Partial application | [the process of fixing a number of arguments to a function, producing another function of smaller arity](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#par<T1, T2, R>)
-`Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#memo<T, R>)
+`Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#curry&lt;T1,%20T2,%20R&gt;)
+`Core` | Partial application | [the process of fixing a number of arguments to a function, producing another function of smaller arity](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#par&lt;T1,%20T2,%20R&gt;)
+`Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#memo&lt;T,%20R&gt;)
 `Core` | [Improved lambda type inference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#fun<R>) | `var add = fun( (int x, int y) => x + y)`
 `Core` | [`IObservable<T>` extensions](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/ObservableExt_.htm)  |
 
 It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
 
-* [Poor tuple support](#Poor-tuple-support)
-* [Null reference problem](#Null-reference-problem)
-    * [Option](#Option)
-* [Lack of lambda and expression inference](#Lack-of-lambda-and-expression-inference)
-* [Void isn't a real type](#Void-isn't-a-real-type)
-* [Mutable lists and dictionaries](#Mutable-lists-and-dictionaries)
-   * [Lists](#Lists)
-   * [List pattern matching](#List-pattern-matching)
-   * [Maps](#Maps)
-* [Difficulty in creating immutable record types](#Difficulty-in-creating-immutable-record-types)
-* [The awful 'out' parameter](#The-awful-'out'-parameter)
-* [The lack of ad-hoc polymorphism](#Ad-hoc-polymorphism)
-   * [`Num<A>`](#Num<A>)
-   * [`Eq<A>`](#Eq<A>)
-   * [`Ord<A>`](#Ord<A>)
-   * [`Semigroup<A>`](#Semigroup<A>)
-   * [`Monoid<A>`](#Monoid<A>)
-   * [`Monad`](#Monad)
-   * [Transformer types](#Transformer-types)
+* [Poor tuple support](#poor-tuple-support)
+* [Null reference problem](#null-reference-problem)
+    * [Option](#option)
+* [Lack of lambda and expression inference](#lack-of-lambda-and-expression-inference)
+* [Void isn't a real type](#void-isn't-a-real-type)
+* [Mutable lists and dictionaries](#mutable-lists-and-dictionaries)
+   * [Lists](#lists)
+   * [List pattern matching](#list-pattern-matching)
+   * [Maps](#maps)
+* [Difficulty in creating immutable record types](#difficulty-in-creating-immutable-record-types)
+* [The awful 'out' parameter](#the-awful-'out'-parameter)
+* [The lack of ad-hoc polymorphism](#ad-hoc-polymorphism)
+   * [`Num<A>`](#num<A>)
+   * [`Eq<A>`](#eq<A>)
+   * [`Ord<A>`](#ord<A>)
+   * [`Semigroup<A>`](#semigroup<A>)
+   * [`Monoid<A>`](#monoid<A>)
+   * [`Monad`](#monad)
+   * [Transformer types](#transformer-types)
 
    
 
