@@ -1448,60 +1448,89 @@ Or any two monads.  They will follow the built in rules for the type, and produc
 
 ### Transformer types
 
-Because using the super-generic stuff is hard, and most of the time not needed.  I have kept the transformer types, but they're now implemented in terms of the instance types.  There is a new [`MonadTrans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/MonadTrans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm) type-class and a default instance called [`Trans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Trans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm).
+Often you'll find yourself with nested monadic types `Option<Lst<A>>`, `Seq<Either<L, R>>`, `Try<Validation<Fail, Success>>`, ..., and you want to work with the bound value(s) of `A` without having to unwrap/match the values away.  And so there are around 100,000 lines of generated code for working with 'transformer types'. 
+
+There is a new [`MonadTrans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.TypeClasses/MonadTrans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm) type-class and a default instance called [`Trans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Trans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm).  It does all the heavy lifting, and it is what the generated code uses (it's also what you'd need to use if you create your own monadic types and you want to build transformers for the various pairs of monadic types).
 
 For every pair of nested monads: `Lst<Option<A>>`, `Try<Either<L, A>>`, etc.  there are the following extension methods (this is for `Arr<Lst<A>>`):
 ```c#
+
+// Sums all the bound value(s)
 A SumT<NumA, A>(this Arr<Lst<A>> ma);
 
+// Counds all the bound value(s)
 int CountT<A>(this Arr<Lst<A>> ma);
 
+// Monadic bind on the inner monad
 Arr<Lst<B>> BindT<A, B>(this Arr<Lst<A>> ma, Func<A, Lst<B>> f);
 
+// Flips the inner and outer monads (using the rules of the inner and outer 
+// monads to compose the result) and performs a map operation on the bound values
 Lst<Arr<B>> Traverse<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
 
+// Flips the inner and outer monads (using the rules of the inner and outer 
+// monads to compose the result) 
 Lst<Arr<A>> Sequence<A>(this Arr<Lst<A>> ma);
 
+// Maps the bound value(s)
 Arr<Lst<B>> MapT<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
 
+// Folds the bound value(s)
 S FoldT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
 
+// Reverse folds the bound value(s)
 S FoldBackT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
 
+// Returns true if f(x) returns true for any of the bound value(s)
 bool ExistsT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
 
+// Returns true if f(x) returns true for all of the bound value(s)
 bool ForAllT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
 
+// Iterates all of the bound values
 Unit IterT<A>(this Arr<Lst<A>> ma, Action<A> f);
 
+// Filters the bound value(s) with the predicate
 Arr<Lst<A>> FilterT< A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
 
+// Filters the bound value(s) with the predicate
 Arr<Lst<A>> Where<A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
 
+// Maps the bound value(s)
 Arr<Lst<A>> Select<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
 
+// LINQ monadic bind and project on the bound value(s)
 Arr<Lst<C>> SelectMany<A, B, C>(
         this Arr<Lst<A>> ma,
         Func<A, Lst<B>> bind,
         Func<A, B, C> project);
 
+// Plus operation on the bound value(s)
 Arr<Lst<A>> PlusT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
 
+// Subtraction operation on the bound value(s)
 Arr<Lst<A>> SubtractT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
 
+// Product operation on the bound value(s)
 Arr<Lst<A>> ProductT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A> =>
         ApplyT(default(NUM).Product, x, y);
 
+// Divide operation on the bound value(s)
 Arr<Lst<A>> DivideT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
 
+// Semigroup append operation on the bound value(s)
 AppendT<SEMI, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where SEMI : struct, Semigroup<A>;
 
+// Comparison operation on the bound value(s)
 int CompareT<ORD, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where ORD : struct, Ord<A>;
 
+// Equality operation on the bound value(s)
 bool EqualsT<EQ, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where EQ : struct, Eq<A>;
 
+// Applicative apply operation on the bound value(s)
 Arr<Lst<A>> ApplyT<A, B>(this Func<A, B> fab, Arr<Lst<A>> fa);
 
+// Application apply operation on the bound value(s)
 Arr<Lst<C>> ApplyT<A, B, C>(this Func<A, B, C> fabc, Arr<Lst<A>> fa, Arr<Lst<A>> fb);
 ```
 The number of functions has increased dramatically.  Some of the special ones are `Traverse` and `Sequence` which flips the inner and outer types.  So for example:
