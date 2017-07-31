@@ -10,7 +10,7 @@ namespace LanguageExt
     public static class ComposeExtensions
     {
         /// <summary>
-        /// Function composition
+        /// Function back composition
         /// </summary>
         /// <returns>v => b(a(v))</returns>
         [Pure]
@@ -18,7 +18,7 @@ namespace LanguageExt
             v => b(a(v));
 
         /// <summary>
-        /// Function composition
+        /// Function back composition
         /// </summary>
         /// <returns>() => b(a())</returns>
         [Pure]
@@ -26,7 +26,7 @@ namespace LanguageExt
             () => b(a());
 
         /// <summary>
-        /// Action composition
+        /// Action back composition
         /// </summary>
         /// <returns>v => b(a(v))</returns>
         [Pure]
@@ -34,7 +34,7 @@ namespace LanguageExt
             => v => b(a(v));
 
         /// <summary>
-        /// Action composition
+        /// Action back composition
         /// </summary>
         /// <returns>() => b(a())</returns>
         [Pure]
@@ -42,7 +42,7 @@ namespace LanguageExt
             => () => b(a());
 
         /// <summary>
-        /// Function back composition
+        /// Function composition
         /// </summary>
         /// <returns>v => b(a(v))</returns>
         [Pure]
@@ -50,7 +50,7 @@ namespace LanguageExt
             v => b(a(v));
 
         /// <summary>
-        /// Function back composition
+        /// Function composition
         /// </summary>
         /// <returns>() => b(a())</returns>
         [Pure]
@@ -58,7 +58,7 @@ namespace LanguageExt
             () => b(a());
 
         /// <summary>
-        /// Action back composition
+        /// Action composition
         /// </summary>
         /// <returns>v => b(a(v))</returns>
         [Pure]
@@ -66,7 +66,7 @@ namespace LanguageExt
             => v => b(a(v));
 
         /// <summary>
-        /// Action back composition
+        /// Action composition
         /// </summary>
         /// <returns>() => b(a())</returns>
         [Pure]
