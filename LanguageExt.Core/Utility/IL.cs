@@ -387,7 +387,7 @@ namespace LanguageExt
         public static Func<A, int> GetHashCode<A>()
         {
             var dynamic = new DynamicMethod("GetHashCode", typeof(int), new[] { typeof(A) }, true);
-            var fields = typeof(A).GetTypeInfo().DeclaredFields;
+            var fields = typeof(A).GetTypeInfo().DeclaredFields.Where(f => f.IsPublic && !f.IsStatic);
             var il = dynamic.GetILGenerator();
             bool isValueType = typeof(A).GetTypeInfo().IsValueType;
 
@@ -481,7 +481,7 @@ namespace LanguageExt
         public static Func<A, object, bool> Equals<A>()
         {
             var dynamic = new DynamicMethod("Equals", typeof(bool), new[] { typeof(A), typeof(object) }, true);
-            var fields = typeof(A).GetTypeInfo().DeclaredFields;
+            var fields = typeof(A).GetTypeInfo().DeclaredFields.Where(f => f.IsPublic && !f.IsStatic);
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
 
             var il = dynamic.GetILGenerator();
@@ -602,7 +602,7 @@ namespace LanguageExt
             var dynamic = new DynamicMethod("EqualsTyped", typeof(bool), new[] { typeof(A), typeof(A) }, true);
 
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
-            var fields = typeof(A).GetTypeInfo().DeclaredFields;
+            var fields = typeof(A).GetTypeInfo().DeclaredFields.Where(f => f.IsPublic && !f.IsStatic);
             var il = dynamic.GetILGenerator();
             var returnTrue = il.DefineLabel();
 
@@ -695,7 +695,7 @@ namespace LanguageExt
         {
             var dynamic = new DynamicMethod("Compare", typeof(int), new[] { typeof(A), typeof(A) }, true);
 
-            var fields = typeof(A).GetTypeInfo().DeclaredFields;
+            var fields = typeof(A).GetTypeInfo().DeclaredFields.Where(f => f.IsPublic && !f.IsStatic);
             var il = dynamic.GetILGenerator();
             il.DeclareLocal(typeof(int));
             var returnTrue = il.DefineLabel();
