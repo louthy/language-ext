@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace LanguageExt
 {
@@ -36,8 +37,20 @@ namespace LanguageExt
         /// <summary>
         /// General ToString function
         /// </summary>
-        public static readonly Func<A, string> AsString =
+        public new static readonly Func<A, string> ToString =
             IL.ToString<A>();
+
+        /// <summary>
+        /// De-serialise an A
+        /// </summary>
+        public static readonly Action<A, SerializationInfo> SetObjectData =
+            IL.SetObjectData<A>();
+
+        /// <summary>
+        /// Serialise an A
+        /// </summary>
+        public static readonly Action<A, SerializationInfo> GetObjectData =
+            IL.GetObjectData<A>();
 
         [Obsolete("Don't use Equals - use either RecordType<A>.Equality or RecordType<A>.EqualityTyped")]
         public new static bool Equals(object objA, object objB)

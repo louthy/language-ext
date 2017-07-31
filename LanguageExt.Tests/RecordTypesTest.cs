@@ -1,6 +1,8 @@
 ﻿using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using System;
+using System.IO;
+using System.Runtime.Serialization;
 using Xunit;
 
 namespace LanguageExt.Tests
@@ -19,6 +21,25 @@ namespace LanguageExt.Tests
         }
     }
 
+    public class TestClass2 : Record<TestClass2>
+    {
+        [OptOutOfEq]
+        public readonly int X;
+
+        [OptOutOfHashCode]
+        public readonly string Y;
+
+        [OptOutOfToString]
+        public readonly Guid Z;
+
+        public TestClass2(int x, string y, Guid z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+    }
+
     public class RecordTypeTests
     {
         static readonly Guid guid = Guid.Parse("{2ba1ec03-8309-46f6-a93e-5d6aada3a43c}");
@@ -28,7 +49,6 @@ namespace LanguageExt.Tests
         {
             var x = new TestClass(1, "Hello", Guid.Empty);
             var y = new TestClass(1, "Hello", guid);
-            TestClass z = null;
 
             Assert.True(x.ToString() == "TestClass(1, Hello, 00000000-0000-0000-0000-000000000000)");
             Assert.True(y.ToString() == "TestClass(1, Hello, 2ba1ec03-8309-46f6-a93e-5d6aada3a43c)");
@@ -224,5 +244,35 @@ namespace LanguageExt.Tests
         public int GenericCompare<OrdA, A>(A x, A y) where OrdA : struct, Ord<A> =>
             default(OrdA).Compare(x, y);
 
+        [Fact]
+        public void OptOutOfEqTest()
+        {
+            var x = new TestClass2(1, "Hello", Guid.Empty);
+            var y = new TestClass2(1, "Hello", Guid.Empty);
+            var z = new TestClass2(2, "Hello", Guid.Empty);
+
+            Assert.True(x == y);
+            Assert.True(x == z);
+        }
+
+        [Fact]
+        public void OptOutOfHashCodeTest()
+        {
+            var x = new TestClass2(1, "Hello", Guid.Empty);
+            var y = new TestClass2(1, "Hello32543534", Guid.Empty);
+            var z = new TestClass2(1, "Hello", Guid.Empty);
+
+            Assert.True(x.GetHashCode() == y.GetHashCode());
+            Assert.True(x.GetHashCode() == z.GetHashCode());
+        }
+
+        [Fact]
+        public void OptOutOfToString()
+        {
+            var x = new TestClass2(1, "Hello", Guid.Empty);
+            var y = new TestClass2(1, "Hello", Guid.NewGuid());
+
+            Assert.True(x.ToString() == y.ToString());
+        }
     }
 }

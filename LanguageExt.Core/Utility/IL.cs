@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.Serialization;
 using System.Text;
 using static LanguageExt.Prelude;
 
@@ -11,24 +12,54 @@ namespace LanguageExt
 {
     public static class IL
     {
-        static IEnumerable<FieldInfo> GetPublicInstanceFields<A>() =>
-            typeof(A).GetTypeInfo().DeclaredFields.Where(f => f.IsPublic && !f.IsStatic);
+        static IEnumerable<FieldInfo> GetPublicInstanceFields<A>(params Type[] excludeAttrs)
+        {
+            var excludeAttrsSet = toSet(excludeAttrs.Map(a=>a.Name));
+            return typeof(A)
+                .GetTypeInfo()
+                .DeclaredFields
+                .Where(f =>
+                {
+                    if (!f.IsPublic || f.IsStatic) return false;
+                    if (toSet(f.CustomAttributes.Map(a => a.AttributeType.Name)).Intersect(excludeAttrsSet).Any()) return false;
+                    return true;
+                });
+        }
 
-        static Option<MethodInfo> GetPublicInstanceMethod<TYPE>(string name) =>
+        static Option<MethodInfo> GetPublicStaticMethod<TYPE, A>(string name) =>
             typeof(TYPE)
                 .GetTypeInfo()
                 .DeclaredMethods
                 .Where(x =>
                 {
-                    if (x.IsStatic) return false;
+                    if (!x.IsStatic) return false;
                     if (x.Name != name) return false;
-                    if (x.GetParameters().Length != 0) return false;
+                    var ps = x.GetParameters();
+                    if (ps.Length != 1) return false;
+                    if (ps[0].ParameterType != typeof(A)) return false;
                     return true;
                 })
                 .FirstOrDefault();
 
-        static Option<MethodInfo> GetPublicInstanceMethod(Type type, string name) =>
-            type.GetTypeInfo()
+        static Option<MethodInfo> GetPublicStaticMethod<TYPE, A, B>(string name) =>
+            typeof(TYPE)
+                .GetTypeInfo()
+                .DeclaredMethods
+                .Where(x =>
+                {
+                    if (!x.IsStatic) return false;
+                    if (x.Name != name) return false;
+                    var ps = x.GetParameters();
+                    if (ps.Length != 2) return false;
+                    if (ps[0].ParameterType != typeof(A)) return false;
+                    if (ps[1].ParameterType != typeof(B)) return false;
+                    return true;
+                })
+                .FirstOrDefault();
+
+        static Option<MethodInfo> GetPublicInstanceMethod<TYPE>(string name) =>
+            typeof(TYPE)
+                .GetTypeInfo()
                 .DeclaredMethods
                 .Where(x =>
                 {
@@ -50,6 +81,51 @@ namespace LanguageExt
                     var ps = x.GetParameters();
                     if (ps.Length != 1) return false;
                     if (ps[0].ParameterType != typeof(A)) return false;
+                    return true;
+                })
+                .FirstOrDefault();
+
+
+        static Option<MethodInfo> GetPublicInstanceMethod<TYPE, A, B>(string name) =>
+            typeof(TYPE)
+                .GetTypeInfo()
+                .DeclaredMethods
+                .Where(x =>
+                {
+                    if (x.IsStatic) return false;
+                    if (x.Name != name) return false;
+                    var ps = x.GetParameters();
+                    if (ps.Length != 2) return false;
+                    if (ps[0].ParameterType != typeof(A)) return false;
+                    if (ps[1].ParameterType != typeof(B)) return false;
+                    return true;
+                })
+                .FirstOrDefault();
+
+        static Option<MethodInfo> GetPublicInstanceMethod(Type type, string name) =>
+            type.GetTypeInfo()
+                .DeclaredMethods
+                .Where(x =>
+                {
+                    if (x.IsStatic) return false;
+                    if (x.Name != name) return false;
+                    if (x.GetParameters().Length != 0) return false;
+                    return true;
+                })
+                .FirstOrDefault();
+
+        static Option<MethodInfo> GetPublicInstanceMethod<TYPE>(string name, Type arg1, Type arg2) =>
+            typeof(TYPE)
+                .GetTypeInfo()
+                .DeclaredMethods
+                .Where(x =>
+                {
+                    if (x.IsStatic) return false;
+                    if (x.Name != name) return false;
+                    var ps = x.GetParameters();
+                    if (ps.Length != 2) return false;
+                    if (ps[0].ParameterType != arg1) return false;
+                    if (ps[1].ParameterType != arg2) return false;
                     return true;
                 })
                 .FirstOrDefault();
@@ -472,7 +548,7 @@ namespace LanguageExt
         public static Func<A, int> GetHashCode<A>()
         {
             var dynamic = new DynamicMethod("GetHashCode", typeof(int), new[] { typeof(A) }, true);
-            var fields = GetPublicInstanceFields<A>();
+            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfHashCodeAttribute));
             var il = dynamic.GetILGenerator();
             bool isValueType = typeof(A).GetTypeInfo().IsValueType;
 
@@ -566,7 +642,7 @@ namespace LanguageExt
         public static Func<A, object, bool> Equals<A>()
         {
             var dynamic = new DynamicMethod("Equals", typeof(bool), new[] { typeof(A), typeof(object) }, true);
-            var fields = GetPublicInstanceFields<A>();
+            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfEqAttribute));
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
 
             var il = dynamic.GetILGenerator();
@@ -687,7 +763,7 @@ namespace LanguageExt
             var dynamic = new DynamicMethod("EqualsTyped", typeof(bool), new[] { typeof(A), typeof(A) }, true);
 
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
-            var fields = GetPublicInstanceFields<A>();
+            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfEqAttribute));
             var il = dynamic.GetILGenerator();
             var returnTrue = il.DefineLabel();
 
@@ -780,7 +856,7 @@ namespace LanguageExt
         {
             var dynamic = new DynamicMethod("Compare", typeof(int), new[] { typeof(A), typeof(A) }, true);
 
-            var fields = GetPublicInstanceFields<A>();
+            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfOrdAttribute));
             var il = dynamic.GetILGenerator();
             il.DeclareLocal(typeof(int));
             var returnTrue = il.DefineLabel();
@@ -868,7 +944,7 @@ namespace LanguageExt
         public static Func<A, string> ToString<A>()
         {
             var dynamic = new DynamicMethod("FieldsToString", typeof(string), new[] { typeof(A) }, true);
-            var fields = GetPublicInstanceFields<A>();
+            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfToStringAttribute));
             var stringBuilder = GetConstructor<StringBuilder>().IfNone(() => throw new ArgumentException($"Constructor not found for StringBuilder"));
             var appendChar = GetPublicInstanceMethod<StringBuilder, char>("Append").IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
             var appendString = GetPublicInstanceMethod<StringBuilder, string>("Append").IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
@@ -979,5 +1055,92 @@ namespace LanguageExt
             return (Func<A, string>)dynamic.CreateDelegate(typeof(Func<A, string>));
         }
 
+
+        public static Action<A, SerializationInfo> GetObjectData<A>()
+        {
+            var dynamic = new DynamicMethod("GetObjectData", null, new[] { typeof(A), typeof(SerializationInfo) }, true);
+            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfSerializationAttribute), typeof(NonSerializedAttribute));
+            var argNullExcept =  GetConstructor<ArgumentNullException, string>().IfNone(() => throw new Exception());
+            var il = dynamic.GetILGenerator();
+
+            var infoIsNotNull = il.DefineLabel();
+
+            // if(info == null)
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Brtrue_S, infoIsNotNull);
+
+            /// throw new ArgumentNullException("info");
+            il.Emit(OpCodes.Ldstr, "info");
+            il.Emit(OpCodes.Newobj, argNullExcept);
+            il.Emit(OpCodes.Throw);
+
+            il.MarkLabel(infoIsNotNull);
+
+            foreach (var field in fields)
+            {
+                il.Emit(OpCodes.Ldarg_1);
+                il.Emit(OpCodes.Ldstr, field.Name);
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Ldfld, field);
+
+                var addValue = (GetPublicInstanceMethod<SerializationInfo>("AddValue", typeof(string), field.FieldType) ||
+                                GetPublicInstanceMethod<SerializationInfo>("AddValue", typeof(string), typeof(object)))
+                               .IfNone(() => throw new Exception());
+                if (field.FieldType.GetTypeInfo().IsValueType && addValue.GetParameters()[1].ParameterType == typeof(object))
+                {
+                    il.Emit(OpCodes.Box, field.FieldType);
+                }
+
+                il.Emit(OpCodes.Callvirt, addValue);
+            }
+            il.Emit(OpCodes.Ret);
+
+            return (Action<A, SerializationInfo>)dynamic.CreateDelegate(typeof(Action<A, SerializationInfo>));
+        }
+
+        public static Action<A, SerializationInfo> SetObjectData<A>()
+        {
+            var dynamic = new DynamicMethod("SetObjectData", null, new[] { typeof(A), typeof(SerializationInfo) }, typeof(A), true);
+            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfSerializationAttribute), typeof(NonSerializedAttribute));
+            var getTypeFromHandle = GetPublicStaticMethod<Type, RuntimeTypeHandle>("GetTypeFromHandle").IfNone(() => throw new Exception());
+            var getValue = GetPublicInstanceMethod< SerializationInfo, string, Type>("GetValue").IfNone(() => throw new Exception());
+            var argNullExcept = GetConstructor<ArgumentNullException, string>().IfNone(() => throw new Exception());
+            var il = dynamic.GetILGenerator();
+
+            var infoIsNotNull = il.DefineLabel();
+
+            // if(info == null)
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Brtrue_S, infoIsNotNull);
+
+            /// throw new ArgumentNullException("info");
+            il.Emit(OpCodes.Ldstr, "info");
+            il.Emit(OpCodes.Newobj, argNullExcept);
+            il.Emit(OpCodes.Throw);
+
+            il.MarkLabel(infoIsNotNull);
+
+            foreach (var field in fields)
+            {
+                il.Emit(OpCodes.Ldarg_0);                   // this
+                il.Emit(OpCodes.Ldarg_1);                   // info
+                il.Emit(OpCodes.Ldstr, field.Name);         // field-name
+                il.Emit(OpCodes.Ldtoken, field.FieldType);  // typeof(FieldType)
+                il.Emit(OpCodes.Call, getTypeFromHandle);   // Type.GetTypeFromHandle(typeof(FieldType))
+                il.Emit(OpCodes.Callvirt, getValue);        // info.GetValue("field-name", FieldType)
+                if (field.FieldType.GetTypeInfo().IsValueType)
+                {
+                    il.Emit(OpCodes.Unbox_Any, field.FieldType);
+                }
+                else
+                {
+                    il.Emit(OpCodes.Castclass, field.FieldType);
+                }
+                il.Emit(OpCodes.Stfld, field);
+            }
+            il.Emit(OpCodes.Ret);
+
+            return (Action<A, SerializationInfo>)dynamic.CreateDelegate(typeof(Action<A, SerializationInfo>));
+        }
     }
 }

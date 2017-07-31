@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace LanguageExt
 {
@@ -9,8 +10,14 @@ namespace LanguageExt
     /// operators `==`, `!=`, `<`, `<=`, `>`, `>=`, 
     /// </summary>
     /// <typeparam name="RECORDTYPE"></typeparam>
-    public abstract class Record<RECORDTYPE> : IEquatable<RECORDTYPE>, IComparable<RECORDTYPE>
+    [Serializable]
+    public abstract class Record<RECORDTYPE> : IEquatable<RECORDTYPE>, IComparable<RECORDTYPE>, ISerializable
     {
+        protected Record() { }
+
+        Record(SerializationInfo info, StreamingContext context) =>
+            RecordType<RECORDTYPE>.GetObjectData((RECORDTYPE)(object)this, info);
+
         public static bool operator==(Record<RECORDTYPE> x, Record<RECORDTYPE> y) =>
             RecordType<RECORDTYPE>.Equality((RECORDTYPE)(object)x, (RECORDTYPE)(object)y);
 
@@ -35,13 +42,16 @@ namespace LanguageExt
         public override bool Equals(object obj) =>
             RecordType<RECORDTYPE>.Equality((RECORDTYPE)(object)this, obj);
 
-        public int CompareTo(RECORDTYPE other) =>
+        public virtual int CompareTo(RECORDTYPE other) =>
             RecordType<RECORDTYPE>.Compare((RECORDTYPE)(object)this, other);
 
-        public bool Equals(RECORDTYPE other) =>
+        public virtual bool Equals(RECORDTYPE other) =>
             RecordType<RECORDTYPE>.EqualityTyped((RECORDTYPE)(object)this, other);
 
         public override string ToString() =>
-            RecordType<RECORDTYPE>.AsString((RECORDTYPE)(object)this);
+            RecordType<RECORDTYPE>.ToString((RECORDTYPE)(object)this);
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            RecordType<RECORDTYPE>.GetObjectData((RECORDTYPE)(object)this, info);
     }
 }
