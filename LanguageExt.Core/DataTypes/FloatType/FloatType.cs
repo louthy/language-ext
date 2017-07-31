@@ -43,6 +43,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static explicit operator A(FloatType<SELF, FLOATING, A> type) =>
-            type.Value;
+            ReferenceEquals(type, null)
+                ? default(FLOATING).Empty()
+                : type.Value;
     }
 }

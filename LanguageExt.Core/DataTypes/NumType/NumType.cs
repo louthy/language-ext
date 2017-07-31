@@ -42,6 +42,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static explicit operator A(NumType<SELF, NUM, A> type) =>
-            type.Value;
+            ReferenceEquals(type,null)
+                ? default(NUM).Empty()
+                : type.Value;
     }
 }

@@ -53,7 +53,9 @@ namespace LanguageExt
         /// <param name="type"></param>
         [Pure]
         public static explicit operator A(NewType<NEWTYPE, A, PRED> type) =>
-            type.Value;
+            ReferenceEquals(type, null)
+                ? throw new ArgumentException($"Can't explictly convert from a null {typeof(NEWTYPE).Name}")
+                : type.Value;
 
         [Pure]
         public virtual int CompareTo(NEWTYPE other) =>
@@ -61,7 +63,7 @@ namespace LanguageExt
 
         [Pure]
         public virtual bool Equals(NEWTYPE other) =>
-            EqDefault<A>.Inst.Equals(Value, other.Value);
+            !ReferenceEquals(other,null) && EqDefault<A>.Inst.Equals(Value, other.Value);
 
         [Pure]
         public override bool Equals(object obj) =>

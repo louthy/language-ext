@@ -63,7 +63,7 @@ namespace LanguageExt
         /// <param name="type"></param>
         [Pure]
         public static explicit operator A(NumType<SELF, NUM, A, PRED> type) =>
-            type.Value;
+            ValueOrDefault(type);
 
         /// <summary>
         /// Sum of NumType(x) and NumType(y)
@@ -137,11 +137,19 @@ namespace LanguageExt
 
         [Pure]
         public virtual int CompareTo(SELF other) =>
-            default(NUM).Compare(Value, other.Value);
+            ReferenceEquals(other, null)
+                ? 1
+                : default(NUM).Compare(Value, other.Value);
+
+        [Pure]
+        static A ValueOrDefault(NumType<SELF, NUM, A, PRED> numType) =>
+            ReferenceEquals(numType, null)
+                ? default(NUM).Empty()
+                : numType.Value;
 
         [Pure]
         public virtual bool Equals(SELF other) =>
-            default(NUM).Equals(Value, other.Value);
+            !ReferenceEquals(other, null) && default(NUM).Equals(Value, other.Value);
 
         [Pure]
         public virtual bool Equals(SELF other, SELF epsilon) =>
@@ -157,47 +165,47 @@ namespace LanguageExt
 
         [Pure]
         public static SELF operator -(NumType<SELF, NUM, A, PRED> x) =>
-             New(default(NUM).Subtract(default(NUM).FromInteger(0), x.Value));
+             New(default(NUM).Subtract(default(NUM).FromInteger(0), ValueOrDefault(x)));
 
         [Pure]
         public static SELF operator +(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
-             New(default(NUM).Plus(lhs.Value, rhs.Value));
+             New(default(NUM).Plus(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
         [Pure]
         public static SELF operator -(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
-             New(default(NUM).Subtract(lhs.Value, rhs.Value));
+             New(default(NUM).Subtract(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
         [Pure]
         public static SELF operator *(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
-             New(default(NUM).Product(lhs.Value, rhs.Value));
+             New(default(NUM).Product(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
         [Pure]
         public static SELF operator /(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
-             New(default(NUM).Divide(lhs.Value, rhs.Value));
+             New(default(NUM).Divide(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
         [Pure]
         public static bool operator ==(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
-             default(NUM).Equals(lhs.Value, rhs.Value);
+             default(NUM).Equals(ValueOrDefault(lhs), ValueOrDefault(rhs));
 
         [Pure]
         public static bool operator !=(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
-             !default(NUM).Equals(lhs.Value, rhs.Value);
+             !default(NUM).Equals(ValueOrDefault(lhs), ValueOrDefault(rhs));
 
         [Pure]
         public static bool operator >(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
-            default(NUM).Compare(lhs.Value, rhs.Value) > 0;
+            default(NUM).Compare(ValueOrDefault(lhs), ValueOrDefault(rhs)) > 0;
 
         [Pure]
         public static bool operator >=(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
-            default(NUM).Compare(lhs.Value, rhs.Value) >= 0;
+            default(NUM).Compare(ValueOrDefault(lhs), ValueOrDefault(rhs)) >= 0;
 
         [Pure]
         public static bool operator <(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
-            default(NUM).Compare(lhs.Value, rhs.Value) < 0;
+            default(NUM).Compare(ValueOrDefault(lhs), ValueOrDefault(rhs)) < 0;
 
         [Pure]
         public static bool operator <=(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
-            default(NUM).Compare(lhs.Value, rhs.Value) <= 0;
+            default(NUM).Compare(ValueOrDefault(lhs), ValueOrDefault(rhs)) <= 0;
 
         /// <summary>
         /// Monadic bind of the bound value to a new value of the same type
@@ -244,7 +252,7 @@ namespace LanguageExt
         public virtual SELF SelectMany(
             Func<A, NumType<SELF, NUM, A, PRED>> bind,
             Func<A, A, A> project) =>
-            New(project(Value, bind(Value).Value));
+            New(project(Value, ValueOrDefault(bind(Value))));
 
         /// <summary>
         /// Invoke an action that takes the bound value as an argument

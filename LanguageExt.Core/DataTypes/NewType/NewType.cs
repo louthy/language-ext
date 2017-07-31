@@ -35,6 +35,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static explicit operator A(NewType<NEWTYPE, A> type) =>
-            type.Value;
+            ReferenceEquals(type, null)
+                ? throw new ArgumentException($"Can't explictly convert from a null {typeof(NEWTYPE).Name}")
+                : type.Value;
     }
 }
