@@ -33,6 +33,12 @@ namespace LanguageExt
         public static readonly Func<A, A, int> Compare =
             IL.Compare<A>();
 
+        /// <summary>
+        /// General ToString function
+        /// </summary>
+        public static readonly Func<A, string> AsString =
+            IL.ToString<A>();
+
         [Obsolete("Don't use Equals - use either RecordType<A>.Equality or RecordType<A>.EqualityTyped")]
         public new static bool Equals(object objA, object objB)
         {

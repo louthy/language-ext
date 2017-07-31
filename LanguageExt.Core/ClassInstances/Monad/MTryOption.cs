@@ -26,7 +26,7 @@ namespace LanguageExt.ClassInstances
         {
             var mr = ma.Try();
             if (mr.IsFaulted) return default(MONADB).Fail(mr.Exception);
-            if (mr.Value.IsNone) return default(MONADB).Fail(ValueIsNoneException.Default);
+            if (mr.Value.IsNone) return default(MONADB).Fail(None);
             return f(mr.Value.Value);
         }
 

@@ -4,33 +4,161 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
     public static class IL
     {
-        /// <summary>
-        /// Emits the IL to instantiate a type of R with a single argument to 
-        /// the constructor
-        /// </summary>
-        public static Func<A, R> Ctor<A, R>(Func<ConstructorInfo, bool> ctorPred = null)
-        {
-            ctorPred = ctorPred ?? (_ => true);
+        static IEnumerable<FieldInfo> GetPublicInstanceFields<A>() =>
+            typeof(A).GetTypeInfo().DeclaredFields.Where(f => f.IsPublic && !f.IsStatic);
 
-            var ctorInfo = typeof(R)
+        static Option<MethodInfo> GetPublicInstanceMethod<TYPE>(string name) =>
+            typeof(TYPE)
+                .GetTypeInfo()
+                .DeclaredMethods
+                .Where(x =>
+                {
+                    if (x.IsStatic) return false;
+                    if (x.Name != name) return false;
+                    if (x.GetParameters().Length != 0) return false;
+                    return true;
+                })
+                .FirstOrDefault();
+
+        static Option<MethodInfo> GetPublicInstanceMethod(Type type, string name) =>
+            type.GetTypeInfo()
+                .DeclaredMethods
+                .Where(x =>
+                {
+                    if (x.IsStatic) return false;
+                    if (x.Name != name) return false;
+                    if (x.GetParameters().Length != 0) return false;
+                    return true;
+                })
+                .FirstOrDefault();
+
+        static Option<MethodInfo> GetPublicInstanceMethod<TYPE, A>(string name) =>
+            typeof(TYPE)
+                .GetTypeInfo()
+                .DeclaredMethods
+                .Where(x =>
+                {
+                    if (x.IsStatic) return false;
+                    if (x.Name != name) return false;
+                    var ps = x.GetParameters();
+                    if (ps.Length != 1) return false;
+                    if (ps[0].ParameterType != typeof(A)) return false;
+                    return true;
+                })
+                .FirstOrDefault();
+
+        static Option<ConstructorInfo> GetConstructor<TYPE>() =>
+            typeof(TYPE)
                 .GetTypeInfo()
                 .DeclaredConstructors
                 .Where(x =>
                 {
-                    var ps = x.GetParameters();
-                    if (ps.Length != 1) return false;
-                    if (ps[0].ParameterType != typeof(A)) return false;
-                    return ctorPred(x);
+                    if (x.IsStatic) return false;
+                    if (x.GetParameters().Length != 0) return false;
+                    return true;
                 })
                 .FirstOrDefault();
 
-            if (ctorInfo == null) throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}");
+        static Option<ConstructorInfo> GetConstructor<TYPE, A>() =>
+            typeof(TYPE)
+                .GetTypeInfo()
+                .DeclaredConstructors
+                .Where(x =>
+                {
+                    if (x.IsStatic) return false;
+                    var ps = x.GetParameters();
+                    if (ps.Length != 1) return false;
+                    if (ps[0].ParameterType != typeof(A)) return false;
+                    return true;
+                })
+                .FirstOrDefault();
+
+        static Option<ConstructorInfo> GetConstructor<TYPE, A, B>() =>
+            typeof(TYPE)
+                .GetTypeInfo()
+                .DeclaredConstructors
+                .Where(x =>
+                {
+                    if (x.IsStatic) return false;
+                    var ps = x.GetParameters();
+                    if (ps.Length != 2) return false;
+                    if (ps[0].ParameterType != typeof(A)) return false;
+                    if (ps[1].ParameterType != typeof(B)) return false;
+                    return true;
+                })
+                .FirstOrDefault();
+
+        static Option<ConstructorInfo> GetConstructor<TYPE, A, B, C>() =>
+            typeof(TYPE)
+                .GetTypeInfo()
+                .DeclaredConstructors
+                .Where(x =>
+                {
+                    if (x.IsStatic) return false;
+                    var ps = x.GetParameters();
+                    if (ps.Length != 3) return false;
+                    if (ps[0].ParameterType != typeof(A)) return false;
+                    if (ps[1].ParameterType != typeof(B)) return false;
+                    if (ps[2].ParameterType != typeof(C)) return false;
+                    return true;
+                })
+                .FirstOrDefault();
+
+        static Option<ConstructorInfo> GetConstructor<TYPE, A, B, C, D>() =>
+            typeof(TYPE)
+                .GetTypeInfo()
+                .DeclaredConstructors
+                .Where(x =>
+                {
+                    if (x.IsStatic) return false;
+                    var ps = x.GetParameters();
+                    if (ps.Length != 4) return false;
+                    if (ps[0].ParameterType != typeof(A)) return false;
+                    if (ps[1].ParameterType != typeof(B)) return false;
+                    if (ps[2].ParameterType != typeof(C)) return false;
+                    if (ps[3].ParameterType != typeof(D)) return false;
+                    return true;
+                })
+                .FirstOrDefault();
+
+        /// <summary>
+        /// Emits the IL to instantiate a type of R with a single argument to 
+        /// the constructor
+        /// </summary>
+        public static Func<R> Ctor<R>()
+        {
+            var ctorInfo = GetConstructor<R>()
+                               .IfNone(() => throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}"));
+
+            var ctorParams = ctorInfo.GetParameters();
+
+            var dynamic = new DynamicMethod("CreateInstance",
+                                            ctorInfo.DeclaringType,
+                                            new Type[0],
+                                            true);
+
+            var il = dynamic.GetILGenerator();
+            il.Emit(OpCodes.Newobj, ctorInfo);
+            il.Emit(OpCodes.Ret);
+
+            return (Func<R>)dynamic.CreateDelegate(typeof(Func<R>));
+        }
+
+        /// <summary>
+        /// Emits the IL to instantiate a type of R with a single argument to 
+        /// the constructor
+        /// </summary>
+        public static Func<A, R> Ctor<A, R>()
+        {
+            var ctorInfo = GetConstructor<R, A>()
+                               .IfNone(() => throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}"));
 
             var ctorParams = ctorInfo.GetParameters();
 
@@ -51,24 +179,10 @@ namespace LanguageExt
         /// Emits the IL to instantiate a type of R with two arguments to 
         /// the constructor
         /// </summary>
-        public static Func<A, B, R> Ctor<A, B, R>(Func<ConstructorInfo, bool> ctorPred = null)
+        public static Func<A, B, R> Ctor<A, B, R>()
         {
-            ctorPred = ctorPred ?? (_ => true);
-
-            var ctorInfo = typeof(R)
-                .GetTypeInfo()
-                .DeclaredConstructors
-                .Where(x =>
-                {
-                    var ps = x.GetParameters();
-                    if (ps.Length != 2) return false;
-                    if (ps[0].ParameterType != typeof(A)) return false;
-                    if (ps[1].ParameterType != typeof(B)) return false;
-                    return ctorPred(x);
-                })
-                .FirstOrDefault();
-
-            if (ctorInfo == null) throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}");
+            var ctorInfo = GetConstructor<R, A, B>()
+                               .IfNone(() => throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}"));
 
             var ctorParams = ctorInfo.GetParameters();
 
@@ -90,25 +204,10 @@ namespace LanguageExt
         /// Emits the IL to instantiate a type of R with three arguments to 
         /// the constructor
         /// </summary>
-        public static Func<A, B, C, R> Ctor<A, B, C, R>(Func<ConstructorInfo, bool> ctorPred = null)
+        public static Func<A, B, C, R> Ctor<A, B, C, R>()
         {
-            ctorPred = ctorPred ?? (_ => true);
-
-            var ctorInfo = typeof(R)
-                .GetTypeInfo()
-                .DeclaredConstructors
-                .Where(x =>
-                {
-                    var ps = x.GetParameters();
-                    if (ps.Length != 3) return false;
-                    if (ps[0].ParameterType != typeof(A)) return false;
-                    if (ps[1].ParameterType != typeof(B)) return false;
-                    if (ps[2].ParameterType != typeof(C)) return false;
-                    return ctorPred(x);
-                })
-                .FirstOrDefault();
-
-            if (ctorInfo == null) throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}");
+            var ctorInfo = GetConstructor<R, A, B, C>()
+                               .IfNone(() => throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}"));
 
             var ctorParams = ctorInfo.GetParameters();
 
@@ -131,24 +230,10 @@ namespace LanguageExt
         /// Emits the IL to instantiate a type of R with four arguments to 
         /// the constructor
         /// </summary>
-        public static Func<A, B, C, D, R> Ctor<A, B, C, D, R>(Func<ConstructorInfo, bool> ctorPred = null)
+        public static Func<A, B, C, D, R> Ctor<A, B, C, D, R>()
         {
-            ctorPred = ctorPred ?? (_ => true);
-
-            var ctorInfo = typeof(R)
-                .GetTypeInfo()
-                .DeclaredConstructors
-                .Where(x =>
-                {
-                    var ps = x.GetParameters();
-                    if (ps.Length != 4) return false;
-                    if (ps[0].ParameterType != typeof(A)) return false;
-                    if (ps[1].ParameterType != typeof(B)) return false;
-                    if (ps[2].ParameterType != typeof(C)) return false;
-                    if (ps[3].ParameterType != typeof(D)) return false;
-                    return ctorPred(x);
-                })
-                .FirstOrDefault();
+            var ctorInfo = GetConstructor<R, A, B, C, D>()
+                               .IfNone(() => throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}"));
 
             if (ctorInfo == null) throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}");
 
@@ -387,7 +472,7 @@ namespace LanguageExt
         public static Func<A, int> GetHashCode<A>()
         {
             var dynamic = new DynamicMethod("GetHashCode", typeof(int), new[] { typeof(A) }, true);
-            var fields = typeof(A).GetTypeInfo().DeclaredFields.Where(f => f.IsPublic && !f.IsStatic);
+            var fields = GetPublicInstanceFields<A>();
             var il = dynamic.GetILGenerator();
             bool isValueType = typeof(A).GetTypeInfo().IsValueType;
 
@@ -481,7 +566,7 @@ namespace LanguageExt
         public static Func<A, object, bool> Equals<A>()
         {
             var dynamic = new DynamicMethod("Equals", typeof(bool), new[] { typeof(A), typeof(object) }, true);
-            var fields = typeof(A).GetTypeInfo().DeclaredFields.Where(f => f.IsPublic && !f.IsStatic);
+            var fields = GetPublicInstanceFields<A>();
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
 
             var il = dynamic.GetILGenerator();
@@ -602,7 +687,7 @@ namespace LanguageExt
             var dynamic = new DynamicMethod("EqualsTyped", typeof(bool), new[] { typeof(A), typeof(A) }, true);
 
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
-            var fields = typeof(A).GetTypeInfo().DeclaredFields.Where(f => f.IsPublic && !f.IsStatic);
+            var fields = GetPublicInstanceFields<A>();
             var il = dynamic.GetILGenerator();
             var returnTrue = il.DefineLabel();
 
@@ -695,7 +780,7 @@ namespace LanguageExt
         {
             var dynamic = new DynamicMethod("Compare", typeof(int), new[] { typeof(A), typeof(A) }, true);
 
-            var fields = typeof(A).GetTypeInfo().DeclaredFields.Where(f => f.IsPublic && !f.IsStatic);
+            var fields = GetPublicInstanceFields<A>();
             var il = dynamic.GetILGenerator();
             il.DeclareLocal(typeof(int));
             var returnTrue = il.DefineLabel();
@@ -779,5 +864,120 @@ namespace LanguageExt
 
             return (Func<A, A, int>)dynamic.CreateDelegate(typeof(Func<A, A, int>));
         }
+
+        public static Func<A, string> ToString<A>()
+        {
+            var dynamic = new DynamicMethod("FieldsToString", typeof(string), new[] { typeof(A) }, true);
+            var fields = GetPublicInstanceFields<A>();
+            var stringBuilder = GetConstructor<StringBuilder>().IfNone(() => throw new ArgumentException($"Constructor not found for StringBuilder"));
+            var appendChar = GetPublicInstanceMethod<StringBuilder, char>("Append").IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
+            var appendString = GetPublicInstanceMethod<StringBuilder, string>("Append").IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
+            var toString = GetPublicInstanceMethod<Object>("ToString").IfNone(() => throw new ArgumentException($"ToString method found for Object"));
+
+            var il = dynamic.GetILGenerator();
+            il.DeclareLocal(typeof(StringBuilder));
+            var notNull = il.DefineLabel();
+
+            if (!typeof(A).GetTypeInfo().IsValueType)
+            {
+                // Check reference == null
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Brtrue_S, notNull);
+
+                // Is null so return "(null)"
+                il.Emit(OpCodes.Ldstr, "(null)");
+                il.Emit(OpCodes.Ret);
+
+                il.MarkLabel(notNull);
+            }
+
+            // var sb = new StringBuilder()
+            il.Emit(OpCodes.Newobj, stringBuilder);
+            il.Emit(OpCodes.Stloc_0);
+
+            // sb.Append('(')
+            il.Emit(OpCodes.Ldloc_0);
+            il.Emit(OpCodes.Ldstr, $"{typeof(A).Name}(");
+            il.Emit(OpCodes.Callvirt, appendString);
+            il.Emit(OpCodes.Pop);
+
+            bool first = true;
+            foreach (var field in fields)
+            {
+                var skipAppend = il.DefineLabel();
+
+                if (!first)
+                {
+                    // sb.Append(", ")
+                    il.Emit(OpCodes.Ldloc_0);
+                    il.Emit(OpCodes.Ldstr, ", ");
+                    il.Emit(OpCodes.Callvirt, appendString);
+                    il.Emit(OpCodes.Pop);
+                }
+
+                if (!field.FieldType.GetTypeInfo().IsValueType)
+                {
+                    var fieldNotNull = il.DefineLabel();
+
+                    // If(this.field == null)
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Ldfld, field);
+                    il.Emit(OpCodes.Brtrue_S, fieldNotNull);
+
+                    // sb.Append("null")
+                    il.Emit(OpCodes.Ldloc_0);
+                    il.Emit(OpCodes.Ldstr, "null");
+                    il.Emit(OpCodes.Callvirt, appendString);
+                    il.Emit(OpCodes.Pop);
+
+                    // continue
+                    il.Emit(OpCodes.Br_S, skipAppend);
+                    il.MarkLabel(fieldNotNull);
+                }
+
+                il.Emit(OpCodes.Ldloc_0);  // sb
+                il.Emit(OpCodes.Ldarg_0);  // this
+
+                if (field.FieldType.GetTypeInfo().IsValueType)
+                {
+                    il.Emit(OpCodes.Ldflda, field);
+                }
+                else
+                {
+                    il.Emit(OpCodes.Ldfld, field);
+                }
+
+                // sb.Append(this.field.ToString())
+                var fieldToString = GetPublicInstanceMethod(field.FieldType, "ToString").IfNone(() => throw new Exception($"ToString not found for field-type: {field.FieldType}"));
+                if (field.FieldType.GetTypeInfo().IsValueType)
+                {
+                    il.Emit(OpCodes.Call, fieldToString);
+                }
+                else
+                {
+                    il.Emit(OpCodes.Callvirt, fieldToString);
+                }
+                il.Emit(OpCodes.Callvirt, appendString);
+                il.Emit(OpCodes.Pop);
+
+                il.MarkLabel(skipAppend);
+
+                first = false;
+            }
+
+            // Append(')')
+            il.Emit(OpCodes.Ldloc_0);
+            il.Emit(OpCodes.Ldc_I4_S, ')');
+            il.Emit(OpCodes.Callvirt, appendChar);
+            il.Emit(OpCodes.Pop);
+
+            // return sb.ToString()
+            il.Emit(OpCodes.Ldloc_0);
+            il.Emit(OpCodes.Callvirt, toString);
+            il.Emit(OpCodes.Ret);
+
+            return (Func<A, string>)dynamic.CreateDelegate(typeof(Func<A, string>));
+        }
+
     }
 }

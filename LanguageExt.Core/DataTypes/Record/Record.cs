@@ -40,5 +40,8 @@ namespace LanguageExt
 
         public bool Equals(RECORDTYPE other) =>
             RecordType<RECORDTYPE>.EqualityTyped((RECORDTYPE)(object)this, other);
+
+        public override string ToString() =>
+            RecordType<RECORDTYPE>.AsString((RECORDTYPE)(object)this);
     }
 }

@@ -21,6 +21,19 @@ namespace LanguageExt.Tests
 
     public class RecordTypeTests
     {
+        static readonly Guid guid = Guid.Parse("{2ba1ec03-8309-46f6-a93e-5d6aada3a43c}");
+
+        [Fact]
+        public void ToStringTest()
+        {
+            var x = new TestClass(1, "Hello", Guid.Empty);
+            var y = new TestClass(1, "Hello", guid);
+            TestClass z = null;
+
+            Assert.True(x.ToString() == "TestClass(1, Hello, 00000000-0000-0000-0000-000000000000)");
+            Assert.True(y.ToString() == "TestClass(1, Hello, 2ba1ec03-8309-46f6-a93e-5d6aada3a43c)");
+        }
+
         [Fact]
         public void EqualityOperatorTest()
         {
@@ -67,7 +80,7 @@ namespace LanguageExt.Tests
             var x = new TestClass(1, "Hello", Guid.Empty);
             var y = new TestClass(2, "Hello", Guid.Empty);
             var z = new TestClass(1, "Hello!", Guid.Empty);
-            var w = new TestClass(1, "Hello", Guid.NewGuid());
+            var w = new TestClass(1, "Hello", guid);
 
             Assert.True(x != y);
             Assert.True(x != z);
@@ -80,7 +93,7 @@ namespace LanguageExt.Tests
             var x = new TestClass(1, "Hello", Guid.Empty);
             var y = new TestClass(2, "Hello", Guid.Empty);
             var z = new TestClass(1, "Hello!", Guid.Empty);
-            var w = new TestClass(1, "Hello", Guid.NewGuid());
+            var w = new TestClass(1, "Hello", guid);
 
             Assert.False(x.Equals(y));
             Assert.False(x.Equals(z));
@@ -94,7 +107,7 @@ namespace LanguageExt.Tests
             var b = new TestClass(1, "Hello", Guid.Empty);
             var c = new TestClass(2, "Hello", Guid.Empty);
             var d = new TestClass(1, "Hello!", Guid.Empty);
-            var e = new TestClass(1, "Hello", Guid.NewGuid());
+            var e = new TestClass(1, "Hello", guid);
 
             Assert.True(a.GetHashCode() == b.GetHashCode());
             Assert.True(a.GetHashCode() != c.GetHashCode());
