@@ -927,9 +927,37 @@ This can now be achieved simply by deriving your type from `Record<A>` where `A`
         }
     }
 ```
-This gives you Equals, IEquatable.Equals, IComparer.CompareTo, GetHashCode, operator==, operator!=, operator>, operator>=, operator<, and operator<= implemented by default.
+This gives you `Equals`, `IEquatable.Equals`, `IComparer.CompareTo`, `GetHashCode`, `operator==`, `operator!=`, `operator >`, `operator >=`, `operator <`, and `operator <=` implemented by default.  It also gives you a default `ToString()` implementation and `ISerializable.GetObjectData()` with a deserialisation constructor.
 
-Note that only *fields* are used in the structural comparisons and hash-code building.  So if you want to use properties then they must be backed by fields.  
+Note that only *fields* are used in the structural comparisons and hash-code building.  So if you want to use properties then they must be backed by fields.  There are also `Attribute`s for opting fields out of the equality testing, ordering comparisons, hash-code generation, stringification (`ToString`),  and serialisation:
+
+* `Equals()` - `OptOutOfEq`
+* `CompareTo()` - `OptOutOfOrd`
+* `GetHashCode()` - `OptOutOfHashCode`
+* `ToString()` - `OptOutOfToString`
+* Serialization - `OptOutOfSerialization` (can also use `NonSerializable`)
+
+For example, here's a record type that opts out of various default behaviours:
+```c#
+    public class TestClass2 : Record<TestClass2>
+    {
+        [OptOutOfEq]
+        public readonly int X;
+
+        [OptOutOfHashCode]
+        public readonly string Y;
+
+        [OptOutOfToString]
+        public readonly Guid Z;
+
+        public TestClass2(int x, string y, Guid z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+    }
+```
 
 > No reflection is used to achieve this result, the `Record` type builds the IL directly, and so it's as efficient as writing the code by hand.
 
