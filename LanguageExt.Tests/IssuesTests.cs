@@ -9,6 +9,7 @@ using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using Xunit;
+using Newtonsoft.Json;
 
 namespace LanguageExt.Tests
 {
@@ -68,6 +69,34 @@ namespace LanguageExt.Tests
 
     public class ADUser : NewType<ADUser, string> { public ADUser(string u) : base(u) { } }
     public class UserMapping : NewType<UserMapping, string> { public UserMapping(string u) : base(u) { } }
+}
+
+// https://github.com/louthy/language-ext/issues/245
+public class TopHatTests
+{
+    public sealed class TopHat
+    {
+        //public TopHat(int _id, int? _id2)
+        //{
+        //    Id = _id;
+        //    Id2 = Prelude.Optional(_id2);
+        //}
+
+        public int Id { get; set; }
+        public Option<int> Id2 { get; set; }
+    }
+
+    [Fact]
+    public void TopHatSerialisationTest()
+    {
+        var t1 = new TopHat { Id = 1, Id2 = 1416 };
+
+        var str = JsonConvert.SerializeObject(t1);
+
+        var t2 = JsonConvert.DeserializeObject<TopHat>(str);
+
+        Assert.True(t2 == t1);
+    }
 }
 
 //https://github.com/louthy/language-ext/issues/242
