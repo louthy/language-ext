@@ -991,7 +991,6 @@ public class Cons<A> : Record<Cons<A>>
     }
 }
 
-[Fact]
 public void ConsTests()
 {
     var listA = new Cons<int>(1, new Cons<int>(2, new Cons<int>(3, new Cons<int>(4, null))));
@@ -1017,7 +1016,6 @@ public class Tree<A> : Record<Tree<A>>
     }
 }
 
-[Fact]
 public void TreeTests()
 {
     var treeA = new Tree<int>(5, new Tree<int>(3, null, null), new Tree<int>(7, null, new Tree<int>(9, null, null)));
@@ -1027,8 +1025,6 @@ public void TreeTests()
     Assert.True(treeA == treeB);
     Assert.True(treeB != treeC);
     Assert.True(treeA != treeC);
-
-    var str = treeA.ToString();
 }
 ```
 
