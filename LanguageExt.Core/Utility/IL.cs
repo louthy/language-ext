@@ -37,7 +37,7 @@ namespace LanguageExt
                                     .GetAllFields()
                                     .Where(f => f.IsPrivate &&
                                                 publicPropNames.Exists(p => f.Name.StartsWith($"<{p.Name}>")))
-                                    .ToList();
+                                    .ToArray();
 
             return Enumerable.Concat(publicFields, backingFields);
         }
@@ -705,8 +705,15 @@ namespace LanguageExt
             il.MarkLabel(argNotNullY2);
 
             // if(y is A)
+            //il.Emit(OpCodes.Ldarg_1);
+            //il.Emit(OpCodes.Isinst, typeof(A));
+
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Callvirt, GetPublicInstanceMethod<Object>("GetType").IfNone(() => throw new Exception()));
             il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Isinst, typeof(A));
+            il.Emit(OpCodes.Callvirt, GetPublicInstanceMethod<Object>("GetType").IfNone(() => throw new Exception()));
+            il.Emit(OpCodes.Call, GetPublicInstanceMethod<Type, Type>("Equals").IfNone(() => throw new Exception()));
+
             il.Emit(OpCodes.Brtrue_S, argIsA);
 
             // return false
@@ -782,6 +789,7 @@ namespace LanguageExt
             var fields = GetPublicInstanceFields<A>(typeof(OptOutOfEqAttribute));
             var il = dynamic.GetILGenerator();
             var returnTrue = il.DefineLabel();
+            var typesMatch = il.DefineLabel();
 
             if(!isValueType)
             {
@@ -819,6 +827,18 @@ namespace LanguageExt
 
                 il.MarkLabel(argNotNullY2);
             }
+
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Callvirt, GetPublicInstanceMethod<Object>("GetType").IfNone(() => throw new Exception()));
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Callvirt, GetPublicInstanceMethod<Object>("GetType").IfNone(() => throw new Exception()));
+            il.Emit(OpCodes.Call, GetPublicInstanceMethod<Type, Type>("Equals").IfNone(() => throw new Exception()));
+            il.Emit(OpCodes.Brtrue_S, typesMatch);
+
+            il.Emit(OpCodes.Ldc_I4_0);
+            il.Emit(OpCodes.Ret);
+
+            il.MarkLabel(typesMatch);
 
             foreach (var field in fields)
             {
@@ -965,6 +985,8 @@ namespace LanguageExt
             var appendChar = GetPublicInstanceMethod<StringBuilder, char>("Append").IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
             var appendString = GetPublicInstanceMethod<StringBuilder, string>("Append").IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
             var toString = GetPublicInstanceMethod<Object>("ToString").IfNone(() => throw new ArgumentException($"ToString method found for Object"));
+            var name = typeof(A).Name;
+            if (name.IndexOf('`') != -1) name = name.Split('`').Head();
 
             var il = dynamic.GetILGenerator();
             il.DeclareLocal(typeof(StringBuilder));
@@ -989,7 +1011,7 @@ namespace LanguageExt
 
             // sb.Append('(')
             il.Emit(OpCodes.Ldloc_0);
-            il.Emit(OpCodes.Ldstr, $"{typeof(A).Name}(");
+            il.Emit(OpCodes.Ldstr, $"{name}(");
             il.Emit(OpCodes.Callvirt, appendString);
             il.Emit(OpCodes.Pop);
 

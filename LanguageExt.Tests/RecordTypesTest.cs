@@ -25,6 +25,16 @@ namespace LanguageExt.Tests
             : base(info, context) { }
     }
 
+    public class DerivedTestClass : TestClass
+    {
+        public readonly int Extra;
+
+        public DerivedTestClass(int x, string y, Guid z, int extra) : base(x, y, z)
+        {
+            Extra = extra;
+        }
+    }
+
     public class TestClass2 : Record<TestClass2>
     {
         [OptOutOfEq]
@@ -68,10 +78,24 @@ namespace LanguageExt.Tests
         static readonly Guid guid = Guid.Parse("{2ba1ec03-8309-46f6-a93e-5d6aada3a43c}");
 
         [Fact]
+        public void EqualityOfOriginTest()
+        {
+            var eq = IL.Equals<TestClass>();
+            var eqt = IL.EqualsTyped<TestClass>();
+
+            var fa = IL.GetPublicInstanceFields<TestClass>();
+            var fb = IL.GetPublicInstanceFields<DerivedTestClass>();
+
+            var x = new TestClass(1, "Hello", Guid.Empty);
+            var y = new DerivedTestClass(1, "Hello", Guid.Empty, 1000);
+
+            Assert.False(x.Equals(y));  // Different types must not be equal
+            Assert.False(y.Equals(x));  // Different types must not be equal
+        }
+
+        [Fact]
         public void DeepEqualityTestFieldsAndProperties()
         {
-            var fields = IL.GetPublicInstanceFields<TestClass3>();
-
             var x1 = new TestClass(1, "Hello", Guid.Empty);
             var x2 = new TestClass(1, "Hello", Guid.Empty);
             var y1 = new TestClass3(1, "Hello", Guid.Empty, x1);
