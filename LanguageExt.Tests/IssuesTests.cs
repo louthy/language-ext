@@ -94,12 +94,14 @@ public class TopHatTests
     public void TopHatSerialisationTest()
     {
         var t1 = new TopHat(1, 1416);
+        var t3 = new TopHat(1, 1413);
 
         var str = JsonConvert.SerializeObject(t1);
 
         var t2 = JsonConvert.DeserializeObject<TopHat>(str);
 
         Assert.True(t2 == t1);
+        Assert.True(t3 != t1);
     }
 }
 
