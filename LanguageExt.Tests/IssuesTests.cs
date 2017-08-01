@@ -10,6 +10,7 @@ using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using Xunit;
 using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace LanguageExt.Tests
 {
@@ -74,13 +75,16 @@ namespace LanguageExt.Tests
 // https://github.com/louthy/language-ext/issues/245
 public class TopHatTests
 {
-    public sealed class TopHat
+    public class TopHat : Record<TopHat>
     {
-        //public TopHat(int _id, int? _id2)
-        //{
-        //    Id = _id;
-        //    Id2 = Prelude.Optional(_id2);
-        //}
+        public TopHat(int id, Option<int> id2)
+        {
+            Id = id;
+            Id2 = id2;
+        }
+
+        TopHat(SerializationInfo info, StreamingContext context) : base(info, context)
+        { }
 
         public int Id { get; set; }
         public Option<int> Id2 { get; set; }
@@ -89,7 +93,7 @@ public class TopHatTests
     [Fact]
     public void TopHatSerialisationTest()
     {
-        var t1 = new TopHat { Id = 1, Id2 = 1416 };
+        var t1 = new TopHat(1, 1416);
 
         var str = JsonConvert.SerializeObject(t1);
 

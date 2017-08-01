@@ -1,5 +1,6 @@
 ﻿using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Runtime.Serialization;
@@ -19,6 +20,9 @@ namespace LanguageExt.Tests
             Y = y;
             Z = z;
         }
+
+        TestClass(SerializationInfo info, StreamingContext context) 
+            : base(info, context) { }
     }
 
     public class TestClass2 : Record<TestClass2>
@@ -40,9 +44,70 @@ namespace LanguageExt.Tests
         }
     }
 
+    public class TestClass3 : Record<TestClass3>
+    {
+        public readonly int X;
+        public readonly string Y;
+        public readonly Guid Z;
+        public TestClass W { get; private set; }
+
+        public TestClass3(int x, string y, Guid z, TestClass w)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+            W = w;
+        }
+
+        TestClass3(SerializationInfo info, StreamingContext context)
+            : base(info, context) { }
+    }
+
     public class RecordTypeTests
     {
         static readonly Guid guid = Guid.Parse("{2ba1ec03-8309-46f6-a93e-5d6aada3a43c}");
+
+        [Fact]
+        public void DeepEqualityTestFieldsAndProperties()
+        {
+            var fields = IL.GetPublicInstanceFields<TestClass3>();
+
+            var x1 = new TestClass(1, "Hello", Guid.Empty);
+            var x2 = new TestClass(1, "Hello", Guid.Empty);
+            var y1 = new TestClass3(1, "Hello", Guid.Empty, x1);
+            var y2 = new TestClass3(1, "Hello", Guid.Empty, x2);
+
+            Assert.True(y1 == y2);
+        }
+
+        [Fact]
+        public void DeepInEqualityTestFieldsAndProperties()
+        {
+            var fields = IL.GetPublicInstanceFields<TestClass3>();
+
+            var x1 = new TestClass(1, "Hello", Guid.Empty);
+            var x2 = new TestClass(1, "Hello", guid);
+            var y1 = new TestClass3(1, "Hello", Guid.Empty, x1);
+            var y2 = new TestClass3(1, "Hello", Guid.Empty, x2);
+
+            Assert.True(y1 != y2);
+        }
+
+        [Fact]
+        public void SerialisationTest()
+        {
+            var x = new TestClass(1, "Hello", Guid.Empty);
+            var y = new TestClass(1, "Hello", guid);
+
+            var x1 = JsonConvert.SerializeObject(x);
+            var y1 = JsonConvert.SerializeObject(y);
+
+            var x2 = JsonConvert.DeserializeObject<TestClass>(x1);
+            var y2 = JsonConvert.DeserializeObject<TestClass>(y1);
+
+            Assert.True(x == x2);
+            Assert.True(y == y2);
+        }
 
         [Fact]
         public void ToStringTest()

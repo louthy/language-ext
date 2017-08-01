@@ -15,8 +15,8 @@ namespace LanguageExt
     {
         protected Record() { }
 
-        Record(SerializationInfo info, StreamingContext context) =>
-            RecordType<RECORDTYPE>.GetObjectData((RECORDTYPE)(object)this, info);
+        public Record(SerializationInfo info, StreamingContext context) =>
+            RecordType<RECORDTYPE>.SetObjectData((RECORDTYPE)(object)this, info);
 
         public static bool operator==(Record<RECORDTYPE> x, Record<RECORDTYPE> y) =>
             RecordType<RECORDTYPE>.Equality((RECORDTYPE)(object)x, (RECORDTYPE)(object)y);

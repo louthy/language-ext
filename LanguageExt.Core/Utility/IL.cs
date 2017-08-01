@@ -12,18 +12,34 @@ namespace LanguageExt
 {
     public static class IL
     {
-        static IEnumerable<FieldInfo> GetPublicInstanceFields<A>(params Type[] excludeAttrs)
+        public static IEnumerable<FieldInfo> GetPublicInstanceFields<A>(params Type[] excludeAttrs)
         {
-            var excludeAttrsSet = toSet(excludeAttrs.Map(a=>a.Name));
-            return typeof(A)
+            var excludeAttrsSet = toSet(excludeAttrs.Map(a => a.Name));
+            var publicFields = typeof(A)
                 .GetTypeInfo()
-                .DeclaredFields
+                .GetAllFields()
                 .Where(f =>
                 {
                     if (!f.IsPublic || f.IsStatic) return false;
                     if (toSet(f.CustomAttributes.Map(a => a.AttributeType.Name)).Intersect(excludeAttrsSet).Any()) return false;
                     return true;
                 });
+
+            var publicPropNames = typeof(A)
+                                    .GetTypeInfo()
+                                    .GetAllProperties()
+                                    .Where(p => p.CanRead && p.GetMethod.IsPublic)
+                                    .Where(p => !toSet(p.CustomAttributes.Map(a => a.AttributeType.Name)).Intersect(excludeAttrsSet).Any())
+                                    .ToArray();
+
+            var backingFields = typeof(A)
+                                    .GetTypeInfo()
+                                    .GetAllFields()
+                                    .Where(f => f.IsPrivate &&
+                                                publicPropNames.Exists(p => f.Name.StartsWith($"<{p.Name}>")))
+                                    .ToList();
+
+            return Enumerable.Concat(publicFields, backingFields);
         }
 
         static Option<MethodInfo> GetPublicStaticMethod<TYPE, A>(string name) =>
@@ -60,7 +76,7 @@ namespace LanguageExt
         static Option<MethodInfo> GetPublicInstanceMethod<TYPE>(string name) =>
             typeof(TYPE)
                 .GetTypeInfo()
-                .DeclaredMethods
+                .GetAllMethods()
                 .Where(x =>
                 {
                     if (x.IsStatic) return false;
@@ -73,7 +89,7 @@ namespace LanguageExt
         static Option<MethodInfo> GetPublicInstanceMethod<TYPE, A>(string name) =>
             typeof(TYPE)
                 .GetTypeInfo()
-                .DeclaredMethods
+                .GetAllMethods()
                 .Where(x =>
                 {
                     if (x.IsStatic) return false;
@@ -89,7 +105,7 @@ namespace LanguageExt
         static Option<MethodInfo> GetPublicInstanceMethod<TYPE, A, B>(string name) =>
             typeof(TYPE)
                 .GetTypeInfo()
-                .DeclaredMethods
+                .GetAllMethods()
                 .Where(x =>
                 {
                     if (x.IsStatic) return false;
@@ -104,7 +120,7 @@ namespace LanguageExt
 
         static Option<MethodInfo> GetPublicInstanceMethod(Type type, string name) =>
             type.GetTypeInfo()
-                .DeclaredMethods
+                .GetAllMethods()
                 .Where(x =>
                 {
                     if (x.IsStatic) return false;
@@ -117,7 +133,7 @@ namespace LanguageExt
         static Option<MethodInfo> GetPublicInstanceMethod<TYPE>(string name, Type arg1, Type arg2) =>
             typeof(TYPE)
                 .GetTypeInfo()
-                .DeclaredMethods
+                .GetAllMethods()
                 .Where(x =>
                 {
                     if (x.IsStatic) return false;
@@ -340,7 +356,7 @@ namespace LanguageExt
 
             var methodInfo = typeof(TYPE)
                 .GetTypeInfo()
-                .DeclaredMethods
+                .GetAllMethods()
                 .Where(x =>
                 {
                     if (!x.IsStatic) return false;
@@ -386,7 +402,7 @@ namespace LanguageExt
 
             var methodInfo = typeof(TYPE)
                 .GetTypeInfo()
-                .DeclaredMethods
+                .GetAllMethods()
                 .Where(x =>
                 {
                     if (!x.IsStatic) return false;
@@ -423,7 +439,7 @@ namespace LanguageExt
 
             var methodInfo = typeof(TYPE)
                 .GetTypeInfo()
-                .DeclaredMethods
+                .GetAllMethods()
                 .Where(x =>
                 {
                     if (!x.IsStatic) return false;
@@ -462,7 +478,7 @@ namespace LanguageExt
 
             var methodInfo = typeof(TYPE)
                 .GetTypeInfo()
-                .DeclaredMethods
+                .GetAllMethods()
                 .Where(x =>
                 {
                     if (!x.IsStatic) return false;
@@ -503,7 +519,7 @@ namespace LanguageExt
 
             var methodInfo = typeof(TYPE)
                 .GetTypeInfo()
-                .DeclaredMethods
+                .GetAllMethods()
                 .Where(x =>
                 {
                     if (!x.IsStatic) return false;
@@ -578,12 +594,12 @@ namespace LanguageExt
 
                     // Call field GetHashCode
                     var method = field.FieldType.GetTypeInfo()
-                                                .DeclaredMethods
+                                                .GetAllMethods()
                                                 .Where(m => m.Name == "GetHashCode")
                                                 .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
                                                                m.GetParameters().Map(p => p.ParameterType).ToArray(),
                                                                new Type[0]))
-                                               .Single();
+                                                .First();
                     il.Emit(OpCodes.Call, method);
                 }
                 else
@@ -609,12 +625,12 @@ namespace LanguageExt
 
                     // Not null so call GetHashCode
                     var method = field.FieldType.GetTypeInfo()
-                                                .DeclaredMethods
+                                                .GetAllMethods()
                                                 .Where(m => m.Name == "GetHashCode")
                                                 .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
                                                                m.GetParameters().Map(p => p.ParameterType).ToArray(),
                                                                new Type[0]))
-                                               .Single();
+                                                .First();
                     il.Emit(OpCodes.Callvirt, method);
 
                     il.MarkLabel(useZero);
@@ -718,12 +734,12 @@ namespace LanguageExt
                 var defaultMethod = comparerType.GetTypeInfo().DeclaredMethods.Where(m => m.Name == "get_Default").Single();
                 var parms = new[] { field.FieldType, field.FieldType };
                 var equalsMethod = comparerType.GetTypeInfo()
-                                               .DeclaredMethods
+                                               .GetAllMethods()
                                                .Where(m => m.Name == "Equals")
                                                .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
                                                                m.GetParameters().Map(p => p.ParameterType).ToArray(),
                                                                parms))
-                                               .Single();
+                                               .First();
 
                 il.Emit(OpCodes.Call, defaultMethod);
                 il.Emit(OpCodes.Ldarg_0);
@@ -812,12 +828,12 @@ namespace LanguageExt
                 var defaultMethod = comparerType.GetTypeInfo().DeclaredMethods.Where(m => m.Name == "get_Default").Single();
                 var parms = new[] { field.FieldType, field.FieldType };
                 var equalsMethod = comparerType.GetTypeInfo()
-                                               .DeclaredMethods
+                                               .GetAllMethods()
                                                .Where(m => m.Name == "Equals")
                                                .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
                                                                m.GetParameters().Map(p => p.ParameterType).ToArray(),
                                                                parms))
-                                               .Single();
+                                               .First();
 
                 il.Emit(OpCodes.Call, defaultMethod);
                 il.Emit(OpCodes.Ldarg_0);
@@ -907,12 +923,12 @@ namespace LanguageExt
                 var defaultMethod = comparerType.GetTypeInfo().DeclaredMethods.Where(m => m.Name == "get_Default").Single();
                 var parms = new[] { field.FieldType, field.FieldType };
                 var compareMethod = comparerType.GetTypeInfo()
-                                                .DeclaredMethods
+                                                .GetAllMethods()
                                                 .Where(m => m.Name == "Compare")
                                                 .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
                                                                 m.GetParameters().Map(p => p.ParameterType).ToArray(),
                                                                 parms))
-                                                .Single();
+                                                .First();
 
 
                 il.Emit(OpCodes.Call, defaultMethod);
