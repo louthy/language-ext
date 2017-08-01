@@ -22,8 +22,11 @@ namespace Records
                            Just: x => x * 2,
                            Nothing: () => 0);
 
-            var eqA = opt1.Equals(optN);
-            var eqB = opt1.Equals(opt2);
+            var sign = opt1.Equals(optN) ? "==" : "!=";
+            Console.WriteLine($"{opt1} {sign} {optN}");
+
+            sign = opt1.Equals(opt2) ? "==" : "!=";
+            Console.WriteLine($"{opt1} {sign} {opt2}");
 
             Console.WriteLine($"opt1: {opt1}");
             Console.WriteLine($"optN: {optN}");
