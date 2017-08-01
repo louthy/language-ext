@@ -929,7 +929,7 @@ This can now be achieved simply by deriving your type from `Record<A>` where `A`
 ```
 This gives you `Equals`, `IEquatable.Equals`, `IComparer.CompareTo`, `GetHashCode`, `operator==`, `operator!=`, `operator >`, `operator >=`, `operator <`, and `operator <=` implemented by default.  It also gives you a default `ToString()` implementation and `ISerializable.GetObjectData()` with a deserialisation constructor.
 
-Note that only *fields* are used in the structural comparisons and hash-code building.  So if you want to use properties then they must be backed by fields.  There are also `Attribute`s for opting fields out of the equality testing, ordering comparisons, hash-code generation, stringification (`ToString`),  and serialisation:
+Note that only _fields_ or _field backed properties_ are used in the structural comparisons and hash-code building.  There are also `Attribute`s for opting fields out of the equality testing, ordering comparisons, hash-code generation, stringification (`ToString`),  and serialisation:
 
 * `Equals()` - `OptOutOfEq`
 * `CompareTo()` - `OptOutOfOrd`
@@ -957,6 +957,75 @@ For example, here's a record type that opts out of various default behaviours:
             Z = z;
         }
     }
+```
+If you want your type to serialise with Json.NET or other serialisers then you will need to add an extra serialisation constructor that calls the default base implementation:
+```c#
+    public class TestClass : Record<TestClass>
+    {
+        public readonly int X;
+        public readonly string Y;
+        public readonly Guid Z;
+
+        public TestClass(int x, string y, Guid z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+        
+        TestClass(SerializationInfo info, StreamingContext context) 
+            : base(info, context) { }
+    }
+```
+This will do full structural equality as the following examples demonstrate:
+```c#
+public class Cons<A> : Record<Cons<A>>
+{
+    public readonly A Head;
+    public readonly Cons<A> Tail;
+
+    public Cons(A head, Cons<A> tail)
+    {
+        Head = head;
+        Tail = tail;
+    }
+}
+
+public void ConsTests()
+{
+    var listA = new Cons<int>(1, new Cons<int>(2, new Cons<int>(3, new Cons<int>(4, null))));
+    var listB = new Cons<int>(1, new Cons<int>(2, new Cons<int>(3, new Cons<int>(4, null))));
+    var listC = new Cons<int>(1, new Cons<int>(2, new Cons<int>(3, null)));
+
+    Assert.True(listA == listB);
+    Assert.True(listB != listC);
+    Assert.True(listA != listC);
+}
+
+public class Tree<A> : Record<Tree<A>>
+{
+    public readonly A Value;
+    public readonly Tree<A> Left;
+    public readonly Tree<A> Right;
+
+    public Tree(A value, Tree<A> left, Tree<A> right)
+    {
+        Value = value;
+        Left = left;
+        Right = right;
+    }
+}
+
+public void TreeTests()
+{
+    var treeA = new Tree<int>(5, new Tree<int>(3, null, null), new Tree<int>(7, null, new Tree<int>(9, null, null)));
+    var treeB = new Tree<int>(5, new Tree<int>(3, null, null), new Tree<int>(7, null, new Tree<int>(9, null, null)));
+    var treeC = new Tree<int>(5, new Tree<int>(3, null, null), new Tree<int>(7, null, null));
+
+    Assert.True(treeA == treeB);
+    Assert.True(treeB != treeC);
+    Assert.True(treeA != treeC);
+}
 ```
 
 > No reflection is used to achieve this result, the `Record` type builds the IL directly, and so it's as efficient as writing the code by hand.
