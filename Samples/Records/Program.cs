@@ -11,21 +11,22 @@ namespace Records
         static void Main(string[] args)
         {
             var opt1 = Maybe.Just(100);
-            var opt2 = Maybe.Nothing<int>();
+            var opt2 = Maybe.Just(100);
+            var optN = Maybe.Nothing<int>();
 
             var res1 = opt1.Match(
                            Just: x => x * 2,
                            Nothing: () => 0);
 
-            var res2 = opt2.Match(
+            var res2 = optN.Match(
                            Just: x => x * 2,
                            Nothing: () => 0);
 
-            var eqA = opt1 == opt2;
-            var eqB = opt1 != opt2;
+            var eqA = opt1.Equals(optN);
+            var eqB = opt1.Equals(opt2);
 
             Console.WriteLine($"opt1: {opt1}");
-            Console.WriteLine($"opt2: {opt2}");
+            Console.WriteLine($"optN: {optN}");
             Console.WriteLine($"res1: {res1}");
             Console.WriteLine($"res2: {res2}");
             Console.ReadKey();
