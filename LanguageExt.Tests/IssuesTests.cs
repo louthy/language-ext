@@ -211,3 +211,46 @@ namespace Core.Tests
     }
 
 }
+namespace NickCuthbertOnGitter_RecordsTests
+{
+    public class CollectorId : NewType<CollectorId, int> { public CollectorId(int value) : base(value) { } };
+    public class TenantId : NewType<TenantId, int> { public TenantId(int value) : base(value) { } };
+    public class UserId : NewType<UserId, int> { public UserId(int value) : base(value) { } };
+    public class Instant : NewType<Instant, int> { public Instant(int value) : base(value) { } };
+
+    public class Collector : Record<Collector>
+    {
+        public CollectorId Id { get; }
+        public string Name { get; }
+        public TenantId CurrentTenant { get; }
+        public UserId AssignedBy { get; }
+        public Instant InstantAssigned { get; }
+        public Collector(Some<CollectorId> id, Some<string> name, Some<TenantId> tenant, Some<UserId> assignedBy, Instant dateAssigned)
+        {
+            Id = id;
+            Name = name;
+            CurrentTenant = tenant;
+            AssignedBy = assignedBy;
+            InstantAssigned = dateAssigned;
+        }
+
+        Collector(SerializationInfo info, StreamingContext ctx) : base(info, ctx) { }
+    }
+
+    public class GitterTests
+    {
+        [Fact]
+        public void TestSerial()
+        {
+            var x = new Collector(CollectorId.New(1), "nick", TenantId.New(2), UserId.New(3), Instant.New(4));
+            var y = new Collector(CollectorId.New(1), "nick", TenantId.New(2), UserId.New(3), Instant.New(4));
+
+            var z1 = x == y;
+            var z2 = x.Equals(y);
+            var z3 = x.Equals((object)y);
+
+            var r = JsonConvert.SerializeObject(x);
+            var r2 = JsonConvert.DeserializeObject<Collector>(r);
+        }
+    }
+}

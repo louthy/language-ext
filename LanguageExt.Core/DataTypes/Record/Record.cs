@@ -19,7 +19,7 @@ namespace LanguageExt
             RecordType<RECORDTYPE>.SetObjectData((RECORDTYPE)(object)this, info);
 
         public static bool operator==(Record<RECORDTYPE> x, Record<RECORDTYPE> y) =>
-            RecordType<RECORDTYPE>.Equality((RECORDTYPE)(object)x, (RECORDTYPE)(object)y);
+            RecordType<RECORDTYPE>.EqualityTyped((RECORDTYPE)(object)x, (RECORDTYPE)(object)y);
 
         public static bool operator !=(Record<RECORDTYPE> x, Record<RECORDTYPE> y) =>
             !(x == y);

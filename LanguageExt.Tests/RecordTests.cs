@@ -7,6 +7,9 @@ namespace LanguageExt.Tests
 {
     public class RecordTests
     {
+        /// <summary>
+        /// Cons type - singly linked list
+        /// </summary>
         public class Cons<A> : Record<Cons<A>>
         {
             public readonly A Head;
@@ -31,6 +34,9 @@ namespace LanguageExt.Tests
             Assert.True(listA != listC);
         }
 
+        /// <summary>
+        /// Binary tree
+        /// </summary>
         public class Tree<A> : Record<Tree<A>>
         {
             public readonly A Value;

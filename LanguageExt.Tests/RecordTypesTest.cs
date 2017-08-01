@@ -59,7 +59,7 @@ namespace LanguageExt.Tests
         public readonly int X;
         public readonly string Y;
         public readonly Guid Z;
-        public TestClass W { get; private set; }
+        public TestClass W { get; }
 
         public TestClass3(int x, string y, Guid z, TestClass w)
         {

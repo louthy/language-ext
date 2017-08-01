@@ -42,6 +42,35 @@ namespace LanguageExt
             return Enumerable.Concat(publicFields, backingFields);
         }
 
+        static Option<MethodInfo> GetPublicStaticMethod(Type type, string name, Type argA) =>
+            type.GetTypeInfo()
+                .DeclaredMethods
+                .Where(x =>
+                {
+                    if (!x.IsStatic) return false;
+                    if (x.Name != name) return false;
+                    var ps = x.GetParameters();
+                    if (ps.Length != 1) return false;
+                    if (ps[0].ParameterType != argA) return false;
+                    return true;
+                })
+                .FirstOrDefault();
+
+        static Option<MethodInfo> GetPublicStaticMethod<TYPE>(string name, Type argA) =>
+            typeof(TYPE)
+                .GetTypeInfo()
+                .DeclaredMethods
+                .Where(x =>
+                {
+                    if (!x.IsStatic) return false;
+                    if (x.Name != name) return false;
+                    var ps = x.GetParameters();
+                    if (ps.Length != 1) return false;
+                    if (ps[0].ParameterType != argA) return false;
+                    return true;
+                })
+                .FirstOrDefault();
+
         static Option<MethodInfo> GetPublicStaticMethod<TYPE, A>(string name) =>
             typeof(TYPE)
                 .GetTypeInfo()
@@ -69,6 +98,22 @@ namespace LanguageExt
                     if (ps.Length != 2) return false;
                     if (ps[0].ParameterType != typeof(A)) return false;
                     if (ps[1].ParameterType != typeof(B)) return false;
+                    return true;
+                })
+                .FirstOrDefault();
+
+        static Option<MethodInfo> GetPublicStaticMethod<TYPE>(string name, Type argA, Type argB) =>
+            typeof(TYPE)
+                .GetTypeInfo()
+                .DeclaredMethods
+                .Where(x =>
+                {
+                    if (!x.IsStatic) return false;
+                    if (x.Name != name) return false;
+                    var ps = x.GetParameters();
+                    if (ps.Length != 2) return false;
+                    if (ps[0].ParameterType != argA) return false;
+                    if (ps[1].ParameterType != argB) return false;
                     return true;
                 })
                 .FirstOrDefault();
@@ -608,7 +653,7 @@ namespace LanguageExt
                     var useZero = il.DefineLabel();
 
                     // Load field
-                    il.Emit(OpCodes.Ldfld, field);
+                    il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
 
                     // Duplicate top item on stack (2 of the same value on stack)
                     il.Emit(OpCodes.Dup);
@@ -659,33 +704,47 @@ namespace LanguageExt
         {
             var dynamic = new DynamicMethod("Equals", typeof(bool), new[] { typeof(A), typeof(object) }, true);
             var fields = GetPublicInstanceFields<A>(typeof(OptOutOfEqAttribute));
+            var getType = GetPublicInstanceMethod<Object>("GetType").IfNone(() => throw new Exception());
+            var typeEquals = GetPublicInstanceMethod<Type, Type>("Equals").IfNone(() => throw new Exception());
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
 
             var il = dynamic.GetILGenerator();
 
-            var argNotNullY1 = il.DefineLabel();
-            var argNotNullY2 = il.DefineLabel();
+            var argNotNullY = il.DefineLabel();
             var argNotNullX = il.DefineLabel();
             var argIsA = il.DefineLabel();
             var returnTrue = il.DefineLabel();
+            var referenceUnequal = il.DefineLabel();
+            var typesMatch = il.DefineLabel();
 
             il.DeclareLocal(typeof(A));
+
+            // if(ReferenceEquals(x, y))
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Bne_Un_S, referenceUnequal);
+
+            // return true
+            il.Emit(OpCodes.Ldc_I4_1);
+            il.Emit(OpCodes.Ret);
+
+            il.MarkLabel(referenceUnequal);
+
+            // if(y == null)
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Brtrue_S, argNotNullY);
+
+            // return false
+            il.Emit(OpCodes.Ldc_I4_0);
+            il.Emit(OpCodes.Ret);
+
+            il.MarkLabel(argNotNullY);
 
             if (!isValueType)
             {
                 // if(x == null)
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Brtrue_S, argNotNullX);
-
-                // if(y == null)
-                il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Brtrue_S, argNotNullY1);
-
-                // return true
-                il.Emit(OpCodes.Ldc_I4_1);
-                il.Emit(OpCodes.Ret);
-
-                il.MarkLabel(argNotNullY1);
 
                 // return false
                 il.Emit(OpCodes.Ldc_I4_0);
@@ -694,36 +753,21 @@ namespace LanguageExt
                 il.MarkLabel(argNotNullX);
             }
 
-            // if(y == null)
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Brtrue_S, argNotNullY2);
-
-            // return false
-            il.Emit(OpCodes.Ldc_I4_0);
-            il.Emit(OpCodes.Ret);
-
-            il.MarkLabel(argNotNullY2);
-
-            // if(y is A)
-            //il.Emit(OpCodes.Ldarg_1);
-            //il.Emit(OpCodes.Isinst, typeof(A));
-
             il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Callvirt, GetPublicInstanceMethod<Object>("GetType").IfNone(() => throw new Exception()));
+            il.Emit(OpCodes.Callvirt, getType);
             il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Callvirt, GetPublicInstanceMethod<Object>("GetType").IfNone(() => throw new Exception()));
-            il.Emit(OpCodes.Call, GetPublicInstanceMethod<Type, Type>("Equals").IfNone(() => throw new Exception()));
-
-            il.Emit(OpCodes.Brtrue_S, argIsA);
+            il.Emit(OpCodes.Callvirt, getType);
+            il.Emit(OpCodes.Callvirt, typeEquals);
+            il.Emit(OpCodes.Brtrue_S, typesMatch);
 
             // return false
             il.Emit(OpCodes.Ldc_I4_0);
             il.Emit(OpCodes.Ret);
 
-            il.MarkLabel(argIsA);
+            il.MarkLabel(typesMatch);
 
             il.Emit(OpCodes.Ldarg_1);
-            if (isValueType)
+            if(isValueType)
             {
                 il.Emit(OpCodes.Unbox_Any, typeof(A));
             }
@@ -750,9 +794,9 @@ namespace LanguageExt
 
                 il.Emit(OpCodes.Call, defaultMethod);
                 il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldfld, field);
+                il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
                 il.Emit(OpCodes.Ldloc_0);
-                il.Emit(OpCodes.Ldfld, field);
+                il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
                 il.Emit(OpCodes.Callvirt, equalsMethod);
                 il.Emit(OpCodes.Brtrue_S, continueLabel);
 
@@ -787,29 +831,32 @@ namespace LanguageExt
 
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
             var fields = GetPublicInstanceFields<A>(typeof(OptOutOfEqAttribute));
+            var getType = GetPublicInstanceMethod<Object>("GetType").IfNone(() => throw new Exception());
+            var typeEquals = GetPublicInstanceMethod<Type, Type>("Equals").IfNone(() => throw new Exception());
             var il = dynamic.GetILGenerator();
             var returnTrue = il.DefineLabel();
             var typesMatch = il.DefineLabel();
+            var referenceUnequal = il.DefineLabel();
 
-            if(!isValueType)
+            // if(ReferenceEquals(x, y))
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Bne_Un_S, referenceUnequal);
+
+            // return true
+            il.Emit(OpCodes.Ldc_I4_1);
+            il.Emit(OpCodes.Ret);
+
+            il.MarkLabel(referenceUnequal);
+
+            if (!isValueType)
             {
                 var argNotNullX = il.DefineLabel();
-                var argNotNullY1 = il.DefineLabel();
-                var argNotNullY2 = il.DefineLabel();
+                var argNotNullY = il.DefineLabel();
 
                 // if(x == null)
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Brtrue_S, argNotNullX);
-
-                // if(y == null)
-                il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Brtrue_S, argNotNullY1);
-
-                // return true
-                il.Emit(OpCodes.Ldc_I4_1);
-                il.Emit(OpCodes.Ret);
-
-                il.MarkLabel(argNotNullY1);
 
                 // return false
                 il.Emit(OpCodes.Ldc_I4_0);
@@ -819,22 +866,23 @@ namespace LanguageExt
 
                 // if(y == null)
                 il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Brtrue_S, argNotNullY2);
+                il.Emit(OpCodes.Brtrue_S, argNotNullY);
 
                 // return false
                 il.Emit(OpCodes.Ldc_I4_0);
                 il.Emit(OpCodes.Ret);
 
-                il.MarkLabel(argNotNullY2);
+                il.MarkLabel(argNotNullY);
             }
 
             il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Callvirt, GetPublicInstanceMethod<Object>("GetType").IfNone(() => throw new Exception()));
+            il.Emit(OpCodes.Callvirt, getType);
             il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Callvirt, GetPublicInstanceMethod<Object>("GetType").IfNone(() => throw new Exception()));
-            il.Emit(OpCodes.Call, GetPublicInstanceMethod<Type, Type>("Equals").IfNone(() => throw new Exception()));
+            il.Emit(OpCodes.Callvirt, getType);
+            il.Emit(OpCodes.Callvirt, typeEquals);
             il.Emit(OpCodes.Brtrue_S, typesMatch);
 
+            // return false
             il.Emit(OpCodes.Ldc_I4_0);
             il.Emit(OpCodes.Ret);
 
@@ -857,9 +905,9 @@ namespace LanguageExt
 
                 il.Emit(OpCodes.Call, defaultMethod);
                 il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldfld, field);
+                il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
                 il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Ldfld, field);
+                il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
                 il.Emit(OpCodes.Callvirt, equalsMethod);
                 il.Emit(OpCodes.Brtrue_S, continueLabel);
 
@@ -895,45 +943,62 @@ namespace LanguageExt
             var fields = GetPublicInstanceFields<A>(typeof(OptOutOfOrdAttribute));
             var il = dynamic.GetILGenerator();
             il.DeclareLocal(typeof(int));
+            var isValueType = typeof(A).GetTypeInfo().IsValueType;
+            var getType = GetPublicInstanceMethod<Object>("GetType").IfNone(() => throw new Exception());
+            var typeEquals = GetPublicInstanceMethod<Type, Type>("Equals").IfNone(() => throw new Exception());
+            var typesMatch = il.DefineLabel();
             var returnTrue = il.DefineLabel();
+            var referenceUnequal = il.DefineLabel();
 
-            if (!typeof(A).GetTypeInfo().IsValueType)
+            // if(ReferenceEquals(x, y))
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Bne_Un_S, referenceUnequal);
+
+            // return 0
+            il.Emit(OpCodes.Ldc_I4_0);
+            il.Emit(OpCodes.Ret);
+
+            il.MarkLabel(referenceUnequal);
+
+            if (!isValueType)
             {
-                var notNullEq = il.DefineLabel();
-                var argNotNullY = il.DefineLabel();
                 var argNotNullX = il.DefineLabel();
+                var argNotNullY = il.DefineLabel();
 
-                // Check reference-equality on the args
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Bne_Un_S, notNullEq);
-
-                // reference-equality on the args, so return null
-                il.Emit(OpCodes.Ldc_I4_0);
-                il.Emit(OpCodes.Ret);
-
-                il.MarkLabel(notNullEq);
-
-                // Check reference-equality with null and Y
-                il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Brtrue_S, argNotNullY);
-
-                // Y == null, return 1
-                il.Emit(OpCodes.Ldc_I4_1);
-                il.Emit(OpCodes.Ret);
-
-                il.MarkLabel(argNotNullY);
-
-                // Check reference-equality with null and X
+                // if(x == null)
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Brtrue_S, argNotNullX);
 
-                // X == null, return 0
+                // return 1
                 il.Emit(OpCodes.Ldc_I4_M1);
                 il.Emit(OpCodes.Ret);
 
                 il.MarkLabel(argNotNullX);
+
+                // if(y == null)
+                il.Emit(OpCodes.Ldarg_1);
+                il.Emit(OpCodes.Brtrue_S, argNotNullY);
+
+                // return -1
+                il.Emit(OpCodes.Ldc_I4_1);
+                il.Emit(OpCodes.Ret);
+
+                il.MarkLabel(argNotNullY);
             }
+
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Callvirt, getType);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Callvirt, getType);
+            il.Emit(OpCodes.Callvirt, typeEquals);
+            il.Emit(OpCodes.Brtrue_S, typesMatch);
+
+            // return false
+            il.Emit(OpCodes.Ldc_I4_M1);
+            il.Emit(OpCodes.Ret);
+
+            il.MarkLabel(typesMatch);
 
             foreach (var field in fields)
             {
@@ -950,12 +1015,11 @@ namespace LanguageExt
                                                                 parms))
                                                 .First();
 
-
                 il.Emit(OpCodes.Call, defaultMethod);
                 il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldfld, field);
+                il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
                 il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Ldfld, field);
+                il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
                 il.Emit(OpCodes.Callvirt, compareMethod);
                 il.Emit(OpCodes.Stloc_0);
                 il.Emit(OpCodes.Ldloc_0);
@@ -979,8 +1043,9 @@ namespace LanguageExt
 
         public static Func<A, string> ToString<A>()
         {
-            var dynamic = new DynamicMethod("FieldsToString", typeof(string), new[] { typeof(A) }, true);
-            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfToStringAttribute));
+            var isValueType = typeof(A).GetTypeInfo().IsValueType;
+            var dynamic = new DynamicMethod("FieldsToString", typeof(string), new[] { typeof(A) },true);
+            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfToStringAttribute)).ToArray();
             var stringBuilder = GetConstructor<StringBuilder>().IfNone(() => throw new ArgumentException($"Constructor not found for StringBuilder"));
             var appendChar = GetPublicInstanceMethod<StringBuilder, char>("Append").IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
             var appendString = GetPublicInstanceMethod<StringBuilder, string>("Append").IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
@@ -992,7 +1057,7 @@ namespace LanguageExt
             il.DeclareLocal(typeof(StringBuilder));
             var notNull = il.DefineLabel();
 
-            if (!typeof(A).GetTypeInfo().IsValueType)
+            if (!isValueType)
             {
                 // Check reference == null
                 il.Emit(OpCodes.Ldarg_0);
@@ -1011,7 +1076,14 @@ namespace LanguageExt
 
             // sb.Append('(')
             il.Emit(OpCodes.Ldloc_0);
-            il.Emit(OpCodes.Ldstr, $"{name}(");
+            if (fields.Length == 0)
+            {
+                il.Emit(OpCodes.Ldstr, $"{name}");
+            }
+            else
+            {
+                il.Emit(OpCodes.Ldstr, $"{name}(");
+            }
             il.Emit(OpCodes.Callvirt, appendString);
             il.Emit(OpCodes.Pop);
 
@@ -1035,7 +1107,7 @@ namespace LanguageExt
 
                     // If(this.field == null)
                     il.Emit(OpCodes.Ldarg_0);
-                    il.Emit(OpCodes.Ldfld, field);
+                    il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
                     il.Emit(OpCodes.Brtrue_S, fieldNotNull);
 
                     // sb.Append("null")
@@ -1051,39 +1123,34 @@ namespace LanguageExt
 
                 il.Emit(OpCodes.Ldloc_0);  // sb
                 il.Emit(OpCodes.Ldarg_0);  // this
+                il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
 
-                if (field.FieldType.GetTypeInfo().IsValueType)
+                var convertToString = (GetPublicStaticMethod(typeof(Convert), "ToString", field.FieldType) ||
+                                       GetPublicStaticMethod(typeof(Convert), "ToString", typeof(object)))
+                                      .IfNone(() => throw new Exception());
+
+                if (field.FieldType.GetTypeInfo().IsValueType && convertToString.GetParameters().Head().ParameterType == typeof(object))
                 {
-                    il.Emit(OpCodes.Ldflda, field);
-                }
-                else
-                {
-                    il.Emit(OpCodes.Ldfld, field);
+                    il.Emit(OpCodes.Box, field.FieldType);
                 }
 
-                // sb.Append(this.field.ToString())
-                var fieldToString = GetPublicInstanceMethod(field.FieldType, "ToString").IfNone(() => throw new Exception($"ToString not found for field-type: {field.FieldType}"));
-                if (field.FieldType.GetTypeInfo().IsValueType)
-                {
-                    il.Emit(OpCodes.Call, fieldToString);
-                }
-                else
-                {
-                    il.Emit(OpCodes.Callvirt, fieldToString);
-                }
+                il.Emit(convertToString.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, convertToString);
+
                 il.Emit(OpCodes.Callvirt, appendString);
                 il.Emit(OpCodes.Pop);
-
                 il.MarkLabel(skipAppend);
 
                 first = false;
             }
 
-            // Append(')')
-            il.Emit(OpCodes.Ldloc_0);
-            il.Emit(OpCodes.Ldc_I4_S, ')');
-            il.Emit(OpCodes.Callvirt, appendChar);
-            il.Emit(OpCodes.Pop);
+            if (fields.Length > 0)
+            {
+                // Append(')')
+                il.Emit(OpCodes.Ldloc_0);
+                il.Emit(OpCodes.Ldc_I4_S, ')');
+                il.Emit(OpCodes.Callvirt, appendChar);
+                il.Emit(OpCodes.Pop);
+            }
 
             // return sb.ToString()
             il.Emit(OpCodes.Ldloc_0);
@@ -1096,6 +1163,7 @@ namespace LanguageExt
 
         public static Action<A, SerializationInfo> GetObjectData<A>()
         {
+            var isValueType = typeof(A).GetTypeInfo().IsValueType;
             var dynamic = new DynamicMethod("GetObjectData", null, new[] { typeof(A), typeof(SerializationInfo) }, true);
             var fields = GetPublicInstanceFields<A>(typeof(OptOutOfSerializationAttribute), typeof(NonSerializedAttribute));
             var argNullExcept =  GetConstructor<ArgumentNullException, string>().IfNone(() => throw new Exception());
@@ -1119,7 +1187,7 @@ namespace LanguageExt
                 il.Emit(OpCodes.Ldarg_1);
                 il.Emit(OpCodes.Ldstr, field.Name);
                 il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldfld, field);
+                il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
 
                 var addValue = (GetPublicInstanceMethod<SerializationInfo>("AddValue", typeof(string), field.FieldType) ||
                                 GetPublicInstanceMethod<SerializationInfo>("AddValue", typeof(string), typeof(object)))
