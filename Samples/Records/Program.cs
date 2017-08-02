@@ -10,6 +10,11 @@ namespace Records
     {
         static void Main(string[] args)
         {
+            MaybeRecordTypeExample();
+        }
+
+        private static void MaybeRecordTypeExample()
+        {
             var opt1 = Maybe.Just(100);
             var opt2 = Maybe.Just(100);
             var optN = Maybe.Nothing<int>();

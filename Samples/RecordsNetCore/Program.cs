@@ -1,12 +1,17 @@
 ﻿using LanguageExt;
+using static LanguageExt.Prelude;
 using System;
-using System.Runtime.Serialization;
 
 namespace RecordsNetCore
 {
     class Program
     {
         static void Main(string[] args)
+        {
+            MaybeRecordTypeExample();
+        }
+
+        private static void MaybeRecordTypeExample()
         {
             var opt1 = Maybe.Just(100);
             var opt2 = Maybe.Just(100);

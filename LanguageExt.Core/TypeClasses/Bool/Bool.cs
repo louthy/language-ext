@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
     /// <summary>
     /// Typeclass for things that have true and false values.
     /// </summary>
+    [Typeclass]
     public interface Bool<A>
     {
         /// <summary>

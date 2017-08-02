@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
@@ -10,6 +6,7 @@ namespace LanguageExt.TypeClasses
     /// Constant value type-class
     /// </summary>
     /// <typeparam name="TYPE"></typeparam>
+    [Typeclass]
     public interface Const<TYPE>
     {
         TYPE Value { get; }

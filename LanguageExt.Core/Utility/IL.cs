@@ -1184,8 +1184,10 @@ namespace LanguageExt
 
             foreach (var field in fields)
             {
+                var name = PrettyFieldName(field);
+
                 il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Ldstr, field.Name);
+                il.Emit(OpCodes.Ldstr, name);
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
 
@@ -1228,9 +1230,11 @@ namespace LanguageExt
 
             foreach (var field in fields)
             {
+                var name = PrettyFieldName(field);
+
                 il.Emit(OpCodes.Ldarg_0);                   // this
                 il.Emit(OpCodes.Ldarg_1);                   // info
-                il.Emit(OpCodes.Ldstr, field.Name);         // field-name
+                il.Emit(OpCodes.Ldstr, name);               // field-name
                 il.Emit(OpCodes.Ldtoken, field.FieldType);  // typeof(FieldType)
                 il.Emit(OpCodes.Call, getTypeFromHandle);   // Type.GetTypeFromHandle(typeof(FieldType))
                 il.Emit(OpCodes.Callvirt, getValue);        // info.GetValue("field-name", FieldType)
@@ -1248,5 +1252,11 @@ namespace LanguageExt
 
             return (Action<A, SerializationInfo>)dynamic.CreateDelegate(typeof(Action<A, SerializationInfo>));
         }
+
+        static string PrettyFieldName(FieldInfo field) =>
+            field.Name.Split('<', '>').Match(
+                ()      => "",
+                x       => x,
+                (x, xs) => xs.Head);
     }
 }

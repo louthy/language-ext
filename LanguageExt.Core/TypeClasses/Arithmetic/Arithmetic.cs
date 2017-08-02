@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
+    [Typeclass]
     public interface Arithmetic<A>
     {
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.Contracts;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
@@ -6,6 +7,7 @@ namespace LanguageExt.TypeClasses
     /// Predicate type-class
     /// </summary>
     /// <typeparam name="A">Type of value to run the predication operation against</typeparam>
+    [Typeclass]
     public interface Pred<A>
     {
         /// <summary>
