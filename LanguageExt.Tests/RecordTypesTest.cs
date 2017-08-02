@@ -80,12 +80,6 @@ namespace LanguageExt.Tests
         [Fact]
         public void EqualityOfOriginTest()
         {
-            var eq = IL.Equals<TestClass>();
-            var eqt = IL.EqualsTyped<TestClass>();
-
-            var fa = IL.GetPublicInstanceFields<TestClass>();
-            var fb = IL.GetPublicInstanceFields<DerivedTestClass>();
-
             var x = new TestClass(1, "Hello", Guid.Empty);
             var y = new DerivedTestClass(1, "Hello", Guid.Empty, 1000);
 
@@ -107,8 +101,6 @@ namespace LanguageExt.Tests
         [Fact]
         public void DeepInEqualityTestFieldsAndProperties()
         {
-            var fields = IL.GetPublicInstanceFields<TestClass3>();
-
             var x1 = new TestClass(1, "Hello", Guid.Empty);
             var x2 = new TestClass(1, "Hello", guid);
             var y1 = new TestClass3(1, "Hello", Guid.Empty, x1);
