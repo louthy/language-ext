@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
+using System.Runtime.Serialization;
 
 namespace LanguageExt
 {
@@ -33,7 +34,8 @@ namespace LanguageExt
     [Serializable]
     public abstract class FloatType<SELF, FLOATING, A, PRED> :
         IEquatable<SELF>,
-        IComparable<SELF>
+        IComparable<SELF>,
+        ISerializable
         where FLOATING : struct, Floating<A>
         where PRED : struct, Pred<A>
         where SELF : FloatType<SELF, FLOATING, A, PRED>
@@ -57,6 +59,19 @@ namespace LanguageExt
             if (isnull(value)) throw new ArgumentNullException(nameof(value));
             Value = value;
         }
+
+        /// <summary>
+        /// Deserialisation ctor
+        /// </summary>
+        public FloatType(SerializationInfo info, StreamingContext context)
+        {
+            Value = (A)info.GetValue("Value", typeof(A));
+            if (!default(PRED).True(Value)) throw new ArgumentOutOfRangeException(nameof(Value));
+            if (isnull(Value)) throw new ArgumentNullException(nameof(Value));
+        }
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            info.AddValue("Value", Value);
 
         /// <summary>
         /// Explicit conversion operator for extracting the bound value

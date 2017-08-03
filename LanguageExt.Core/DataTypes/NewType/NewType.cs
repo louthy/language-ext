@@ -2,6 +2,7 @@
 using LanguageExt.ClassInstances;
 using LanguageExt.ClassInstances.Pred;
 using System.Diagnostics.Contracts;
+using System.Runtime.Serialization;
 
 namespace LanguageExt
 {
@@ -29,6 +30,15 @@ namespace LanguageExt
         /// <param name="value">Value to bind</param>
         /// <exception cref="ArgumentNullException">Null values are not accepted</exception>
         public NewType(A value) : base(value) {}
+
+        /// <summary>
+        /// Deserialisation ctor
+        /// </summary>
+        public NewType(SerializationInfo info, StreamingContext context) : base((A)info.GetValue("Value", typeof(A)))
+        { }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            info.AddValue("Value", Value);
 
         /// <summary>
         /// Explicit conversion operator for extracting the bound value

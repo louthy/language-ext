@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.Serialization;
 using LanguageExt;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
@@ -32,7 +33,8 @@ namespace LanguageExt
     [Serializable]
     public abstract class NumType<SELF, NUM, A, PRED> :
         IEquatable<SELF>,
-        IComparable<SELF>
+        IComparable<SELF>,
+        ISerializable
         where NUM : struct, Num<A>
         where PRED : struct, Pred<A>
         where SELF : NumType<SELF, NUM, A, PRED>
@@ -56,6 +58,19 @@ namespace LanguageExt
             if (isnull(value)) throw new ArgumentNullException(nameof(value));
             Value = value;
         }
+
+        /// <summary>
+        /// Deserialisation ctor
+        /// </summary>
+        public NumType(SerializationInfo info, StreamingContext context)
+        {
+            Value = (A)info.GetValue("Value", typeof(A));
+            if (!default(PRED).True(Value)) throw new ArgumentOutOfRangeException(nameof(Value));
+            if (isnull(Value)) throw new ArgumentNullException(nameof(Value));
+        }
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            info.AddValue("Value", Value);
 
         /// <summary>
         /// Explicit conversion operator for extracting the bound value

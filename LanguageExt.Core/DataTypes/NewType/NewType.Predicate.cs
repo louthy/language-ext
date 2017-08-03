@@ -3,6 +3,7 @@ using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
+using System.Runtime.Serialization;
 
 namespace LanguageExt
 {
@@ -46,6 +47,19 @@ namespace LanguageExt
             if (isnull(value)) throw new ArgumentNullException(nameof(value));
             Value = value;
         }
+
+        /// <summary>
+        /// Deserialisation ctor
+        /// </summary>
+        public NewType(SerializationInfo info, StreamingContext context)
+        {
+            Value = (A)info.GetValue("Value", typeof(A));
+            if (!default(PRED).True(Value)) throw new ArgumentOutOfRangeException(nameof(Value));
+            if (isnull(Value)) throw new ArgumentNullException(nameof(Value));
+        }
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            info.AddValue("Value", Value);
 
         /// <summary>
         /// Explicit conversion operator for extracting the bound value

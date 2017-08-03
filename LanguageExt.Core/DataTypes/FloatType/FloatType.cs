@@ -2,6 +2,7 @@
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances.Pred;
 using System.Diagnostics.Contracts;
+using System.Runtime.Serialization;
 
 namespace LanguageExt
 {
@@ -37,6 +38,16 @@ namespace LanguageExt
         public FloatType(A value) : base(value)
         {
         }
+
+        /// <summary>
+        /// Deserialisation ctor
+        /// </summary>
+        public FloatType(SerializationInfo info, StreamingContext context) : base((A)info.GetValue("Value", typeof(A)))
+        {
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            info.AddValue("Value", Value);
 
         /// <summary>
         /// Explicit conversion operator for extracting the bound value
