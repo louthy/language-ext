@@ -135,5 +135,21 @@ namespace LanguageExtTests
             Assert.True(right == right2);
             Assert.True(left == left2);
         }
+
+        [Fact]
+        public void ValidationTest()
+        {
+            var succ = Success<string, string>("test");
+            var fail = Fail<string, string>("error");
+
+            var succText = JsonConvert.SerializeObject(succ);
+            var failText = JsonConvert.SerializeObject(fail);
+
+            var succ2 = JsonConvert.DeserializeObject<Validation<string, string>>(succText);
+            var fail2 = JsonConvert.DeserializeObject<Validation<string, string>>(failText);
+
+            Assert.True(succ == succ2);
+            Assert.True(fail == fail2);
+        }
     }
 }

@@ -19,29 +19,25 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="FAIL"></typeparam>
     /// <typeparam name="SUCCESS"></typeparam>
+    [Serializable]
     public struct Validation<FAIL, SUCCESS> :
         IEnumerable<ValidationData<FAIL, SUCCESS>>,
         IComparable<Validation<FAIL, SUCCESS>>,
         IComparable<SUCCESS>,
         IEquatable<Validation<FAIL, SUCCESS>>,
-        IEquatable<SUCCESS>
+        IEquatable<SUCCESS>,
+        ISerializable
     {
-        public enum StateType : byte
-        {
-            Success,
-            Fail
-        }
-
         readonly Seq<FAIL> fail;
         readonly SUCCESS success;
-        readonly StateType state;
+        readonly Validation.StateType state;
 
         Validation(SUCCESS success)
         {
             if (isnull(success)) throw new ValueIsNullException();
             this.success = success;
             this.fail = Seq<FAIL>.Empty;
-            this.state = StateType.Success;
+            this.state = Validation.StateType.Success;
         }
 
         Validation(Seq<FAIL> fail)
@@ -49,7 +45,58 @@ namespace LanguageExt
             if (isnull(fail)) throw new ValueIsNullException();
             this.success = default(SUCCESS);
             this.fail = fail;
-            this.state = StateType.Fail;
+            this.state = Validation.StateType.Fail;
+        }
+
+        /// <summary>
+        /// Ctor that facilitates serialisation
+        /// </summary>
+        [Pure]
+        public Validation(IEnumerable<ValidationData<FAIL, SUCCESS>> validationData)
+        {
+            var seq = Seq(validationData);
+            if (seq.IsEmpty)
+            {
+                this.state = Validation.StateType.Fail;
+                this.fail = Seq<FAIL>.Empty;
+                this.success = default(SUCCESS);
+            }
+            else
+            {
+                this.fail = seq.Head.Fail.ToSeq();
+                this.success = seq.Head.Success;
+                this.state = seq.Head.State;
+            }
+        }
+
+        /// <summary>
+        /// Ctor that facilitates serialisation
+        /// </summary>
+        [Pure]
+        public Validation(SerializationInfo info, StreamingContext context)
+        {
+            state = (Validation.StateType)info.GetValue("State", typeof(Validation.StateType));
+            switch (state)
+            {
+                case Validation.StateType.Success:
+                    success = (SUCCESS)info.GetValue("Success", typeof(SUCCESS));
+                    fail = Seq<FAIL>.Empty;
+                    break;
+                case Validation.StateType.Fail:
+                    fail = (Seq<FAIL>)info.GetValue("Fail", typeof(Seq<FAIL>));
+                    success = default(SUCCESS);
+                    break;
+
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("State", state);
+            if (IsSuccess) info.AddValue("Success", SuccessValue);
+            if (IsFail) info.AddValue("Fail", FailValue);
         }
 
         internal Seq<FAIL> FailValue => isnull(fail) ? Seq<FAIL>.Empty : fail;
@@ -57,15 +104,15 @@ namespace LanguageExt
         
         [Pure]
         public bool IsFail =>
-            state == StateType.Fail;
+            state == Validation.StateType.Fail;
 
         [Pure]
         public bool IsSuccess =>
-            state == StateType.Success;
+            state == Validation.StateType.Success;
 
         IEnumerable<ValidationData<FAIL, SUCCESS>> Enum()
         {
-            yield return new ValidationData<FAIL, SUCCESS>(success, FailValue);
+            yield return new ValidationData<FAIL, SUCCESS>(state, success, FailValue.Freeze());
         }
 
         public IEnumerator<ValidationData<FAIL, SUCCESS>> GetEnumerator() =>
