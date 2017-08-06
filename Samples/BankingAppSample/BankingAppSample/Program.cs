@@ -1,9 +1,10 @@
-﻿using Banking.Schema;
-using static Banking.Schema.NewTypes;
+﻿using Banking.Core;
+using Banking.Schema;
+using static Banking.Schema.Constructors;
 using static Banking.Schema.BankingFree;
+using static LanguageExt.Prelude;
 using LanguageExt;
 using System;
-using Banking.Core;
 
 namespace BankingAppSample
 {
@@ -13,14 +14,27 @@ namespace BankingAppSample
         {
             var bank = Bank.Empty;
 
-            var action = from accountId in CreateAccount(new PersonName(Title("Mr"), FirstName("Paul"), Surname("Louth")))
+            var action = from accountId in CreateAccount(PersonName(Title("Mr"), FirstName("Paul"), Surname("Louth")))
+                         from _1        in ShowBalance(accountId)
                          from amount1   in Deposit(Amount(100m), accountId)
-                         from balance1  in Balance(accountId)
-                         from amount2   in Withdraw(Amount(50m), accountId)
-                         from balance2  in Balance(accountId)
+                         from _2        in ShowBalance(accountId)
+                         from amount2   in Withdraw(Amount(75m), accountId)
+                         from _3        in ShowBalance(accountId)
                          select accountId;
 
             var result = Interpreter.Interpret(action, bank);
         }
+
+        /// <summary>
+        /// This function demonstrates that once you have captured all of the
+        /// actions that represent an interaction with the 'world' (i.e IO,
+        /// databases, global state, etc.) then you can compose those actions
+        /// without having to add new types to the BankingFree monad.
+        /// </summary>
+        static BankingFree<Unit> ShowBalance(AccountId id) =>
+            from a in GetAccountDetails(id)
+            from v in Balance(id)
+            from _ in Show($"Balance of account {a.Name} is: ${v}")
+            select unit;
     }
 }

@@ -10,6 +10,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.Parsec", "LanguageExt.Parsec\LanguageExt.Parsec.csproj", "{29E65953-E2D9-4C9F-82FE-DEF50BBA4A48}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{1ABB8B79-9BF2-4C51-A920-9C17BF11273F}"
+	ProjectSection(SolutionItems) = preProject
+		Samples\BankingAppSample\BankingAppSample.sln = Samples\BankingAppSample\BankingAppSample.sln
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestBed", "Samples\TestBed\TestBed.csproj", "{3D165617-8A90-4BEB-B951-6168EDDA232D}"
 EndProject
@@ -17,7 +20,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.Tests", "Langua
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Records", "Samples\Records\Records.csproj", "{C9F80831-9E6B-487E-8875-68F77055BA40}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecordsNetCore", "Samples\RecordsNetCore\RecordsNetCore.csproj", "{91B55080-5E1C-467A-AE19-EE4433BA6601}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecordsNetCore", "Samples\RecordsNetCore\RecordsNetCore.csproj", "{91B55080-5E1C-467A-AE19-EE4433BA6601}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

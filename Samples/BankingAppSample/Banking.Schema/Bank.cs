@@ -1,6 +1,6 @@
 ﻿using LanguageExt;
 using static LanguageExt.Prelude;
-using static Banking.Schema.NewTypes;
+using static Banking.Schema.Constructors;
 using System;
 
 namespace Banking.Schema
@@ -12,8 +12,8 @@ namespace Banking.Schema
     public class Bank
     {
         public static readonly Bank Empty = new Bank(
-            ((AccountId(1), new Account(AccountId(1), new AccountName("Withdrawals"), Amount.Zero)),
-             (AccountId(2), new Account(AccountId(2), new AccountName("Deposits"), Amount.Zero))),
+            ((AccountId(1), Account(AccountId(1), AccountName("Withdrawals"), Amount.Zero)),
+             (AccountId(2), Account(AccountId(2), AccountName("Deposits"), Amount.Zero))),
             Seq<Transaction>(), 
             AccountId(1), 
             AccountId(2));
