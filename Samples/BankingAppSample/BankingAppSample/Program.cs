@@ -20,21 +20,39 @@ namespace BankingAppSample
                          from _2        in ShowBalance(accountId)
                          from amount2   in Withdraw(Amount(75m), accountId)
                          from _3        in ShowBalance(accountId)
+                         from _4        in ShowTransactions()
                          select accountId;
 
             var result = Interpreter.Interpret(action, bank);
         }
 
-        /// <summary>
-        /// This function demonstrates that once you have captured all of the
+        /// These functions demonstrates that once you have captured all of the
         /// actions that represent an interaction with the 'world' (i.e IO,
         /// databases, global state, etc.) then you can compose those actions
         /// without having to add new types to the BankingFree monad.
-        /// </summary>
+
+
         static BankingFree<Unit> ShowBalance(AccountId id) =>
-            from a in AccountDetails(id)
-            from v in Balance(id)
-            from _ in Show($"Balance of account {a.Name} is: ${v}")
+            from ac in AccountDetails(id)
+            from ba in Balance(id)
+            from _1 in Show($"Balance of account {ac.Name} is: ${ba}")
+            from wa in WithdrawalAccountDetails
+            from _2 in Show($"\tBalance of {wa.Name} is: ${wa.Balance}")
+            from da in DepositAccountDetails
+            from _3 in Show($"\tBalance of {da.Name} is: ${da.Balance}")
             select unit;
+
+        static BankingFree<Unit> ShowTransactions() =>
+            from t in BankTransactions
+            from _ in ShowTransactions(t)
+            select unit;
+
+        static BankingFree<Unit> ShowTransactions(Seq<Transaction> transactions) =>
+            transactions.Match(
+                ()      => Return(unit),
+                t       => Show(t),
+                (t, ts) => from a in ShowTransactions(ts)
+                           from b in Show(t)
+                           select unit);
     }
 }

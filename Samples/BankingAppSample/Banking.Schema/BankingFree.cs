@@ -11,7 +11,10 @@ namespace Banking.Schema
         public static BankingFree<A> Return<A>(A value) => new BankingFree<A>.Return(value);
         public static BankingFree<AccountId> CreateAccount(PersonName name) => new BankingFree<AccountId>.CreateAccount(name, Return);
         public static BankingFree<Account> AccountDetails(AccountId accountId) => new BankingFree<Account>.AccountDetails(accountId, Return);
-        public static BankingFree<Map<AccountId, Account>> Accounts() => new BankingFree<Map<AccountId, Account>>.Accounts(Return);
+        public static BankingFree<Account> WithdrawalAccountDetails = new BankingFree<Account>.WithdrawalAccountDetails(Return);
+        public static BankingFree<Account> DepositAccountDetails = new BankingFree<Account>.DepositAccountDetails(Return);
+        public static BankingFree<Seq<Transaction>> BankTransactions = new BankingFree<Seq<Transaction>>.BankTransactions(Return);
+        public static BankingFree<Map<AccountId, Account>> Accounts = new BankingFree<Map<AccountId, Account>>.Accounts(Return);
         public static BankingFree<Amount> Balance(AccountId accountId) => new BankingFree<Amount>.Balance(accountId, Return);
         public static BankingFree<Amount> Transfer(Amount amount, AccountId from, AccountId to) => new BankingFree<Amount>.Transfer(amount, from, to, Return);
         public static BankingFree<Amount> Withdraw(Amount amount, AccountId from) => new BankingFree<Amount>.Withdraw(from, amount, Return);
@@ -25,15 +28,18 @@ namespace Banking.Schema
     public static class BankingFreeExtensions
     {
         public static BankingFree<B> Bind<A, B>(this BankingFree<A> ma, Func<A, BankingFree<B>> f) =>
-            ma is BankingFree<A>.Return rt         ? f(rt.Value)
-          : ma is BankingFree<A>.CreateAccount ca  ? new BankingFree<B>.CreateAccount(ca.Name, n => ca.Next(n).Bind(f))
-          : ma is BankingFree<A>.AccountDetails ga ? new BankingFree<B>.AccountDetails(ga.AccountId, n => ga.Next(n).Bind(f))
-          : ma is BankingFree<A>.Accounts ac       ? new BankingFree<B>.Accounts(n => ac.Next(n).Bind(f))
-          : ma is BankingFree<A>.Balance ba        ? new BankingFree<B>.Balance(ba.Account, n => ba.Next(n).Bind(f))
-          : ma is BankingFree<A>.Transfer tr       ? new BankingFree<B>.Transfer(tr.Amount, tr.From, tr.To, n => tr.Next(n).Bind(f))
-          : ma is BankingFree<A>.Withdraw wd       ? new BankingFree<B>.Withdraw(wd.Account, wd.Amount, n => wd.Next(n).Bind(f))
-          : ma is BankingFree<A>.Deposit dp        ? new BankingFree<B>.Deposit(dp.Account, dp.Amount, n => dp.Next(n).Bind(f))
-          : ma is BankingFree<A>.Show sh           ? new BankingFree<B>.Show(sh.Value, n => sh.Next(n).Bind(f)) as BankingFree<B>
+            ma is BankingFree<A>.Return rt                   ? f(rt.Value)
+          : ma is BankingFree<A>.CreateAccount ca            ? new BankingFree<B>.CreateAccount(ca.Name, n => ca.Next(n).Bind(f))
+          : ma is BankingFree<A>.AccountDetails ga           ? new BankingFree<B>.AccountDetails(ga.AccountId, n => ga.Next(n).Bind(f))
+          : ma is BankingFree<A>.WithdrawalAccountDetails wa ? new BankingFree<B>.WithdrawalAccountDetails(n => wa.Next(n).Bind(f))
+          : ma is BankingFree<A>.DepositAccountDetails da    ? new BankingFree<B>.DepositAccountDetails(n => da.Next(n).Bind(f))
+          : ma is BankingFree<A>.BankTransactions bt         ? new BankingFree<B>.BankTransactions(n => bt.Next(n).Bind(f))
+          : ma is BankingFree<A>.Accounts ac                 ? new BankingFree<B>.Accounts(n => ac.Next(n).Bind(f))
+          : ma is BankingFree<A>.Balance ba                  ? new BankingFree<B>.Balance(ba.Account, n => ba.Next(n).Bind(f))
+          : ma is BankingFree<A>.Transfer tr                 ? new BankingFree<B>.Transfer(tr.Amount, tr.From, tr.To, n => tr.Next(n).Bind(f))
+          : ma is BankingFree<A>.Withdraw wd                 ? new BankingFree<B>.Withdraw(wd.Account, wd.Amount, n => wd.Next(n).Bind(f))
+          : ma is BankingFree<A>.Deposit dp                  ? new BankingFree<B>.Deposit(dp.Account, dp.Amount, n => dp.Next(n).Bind(f))
+          : ma is BankingFree<A>.Show sh                     ? new BankingFree<B>.Show(sh.Value, n => sh.Next(n).Bind(f)) as BankingFree<B>
           : throw new NotSupportedException();
 
         public static BankingFree<B> Map<A, B>(this BankingFree<A> ma, Func<A, B> f) =>
@@ -86,6 +92,42 @@ namespace Banking.Schema
             public AccountDetails(AccountId accountId, Func<Account, BankingFree<A>> next)
             {
                 AccountId = accountId;
+                Next = next;
+            }
+        }
+
+        /// <summary>
+        /// Represents an operation that retrieves the withdrawals account
+        /// </summary>
+        public class WithdrawalAccountDetails : BankingFree<A>
+        {
+            public readonly Func<Account, BankingFree<A>> Next;
+            public WithdrawalAccountDetails(Func<Account, BankingFree<A>> next)
+            {
+                Next = next;
+            }
+        }
+
+        /// <summary>
+        /// Represents an operation that retrieves the deposit account
+        /// </summary>
+        public class DepositAccountDetails : BankingFree<A>
+        {
+            public readonly Func<Account, BankingFree<A>> Next;
+            public DepositAccountDetails(Func<Account, BankingFree<A>> next)
+            {
+                Next = next;
+            }
+        }
+
+        /// <summary>
+        /// Represents an operation that retrieves all of the transactions in the bank
+        /// </summary>
+        public class BankTransactions : BankingFree<A>
+        {
+            public readonly Func<Seq<Transaction>, BankingFree<A>> Next;
+            public BankTransactions(Func<Seq<Transaction>, BankingFree<A>> next)
+            {
                 Next = next;
             }
         }

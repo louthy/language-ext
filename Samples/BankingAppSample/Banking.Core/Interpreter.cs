@@ -9,15 +9,18 @@ namespace Banking.Core
     public static class Interpreter
     {
         public static Either<Error, (A, Bank)> Interpret<A>(BankingFree<A> dsl, Bank bank) =>
-            dsl is BankingFree<A>.Return r           ? Right<Error, (A, Bank)>((r.Value, bank))
-          : dsl is BankingFree<A>.CreateAccount ca   ? CreateAccount(ca, bank)
-          : dsl is BankingFree<A>.AccountDetails ga  ? GetAccountDetails(ga, bank)
-          : dsl is BankingFree<A>.Accounts ac        ? Accounts(ac, bank)
-          : dsl is BankingFree<A>.Balance ba         ? Balance(ba, bank)
-          : dsl is BankingFree<A>.Transfer tr        ? Transfer(tr, bank)
-          : dsl is BankingFree<A>.Withdraw wd        ? Withdraw(wd, bank)
-          : dsl is BankingFree<A>.Deposit de         ? Deposit(de, bank)
-          : dsl is BankingFree<A>.Show sh            ? Show(sh, bank)
+            dsl is BankingFree<A>.Return r                    ? Right<Error, (A, Bank)>((r.Value, bank))
+          : dsl is BankingFree<A>.CreateAccount ca            ? CreateAccount(ca, bank)
+          : dsl is BankingFree<A>.AccountDetails ga           ? GetAccountDetails(ga, bank)
+          : dsl is BankingFree<A>.WithdrawalAccountDetails wa ? GetWithdrawalAccountDetails(wa, bank)
+          : dsl is BankingFree<A>.DepositAccountDetails dd    ? GetDepositAccountDetails(dd, bank)
+          : dsl is BankingFree<A>.BankTransactions bt         ? GetBankTransactions(bt, bank)
+          : dsl is BankingFree<A>.Accounts ac                 ? Accounts(ac, bank)
+          : dsl is BankingFree<A>.Balance ba                  ? Balance(ba, bank)
+          : dsl is BankingFree<A>.Transfer tr                 ? Transfer(tr, bank)
+          : dsl is BankingFree<A>.Withdraw wd                 ? Withdraw(wd, bank)
+          : dsl is BankingFree<A>.Deposit de                  ? Deposit(de, bank)
+          : dsl is BankingFree<A>.Show sh                     ? Show(sh, bank)
           : throw new NotSupportedException();
 
         static Either<Error, (A, Bank)> CreateAccount<A>(BankingFree<A>.CreateAccount action, Bank bank)
@@ -31,6 +34,16 @@ namespace Banking.Core
             bank.Accounts.Find(action.AccountId)
                          .ToEither(Error("Account doesn't exist"))
                          .Bind(a => Interpret(action.Next(a), bank));
+
+        static Either<Error, (A, Bank)> GetWithdrawalAccountDetails<A>(BankingFree<A>.WithdrawalAccountDetails action, Bank bank) =>
+            GetAccountDetails(new BankingFree<A>.AccountDetails(bank.WithdrawalAccountId, action.Next), bank);
+
+        static Either<Error, (A, Bank)> GetDepositAccountDetails<A>(BankingFree<A>.DepositAccountDetails action, Bank bank) =>
+            GetAccountDetails(new BankingFree<A>.AccountDetails(bank.DepositedAccountId, action.Next), bank);
+
+        static Either<Error, (A, Bank)> GetBankTransactions<A>(BankingFree<A>.BankTransactions action, Bank bank) =>
+            Right<Error, Seq<Transaction>>(bank.Transactions)
+                .Bind(t => Interpret(action.Next(t), bank));
 
         static Either<Error, (A, Bank)> Accounts<A>(BankingFree<A>.Accounts action, Bank bank) =>
             Interpret(action.Next(bank.Accounts), bank);
