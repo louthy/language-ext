@@ -17,8 +17,8 @@ using LanguageExt.ClassInstances;
 public static partial class OptionAsyncExtensions
 {
     /// <summary>
-    /// Extracts from a list of 'Option' all the 'Some' elements.
-    /// All the 'Some' elements are extracted in order.
+    /// Extracts from a list of `Option` all the `Some` elements.
+    /// All the `Some` elements are extracted in order.
     /// </summary>
     [Pure]
     public static async Task<IEnumerable<A>> Somes<A>(this IEnumerable<OptionAsync<A>> self)
@@ -27,6 +27,19 @@ public static partial class OptionAsyncExtensions
         var res = await Task.WhenAll(tasks);
         return res.Filter(x => x.IsSome).Map(x => x.Value);
     }
+    
+
+    /// <summary>
+    /// Extracts from a list of `OptionAsync` all the `Some` elements.
+    /// All the `Some` elements are extracted in order.
+    /// </summary>
+    [Pure]
+    public static async Task<Seq<A>> Somes<A>(this Seq<OptionAsync<A>> self)
+    {
+        var tasks = self.Map(x => x.ToOption()).ToArray();
+        var res = await Task.WhenAll(tasks);
+        return res.Filter(x => x.IsSome).Map(x => x.Value).ToSeq();
+    }    
 
     /// <summary>
     /// Add the bound values of x and y, uses an Add type-class to provide the add

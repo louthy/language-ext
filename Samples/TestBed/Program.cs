@@ -27,6 +27,9 @@ class Program
         var i = x.ToString();
         var j = x > y;
         var k = x < z;
+        var l = x.GetHashCode();
+        var m = y.GetHashCode();
+        var n = z.GetHashCode();
 
 
         Console.WriteLine("Coming soon");

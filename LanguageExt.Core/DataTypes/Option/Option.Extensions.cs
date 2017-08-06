@@ -17,8 +17,8 @@ using LanguageExt.ClassInstances;
 public static class OptionExtensions
 {
     /// <summary>
-    /// Extracts from a list of 'Option' all the 'Some' elements.
-    /// All the 'Some' elements are extracted in order.
+    /// Extracts from a list of `Option` all the `Some` elements.
+    /// All the `Some` elements are extracted in order.
     /// </summary>
     [Pure]
     public static IEnumerable<A> Somes<A>(this IEnumerable<Option<A>> self)
@@ -30,6 +30,26 @@ public static class OptionExtensions
                 yield return item.Value;
             }
         }
+    }
+
+    /// <summary>
+    /// Extracts from a list of `Option` all the `Some` elements.
+    /// All the `Some` elements are extracted in order.
+    /// </summary>
+    [Pure]
+    public static Seq<A> Somes<A>(this Seq<Option<A>> self)
+    {
+        IEnumerable<A> ToSequence(Seq<Option<A>> items)
+        {
+            foreach (var item in items)
+            {
+                if (item.IsSome)
+                {
+                    yield return item.Value;
+                }
+            }
+        }
+        return Seq(ToSequence(self));
     }
 
     /// <summary>

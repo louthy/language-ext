@@ -368,17 +368,7 @@ namespace LanguageExt
             {
                 // Load constant 16777619
                 il.Emit(OpCodes.Ldc_I4, 16777619);
-
-                if (isValueType)
-                {
-                    // Load A
-                    il.Emit(OpCodes.Ldarga_S, 0);
-                }
-                else
-                {
-                    // Load A
-                    il.Emit(OpCodes.Ldarg_0);
-                }
+                il.Emit(OpCodes.Ldarg_0);
 
                 if (field.FieldType.GetTypeInfo().IsValueType)
                 {
@@ -392,7 +382,7 @@ namespace LanguageExt
                                                 .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
                                                                m.GetParameters().Map(p => p.ParameterType).ToArray(),
                                                                new Type[0]))
-                                                .First();
+                                                .Head();
                     il.Emit(OpCodes.Call, method);
                 }
                 else
@@ -423,7 +413,7 @@ namespace LanguageExt
                                                 .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
                                                                m.GetParameters().Map(p => p.ParameterType).ToArray(),
                                                                new Type[0]))
-                                                .First();
+                                                .Head();
                     il.Emit(OpCodes.Callvirt, method);
 
                     il.MarkLabel(useZero);
@@ -538,7 +528,7 @@ namespace LanguageExt
                                                .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
                                                                m.GetParameters().Map(p => p.ParameterType).ToArray(),
                                                                parms))
-                                               .First();
+                                               .Head();
 
                 il.Emit(OpCodes.Call, defaultMethod);
                 il.Emit(OpCodes.Ldarg_0);
@@ -649,7 +639,7 @@ namespace LanguageExt
                                                .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
                                                                m.GetParameters().Map(p => p.ParameterType).ToArray(),
                                                                parms))
-                                               .First();
+                                               .Head();
 
                 il.Emit(OpCodes.Call, defaultMethod);
                 il.Emit(OpCodes.Ldarg_0);
@@ -761,7 +751,7 @@ namespace LanguageExt
                                                 .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
                                                                 m.GetParameters().Map(p => p.ParameterType).ToArray(),
                                                                 parms))
-                                                .First();
+                                                .Head();
 
                 il.Emit(OpCodes.Call, defaultMethod);
                 il.Emit(OpCodes.Ldarg_0);
