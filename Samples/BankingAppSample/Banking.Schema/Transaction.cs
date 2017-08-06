@@ -9,10 +9,10 @@ namespace Banking.Schema
     /// </summary>
     public class Transaction : Record<Transaction>
     {
-        public AccountId Debit;
-        public AccountId Credit;
-        public Amount Amount;
-        public DateTime Date;
+        public readonly AccountId Debit;
+        public readonly AccountId Credit;
+        public readonly Amount Amount;
+        public readonly DateTime Date;
 
         public Transaction(AccountId debit, AccountId credit, Amount amount, DateTime date)
         {

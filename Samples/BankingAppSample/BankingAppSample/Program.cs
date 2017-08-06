@@ -32,7 +32,7 @@ namespace BankingAppSample
         /// without having to add new types to the BankingFree monad.
         /// </summary>
         static BankingFree<Unit> ShowBalance(AccountId id) =>
-            from a in GetAccountDetails(id)
+            from a in AccountDetails(id)
             from v in Balance(id)
             from _ in Show($"Balance of account {a.Name} is: ${v}")
             select unit;
