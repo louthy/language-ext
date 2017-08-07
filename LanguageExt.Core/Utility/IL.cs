@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
@@ -356,26 +357,22 @@ namespace LanguageExt
         /// </remarks>
         public static Func<A, int> GetHashCode<A>()
         {
-            var dynamic = new DynamicMethod("GetHashCode", typeof(int), new[] { typeof(A) }, true);
             var fields = GetPublicInstanceFields<A>(typeof(OptOutOfHashCodeAttribute));
-            var il = dynamic.GetILGenerator();
-            bool isValueType = typeof(A).GetTypeInfo().IsValueType;
 
-            // Load constant -2128831035
-            il.Emit(OpCodes.Ldc_I4, -2128831035);
+            var self = Expression.Parameter(typeof(A));
+            var hash = Expression.Constant(-2128831035);
+            var add = Expression.Constant(16777619);
+            var zero = Expression.Constant(0);
 
-            foreach (var field in fields)
+            var Null = Expression.Constant(null, typeof(A));
+            var refEq = Expression.ReferenceEqual(self, Null);
+
+            IEnumerable<Expression> Fields()
             {
-                // Load constant 16777619
-                il.Emit(OpCodes.Ldc_I4, 16777619);
-                il.Emit(OpCodes.Ldarg_0);
-
-                if (field.FieldType.GetTypeInfo().IsValueType)
+                foreach (var field in fields)
                 {
-                    // Load field
-                    il.Emit(OpCodes.Ldflda, field);
+                    var propOrField = Expression.PropertyOrField(self, PrettyFieldName(field));
 
-                    // Call field GetHashCode
                     var method = field.FieldType.GetTypeInfo()
                                                 .GetAllMethods()
                                                 .Where(m => m.Name == "GetHashCode")
@@ -383,49 +380,31 @@ namespace LanguageExt
                                                                m.GetParameters().Map(p => p.ParameterType).ToArray(),
                                                                new Type[0]))
                                                 .Head();
-                    il.Emit(OpCodes.Call, method);
+
+                    var call = field.FieldType.GetTypeInfo().IsValueType
+                                   ? Expression.Call(propOrField, method)
+                                   : Expression.Condition(
+                                         Expression.ReferenceEqual(propOrField, Expression.Constant(null, field.FieldType)),
+                                         zero,
+                                         Expression.Call(propOrField, method)) as Expression;
+                    yield return call;
                 }
-                else
-                {
-                    var notNull = il.DefineLabel();
-                    var useZero = il.DefineLabel();
-
-                    // Load field
-                    il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
-
-                    // Duplicate top item on stack (2 of the same value on stack)
-                    il.Emit(OpCodes.Dup);
-
-                    // Test if null
-                    il.Emit(OpCodes.Brtrue_S, notNull);
-
-                    // Is null so load 0
-                    il.Emit(OpCodes.Pop);
-                    il.Emit(OpCodes.Ldc_I4_0);
-                    il.Emit(OpCodes.Br_S, useZero);
-
-                    il.MarkLabel(notNull);
-
-                    // Not null so call GetHashCode
-                    var method = field.FieldType.GetTypeInfo()
-                                                .GetAllMethods()
-                                                .Where(m => m.Name == "GetHashCode")
-                                                .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
-                                                               m.GetParameters().Map(p => p.ParameterType).ToArray(),
-                                                               new Type[0]))
-                                                .Head();
-                    il.Emit(OpCodes.Callvirt, method);
-
-                    il.MarkLabel(useZero);
-
-                }
-                // hashCode = hashCode ^ 16777619 + field.GetHashCode()
-                il.Emit(OpCodes.Add);
-                il.Emit(OpCodes.Xor);
             }
-            il.Emit(OpCodes.Ret);
 
-            return (Func<A, int>)dynamic.CreateDelegate(typeof(Func<A, int>));
+            var expr = Fields().Fold(hash as Expression, (state, field) =>
+                Expression.ExclusiveOr(
+                    state,
+                    Expression.Add(
+                        add,
+                        field)));
+
+            var lambda = Expression.Lambda<Func<A, int>>(
+                typeof(A).GetTypeInfo().IsValueType
+                    ? expr
+                    : Expression.Condition(refEq, Expression.Constant(0), expr)
+                , self);
+
+            return lambda.Compile();
         }
 
         /// <summary>
@@ -440,118 +419,56 @@ namespace LanguageExt
         /// </remarks>
         public static Func<A, object, bool> Equals<A>()
         {
-            var dynamic = new DynamicMethod("Equals", typeof(bool), new[] { typeof(A), typeof(object) }, true);
             var fields = GetPublicInstanceFields<A>(typeof(OptOutOfEqAttribute));
-            var getType = GetPublicInstanceMethod<Object>("GetType").IfNone(() => throw new Exception());
-            var typeEquals = GetPublicInstanceMethod<Type, Type>("Equals").IfNone(() => throw new Exception());
-            var isValueType = typeof(A).GetTypeInfo().IsValueType;
 
-            var il = dynamic.GetILGenerator();
+            var self = Expression.Parameter(typeof(A), "self");
+            var other = Expression.Parameter(typeof(object), "other");
+            var otherCast = Expression.Convert(other, typeof(A));
+            var True = Expression.Constant(true);
 
-            var argNotNullY = il.DefineLabel();
-            var argNotNullX = il.DefineLabel();
-            var argIsA = il.DefineLabel();
-            var returnTrue = il.DefineLabel();
-            var referenceUnequal = il.DefineLabel();
-            var typesMatch = il.DefineLabel();
+            var NullA = Expression.Constant(null, typeof(A));
+            var NullObj = Expression.Constant(null, typeof(object));
+            var refEq = Expression.ReferenceEqual(self, other);
+            var notNullX = Expression.ReferenceNotEqual(self, NullA);
+            var notNullY = Expression.ReferenceNotEqual(other, NullObj);
 
-            il.DeclareLocal(typeof(A));
+            var typeA = Expression.TypeEqual(self, typeof(A));
+            var typeB = Expression.TypeEqual(other, typeof(A));
+            var typesEqual = Expression.Equal(typeA, typeB);
 
-            // if(ReferenceEquals(x, y))
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Bne_Un_S, referenceUnequal);
+            var expr = Expression.AndAlso(
+                typesEqual,
+                fields.Fold(True as Expression, (state, field) =>
+                    Expression.AndAlso(
+                        state,
+                        Expression.Call(
+                            Expression.Property(null,
+                                typeof(EqualityComparer<>)
+                                    .MakeGenericType(field.FieldType)
+                                    .GetTypeInfo()
+                                    .DeclaredProperties.Where(m => m.Name == "Default")
+                                    .Single()),
 
-            // return true
-            il.Emit(OpCodes.Ldc_I4_1);
-            il.Emit(OpCodes.Ret);
+                            typeof(IEqualityComparer<>)
+                                .GetTypeInfo()
+                                .MakeGenericType(field.FieldType)
+                                .GetTypeInfo()
+                                .GetAllMethods()
+                                .Where(m => m.Name == "Equals")
+                                .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(field.FieldType, field.FieldType))
+                                .Head(),
+                            Expression.PropertyOrField(self, field.Name),
+                            Expression.PropertyOrField(otherCast, field.Name)
+                            ))));
 
-            il.MarkLabel(referenceUnequal);
+            var orExpr = Expression.OrElse(refEq, Expression.AndAlso(notNullX, Expression.AndAlso(notNullY, expr)));
 
-            // if(y == null)
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Brtrue_S, argNotNullY);
+            var lambda = Expression.Lambda<Func<A, object, bool>>(
+                typeof(A).GetTypeInfo().IsValueType
+                    ? expr
+                    : orExpr, self, other);
 
-            // return false
-            il.Emit(OpCodes.Ldc_I4_0);
-            il.Emit(OpCodes.Ret);
-
-            il.MarkLabel(argNotNullY);
-
-            if (!isValueType)
-            {
-                // if(x == null)
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Brtrue_S, argNotNullX);
-
-                // return false
-                il.Emit(OpCodes.Ldc_I4_0);
-                il.Emit(OpCodes.Ret);
-
-                il.MarkLabel(argNotNullX);
-            }
-
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Callvirt, getType);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Callvirt, getType);
-            il.Emit(OpCodes.Callvirt, typeEquals);
-            il.Emit(OpCodes.Brtrue_S, typesMatch);
-
-            // return false
-            il.Emit(OpCodes.Ldc_I4_0);
-            il.Emit(OpCodes.Ret);
-
-            il.MarkLabel(typesMatch);
-
-            il.Emit(OpCodes.Ldarg_1);
-            if(isValueType)
-            {
-                il.Emit(OpCodes.Unbox_Any, typeof(A));
-            }
-            else
-            {
-                il.Emit(OpCodes.Castclass, typeof(A));
-            }
-            il.Emit(OpCodes.Stloc_0);
-
-            foreach (var field in fields)
-            {
-                var continueLabel = il.DefineLabel();
-
-                var comparerType = typeof(EqualityComparer<>).MakeGenericType(field.FieldType);
-                var defaultMethod = comparerType.GetTypeInfo().DeclaredMethods.Where(m => m.Name == "get_Default").Single();
-                var parms = new[] { field.FieldType, field.FieldType };
-                var equalsMethod = comparerType.GetTypeInfo()
-                                               .GetAllMethods()
-                                               .Where(m => m.Name == "Equals")
-                                               .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
-                                                               m.GetParameters().Map(p => p.ParameterType).ToArray(),
-                                                               parms))
-                                               .Head();
-
-                il.Emit(OpCodes.Call, defaultMethod);
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
-                il.Emit(OpCodes.Ldloc_0);
-                il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
-                il.Emit(OpCodes.Callvirt, equalsMethod);
-                il.Emit(OpCodes.Brtrue_S, continueLabel);
-
-                // Return false
-                il.Emit(OpCodes.Ldc_I4_0);
-                il.Emit(OpCodes.Ret);
-
-                // Continue
-                il.MarkLabel(continueLabel);
-            }
-
-            // Return true
-            il.MarkLabel(returnTrue);
-            il.Emit(OpCodes.Ldc_I4_1);
-            il.Emit(OpCodes.Ret);
-
-            return (Func<A, object, bool>)dynamic.CreateDelegate(typeof(Func<A, object, bool>));
+            return lambda.Compile();
         }
 
         /// <summary>
@@ -565,104 +482,52 @@ namespace LanguageExt
         /// </remarks>
         public static Func<A, A, bool> EqualsTyped<A>()
         {
-            var dynamic = new DynamicMethod("EqualsTyped", typeof(bool), new[] { typeof(A), typeof(A) }, true);
-
-            var isValueType = typeof(A).GetTypeInfo().IsValueType;
             var fields = GetPublicInstanceFields<A>(typeof(OptOutOfEqAttribute));
-            var getType = GetPublicInstanceMethod<Object>("GetType").IfNone(() => throw new Exception());
-            var typeEquals = GetPublicInstanceMethod<Type, Type>("Equals").IfNone(() => throw new Exception());
-            var il = dynamic.GetILGenerator();
-            var returnTrue = il.DefineLabel();
-            var typesMatch = il.DefineLabel();
-            var referenceUnequal = il.DefineLabel();
 
-            // if(ReferenceEquals(x, y))
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Bne_Un_S, referenceUnequal);
+            var self = Expression.Parameter(typeof(A), "self");
+            var other = Expression.Parameter(typeof(A), "other");
+            var True = Expression.Constant(true);
+            var Null = Expression.Constant(null, typeof(A));
+            var refEq = Expression.ReferenceEqual(self, other);
+            var notNullX = Expression.ReferenceNotEqual(self, Null);
+            var notNullY = Expression.ReferenceNotEqual(other, Null);
+            var typeA = Expression.TypeEqual(self, typeof(A));
+            var typeB = Expression.TypeEqual(other, typeof(A));
+            var typesEqual = Expression.Equal(typeA, typeB);
 
-            // return true
-            il.Emit(OpCodes.Ldc_I4_1);
-            il.Emit(OpCodes.Ret);
+            var expr = Expression.AndAlso(
+                typesEqual,
+                fields.Fold(True as Expression, (state, field) =>
+                    Expression.AndAlso(
+                        state,
+                        Expression.Call(
+                            Expression.Property(null, 
+                                typeof(EqualityComparer<>)
+                                    .MakeGenericType(field.FieldType)
+                                    .GetTypeInfo()
+                                    .DeclaredProperties.Where(m => m.Name == "Default")
+                                    .Single()),
 
-            il.MarkLabel(referenceUnequal);
+                            typeof(IEqualityComparer<>)
+                                .GetTypeInfo()
+                                .MakeGenericType(field.FieldType)
+                                .GetTypeInfo()
+                                .GetAllMethods()
+                                .Where(m => m.Name == "Equals")
+                                .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(field.FieldType, field.FieldType))
+                                .Head(),
+                            Expression.PropertyOrField(self, field.Name),
+                            Expression.PropertyOrField(other, field.Name)
+                            ))));
 
-            if (!isValueType)
-            {
-                var argNotNullX = il.DefineLabel();
-                var argNotNullY = il.DefineLabel();
+            var orExpr = Expression.OrElse(refEq,  Expression.AndAlso(notNullX, Expression.AndAlso(notNullY, expr)));
 
-                // if(x == null)
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Brtrue_S, argNotNullX);
+            var lambda = Expression.Lambda<Func<A, A, bool>>(
+                typeof(A).GetTypeInfo().IsValueType
+                    ? expr
+                    : orExpr, self, other);
 
-                // return false
-                il.Emit(OpCodes.Ldc_I4_0);
-                il.Emit(OpCodes.Ret);
-
-                il.MarkLabel(argNotNullX);
-
-                // if(y == null)
-                il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Brtrue_S, argNotNullY);
-
-                // return false
-                il.Emit(OpCodes.Ldc_I4_0);
-                il.Emit(OpCodes.Ret);
-
-                il.MarkLabel(argNotNullY);
-            }
-
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Callvirt, getType);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Callvirt, getType);
-            il.Emit(OpCodes.Callvirt, typeEquals);
-            il.Emit(OpCodes.Brtrue_S, typesMatch);
-
-            // return false
-            il.Emit(OpCodes.Ldc_I4_0);
-            il.Emit(OpCodes.Ret);
-
-            il.MarkLabel(typesMatch);
-
-            foreach (var field in fields)
-            {
-                var continueLabel = il.DefineLabel();
-
-                var comparerType = typeof(EqualityComparer<>).MakeGenericType(field.FieldType);
-                var defaultMethod = comparerType.GetTypeInfo().DeclaredMethods.Where(m => m.Name == "get_Default").Single();
-                var parms = new[] { field.FieldType, field.FieldType };
-                var equalsMethod = comparerType.GetTypeInfo()
-                                               .GetAllMethods()
-                                               .Where(m => m.Name == "Equals")
-                                               .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
-                                                               m.GetParameters().Map(p => p.ParameterType).ToArray(),
-                                                               parms))
-                                               .Head();
-
-                il.Emit(OpCodes.Call, defaultMethod);
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
-                il.Emit(OpCodes.Ldarg_1);
-                il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
-                il.Emit(OpCodes.Callvirt, equalsMethod);
-                il.Emit(OpCodes.Brtrue_S, continueLabel);
-
-                // Return false
-                il.Emit(OpCodes.Ldc_I4_0);
-                il.Emit(OpCodes.Ret);
-
-                // Continue
-                il.MarkLabel(continueLabel);
-            }
-
-            // Return true
-            il.MarkLabel(returnTrue);
-            il.Emit(OpCodes.Ldc_I4_1);
-            il.Emit(OpCodes.Ret);
-
-            return (Func<A, A, bool>)dynamic.CreateDelegate(typeof(Func<A, A, bool>));
+            return lambda.Compile();
         }
 
         /// <summary>
@@ -676,107 +541,67 @@ namespace LanguageExt
         /// </remarks>
         public static Func<A, A, int> Compare<A>()
         {
-            var dynamic = new DynamicMethod("Compare", typeof(int), new[] { typeof(A), typeof(A) }, true);
-
             var fields = GetPublicInstanceFields<A>(typeof(OptOutOfOrdAttribute));
-            var il = dynamic.GetILGenerator();
-            il.DeclareLocal(typeof(int));
-            var isValueType = typeof(A).GetTypeInfo().IsValueType;
-            var getType = GetPublicInstanceMethod<Object>("GetType").IfNone(() => throw new Exception());
-            var typeEquals = GetPublicInstanceMethod<Type, Type>("Equals").IfNone(() => throw new Exception());
-            var typesMatch = il.DefineLabel();
-            var returnTrue = il.DefineLabel();
-            var referenceUnequal = il.DefineLabel();
 
-            // if(ReferenceEquals(x, y))
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Bne_Un_S, referenceUnequal);
+            var self = Expression.Parameter(typeof(A), "self");
+            var other = Expression.Parameter(typeof(A), "other");
+            var Zero = Expression.Constant(0);
+            var Minus1 = Expression.Constant(-1);
+            var Plus1 = Expression.Constant(1);
+            var Null = Expression.Constant(null, typeof(A));
+            var refEq = Expression.ReferenceEqual(self, other);
+            var xIsNull = Expression.ReferenceEqual(self, Null);
+            var yIsNull = Expression.ReferenceEqual(other, Null);
+            var typeA = Expression.TypeEqual(self, typeof(A));
+            var typeB = Expression.TypeEqual(other, typeof(A));
+            var typesNotEqual = Expression.NotEqual(typeA, typeB);
+            var returnTarget = Expression.Label(typeof(int));
+            var ord = Expression.Variable(typeof(int), "ord");
 
-            // return 0
-            il.Emit(OpCodes.Ldc_I4_0);
-            il.Emit(OpCodes.Ret);
-
-            il.MarkLabel(referenceUnequal);
-
-            if (!isValueType)
+            IEnumerable<(FieldInfo Field, Expression[] Expr)> Fields()
             {
-                var argNotNullX = il.DefineLabel();
-                var argNotNullY = il.DefineLabel();
-
-                // if(x == null)
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Brtrue_S, argNotNullX);
-
-                // return 1
-                il.Emit(OpCodes.Ldc_I4_M1);
-                il.Emit(OpCodes.Ret);
-
-                il.MarkLabel(argNotNullX);
-
-                // if(y == null)
-                il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Brtrue_S, argNotNullY);
-
-                // return -1
-                il.Emit(OpCodes.Ldc_I4_1);
-                il.Emit(OpCodes.Ret);
-
-                il.MarkLabel(argNotNullY);
+                foreach (var f in fields)
+                {
+                    yield return (f, new[] {
+                        Expression.Assign(ord,
+                            Expression.Call(
+                                Expression.Property(null,
+                                    typeof(Comparer<>)
+                                        .MakeGenericType(f.FieldType)
+                                        .GetTypeInfo()
+                                        .DeclaredProperties.Where(m => m.Name == "Default")
+                                        .Single()),
+                                typeof(IComparer<>)
+                                    .GetTypeInfo()
+                                    .MakeGenericType(f.FieldType)
+                                    .GetTypeInfo()
+                                    .GetAllMethods()
+                                    .Where(m => m.Name == "Compare")
+                                    .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(f.FieldType, f.FieldType))
+                                    .Head(),
+                                Expression.PropertyOrField(self, f.Name),
+                                Expression.PropertyOrField(other, f.Name))),
+                        Expression.IfThen(
+                            Expression.NotEqual(ord, Zero),
+                            Expression.Return(returnTarget, ord, typeof(int))) as Expression
+                        });
+                }
             }
 
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Callvirt, getType);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Callvirt, getType);
-            il.Emit(OpCodes.Callvirt, typeEquals);
-            il.Emit(OpCodes.Brtrue_S, typesMatch);
+            var block =  Expression.Block(
+                new [] { ord },
+                new[] {
+                    Expression.IfThen(refEq, Expression.Return(returnTarget, Zero)),
+                    Expression.IfThen(xIsNull, Expression.Return(returnTarget, Minus1)),
+                    Expression.IfThen(yIsNull, Expression.Return(returnTarget, Plus1)),
+                    Expression.IfThen(typesNotEqual, Expression.Return(returnTarget, Minus1))
+                }
+                .Append( Fields().Bind(f => f.Expr))
+                .Append( new [] { Expression.Label(returnTarget, Zero) as Expression }));
 
-            // return false
-            il.Emit(OpCodes.Ldc_I4_M1);
-            il.Emit(OpCodes.Ret);
+            var lambda = Expression.Lambda<Func<A, A, int>>(block, self, other);
 
-            il.MarkLabel(typesMatch);
-
-            foreach (var field in fields)
-            {
-                var continueLabel = il.DefineLabel();
-
-                var comparerType = typeof(Comparer<>).MakeGenericType(field.FieldType);
-                var defaultMethod = comparerType.GetTypeInfo().DeclaredMethods.Where(m => m.Name == "get_Default").Single();
-                var parms = new[] { field.FieldType, field.FieldType };
-                var compareMethod = comparerType.GetTypeInfo()
-                                                .GetAllMethods()
-                                                .Where(m => m.Name == "Compare")
-                                                .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
-                                                                m.GetParameters().Map(p => p.ParameterType).ToArray(),
-                                                                parms))
-                                                .Head();
-
-                il.Emit(OpCodes.Call, defaultMethod);
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
-                il.Emit(OpCodes.Ldarg_1);
-                il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
-                il.Emit(OpCodes.Callvirt, compareMethod);
-                il.Emit(OpCodes.Stloc_0);
-                il.Emit(OpCodes.Ldloc_0);
-                il.Emit(OpCodes.Brfalse_S, continueLabel);
-
-                // Return result from compare
-                il.Emit(OpCodes.Ldloc_0);
-                il.Emit(OpCodes.Ret);
-
-                // Continue
-                il.MarkLabel(continueLabel);
-            }
-
-            // Return 0
-            il.MarkLabel(returnTrue);
-            il.Emit(OpCodes.Ldc_I4_0);
-            il.Emit(OpCodes.Ret);
-
-            return (Func<A, A, int>)dynamic.CreateDelegate(typeof(Func<A, A, int>));
+            return lambda.Compile();
         }
 
         public static Func<A, string> ToString<A>()
