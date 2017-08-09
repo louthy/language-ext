@@ -42,7 +42,7 @@ namespace LanguageExt
         /// <summary>
         /// Deserialisation ctor
         /// </summary>
-        public FloatType(SerializationInfo info, StreamingContext context) : base((A)info.GetValue("Value", typeof(A)))
+        protected FloatType(SerializationInfo info, StreamingContext context) : base((A)info.GetValue("Value", typeof(A)))
         {
         }
 

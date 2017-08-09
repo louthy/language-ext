@@ -8,7 +8,7 @@ namespace LanguageExt.TypeClasses
     /// State monad type class
     /// </summary>
     [Typeclass]
-    public interface MonadState<S, A>
+    public interface MonadState<S, A> : Typeclass
     {
         /// <summary>
         /// Returns the state from the internals of the monad.

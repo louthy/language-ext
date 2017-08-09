@@ -23,7 +23,9 @@ namespace LanguageExt.ClassInstances
         /// <returns>True if x and y are equal</returns>
         [Pure]
         public int Compare(A x, A y) =>
-            Comparer.Compare(x, y);
+            IsFunc
+                ? Comparer.Compare(x, y)
+                : Class<Ord<A>>.Default?.Compare(x, y) ?? Comparer.Compare(x, y);
 
         [Pure]
         public bool Equals(A x, A y) =>
@@ -35,7 +37,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>Hash code of x</returns>
         [Pure]
         public int GetHashCode(A x) =>
-            x.IsNull() ? 0 : x.GetHashCode();
+            default(EqDefault<A>).GetHashCode(x);
 
         // Below is a shameless hack to make Func and anonymous Funcs equality comparable
         // This is primarily to support Sets being used as applicatives, where the functor

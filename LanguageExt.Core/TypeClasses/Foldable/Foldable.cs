@@ -10,7 +10,7 @@ namespace LanguageExt.TypeClasses
     }
 
     [Typeclass]
-    public interface Foldable<Env, FA, A>
+    public interface Foldable<Env, FA, A> : Typeclass
     {
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary

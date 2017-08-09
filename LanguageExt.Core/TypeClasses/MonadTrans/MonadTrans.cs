@@ -4,7 +4,7 @@ using LanguageExt.Attributes;
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface MonadTrans<OuterMonad, OuterType, InnerMonad, InnerType, A>
+    public interface MonadTrans<OuterMonad, OuterType, InnerMonad, InnerType, A> : Typeclass
         where OuterMonad : struct, Monad<OuterType, InnerType>
         where InnerMonad : struct, Monad<InnerType, A>
     {

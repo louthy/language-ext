@@ -6,7 +6,7 @@ using LanguageExt.Attributes;
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface OptionalAsync<OA, A>
+    public interface OptionalAsync<OA, A> : Typeclass
     {
         /// <summary>
         /// True if the optional type allows nulls

@@ -218,7 +218,7 @@ namespace NickCuthbertOnGitter_RecordsTests
     public class UserId : NewType<UserId, int> { public UserId(int value) : base(value) { } };
     public class Instant : NewType<Instant, int> { public Instant(int value) : base(value) { } };
 
-    public class Collector : Record<Collector>
+    public class Collector : Record<Collector>, ISerializable
     {
         public CollectorId Id { get; }
         public string Name { get; }

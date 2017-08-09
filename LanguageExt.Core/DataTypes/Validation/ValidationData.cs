@@ -5,8 +5,9 @@ using System;
 
 namespace LanguageExt.DataTypes.Serialisation
 {
+    [Serializable]
     public class ValidationData<MonoidFail, FAIL, SUCCESS> : 
-        Record<ValidationData<MonoidFail, FAIL, SUCCESS>> 
+        Record<ValidationData<MonoidFail, FAIL, SUCCESS>>, ISerializable
         where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL>
     {
         public readonly Validation.StateType State;
@@ -20,8 +21,7 @@ namespace LanguageExt.DataTypes.Serialisation
             Fail = fail;
         }
 
-        public ValidationData(SerializationInfo info, StreamingContext ctx)
+        ValidationData(SerializationInfo info, StreamingContext ctx)
             : base(info, ctx) { }
-
     }
 }

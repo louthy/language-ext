@@ -71,7 +71,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public EitherUnsafe(SerializationInfo info, StreamingContext context)
+        EitherUnsafe(SerializationInfo info, StreamingContext context)
         {
             State = (EitherStatus)info.GetValue("State", typeof(EitherStatus));
             switch (State)

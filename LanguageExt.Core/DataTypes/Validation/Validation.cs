@@ -77,7 +77,7 @@ namespace LanguageExt
         /// Ctor that facilitates serialisation
         /// </summary>
         [Pure]
-        public Validation(SerializationInfo info, StreamingContext context)
+        Validation(SerializationInfo info, StreamingContext context)
         {
             state = (Validation.StateType)info.GetValue("State", typeof(Validation.StateType));
             switch (state)

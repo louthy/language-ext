@@ -33,8 +33,7 @@ namespace LanguageExt
     [Serializable]
     public abstract class NumType<SELF, NUM, A, PRED> :
         IEquatable<SELF>,
-        IComparable<SELF>,
-        ISerializable
+        IComparable<SELF>
         where NUM : struct, Num<A>
         where PRED : struct, Pred<A>
         where SELF : NumType<SELF, NUM, A, PRED>
@@ -62,7 +61,7 @@ namespace LanguageExt
         /// <summary>
         /// Deserialisation ctor
         /// </summary>
-        public NumType(SerializationInfo info, StreamingContext context)
+        protected NumType(SerializationInfo info, StreamingContext context)
         {
             Value = (A)info.GetValue("Value", typeof(A));
             if (!default(PRED).True(Value)) throw new ArgumentOutOfRangeException(nameof(Value));

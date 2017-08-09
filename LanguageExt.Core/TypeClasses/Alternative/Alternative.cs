@@ -3,7 +3,7 @@
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface Alternative<AltAB, A, B>
+    public interface Alternative<AltAB, A, B> : Typeclass
     {
         /// <summary>
         /// Identity

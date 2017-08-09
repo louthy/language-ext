@@ -8,7 +8,7 @@ namespace LanguageExt.TypeClasses
     /// </summary>
     /// <typeparam name="A">Type of value to run the predication operation against</typeparam>
     [Typeclass]
-    public interface Pred<A>
+    public interface Pred<A> : Typeclass
     {
         /// <summary>
         /// The predicate operation.  Returns true if the source value

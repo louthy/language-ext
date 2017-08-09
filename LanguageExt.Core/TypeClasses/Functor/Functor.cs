@@ -8,7 +8,7 @@ namespace LanguageExt.TypeClasses
     /// Functor type-class
     /// </summary>
     [Typeclass]
-    public interface Functor<FA, FB, A, B>
+    public interface Functor<FA, FB, A, B> : Typeclass
     {
         /// <summary>
         /// Projection from one value to another

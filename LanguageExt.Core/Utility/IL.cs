@@ -1,5 +1,4 @@
-﻿using LanguageExt.ClassInstances;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -7,6 +6,8 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
 using System.Text;
+using LanguageExt.TypeClasses;
+using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using static LanguageExt.Reflect;
 
@@ -357,6 +358,11 @@ namespace LanguageExt
         /// </remarks>
         public static Func<A, int> GetHashCode<A>()
         {
+            if (Class<Eq<A>>.Default != null)
+            {
+                return Class<Eq<A>>.Default.GetHashCode;
+            }
+
             var fields = GetPublicInstanceFields<A>(typeof(OptOutOfHashCodeAttribute));
 
             var self = Expression.Parameter(typeof(A));
@@ -367,27 +373,63 @@ namespace LanguageExt
             var Null = Expression.Constant(null, typeof(A));
             var refEq = Expression.ReferenceEqual(self, Null);
 
+            var fieldEq = fun((FieldInfo f) =>
+            {
+                var typ = typeof(Class<>)
+                    .MakeGenericType(typeof(Eq<>).MakeGenericType(f.FieldType))
+                    .GetTypeInfo();
+
+                var fld = typ.DeclaredFields.Where(m => m.Name == "Default").Single();
+
+                return fld.GetValue(null);
+            });
+
             IEnumerable<Expression> Fields()
             {
                 foreach (var field in fields)
                 {
-                    var propOrField = Expression.PropertyOrField(self, PrettyFieldName(field));
 
-                    var method = field.FieldType.GetTypeInfo()
-                                                .GetAllMethods()
-                                                .Where(m => m.Name == "GetHashCode")
-                                                .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
-                                                               m.GetParameters().Map(p => p.ParameterType).ToArray(),
-                                                               new Type[0]))
-                                                .Head();
+                    if (fieldEq(field) == null)
+                    {
+                        var propOrField = Expression.PropertyOrField(self, PrettyFieldName(field));
 
-                    var call = field.FieldType.GetTypeInfo().IsValueType
-                                   ? Expression.Call(propOrField, method)
-                                   : Expression.Condition(
-                                         Expression.ReferenceEqual(propOrField, Expression.Constant(null, field.FieldType)),
-                                         zero,
-                                         Expression.Call(propOrField, method)) as Expression;
-                    yield return call;
+                        var method = field.FieldType.GetTypeInfo()
+                                                    .GetAllMethods()
+                                                    .Where(m => m.Name == "GetHashCode")
+                                                    .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
+                                                                   m.GetParameters().Map(p => p.ParameterType).ToArray(),
+                                                                   new Type[0]))
+                                                    .Head();
+
+                        var call = field.FieldType.GetTypeInfo().IsValueType
+                                       ? Expression.Call(propOrField, method)
+                                       : Expression.Condition(
+                                             Expression.ReferenceEqual(propOrField, Expression.Constant(null, field.FieldType)),
+                                             zero,
+                                             Expression.Call(propOrField, method)) as Expression;
+                        yield return call;
+                    }
+                    else
+                    {
+                        yield return Expression.Call(
+                                  Expression.Field(null,
+                                      typeof(Class<>)
+                                          .MakeGenericType(typeof(Eq<>).MakeGenericType(field.FieldType))
+                                          .GetTypeInfo()
+                                          .DeclaredFields.Where(m => m.Name == "Default")
+                                          .Single()),
+
+                                  typeof(Eq<>)
+                                      .GetTypeInfo()
+                                      .MakeGenericType(field.FieldType)
+                                      .GetTypeInfo()
+                                      .GetAllMethods()
+                                      .Where(m => m.Name == "GetHashCode")
+                                      .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == SeqOne(field.FieldType))
+                                      .Head(),
+                                  Expression.PropertyOrField(self, field.Name)
+                                  );
+                    }
                 }
             }
 
@@ -419,6 +461,11 @@ namespace LanguageExt
         /// </remarks>
         public static Func<A, object, bool> Equals<A>()
         {
+            if( Class<Eq<A>>.Default != null)
+            {
+                return new Func<A, object, bool>((a, obj) => obj is A b && Class<Eq<A>>.Default.Equals(a, b));
+            }
+
             var fields = GetPublicInstanceFields<A>(typeof(OptOutOfEqAttribute));
 
             var self = Expression.Parameter(typeof(A), "self");
@@ -436,30 +483,63 @@ namespace LanguageExt
             var typeB = Expression.TypeEqual(other, typeof(A));
             var typesEqual = Expression.Equal(typeA, typeB);
 
+            var fieldEq = fun((FieldInfo f) =>
+            {
+                var typ = typeof(Class<>)
+                    .MakeGenericType(typeof(Eq<>).MakeGenericType(f.FieldType))
+                    .GetTypeInfo();
+
+                var fld = typ.DeclaredFields.Where(m => m.Name == "Default").Single();
+
+                return fld.GetValue(null);
+            });
+
             var expr = Expression.AndAlso(
                 typesEqual,
                 fields.Fold(True as Expression, (state, field) =>
                     Expression.AndAlso(
                         state,
-                        Expression.Call(
-                            Expression.Property(null,
-                                typeof(EqualityComparer<>)
-                                    .MakeGenericType(field.FieldType)
-                                    .GetTypeInfo()
-                                    .DeclaredProperties.Where(m => m.Name == "Default")
-                                    .Single()),
+                        fieldEq(field) == null
+                            ? Expression.Call(
+                                  Expression.Property(null,
+                                      typeof(EqualityComparer<>)
+                                          .MakeGenericType(field.FieldType)
+                                          .GetTypeInfo()
+                                          .DeclaredProperties.Where(m => m.Name == "Default")
+                                          .Single()),
+                                
+                                  typeof(IEqualityComparer<>)
+                                      .GetTypeInfo()
+                                      .MakeGenericType(field.FieldType)
+                                      .GetTypeInfo()
+                                      .GetAllMethods()
+                                      .Where(m => m.Name == "Equals")
+                                      .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(field.FieldType, field.FieldType))
+                                      .Head(),
+                                  Expression.PropertyOrField(self, field.Name),
+                                  Expression.PropertyOrField(otherCast, field.Name)
+                                  )
+                            : Expression.Call(
+                                  Expression.Field(null,
+                                      typeof(Class<>)
+                                          .MakeGenericType(typeof(Eq<>).MakeGenericType(field.FieldType))
+                                          .GetTypeInfo()
+                                          .DeclaredFields.Where(m => m.Name == "Default")
+                                          .Single()),
 
-                            typeof(IEqualityComparer<>)
-                                .GetTypeInfo()
-                                .MakeGenericType(field.FieldType)
-                                .GetTypeInfo()
-                                .GetAllMethods()
-                                .Where(m => m.Name == "Equals")
-                                .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(field.FieldType, field.FieldType))
-                                .Head(),
-                            Expression.PropertyOrField(self, field.Name),
-                            Expression.PropertyOrField(otherCast, field.Name)
-                            ))));
+                                  typeof(Eq<>)
+                                      .GetTypeInfo()
+                                      .MakeGenericType(field.FieldType)
+                                      .GetTypeInfo()
+                                      .GetAllMethods()
+                                      .Where(m => m.Name == "Equals")
+                                      .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(field.FieldType, field.FieldType))
+                                      .Head(),
+                                  Expression.PropertyOrField(self, field.Name),
+                                  Expression.PropertyOrField(otherCast, field.Name)
+                                  )
+                        ) 
+                    ));
 
             var orExpr = Expression.OrElse(refEq, Expression.AndAlso(notNullX, Expression.AndAlso(notNullY, expr)));
 
@@ -482,6 +562,11 @@ namespace LanguageExt
         /// </remarks>
         public static Func<A, A, bool> EqualsTyped<A>()
         {
+            if (Class<Eq<A>>.Default != null)
+            {
+                return Class<Eq<A>>.Default.Equals;
+            }
+
             var fields = GetPublicInstanceFields<A>(typeof(OptOutOfEqAttribute));
 
             var self = Expression.Parameter(typeof(A), "self");
@@ -495,30 +580,58 @@ namespace LanguageExt
             var typeB = Expression.TypeEqual(other, typeof(A));
             var typesEqual = Expression.Equal(typeA, typeB);
 
+            var fieldEq = fun((FieldInfo f)=>
+            {
+                var typ = typeof(Class<>)
+                    .MakeGenericType(typeof(Eq<>).MakeGenericType(f.FieldType))
+                    .GetTypeInfo();
+
+                var fld = typ.DeclaredFields.Where(m => m.Name == "Default").Single();
+                return fld.GetValue(null);
+            });
+
             var expr = Expression.AndAlso(
                 typesEqual,
                 fields.Fold(True as Expression, (state, field) =>
                     Expression.AndAlso(
                         state,
-                        Expression.Call(
-                            Expression.Property(null, 
-                                typeof(EqualityComparer<>)
-                                    .MakeGenericType(field.FieldType)
-                                    .GetTypeInfo()
-                                    .DeclaredProperties.Where(m => m.Name == "Default")
-                                    .Single()),
-
-                            typeof(IEqualityComparer<>)
-                                .GetTypeInfo()
-                                .MakeGenericType(field.FieldType)
-                                .GetTypeInfo()
-                                .GetAllMethods()
-                                .Where(m => m.Name == "Equals")
-                                .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(field.FieldType, field.FieldType))
-                                .Head(),
-                            Expression.PropertyOrField(self, field.Name),
-                            Expression.PropertyOrField(other, field.Name)
-                            ))));
+                        fieldEq(field) == null
+                            ? Expression.Call(
+                                  Expression.Property(null, 
+                                      typeof(EqualityComparer<>)
+                                          .MakeGenericType(field.FieldType)
+                                          .GetTypeInfo()
+                                          .DeclaredProperties.Where(m => m.Name == "Default")
+                                          .Single()),
+                             
+                                  typeof(IEqualityComparer<>)
+                                      .GetTypeInfo()
+                                      .MakeGenericType(field.FieldType)
+                                      .GetTypeInfo()
+                                      .GetAllMethods()
+                                      .Where(m => m.Name == "Equals")
+                                      .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(field.FieldType, field.FieldType))
+                                      .Head(),
+                                  Expression.PropertyOrField(self, field.Name),
+                                  Expression.PropertyOrField(other, field.Name))
+                             : Expression.Call(
+                                      Expression.Field(null,
+                                          typeof(Class<>)
+                                              .MakeGenericType(typeof(Eq<>).MakeGenericType(field.FieldType))
+                                              .GetTypeInfo()
+                                              .DeclaredFields.Where(m => m.Name == "Default")
+                                              .Single()),
+                                      typeof(Eq<>)
+                                          .GetTypeInfo()
+                                          .MakeGenericType(field.FieldType)
+                                          .GetTypeInfo()
+                                          .GetAllMethods()
+                                          .Where(m => m.Name == "Equals")
+                                          .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(field.FieldType, field.FieldType))
+                                          .Head(),
+                                      Expression.PropertyOrField(self, field.Name),
+                                      Expression.PropertyOrField(other, field.Name)
+                                  ))));
 
             var orExpr = Expression.OrElse(refEq,  Expression.AndAlso(notNullX, Expression.AndAlso(notNullY, expr)));
 
@@ -541,6 +654,11 @@ namespace LanguageExt
         /// </remarks>
         public static Func<A, A, int> Compare<A>()
         {
+            if (Class<Ord<A>>.Default != null)
+            {
+                return Class<Ord<A>>.Default.Compare;
+            }
+
             var fields = GetPublicInstanceFields<A>(typeof(OptOutOfOrdAttribute));
 
             var self = Expression.Parameter(typeof(A), "self");
@@ -558,29 +676,58 @@ namespace LanguageExt
             var returnTarget = Expression.Label(typeof(int));
             var ord = Expression.Variable(typeof(int), "ord");
 
+            var fieldOrd = fun((FieldInfo f) =>
+            {
+                var typ = typeof(Class<>)
+                    .MakeGenericType(typeof(Ord<>).MakeGenericType(f.FieldType))
+                    .GetTypeInfo();
+
+                var fld = typ.DeclaredFields.Where(m => m.Name == "Default").Single();
+                return fld.GetValue(null);
+            });
+
             IEnumerable<(FieldInfo Field, Expression[] Expr)> Fields()
             {
                 foreach (var f in fields)
                 {
                     yield return (f, new[] {
                         Expression.Assign(ord,
-                            Expression.Call(
-                                Expression.Property(null,
-                                    typeof(Comparer<>)
+                            fieldOrd(f) == null
+                                ? Expression.Call(
+                                    Expression.Property(null,
+                                        typeof(Comparer<>)
+                                            .MakeGenericType(f.FieldType)
+                                            .GetTypeInfo()
+                                            .DeclaredProperties.Where(m => m.Name == "Default")
+                                            .Single()),
+                                    typeof(IComparer<>)
+                                        .GetTypeInfo()
                                         .MakeGenericType(f.FieldType)
                                         .GetTypeInfo()
-                                        .DeclaredProperties.Where(m => m.Name == "Default")
-                                        .Single()),
-                                typeof(IComparer<>)
-                                    .GetTypeInfo()
-                                    .MakeGenericType(f.FieldType)
-                                    .GetTypeInfo()
-                                    .GetAllMethods()
-                                    .Where(m => m.Name == "Compare")
-                                    .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(f.FieldType, f.FieldType))
-                                    .Head(),
-                                Expression.PropertyOrField(self, f.Name),
-                                Expression.PropertyOrField(other, f.Name))),
+                                        .GetAllMethods()
+                                        .Where(m => m.Name == "Compare")
+                                        .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(f.FieldType, f.FieldType))
+                                        .Head(),
+                                    Expression.PropertyOrField(self, f.Name),
+                                    Expression.PropertyOrField(other, f.Name))
+                                : Expression.Call(
+                                      Expression.Field(null,
+                                          typeof(Class<>)
+                                              .MakeGenericType(typeof(Ord<>).MakeGenericType(f.FieldType))
+                                              .GetTypeInfo()
+                                              .DeclaredFields.Where(m => m.Name == "Default")
+                                              .Single()),
+                                      typeof(Ord<>)
+                                          .GetTypeInfo()
+                                          .MakeGenericType(f.FieldType)
+                                          .GetTypeInfo()
+                                          .GetAllMethods()
+                                          .Where(m => m.Name == "Compare")
+                                          .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(f.FieldType, f.FieldType))
+                                          .Head(),
+                                      Expression.PropertyOrField(self, f.Name),
+                                      Expression.PropertyOrField(other, f.Name)
+                                  )),
                         Expression.IfThen(
                             Expression.NotEqual(ord, Zero),
                             Expression.Return(returnTarget, ord, typeof(int))) as Expression

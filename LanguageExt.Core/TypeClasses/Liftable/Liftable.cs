@@ -11,7 +11,7 @@ namespace LanguageExt.TypeClasses
     /// </summary>
     /// <typeparam name="A">The type to be lifted</typeparam>
     [Typeclass]
-    public interface Liftable<LA, A>
+    public interface Liftable<LA, A> : Typeclass
     {
         /// <summary>
         /// Lift value A into a Liftable<A>

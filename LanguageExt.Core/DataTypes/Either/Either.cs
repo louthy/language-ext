@@ -69,7 +69,7 @@ namespace LanguageExt
 
 
         [Pure]
-        public Either(SerializationInfo info, StreamingContext context)
+        Either(SerializationInfo info, StreamingContext context)
         {
             State = (EitherStatus)info.GetValue("State", typeof(EitherStatus));
             switch(State)

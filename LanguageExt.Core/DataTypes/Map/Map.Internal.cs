@@ -977,7 +977,7 @@ namespace LanguageExt
         /// <summary>
         /// Deserialisation constructor
         /// </summary>
-        internal MapItem(SerializationInfo info, StreamingContext context)
+        MapItem(SerializationInfo info, StreamingContext context)
         {
             var key = (K)info.GetValue("Key", typeof(K));
             var value = (V)info.GetValue("Value", typeof(V));

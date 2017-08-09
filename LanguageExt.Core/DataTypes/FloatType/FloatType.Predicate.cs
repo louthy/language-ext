@@ -34,8 +34,7 @@ namespace LanguageExt
     [Serializable]
     public abstract class FloatType<SELF, FLOATING, A, PRED> :
         IEquatable<SELF>,
-        IComparable<SELF>,
-        ISerializable
+        IComparable<SELF>
         where FLOATING : struct, Floating<A>
         where PRED : struct, Pred<A>
         where SELF : FloatType<SELF, FLOATING, A, PRED>
@@ -63,7 +62,7 @@ namespace LanguageExt
         /// <summary>
         /// Deserialisation ctor
         /// </summary>
-        public FloatType(SerializationInfo info, StreamingContext context)
+        protected FloatType(SerializationInfo info, StreamingContext context)
         {
             Value = (A)info.GetValue("Value", typeof(A));
             if (!default(PRED).True(Value)) throw new ArgumentOutOfRangeException(nameof(Value));

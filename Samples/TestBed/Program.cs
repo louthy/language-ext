@@ -7,11 +7,14 @@ using System.Runtime.Serialization;
 using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
+using Newtonsoft.Json.Linq;
 
 class Program
 {
     static void Main(string[] args)
     {
+        Asm();
+
         var x = new TestStruct(1, "Hello", Guid.Empty);
         var y = new TestStruct(1, "Hello", Guid.Empty);
         var z = new TestStruct(1, "Hello", Guid.NewGuid());
@@ -91,12 +94,42 @@ class Program
 
     static void Asm()
     {
-        var typeclasses = (from nam in Assembly.GetEntryAssembly().GetReferencedAssemblies()
-                           let asm = Assembly.Load(nam)
-                           from typ in asm.GetTypes()
-                           where typ.GetTypeInfo().CustomAttributes.Exists(a => a.AttributeType.Name == "TypeclassAttribute")
-                           select typ)
-                          .Freeze();
+        ClassInstancesAssembly.Register(typeof(Program).GetTypeInfo().Assembly);
 
+        var f = Class<Eq<string>>.Default.Equals("1", "1");
+
+        JObject a = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(new { A = "Hello", B = "World" }));
+        JObject b = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(new { A = "Hello", B = "World" }));
+        JObject c = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(new { A = "Different", B = "World" }));
+
+        var i = new TestEqJObject(a);
+        var j = new TestEqJObject(b);
+        var k = new TestEqJObject(c);
+
+        var x = i == j;
+        var y = i == k;
+        var z = j == k;
+
+        var h1 = i.GetHashCode();
+        var h2 = j.GetHashCode();
+        var h3 = k.GetHashCode();
+    }
+
+    public class TestEqJObject : Record<TestEqJObject>
+    {
+        //[Eq(typeof(EqJObject))]
+        public readonly JObject Value;
+
+        public TestEqJObject(JObject value) => 
+            Value = value;
+    }
+
+    public struct EqJObject : Eq<JObject>
+    {
+        public bool Equals(JObject x, JObject y) =>
+            JObject.DeepEquals(x, y);
+
+        public int GetHashCode(JObject x) =>
+            x.GetHashCode();
     }
 }

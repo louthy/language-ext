@@ -51,7 +51,7 @@ namespace LanguageExt
         /// <summary>
         /// Deserialisation ctor
         /// </summary>
-        public NewType(SerializationInfo info, StreamingContext context)
+        protected NewType(SerializationInfo info, StreamingContext context)
         {
             Value = (A)info.GetValue("Value", typeof(A));
             if (!default(PRED).True(Value)) throw new ArgumentOutOfRangeException(nameof(Value));
@@ -77,15 +77,17 @@ namespace LanguageExt
 
         [Pure]
         public virtual bool Equals(NEWTYPE other) =>
-            !ReferenceEquals(other,null) && EqDefault<A>.Inst.Equals(Value, other.Value);
+            !ReferenceEquals(other, null) &&
+             (Class<Eq<A>>.Default?.Equals(Value, other.Value) ?? EqDefault<A>.Inst.Equals(Value, other.Value));
 
         [Pure]
         public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) && obj is NEWTYPE && Equals((NEWTYPE)obj);
+            !ReferenceEquals(obj, null) && obj is NEWTYPE b &&
+            (Class<Eq<A>>.Default?.Equals(Value, b.Value) ?? Equals(b));
 
         [Pure]
         public override int GetHashCode() =>
-            Value?.GetHashCode() ?? 0;
+            Class<Eq<A>>.Default?.GetHashCode(Value) ?? Value?.GetHashCode() ?? 0;
 
         [Pure]
         public static bool operator ==(NewType<NEWTYPE, A, PRED> lhs, NewType<NEWTYPE, A, PRED> rhs) =>

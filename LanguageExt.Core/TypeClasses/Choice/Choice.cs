@@ -5,7 +5,7 @@ using LanguageExt.Attributes;
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface Choice<CH, L, R>
+    public interface Choice<CH, L, R> : Typeclass
     {
         /// <summary>
         /// True if the choice type allows nulls

@@ -73,7 +73,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public Option(SerializationInfo info, StreamingContext context)
+        Option(SerializationInfo info, StreamingContext context)
         {
             var isSome = (bool)info.GetValue("IsSome", typeof(bool));
             if(isSome)

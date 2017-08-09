@@ -8,7 +8,8 @@ using System.Reflection;
 namespace LanguageExt.ClassInstances
 {
     /// <summary>
-    /// Uses the standard .NET EqualityComparer<A>.Default.Equals(a,b) method to
+    /// Finds an appropriate Eq from the loaded assemblies, if one can't be found then it
+    /// falls back to the standard .NET EqualityComparer<A>.Default.Equals(a,b) method to
     /// provide equality testing.
     /// </summary>
     public struct EqDefault<A> : Eq<A>
@@ -27,7 +28,9 @@ namespace LanguageExt.ClassInstances
             if (isnull(a)) return isnull(b);
             if (isnull(b)) return false;
             if (ReferenceEquals(a, b)) return true;
-            return Comparer.Equals(a, b);
+            return IsFunc
+                ? Comparer.Equals(a, b)
+                : Class<Eq<A>>.Default?.Equals(a, b) ?? Comparer.Equals(a, b);
         }
 
         /// <summary>
@@ -37,7 +40,9 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(A x) =>
-            x.IsNull() ? 0 : Comparer.GetHashCode(x);
+             IsFunc
+                ? x.IsNull() ? 0 : Comparer.GetHashCode(x)
+                : Class<Eq<A>>.Default?.GetHashCode(x) ?? (x.IsNull() ? 0 : Comparer.GetHashCode(x));
 
         // Below is a shameless hack to make Func and anonymous Funcs equality comparable
         // This is primarily to support Sets being used as applicatives, where the functor
@@ -60,7 +65,5 @@ namespace LanguageExt.ClassInstances
             public int GetHashCode(A x) =>
                 x?.GetHashCode() ?? 0;
         }
-
-
     }
 }

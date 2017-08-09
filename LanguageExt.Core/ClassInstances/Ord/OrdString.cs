@@ -22,7 +22,7 @@ namespace LanguageExt.ClassInstances
         /// if a equals b       : 0
         /// </returns>
         public int Compare(string a, string b) =>
-            default(OrdDefault<string>).Compare(a, b);
+            a?.CompareTo(b) ?? 1;
 
         /// <summary>
         /// Equality test

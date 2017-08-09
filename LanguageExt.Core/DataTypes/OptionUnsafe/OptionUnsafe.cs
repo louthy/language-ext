@@ -72,7 +72,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public OptionUnsafe(SerializationInfo info, StreamingContext context)
+        OptionUnsafe(SerializationInfo info, StreamingContext context)
         {
             var isSome = (bool)info.GetValue("IsSome", typeof(bool));
             if (isSome)

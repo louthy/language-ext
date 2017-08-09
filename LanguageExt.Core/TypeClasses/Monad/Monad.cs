@@ -14,7 +14,8 @@ namespace LanguageExt.TypeClasses
     public interface Monad<MA, A> : 
         Monad<Unit, Unit, MA, A>, 
         Foldable<MA, A>,
-        FoldableAsync<MA, A>
+        FoldableAsync<MA, A>,
+        Typeclass
     {
         /// <summary>
         /// Monad constructor function.  Provide the bound value A to construct
@@ -35,7 +36,8 @@ namespace LanguageExt.TypeClasses
     [Typeclass]
     public interface Monad<Env, Out, MA, A> : 
         Foldable<Env, MA, A>,
-        FoldableAsync<Env, MA, A>
+        FoldableAsync<Env, MA, A>,
+        Typeclass
     {
         /// <summary>
         /// Monadic bind

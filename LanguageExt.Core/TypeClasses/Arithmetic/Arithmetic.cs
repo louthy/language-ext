@@ -5,7 +5,7 @@ using LanguageExt.Attributes;
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface Arithmetic<A>
+    public interface Arithmetic<A> : Typeclass
     {
         /// <summary>
         /// Find the sum of two values

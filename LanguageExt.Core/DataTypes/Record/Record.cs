@@ -11,11 +11,11 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="RECORDTYPE"></typeparam>
     [Serializable]
-    public abstract class Record<RECORDTYPE> : IEquatable<RECORDTYPE>, IComparable<RECORDTYPE>, ISerializable
+    public abstract class Record<RECORDTYPE> : IEquatable<RECORDTYPE>, IComparable<RECORDTYPE>
     {
         protected Record() { }
 
-        public Record(SerializationInfo info, StreamingContext context) =>
+        protected Record(SerializationInfo info, StreamingContext context) =>
             RecordType<RECORDTYPE>.SetObjectData((RECORDTYPE)(object)this, info);
 
         public static bool operator==(Record<RECORDTYPE> x, Record<RECORDTYPE> y) =>

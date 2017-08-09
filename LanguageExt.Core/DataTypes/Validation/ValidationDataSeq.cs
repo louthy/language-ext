@@ -5,8 +5,8 @@ using System;
 
 namespace LanguageExt.DataTypes.Serialisation
 {
-    public class ValidationData<FAIL, SUCCESS> : 
-        Record<ValidationData<FAIL, SUCCESS>>
+    [Serializable]
+    public class ValidationData<FAIL, SUCCESS> : Record<ValidationData<FAIL, SUCCESS>>, ISerializable
     {
         public readonly Validation.StateType State;
         public readonly SUCCESS Success;

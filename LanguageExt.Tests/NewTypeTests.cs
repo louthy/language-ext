@@ -7,6 +7,7 @@ using LanguageExt.ClassInstances.Const;
 using System;
 using Newtonsoft.Json;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace LanguageExtTests
 {

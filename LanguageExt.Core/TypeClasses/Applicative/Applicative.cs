@@ -8,7 +8,7 @@ namespace LanguageExt.TypeClasses
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
     [Typeclass]
-    public interface ApplicativePure<FA, A>
+    public interface ApplicativePure<FA, A> : Typeclass
     {
         /// <summary>
         /// Applicative return
