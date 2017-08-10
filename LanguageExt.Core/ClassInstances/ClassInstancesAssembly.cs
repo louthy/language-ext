@@ -27,37 +27,49 @@ namespace LanguageExt.ClassInstances
 
         static ClassInstancesAssembly()
         {
+            try
+            {
 #if COREFX
-            // We can't go looking for types, so let's settle for what's in lang-ext
-            Types = typeof(ClassInstancesAssembly).GetTypeInfo().Assembly.DefinedTypes.Freeze();
+                // We can't go looking for types, so let's settle for what's in lang-ext
+                Types = typeof(ClassInstancesAssembly).GetTypeInfo().Assembly.DefinedTypes.Freeze();
 #else
 
-            var current = Assembly.GetExecutingAssembly() ?? Assembly.GetCallingAssembly() ?? Assembly.GetExecutingAssembly();
+                var current = Assembly.GetExecutingAssembly() ?? Assembly.GetCallingAssembly() ?? Assembly.GetExecutingAssembly();
 
-            Types = (from nam in current.GetReferencedAssemblies()
-                     where nam != null && nam.Name != "mscorlib" && !nam.Name.StartsWith("System.")
-                     let asm = SafeLoadAsm(nam)
-                     where asm != null
-                     from typ in asm.GetTypes()
-                     where typ != null
-                     select typ.GetTypeInfo())
-                    .Append(current?.GetTypes()?.Map(t => t.GetTypeInfo()) ?? new TypeInfo[0])
-                    .Freeze();
+                Types = (from nam in current.GetReferencedAssemblies()
+                         where nam != null && nam.Name != "mscorlib" && !nam.Name.StartsWith("System.")
+                         let asm = SafeLoadAsm(nam)
+                         where asm != null
+                         from typ in asm.GetTypes()
+                         where typ != null
+                         select typ.GetTypeInfo())
+                        .Append(current?.GetTypes()?.Map(t => t.GetTypeInfo()) ?? new TypeInfo[0])
+                        .Freeze();
 
 #endif
-            Structs = Types.Filter(t => t?.IsValueType ?? false);
-            AllClassInstances = Structs.Filter(t => t?.ImplementedInterfaces?.Exists(i => i == typeof(Typeclass)) ?? false);
-            ClassInstances = new Map<OrdTypeInfo, TypeInfo, Set<OrdTypeInfo, TypeInfo>>();
-            foreach(var ci in AllClassInstances)
-            {
-                var typeClasses = ci?.ImplementedInterfaces
-                                    ?.Filter(i => typeof(Typeclass).GetTypeInfo().IsAssignableFrom(i.GetTypeInfo()))
-                                    ?.Map(t => t.GetTypeInfo())
-                                    ?.Freeze() ?? Lst<TypeInfo>.Empty;
+                Structs = Types.Filter(t => t?.IsValueType ?? false);
+                AllClassInstances = Structs.Filter(t => t?.ImplementedInterfaces?.Exists(i => i == typeof(Typeclass)) ?? false);
+                ClassInstances = new Map<OrdTypeInfo, TypeInfo, Set<OrdTypeInfo, TypeInfo>>();
+                foreach (var ci in AllClassInstances)
+                {
+                    var typeClasses = ci?.ImplementedInterfaces
+                                        ?.Filter(i => typeof(Typeclass).GetTypeInfo().IsAssignableFrom(i.GetTypeInfo()))
+                                        ?.Map(t => t.GetTypeInfo())
+                                        ?.Freeze() ?? Lst<TypeInfo>.Empty;
 
-                ClassInstances = typeClasses.Fold(ClassInstances, (s, x) => s.AddOrUpdate(x, Some: cis => cis.AddOrUpdate(ci), None: () => Set<OrdTypeInfo, TypeInfo>(ci)));
+                    ClassInstances = typeClasses.Fold(ClassInstances, (s, x) => s.AddOrUpdate(x, Some: cis => cis.AddOrUpdate(ci), None: () => Set<OrdTypeInfo, TypeInfo>(ci)));
+                }
+            }
+            catch(Exception e)
+            {
+                Error = e;
             }
         }
+
+        /// <summary>
+        /// If the caching throws an error, this will be set.
+        /// </summary>
+        public static readonly Option<Exception> Error;
 
         /// <summary>
         /// Force the caching of class instances.  If you run this at start-up then
