@@ -6,15 +6,24 @@ using System;
 
 namespace LanguageExt.ClassInstances
 {
-#if COREFX
-    public
-#endif
-    static class ClassInstancesAssembly
+    public static class ClassInstancesAssembly
     {
         internal static Lst<TypeInfo> Types;
         internal static Lst<TypeInfo> Structs;
         internal static Lst<TypeInfo> AllClassInstances;
         internal static Map<OrdTypeInfo, TypeInfo, Set<OrdTypeInfo, TypeInfo>> ClassInstances;
+
+        static Assembly SafeLoadAsm(AssemblyName name)
+        {
+            try
+            {
+                return Assembly.Load(name);
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
         static ClassInstancesAssembly()
         {
@@ -23,14 +32,16 @@ namespace LanguageExt.ClassInstances
             Types = typeof(ClassInstancesAssembly).GetTypeInfo().Assembly.DefinedTypes.Freeze();
 #else
 
-            Types = (from nam in Assembly.GetEntryAssembly().GetReferencedAssemblies()
-                     where nam != null
-                     let asm = Assembly.Load(nam)
+            var current = Assembly.GetExecutingAssembly() ?? Assembly.GetCallingAssembly() ?? Assembly.GetExecutingAssembly();
+
+            Types = (from nam in current.GetReferencedAssemblies()
+                     where nam != null && nam.Name != "mscorlib" && !nam.Name.StartsWith("System.")
+                     let asm = SafeLoadAsm(nam)
                      where asm != null
                      from typ in asm.GetTypes()
                      where typ != null
                      select typ.GetTypeInfo())
-                    .Append(Assembly.GetEntryAssembly()?.GetTypes()?.Map(t => t.GetTypeInfo()) ?? new TypeInfo[0])
+                    .Append(current?.GetTypes()?.Map(t => t.GetTypeInfo()) ?? new TypeInfo[0])
                     .Freeze();
 
 #endif
@@ -47,6 +58,13 @@ namespace LanguageExt.ClassInstances
                 ClassInstances = typeClasses.Fold(ClassInstances, (s, x) => s.AddOrUpdate(x, Some: cis => cis.AddOrUpdate(ci), None: () => Set<OrdTypeInfo, TypeInfo>(ci)));
             }
         }
+
+        /// <summary>
+        /// Force the caching of class instances.  If you run this at start-up then
+        /// there's a much better chance the system will find all assemblies that
+        /// have class instances in them.  Not a requirement though.
+        /// </summary>
+        public static Unit Initialise() => unit;
 
 #if COREFX
         public static Unit Register(Assembly asm)
