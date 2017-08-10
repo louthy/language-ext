@@ -96,6 +96,8 @@ class Program
     {
         ClassInstancesAssembly.Register(typeof(Program).GetTypeInfo().Assembly);
 
+        var ma = Class<Monad<Option<string>, string>>.Default;
+
         var f = Class<Eq<string>>.Default.Equals("1", "1");
 
         JObject a = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(new { A = "Hello", B = "World" }));
@@ -113,6 +115,8 @@ class Program
         var h1 = i.GetHashCode();
         var h2 = j.GetHashCode();
         var h3 = k.GetHashCode();
+
+
     }
 
     public class TestEqJObject : Record<TestEqJObject>

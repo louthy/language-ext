@@ -24,22 +24,25 @@ namespace LanguageExt.ClassInstances
 #else
 
             Types = (from nam in Assembly.GetEntryAssembly().GetReferencedAssemblies()
+                     where nam != null
                      let asm = Assembly.Load(nam)
+                     where asm != null
                      from typ in asm.GetTypes()
+                     where typ != null
                      select typ.GetTypeInfo())
-                    .Append(Assembly.GetEntryAssembly().GetTypes().Map(t => t.GetTypeInfo()))
+                    .Append(Assembly.GetEntryAssembly()?.GetTypes()?.Map(t => t.GetTypeInfo()) ?? new TypeInfo[0])
                     .Freeze();
 
 #endif
-            Structs = Types.Filter(t => t.IsValueType);
-            AllClassInstances = Structs.Filter(t => t.ImplementedInterfaces.Exists(i => i == typeof(Typeclass)));
+            Structs = Types.Filter(t => t?.IsValueType ?? false);
+            AllClassInstances = Structs.Filter(t => t?.ImplementedInterfaces?.Exists(i => i == typeof(Typeclass)) ?? false);
             ClassInstances = new Map<OrdTypeInfo, TypeInfo, Set<OrdTypeInfo, TypeInfo>>();
             foreach(var ci in AllClassInstances)
             {
-                var typeClasses = ci.ImplementedInterfaces
-                                    .Filter(i => typeof(Typeclass).GetTypeInfo().IsAssignableFrom(i.GetTypeInfo()))
-                                    .Map(t => t.GetTypeInfo())
-                                    .Freeze();
+                var typeClasses = ci?.ImplementedInterfaces
+                                    ?.Filter(i => typeof(Typeclass).GetTypeInfo().IsAssignableFrom(i.GetTypeInfo()))
+                                    ?.Map(t => t.GetTypeInfo())
+                                    ?.Freeze() ?? Lst<TypeInfo>.Empty;
 
                 ClassInstances = typeClasses.Fold(ClassInstances, (s, x) => s.AddOrUpdate(x, Some: cis => cis.AddOrUpdate(ci), None: () => Set<OrdTypeInfo, TypeInfo>(ci)));
             }

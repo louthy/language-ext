@@ -82,8 +82,7 @@ namespace LanguageExt
 
         [Pure]
         public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) && obj is NEWTYPE b &&
-            (Class<Eq<A>>.Default?.Equals(Value, b.Value) ?? Equals(b));
+            !ReferenceEquals(obj, null) && obj is NEWTYPE b && Equals(b);
 
         [Pure]
         public override int GetHashCode() =>

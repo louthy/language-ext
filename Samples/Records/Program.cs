@@ -10,6 +10,8 @@ namespace Records
     {
         static void Main(string[] args)
         {
+            JObjectTestEq.Test();
+
             MaybeRecordTypeExample();
         }
 
