@@ -6,7 +6,7 @@ using System.Reflection;
 namespace LanguageExt.ClassInstances
 {
     /// <summary>
-    /// Finds the default class instance for a type.  So for `Eq<A>` it finds `EqString`.  The
+    /// Finds the default class instance for a type.  So for `Eq<string>` it finds `EqString`.  The
     /// result is cached so there's only a one time hit per type to resolve.  
     /// </summary>
     /// <typeparam name="A"></typeparam>
