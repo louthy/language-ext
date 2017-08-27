@@ -39,7 +39,7 @@ namespace LanguageExt
         /// <param name="f">Asynchronous function to run asynchronously</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
-        public static TryOptionAsync<A> TryOptionAsync<A>(Func<Task<A>> f) =>
+        public static TryOptionAsync<A> TryOptionAsyncAsync<A>(Func<Task<A>> f) =>
             TryOptionAsyncExtensions.Memo<A>(() =>
                 f().Map(r => new OptionalResult<A>(r)));
 
@@ -50,7 +50,7 @@ namespace LanguageExt
         /// <param name="f">Asynchronously function to run asynchronously</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
-        public static TryOptionAsync<A> TryOptionAsync<A>(Func<Task<Option<A>>> f) =>
+        public static TryOptionAsync<A> TryOptionAsyncAsync<A>(Func<Task<Option<A>>> f) =>
             TryOptionAsyncExtensions.Memo<A>(() =>
                 f().Map(r => new OptionalResult<A>(r)));
 
