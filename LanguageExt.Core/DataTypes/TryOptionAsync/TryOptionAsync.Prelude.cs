@@ -36,7 +36,7 @@ namespace LanguageExt
         /// TryOptionAsync constructor function
         /// </summary>
         /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="f">Asynchronous function to run</param>
+        /// <param name="f">Asynchronous function to run asynchronously</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryOptionAsync<A> TryOptionAsync<A>(Func<Task<A>> f) =>
@@ -47,7 +47,7 @@ namespace LanguageExt
         /// TryOptionAsync constructor function
         /// </summary>
         /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="f">Function to run asynchronously</param>
+        /// <param name="f">Asynchronously function to run asynchronously</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryOptionAsync<A> TryOptionAsync<A>(Func<Task<Option<A>>> f) =>
