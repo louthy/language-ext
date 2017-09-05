@@ -393,7 +393,14 @@ namespace LanguageExt
             Match(Succ: _ => Arr<FAIL>.Empty, Fail: e => e.ToArr());
 
         /// <summary>
-        /// Convert either to sequence of 0 or 1 success values
+        /// Convert Validation to sequence of 0 or 1 right values
+        /// </summary>
+        [Pure]
+        public Seq<SUCCESS> ToSeq() =>
+            SuccessAsEnumerable();
+
+        /// <summary>
+        /// Convert Validation to sequence of 0 or 1 success values
         /// </summary>
         [Pure]
         public Seq<SUCCESS> SuccessToSeq() =>

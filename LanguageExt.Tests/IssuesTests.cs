@@ -253,4 +253,64 @@ namespace NickCuthbertOnGitter_RecordsTests
             var r2 = JsonConvert.DeserializeObject<Collector>(r);
         }
     }
+
+    public static class Issue251
+    {
+        public class Error : NewType<Error, string>
+        {
+            public Error(string value) : base(value)
+            {
+            }
+        }
+
+        public class ErrorException : Exception
+        {
+            public readonly Error Error;
+            public ErrorException(Error error) : base(error.Value)
+            {
+                Error = error;
+            }
+        }
+
+        public static TryOptionAsync<A> AsTryOptionAsync<A>(this Either<Error, Option<A>> ma) =>
+            ma.Match(
+                Right: r => TryOptionAsync(r),
+                Left:  e => TryOptionAsync<A>(new ErrorException(e)));
+
+        public static TryOption<A> AsTryOption<A>(this Either<Error, Option<A>> ma) =>
+            ma.Match(
+                Right: r => TryOption(r),
+                Left: e => TryOption<A>(new ErrorException(e)));
+
+        public static TryOptionAsync<A> AsTryOptionAsync<A>(this Task<Either<Error, Option<A>>> ma) =>
+            ma.Map(either => either.AsTryOption()).ToAsync();
+
+        public static Error AsError(this Exception ex) =>
+            ex is ErrorException err
+                ? err.Error
+                : Error.New(ex.Message);
+
+        [Fact]
+        public static async void MatchTest()
+        {
+            var m1 = Right<Error, Option<string>>("Testing").AsTask();
+            var m2 = Left<Error, Option<string>>(Error.New("Testing")).AsTask();
+            var m3 = Right<Error, Option<string>>(None).AsTask();
+
+            await m1.AsTryOptionAsync()
+                    .Match(
+                         Some: va => Console.WriteLine(va),
+                         None: () => Console.WriteLine("none"),
+                         Fail: ex => Console.WriteLine(ex.AsError()));
+
+            var t1 = Right<Error, Option<string>>("Testing").AsTask().AsTryOptionAsync();
+            var t2 = Left<Error, Option<string>>(Error.New("Testing")).AsTask().AsTryOptionAsync();
+            var t3 = Right<Error, Option<string>>(None).AsTask().AsTryOptionAsync();
+
+            var list = List(t1, t2, t3);
+
+            var resu = list.Sequence();
+
+        }
+    }
 }

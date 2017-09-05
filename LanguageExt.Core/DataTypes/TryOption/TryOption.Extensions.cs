@@ -380,7 +380,11 @@ public static class TryOptionExtensions
     {
         try
         {
-            return self().Value.Value;
+            var res = self();
+            if (res.IsBottom) throw new BottomException();
+            if (res.IsFaulted) throw new InnerException(res.Exception);
+            if (res.Value.IsNone) throw new ValueIsNoneException();
+            return res.Value.Value;
         }
         catch (Exception e)
         {

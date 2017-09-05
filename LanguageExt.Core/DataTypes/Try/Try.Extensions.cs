@@ -256,7 +256,10 @@ public static class TryExtensions
     {
         try
         {
-            return self().Value;
+            var res = self();
+            if (res.IsBottom) throw new BottomException();
+            if (res.IsFaulted) throw new InnerException(res.Exception);
+            return res.Value;
         }
         catch (Exception e)
         {

@@ -109,7 +109,7 @@ namespace LanguageExt.ClassInstances
                     return default(A);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return default(A);
             }

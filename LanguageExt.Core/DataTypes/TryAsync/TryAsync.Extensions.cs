@@ -412,6 +412,7 @@ public static class TryAsyncExtensions
         try
         {
             var res = await self.Try();
+            if (res.IsBottom) throw new BottomException();
             if (res.IsFaulted) throw new InnerException(res.Exception);
             return res.Value;
         }

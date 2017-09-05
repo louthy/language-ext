@@ -389,7 +389,14 @@ namespace LanguageExt
             leftToArray<FoldValidation<MonoidFail, FAIL, SUCCESS>, Validation<MonoidFail, FAIL, SUCCESS>, FAIL, SUCCESS>(this);
 
         /// <summary>
-        /// Convert either to sequence of 0 or 1 success values
+        /// Convert Validation to sequence of 0 or 1 right values
+        /// </summary>
+        [Pure]
+        public Seq<SUCCESS> ToSeq() =>
+            SuccessAsEnumerable();
+
+        /// <summary>
+        /// Convert Validation to sequence of 0 or 1 success values
         /// </summary>
         [Pure]
         public Seq<SUCCESS> SuccessToSeq() =>

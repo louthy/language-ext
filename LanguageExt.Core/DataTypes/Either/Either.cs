@@ -472,6 +472,13 @@ namespace LanguageExt
         /// Convert either to sequence of 0 or 1 right values
         /// </summary>
         [Pure]
+        public Seq<R> ToSeq() =>
+            RightAsEnumerable();
+
+        /// <summary>
+        /// Convert either to sequence of 0 or 1 right values
+        /// </summary>
+        [Pure]
         public Seq<R> RightToSeq() =>
             RightAsEnumerable();
 
