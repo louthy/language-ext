@@ -50,7 +50,7 @@ namespace LanguageExt
         /// <returns>OptionUnsafe of A</returns>
         [Pure]
         public static OptionUnsafe<A> Some(A value) =>
-            value;
+            new OptionUnsafe<A>(new OptionData<A>(OptionState.Some, value, null));
 
         /// <summary>
         /// Takes the value-type OptionV<A>

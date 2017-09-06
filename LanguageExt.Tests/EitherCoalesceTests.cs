@@ -4,7 +4,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
-    class EitherCoalesceTests
+    public class EitherCoalesceTests
     {
         [Fact]
         public void EitherCoalesceTest1()

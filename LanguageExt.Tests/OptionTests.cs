@@ -102,8 +102,7 @@ namespace LanguageExtTests
         [Fact]
         public void NullIsNotSomeTest()
         {
-            Assert.Throws(
-                typeof(ValueIsNullException),
+            Assert.Throws<ValueIsNullException>(
                 () =>
                 {
                     GetStringNone();
@@ -135,8 +134,7 @@ namespace LanguageExtTests
         [Fact]
         public void NullInSomeOrNoneTest()
         {
-            Assert.Throws(
-                typeof(ResultIsNullException),
+            Assert.Throws<ResultIsNullException>(
                 () =>
                 {
                     GetValue(true)
@@ -145,8 +143,7 @@ namespace LanguageExtTests
                 }
             );
 
-            Assert.Throws(
-                typeof(ResultIsNullException),
+            Assert.Throws<ResultIsNullException>(
                 () =>
                 {
                     GetValue(false)
@@ -169,8 +166,7 @@ namespace LanguageExtTests
         [Fact]
         public void NullableDenySomeNullTest()
         {
-            Assert.Throws(
-                    typeof(ValueIsNullException),
+            Assert.Throws<ValueIsNullException>(
                     () =>
                     {
                         var res = GetNullable(false)

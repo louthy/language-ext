@@ -14,6 +14,9 @@ namespace LanguageExt
             var publicFields = typeof(A)
                 .GetTypeInfo()
                 .GetAllFields()
+#if !COREFX13
+                .OrderBy(f => f.MetadataToken)
+#endif
                 .Where(f =>
                 {
                     if (!f.IsPublic || f.IsStatic) return false;
@@ -24,6 +27,9 @@ namespace LanguageExt
             var publicPropNames = typeof(A)
                                     .GetTypeInfo()
                                     .GetAllProperties()
+#if !COREFX13
+                                    .OrderBy(p => p.MetadataToken)
+#endif
                                     .Where(p => p.CanRead && p.GetMethod.IsPublic)
                                     .Where(p => !toSet(p.CustomAttributes.Map(a => a.AttributeType.Name)).Intersect(excludeAttrsSet).Any())
                                     .ToArray();
@@ -31,6 +37,9 @@ namespace LanguageExt
             var backingFields = typeof(A)
                                     .GetTypeInfo()
                                     .GetAllFields()
+#if !COREFX13
+                                    .OrderBy(p => p.MetadataToken)
+#endif
                                     .Where(f => f.IsPrivate &&
                                                 publicPropNames.Exists(p => f.Name.StartsWith($"<{p.Name}>")))
                                     .ToArray();

@@ -215,6 +215,17 @@ namespace LanguageExt
         public Lst<A> SetItem(int index, A value) =>
             Wrap(Value.SetItem(index, value));
 
+        /// <summary>
+        /// Returns an enumerable range from the collection.  This is the fastest way of
+        /// iterating sub-ranges of the collection.
+        /// </summary>
+        /// <param name="index">Index into the collection</param>
+        /// <param name="count">Number of items to find</param>
+        /// <returns>IEnumerable of items</returns>
+        [Pure]
+        public IEnumerable<A> FindRange(int index, int count) =>
+            Value.FindRange(index, count);
+
         [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
             new ListModule.ListEnumerator<A>(Root, Rev, 0);

@@ -345,6 +345,18 @@ namespace LanguageExt
         public LstInternal<U> Map<U>(Func<A, U> map) =>
             new LstInternal<U>(ListModule.Map(Root, map), Rev);
 
+        [Pure]
+        public IEnumerable<A> FindRange(int index, int count)
+        {
+            if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+            if (count < 0) throw new ArgumentOutOfRangeException(nameof(index));
+            var iter = new ListModule.ListEnumerator<A>(Root, Rev, index, count);
+            while (iter.MoveNext())
+            {
+                yield return iter.Current;
+            }
+        }
+
         /// <summary>
         /// Filter
         /// </summary>
@@ -762,13 +774,15 @@ namespace LanguageExt
             int left;
             bool rev;
             int start;
+            int count;
 
-            public ListEnumerator(ListItem<T> root, bool rev, int start)
+            public ListEnumerator(ListItem<T> root, bool rev, int start, int count = Int32.MaxValue)
             {
                 this.rev = rev;
                 this.start = start;
                 map = root;
                 stack = pool.GetItem();
+                this.count = count;
                 Reset();
             }
 
@@ -807,11 +821,12 @@ namespace LanguageExt
 
             public bool MoveNext()
             {
-                if (left > 0 && stack.Count > 0)
+                if (count > 0 && left > 0 && stack.Count > 0)
                 {
                     NodeCurrent = stack.Pop();
                     Push(Next(NodeCurrent));
                     left--;
+                    count--;
                     return true;
                 }
 

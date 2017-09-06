@@ -2,10 +2,10 @@
 
 namespace LanguageExt.Parsec
 {
-#if !COREFX
+#if !COREFX13
     [Serializable]
 #endif
-    class ParserException : Exception
+    public class ParserException : Exception
     {
         public ParserException()
         {

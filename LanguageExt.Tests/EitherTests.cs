@@ -102,8 +102,7 @@ namespace LanguageExtTests
         [Fact]
         public void NullInRightOrLeftTest()
         {
-            Assert.Throws(
-                typeof(ResultIsNullException),
+            Assert.Throws<ResultIsNullException>(
                 () =>
                 {
                     GetValue(true)
@@ -112,8 +111,7 @@ namespace LanguageExtTests
                 }
             );
 
-            Assert.Throws(
-                typeof(ResultIsNullException),
+            Assert.Throws<ResultIsNullException>(
                 () =>
                 {
                     GetValue(false)

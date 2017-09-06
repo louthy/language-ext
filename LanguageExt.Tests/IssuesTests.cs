@@ -313,4 +313,37 @@ namespace NickCuthbertOnGitter_RecordsTests
 
         }
     }
+
+    public class Issue263
+    {
+        public readonly Func<long, Unit> fire = i =>
+        {
+            return unit;
+        };
+
+        public void Test()
+        {
+            act(fire);
+        }
+    }
+
+    public class Issue261
+    {
+        [Fact]
+        public void Test()
+        {
+            var computation = from x in Writer<MSeq<string>, Seq<string>, int>(100)
+                              from y in Writer<MSeq<string>, Seq<string>, int>(200)
+                              from _1 in tell<MSeq<string>, Seq<string>>(SeqOne("Hello"))
+                              from _2 in tell<MSeq<string>, Seq<string>>(SeqOne("World"))
+                              from _3 in tell<MSeq<string>, Seq<string>>(SeqOne($"the result is {x + y}"))
+                              select x + y;
+
+            var result = computation();
+
+            Assert.True(result.Value == 300);
+            Assert.True(result.Output.Count == 3);
+            Assert.True(String.Join(" ", result.Output) == "Hello World the result is 300");
+        }
+    }
 }

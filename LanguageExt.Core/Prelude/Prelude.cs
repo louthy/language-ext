@@ -185,7 +185,7 @@ namespace LanguageExt
             throw new Exception(message);
         }
 
-#if !COREFX
+#if !COREFX13
         /// <summary>
         /// Raises an ApplicationException with the message provided
         /// </summary>

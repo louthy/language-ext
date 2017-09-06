@@ -48,7 +48,7 @@ namespace LanguageExtTests
             Popping5(test);
         }
 
-        public void Popping5(Stck<int> test)
+        void Popping5(Stck<int> test)
         {
             test = map(trypop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
             test = map(trypop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });

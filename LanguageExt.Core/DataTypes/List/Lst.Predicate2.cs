@@ -159,6 +159,17 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Returns an enumerable range from the collection.  This is the fastest way of
+        /// iterating sub-ranges of the collection.
+        /// </summary>
+        /// <param name="index">Index into the collection</param>
+        /// <param name="count">Number of items to find</param>
+        /// <returns>IEnumerable of items</returns>
+        [Pure]
+        public IEnumerable<A> FindRange(int index, int count) =>
+            Value.FindRange(index, count);
+
+        /// <summary>
         /// Get enumerator
         /// </summary>
         [Pure]

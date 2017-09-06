@@ -8,11 +8,15 @@ using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 class Program
 {
     static void Main(string[] args)
     {
+        WriterTest1();
+        WriterTest2();
+        WriterTest3();
         Asm();
 
         var x = new TestStruct(1, "Hello", Guid.Empty);
@@ -38,6 +42,56 @@ class Program
         Console.WriteLine("Coming soon");
     }
 
+    static void WriterTest1()
+    {
+        var computation = from x in Writer<MSeq<string>, Seq<string>, int>(100)
+                          from y in Writer<MSeq<string>, Seq<string>, int>(200)
+                          from _1 in tell<MSeq<string>, Seq<string>>(SeqOne("Hello"))
+                          from _2 in tell<MSeq<string>, Seq<string>>(SeqOne("World"))
+                          from _3 in tell<MSeq<string>, Seq<string>>(SeqOne($"the result is {x + y}"))
+                          select x + y;
+
+        var result = computation();
+
+        Debug.Assert(result.Value == 300);
+        Debug.Assert(result.Output.Count == 3);
+        Debug.Assert(String.Join(" ", result.Output) == "Hello World the result is 300");
+    }
+
+    static void WriterTest2()
+    {
+        var computation = from _1 in tell<TInt, int>(2)
+                          from _2 in tell<TInt, int>(4)
+                          from _3 in tell<TInt, int>(6)
+                          select unit;
+
+        var result = computation();
+
+        Debug.Assert(result.Value == unit);
+        Debug.Assert(result.Output == 12);
+    }
+
+    struct MProduct : Monoid<int>
+    {
+        public int Append(int x, int y) =>
+            x * y;
+
+        public int Empty() =>
+            1;
+    }
+
+    static void WriterTest3()
+    {
+        var computation = from _1 in tell<MProduct, int>(2)
+                          from _2 in tell<MProduct, int>(4)
+                          from _3 in tell<MProduct, int>(6)
+                          select unit;
+
+        var result = computation();
+
+        Debug.Assert(result.Value == unit);
+        Debug.Assert(result.Output == 48);
+    }
 
     public class TestStruct : IEquatable<TestStruct>, IComparable<TestStruct>, ISerializable
     {
@@ -124,7 +178,7 @@ class Program
         //[Eq(typeof(EqJObject))]
         public readonly JObject Value;
 
-        public TestEqJObject(JObject value) => 
+        public TestEqJObject(JObject value) =>
             Value = value;
     }
 

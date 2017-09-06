@@ -52,9 +52,6 @@ namespace LanguageExt
 
         private EitherUnsafe(R right)
         {
-            if (isnull(right))
-                throw new ValueIsNullException();
-
             this.State = EitherStatus.IsRight;
             this.right = right;
             this.left = default(L);
@@ -62,9 +59,6 @@ namespace LanguageExt
 
         private EitherUnsafe(L left)
         {
-            if (isnull(left))
-                throw new ValueIsNullException();
-
             this.State = EitherStatus.IsLeft;
             this.right = default(R);
             this.left = left;
@@ -180,23 +174,17 @@ namespace LanguageExt
         /// Implicit conversion operator from R to EitherUnsafe R L
         /// </summary>
         /// <param name="value">Value, must not be null.</param>
-        /// <exception cref="ValueIsNullException">Value is null</exception>
         [Pure]
         public static implicit operator EitherUnsafe<L, R>(R value) =>
-            isnull(value)
-                ? raise<EitherUnsafe<L, R>>(new ValueIsNullException())
-                : EitherUnsafe<L, R>.Right(value);
+            EitherUnsafe<L, R>.Right(value);
 
         /// <summary>
         /// Implicit conversion operator from L to EitherUnsafe R L
         /// </summary>
         /// <param name="value">Value, must not be null.</param>
-        /// <exception cref="ValueIsNullException">Value is null</exception>
         [Pure]
         public static implicit operator EitherUnsafe<L, R>(L value) =>
-            isnull(value)
-                ? raise<EitherUnsafe<L, R>>(new ValueIsNullException())
-                : EitherUnsafe<L, R>.Left(value);
+            EitherUnsafe<L, R>.Left(value);
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the EitherUnsafe

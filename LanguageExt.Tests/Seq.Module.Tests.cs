@@ -193,31 +193,12 @@ namespace LanguageExt.Tests
 
             Task.WaitAll(tasks.ToArray());
 
-            foreach(var task in tasks)
+            var results = tasks.Map(t => t.Result).ToArray();
+
+            foreach (var task in tasks)
             {
                 Assert.True(task.Result == sum);
             }
-        }
-
-        [Fact]
-        public void BigFoldBack()
-        {
-            var seq = Range(1, 10000).ToSeq();
-            var prime = seq.Count; // Force eval
-
-            Stopwatch watch1 = Stopwatch.StartNew();
-
-            var count1 = seq.FoldBack(0, (s, x) => s + 1);
-
-            watch1.Stop();
-
-            Stopwatch watch2 = Stopwatch.StartNew();
-
-            var count2 = seq.FoldBackRec(0, (s, x) => s + 1);
-
-            watch2.Stop();
-
-            Assert.True(watch1.ElapsedTicks > watch2.ElapsedTicks);
         }
     }
 }

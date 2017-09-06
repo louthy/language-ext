@@ -48,7 +48,7 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public static Seq<A> Cons<A>(this A head, A[] tail) =>
-            SeqArray<A>.New(head, tail);
+            SeqCons<A>.New(head, SeqArray<A>.New(tail));
 
         /// <summary>
         /// Construct a list from head and tail head becomes the first item in 
@@ -60,7 +60,7 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public static Seq<A> Cons<A>(this A head, Arr<A> tail) =>
-            SeqArr<A>.New(head, tail);
+            SeqCons<A>.New(head, SeqArr<A>.New(tail));
 
         /// <summary>
         /// Construct a list from head and tail; head becomes the first item in 
@@ -716,7 +716,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(A a, A b, params A[] cs) =>
-            SeqCons<A>.New(a, SeqArray<A>.New(b, cs));
+            SeqCons<A>.New(a, SeqCons<A>.New(b, SeqArray<A>.New(cs)));
 
         /// <summary>
         /// Construct a sequence from an immutable array

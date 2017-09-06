@@ -65,7 +65,7 @@ namespace LanguageExt.Tests
             Assert.True(await mc == 100);
         }
 
-        public Task DoWork()
+        Task DoWork()
         {
             return Task.Run(() => Console.WriteLine("here"));
         }

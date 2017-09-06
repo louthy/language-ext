@@ -6,8 +6,8 @@
     <NoWarn>1701;1702;1705;IDE1006</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
-    <PackageVersion>2.1.18</PackageVersion>
+    <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
+    <PackageVersion>2.1.20</PackageVersion>
     <PackageId>LanguageExt.FSharp</PackageId>
     <Title>LanguageExt.FSharp</Title>
     <Authors>Paul Louth</Authors>

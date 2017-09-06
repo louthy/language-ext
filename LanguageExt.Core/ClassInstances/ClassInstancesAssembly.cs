@@ -29,7 +29,7 @@ namespace LanguageExt.ClassInstances
         {
             try
             {
-#if COREFX
+#if COREFX13
                 // We can't go looking for types, so let's settle for what's in lang-ext
                 Types = typeof(ClassInstancesAssembly).GetTypeInfo().Assembly.DefinedTypes.Freeze();
 #else
@@ -78,9 +78,9 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         public static Unit Initialise() => unit;
 
-#if COREFX
         public static Unit Register(Assembly asm)
         {
+#if COREFX13
             Types = Types.AddRange(asm.DefinedTypes);
             var newStructs = asm.DefinedTypes.Filter(t => t.IsValueType).ToList();
             Structs = Structs.AddRange(newStructs);
@@ -96,8 +96,8 @@ namespace LanguageExt.ClassInstances
 
                 ClassInstances = typeClasses.Fold(ClassInstances, (s, x) => s.AddOrUpdate(x, Some: cis => cis.AddOrUpdate(ci), None: () => Set<OrdTypeInfo, TypeInfo>(ci)));
             }
+#endif
             return unit;
         }
-#endif
     }
 }
