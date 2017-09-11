@@ -24,7 +24,7 @@ namespace LanguageExt.ClassInstances
         public bool Equals(TryOption<A> lhs, TryOption<A> rhs)
         {
             var x = lhs.Try();
-            var y = lhs.Try();
+            var y = rhs.Try();
             if (x.IsFaulted && y.IsFaulted) return true;
             if (x.IsFaulted || y.IsFaulted) return false;
             return equals<EQ, A>(x.Value, y.Value);

@@ -733,7 +733,7 @@ public static class TryExtensions
     public static int Compare<ORD, A>(this Try<A> lhs, Try<A> rhs) where ORD : struct, Ord<A>
     {
         var x = lhs.Try();
-        var y = lhs.Try();
+        var y = rhs.Try();
         if (x.IsFaulted && y.IsFaulted) return 0;
         if (x.IsFaulted && !y.IsFaulted) return -1;
         if (!x.IsFaulted && y.IsFaulted) return 1;
