@@ -176,7 +176,7 @@ It started out trying to deal with issues in C#, that after using Haskell and F#
    * [List pattern matching](#list-pattern-matching)
    * [Maps](#maps)
 * [Difficulty in creating immutable record types](#difficulty-in-creating-immutable-record-types)
-* [The awful 'out' parameter](#the-awful-'out'-parameter)
+* [The awful 'out' parameter](#the-awful-out-parameter)
 * [The lack of ad-hoc polymorphism](#ad-hoc-polymorphism)
    * [`Num<A>`](#num<A>)
    * [`Eq<A>`](#eq<A>)
