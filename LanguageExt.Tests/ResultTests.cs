@@ -9,35 +9,35 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestBottom()
         {
-            Assert.True(_bottomResult.IsFaulted);
-            Assert.True(_bottomResult.IsBottom);
+            Assert.True(bottomResult.IsFaulted);
+            Assert.True(bottomResult.IsBottom);
         }
 
         [Fact]
         public void TestSuccess()
         {
-            Assert.False(_successResult.IsFaulted);
-            Assert.False(_successResult.IsBottom);
+            Assert.False(successResult.IsFaulted);
+            Assert.False(successResult.IsBottom);
         }
 
         [Fact]
         public void TestFault()
         {
-            Assert.True(_faultResult.IsFaulted);
-            Assert.False(_faultResult.IsBottom);
+            Assert.True(faultResult.IsFaulted);
+            Assert.False(faultResult.IsBottom);
         }
 
         [Fact]
         public void TestFaultWithNullException()
         {
-            Assert.True(_faultWithNullException.IsFaulted);
-            Assert.False(_faultWithNullException.IsBottom);
+            Assert.True(faultWithNullException.IsFaulted);
+            Assert.False(faultWithNullException.IsBottom);
         }
 
         [Fact]
         public void TestMatchWithBottom()
         {
-            string output = _bottomResult.Match(
+            string output = bottomResult.Match(
                 Succ: _ => "Success",
                 Fail: _ => "Failure"
             );
@@ -48,7 +48,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestMatchWithSuccess()
         {
-            string output = _successResult.Match(
+            string output = successResult.Match(
                 Succ: _ => "Success",
                 Fail: _ => "Failure"
             );
@@ -59,7 +59,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestMatchWithSuccessReturnsValue()
         {
-            int output = _successResult.Match(
+            int output = successResult.Match(
                 Succ: v => v,
                 Fail: ex => -1
             );
@@ -70,7 +70,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestMatchWithFault()
         {
-            string output = _faultResult.Match(
+            string output = faultResult.Match(
                 Succ: _ => "Success",
                 Fail: _ => "Failure"
             );
@@ -81,7 +81,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestMatchWithFaultWithNullException()
         {
-            string output = _faultWithNullException.Match(
+            string output = faultWithNullException.Match(
                 Succ: _ => "Success",
                 Fail: _ => "Failure"
             );
@@ -92,7 +92,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestTransitiveMatchWithBottom()
         {
-            var output = _bottomResult.Match(
+            var output = bottomResult.Match(
                 Succ: v => v,
                 Fail: ex => new Result<int>(ex)
             );
@@ -104,7 +104,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestIfFailDefaultValueWithBottom()
         {
-            var output = _bottomResult.IfFail(defaultValue: 2);
+            var output = bottomResult.IfFail(defaultValue: 2);
 
             Assert.Equal(output, 2);
         }
@@ -112,7 +112,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestIfFailDefaultValueWithSuccess()
         {
-            var output = _successResult.IfFail(defaultValue: 2);
+            var output = successResult.IfFail(defaultValue: 2);
 
             Assert.Equal(output, 1);
         }
@@ -120,7 +120,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestIfFailDefaultValueWithFault()
         {
-            var output = _faultResult.IfFail(defaultValue: 2);
+            var output = faultResult.IfFail(defaultValue: 2);
 
             Assert.Equal(output, 2);
         }
@@ -128,7 +128,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestIfFailDefaultValueWithFaultWithNullException()
         {
-            var output = _faultWithNullException.IfFail(defaultValue: 2);
+            var output = faultWithNullException.IfFail(defaultValue: 2);
 
             Assert.Equal(output, 2);
         }
@@ -136,7 +136,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestIfFailFuncWithBottom()
         {
-            var output = _bottomResult.IfFail(_ => 2);
+            var output = bottomResult.IfFail(_ => 2);
 
             Assert.Equal(output, 2);
         }
@@ -144,7 +144,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestIfFailFuncWithSuccess()
         {
-            var output = _successResult.IfFail(_ => 2);
+            var output = successResult.IfFail(_ => 2);
 
             Assert.Equal(output, 1);
         }
@@ -152,7 +152,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestIfFailFuncWithFault()
         {
-            var output = _faultResult.IfFail(_ => 2);
+            var output = faultResult.IfFail(_ => 2);
 
             Assert.Equal(output, 2);
         }
@@ -160,7 +160,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestIfFailFuncWithFaultWithNullException()
         {
-            var output = _faultWithNullException.IfFail(_ => 2);
+            var output = faultWithNullException.IfFail(_ => 2);
 
             Assert.Equal(output, 2);
         }
@@ -169,7 +169,7 @@ namespace LanguageExt.Tests
         public void TestIfFailActionWithBottom()
         {
             bool called = false;
-            _bottomResult.IfFail(_ => called = true);
+            bottomResult.IfFail(_ => called = true);
 
             Assert.True(called);
         }
@@ -178,7 +178,7 @@ namespace LanguageExt.Tests
         public void TestIfFailActionWithSuccess()
         {
             bool called = false;
-            _successResult.IfFail(_ => called = true);
+            successResult.IfFail(_ => called = true);
 
             Assert.False(called);
         }
@@ -187,7 +187,7 @@ namespace LanguageExt.Tests
         public void TestIfFailActionWithFault()
         {
             bool called = false;
-            _faultResult.IfFail(_ => called = true);
+            faultResult.IfFail(_ => called = true);
 
             Assert.True(called);
         }
@@ -196,7 +196,7 @@ namespace LanguageExt.Tests
         public void TestIfFailActionWithFaultWithNullException()
         {
             bool called = false;
-            _faultWithNullException.IfFail(_ => called = true);
+            faultWithNullException.IfFail(_ => called = true);
 
             Assert.True(called);
         }
@@ -205,7 +205,7 @@ namespace LanguageExt.Tests
         public void TestIfSuccWithBottom()
         {
             bool called = false;
-            _bottomResult.IfSucc(_ => called = true);
+            bottomResult.IfSucc(_ => called = true);
             
             Assert.False(called);
         }
@@ -214,7 +214,7 @@ namespace LanguageExt.Tests
         public void TestIfSuccWithSuccess()
         {
             bool called = false;
-            _successResult.IfSucc(_ => called = true);
+            successResult.IfSucc(_ => called = true);
             
             Assert.True(called);
         }
@@ -223,7 +223,7 @@ namespace LanguageExt.Tests
         public void TestIfSuccWithFault()
         {
             bool called = false;
-            _faultResult.IfSucc(_ => called = true);
+            faultResult.IfSucc(_ => called = true);
             
             Assert.False(called);
         }
@@ -232,7 +232,7 @@ namespace LanguageExt.Tests
         public void TestIfSuccWithFaultWithNullException()
         {
             bool called = false;
-            _faultWithNullException.IfSucc(_ => called = true);
+            faultWithNullException.IfSucc(_ => called = true);
 
             Assert.False(called);
         }
@@ -240,7 +240,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestMapWithBottom()
         {
-            var output = _bottomResult.Map(_ => 2);
+            var output = bottomResult.Map(_ => 2);
             
             Assert.True(output.IsFaulted);
             Assert.False(output.IsBottom);
@@ -249,7 +249,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestMapWithSuccess()
         {
-            var output = _successResult.Map(_ => 2);
+            var output = successResult.Map(_ => 2);
             
             Assert.False(output.IsFaulted);
             Assert.False(output.IsBottom);
@@ -258,7 +258,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestMapWithSuccessReturnsValue()
         {
-            var output = _successResult.Map(_ => 2);
+            var output = successResult.Map(_ => 2);
 
             var value = output.Match(
                 Succ: v => v,
@@ -271,7 +271,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestMapWithFault()
         {
-            var output = _faultResult.Map(_ => 2);
+            var output = faultResult.Map(_ => 2);
             
             Assert.True(output.IsFaulted);
             Assert.False(output.IsBottom);
@@ -280,15 +280,15 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestMapWithFaultWithNullException()
         {
-            var output = _faultWithNullException.Map(_ => 2);
+            var output = faultWithNullException.Map(_ => 2);
             
             Assert.True(output.IsFaulted);
             Assert.False(output.IsBottom);
         }
 
-        private readonly Result<int> _bottomResult = new Result<int>();
-        private readonly Result<int> _successResult = new Result<int>(1);
-        private readonly Result<int> _faultResult = new Result<int>(new InvalidOperationException());
-        private readonly Result<int> _faultWithNullException = new Result<int>((Exception) null);
+        private readonly Result<int> bottomResult = new Result<int>();
+        private readonly Result<int> successResult = new Result<int>(1);
+        private readonly Result<int> faultResult = new Result<int>(new InvalidOperationException());
+        private readonly Result<int> faultWithNullException = new Result<int>((Exception) null);
     }
 }
