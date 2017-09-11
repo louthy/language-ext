@@ -102,7 +102,7 @@ There is also:
 * [`LanguageExt.Map`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Map_.htm)
 * [`LanguageExt.HashMap`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashMap_.htm)
 * [`LanguageExt.Queue`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Queue_.htm)
-* [`LanguageExt.Set`](https://louthy.github.io/language-ext/LanguageExt.CoreLanguageExt/Set_.htm)
+* [`LanguageExt.Set`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Set_.htm)
 * [`LanguageExt.HashSet`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashSet_.htm)
 * [`LanguageExt.Stack` ](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Stack_.htm)
 * [`LanguageExt.TypeClass`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TypeClass_.htm)
