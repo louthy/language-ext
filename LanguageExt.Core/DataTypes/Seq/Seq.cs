@@ -96,38 +96,39 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="B">Return value type</typeparam>
         /// <param name="Empty">Match for an empty list</param>
-        /// <param name="Tail">Match for a non-empty</param>
+        /// <param name="Seq">Match for a non-empty</param>
         /// <returns>Result of match function invoked</returns>
         public virtual B Match<B>(
             Func<B> Empty,
-            Func<A, Seq<A>, B> Tail) =>
+            Func<A, Seq<A>, B> Seq) =>
             IsEmpty
                 ? Empty()
-                : Tail(this.Head, this.Tail);
+                : Seq(this.Head, this.Tail);
 
         /// <summary>
         /// Match empty sequence, or one item sequence, or multi-item sequence
         /// </summary>
         /// <typeparam name="B">Return value type</typeparam>
         /// <param name="Empty">Match for an empty list</param>
-        /// <param name="Tail">Match for a non-empty</param>
+        /// <param name="One">Match for a list with only 1 element</param>
+        /// <param name="More">Match for a list with at least 2 elements</param>
         /// <returns>Result of match function invoked</returns>
         public virtual B Match<B>(
             Func<B> Empty,
-            Func<A, B> Head,
-            Func<A, Seq<A>, B> Tail) =>
+            Func<A, B> One,
+            Func<A, Seq<A>, B> More) =>
             IsEmpty
                 ? Empty()
                 : this.Tail.IsEmpty
-                    ? Head(this.Head)
-                    : Tail(this.Head, this.Tail);
+                    ? One(this.Head)
+                    : More(this.Head, this.Tail);
 
         /// <summary>
         /// Match empty sequence, or multi-item sequence
         /// </summary>
         /// <typeparam name="B">Return value type</typeparam>
         /// <param name="Empty">Match for an empty list</param>
-        /// <param name="Sequence">Match for a non-empty</param>
+        /// <param name="Seq">Match for a non-empty</param>
         /// <returns>Result of match function invoked</returns>
         public virtual B Match<B>(
             Func<B> Empty,
@@ -137,20 +138,21 @@ namespace LanguageExt
                 : Seq(this);
 
         /// <summary>
-        /// Match empty sequence, or one item sequence, or multi-item sequence
+        /// Match empty sequence, or one item sequence, or tail of multi-item sequence
         /// </summary>
         /// <typeparam name="B">Return value type</typeparam>
         /// <param name="Empty">Match for an empty list</param>
-        /// <param name="Tail">Match for a non-empty</param>
+        /// <param name="HeadOnly">Match for list with only 1 element</param>
+        /// <param name="Tail">Matches Tail of list with at least 2 elements</param>
         /// <returns>Result of match function invoked</returns>
         public virtual B Match<B>(
             Func<B> Empty,
-            Func<A, B> Head,
+            Func<A, B> HeadOnly,
             Func<Seq<A>, B> Tail) =>
             IsEmpty
                 ? Empty()
                 : this.Tail.IsEmpty
-                    ? Head(this.Head)
+                    ? HeadOnly(this.Head)
                     : Tail(this.Tail);
 
         /// <summary>
