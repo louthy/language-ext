@@ -19,6 +19,7 @@ namespace LanguageExt
         public static readonly Result<A> None = new Result<A>();
 
         readonly bool IsValid;
+        readonly bool IsSuccess;
         internal readonly A Value;
         internal Exception Exception;
 
@@ -30,6 +31,7 @@ namespace LanguageExt
         public Result(A value)
         {
             IsValid = true;
+            IsSuccess = true;
             Value = value;
             Exception = null;
         }
@@ -42,6 +44,7 @@ namespace LanguageExt
         public Result(Exception e)
         {
             IsValid = true;
+            IsSuccess = false;
             Exception = e;
             Value = default(A);
         }
@@ -58,7 +61,7 @@ namespace LanguageExt
         /// True if the result is faulted
         /// </summary>
         [Pure]
-        public bool IsFaulted => Exception != null || IsBottom;
+        public bool IsFaulted => !IsSuccess;
 
         /// <summary>
         /// True if the struct is in an invalid state
