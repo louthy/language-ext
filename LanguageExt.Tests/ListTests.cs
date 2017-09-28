@@ -299,5 +299,89 @@ namespace LanguageExtTests
 
             Assert.True(skipped == list);
         }
+
+        [Fact]
+        public void SetItemTest()
+        {
+            Lst<int> lint = new Lst<int>();
+            lint = lint.Insert(0, 0).Insert(1, 1).Insert(2, 2).Insert(3, 3);
+
+            Assert.True(lint[0] == 0);
+            Assert.True(lint[1] == 1);
+            Assert.True(lint[2] == 2);
+            Assert.True(lint[3] == 3);
+
+            lint = lint.SetItem(2, 500);
+
+            Assert.True(lint[0] == 0);
+            Assert.True(lint[1] == 1);
+            Assert.True(lint[2] == 500);
+            Assert.True(lint[3] == 3);
+        }
+
+        [Fact]
+        public void RemoveAtInsertTest()
+        {
+            Lst<int> lint = new Lst<int>();
+            lint = lint.Insert(0, 0).Insert(1, 1).Insert(2, 2).Insert(3, 3);
+
+            Assert.True(lint[0] == 0);
+            Assert.True(lint[1] == 1);
+            Assert.True(lint[2] == 2);
+            Assert.True(lint[3] == 3);
+
+            lint = lint.RemoveAt(2);
+
+            Assert.True(lint[0] == 0);
+            Assert.True(lint[1] == 1);
+            Assert.True(lint[2] == 3);
+
+            lint = lint.Insert(2, 500);
+
+            Assert.True(lint[0] == 0);
+            Assert.True(lint[1] == 1);
+            Assert.True(lint[2] == 500);
+            Assert.True(lint[3] == 3);
+        }
+
+        [Fact]
+        public void SetItemManyTest()
+        {
+            var range = Range(0, 100).Freeze();
+            for (int i = 0; i < 100; i++)
+            {
+                range = range.SetItem(i, i * 2);
+                Assert.True(range[i] == i * 2);
+                for(var b = 0; b < i; b++)
+                {
+                    Assert.True(range[b] == b * 2);
+                }
+                for (var a = i + 1; a < 100; a++)
+                {
+                    Assert.True(range[a] == a);
+                }
+            }
+        }
+
+        [Fact]
+        public void RemoveAtInsertManyTest()
+        {
+            var range = Range(0, 100).Freeze();
+            for (int i = 0; i < 100; i++)
+            {
+                range = range.RemoveAt(i);
+                Assert.True(range.Count == 99);
+                range = range.Insert(i, i * 2);
+                Assert.True(range[i] == i * 2);
+                for (var b = 0; b < i; b++)
+                {
+                    Assert.True(range[b] == b * 2);
+                }
+                for (var a = i + 1; a < 100; a++)
+                {
+                    Assert.True(range[a] == a);
+                }
+            }
+        }
     }
 }

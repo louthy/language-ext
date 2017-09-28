@@ -525,13 +525,19 @@ namespace LanguageExt
             {
                 return new ListItem<T>(1, 1, key, ListItem<T>.Empty, ListItem<T>.Empty);
             }
-            if (index <= node.Left.Count)
+            else if (index == node.Left.Count)
+            {
+                var insertedLeft = Balance(Make(key, node.Left, ListItem<T>.Empty));
+                var newThis = Balance(Make(node.Key, insertedLeft, node.Right));
+                return newThis;
+            }
+            else if (index < node.Left.Count)
             {
                 return Balance(Make(node.Key, Insert(node.Left, key, index), node.Right));
             }
             else
             {
-                return Balance(Make(node.Key, node.Left, Insert(node.Right, key, index)));
+                return Balance(Make(node.Key, node.Left, Insert(node.Right, key, index - node.Left.Count - 1)));
             }
         }
 
@@ -541,13 +547,19 @@ namespace LanguageExt
             {
                 return insertNode;
             }
-            if (index <= node.Left.Count)
+            else if (index == node.Left.Count)
+            {
+                var insertedLeft = Balance(Make(insertNode.Key, node.Left, ListItem<T>.Empty));
+                var newThis = Balance(Make(node.Key, insertedLeft, node.Right));
+                return newThis;
+            }
+            else if (index < node.Left.Count)
             {
                 return Balance(Make(node.Key, Insert(node.Left, insertNode, index), node.Right));
             }
             else
             {
-                return Balance(Make(node.Key, node.Left, Insert(node.Right, insertNode, index)));
+                return Balance(Make(node.Key, node.Left, Insert(node.Right, insertNode, index - node.Left.Count - 1)));
             }
         }
 
@@ -581,7 +593,7 @@ namespace LanguageExt
             }
             else
             {
-                return new ListItem<T>(node.Height, node.Count, node.Key, SetItem(node.Right, key, index - node.Left.Count -1), node.Right);
+                return new ListItem<T>(node.Height, node.Count, node.Key, node.Left, SetItem(node.Right, key, index - node.Left.Count - 1));
             }
         }
 
