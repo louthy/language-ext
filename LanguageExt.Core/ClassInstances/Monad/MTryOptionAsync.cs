@@ -38,9 +38,11 @@ namespace LanguageExt.ClassInstances
                             ? default(MONADB).Fail(new TaskCanceledException())
                             : task.Result.IsFaulted
                                 ? default(MONADB).Fail(task.Result.Exception)
-                                : task.Result.Value.IsNone || task.Result.IsBottom
-                                    ? default(MONADB).Fail(new TaskCanceledException())
-                                    : f(task.Result.Value.Value);
+                                : task.Result.Value.IsNone
+                                    ? default(MONADB).Fail(Option<A>.None)
+                                    : task.Result.IsBottom
+                                        ? default(MONADB).Fail(BottomException.Default)
+                                        : f(task.Result.Value.Value);
                 }
                 catch(Exception e)
                 {

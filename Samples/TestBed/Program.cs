@@ -9,11 +9,33 @@ using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
+using System.Threading.Tasks;
+
+public static class Global
+{
+    public static Option<Guid> ToOption(this Guid id) =>
+        id == default(Guid) ? Option<Guid>.None : Some(id);
+}
+
+public class Gender : NewType<Gender, int>
+{
+    public Gender(int value) : base(value)
+    {
+    }
+}
+
+public interface IRepository
+{
+    Task<Option<Gender>> GetGenderByIdAsync(Guid id);
+}
+
 
 class Program
 {
     static void Main(string[] args)
     {
+        var r = MonadicGetGenderByIdAsync(Guid.NewGuid()).Result;
+
         WriterTest1();
         WriterTest2();
         WriterTest3();
@@ -40,6 +62,23 @@ class Program
 
 
         Console.WriteLine("Coming soon");
+    }
+
+    public static Task<Option<Gender>> GetGenderByIdAsync(Guid id) =>
+        Task.FromResult(Some(new Gender(1)));
+
+    public static async Task<Result<Gender>> MonadicGetGenderByIdAsync(Guid id)
+    {
+        var program =
+            from i in id.ToOption().ToTryOptionAsync()
+            from g in GetGenderByIdAsync(i).ToTryOptionAsync()
+            select g;
+
+        return (await program()).Match(
+            Some: gender => new Result<Gender>(gender),
+            None: () => Result<Gender>.None,
+            Fail: e => Result<Gender>.Bottom
+        );
     }
 
     static void WriterTest1()
