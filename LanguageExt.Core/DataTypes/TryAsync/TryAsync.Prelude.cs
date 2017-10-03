@@ -17,9 +17,21 @@ namespace LanguageExt
         /// <param name="f">Function to run asynchronously</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
-        public static TryAsync<A> TryAsync<A>(Func<A> f) => 
+        public static TryAsync<A> TryAsync<A>(Func<A> f) =>
             TryAsyncExtensions.Memo<A>(() =>
+            
                 Task.Run(() => new Result<A>(f())));
+
+        /// <summary>
+        /// TryAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="f">Asynchronous function to run asynchronously</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryAsync<A> TryAsyncAsync<A>(Func<Task<A>> f) =>
+            TryAsyncExtensions.Memo<A>(() =>
+                f().Map(r => new Result<A>(r)));
 
         /// <summary>
         /// TryAsync identity constructor function

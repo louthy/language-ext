@@ -211,6 +211,7 @@ namespace LanguageExt.Tests
 
             Assert.True(ab == "hello", $"Actually got {ab}");
         }
+
         [Fact]
         public async void BindingWithTryOptionFail3()
         {
@@ -238,6 +239,31 @@ namespace LanguageExt.Tests
                     Fail: ex => ex.Message));
 
             Assert.True(ab == "NONE", $"Actually got {ab}");
+        }
+
+        [Fact]
+        public async void AsyncBindingWithTryOptionSuccess()
+        {
+            var ma = TryAsyncAsync(async () =>
+            {
+                await Task.Delay(1000);
+                return 100;
+            });
+
+            var mb = TryOptionAsyncAsync(async () =>
+            {
+                await Task.Delay(1000);
+                return 100;
+            });
+
+            var res = AsyncHelper.CompletesImmediately(() =>
+                MTryAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(ma, a =>
+                    MTryOptionAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(mb, b =>
+                        TryAsync(a + b))));
+
+            var ab = await AsyncHelper.TakesRoughly(2000, () => res.IfFail(0));
+
+            Assert.True(ab == 200);
         }
 
         [Fact]
