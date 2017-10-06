@@ -32,12 +32,22 @@ namespace LanguageExt
             new HashSet<U>(value);
 
         /// <summary>
-        /// Ctor that takes an initial (distinct) set of items
+        /// Ctor from an enumerable 
         /// </summary>
         /// <param name="items"></param>
-        internal HashSet(IEnumerable<A> items, bool checkUniqueness = false)
+        internal HashSet(IEnumerable<A> items)
         {
-            value = new HashSetInternal<OrdDefault<A>, A>(items, checkUniqueness);
+            value = new HashSetInternal<OrdDefault<A>, A>(items, true);
+        }
+
+        /// <summary>
+        /// Ctor that takes an initial set of items
+        /// </summary>
+        /// <param name="items"></param>
+        /// <param name="tryAdd">true = ignore duplicates, false = check for distinct items</param>
+        internal HashSet(IEnumerable<A> items, bool tryAdd)
+        {
+            value = new HashSetInternal<OrdDefault<A>, A>(items, tryAdd);
         }
 
         /// <summary>
@@ -508,7 +518,7 @@ namespace LanguageExt
                     }
                 }
             }
-            return new HashSet<B>(Yield(), true);
+            return new HashSet<B>(Yield(), false);
         }
 
         [Pure]
@@ -526,7 +536,7 @@ namespace LanguageExt
                     }
                 }
             }
-            return new HashSet<C>(Yield(), true);
+            return new HashSet<C>(Yield(), false);
         }
     }
 }
