@@ -144,7 +144,49 @@ namespace LanguageExtTests
             Assert.True(rdr.Run(10).Value.IfNoneOrFail(0) == 200);
             Assert.True(rdr.Run(2).Value.IfNoneOrFail(0) == 0);
         }
-        
+
+        [Fact]
+        public void RWSTest()
+        {
+            var previous = RWS<MLst<string>, bool, Lst<string>,  Map<int, string>, int>(1);
+            var comp =
+                from val in previous
+                from state in get<MLst<string>, bool, Lst<string>, Map<int, string>, int>()
+                from env in ask<MLst<string>, bool, Lst<string>, Map<int, string>>()
+                from _ in put<MLst<string>, bool, Lst<string>, Map<int, string>, int>(state.Add(2, "B"))
+                from __ in tell<MLst<string>, bool, Lst<string>, Map<int, string>, int>(List($"{val}", $"{env}"))
+                select val + 2;
+
+            var (value, output, finalState, faulted) = comp(true, Map((1, "a")));
+            Assert.True(value == 3);
+            Assert.True(output == List("1", "True"));
+            Assert.True(finalState == Map((1, "a"), (2, "B")));
+        }
+
+        [Fact]
+        public void RWSFailTest()
+        {
+            var previous = RWS<MLst<string>, bool, Lst<string>,  Map<int, string>, int>(1);
+            var comp =
+                from val in previous
+                from _ in modify<MLst<string>, bool, Lst<string>, Map<int, string>, int>(_ => failwith<Map<int,string>>(""))
+                select val + 2;
+
+            Assert.ThrowsAny<Exception>(act(comp.Run(false, Map((1, "a"))).Value.IfFailThrow));
+        }
+
+        [Fact]
+        public void RWSBottomTest()
+        {
+            var previous = RWS<MLst<string>, bool, Lst<string>,  Map<int, string>, int>(1);
+            var comp =
+                from val in previous
+                where false
+                select val + 3;
+
+            Assert.ThrowsAny<Exception>(act(comp.Run(false, Map((1, "a"))).Value.IfFailThrow));
+        }
+
         // TODO: Restore when type-classes are complete
         //[Fact]
         //public void ReaderListSumFoldTest()

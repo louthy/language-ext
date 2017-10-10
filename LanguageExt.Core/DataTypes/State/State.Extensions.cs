@@ -123,7 +123,7 @@ public static class StateExtensions
 
     /// <summary>
     /// Monadic state transformer.
-    /// Maps an old state to a new state inside a state monad.The old state is thrown away.
+    /// Maps an old state to a new state inside a state monad.  The old state is thrown away.
     /// </summary>
     [Pure]
     public static State<S, Unit> Modify<S, A>(this State<S, A> self, Func<S, S> f) => state =>
