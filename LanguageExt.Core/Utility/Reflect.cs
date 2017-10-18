@@ -30,7 +30,7 @@ namespace LanguageExt
 #if !COREFX13
                                     .OrderBy(p => p.MetadataToken)
 #endif
-                                    .Where(p => p.CanRead && p.GetMethod.IsPublic)
+                                    .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetAccessors(true)[0].IsStatic)
                                     .Where(p => !toSet(p.CustomAttributes.Map(a => a.AttributeType.Name)).Intersect(excludeAttrsSet).Any())
                                     .ToArray();
 
