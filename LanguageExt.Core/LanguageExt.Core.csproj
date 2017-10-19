@@ -12,7 +12,6 @@
     <DefineConstants>COREFX13</DefineConstants>
   </PropertyGroup>-->
   <PropertyGroup>
-    <PackageVersion>2.1.22</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>

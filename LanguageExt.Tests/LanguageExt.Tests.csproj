@@ -1,8 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
-    <FileVersion>2.0.0.0</FileVersion>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="LanguageExt.Tests.nuget.props" />
