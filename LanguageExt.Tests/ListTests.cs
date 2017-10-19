@@ -383,5 +383,36 @@ namespace LanguageExtTests
                 }
             }
         }
+
+
+        [Fact]
+        public void ListShouldRemoveByReference()
+        {
+            var o0 = new Object();
+            var o1 = new Object();
+            var o2 = new Object();
+            var l = List(o0, o1);
+            l = l.Remove(o2);
+            Assert.Equal( 2, l.Count );
+            l = l.Remove(o0);
+            Assert.Equal( 1, l.Count );
+            l = l.Remove(o1);
+            Assert.Equal( 0, l.Count );
+        }
+
+        [Fact]
+        public void ListShouldRemoveByReferenceForReverseLists()
+        {
+            var o0 = new Object();
+            var o1 = new Object();
+            var o2 = new Object();
+            var l = List(o0, o1).Reverse();
+            l = l.Remove(o2);
+            Assert.Equal( 2, l.Count );
+            l = l.Remove(o0);
+            Assert.Equal( 1, l.Count );
+            l = l.Remove(o1);
+            Assert.Equal( 0, l.Count );
+        }
     }
 }
