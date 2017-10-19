@@ -449,6 +449,22 @@ namespace LanguageExt
         public override bool Equals(object obj) =>
             obj is Arr<A> && Equals((Arr<A>)obj);
 
+        [Pure]
+        public bool Equals(Arr<A> obj) =>
+            SafeEquals(Value, obj.Value);
+
+
+        private static bool SafeEquals(A[] strA, A[] strB)
+        {
+            var length = strA.Length;
+            if (length != strB.Length)
+                return false;
+            for (var i = 0; i < length; i++)
+                if (!strA[i].Equals( strB[i] ))
+                    return false;
+            return true;
+        }
+
         /// <summary>
         /// Get the hash code
         /// Lazily (and once only) calculates the hash from the elements in the array
