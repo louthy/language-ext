@@ -219,8 +219,11 @@ namespace LanguageExt
         /// Remove an item from the list
         /// </summary>
         [Pure]
-        public LstInternal<A> Remove(A value) => 
-            Remove(value, Comparer<A>.Default);
+        public LstInternal<A> Remove(A value, IEqualityComparer<A> equalityComparer = null)
+        {
+            var i = IndexOf( value, equalityComparer: equalityComparer );
+            return i >= 0 ? RemoveAt( i )  : this;
+        }
 
         /// <summary>
         /// Remove an item from the list

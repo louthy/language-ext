@@ -175,8 +175,8 @@ namespace LanguageExt
         /// Remove an item from the list
         /// </summary>
         [Pure]
-        public Lst<A> Remove(A value) =>
-            Wrap(Value.Remove(value));
+        public Lst<A> Remove(A value, IEqualityComparer<A> equalityComparer = null) => 
+            Wrap( Value.Remove( value, equalityComparer ) );
 
         /// <summary>
         /// Remove an item from the list
