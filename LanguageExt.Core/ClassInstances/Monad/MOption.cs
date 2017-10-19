@@ -125,7 +125,7 @@ namespace LanguageExt.ClassInstances
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return Check.NullReturn(ma.IsNone
+            return Check.NullReturn(ma.IsSome
                 ? fa(state, ma.Value)
                 : fb(state, unit));
         }
@@ -136,7 +136,7 @@ namespace LanguageExt.ClassInstances
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return Check.NullReturn(ma.IsNone
+            return Check.NullReturn(ma.IsSome
                 ? fa(state, ma.Value)
                 : fb(state, unit));
         }
