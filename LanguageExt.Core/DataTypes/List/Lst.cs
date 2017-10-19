@@ -175,8 +175,11 @@ namespace LanguageExt
         /// Remove an item from the list
         /// </summary>
         [Pure]
-        public Lst<A> Remove(A value) =>
-            Wrap(Value.Remove(value));
+        public Lst<A> Remove(A value)
+        {
+            var i = Value.IndexOf( value );
+            return i >= 0 ? Wrap( Value.RemoveAt( i ) ) : this;
+        }
 
         /// <summary>
         /// Remove an item from the list
