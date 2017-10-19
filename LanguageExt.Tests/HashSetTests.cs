@@ -157,5 +157,17 @@ namespace LanguageExtTests
             Assert.True(m.Count == 0);
             Assert.True(m.Find("e").IsNone);
         }
+
+        [Fact]
+        public void EqualsTest()
+        {
+            Assert.False( HashSet( 1, 2, 3 ).Equals( HashSet<int>()));
+            Assert.False( HashSet<int>( ).Equals( HashSet<int>(1,2,3)));
+            Assert.True( HashSet<int>( ).Equals( HashSet<int>()));
+            Assert.True( HashSet<int>(1 ).Equals( HashSet<int>(1)));
+            Assert.True( HashSet<int>(1,2 ).Equals( HashSet<int>(1,2)));
+            Assert.False( HashSet<int>(1,2 ).Equals( HashSet<int>(1,2,3)));
+            Assert.False( HashSet<int>(1,2,3 ).Equals( HashSet<int>(1,2)));
+        }
     }
 }

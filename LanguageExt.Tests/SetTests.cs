@@ -40,5 +40,17 @@ namespace LanguageExt.Tests
             Assert.True(set.Contains("three"));
             Assert.True(set.Contains("thREE"));
         }
+
+        [Fact]
+        public void EqualsTest()
+        {
+            Assert.False( Set( 1, 2, 3 ).Equals( Set<int>()));
+            Assert.False( Set<int>( ).Equals( Set<int>(1,2,3)));
+            Assert.True( Set<int>( ).Equals( Set<int>()));
+            Assert.True( Set<int>(1 ).Equals( Set<int>(1)));
+            Assert.True( Set<int>(1,2 ).Equals( Set<int>(1,2)));
+            Assert.False( Set<int>(1,2 ).Equals( Set<int>(1,2,3)));
+            Assert.False( Set<int>(1,2,3 ).Equals( Set<int>(1,2)));
+        }
     }
 }
