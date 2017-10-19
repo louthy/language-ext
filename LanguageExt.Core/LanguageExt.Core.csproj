@@ -67,6 +67,11 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="System.Reflection.TypeExtensions">
+      <HintPath>..\..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.netcore.app\2.0.0\ref\netcoreapp2.0\System.Reflection.TypeExtensions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Update="HKT\HKT.Extensions.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

@@ -219,9 +219,9 @@ namespace LanguageExt
         /// Remove an item from the list
         /// </summary>
         [Pure]
-        public LstInternal<A> Remove(A value)
+        public LstInternal<A> Remove(A value, IEqualityComparer<A> equalityComparer = null)
         {
-            var i = IndexOf( value );
+            var i = IndexOf( value, equalityComparer: equalityComparer );
             return i >= 0 ? RemoveAt( i )  : this;
         }
 
