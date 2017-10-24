@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
+using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.ClassInstances
 {
@@ -29,6 +31,14 @@ namespace LanguageExt.ClassInstances
             All = ClassInstancesAssembly.ClassInstances
                                         .Find(typeof(A).GetTypeInfo())
                                         .IfNone(Set.empty<OrdTypeInfo, TypeInfo>());
+
+            if(All.Count == 1)
+            {
+                Default = (A)Activator.CreateInstance(All.Head().AsType());
+                return;
+            }
+
+            All = toSet<OrdTypeInfo,TypeInfo>( GetOrderableContainerOrd().Select(v=>v.GetTypeInfo()));
 
             if(All.Count == 1)
             {
@@ -66,6 +76,64 @@ namespace LanguageExt.ClassInstances
 
             // Create the class instance
             Default = (A)Activator.CreateInstance(defaultTypes.Head().AsType());
+        }
+
+        /// <summary>
+        /// The pattern we are trying to match here is
+        /// <![CDATA[M<N<T>>]]>
+        /// which for examples models <![CDATA[Ord<Set<T>>]]>
+        /// The generated type needs to match <![CDATA[MN<MT,T>]]> 
+        /// or for our concrete example <![CDATA[OrdSet<OrdInt,Int32>]]>
+        /// </summary>
+        /// <returns></returns>
+        public static Option<Type> GetOrderableContainerOrd()
+        {
+
+            Option<TypeInfo> ArityOneGeneric(TypeInfo baseInfo)
+            {
+                return baseInfo.GenericTypeArguments == null || baseInfo.GenericTypeArguments.Length != 1
+                    ? (Option<TypeInfo>) None
+                    : baseInfo.GenericTypeArguments[0].GetTypeInfo();
+            }
+
+            string RemoveGenerics(string name) => FirstCharToUpper(OrdNameMaps(name.Split( '`' ).Head()));
+
+            var mType = typeof(A).GetTypeInfo();
+
+
+            var mTypeName = RemoveGenerics( mType.Name );
+            return
+                from nType in ArityOneGeneric( mType )
+                let nTypeName = RemoveGenerics( nType.Name )
+                from tType in ArityOneGeneric( nType )
+                let tTypeName = RemoveGenerics( tType.Name )
+                let mnTypeName = mTypeName + nTypeName + "`2"
+                let mtTypeName = mTypeName + tTypeName
+                from mnType in ClassInstancesAssembly.Structs.Where( t => t.Name == mnTypeName ).HeadOrNone()
+                from ntType in ClassInstancesAssembly.Structs.Where( t => t.Name == mtTypeName ).HeadOrNone()
+                select mnType.MakeGenericType( ntType, tType );
+
+        }
+
+        static string OrdNameMaps(string typename)
+        {
+            switch (typename)
+            {
+                case "Int32": return "Int";
+                case "Int64": return "Long";
+                default: return typename;
+            }
+        }
+
+
+        public static string FirstCharToUpper(string input)
+        {
+            switch (input)
+            {
+                case null: throw new ArgumentNullException(nameof(input));
+                case "": throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input));
+                default: return input.First().ToString().ToUpper() + input.Substring(1);
+            }
         }
 
         static A TryHigherKind()

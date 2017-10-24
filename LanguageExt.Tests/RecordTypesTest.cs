@@ -3,8 +3,10 @@ using LanguageExt.TypeClasses;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using Xunit;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests
 {
@@ -354,6 +356,83 @@ namespace LanguageExt.Tests
             var y = new TestClass2(1, "Hello", Guid.NewGuid());
 
             Assert.True(x.ToString() == y.ToString());
+        }
+    }
+
+    /*
+    public struct OrdSet<T> : Ord<Set<T>>
+    {
+        public bool Equals(Set<T> x, Set<T> y)
+        {
+            return default(OrdSet<OrdInt, int>).Compare( x,y )==0;
+        }
+
+        public int GetHashCode(Set<T> x)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Compare(Set<T> x, Set<T> y)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    */
+
+    public class ContainerOrderingTests
+    {
+        public class WithSet : Record<WithSet>
+        {
+            public WithSet(int i, Set<int> s, Arr<int> a, Lst<int> l)
+            {
+                I = i;
+                S = s;
+                A = a;
+                L = l;
+            }
+
+            public int I { get; }
+            public Set<int> S { get; }
+            public Lst<int> L { get; }
+            public Arr<int> A { get; }
+        }
+
+        [Fact]
+        public void GetOrderableContainerOrderWorks()
+        {
+            var type = Class<Ord<Set<int>>>.GetOrderableContainerOrd();
+            Assert.True( type.IsSome );
+
+        }
+
+        [Fact]
+        public void CanFindOrdForSet()
+        {
+            var ord = Class<Ord<Set<int>>>.Default;
+            Assert.NotNull( ord );
+            Assert.Equal
+                ( 0
+                  , ord.Compare( Set( 0, 1, 2 ), Set( 0, 1, 2 ) ) );
+        }
+
+        [Fact]
+        public void SetOrderingWorks()
+        {
+            {
+                var a = new WithSet( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 ) );
+                var b = new WithSet( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 ) );
+                Assert.Equal( 0, a.CompareTo( b ) );
+            }
+            {
+                var a = new WithSet( 0, Set( 0, 1, 2 ), Array( 1, 1, 2 ), List( 0, 1, 2 ) );
+                var b = new WithSet( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 ) );
+                Assert.Equal( 1, a.CompareTo( b ) );
+            }
+            {
+                var a = new WithSet( 0, Set( 0, 1, 2 ), Array( -1, 1, 2 ), List( 0, 1, 2 ) );
+                var b = new WithSet( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 ) );
+                Assert.Equal( -1, a.CompareTo( b ) );
+            }
         }
     }
 }
