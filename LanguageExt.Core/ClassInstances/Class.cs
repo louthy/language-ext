@@ -46,6 +46,14 @@ namespace LanguageExt.ClassInstances
                 return;
             }
 
+            All = toSet<OrdTypeInfo,TypeInfo>( GetOrderableContainerOrd2().Select(v=>v.GetTypeInfo()));
+
+            if(All.Count == 1)
+            {
+                Default = (A)Activator.CreateInstance(All.Head().AsType());
+                return;
+            }
+
             //if(All.Count == 0)
             //{
             //    Default = TryHigherKind();
@@ -78,6 +86,22 @@ namespace LanguageExt.ClassInstances
             Default = (A)Activator.CreateInstance(defaultTypes.Head().AsType());
         }
 
+
+        private static Option<TypeInfo> ArityOneGeneric(TypeInfo baseInfo)
+        {
+            return baseInfo.GenericTypeArguments != null && baseInfo.GenericTypeArguments.Length == 1
+                ? Some(baseInfo.GenericTypeArguments[0].GetTypeInfo())
+                : None;
+        }
+        private static Option<(TypeInfo,TypeInfo)> ArityTwoGeneric(TypeInfo baseInfo)
+        {
+            var e = baseInfo.GenericTypeArguments;
+            if (e == null || e.Length!=2)
+                return None;
+            return (e[0].GetTypeInfo(), e[1].GetTypeInfo());
+        }
+        private static string RemoveGenerics(string name) => FirstCharToUpper(OrdNameMaps(name.Split('`').Head()));
+
         /// <summary>
         /// The pattern we are trying to match here is
         /// <![CDATA[M<N<T>>]]>
@@ -88,18 +112,7 @@ namespace LanguageExt.ClassInstances
         /// <returns></returns>
         public static Option<Type> GetOrderableContainerOrd()
         {
-
-            Option<TypeInfo> ArityOneGeneric(TypeInfo baseInfo)
-            {
-                return baseInfo.GenericTypeArguments == null || baseInfo.GenericTypeArguments.Length != 1
-                    ? (Option<TypeInfo>) None
-                    : baseInfo.GenericTypeArguments[0].GetTypeInfo();
-            }
-
-            string RemoveGenerics(string name) => FirstCharToUpper(OrdNameMaps(name.Split( '`' ).Head()));
-
             var mType = typeof(A).GetTypeInfo();
-
 
             var mTypeName = RemoveGenerics( mType.Name );
             return
@@ -114,6 +127,33 @@ namespace LanguageExt.ClassInstances
                 select mnType.MakeGenericType( ntType, tType );
 
         }
+
+        /// <summary>
+        /// The pattern we are trying to match here is
+        /// <![CDATA[M<N<K,T>>]]>
+        /// which for examples models <![CDATA[Ord<Set<OrdT,T>>]]>
+        /// The generated type needs to match <![CDATA[MN<OrdT,T>]]> 
+        /// or for our concrete example <![CDATA[OrdSet<OrdInt,Int32>]]>
+        /// </summary>
+        /// <returns></returns>
+        public static Option<Type> GetOrderableContainerOrd2()
+        {
+
+            var mType = typeof(A).GetTypeInfo();
+
+            var mTypeName = RemoveGenerics( mType.Name );
+
+            return from nType in ArityOneGeneric( mType )
+                   let nTypeName = RemoveGenerics( nType.Name )
+                   from  ktTypes in ArityTwoGeneric( nType )
+                   let kTypeName = RemoveGenerics( ktTypes.Item1.Name )
+                   let tTypeName = RemoveGenerics( ktTypes.Item2.Name )
+                   let mnTypeName = mTypeName + nTypeName + "`2"
+                   from mnType in ClassInstancesAssembly.Structs.Where( t => t.Name == mnTypeName ).HeadOrNone()
+                   select mnType.MakeGenericType( ktTypes.Item1, ktTypes.Item2 );
+
+        }
+
 
         static string OrdNameMaps(string typename)
         {

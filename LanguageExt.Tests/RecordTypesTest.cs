@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using SimpleInjector.Advanced;
 using Xunit;
 using static LanguageExt.Prelude;
 
@@ -379,11 +380,46 @@ namespace LanguageExt.Tests
     }
     */
 
-    public class ContainerOrderingTests
+    /// <summary>
+    /// These test will all fail because there is no <![CDATA[ OrdSet for Set<ORD,T> ]]>
+    /// </summary>
+    public class ContainerWithCustomOrdOrderingTests
     {
-        public class WithSet : Record<WithSet>
+        public class Data : Record<Data>
         {
-            public WithSet(int i, Set<int> s, Arr<int> a, Lst<int> l)
+            public Data(Set<OrdInt, int> so)
+            {
+                SO = so;
+            }
+
+            public Set<OrdInt, int> SO { get; }
+        }
+
+        [Fact]
+        public void GetOrderableContainerOrd2Works()
+        {
+            var type = Class<Ord<Set<OrdInt, int>>>.GetOrderableContainerOrd2();
+
+            // Type should be OrdSet<OrdInt,int>
+            Assert.True(type.IsSome);
+        }
+
+        [Fact]
+        public void SetOrderingWorks()
+        {
+            {
+                var a = new Data(Set<OrdInt, int>(0, 1, 2));
+                var b = new Data(Set<OrdInt, int>(0, 1, 2));
+                Assert.Equal(0, a.CompareTo(b));
+            }
+        }
+    }
+
+    public class ContainerWithOrderingTests
+    {
+        public class Data : Record<Data>
+        {
+            public Data(int i, Set<int> s, Arr<int> a, Lst<int> l)
             {
                 I = i;
                 S = s;
@@ -395,10 +431,11 @@ namespace LanguageExt.Tests
             public Set<int> S { get; }
             public Lst<int> L { get; }
             public Arr<int> A { get; }
+
         }
 
         [Fact]
-        public void GetOrderableContainerOrderWorks()
+        public void GetOrderableContainerOrdWorks()
         {
             var type = Class<Ord<Set<int>>>.GetOrderableContainerOrd();
             Assert.True( type.IsSome );
@@ -406,31 +443,21 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void CanFindOrdForSet()
-        {
-            var ord = Class<Ord<Set<int>>>.Default;
-            Assert.NotNull( ord );
-            Assert.Equal
-                ( 0
-                  , ord.Compare( Set( 0, 1, 2 ), Set( 0, 1, 2 ) ) );
-        }
-
-        [Fact]
         public void SetOrderingWorks()
         {
             {
-                var a = new WithSet( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 ) );
-                var b = new WithSet( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 ) );
+                var a = new Data( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 ));
+                var b = new Data( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 ));
                 Assert.Equal( 0, a.CompareTo( b ) );
             }
             {
-                var a = new WithSet( 0, Set( 0, 1, 2 ), Array( 1, 1, 2 ), List( 0, 1, 2 ) );
-                var b = new WithSet( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 ) );
+                var a = new Data( 0, Set( 0, 1, 2 ), Array( 1, 1, 2 ), List( 0, 1, 2 ));
+                var b = new Data( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 ));
                 Assert.Equal( 1, a.CompareTo( b ) );
             }
             {
-                var a = new WithSet( 0, Set( 0, 1, 2 ), Array( -1, 1, 2 ), List( 0, 1, 2 ) );
-                var b = new WithSet( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 ) );
+                var a = new Data( 0, Set( 0, 1, 2 ), Array( -1, 1, 2 ), List( 0, 1, 2 ) );
+                var b = new Data( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 )  );
                 Assert.Equal( -1, a.CompareTo( b ) );
             }
         }
