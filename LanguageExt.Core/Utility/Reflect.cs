@@ -30,7 +30,7 @@ namespace LanguageExt
 #if !COREFX13
                                     .OrderBy(p => p.MetadataToken)
 #endif
-                                    .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetAccessors(true)[0].IsStatic)
+                                    .Where(p => p.CanRead && p.GetMethod.IsPublic && !IsStatic(p))
                                     .Where(p => !toSet(p.CustomAttributes.Map(a => a.AttributeType.Name)).Intersect(excludeAttrsSet).Any())
                                     .ToArray();
 
@@ -46,6 +46,18 @@ namespace LanguageExt
 
             return Enumerable.Concat(publicFields, backingFields);
         }
+
+        /// <summary>
+        /// Returns true if the property is static by inspecting
+        /// the static property of the accessors. Note that if
+        /// there are no accessors then the property is assumed
+        /// to be **non static**. Not sure that this case is
+        /// even possible in CLR.
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public static bool IsStatic
+            (PropertyInfo p) => p.GetAccessors( true ).HeadOrNone().Map( x => x.IsStatic ).IfNone( false );
 
         public static Option<MethodInfo> GetPublicStaticMethod(Type type, string name, Type argA) =>
             type.GetTypeInfo()
