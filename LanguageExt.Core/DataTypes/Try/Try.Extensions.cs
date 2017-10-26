@@ -206,12 +206,15 @@ public static class TryExtensions
             : Optional(res.Value);
     }
 
+
     [Pure]
     public static TryOption<A> ToTryOption<A>(this Try<A> self) => () =>
     {
         var res = self.Try();
         return res.IsFaulted
-            ? None
+            ? res.Exception == null || res.Exception is BottomException || res.Exception is ValueIsNoneException || res.Exception is ValueIsNullException
+                ? None
+                : throw new InnerException(res.Exception)
             : Optional(res.Value);
     };
 
