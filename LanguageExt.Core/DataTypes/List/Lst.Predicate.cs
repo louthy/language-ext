@@ -182,24 +182,24 @@ namespace LanguageExt
             Value.LastIndexOf(item, index, count, equalityComparer);
 
         /// <summary>
-        /// Remove an item from the list
+        /// Remove all items that match the value from the list
         /// </summary>
         [Pure]
         public Lst<PRED, A> Remove(A value) =>
             Wrap(Value.Remove(value));
 
         /// <summary>
-        /// Remove an item from the list
+        /// Remove all items that match the value from the list
         /// </summary>
         [Pure]
-        public Lst<PRED, A> Remove(A value, IComparer<A> equalityComparer) =>
+        public Lst<PRED, A> Remove(A value, IEqualityComparer<A> equalityComparer) =>
             Wrap(Value.Remove(value, equalityComparer));
 
         /// <summary>
         /// Remove all items that match a predicate
         /// </summary>
         [Pure]
-        public Lst<PRED, A> RemoveAll(Predicate<A> pred) =>
+        public Lst<PRED, A> RemoveAll(Func<A, bool> pred) =>
             Wrap(Value.RemoveAll(pred));
 
         /// <summary>

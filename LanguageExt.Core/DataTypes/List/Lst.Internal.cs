@@ -220,41 +220,21 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public LstInternal<A> Remove(A value) => 
-            Remove(value, Comparer<A>.Default);
+            Remove(value, EqualityComparer<A>.Default);
 
         /// <summary>
-        /// Remove an item from the list
+        /// Remove all items that match `value` from the list
         /// </summary>
         [Pure]
-        public LstInternal<A> Remove(A value, IComparer<A> equalityComparer)
-        {
-            var index = ListModule.Find(Root, value, 0, Count, equalityComparer);
-            return index >= 0 && index < Count
-                ? Wrap(ListModule.Remove(Root, index), Rev)
-                : this;
-        }
+        public LstInternal<A> Remove(A value, IEqualityComparer<A> equalityComparer) =>
+            Wrap(ListModule.Remove(Root, value, equalityComparer));
 
         /// <summary>
         /// Remove all items that match a predicate
         /// </summary>
         [Pure]
-        public LstInternal<A> RemoveAll(Predicate<A> pred)
-        {
-            var self = this;
-            int index = 0;
-            foreach (var item in this)
-            {
-                if (pred(item))
-                {
-                    self = self.RemoveAt(index);
-                }
-                else
-                {
-                    index++;
-                }
-            }
-            return self;
-        }
+        public LstInternal<A> RemoveAll(Func<A, bool> pred) =>
+            Wrap(ListModule.Remove(Root, pred));
 
         /// <summary>
         /// Remove item at location
@@ -616,6 +596,105 @@ namespace LanguageExt
             {
                 return GetItem(node.Right, index - node.Left.Count - 1);
             }
+        }
+
+
+        public static ListItem<T> Remove<T>(ListItem<T> node, Func<T, bool> pred)
+        {
+            if (node.IsEmpty)
+            {
+                return node;
+            }
+
+            var result = node;
+
+            var left = node.Left.IsEmpty ? node.Left : Remove(node.Left, pred);
+            var right = node.Right.IsEmpty ? node.Right : Remove(node.Right, pred);
+
+            if (pred.Equals(node.Key))
+            {
+                if (right.IsEmpty && left.IsEmpty)
+                {
+                    result = ListItem<T>.Empty;
+                }
+                else if (right.IsEmpty && !left.IsEmpty)
+                {
+                    result = left;
+                }
+                else if (!right.IsEmpty && left.IsEmpty)
+                {
+                    result = Balance(right);
+                }
+                else
+                {
+                    var next = right;
+                    while (!next.Left.IsEmpty)
+                    {
+                        next = next.Left;
+                    }
+
+                    right = Remove(right, 0);
+                    result = Balance(Make(next.Key, left, right));
+                }
+            }
+            else
+            {
+                if (!ReferenceEquals(left, node.Left) || !ReferenceEquals(right, node.Right))
+                {
+                    result = Balance(Make(node.Key, left, right));
+                }
+            }
+
+            return result.IsEmpty || result.IsBalanced ? result : Balance(result);
+        }
+
+        public static ListItem<T> Remove<T>(ListItem<T> node, T value, IEqualityComparer<T> compare)
+        {
+            if (node.IsEmpty)
+            {
+                return node;
+            }
+
+            var result = node;
+
+            var left = node.Left.IsEmpty ? node.Left : Remove(node.Left, value, compare);
+            var right = node.Right.IsEmpty ? node.Right : Remove(node.Right, value, compare);
+
+            if (ReferenceEquals(node.Key, value) || compare.Equals(node.Key, value))
+            {
+                if (right.IsEmpty && left.IsEmpty)
+                {
+                    result = ListItem<T>.Empty;
+                }
+                else if (right.IsEmpty && !left.IsEmpty)
+                {
+                    result = left;
+                }
+                else if (!right.IsEmpty && left.IsEmpty)
+                {
+                    result = Balance(right);
+                }
+                else
+                {
+                    var next = right;
+                    while (!next.Left.IsEmpty)
+                    {
+                        next = next.Left;
+                    }
+
+                    right = Remove(right, 0);
+                    result = Balance(Make(next.Key, left, right));
+                }
+            }
+            else
+            {
+                if(!ReferenceEquals(left, node.Left) || !ReferenceEquals(right, node.Right))
+                {
+                    result = Balance(Make(node.Key, left, right));
+                }
+            }
+
+            return result.IsEmpty || result.IsBalanced ? result : Balance(result);
         }
 
         public static ListItem<T> Remove<T>(ListItem<T> node, int index)
