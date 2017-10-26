@@ -34,6 +34,9 @@ class Program
 {
     static void Main(string[] args)
     {
+        TraverseTest();
+        return;
+
         var r = MonadicGetGenderByIdAsync(Guid.NewGuid()).Result;
 
         WriterTest1();
@@ -62,6 +65,19 @@ class Program
 
 
         Console.WriteLine("Coming soon");
+    }
+
+    public static void TraverseTest()
+    {
+        List(
+            TryAsync(() => 1),
+            TryAsync(() => 2),
+            TryAsync(() => 3),
+            TryAsync(() => 4))
+        .Traverse(n => n)
+        .Match(Succ: res => Debug.Assert(res == List(1, 2, 3, 4)),
+               Fail: ex => Debug.Fail(ex.ToString()))
+        .GetAwaiter().GetResult();
     }
 
     public static Task<Option<Gender>> GetGenderByIdAsync(Guid id) =>

@@ -394,7 +394,7 @@ namespace LanguageExt.ClassInstances
             var completed = await Task.WhenAll(resA, resB);
 
             return !completed[0].IsFaulted && !completed[1].IsFaulted
-                ? f(completed[0].Value, completed[0].Value)
+                ? f(completed[0].Value, completed[1].Value)
                 : throw new AggregateException(Seq(completed[0].Exception, completed[1].Exception).Where(e => e != null));
         };
     }

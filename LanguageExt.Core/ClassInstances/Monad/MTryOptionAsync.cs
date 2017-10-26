@@ -324,7 +324,7 @@ namespace LanguageExt.ClassInstances
             var completed = await Task.WhenAll(resA, resB);
 
             return !completed[0].IsFaulted && !completed[1].IsFaulted && completed[0].Value.IsSome && completed[1].Value.IsSome
-                ? Option<A>.Some(f(completed[0].Value.Value, completed[0].Value.Value))
+                ? Option<A>.Some(f(completed[0].Value.Value, completed[1].Value.Value))
                 : Option<A>.None; // TODO: Propagate exceptions
         };
     }

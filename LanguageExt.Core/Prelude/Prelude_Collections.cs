@@ -332,8 +332,19 @@ namespace LanguageExt
         /// Create an immutable list
         /// </summary>
         [Pure]
-        public static Lst<T> List<T>(T x, params T[] xs) =>
-            new Lst<T>(x.Cons(xs));
+        public static Lst<T> List<T>(T x, params T[] xs)
+        {
+            return new Lst<T>(Yield());
+
+            IEnumerable<T> Yield()
+            {
+                yield return x;
+                foreach(var item in xs)
+                {
+                    yield return item;
+                }
+            }
+        }
 
         /// <summary>
         /// Create an immutable list
