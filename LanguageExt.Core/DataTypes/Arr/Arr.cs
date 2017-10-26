@@ -20,7 +20,9 @@ namespace LanguageExt
     public struct Arr<A> :
         IEnumerable<A>, 
         IReadOnlyList<A>,
-        IReadOnlyCollection<A>
+        IReadOnlyCollection<A>,
+        IEquatable<Arr<A>>,
+        IComparable<Arr<A>>
     {
         /// <summary>
         /// Empty array
@@ -461,8 +463,12 @@ namespace LanguageExt
                 : hashCode;
 
         [Pure]
-        public bool Equals(Lst<A> other) =>
-            Value.Equals(other.Value);
+        public bool Equals(Arr<A> other) =>
+            default(MArr<A>).Equals(this, other);
+
+        [Pure]
+        public int CompareTo(Arr<A> other) =>
+            default(MArr<A>).Compare(this, other);
 
         [Pure]
         public static bool operator ==(Arr<A> lhs, Arr<A> rhs) =>
