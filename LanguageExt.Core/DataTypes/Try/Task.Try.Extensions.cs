@@ -26,6 +26,25 @@ public static class TaskTryExtensions
         };
 
     /// <summary>
+    /// Convert a Task to a TryAsync<Unit>
+    /// </summary>
+    [Pure]
+    public static TryAsync<Unit> ToAsync(this Try<Task> self) =>
+        async () =>
+        {
+            try
+            {
+                var task = self.Try();
+                await task.Value;
+                return new Result<Unit>(Unit.Default);
+            }
+            catch (Exception e)
+            {
+                return new Result<Unit>(e);
+            }
+        };
+
+    /// <summary>
     /// Convert a Task<Try<A>> to a TryAsync<A>
     /// </summary>
     [Pure]
@@ -35,7 +54,6 @@ public static class TaskTryExtensions
             try
             {
                 var task = self.Try();
-                if (task.IsFaulted) return new Result<A>(task.Exception);
                 return await task.Value;
             }
             catch (Exception e)
