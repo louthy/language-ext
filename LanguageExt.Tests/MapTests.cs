@@ -306,5 +306,19 @@ namespace LanguageExtTests
 
             Assert.True(z == Map((2, 2)));
         }
+
+        [Fact]
+        public void EqualsTest()
+        {
+            Assert.True( Map<int,int>().Equals(Map<int,int>())  );
+            Assert.False( Map<int,int>((1,2)).Equals(Map<int,int>())  );
+            Assert.False( Map<int,int>().Equals(Map<int,int>((1,2)))  );
+            Assert.True( Map<int,int>((1,2)).Equals(Map<int,int>((1,2)))  );
+            Assert.False( Map<int,int>((1,2),(3,4)).Equals(Map<int,int>((1,2)))  );
+            Assert.False( Map<int,int>((1,2)).Equals(Map<int,int>((1,2),(3,4)))  );
+            Assert.True( Map<int,int>((1,2),(3,4)).Equals(Map<int,int>((1,2),(3,4)))  );
+            Assert.True( Map<int,int>((3,4),(1,2)).Equals(Map<int,int>((1,2),(3,4)))  );
+            Assert.True( Map<int,int>((3,4),(1,2)).Equals(Map<int,int>((3,4),(1,2)))  );
+        }
     }
 }

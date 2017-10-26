@@ -200,5 +200,19 @@ namespace LanguageExtTests
                 Assert.True(m.Count == max);
             }
         }
+
+        [Fact]
+        public void EqualsTest()
+        {
+            Assert.True( HashMap<int,int>().Equals(HashMap<int,int>())  );
+            Assert.False( HashMap<int,int>((1,2)).Equals(HashMap<int,int>())  );
+            Assert.False( HashMap<int,int>().Equals(HashMap<int,int>((1,2)))  );
+            Assert.True( HashMap<int,int>((1,2)).Equals(HashMap<int,int>((1,2)))  );
+            Assert.False( HashMap<int,int>((1,2),(3,4)).Equals(HashMap<int,int>((1,2)))  );
+            Assert.False( HashMap<int,int>((1,2)).Equals(HashMap<int,int>((1,2),(3,4)))  );
+            Assert.True( HashMap<int,int>((1,2),(3,4)).Equals(HashMap<int,int>((1,2),(3,4)))  );
+            Assert.True( HashMap<int,int>((3,4),(1,2)).Equals(HashMap<int,int>((1,2),(3,4)))  );
+            Assert.True( HashMap<int,int>((3,4),(1,2)).Equals(HashMap<int,int>((3,4),(1,2)))  );
+        }
     }
 }

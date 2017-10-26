@@ -113,5 +113,26 @@ namespace LanguageExtTests
                 Assert.False(fst == snd, $"'{fst}' == '{snd}'");
             }));
         }
+
+
+        [Fact]
+        public void ArrShouldNotStackOverflowOnEquals()
+        {
+            Arr<Arr<double>> arr = default(Arr<Arr<double>>);
+
+            Assert.True( arr.Equals( arr ) );
+        }
+
+        [Fact]
+        public void EqualsTest()
+        {
+            Assert.False( Array( 1, 2, 3 ).Equals( Array<int>()));
+            Assert.False( Array<int>( ).Equals( Array<int>(1,2,3)));
+            Assert.True( Array<int>( ).Equals( Array<int>()));
+            Assert.True( Array<int>(1 ).Equals( Array<int>(1)));
+            Assert.True( Array<int>(1,2 ).Equals( Array<int>(1,2)));
+            Assert.False( Array<int>(1,2 ).Equals( Array<int>(1,2,3)));
+            Assert.False( Array<int>(1,2,3 ).Equals( Array<int>(1,2)));
+        }
     }
 }
