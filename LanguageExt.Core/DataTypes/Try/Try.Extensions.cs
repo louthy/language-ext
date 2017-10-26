@@ -206,7 +206,6 @@ public static class TryExtensions
             : Optional(res.Value);
     }
 
-
     [Pure]
     public static TryOption<A> ToTryOption<A>(this Try<A> self) => () =>
     {
@@ -214,7 +213,7 @@ public static class TryExtensions
         return res.IsFaulted
             ? res.Exception == null || res.Exception is BottomException || res.Exception is ValueIsNoneException || res.Exception is ValueIsNullException
                 ? None
-                : throw new InnerException(res.Exception)
+                : new OptionalResult<A>(res.Exception)
             : Optional(res.Value);
     };
 
