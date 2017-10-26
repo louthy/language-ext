@@ -176,6 +176,24 @@ namespace LanguageExtTests
                 );
         }
 
+        [Fact]
+        public void BiIterSomeTest()
+        {
+            var x = Some(3);
+            int way = 0;
+            var dummy = x.BiIter(_ => way = 1, () => way = 2);
+            Assert.Equal(1, way);
+        }
+
+        [Fact]
+        public void BiIterNoneTest()
+        {
+            var x = Option<int>.None;
+            int way = 0;
+            var dummy = x.BiIter(_ => way = 1, () => way = 2);
+            Assert.Equal(2, way);
+        }
+
         private Option<string> GetStringNone()
         {
             // This should fail
