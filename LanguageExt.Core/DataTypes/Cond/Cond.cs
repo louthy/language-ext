@@ -11,9 +11,9 @@ namespace LanguageExt
     /// Conditional computation.  Represents a computation that could succeed
     /// or fail.  The result of the computation is an Option data-type.
     /// </summary>
-    /// <typeparam name="A">Input value to the conditional computation</typeparam>
+    /// <typeparam name="A">Input type to the conditional computation</typeparam>
     /// <typeparam name="B">Resulting value type on success</typeparam>
-    /// <param name="input">Input value type</param>
+    /// <param name="input">Input value</param>
     /// <returns>Optional result</returns>
     public delegate Option<B> Cond<A, B>(A input);
 
