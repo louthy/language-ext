@@ -61,7 +61,7 @@ namespace LanguageExt
         /// extension method.
         /// </remarks>
         /// <typeparam name="A">Type of the value to apply to the function</typeparam>
-        /// <typeparam name="B"></typeparam>
+        /// <typeparam name="B">Type of the value that results from this computation</typeparam>
         /// <param name="a">Value to apply to the function</param>
         /// <param name="f">Function to apply the value to</param>
         /// <returns>The result of applying the value to the function</returns>
