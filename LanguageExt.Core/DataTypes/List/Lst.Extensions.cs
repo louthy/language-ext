@@ -386,11 +386,11 @@ public static class ListExtensions
     /// <param name="list">Enumerable to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="preditem">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
-        LanguageExt.List.foldWhile(list, state, folder, pred);
+    public static S FoldWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
+        LanguageExt.List.foldWhile(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection, threading an accumulator 
@@ -404,11 +404,11 @@ public static class ListExtensions
     /// <param name="list">Enumerable to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="predstate">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
-        LanguageExt.List.foldWhile(list, state, folder, pred);
+    public static S FoldWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
+        LanguageExt.List.foldWhile(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection (from last element to first)
@@ -423,11 +423,11 @@ public static class ListExtensions
     /// <param name="list">Enumerable to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="preditem">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldBackWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
-        LanguageExt.List.foldBackWhile(list, state, folder, pred);
+    public static S FoldBackWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
+        LanguageExt.List.foldBackWhile(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection (from last element to first), 
@@ -442,11 +442,11 @@ public static class ListExtensions
     /// <param name="list">Enumerable to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="predstate">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldBackWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
-        LanguageExt.List.foldBackWhile(list, state, folder, pred);
+    public static S FoldBackWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
+        LanguageExt.List.foldBackWhile(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection whilst the predicate function 
@@ -460,11 +460,11 @@ public static class ListExtensions
     /// <param name="list">Enumerable to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="preditem">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
-        LanguageExt.List.foldUntil<S, T>(list, state, folder, pred);
+    public static S FoldUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
+        LanguageExt.List.foldUntil<S, T>(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection, threading an accumulator 
@@ -478,11 +478,11 @@ public static class ListExtensions
     /// <param name="list">Enumerable to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="predstate">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
-        LanguageExt.List.foldUntil(list, state, folder, pred);
+    public static S FoldUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
+        LanguageExt.List.foldUntil(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection (from last element to first)
@@ -497,11 +497,11 @@ public static class ListExtensions
     /// <param name="list">Enumerable to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="preditem">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldBackUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
-        LanguageExt.List.foldBackUntil(list, state, folder, pred);
+    public static S FoldBackUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
+        LanguageExt.List.foldBackUntil(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection (from last element to first), 
@@ -516,11 +516,11 @@ public static class ListExtensions
     /// <param name="list">Enumerable to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="predstate">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldBackUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
-        LanguageExt.List.foldBackUntil(list, state, folder, pred);
+    public static S FoldBackUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
+        LanguageExt.List.foldBackUntil(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function to each element of the collection (from last element to first), threading 
