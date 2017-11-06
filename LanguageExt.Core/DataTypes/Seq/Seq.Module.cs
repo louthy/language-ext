@@ -442,7 +442,7 @@ namespace LanguageExt
         /// <returns>Aggregate value</returns>
         [Pure]
         public static S foldBackUntil<S, T>(Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
-            foldWhile(rev(list), state, folder, pred);
+            foldUntil(rev(list), state, folder, pred);
 
         /// <summary>
         /// Applies a function 'folder' to each element of the sequence (from last element to first), 
@@ -461,7 +461,7 @@ namespace LanguageExt
         /// <returns>Aggregate value</returns>
         [Pure]
         public static S foldBackUntil<S, T>(Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
-            foldWhile(rev(list), state, folder, pred);
+            foldUntil(rev(list), state, folder, pred);
 
         /// <summary>
         /// Applies a function to each element of the sequence (from last element to first), threading 
