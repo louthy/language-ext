@@ -154,11 +154,11 @@ public static class SeqExtensions
     /// <param name="list">sequence to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="preditem">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldWhile<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
-        LanguageExt.Seq.foldWhile(list, state, folder, pred);
+    public static S FoldWhile<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
+        LanguageExt.Seq.foldWhile(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence, threading an accumulator 
@@ -172,11 +172,11 @@ public static class SeqExtensions
     /// <param name="list">sequence to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="predstate">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldWhile<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
-        LanguageExt.Seq.foldWhile(list, state, folder, pred);
+    public static S FoldWhile<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
+        LanguageExt.Seq.foldWhile(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence (from last element to first)
@@ -191,11 +191,11 @@ public static class SeqExtensions
     /// <param name="list">sequence to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="preditem">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldBackWhile<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
-        LanguageExt.Seq.foldBackWhile(list, state, folder, pred);
+    public static S FoldBackWhile<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
+        LanguageExt.Seq.foldBackWhile(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence (from last element to first), 
@@ -210,11 +210,11 @@ public static class SeqExtensions
     /// <param name="list">sequence to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="predstate">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldBackWhile<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
-        LanguageExt.Seq.foldBackWhile(list, state, folder, pred);
+    public static S FoldBackWhile<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
+        LanguageExt.Seq.foldBackWhile(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence whilst the predicate function 
@@ -228,11 +228,11 @@ public static class SeqExtensions
     /// <param name="list">sequence to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="preditem">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldUntil<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
-        LanguageExt.Seq.foldUntil(list, state, folder, pred);
+    public static S FoldUntil<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
+        LanguageExt.Seq.foldUntil(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence, threading an accumulator 
@@ -246,11 +246,11 @@ public static class SeqExtensions
     /// <param name="list">Enumerable to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="predstate">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldUntil<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
-        LanguageExt.Seq.foldUntil(list, state, folder, pred);
+    public static S FoldUntil<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
+        LanguageExt.Seq.foldUntil(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence (from last element to first)
@@ -265,11 +265,11 @@ public static class SeqExtensions
     /// <param name="list">sequence to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="preditem">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldBackUntil<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
-        LanguageExt.Seq.foldBackUntil(list, state, folder, pred);
+    public static S FoldBackUntil<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
+        LanguageExt.Seq.foldBackUntil(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence (from last element to first), 
@@ -284,11 +284,11 @@ public static class SeqExtensions
     /// <param name="list">sequence to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
-    /// <param name="pred">Predicate function</param>
+    /// <param name="predstate">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S FoldBackUntil<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
-        LanguageExt.Seq.foldBackUntil(list, state, folder, pred);
+    public static S FoldBackUntil<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
+        LanguageExt.Seq.foldBackUntil(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function to each element of the sequence (from last element to first), threading 
