@@ -21,21 +21,25 @@ namespace LanguageExt
         public static MA Return<MONAD, MA, A>(A x) where MONAD : struct, Monad<MA, A> =>
             default(MONAD).Return(_ => x);
 
+        [Pure]
         public static MB traverse<MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, B> f)
             where MonadA : struct, Monad<Unit, Unit, MA, A>
             where MonadB : struct, Monad<Unit, Unit, MB, B> =>
             traverse<Unit, Unit, MonadA, MonadB, MA, MB, A, B>(ma, f)(unit);
 
+        [Pure]
         public static MB traverse<MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, MB> f)
             where MonadA : struct, Monad<Unit, Unit, MA, A>
             where MonadB : struct, Monad<Unit, Unit, MB, B> =>
             traverse<Unit, Unit, MonadA, MonadB, MA, MB, A, B>(ma, f)(unit);
 
+        [Pure]
         public static Func<Env, MB> traverse<Env, Out, MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, B> f)
             where MonadA : struct, Monad<Env, Out, MA, A>
             where MonadB : struct, Monad<Env, Out, MB, B> =>
             default(MonadA).Fold(ma, default(MonadB).Zero(), (s, a) => default(MonadB).Plus(s, default(MonadB).Return(_ => f(a))));
 
+        [Pure]
         public static Func<Env, MB> traverse<Env, Out, MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, MB> f)
             where MonadA : struct, Monad<Env, Out, MA, A>
             where MonadB : struct, Monad<Env, Out, MB, B> =>
