@@ -21,6 +21,7 @@ namespace LanguageExt
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
         IEquatable<Lst<PRED, A>>,
+        IComparable<Lst<PRED, A>>,
         ListInfo
         where PRED : struct, Pred<ListInfo>
     {
@@ -334,8 +335,28 @@ namespace LanguageExt
             !(lhs == rhs);
 
         [Pure]
+        public static bool operator <(Lst<PRED, A> lhs, Lst<PRED, A> rhs) =>
+            lhs.CompareTo(rhs) < 0;
+
+        [Pure]
+        public static bool operator <=(Lst<PRED, A> lhs, Lst<PRED, A> rhs) =>
+            lhs.CompareTo(rhs) <= 0;
+
+        [Pure]
+        public static bool operator >(Lst<PRED, A> lhs, Lst<PRED, A> rhs) =>
+            lhs.CompareTo(rhs) > 0;
+
+        [Pure]
+        public static bool operator >=(Lst<PRED, A> lhs, Lst<PRED, A> rhs) =>
+            lhs.CompareTo(rhs) >= 0;
+
+        [Pure]
         public Arr<A> ToArray() =>
             toArray(this);
+
+        [Pure]
+        public int CompareTo(Lst<PRED, A> other) =>
+            Value.CompareTo(other.Value);
 
         [Pure]
         public static implicit operator Lst<PRED, A>(Lst<A> list) =>

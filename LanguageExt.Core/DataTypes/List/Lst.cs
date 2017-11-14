@@ -17,6 +17,7 @@ namespace LanguageExt
     [Serializable]
     public struct Lst<A> :
         IEnumerable<A>, 
+        IComparable<Lst<A>>,
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
         IEquatable<Lst<A>>
@@ -324,7 +325,27 @@ namespace LanguageExt
             !(lhs == rhs);
 
         [Pure]
+        public static bool operator <(Lst<A> lhs, Lst<A> rhs) =>
+            lhs.CompareTo(rhs) < 0;
+
+        [Pure]
+        public static bool operator <=(Lst<A> lhs, Lst<A> rhs) =>
+            lhs.CompareTo(rhs) <= 0;
+
+        [Pure]
+        public static bool operator >(Lst<A> lhs, Lst<A> rhs) =>
+            lhs.CompareTo(rhs) > 0;
+
+        [Pure]
+        public static bool operator >=(Lst<A> lhs, Lst<A> rhs) =>
+            lhs.CompareTo(rhs) >= 0;
+
+        [Pure]
         public Arr<A> ToArray() =>
             toArray(this);
-   }
+
+        [Pure]
+        public int CompareTo(Lst<A> other) =>
+            Value.CompareTo(other.Value);
+    }
 }

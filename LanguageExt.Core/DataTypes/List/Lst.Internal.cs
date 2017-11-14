@@ -8,6 +8,7 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances.Pred;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -420,6 +421,36 @@ namespace LanguageExt
         [Pure]
         public static bool operator !=(LstInternal<A> lhs, LstInternal<A> rhs) =>
             !lhs.Equals(rhs);
+
+        [Pure]
+        public int CompareTo(LstInternal<A> other)
+        {
+            var cmp = Count.CompareTo(other.Count);
+            if (cmp != 0) return cmp;
+            var iterA = GetEnumerator();
+            var iterB = other.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
+            {
+                cmp = default(OrdDefault<A>).Compare(iterA.Current, iterB.Current);
+                if (cmp != 0) return cmp;
+            }
+            return 0;
+        }
+
+        [Pure]
+        public int CompareTo<OrdA>(LstInternal<A> other) where OrdA : struct, Ord<A>
+        {
+            var cmp = Count.CompareTo(other.Count);
+            if (cmp != 0) return cmp;
+            var iterA = GetEnumerator();
+            var iterB = other.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
+            {
+                cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
+                if (cmp != 0) return cmp;
+            }
+            return 0;
+        }
     }
 
     [Serializable]

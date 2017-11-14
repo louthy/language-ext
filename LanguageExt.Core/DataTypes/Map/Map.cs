@@ -25,6 +25,7 @@ namespace LanguageExt
     [Serializable]
     public struct Map<K, V> :
         IEnumerable<(K Key, V Value)>,
+        IComparable<Map<K, V>>,
         IEquatable<Map<K, V>>
     {
         readonly MapInternal<OrdDefault<K>, K, V> value;
@@ -622,6 +623,22 @@ namespace LanguageExt
         [Pure]
         public static bool operator !=(Map<K, V> lhs, Map<K, V> rhs) =>
             !(lhs == rhs);
+        
+        [Pure]
+        public static bool operator <(Map<K, V> lhs, Map<K, V> rhs) =>
+            lhs.CompareTo(rhs) < 0;
+
+        [Pure]
+        public static bool operator <=(Map<K, V> lhs, Map<K, V> rhs) =>
+            lhs.CompareTo(rhs) <= 0;
+
+        [Pure]
+        public static bool operator >(Map<K, V> lhs, Map<K, V> rhs) =>
+            lhs.CompareTo(rhs) > 0;
+
+        [Pure]
+        public static bool operator >=(Map<K, V> lhs, Map<K, V> rhs) =>
+            lhs.CompareTo(rhs) >= 0;
 
         [Pure]
         public static Map<K, V> operator +(Map<K, V> lhs, Map<K, V> rhs) =>
@@ -1031,5 +1048,13 @@ namespace LanguageExt
             }
             return map;
         }
+
+        [Pure]
+        public int CompareTo(Map<K, V> other) =>
+            Value.CompareTo(other.Value);
+
+        [Pure]
+        public int CompareTo<OrdK>(Map<K, V> other) where OrdK : struct, Ord<K> =>
+            Value.CompareTo(other.Value);
     }
 }

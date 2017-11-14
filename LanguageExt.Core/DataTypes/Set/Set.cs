@@ -22,6 +22,7 @@ namespace LanguageExt
     public struct Set<A> :
         IEnumerable<A>,
         IEquatable<Set<A>>,
+        IComparable<Set<A>>,
         IReadOnlyCollection<A>
     {
         public static readonly Set<A> Empty = new Set<A>(SetInternal<OrdDefault<A>, A>.Empty);
@@ -435,6 +436,22 @@ namespace LanguageExt
         public static bool operator !=(Set<A> lhs, Set<A> rhs) =>
             lhs.Equals(rhs);
 
+        [Pure]
+        public static bool operator <(Set<A> lhs, Set<A> rhs) =>
+            lhs.CompareTo(rhs) < 0;
+
+        [Pure]
+        public static bool operator <=(Set<A> lhs, Set<A> rhs) =>
+            lhs.CompareTo(rhs) <= 0;
+
+        [Pure]
+        public static bool operator >(Set<A> lhs, Set<A> rhs) =>
+            lhs.CompareTo(rhs) > 0;
+
+        [Pure]
+        public static bool operator >=(Set<A> lhs, Set<A> rhs) =>
+            lhs.CompareTo(rhs) >= 0;
+
         /// <summary>
         /// Equality override
         /// </summary>
@@ -513,5 +530,13 @@ namespace LanguageExt
         [Pure]
         public IEnumerable<A> Skip(int amount) =>
             Value.Skip(amount);
+
+        [Pure]
+        public int CompareTo(Set<A> other) =>
+            Value.CompareTo(other.Value);
+
+        [Pure]
+        public int CompareTo<OrdA>(Set<A> other) where OrdA : struct, Ord<A> =>
+            Value.CompareTo<OrdA>(other.Value);
     }
 }

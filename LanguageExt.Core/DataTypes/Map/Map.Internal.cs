@@ -939,6 +939,36 @@ namespace LanguageExt
             }
             return true;
         }
+
+        [Pure]
+        public int CompareTo(MapInternal<OrdK, K, V> other)
+        {
+            var cmp = Count.CompareTo(other.Count);
+            if (cmp != 0) return cmp;
+            var iterA = GetEnumerator();
+            var iterB = other.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
+            {
+                cmp = default(OrdK).Compare(iterA.Current.Key, iterB.Current.Key);
+                if (cmp != 0) return cmp;
+            }
+            return 0;
+        }
+
+        [Pure]
+        public int CompareTo<OrdAlt>(MapInternal<OrdK, K, V> other) where OrdAlt : struct, Ord<K>
+        {
+            var cmp = Count.CompareTo(other.Count);
+            if (cmp != 0) return cmp;
+            var iterA = GetEnumerator();
+            var iterB = other.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
+            {
+                cmp = default(OrdAlt).Compare(iterA.Current.Key, iterB.Current.Key);
+                if (cmp != 0) return cmp;
+            }
+            return 0;
+        }
     }
 
     internal interface IMapItem<K, V>
