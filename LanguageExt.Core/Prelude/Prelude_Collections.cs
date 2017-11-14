@@ -514,8 +514,47 @@ namespace LanguageExt
         public static Stck<T> toStack<T>(IEnumerable<T> items) =>
             new Stck<T>(items);
 
+        /// <summary>
+        /// Create an immutable map, updating duplicates so that the final value of any key is retained
+        /// </summary>
+        [Pure]
+        public static Map<K, V> toMapUpdate<K, V>(IEnumerable<Tuple<K, V>> keyValues) =>
+            empty<K, V>().AddOrUpdateRange(keyValues);
 
+        /// <summary>
+        /// Create an immutable map, updating duplicates so that the final value of any key is retained
+        /// </summary>
+        [Pure]
+        public static Map<K, V> toMapUpdate<K, V>(IEnumerable<(K, V)> keyValues) =>
+            empty<K, V>().AddOrUpdateRange(keyValues);
 
+        /// <summary>
+        /// Create an immutable map, updating duplicates so that the final value of any key is retained
+        /// </summary>
+        [Pure]
+        public static Map<K, V> toMapUpdate<K, V>(IEnumerable<KeyValuePair<K, V>> keyValues) =>
+            empty<K, V>().AddOrUpdateRange(keyValues);
+
+        /// <summary>
+        /// Create an immutable map, ignoring duplicates so the first value of any key is retained
+        /// </summary>
+        [Pure]
+        public static Map<K, V> toMapTry<K, V>(IEnumerable<Tuple<K, V>> keyValues) =>
+            empty<K, V>().TryAddRange(keyValues);
+
+        /// <summary>
+        /// Create an immutable map, ignoring duplicates so the first value of any key is retained
+        /// </summary>
+        [Pure]
+        public static Map<K, V> toMapTry<K, V>(IEnumerable<(K, V)> keyValues) =>
+            empty<K, V>().TryAddRange(keyValues);
+
+        /// <summary>
+        /// Create an immutable map, ignoring duplicates so the first value of any key is retained
+        /// </summary>
+        [Pure]
+        public static Map<K, V> toMapTry<K, V>(IEnumerable<KeyValuePair<K, V>> keyValues) =>
+            empty<K, V>().TryAddRange(keyValues);
 
         /// <summary>
         /// Create an immutable set
