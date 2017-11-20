@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Xunit;
 using LanguageExt;
@@ -114,6 +115,62 @@ namespace LanguageExt.Tests
             Assert.True(res == 10);
 
             taskOpt = optTask.Sequence();
+        }
+
+        [Fact]
+        public void ToArrayTest()
+        {
+            var x = Option<int>.None.ToAsync();
+            var arr1 = x.ToArray();
+            Assert.Equal(0, arr1.Result.Count);
+            Assert.True(arr1 is Task<Arr<int>>);
+
+            var y = SomeAsync(_ => 10);
+            var arr2 = y.ToArray();
+            Assert.Equal(1, arr2.Result.Count);
+            Assert.Equal(10, arr2.Result[0]);
+        }
+
+        [Fact]
+        public void ToListTest()
+        {
+            var x = Option<int>.None.ToAsync();
+            var lst1 = x.ToList();
+            Assert.Equal(0, lst1.Result.Count);
+            Assert.True(lst1 is Task<Lst<int>>);
+
+            var y = SomeAsync(_ => 10);
+            var lst2 = y.ToList();
+            Assert.Equal(1, lst2.Result.Count);
+            Assert.Equal(10, lst2.Result[0]);
+        }
+
+        [Fact]
+        public void ToSeqTest()
+        {
+            var x = Option<int>.None.ToAsync();
+            var seq1 = x.ToSeq();
+            Assert.Equal(0, seq1.Result.Count);
+            Assert.True(seq1 is Task<Seq<int>>);
+
+            var y = SomeAsync(_ => 10);
+            var seq2 = y.ToSeq();
+            Assert.Equal(1, seq2.Result.Count);
+            Assert.Equal(10, seq2.Result.First());
+        }
+
+        [Fact]
+        public void AsEnumerableTest()
+        {
+            var x = Option<int>.None.ToAsync();
+            var enmrbl1 = x.AsEnumerable();
+            Assert.False(enmrbl1.Result.Any());
+            Assert.True(enmrbl1 is Task<IEnumerable<int>>);
+
+            var y = SomeAsync(_ => 10);
+            var enmrbl2 = y.AsEnumerable();
+            Assert.True(enmrbl2.Result.Any());
+            Assert.Equal(10, enmrbl2.Result.First());
         }
     }
 }

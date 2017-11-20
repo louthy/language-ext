@@ -1,6 +1,7 @@
 ﻿using Xunit;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
@@ -192,6 +193,66 @@ namespace LanguageExtTests
             int way = 0;
             var dummy = x.BiIter(_ => way = 1, () => way = 2);
             Assert.Equal(2, way);
+        }
+
+        [Fact]
+        public void ToArrayTest()
+        {
+            var x = Option<int>.None;
+            var arr1 = x.ToArray();
+            Assert.Equal(0, arr1.Count);
+#pragma warning disable CS0183 // 'is' expression's given expression is always of the provided type
+            Assert.True(arr1 is Arr<int>);
+#pragma warning restore CS0183 // 'is' expression's given expression is always of the provided type
+
+            var y = Option<int>.Some(10);
+            var arr2 = y.ToArray();
+            Assert.Equal(1, arr2.Count);
+            Assert.Equal(10, arr2[0]);
+        }
+
+        [Fact]
+        public void ToListTest()
+        {
+            var x = Option<int>.None;
+            var lst1 = x.ToList();
+            Assert.Equal(0, lst1.Count);
+#pragma warning disable CS0183 // 'is' expression's given expression is always of the provided type
+            Assert.True(lst1 is Lst<int>);
+#pragma warning restore CS0183 // 'is' expression's given expression is always of the provided type
+
+            var y = Option<int>.Some(10);
+            var lst2 = y.ToList();
+            Assert.Equal(1, lst2.Count);
+            Assert.Equal(10, lst2[0]);
+        }
+
+        [Fact]
+        public void ToSeqTest()
+        {
+            var x = Option<int>.None;
+            var seq1 = x.ToSeq();
+            Assert.Equal(0, seq1.Count);
+            Assert.True(seq1 is Seq<int>);
+
+            var y = Option<int>.Some(10);
+            var seq2 = y.ToSeq();
+            Assert.Equal(1, seq2.Count);
+            Assert.Equal(10, seq2.First());
+        }
+
+        [Fact]
+        public void AsEnumerableTest()
+        {
+            var x = Option<int>.None;
+            var enmrbl1 = x.AsEnumerable();
+            Assert.False(enmrbl1.Any());
+            Assert.True(enmrbl1 is IEnumerable<int>);
+
+            var y = Option<int>.Some(10);
+            var enmrbl2 = y.AsEnumerable();
+            Assert.True(enmrbl2.Any());
+            Assert.Equal(10, enmrbl2.First());
         }
 
         private Option<string> GetStringNone()
