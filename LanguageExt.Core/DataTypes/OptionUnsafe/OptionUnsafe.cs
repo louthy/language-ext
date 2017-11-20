@@ -407,7 +407,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public Seq<A> AsEnumerable() =>
+        public IEnumerable<A> AsEnumerable() =>
             asEnumerable<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this);
 
         [Pure]
