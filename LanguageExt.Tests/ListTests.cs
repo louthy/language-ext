@@ -320,6 +320,13 @@ namespace LanguageExtTests
         }
 
         [Fact]
+        public void RemoveAllTest()
+        {
+            var test = List(1, 2, 3, 4, 5);
+            Assert.True(test.RemoveAll(x => x % 2 == 0) == List(1, 3, 5));
+        }
+
+        [Fact]
         public void RemoveAtInsertTest()
         {
             Lst<int> lint = new Lst<int>();

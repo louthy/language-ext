@@ -642,7 +642,7 @@ namespace LanguageExt
             var left = node.Left.IsEmpty ? node.Left : Remove(node.Left, pred);
             var right = node.Right.IsEmpty ? node.Right : Remove(node.Right, pred);
 
-            if (pred.Equals(node.Key))
+            if (pred(node.Key))
             {
                 if (right.IsEmpty && left.IsEmpty)
                 {
