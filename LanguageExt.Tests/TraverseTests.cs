@@ -149,7 +149,7 @@ namespace LanguageExt.Tests
 
             var y = x.Sequence();
 
-            Assert.True(y.Count == 1 && y[0].IsBottom);
+            Assert.True(y.Count == 0);
         }
 
         [Fact]

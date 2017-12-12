@@ -63,12 +63,12 @@ namespace LanguageExt
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
             where NewInnerMonad : struct, Monad<NewInnerType, B> =>
                 MOuter.Fold(ma, default(NewOuterMonad).Zero(), (outerState, innerA) =>
-                    Trans<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>.Inst.Plus(outerState,
+                    SeqTrans<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>.Inst.Plus(outerState,
                         MInner.Bind<NewOuterMonad, NewOuterType, NewInnerType>(innerA, a =>
                             default(NewOuterMonad).Return(default(NewInnerMonad).Return(f(a))))))(unit);
 
         public OuterType Plus(OuterType ma, OuterType mb) =>
-            MOuter.Apply(MInner.Plus, ma, mb);
+            MOuter.Plus(ma, mb);
 
         public OuterType Zero() =>
             MOuter.Zero();
