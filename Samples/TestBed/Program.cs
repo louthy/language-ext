@@ -10,6 +10,7 @@ using LanguageExt.TypeClasses;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 public static class Global
 {
@@ -29,11 +30,83 @@ public interface IRepository
     Task<Option<Gender>> GetGenderByIdAsync(Guid id);
 }
 
+public static class TestExt
+{
+
+    public static IEnumerable<TryAsync<B>> Traverse2<A, B>(this TryAsync<IEnumerable<A>> ma, Func<A, B> f)
+    {
+        var state = default(MEnumerable<TryAsync<B>>).Zero();
+
+        var fold = default(MTryAsync<IEnumerable<A>>).Fold(ma, state, (outerState, enumerableA) =>
+            Trans<MEnumerable<TryAsync<B>>, IEnumerable<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>.Inst.Plus(
+                outerState,
+                default(MEnumerable<A>).Bind<MEnumerable<TryAsync<B>>, IEnumerable<TryAsync<B>>, TryAsync<B>>(
+                    enumerableA,
+                    a =>
+                        default(MEnumerable<TryAsync<B>>).Return(default(MTryAsync<B>).Return(f(a))))));
+
+        return fold(unit);
+    }
+
+    public static IEnumerable<TryAsync<A>> Sequence2<A>(this TryAsync<IEnumerable<A>> ma) =>
+        ma.Traverse2(identity);
+}
 
 class Program
 {
+    static TryAsync<IEnumerable<string>> GetNumbersPoorly2() =>
+        new TryAsync<IEnumerable<string>>(() => new Result<IEnumerable<string>>(new InvalidOperationException("uhhh")).AsTask());
+
+    static TryAsync<IEnumerable<string>> GetNumbersPoorly() =>
+        new TryAsync<IEnumerable<string>>(() => throw new InvalidOperationException("uhhh"));
+
+    static IEnumerable<TryAsync<B>> Traverse<A, B>(TryAsync<IEnumerable<A>> ma, Func<A, B> f) =>
+        Trans<MTryAsync<IEnumerable<A>>, TryAsync<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
+            .Inst.Traverse<MEnumerable<TryAsync<B>>, IEnumerable<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+
+    static void TestSequence()
+    {
+        //var state = default(MEnumerable<TryAsync<string>>).Return(default(MTryAsync<string>).Zero());
+
+        //var fold = default(MTryAsync<IEnumerable<string>>).Fold(GetNumbersPoorly(), state, (outerState, enumerableA) =>
+        //    Trans<MEnumerable<TryAsync<string>>, IEnumerable<TryAsync<string>>, MTryAsync<string>, TryAsync<string>, string>.Inst.Plus(
+        //        outerState,
+        //        default(MEnumerable<string>).Bind<MEnumerable<TryAsync<string>>, IEnumerable<TryAsync<string>>, TryAsync<string>>(
+        //            enumerableA, 
+        //            a =>
+        //                default(MEnumerable<TryAsync<string>>).Return(default(MTryAsync<string>).Return(a))))
+        //);
+
+        //var resultA = fold(unit);
+
+        var result1 = GetNumbersPoorly()
+                         .Sequence();
+
+        result1.Match(
+            ()      => { Console.WriteLine("Correct"); return unit; },
+            it      =>
+            {
+                return it.Match(
+                    Succ: res => Console.WriteLine(string.Join(',', res)),
+                    Fail: ex  => Console.WriteLine(ex.ToString())
+                ).Result;
+            },
+            (x, xs) => { Console.WriteLine("Wrong"); ; return unit; });
+
+
+        var result = GetNumbersPoorly()
+            .Sequence()
+            .Sequence();
+
+        result.Match(
+            Succ: res => Console.WriteLine(string.Join(',', res)),
+            Fail: ex => Console.WriteLine(ex.ToString())).Wait();
+    }
+
     static void Main(string[] args)
     {
+        TestSequence();
+
         TraverseTest();
         return;
 

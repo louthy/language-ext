@@ -7,7 +7,7 @@
         [Pure]
         public static A SumT<NumA, GENS, A>(this OUTER_A ma)
             where NumA : struct, Num<A> =>
-                Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, NumA, A>.Inst.Sum(ma);
+                TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `OUTER_A`
@@ -17,7 +17,7 @@
         /// <returns>Number of `A`s in `OUTER_A`</returns>
         [Pure]
         public static int CountT<GENS, A>(this OUTER_A ma) =>
-            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>.Inst.Count(ma);
+            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>.Inst.Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -29,7 +29,7 @@
         /// <returns>`OUTER_B` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OUTER_B BindT<GENS, A, B>(this OUTER_A ma, Func<A, INNER_B> f) =>
-            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Bind<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
         /// <summary>
@@ -42,7 +42,7 @@
         /// <returns>`OUTER_B` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OUTER_B BindT<GENS, A, B>(this OUTER_A ma, Func<A, OUTER_B> f) =>
-            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Bind<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
         /// <summary>
@@ -58,7 +58,7 @@
         /// <returns>`FLIPPED_OUTER_B`</returns>
         [Pure]
         public static FLIPPED_OUTER_B Traverse<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
-            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+            FLIP_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Traverse<M_FLIPPED_OUTER_B, FLIPPED_OUTER_B, M_FLIPPED_INNER_B, FLIPPED_INNER_B, B>(ma, f);
 
         /// <summary>
@@ -86,7 +86,7 @@
         /// <returns>`OUTER_B` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OUTER_B MapT<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
-            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Map<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
         /// <summary>
@@ -101,7 +101,7 @@
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
         public static S FoldT<S, GENS, A>(this OUTER_A ma, S state, Func<S, A, S> f) =>
-            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Fold(ma, state, f);
 
         /// <summary>
@@ -117,7 +117,7 @@
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
         public static S FoldBackT<S, GENS, A>(this OUTER_A ma, S state, Func<S, A, S> f) =>
-            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.FoldBack(ma, state, f);
 
         /// <summary>
@@ -131,7 +131,7 @@
         /// predicate `f`.  If there are no bound values then false is returned.</returns>
         [Pure]
         public static bool ExistsT<GENS, A>(this OUTER_A ma, Func<A, bool> f) =>
-            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
@@ -145,7 +145,7 @@
         /// predicate `f`.  If there are no bound values then true is returned.</returns>
         [Pure]
         public static bool ForAllT<GENS, A>(this OUTER_A ma, Func<A, bool> f) =>
-            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
@@ -155,7 +155,7 @@
         /// <param name="ma">The `OUTER_A` to perform the operation on</param>
         /// <param name="f">The action that contains the side-effects</param>
         public static Unit IterT<GENS, A>(this OUTER_A ma, Action<A> f) =>
-            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
@@ -168,7 +168,7 @@
         /// <returns>`OUTER_A` with the predicate `f(a)` applied</returns>
         [Pure]
         public static OUTER_A FilterT<GENS, A>(this OUTER_A ma, Func<A, bool> pred) =>
-            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Bind<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
                     a => pred(a)
                         ? default(M_INNER_A).Return(a)

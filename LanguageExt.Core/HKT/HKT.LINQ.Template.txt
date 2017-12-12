@@ -13,9 +13,9 @@
             this OUTER_A ma,
             Func<A, OUTER_B> bind,
             Func<A, B, C> project) =>
-            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(ma, a =>
-                    Trans<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>
+                    TRANS<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>
                         .Inst.Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(bind(a), b =>
                             default(M_INNER_C).Return(project(a, b))));
 
@@ -29,7 +29,7 @@
         /// <returns>`OUTER_A` with the predicate `f(a)` applied</returns>
         [Pure]
         public static OUTER_A Where<GENS, A>(this OUTER_A ma, Func<A, bool> pred) =>
-            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Bind<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
                     a => pred(a)
                         ? default(M_INNER_A).Return(a)
@@ -46,5 +46,5 @@
         /// <returns>`OUTER_B` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OUTER_B Select<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
-            Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Map<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);

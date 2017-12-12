@@ -9,23 +9,23 @@
     var noArgs = new string[0];
 
     var types = new [] {
-        T("Arr"),
-        T("HashSet"),
-        T("Lst"),
-        T("Option"),
-        T("OptionAsync"),
-        T("OptionUnsafe"),
-        T("Either", "L"),
-        T("EitherUnsafe", "L"),
-        T("Task"),
-        T("Try"),
-        T("TryAsync"),
-        T("TryOption"), 
-        T("TryOptionAsync"),
-        T2("ApplEnumerable", "MEnumerable", "IEnumerable"),
-        T("Seq"),
-        T("Set"),
-        T("Validation", "FAIL"),
+        T("SeqTrans", "Arr"),
+        T("SeqTrans", "HashSet"),
+        T("SeqTrans", "Lst"),
+        T("Trans", "Option"),
+        T("Trans", "OptionAsync"),
+        T("Trans", "OptionUnsafe"),
+        T("Trans", "Either", "L"),
+        T("Trans", "EitherUnsafe", "L"),
+        T("Trans", "Task"),
+        T("Trans", "Try"),
+        T("Trans", "TryAsync"),
+        T("Trans", "TryOption"), 
+        T("Trans", "TryOptionAsync"),
+        T2("SeqTrans", "ApplEnumerable", "MEnumerable", "IEnumerable"),
+        T("SeqTrans", "Seq"),
+        T("SeqTrans", "Set"),
+        T("Trans" ,"Validation", "FAIL"),
     };
 
     string header   = System.IO.File.ReadAllText(this.Host.ResolvePath("HKT.Extensions.Header.Template.txt"));
@@ -130,7 +130,9 @@ namespace LanguageExt
                                         .ReplaceInCodeAndDoc("INNER_C", INNER_C)
                                         .ReplaceInCodeAndDoc("INNER_B", INNER_B)
                                         .ReplaceInCodeAndDoc("INNER_A", INNER_A)
-                                        .ReplaceInCodeAndDoc("GENS,", GENS));
+                                        .ReplaceInCodeAndDoc("GENS,", GENS)
+                                        .ReplaceInCodeAndDoc("FLIP_TRANS", innerType.Trans)
+                                        .ReplaceInCodeAndDoc("TRANS", outerType.Trans));
         }
         b.Append(footer);
 #>
@@ -175,13 +177,15 @@ namespace LanguageExt
 
     public class TypeDesc
     {
+        public readonly string Trans;
         public readonly string FName;
         public readonly string MName;
         public readonly string Name;
         public readonly string[] Args;
 
-        public TypeDesc(string fname, string mname, string name, params string[] args)
+        public TypeDesc(string trans, string fname, string mname, string name, params string[] args)
         {
+            Trans = trans;
             FName = fname;
             MName = mname;
             Name = name;
@@ -249,13 +253,13 @@ namespace LanguageExt
         public string MFuncAB => $"{MName}<{Gens()} Func<A, B>>";
     }
 
-    public TypeDesc T(string name, params string[] args)
+    public TypeDesc T(string trans, string name, params string[] args)
     {
-        return new TypeDesc("Appl"+name, "M"+name, name,args);
+        return new TypeDesc(trans, "Appl"+name, "M"+name, name,args);
     }
 
-    public TypeDesc T2(string fname, string mname, string name, params string[] args)
+    public TypeDesc T2(string trans, string fname, string mname, string name, params string[] args)
     {
-        return new TypeDesc(fname, mname, name,args);
+        return new TypeDesc(trans, fname, mname, name,args);
     }
 #>

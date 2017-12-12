@@ -18,11 +18,12 @@ namespace LanguageExt
     /// <typeparam name="A">Value type</typeparam>
     [Serializable]
     public struct Arr<A> :
-        IEnumerable<A>, 
+        IEnumerable<A>,
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
         IEquatable<Arr<A>>,
-        IComparable<Arr<A>>
+        IComparable<Arr<A>>,
+        IDisposable
     {
         /// <summary>
         /// Empty array
@@ -118,7 +119,7 @@ namespace LanguageExt
             var eq = equalityComparer ?? EqualityComparer<A>.Default;
 
             var arr = Value;
-            for (; index >=0 && index < arr.Length && count != 0; index++, count--)
+            for (; index >= 0 && index < arr.Length && count != 0; index++, count--)
             {
                 if (eq.Equals(item, arr[index])) return index;
             }
@@ -212,7 +213,7 @@ namespace LanguageExt
         {
             items = items ?? new A[0];
             var arr = Value;
-            if( index < 0 || index > arr.Length) throw new IndexOutOfRangeException(nameof(index));
+            if (index < 0 || index > arr.Length) throw new IndexOutOfRangeException(nameof(index));
 
             if (arr.Length == 0)
             {
@@ -300,8 +301,8 @@ namespace LanguageExt
                 }
             }
 
-            return removeIndices != null 
-                ? RemoveAtRange(removeIndices) 
+            return removeIndices != null
+                ? RemoveAtRange(removeIndices)
                 : this;
         }
 
@@ -343,7 +344,7 @@ namespace LanguageExt
         public Arr<A> RemoveRange(int index, int count)
         {
             var arr = Value;
-            if( index < 0 || index > arr.Length) throw new IndexOutOfRangeException(nameof(index));
+            if (index < 0 || index > arr.Length) throw new IndexOutOfRangeException(nameof(index));
             if (!(count >= 0 && index + count <= arr.Length)) throw new IndexOutOfRangeException(nameof(index));
             if (count == 0) return this;
 
@@ -401,7 +402,7 @@ namespace LanguageExt
         [Pure]
         public S Fold<S>(S state, Func<S, A, S> folder)
         {
-            foreach(var item in Value)
+            foreach (var item in Value)
             {
                 state = folder(state, item);
             }
@@ -417,7 +418,7 @@ namespace LanguageExt
             var arr = Value;
             var length = arr.Length;
             var newArray = new B[length];
-            for(var i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 newArray[i] = map(arr[i]);
             }
@@ -470,6 +471,12 @@ namespace LanguageExt
         public int CompareTo(Arr<A> other) =>
             default(MArr<A>).Compare(this, other);
 
+        public void Dispose() =>
+            Value.Iter(x =>
+            {
+                if (x is IDisposable d) d.Dispose();
+            });
+ 
         [Pure]
         public static bool operator ==(Arr<A> lhs, Arr<A> rhs) =>
             Equals(lhs, rhs);

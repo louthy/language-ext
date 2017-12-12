@@ -40,7 +40,8 @@ namespace LanguageExt
         IComparable<R>,
         IEquatable<Either<L, R>>,
         IEquatable<R>, 
-        ISerializable
+        ISerializable,
+        IDisposable
     {
         public readonly static Either<L, R> Bottom = new Either<L, R>();
 
@@ -977,6 +978,12 @@ namespace LanguageExt
             join<EqDefault<K>, MEither<L, R>, MEither<L, U>, MEither<L, V>, Either<L, R>, Either<L, U>, Either<L, V>, R, U, K, V>(
                 this, inner, outerKeyMap, innerKeyMap, project
                 );
+
+        public void Dispose()
+        {
+            if (State == EitherStatus.IsLeft && left is IDisposable l) l.Dispose();
+            else if (State == EitherStatus.IsRight && right is IDisposable r) r.Dispose();
+        }
     }
 
     /// <summary>
