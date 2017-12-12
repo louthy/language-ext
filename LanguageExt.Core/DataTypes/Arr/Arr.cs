@@ -22,8 +22,7 @@ namespace LanguageExt
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
         IEquatable<Arr<A>>,
-        IComparable<Arr<A>>,
-        IDisposable
+        IComparable<Arr<A>>
     {
         /// <summary>
         /// Empty array
@@ -471,12 +470,6 @@ namespace LanguageExt
         public int CompareTo(Arr<A> other) =>
             default(MArr<A>).Compare(this, other);
 
-        public void Dispose() =>
-            Value.Iter(x =>
-            {
-                if (x is IDisposable d) d.Dispose();
-            });
- 
         [Pure]
         public static bool operator ==(Arr<A> lhs, Arr<A> rhs) =>
             Equals(lhs, rhs);
