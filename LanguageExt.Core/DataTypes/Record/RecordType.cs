@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -12,13 +13,17 @@ namespace LanguageExt
     {
         static RecordType()
         {
-            Hash = IL.GetHashCode<A>();
-            Equality = IL.Equals<A>();
-            EqualityTyped = IL.EqualsTyped<A>();
-            Compare = IL.Compare<A>();
-            ToString = IL.ToString<A>();
-            SetObjectData = IL.SetObjectData<A>();
-            GetObjectData = IL.GetObjectData<A>();
+            bool includeBase = !(typeof(A).CustomAttributes
+                                          .Map(a => a.AttributeType.Name)
+                                          .HeadOrNone() == Some("IgnoreBaseAttribute"));
+
+            Hash = IL.GetHashCode<A>(includeBase);
+            Equality = IL.Equals<A>(includeBase);
+            EqualityTyped = IL.EqualsTyped<A>(includeBase);
+            Compare = IL.Compare<A>(includeBase);
+            ToString = IL.ToString<A>(includeBase);
+            SetObjectData = IL.SetObjectData<A>(includeBase);
+            GetObjectData = IL.GetObjectData<A>(includeBase);
         }
 
         /// <summary>

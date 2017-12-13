@@ -23,6 +23,13 @@ namespace LanguageExt
     {
     }
 
+    /// <summary>
+    /// Stops the base type fields being used for any Record operations
+    /// </summary>
+    public class IgnoreBaseAttribute : Attribute
+    {
+    }
+
     public class EqAttribute : Attribute
     {
         public EqAttribute(Type eqType)

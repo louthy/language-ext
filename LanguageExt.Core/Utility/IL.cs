@@ -151,7 +151,7 @@ namespace LanguageExt
 
             var methodInfo = typeof(TYPE)
                 .GetTypeInfo()
-                .GetAllMethods()
+                .GetAllMethods(true)
                 .Where(x =>
                 {
                     if (!x.IsStatic) return false;
@@ -197,7 +197,7 @@ namespace LanguageExt
 
             var methodInfo = typeof(TYPE)
                 .GetTypeInfo()
-                .GetAllMethods()
+                .GetAllMethods(true)
                 .Where(x =>
                 {
                     if (!x.IsStatic) return false;
@@ -234,7 +234,7 @@ namespace LanguageExt
 
             var methodInfo = typeof(TYPE)
                 .GetTypeInfo()
-                .GetAllMethods()
+                .GetAllMethods(true)
                 .Where(x =>
                 {
                     if (!x.IsStatic) return false;
@@ -273,7 +273,7 @@ namespace LanguageExt
 
             var methodInfo = typeof(TYPE)
                 .GetTypeInfo()
-                .GetAllMethods()
+                .GetAllMethods(true)
                 .Where(x =>
                 {
                     if (!x.IsStatic) return false;
@@ -314,7 +314,7 @@ namespace LanguageExt
 
             var methodInfo = typeof(TYPE)
                 .GetTypeInfo()
-                .GetAllMethods()
+                .GetAllMethods(true)
                 .Where(x =>
                 {
                     if (!x.IsStatic) return false;
@@ -356,14 +356,14 @@ namespace LanguageExt
         /// each time.  Better still use the `RecordType<A>` type to provide a cached version of these
         /// results.
         /// </remarks>
-        public static Func<A, int> GetHashCode<A>()
+        public static Func<A, int> GetHashCode<A>(bool includeBase)
         {
             if (Class<Eq<A>>.Default != null)
             {
                 return Class<Eq<A>>.Default.GetHashCode;
             }
 
-            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfHashCodeAttribute));
+            var fields = GetPublicInstanceFields<A>(includeBase, typeof(OptOutOfHashCodeAttribute));
 
             var self = Expression.Parameter(typeof(A));
             var hash = Expression.Constant(-2128831035);
@@ -394,7 +394,7 @@ namespace LanguageExt
                         var propOrField = Expression.PropertyOrField(self, PrettyFieldName(field));
 
                         var method = field.FieldType.GetTypeInfo()
-                                                    .GetAllMethods()
+                                                    .GetAllMethods(true)
                                                     .Where(m => m.Name == "GetHashCode")
                                                     .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
                                                                    m.GetParameters().Map(p => p.ParameterType).ToArray(),
@@ -423,7 +423,7 @@ namespace LanguageExt
                                       .GetTypeInfo()
                                       .MakeGenericType(field.FieldType)
                                       .GetTypeInfo()
-                                      .GetAllMethods()
+                                      .GetAllMethods(true)
                                       .Where(m => m.Name == "GetHashCode")
                                       .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == SeqOne(field.FieldType))
                                       .Head(),
@@ -459,14 +459,14 @@ namespace LanguageExt
         /// each time.  Better still use the `RecordType<A>` type to provide a cached version of these
         /// results.
         /// </remarks>
-        public static Func<A, object, bool> Equals<A>()
+        public static Func<A, object, bool> Equals<A>(bool includeBase)
         {
             if( Class<Eq<A>>.Default != null)
             {
                 return new Func<A, object, bool>((a, obj) => obj is A b && Class<Eq<A>>.Default.Equals(a, b));
             }
 
-            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfEqAttribute));
+            var fields = GetPublicInstanceFields<A>(includeBase, typeof(OptOutOfEqAttribute));
 
             var self = Expression.Parameter(typeof(A), "self");
             var other = Expression.Parameter(typeof(object), "other");
@@ -512,7 +512,7 @@ namespace LanguageExt
                                       .GetTypeInfo()
                                       .MakeGenericType(field.FieldType)
                                       .GetTypeInfo()
-                                      .GetAllMethods()
+                                      .GetAllMethods(true)
                                       .Where(m => m.Name == "Equals")
                                       .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(field.FieldType, field.FieldType))
                                       .Head(),
@@ -531,7 +531,7 @@ namespace LanguageExt
                                       .GetTypeInfo()
                                       .MakeGenericType(field.FieldType)
                                       .GetTypeInfo()
-                                      .GetAllMethods()
+                                      .GetAllMethods(true)
                                       .Where(m => m.Name == "Equals")
                                       .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(field.FieldType, field.FieldType))
                                       .Head(),
@@ -560,14 +560,14 @@ namespace LanguageExt
         /// each time.  Better still use the `RecordType<A>` type to provide a cached version of these
         /// results.
         /// </remarks>
-        public static Func<A, A, bool> EqualsTyped<A>()
+        public static Func<A, A, bool> EqualsTyped<A>(bool includeBase)
         {
             if (Class<Eq<A>>.Default != null)
             {
                 return Class<Eq<A>>.Default.Equals;
             }
 
-            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfEqAttribute));
+            var fields = GetPublicInstanceFields<A>(includeBase,  typeof(OptOutOfEqAttribute));
 
             var self = Expression.Parameter(typeof(A), "self");
             var other = Expression.Parameter(typeof(A), "other");
@@ -608,7 +608,7 @@ namespace LanguageExt
                                       .GetTypeInfo()
                                       .MakeGenericType(field.FieldType)
                                       .GetTypeInfo()
-                                      .GetAllMethods()
+                                      .GetAllMethods(true)
                                       .Where(m => m.Name == "Equals")
                                       .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(field.FieldType, field.FieldType))
                                       .Head(),
@@ -625,7 +625,7 @@ namespace LanguageExt
                                           .GetTypeInfo()
                                           .MakeGenericType(field.FieldType)
                                           .GetTypeInfo()
-                                          .GetAllMethods()
+                                          .GetAllMethods(true)
                                           .Where(m => m.Name == "Equals")
                                           .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(field.FieldType, field.FieldType))
                                           .Head(),
@@ -652,14 +652,14 @@ namespace LanguageExt
         /// each time.  Better still use the `RecordType<A>` type to provide a cached version of these
         /// results.
         /// </remarks>
-        public static Func<A, A, int> Compare<A>()
+        public static Func<A, A, int> Compare<A>(bool includeBase)
         {
             if (Class<Ord<A>>.Default != null)
             {
                 return Class<Ord<A>>.Default.Compare;
             }
 
-            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfOrdAttribute));
+            var fields = GetPublicInstanceFields<A>(includeBase, typeof(OptOutOfOrdAttribute));
 
             var self = Expression.Parameter(typeof(A), "self");
             var other = Expression.Parameter(typeof(A), "other");
@@ -704,7 +704,7 @@ namespace LanguageExt
                                         .GetTypeInfo()
                                         .MakeGenericType(f.FieldType)
                                         .GetTypeInfo()
-                                        .GetAllMethods()
+                                        .GetAllMethods(true)
                                         .Where(m => m.Name == "Compare")
                                         .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(f.FieldType, f.FieldType))
                                         .Head(),
@@ -721,7 +721,7 @@ namespace LanguageExt
                                           .GetTypeInfo()
                                           .MakeGenericType(f.FieldType)
                                           .GetTypeInfo()
-                                          .GetAllMethods()
+                                          .GetAllMethods(true)
                                           .Where(m => m.Name == "Compare")
                                           .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(f.FieldType, f.FieldType))
                                           .Head(),
@@ -751,15 +751,15 @@ namespace LanguageExt
             return lambda.Compile();
         }
 
-        public static Func<A, string> ToString<A>()
+        public static Func<A, string> ToString<A>(bool includeBase)
         {
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
             var dynamic = new DynamicMethod("FieldsToString", typeof(string), new[] { typeof(A) },true);
-            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfToStringAttribute)).ToArray();
+            var fields = GetPublicInstanceFields<A>(includeBase, typeof(OptOutOfToStringAttribute)).ToArray();
             var stringBuilder = GetConstructor<StringBuilder>().IfNone(() => throw new ArgumentException($"Constructor not found for StringBuilder"));
-            var appendChar = GetPublicInstanceMethod<StringBuilder, char>("Append").IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
-            var appendString = GetPublicInstanceMethod<StringBuilder, string>("Append").IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
-            var toString = GetPublicInstanceMethod<Object>("ToString").IfNone(() => throw new ArgumentException($"ToString method found for Object"));
+            var appendChar = GetPublicInstanceMethod<StringBuilder, char>("Append", true).IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
+            var appendString = GetPublicInstanceMethod<StringBuilder, string>("Append", true).IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
+            var toString = GetPublicInstanceMethod<Object>("ToString", true).IfNone(() => throw new ArgumentException($"ToString method found for Object"));
             var name = typeof(A).Name;
             if (name.IndexOf('`') != -1) name = name.Split('`').Head();
 
@@ -871,11 +871,11 @@ namespace LanguageExt
         }
 
 
-        public static Action<A, SerializationInfo> GetObjectData<A>()
+        public static Action<A, SerializationInfo> GetObjectData<A>(bool includeBase)
         {
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
             var dynamic = new DynamicMethod("GetObjectData", null, new[] { typeof(A), typeof(SerializationInfo) }, true);
-            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfSerializationAttribute), typeof(NonSerializedAttribute));
+            var fields = GetPublicInstanceFields<A>(includeBase, typeof(OptOutOfSerializationAttribute), typeof(NonSerializedAttribute));
             var argNullExcept =  GetConstructor<ArgumentNullException, string>().IfNone(() => throw new Exception());
             var il = dynamic.GetILGenerator();
 
@@ -901,8 +901,8 @@ namespace LanguageExt
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(isValueType ? OpCodes.Ldflda : OpCodes.Ldfld, field);
 
-                var addValue = (GetPublicInstanceMethod<SerializationInfo>("AddValue", typeof(string), field.FieldType) ||
-                                GetPublicInstanceMethod<SerializationInfo>("AddValue", typeof(string), typeof(object)))
+                var addValue = (GetPublicInstanceMethod<SerializationInfo>("AddValue", typeof(string), field.FieldType, true) ||
+                                GetPublicInstanceMethod<SerializationInfo>("AddValue", typeof(string), typeof(object), true))
                                .IfNone(() => throw new Exception());
                 if (field.FieldType.GetTypeInfo().IsValueType && addValue.GetParameters()[1].ParameterType == typeof(object))
                 {
@@ -916,12 +916,12 @@ namespace LanguageExt
             return (Action<A, SerializationInfo>)dynamic.CreateDelegate(typeof(Action<A, SerializationInfo>));
         }
 
-        public static Action<A, SerializationInfo> SetObjectData<A>()
+        public static Action<A, SerializationInfo> SetObjectData<A>(bool includeBase)
         {
             var dynamic = new DynamicMethod("SetObjectData", null, new[] { typeof(A), typeof(SerializationInfo) }, typeof(A), true);
-            var fields = GetPublicInstanceFields<A>(typeof(OptOutOfSerializationAttribute), typeof(NonSerializedAttribute));
+            var fields = GetPublicInstanceFields<A>(includeBase, typeof(OptOutOfSerializationAttribute), typeof(NonSerializedAttribute));
             var getTypeFromHandle = GetPublicStaticMethod<Type, RuntimeTypeHandle>("GetTypeFromHandle").IfNone(() => throw new Exception());
-            var getValue = GetPublicInstanceMethod< SerializationInfo, string, Type>("GetValue").IfNone(() => throw new Exception());
+            var getValue = GetPublicInstanceMethod<SerializationInfo, string, Type>("GetValue", true).IfNone(() => throw new Exception());
             var argNullExcept = GetConstructor<ArgumentNullException, string>().IfNone(() => throw new Exception());
             var il = dynamic.GetILGenerator();
 
