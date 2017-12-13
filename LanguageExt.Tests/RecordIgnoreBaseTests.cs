@@ -15,25 +15,25 @@ namespace LanguageExt.Tests
                 X = x;
         }
 
-        public class SubClass1 : BaseClass, IEquatable<SubClass1>, IComparable<SubClass1>
-        {
-            public readonly int Y;
+    public class SubClass1 : BaseClass, IEquatable<SubClass1>, IComparable<SubClass1>
+    {
+        public readonly int Y;
 
-            public SubClass1(int x, int y) : base(x) =>
-                Y = y;
+        public SubClass1(int x, int y) : base(x) =>
+            Y = y;
 
-            public int CompareTo(SubClass1 other) =>
-                RecordTypeIgnoreBase<SubClass1>.Compare(this, other);
+        public int CompareTo(SubClass1 other) =>
+            RecordTypeIgnoreBase<SubClass1>.Compare(this, other);
 
-            public override bool Equals(object obj) =>
-                RecordTypeIgnoreBase<SubClass1>.Equality(this, obj);
+        public override bool Equals(object obj) =>
+            RecordTypeIgnoreBase<SubClass1>.Equality(this, obj);
 
-            public bool Equals(SubClass1 other) =>
-                RecordTypeIgnoreBase<SubClass1>.EqualityTyped(this, other);
+        public bool Equals(SubClass1 other) =>
+            RecordTypeIgnoreBase<SubClass1>.EqualityTyped(this, other);
 
-            public override int GetHashCode() =>
-                RecordTypeIgnoreBase<SubClass1>.Hash(this);
-        }
+        public override int GetHashCode() =>
+            RecordTypeIgnoreBase<SubClass1>.Hash(this);
+    }
 
         [IgnoreBase]
         public class SubClass2 : BaseClass, IEquatable<SubClass2>, IComparable<SubClass2>
