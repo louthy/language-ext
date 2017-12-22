@@ -151,7 +151,7 @@ namespace LanguageExt.ClassInstances
             Return(value);
 
         [Pure]
-        public Try<A> Id(Func<Unit, Try<A>> ma) =>
+        public Try<A> Run(Func<Unit, Try<A>> ma) =>
             ma(unit);
 
         [Pure]
@@ -161,30 +161,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Try<A> Return(A x) =>
             () => x;
-
-        [Pure]
-        public Try<A> IdAsync(Func<Unit, Task<Try<A>>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Try<A> fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(fa.Map(a => f(state, a)).IfFail(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Try<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-            fa.Map(a => f(state, a)).IfFail(Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Try<A> fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(fa.Map(a => f(state, a)).IfFail(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Try<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-            fa.Map(a => f(state, a)).IfFail(Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(Try<A> fa) => _ =>
-            Task.FromResult(fa.Map(a => 1).IfFail(0));
 
         [Pure]
         public Try<A> Empty() =>

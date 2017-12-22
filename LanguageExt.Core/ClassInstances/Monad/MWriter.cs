@@ -1,9 +1,7 @@
 ﻿using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
 using LanguageExt.TypeClasses;
 using System;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -14,7 +12,7 @@ namespace LanguageExt.ClassInstances
     {
         [Pure]
         public MB Bind<MONADB, MB, B>(Writer<MonoidW, W, A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, (W, bool), MB, B> =>
-            default(MONADB).Id(_ =>
+            default(MONADB).Run(_ =>
             {
                 var (a, output1, faulted) = ma();
                 return faulted
@@ -40,7 +38,7 @@ namespace LanguageExt.ClassInstances
             () => (value, output, false);
 
         [Pure]
-        public Writer<MonoidW, W, A> Id(Func<Unit, Writer<MonoidW, W, A>> f) =>
+        public Writer<MonoidW, W, A> Run(Func<Unit, Writer<MonoidW, W, A>> f) =>
             f(unit);
 
         [Pure]
@@ -99,65 +97,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, int> Count(Writer<MonoidW, W, A> fa) =>
             Fold(fa, 0, (s,x) => 1);
-
-        [Pure]
-        public Writer<MonoidW, W, A> IdAsync(Func<Unit, Task<Writer<MonoidW, W, A>>> ma) => () =>
-            ma(unit).Result();
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Writer<MonoidW, W, A> fa, S state, Func<S, A, S> f) => env =>
-        {
-            var mr = from a in fa
-                     select f(state, a);
-
-            var r = mr();
-
-            return Task.FromResult(r.IsBottom ? state : r.Value);
-        };
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Writer<MonoidW, W, A> fa, S state, Func<S, A, Task<S>> f) => env =>
-        {
-            var mr = from a in fa
-                     select f(state, a);
-
-            var r = mr();
-
-            return r.IsBottom ? Task.FromResult(state) : r.Value;
-        };
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Writer<MonoidW, W, A> fa, S state, Func<S, A, S> f) => env =>
-        {
-            var mr = from a in fa
-                     select f(state, a);
-
-            var r = mr();
-
-            return Task.FromResult(r.IsBottom ? state : r.Value);
-        };
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Writer<MonoidW, W, A> fa, S state, Func<S, A, Task<S>> f) => env =>
-        {
-            var mr = from a in fa
-                     select f(state, a);
-
-            var r = mr();
-
-            return r.IsBottom ? Task.FromResult(state) : r.Value;
-        };
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(Writer<MonoidW, W, A> fa) => env =>
-        {
-            var mr = from a in fa
-                     select 1;
-
-            var r = mr();
-
-            return Task.FromResult(r.IsBottom ? 0 : 1);
-        };
 
         [Pure]
         public Writer<MonoidW, W, A> Apply(Func<A, A, A> f, Writer<MonoidW, W, A> fa, Writer<MonoidW, W, A> fb) =>

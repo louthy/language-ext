@@ -1,12 +1,8 @@
-﻿using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
-using static LanguageExt.TypeClass;
+﻿using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -75,7 +71,7 @@ namespace LanguageExt.ClassInstances
             x.GetHashCode();
 
         [Pure]
-        public HashSet<A> Id(Func<Unit, HashSet<A>> ma) =>
+        public HashSet<A> Run(Func<Unit, HashSet<A>> ma) =>
             ma(unit);
 
         [Pure]
@@ -85,48 +81,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public HashSet<A> Return(A x) =>
             Return(_ => x);
-
-        [Pure]
-        public HashSet<A> IdAsync(Func<Unit, Task<HashSet<A>>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(HashSet<A> fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(HashSet<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-        {
-            Task<S> s = Task.FromResult(state);
-            foreach (var item in fa)
-            {
-                s = from x in s
-                    from y in f(x, item)
-                    select y;
-            }
-            return s;
-        };
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(HashSet<A> fa, S state, Func<S, A, S> f) => _ =>
-             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(HashSet<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-        {
-            Task<S> s = Task.FromResult(state);
-            foreach (var item in fa.Reverse())
-            {
-                s = from x in s
-                    from y in f(x, item)
-                    select y;
-            }
-            return s;
-        };
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(HashSet<A> fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
 
         [Pure]
         public HashSet<A> Apply(Func<A, A, A> f, HashSet<A> fa, HashSet<A> fb) =>

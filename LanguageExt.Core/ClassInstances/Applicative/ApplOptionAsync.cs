@@ -1,24 +1,40 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
-using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct ApplOptionAsync<A, B> : 
-        Functor<OptionAsync<A>, OptionAsync<B>, A, B>,
-        BiFunctor<OptionAsync<A>, OptionAsync<B>, A, Unit, B>,
+    public struct ApplOptionAsync<A, B> :
+        FunctorAsync<OptionAsync<A>, OptionAsync<B>, A, B>,
+        BiFunctorAsync<OptionAsync<A>, OptionAsync<B>, A, Unit, B>,
         Applicative<OptionAsync<Func<A, B>>, OptionAsync<A>, OptionAsync<B>, A, B>
     {
         public static readonly ApplOptionAsync<A, B> Inst = default(ApplOptionAsync<A, B>);
 
         [Pure]
-        public OptionAsync<B> BiMap(OptionAsync<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
-            FOptionAsync<A, B>.Inst.BiMap(ma, fa, fb);
+        public OptionAsync<B> BiMapAsync(OptionAsync<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
+            default(FOptionAsync<A, B>).BiMapAsync(ma, fa, fb);
 
         [Pure]
-        public OptionAsync<B> Map(OptionAsync<A> ma, Func<A, B> f) =>
-            FOptionAsync<A, B>.Inst.Map(ma, f);
+        public OptionAsync<B> BiMapAsync(OptionAsync<A> ma, Func<A, B> fa, Func<Unit, Task<B>> fb) =>
+            default(FOptionAsync<A, B>).BiMapAsync(ma, fa, fb);
+
+        [Pure]
+        public OptionAsync<B> BiMapAsync(OptionAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, Task<B>> fb) =>
+            default(FOptionAsync<A, B>).BiMapAsync(ma, fa, fb);
+
+        [Pure]
+        public OptionAsync<B> BiMapAsync(OptionAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, B> fb) =>
+            default(FOptionAsync<A, B>).BiMapAsync(ma, fa, fb);
+
+        [Pure]
+        public OptionAsync<B> MapAsync(OptionAsync<A> ma, Func<A, B> f) =>
+            default(FOptionAsync<A, B>).MapAsync(ma, f);
+
+        [Pure]
+        public OptionAsync<B> MapAsync(OptionAsync<A> ma, Func<A, Task<B>> f) =>
+            default(FOptionAsync<A, B>).MapAsync(ma, f);
 
         [Pure]
         public OptionAsync<B> Apply(OptionAsync<Func<A, B>> fab, OptionAsync<A> fa) =>
@@ -28,7 +44,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionAsync<A> Pure(A x) =>
-            MOptionAsync<A>.Inst.Return(x);
+            MOptionAsync<A>.Inst.ReturnAsync(x.AsTask());
 
         [Pure]
         public OptionAsync<B> Action(OptionAsync<A> fa, OptionAsync<B> fb) =>
@@ -57,6 +73,6 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionAsync<A> Pure(A x) =>
-            MOptionAsync<A>.Inst.Return(x);
+            MOptionAsync<A>.Inst.ReturnAsync(x.AsTask());
     }
 }

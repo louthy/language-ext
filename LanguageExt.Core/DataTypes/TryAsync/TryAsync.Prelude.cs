@@ -17,9 +17,18 @@ namespace LanguageExt
         /// <param name="f">Function to run asynchronously</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
-        public static TryAsync<A> TryAsync<A>(Func<A> f) => 
-            TryAsyncExtensions.Memo<A>(() =>
-                Task.Run(() => new Result<A>(f())));
+        public static TryAsync<A> TryAsync<A>(Func<Task<A>> f) =>
+            TryAsyncExtensions.Memo<A>(new LanguageExt.TryAsync<A>(async () => new Result<A>(await f())));
+
+        /// <summary>
+        /// TryAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Task to run asynchronously</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryAsync<A> TryAsync<A>(Task<A> v) =>
+            TryAsyncExtensions.Memo<A>(new LanguageExt.TryAsync<A>(async () => new Result<A>(await v)));
 
         /// <summary>
         /// TryAsync identity constructor function
@@ -137,7 +146,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static TryAsync<C> apply<A, B, C>(TryAsync<Func<A, B, C>> fabc, TryAsync<A> fa, TryAsync<B> fb) =>
-            fabc.Bind(f => ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
+            fabc.Bind(f => ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa, fb));
 
         /// <summary>
         /// Apply
@@ -148,7 +157,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static TryAsync<C> apply<A, B, C>(Func<A, B, C> fabc, TryAsync<A> fa, TryAsync<B> fb) =>
-            ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
+            ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa, fb);
 
         /// <summary>
         /// Apply
@@ -158,7 +167,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static TryAsync<Func<B, C>> apply<A, B, C>(TryAsync<Func<A, B, C>> fabc, TryAsync<A> fa) =>
-            fabc.Bind(f => ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa));
+            fabc.Bind(f => ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa));
 
         /// <summary>
         /// Apply
@@ -168,7 +177,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static TryAsync<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, TryAsync<A> fa) =>
-            ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
+            ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa);
 
         /// <summary>
         /// Apply

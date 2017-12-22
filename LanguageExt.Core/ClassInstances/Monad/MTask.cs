@@ -10,30 +10,32 @@ using System.Reflection;
 namespace LanguageExt.ClassInstances
 {
     public struct MTask<A> :
-        Optional<Task<A>, A>,
-        Monad<Task<A>, A>,
-        BiFoldable<Task<A>, A, Unit>
+        OptionalAsync<Task<A>, A>,
+        MonadAsync<Task<A>, A>,
+        BiFoldableAsync<Task<A>, A, Unit>
     {
         public static readonly MTask<A> Inst = default(MTask<A>);
 
         [Pure]
-        public Task<A> None => BottomException.Default.AsFailedTask<A>();
+        public Task<A> NoneAsync =>
+            BottomException.Default.AsFailedTask<A>();
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Task<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
-            default(MONADB).IdAsync(_ => ma.ContinueWith(task =>
-                task.IsFaulted || task.IsCanceled
-                    ? default(MONADB).Fail()
-                    : f(task.Result)));
+        public MB BindAsync<MONADB, MB, B>(Task<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            default(MONADB).RunAsync(async _ => f(await ma));
 
         [Pure]
-        public Task<A> Fail(object err = null) =>
+        public MB BindAsync<MONADB, MB, B>(Task<A> ma, Func<A, Task<MB>> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            default(MONADB).RunAsync(async _ => await f(await ma));
+
+        [Pure]
+        public Task<A> FailAsync(object err = null) =>
             err != null && err is Exception
                 ? ((Exception)err).AsFailedTask<A>()
-                : default(MTask<A>).None;
+                : NoneAsync;
 
         [Pure]
-        public async Task<A> Plus(Task<A> ma, Task<A> mb)
+        public async Task<A> PlusAsync(Task<A> ma, Task<A> mb)
         {
             var tasks = Set<OrdTask<A>, Task<A>>(ma, mb);
 
@@ -45,7 +47,7 @@ namespace LanguageExt.ClassInstances
                 if (!completed.IsFaulted) return completed.Result;
                 tasks = tasks.Remove(completed);
             }
-            return await None;
+            return await NoneAsync;
         }
 
         /// <summary>
@@ -55,86 +57,52 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
         [Pure]
-        public Task<A> Return(Func<Unit, A> f) =>
-            Task.Run(() => f(unit));
+        public Task<A> ReturnAsync(Task<A> x) =>
+            x;
+
+        /// <summary>
+        /// Monad return
+        /// </summary>
+        /// <typeparam name="A">Type of the bound monad value</typeparam>
+        /// <returns>Monad of A</returns>
+        [Pure]
+        public async Task<A> ReturnAsync(Func<Unit, Task<A>> f) =>
+            await f(unit);
 
         [Pure]
-        public Task<A> Zero() => 
-            None;
+        public Task<A> ZeroAsync() => 
+            NoneAsync;
 
         [Pure]
-        public bool IsNone(Task<A> ma) =>
-            ma.IsFaulted;
+        public Task<bool> IsNoneAsync(Task<A> ma) =>
+            Task.FromResult(ma.IsFaulted);
 
         [Pure]
-        public bool IsSome(Task<A> ma) =>
-            !IsNone(ma);
+        public Task<bool> IsSomeAsync(Task<A> ma) =>
+            from a in IsNoneAsync(ma)
+            select !a;
 
         [Pure]
-        public bool IsUnsafe(Task<A> ma) =>
-            true;
+        public Task<bool> IsUnsafeAsync(Task<A> ma) =>
+            Task.FromResult(true);
 
         [Pure]
-        public B Match<B>(Task<A> ma, Func<A, B> Some, Func<B> None)
+        public async Task<B> MatchAsync<B>(Task<A> ma, Func<A, B> Some, Func<B> None)
         {
-            if (ma.IsFaulted)
+            if(ma.IsCanceled || ma.IsFaulted)
+            {
                 return None();
-            else
-                return Some(ma.Result);
-        }
-
-        public Unit Match(Task<A> ma, Action<A> Some, Action None)
-        {
-            if (ma.IsFaulted) None(); else Some(ma.Result);
-            return unit;
-        }
-
-        [Pure]
-        public B MatchUnsafe<B>(Task<A> ma, Func<A, B> Some, Func<B> None)
-        {
-            if (ma.IsFaulted)
+            }
+            try
+            {
+                var a = await ma;
+                return Some(a);
+            }
+            catch (Exception)
+            {
                 return None();
-            else
-                return Some(ma.Result);
+            }
         }
-
-        [Pure]
-        public Func<Unit, S> Fold<S>(Task<A> ma, S state, Func<S, A, S> f) => _ =>
-        {
-            if (ma.IsFaulted) return state;
-            return f(state, ma.Result);
-        };
-
-        [Pure]
-        public Func<Unit, S> FoldBack<S>(Task<A> ma, S state, Func<S, A, S> f) => _ =>
-        {
-            if (ma.IsFaulted) return state;
-            return f(state, ma.Result);
-        };
-
-        [Pure]
-        public S BiFold<S>(Task<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb)
-        {
-            if (ma.IsFaulted)
-                return fb(state, unit);
-            else
-                return fa(state, ma.Result);
-        }
-
-        [Pure]
-        public S BiFoldBack<S>(Task<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb)
-        {
-            if (ma.IsFaulted)
-                return fb(state, unit);
-            else
-                return fa(state, ma.Result);
-        }
-
-        [Pure]
-        public Func<Unit, int> Count(Task<A> ma) => _ =>
-            ma.IsFaulted
-                ? 0
-                : 1;
 
         [Pure]
         public Task<A> Some(A value) =>
@@ -145,19 +113,11 @@ namespace LanguageExt.ClassInstances
             Task.FromResult(value);
 
         [Pure]
-        public Task<A> Id(Func<Unit, Task<A>> ma) =>
-            ma(unit);
-
-        [Pure]
-        public Task<A> BindReturn(Unit _, Task<A> mb) =>
+        public Task<A> BindReturnAsync(Unit _, Task<A> mb) =>
             mb;
 
         [Pure]
-        public Task<A> Return(A x) =>
-            Return(_ => x);
-
-        [Pure]
-        public Task<A> IdAsync(Func<Unit, Task<Task<A>>> ma) =>
+        public Task<A> RunAsync(Func<Unit, Task<Task<A>>> ma) =>
             from ta in ma(unit)
             from a in ta
             select a;
@@ -186,15 +146,201 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Func<Unit, Task<int>> CountAsync(Task<A> fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
+            default(MTask<A>).MatchAsync(fa,
+                Some: x  => 1,
+                None: () => 0);
 
         [Pure]
-        public async Task<A> Apply(Func<A, A, A> f, Task<A> fa, Task<A> fb) 
+        public async Task<A> ApplyAsync(Func<A, A, A> f, Task<A> fa, Task<A> fb) 
         {
             await Task.WhenAll(fa, fb);
             return !fa.IsFaulted && !fb.IsFaulted
                 ? f(fa.Result, fb.Result)
                 : throw fa.Exception;
         }
+
+        public async Task<B> MatchAsync<B>(Task<A> ma, Func<A, Task<B>> Some, Func<B> None)
+        {
+            if (ma.IsCanceled || ma.IsFaulted)
+            {
+                return None();
+            }
+            try
+            {
+                var a = await ma;
+                return await Some(a);
+            }
+            catch (Exception)
+            {
+                return None();
+            }
+        }
+
+        public async Task<B> MatchAsync<B>(Task<A> ma, Func<A, B> Some, Func<Task<B>> None)
+        {
+            if (ma.IsCanceled || ma.IsFaulted)
+            {
+                return await None();
+            }
+            try
+            {
+                var a = await ma;
+                return Some(a);
+            }
+            catch (Exception)
+            {
+                return await None();
+            }
+        }
+
+        public async Task<B> MatchAsync<B>(Task<A> ma, Func<A, Task<B>> Some, Func<Task<B>> None)
+        {
+            if (ma.IsCanceled || ma.IsFaulted)
+            {
+                return await None();
+            }
+            try
+            {
+                var a = await ma;
+                return await Some(a);
+            }
+            catch (Exception)
+            {
+                return await None();
+            }
+        }
+
+        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, B> Some, Func<B> None)
+        {
+            if (ma.IsCanceled || ma.IsFaulted)
+            {
+                return None();
+            }
+            try
+            {
+                var a = await ma;
+                return Some(a);
+            }
+            catch (Exception)
+            {
+                return None();
+            }
+        }
+
+        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, Task<B>> Some, Func<B> None)
+        {
+            if (ma.IsCanceled || ma.IsFaulted)
+            {
+                return None();
+            }
+            try
+            {
+                var a = await ma;
+                return await Some(a);
+            }
+            catch (Exception)
+            {
+                return None();
+            }
+        }
+
+        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, B> Some, Func<Task<B>> None)
+        {
+            if (ma.IsCanceled || ma.IsFaulted)
+            {
+                return await None();
+            }
+            try
+            {
+                var a = await ma;
+                return Some(a);
+            }
+            catch (Exception)
+            {
+                return await None();
+            }
+        }
+
+        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, Task<B>> Some, Func<Task<B>> None)
+        {
+            if (ma.IsCanceled || ma.IsFaulted)
+            {
+                return await None();
+            }
+            try
+            {
+                var a = await ma;
+                return await Some(a);
+            }
+            catch (Exception)
+            {
+                return await None();
+            }
+        }
+
+        public async Task<Unit> MatchAsync(Task<A> ma, Action<A> Some, Action None)
+        {
+            if (ma.IsCanceled || ma.IsFaulted)
+            {
+                None();
+                return unit;
+            }
+            try
+            {
+                var a = await ma;
+                Some(a);
+            }
+            catch (Exception)
+            {
+                None();
+            }
+            return unit;
+        }
+
+        public Task<A> SomeAsync(A value) =>
+            Task.FromResult(value);
+
+        public Task<A> OptionalAsync(A value) =>
+            Task.FromResult(value);
+
+        public Task<S> BiFoldAsync<S>(Task<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
+            MatchAsync(ma,
+                Some: x  => fa(state, x),
+                None: () => fb(state, unit));
+
+        public Task<S> BiFoldAsync<S>(Task<A> ma, S state, Func<S, A, Task<S>> fa, Func<S, Unit, S> fb) =>
+            MatchAsync(ma,
+                Some: x => fa(state, x),
+                None: () => fb(state, unit));
+
+        public Task<S> BiFoldAsync<S>(Task<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, Task<S>> fb) =>
+            MatchAsync(ma,
+                Some: x => fa(state, x),
+                None: () => fb(state, unit));
+
+        public Task<S> BiFoldAsync<S>(Task<A> ma, S state, Func<S, A, Task<S>> fa, Func<S, Unit, Task<S>> fb) =>
+            MatchAsync(ma,
+                Some: x => fa(state, x),
+                None: () => fb(state, unit));
+
+        public Task<S> BiFoldBackAsync<S>(Task<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
+            MatchAsync(ma,
+                Some: x => fa(state, x),
+                None: () => fb(state, unit));
+
+        public Task<S> BiFoldBackAsync<S>(Task<A> ma, S state, Func<S, A, Task<S>> fa, Func<S, Unit, S> fb) =>
+            MatchAsync(ma,
+                Some: x => fa(state, x),
+                None: () => fb(state, unit));
+
+        public Task<S> BiFoldBackAsync<S>(Task<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, Task<S>> fb) =>
+            MatchAsync(ma,
+                Some: x => fa(state, x),
+                None: () => fb(state, unit));
+
+        public Task<S> BiFoldBackAsync<S>(Task<A> ma, S state, Func<S, A, Task<S>> fa, Func<S, Unit, Task<S>> fb) =>
+            MatchAsync(ma,
+                Some: x => fa(state, x),
+                None: () => fb(state, unit));
     }
 }

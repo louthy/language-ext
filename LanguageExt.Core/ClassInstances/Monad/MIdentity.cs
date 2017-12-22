@@ -1,10 +1,7 @@
 ﻿using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -41,7 +38,7 @@ namespace LanguageExt.ClassInstances
             _ => f(state, fa.Value);
 
         [Pure]
-        public Identity<A> Id(Func<Unit, Identity<A>> ma) =>
+        public Identity<A> Run(Func<Unit, Identity<A>> ma) =>
             ma(unit);
 
         [Pure]
@@ -61,30 +58,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Identity<A> Return(A x) =>
             Return(_ => x);
-
-        [Pure]
-        public Identity<A> IdAsync(Func<Unit, Task<Identity<A>>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Identity<A> fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Identity<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-            f(state, fa.Value);
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Identity<A> fa, S state, Func<S, A, S> f) => _ =>
-             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Identity<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-            f(state, fa.Value);
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(Identity<A> fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
 
         [Pure]
         public Identity<A> Apply(Func<A, A, A> f, Identity<A> fa, Identity<A> fb) =>

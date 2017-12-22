@@ -16,7 +16,7 @@ namespace LanguageExt.Tests
             TryAsync(2);
 
         TryAsync<int> GetValueTwo() =>
-            TryAsync(() => 10);
+            TryAsync(() => 10.AsTask());
 
         TryAsync<int> GetException() =>
             TryAsync<int>(() => throw new Exception());

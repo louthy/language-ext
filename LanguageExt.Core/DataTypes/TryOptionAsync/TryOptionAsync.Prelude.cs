@@ -17,9 +17,8 @@ namespace LanguageExt
         /// <param name="f">Function to run asynchronously</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
-        public static TryOptionAsync<A> TryOptionAsync<A>(Func<A> f) =>
-            TryOptionAsyncExtensions.Memo<A>(() =>
-                Task.Run(() => new OptionalResult<A>(f())));
+        public static TryOptionAsync<A> TryOptionAsync<A>(Func<Task<A>> f) =>
+            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await f())));
 
         /// <summary>
         /// TryOptionAsync constructor function
@@ -28,9 +27,28 @@ namespace LanguageExt
         /// <param name="f">Function to run asynchronously</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
-        public static TryOptionAsync<A> TryOptionAsync<A>(Func<Option<A>> f) =>
-            TryOptionAsyncExtensions.Memo<A>(() =>
-                Task.Run(() => new OptionalResult<A>(f())));
+        public static TryOptionAsync<A> TryOptionAsync<A>(Func<Task<Option<A>>> f) =>
+            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await f())));
+
+        /// <summary>
+        /// TryOptionAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Task to run asynchronously</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryOptionAsync<A> TryOptionAsync<A>(Task<A> v) =>
+            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await v)));
+
+        /// <summary>
+        /// TryOptionAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Task to run asynchronously</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryOptionAsync<A> TryOptionAsync<A>(Task<Option<A>> v) =>
+            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await v)));
 
         /// <summary>
         /// TryOptionAsync constructor function
@@ -158,7 +176,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static TryOptionAsync<C> apply<A, B, C>(TryOptionAsync<Func<A, B, C>> fabc, TryOptionAsync<A> fa, TryOptionAsync<B> fb) =>
-            fabc.Bind(f => ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
+            fabc.Bind(f => ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa, fb));
 
         /// <summary>
         /// Apply
@@ -169,7 +187,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static TryOptionAsync<C> apply<A, B, C>(Func<A, B, C> fabc, TryOptionAsync<A> fa, TryOptionAsync<B> fb) =>
-            ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
+            ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa, fb);
 
         /// <summary>
         /// Apply
@@ -179,7 +197,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static TryOptionAsync<Func<B, C>> apply<A, B, C>(TryOptionAsync<Func<A, B, C>> fabc, TryOptionAsync<A> fa) =>
-            fabc.Bind(f => ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa));
+            fabc.Bind(f => ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa));
 
         /// <summary>
         /// Apply
@@ -189,7 +207,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static TryOptionAsync<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, TryOptionAsync<A> fa) =>
-            ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
+            ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa);
 
         /// <summary>
         /// Apply

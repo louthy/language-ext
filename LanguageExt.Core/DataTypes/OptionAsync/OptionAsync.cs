@@ -87,7 +87,7 @@ namespace LanguageExt
         /// <returns>if lhs is Some then lhs, else rhs</returns>
         [Pure]
         public static OptionAsync<A> operator |(OptionAsync<A> lhs, OptionAsync<A> rhs) =>
-            MOptionAsync<A>.Inst.Plus(lhs, rhs);
+            MOptionAsync<A>.Inst.PlusAsync(lhs, rhs);
 
         /// <summary>
         /// Calculate the hash-code from the bound value, unless the Option is in a None
@@ -146,7 +146,8 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionAsync<B> Select<B>(Func<A, B> f) =>
-            FOptionAsync<A, B>.Inst.Map(this, f);
+            default(MOptionAsync<A>)
+                .BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(this, x => SomeAsync(f(x)));
 
         /// <summary>
         /// Projection from one value to another 
@@ -156,7 +157,8 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionAsync<B> Map<B>(Func<A, B> f) =>
-            FOptionAsync<A, B>.Inst.Map(this, f);
+            default(MOptionAsync<A>)
+                .BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(this, x => SomeAsync(f(x)));
 
         /// <summary>
         /// Projection from one value to another 
@@ -166,14 +168,15 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionAsync<B> Map<B>(Func<A, Task<B>> f) =>
-            FOptionAsync<A, B>.Inst.Map(this, f);
+            default(MOptionAsync<A>)
+                .BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(this, async x => SomeAsync(await f(x)));
 
         /// <summary>
         /// Monad bind operation
         /// </summary>
         [Pure]
         public OptionAsync<B> Bind<B>(Func<A, OptionAsync<B>> f) =>
-            MOptionAsync<A>.Inst.Bind<MOptionAsync<B>, OptionAsync<B>, B>(this, f);
+            default(MOptionAsync<A>).BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(this, f);
 
         /// <summary>
         /// Monad bind operation
@@ -182,7 +185,9 @@ namespace LanguageExt
         public OptionAsync<C> SelectMany<B, C>(
             Func<A, OptionAsync<B>> bind,
             Func<A, B, C> project) =>
-            SelectMany<MOptionAsync<A>, MOptionAsync<B>, MOptionAsync<C>, OptionAsync<A>, OptionAsync<B>, OptionAsync<C>, A, B, C>(this, bind, project);
+            default(MOptionAsync<A>).BindAsync<MOptionAsync<C>, OptionAsync<C>, C>(this,    a =>
+            default(MOptionAsync<B>).BindAsync<MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
+            default(MOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
         /// Match operation with an untyped value for Some. This can be
@@ -846,7 +851,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionAsync<B> BiMap<B>(Func<A, B> Some, Func<Unit, B> None) =>
-            FOptionAsync<A, B>.Inst.BiMap(this, Some, None);
+            FOptionAsync<A, B>.Inst.BiMapAsync(this, Some, None);
 
         /// <summary>
         /// Projection from one value to another
@@ -857,7 +862,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionAsync<B> BiMap<B>(Func<A, B> Some, Func<B> None) =>
-            FOptionAsync<A, B>.Inst.BiMap(this, Some, _ => None());
+            FOptionAsync<A, B>.Inst.BiMapAsync(this, Some, _ => None());
 
         /// <summary>
         /// <para>
@@ -1001,7 +1006,17 @@ namespace LanguageExt
         /// returns True.  None otherwise.</returns>
         [Pure]
         public OptionAsync<A> Filter(Func<A, bool> pred) =>
-            filter<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
+            filterAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
+
+        /// <summary>
+        /// Apply a predicate to the bound value (if in a Some state)
+        /// </summary>
+        /// <param name="pred">Predicate to apply</param>
+        /// <returns>Some(x) if the Option is in a Some state and the predicate
+        /// returns True.  None otherwise.</returns>
+        [Pure]
+        public OptionAsync<A> Filter(Func<A, Task<bool>> pred) =>
+            filterAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
 
         /// <summary>
         /// Apply a predicate to the bound value (if in a Some state)
@@ -1011,7 +1026,17 @@ namespace LanguageExt
         /// returns True.  None otherwise.</returns>
         [Pure]
         public OptionAsync<A> Where(Func<A, bool> pred) =>
-            filter<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
+            filterAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
+
+        /// <summary>
+        /// Apply a predicate to the bound value (if in a Some state)
+        /// </summary>
+        /// <param name="pred">Predicate to apply</param>
+        /// <returns>Some(x) if the Option is in a Some state and the predicate
+        /// returns True.  None otherwise.</returns>
+        [Pure]
+        public OptionAsync<A> Where(Func<A, Task<bool>> pred) =>
+            filterAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
 
         /// <summary>
         /// Monadic join
@@ -1022,7 +1047,46 @@ namespace LanguageExt
             Func<A, C> outerKeyMap,
             Func<B, C> innerKeyMap,
             Func<A, B, D> project) =>
-            join<EqDefault<C>, MOptionAsync<A>, MOptionAsync<B>, MOptionAsync<D>, OptionAsync<A>, OptionAsync<B>, OptionAsync<D>, A, B, C, D>(
+            joinAsync<EqDefault<C>, MOptionAsync<A>, MOptionAsync<B>, MOptionAsync<D>, OptionAsync<A>, OptionAsync<B>, OptionAsync<D>, A, B, C, D>(
+                this, inner, outerKeyMap, innerKeyMap, project
+                );
+
+        /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public OptionAsync<D> Join<B, C, D>(
+            OptionAsync<B> inner,
+            Func<A, C> outerKeyMap,
+            Func<B, C> innerKeyMap,
+            Func<A, B, Task<D>> project) =>
+            joinAsync<EqDefault<C>, MOptionAsync<A>, MOptionAsync<B>, MOptionAsync<D>, OptionAsync<A>, OptionAsync<B>, OptionAsync<D>, A, B, C, D>(
+                this, inner, outerKeyMap, innerKeyMap, project
+                );
+
+        /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public OptionAsync<D> Join<B, C, D>(
+            OptionAsync<B> inner,
+            Func<A, Task<C>> outerKeyMap,
+            Func<B, Task<C>> innerKeyMap,
+            Func<A, B, Task<D>> project) =>
+            joinAsync<EqDefault<C>, MOptionAsync<A>, MOptionAsync<B>, MOptionAsync<D>, OptionAsync<A>, OptionAsync<B>, OptionAsync<D>, A, B, C, D>(
+                this, inner, outerKeyMap, innerKeyMap, project
+                );
+
+        /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public OptionAsync<D> Join<B, C, D>(
+            OptionAsync<B> inner,
+            Func<A, Task<C>> outerKeyMap,
+            Func<B, Task<C>> innerKeyMap,
+            Func<A, B, D> project) =>
+            joinAsync<EqDefault<C>, MOptionAsync<A>, MOptionAsync<B>, MOptionAsync<D>, OptionAsync<A>, OptionAsync<B>, OptionAsync<D>, A, B, C, D>(
                 this, inner, outerKeyMap, innerKeyMap, project
                 );
 

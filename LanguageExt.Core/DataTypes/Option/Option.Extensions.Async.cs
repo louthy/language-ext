@@ -28,14 +28,31 @@ public static partial class OptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> MapAsync<A, B>(this Option<A> self, Func<A, B> f) =>
-        FOptionAsync<A, B>.Inst.Map(self.ToAsync(), f);
+        default(FOptionAsync<A, B>).MapAsync(self.ToAsync(), f);
+
+    /// <summary>
+    /// Projection from one value to another 
+    /// </summary>
+    /// <typeparam name="B">Resulting functor value type</typeparam>
+    /// <param name="f">Projection function</param>
+    /// <returns>Mapped functor</returns>
+    [Pure]
+    public static OptionAsync<B> MapAsync<A, B>(this Option<A> self, Func<A, Task<B>> f) =>
+        default(FOptionAsync<A, B>).MapAsync(self.ToAsync(), f);
 
     /// <summary>
     /// Monad bind operation
     /// </summary>
     [Pure]
     public static OptionAsync<B> BindAsync<A, B>(this Option<A> self, Func<A, OptionAsync<B>> f) =>
-        MOptionAsync<A>.Inst.Bind<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), f);
+        default(MOptionAsync<A>).BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), f);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    [Pure]
+    public static OptionAsync<B> BindAsync<A, B>(this Option<A> self, Func<A, Task<OptionAsync<B>>> f) =>
+        default(MOptionAsync<A>).BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), f);
 
     /// <summary>
     /// Match operation with an untyped value for Some. This can be
@@ -683,7 +700,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Option<A> self, Func<A, B> Some, Func<Unit, B> None) =>
-        FOptionAsync<A, B>.Inst.BiMap(self.ToAsync(), Some, None);
+        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, None);
 
     /// <summary>
     /// Projection from one value to another
@@ -694,7 +711,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Option<A> self, Func<A, B> Some, Func<B> None) =>
-        FOptionAsync<A, B>.Inst.BiMap(self.ToAsync(), Some, _ => None());
+        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, _ => None());
 
     /// <summary>
     /// <para>
@@ -838,7 +855,17 @@ public static partial class OptionAsyncExtensions
     /// returns True.  None otherwise.</returns>
     [Pure]
     public static OptionAsync<A> FilterAsync<A>(this Option<A> self, Func<A, bool> pred) =>
-        filter<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), pred);
+        filterAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), pred);
+
+    /// <summary>
+    /// Apply a predicate to the bound value (if in a Some state)
+    /// </summary>
+    /// <param name="pred">Predicate to apply</param>
+    /// <returns>Some(x) if the Option is in a Some state and the predicate
+    /// returns True.  None otherwise.</returns>
+    [Pure]
+    public static OptionAsync<A> FilterAsync<A>(this Option<A> self, Func<A, Task<bool>> pred) =>
+        filterAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), pred);
 
     /// <summary>
     /// Add the bound values of x and y, uses an Add type-class to provide the add

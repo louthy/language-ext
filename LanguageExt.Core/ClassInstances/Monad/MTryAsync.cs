@@ -9,8 +9,7 @@ namespace LanguageExt.ClassInstances
     public struct MTryAsync<A> :
         Alternative<TryAsync<A>, Unit, A>,
         OptionalAsync<TryAsync<A>, A>,
-        Monad<TryAsync<A>, A>,
-        BiFoldable<TryAsync<A>, A, Unit>,
+        MonadAsync<TryAsync<A>, A>,
         BiFoldableAsync<TryAsync<A>, A, Unit>
     {
         public static readonly MTryAsync<A> Inst = default(MTryAsync<A>);
@@ -21,60 +20,55 @@ namespace LanguageExt.ClassInstances
         public TryAsync<A> NoneAsync => none;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(TryAsync<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
-            default(MONADB).IdAsync(_ => ma.Try().ContinueWith(task =>
+        public MB BindAsync<MONADB, MB, B>(TryAsync<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            default(MONADB).RunAsync(async _ => 
             {
                 try
                 {
-                    return task.IsFaulted
-                        ? default(MONADB).Fail(task.Exception)
-                        : task.IsCanceled
-                            ? default(MONADB).Fail(new TaskCanceledException())
-                            : task.Result.IsFaulted
-                                ? default(MONADB).Fail(task.Result.Exception)
-                                : task.Result.IsBottom
-                                    ? default(MONADB).Fail(new TaskCanceledException())
-                                    : f(task.Result.Value);
+                    var ra = await ma.Try();
+                    if (ra.IsBottom) return default(MONADB).FailAsync(new TaskCanceledException());
+                    if (ra.IsFaulted) return default(MONADB).FailAsync(ra.Exception);
+                    return f(ra.Value);
                 }
                 catch (Exception e)
                 {
-                    return default(MONADB).Fail(e);
-                }
-            }));
-
-        [Pure]
-        public TryAsync<A> Id(Func<Unit, TryAsync<A>> ma) =>
-            ma(unit);
-
-        [Pure]
-        public TryAsync<A> IdAsync(Func<Unit, Task<TryAsync<A>>> ma) =>
-            new TryAsync<A>(() =>
-            {
-                try
-                {
-                    return from a in ma(unit)
-                           let b = a()
-                           from c in b
-                           select c;
-                }
-                catch(Exception e)
-                {
-                    return Task.FromResult(new Result<A>(e));
+                    return default(MONADB).FailAsync(e);
                 }
             });
 
         [Pure]
-        public TryAsync<A> BindReturn(Unit _, TryAsync<A> mb) =>
+        public MB BindAsync<MONADB, MB, B>(TryAsync<A> ma, Func<A, Task<MB>> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            default(MONADB).RunAsync(async _ =>
+            {
+                try
+                {
+                    var ra = await ma.Try();
+                    if (ra.IsBottom) return default(MONADB).FailAsync(new TaskCanceledException());
+                    if (ra.IsFaulted) return default(MONADB).FailAsync(ra.Exception);
+                    return await f(ra.Value);
+                }
+                catch (Exception e)
+                {
+                    return default(MONADB).FailAsync(e);
+                }
+            });
+
+        [Pure]
+        public TryAsync<A> RunAsync(Func<Unit, Task<TryAsync<A>>> ma) =>
+            new TryAsync<A>(async () => await (await ma(unit)).Try());
+
+        [Pure]
+        public TryAsync<A> BindReturnAsync(Unit _, TryAsync<A> mb) =>
             mb;
 
         [Pure]
-        public TryAsync<A> Fail(object err = null) =>
+        public TryAsync<A> FailAsync(object err = null) =>
             err != null && err is Exception
                 ? TryAsync<A>((Exception)err)
                 : TryAsync<A>(BottomException.Default);
 
         [Pure]
-        public TryAsync<A> Plus(TryAsync<A> ma, TryAsync<A> mb) => async () =>
+        public TryAsync<A> PlusAsync(TryAsync<A> ma, TryAsync<A> mb) => async () =>
         {
             // Run in parallel
             var resA = ma.Try();
@@ -98,14 +92,31 @@ namespace LanguageExt.ClassInstances
         /// Monad return
         /// </summary>
         /// <typeparam name="A">Type of the bound monad value</typeparam>
+        /// <returns>Monad of A</returns>
+        [Pure]
+        public TryAsync<A> ReturnAsync(Func<Unit, Task<A>> f) =>
+            new TryAsync<A>(async () =>
+            {
+                var a = await f(unit);
+                return new Result<A>(a);
+            });
+
+        /// <summary>
+        /// Monad return
+        /// </summary>
+        /// <typeparam name="A">Type of the bound monad value</typeparam>
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
         [Pure]
-        public TryAsync<A> Return(Func<Unit, A> f) =>
-            () => Task.FromResult(new Result<A>(f(unit)));
+        public TryAsync<A> ReturnAsync(Task<A> x) =>
+            new TryAsync<A>(async () =>
+            {
+                var a = await x;
+                return new Result<A>(a);
+            });
 
         [Pure]
-        public TryAsync<A> Zero() => 
+        public TryAsync<A> ZeroAsync() => 
             none;
 
         [Pure]
@@ -250,38 +261,6 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public Func<Unit, S> Fold<S>(TryAsync<A> ma, S state, Func<S, A, S> f) => _ =>
-            default(MTryAsync<A>).MatchAsync(ma, x => f(state, x), () => state).Result;
-
-        [Pure]
-        public Func<Unit, S> FoldBack<S>(TryAsync<A> ma, S state, Func<S, A, S> f) => _ =>
-            default(MTryAsync<A>).MatchAsync(ma, x => f(state, x), () => state).Result;
-
-        [Pure]
-        public S BiFold<S>(TryAsync<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
-            MatchAsync(ma, x => fa(state, x), () => fb(state, unit)).Result;
-
-        [Pure]
-        public S BiFoldBack<S>(TryAsync<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
-            MatchAsync(ma, x => fa(state, x), () => fb(state, unit)).Result;
-
-        [Pure]
-        public Func<Unit, int> Count(TryAsync<A> ma) => _ =>
-            default(MTryAsync<A>).MatchAsync(ma, x => 1, () => 0).Result;
-
-        [Pure]
-        public TryAsync<A> Some(A value) =>
-            Return(_ => value);
-
-        [Pure]
-        public TryAsync<A> Optional(A value) =>
-            Return(_ => value);
-
-        [Pure]
-        public TryAsync<A> Return(A x) =>
-            () => Task.FromResult(new Result<A>(x));
-
-        [Pure]
         public Func<Unit, Task<S>> FoldAsync<S>(TryAsync<A> ma, S state, Func<S, A, S> f) => _ =>
             default(MTryAsync<A>).MatchAsync(ma, x => f(state, x), () => state);
 
@@ -327,7 +306,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryAsync<A> Append(TryAsync<A> x, TryAsync<A> y) =>
-            Plus(x, y);
+            PlusAsync(x, y);
 
         [Pure]
         public Task<S> BiFoldAsync<S>(TryAsync<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
@@ -386,7 +365,7 @@ namespace LanguageExt.ClassInstances
                 None: () => fb(state, unit));
 
         [Pure]
-        public TryAsync<A> Apply(Func<A, A, A> f, TryAsync<A> fa, TryAsync<A> fb) => async () =>
+        public TryAsync<A> ApplyAsync(Func<A, A, A> f, TryAsync<A> fa, TryAsync<A> fb) => async () =>
         {
             // Run in parallel
             var resA = fa.Try();

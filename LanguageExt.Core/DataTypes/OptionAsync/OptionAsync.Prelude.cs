@@ -77,7 +77,7 @@ namespace LanguageExt
         public static OptionAsync<T> SomeAsync<T>(T value) =>
             isnull(value)
                 ? raise<OptionAsync<T>>(new ValueIsNullException())
-                : MOptionAsync<T>.Inst.Return(value);
+                : default(MOptionAsync<T>).ReturnAsync(_ => Task.FromResult(value));
 
         /// <summary>
         /// Create a lazy Some of T (OptionAsync<T>)
@@ -87,8 +87,8 @@ namespace LanguageExt
         /// <returns>OptionAsync<T> in a Some state or throws ValueIsNullException
         /// if isnull(value).</returns>
         [Pure]
-        public static OptionAsync<T> SomeAsync<T>(Func<Unit, T> f) =>
-            MOptionAsync<T>.Inst.Return(f);
+        public static OptionAsync<T> SomeAsync<T>(Func<Unit, Task<T>> f) =>
+            default(MOptionAsync<T>).ReturnAsync(f);
 
         /// <summary>
         /// Create a Some of T from a Nullable<T> (OptionAsync<T>)
@@ -100,7 +100,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<T> SomeAsync<T>(T? value) where T : struct =>
             value.HasValue
-                ? MOptionAsync<T>.Inst.Return(value.Value)
+                ? default(MOptionAsync<T>).ReturnAsync(_ => Task.FromResult(value.Value))
                 : raise<OptionAsync<T>>(new ValueIsNullException());
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace LanguageExt
         /// <returns>If the value is null it will be None else Some(value)</returns>
         [Pure]
         public static OptionAsync<T> OptionalAsync<T>(T value) =>
-            MOptionAsync<T>.Inst.Return(value);
+            default(MOptionAsync<T>).ReturnAsync(_ => Task.FromResult(value));
 
         /// <summary>
         /// Create a lazy OptionAsync of T (OptionAsync<T>)
@@ -120,8 +120,8 @@ namespace LanguageExt
         /// <param name="f">A function that returns the value to construct the OptionAsync with</param>
         /// <returns>A lazy OptionAsync<T></returns>
         [Pure]
-        public static OptionAsync<T> OptionalAsync<T>(Func<Unit, T> f) =>
-            MOptionAsync<T>.Inst.Return(f);
+        public static OptionAsync<T> OptionalAsync<T>(Func<Unit, Task<T>> f) =>
+            default(MOptionAsync<T>).ReturnAsync(f);
 
         /// <summary>
         /// Create an OptionAsync
@@ -132,7 +132,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<T> OptionalAsync<T>(T? value) where T : struct =>
             value.HasValue
-                ? MOptionAsync<T>.Inst.Return(value.Value)
+                ? default(MOptionAsync<T>).ReturnAsync(_ => Task.FromResult(value.Value))
                 : OptionAsync<T>.None;
 
         /// <summary>

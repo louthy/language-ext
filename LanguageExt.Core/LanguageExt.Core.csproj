@@ -67,6 +67,11 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="HKT\HKT.Async.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.Async.Extensions.tt</DependentUpon>
+    </Compile>
     <Compile Update="HKT\HKT.Extensions.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -82,6 +87,15 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="HKT\HKT.Async.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.Async.Extensions.tt</DependentUpon>
+    </None>
+    <None Update="HKT\HKT.Async.Extensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.Async.Extensions.cs</LastGenOutput>
+    </None>
     <None Update="HKT\HKT.Extensions.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

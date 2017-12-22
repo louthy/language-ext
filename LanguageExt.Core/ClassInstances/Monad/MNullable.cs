@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
@@ -11,7 +9,9 @@ namespace LanguageExt.ClassInstances
     public struct MNullable<A> :
         Optional<A?, A>,
         Monad<A?, A>,
-        BiFoldable<A?, A, Unit>
+        BiFoldable<A?, A, Unit>,
+        Eq<A?>,
+        Ord<A?>
         where A : struct
     {
         public static readonly MNullable<A> Inst = default(MNullable<A>);
@@ -117,7 +117,7 @@ namespace LanguageExt.ClassInstances
             value;
 
         [Pure]
-        public A? Id(Func<Unit, A?> ma) =>
+        public A? Run(Func<Unit, A?> ma) =>
             ma(unit);
 
         [Pure]
@@ -161,5 +161,22 @@ namespace LanguageExt.ClassInstances
             from a in fa
             from b in fb
             select f(a, b);
+
+        [Pure]
+        public int Compare(A? x, A? y) =>
+            x.HasValue && y.HasValue ? default(OrdDefault<A>).Compare(x.Value, y.Value)
+          : x.HasValue               ? 1
+          : y.HasValue               ? -1
+          : 0;
+
+        [Pure]
+        public bool Equals(A? x, A? y) =>
+            x.HasValue && y.HasValue ? default(EqDefault<A>).Equals(x.Value, y.Value)
+          : x.HasValue || y.HasValue ? false
+          : true;
+
+        [Pure]
+        public int GetHashCode(A? x) =>
+            x.GetHashCode();
     }
 }

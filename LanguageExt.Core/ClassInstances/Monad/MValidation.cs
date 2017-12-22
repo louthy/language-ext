@@ -99,45 +99,14 @@ namespace LanguageExt.ClassInstances
             mb;
 
         [Pure]
-        public Func<Unit, Task<int>> CountAsync(Validation<MonoidFail, FAIL, SUCCESS> fa) => _ =>
-            Task.FromResult(
-                fa.IsSuccess
-                    ? 1
-                    : 0);
-
-        [Pure]
         public Validation<MonoidFail, FAIL, SUCCESS> Fail(object err = null) =>
             err != null && err is FAIL
                 ? Validation<MonoidFail, FAIL, SUCCESS>.Fail((FAIL)err)
                 : Validation<MonoidFail, FAIL, SUCCESS>.Fail(default(MonoidFail).Empty());
 
         [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Validation<MonoidFail, FAIL, SUCCESS> fa, S state, Func<S, SUCCESS, S> f) => _ =>
-            Task.FromResult(fa.Fold(state, f));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Validation<MonoidFail, FAIL, SUCCESS> fa, S state, Func<S, SUCCESS, Task<S>> f) => _ =>
-            fa.Match(
-                Succ: x => f(state, x),
-                Fail: e => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Validation<MonoidFail, FAIL, SUCCESS> fa, S state, Func<S, SUCCESS, S> f) => _ =>
-            Task.FromResult(fa.Fold(state, f));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Validation<MonoidFail, FAIL, SUCCESS> fa, S state, Func<S, SUCCESS, Task<S>> f) => _ =>
-            fa.Match(
-                Succ: x => f(state, x),
-                Fail: e => Task.FromResult(state));
-
-        [Pure]
-        public Validation<MonoidFail, FAIL, SUCCESS> Id(Func<Unit, Validation<MonoidFail, FAIL, SUCCESS>> ma) =>
+        public Validation<MonoidFail, FAIL, SUCCESS> Run(Func<Unit, Validation<MonoidFail, FAIL, SUCCESS>> ma) =>
             ma(unit);
-
-        [Pure]
-        public Validation<MonoidFail, FAIL, SUCCESS> IdAsync(Func<Unit, Task<Validation<MonoidFail, FAIL, SUCCESS>>> ma) =>
-            ma(unit).Result;
 
         [Pure]
         public Validation<MonoidFail, FAIL, SUCCESS> Plus(Validation<MonoidFail, FAIL, SUCCESS> a, Validation<MonoidFail, FAIL, SUCCESS> b) =>

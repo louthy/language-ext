@@ -11,8 +11,7 @@ namespace LanguageExt.ClassInstances
     public struct MOptionAsync<A> :
         Alternative<OptionAsync<A>, Unit, A>,
         OptionalAsync<OptionAsync<A>, A>,
-        Monad<OptionAsync<A>, A>,
-        BiFoldable<OptionAsync<A>, A, Unit>,
+        MonadAsync<OptionAsync<A>, A>,
         BiFoldableAsync<OptionAsync<A>, A, Unit>
     {
         public static readonly MOptionAsync<A> Inst = default(MOptionAsync<A>);
@@ -21,64 +20,42 @@ namespace LanguageExt.ClassInstances
         public OptionAsync<A> NoneAsync => OptionAsync<A>.None;
 
         [Pure]
-        public MB Bind<MonadB, MB, B>(OptionAsync<A> ma, Func<A, MB> f) where MonadB : struct, Monad<Unit, Unit, MB, B> =>
-            ma.IsLazy
-                ? default(MonadB).Id(_ =>
-                  {
-                      return default(MonadB).IdAsync(async __ =>
-                      {
-                          if (await ma.IsSome)
-                          {
-                              return f(await ma.Value);
-                          }
-                          else
-                          {
-                              return default(MonadB).Fail(ValueIsNoneException.Default);
-                          }
-                      });
-                  })
-                : default(MonadB).IdAsync(async _ =>
-                  {
-                      if(await ma.IsSome)
-                      {
-                          return f(await ma.Value);
-                      }
-                      else
-                      {
-                          return default(MonadB).Fail(ValueIsNoneException.Default);
-                      }
-                  });
+        public MB BindAsync<MonadB, MB, B>(OptionAsync<A> ma, Func<A, MB> f) where MonadB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            default(MonadB).RunAsync(async _ =>
+                (await ma.IsSome)
+                    ? f(await ma.Value)
+                    : default(MonadB).FailAsync(ValueIsNoneException.Default));
 
         [Pure]
-        public OptionAsync<A> Fail(object err = null) =>
+        public MB BindAsync<MonadB, MB, B>(OptionAsync<A> ma, Func<A, Task<MB>> f) where MonadB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            default(MonadB).RunAsync(async _ =>
+                (await ma.IsSome)
+                    ? await f(await ma.Value)
+                    : default(MonadB).FailAsync(ValueIsNoneException.Default));
+
+        [Pure]
+        public OptionAsync<A> FailAsync(object err = null) =>
             OptionAsync<A>.None;
 
         [Pure]
-        public OptionAsync<A> Plus(OptionAsync<A> a, OptionAsync<A> b) =>
-            a.IsLazy
-                ? default(MOptionAsync<A>).Id(_ =>
-                    default(MOptionAsync<A>).IdAsync(async __ => 
-                        await a.IsSome
-                            ? a
-                            : b))
-                : default(MOptionAsync<A>).IdAsync(async __ =>
-                        await a.IsSome
-                            ? a
-                            : b);
+        public OptionAsync<A> PlusAsync(OptionAsync<A> a, OptionAsync<A> b) =>
+            default(MOptionAsync<A>).RunAsync(async __ =>
+                await a.IsSome
+                    ? a
+                    : b);
 
         [Pure]
-        public OptionAsync<A> Return(Func<Unit, A> f) =>
-            new OptionAsync<A>(OptionDataAsync.Lazy(() =>
-                Task.Run(() =>
-                {
-                    var a = f(unit);
-                    return a.IsNull()
-                        ? new Result<A>()
-                        : new Result<A>(a);
-                })));
+        public OptionAsync<A> ReturnAsync(Func<Unit, Task<A>> f) =>
+            new OptionAsync<A>(OptionDataAsync.Lazy(async () =>
+            {
+                var a = await f(unit);
+                return a.IsNull()
+                    ? new Result<A>()
+                    : new Result<A>(a);
+            }));
 
         [Pure]
-        public OptionAsync<A> Zero() =>
+        public OptionAsync<A> ZeroAsync() =>
             OptionAsync<A>.None;
 
         [Pure]
@@ -182,26 +159,6 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public Func<Unit, S> Fold<S>(OptionAsync<A> ma, S state, Func<S, A, S> f) => _ =>
-            default(MOptionAsync<A>).FoldAsync(ma, state, f)(_).Result;
-
-        [Pure]
-        public Func<Unit, S> FoldBack<S>(OptionAsync<A> ma, S state, Func<S, A, S> f) => _ =>
-            default(MOptionAsync<A>).FoldBackAsync(ma, state, f)(_).Result;
-
-        [Pure]
-        public S BiFold<S>(OptionAsync<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
-            BiFoldAsync(ma, state, fa, fb).Result;
-
-        [Pure]
-        public S BiFoldBack<S>(OptionAsync<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
-            BiFoldBackAsync(ma, state, fa, fb).Result;
-
-        [Pure]
-        public Func<Unit, int> Count(OptionAsync<A> ma) => _ =>
-            default(MOptionAsync<A>).CountAsync(ma)(_).Result;
-
-        [Pure]
         public OptionAsync<A> SomeAsync(A x) =>
             x.IsNull()
                 ? throw new ArgumentNullException("Option doesn't support null values.  Use OptionUnsafe if this is desired behaviour")
@@ -212,25 +169,15 @@ namespace LanguageExt.ClassInstances
             new OptionAsync<A>(OptionDataAsync.Optional(x));
 
         [Pure]
-        public OptionAsync<A> Id(Func<Unit, OptionAsync<A>> ma) =>
-            new OptionAsync<A>(OptionDataAsync.Lazy(async () =>
-            {
-                var a = ma(unit);
-                return await a.IsSome
-                    ? new Result<A>(await a.Value)
-                    : Result<A>.None;
-            }));
-
-        [Pure]
-        public OptionAsync<A> BindReturn(Unit _, OptionAsync<A> mb) =>
+        public OptionAsync<A> BindReturnAsync(Unit _, OptionAsync<A> mb) =>
             mb;
 
         [Pure]
-        public OptionAsync<A> Return(A x) =>
-            OptionalAsync(x);
+        public OptionAsync<A> ReturnAsync(Task<A> x) =>
+            ReturnAsync(_ => x);
 
         [Pure]
-        public OptionAsync<A> IdAsync(Func<Unit, Task<OptionAsync<A>>> ma) =>
+        public OptionAsync<A> RunAsync(Func<Unit, Task<OptionAsync<A>>> ma) =>
             new OptionAsync<A>(OptionDataAsync.Lazy(async () =>
             {
                 var a = await ma(unit);
@@ -245,7 +192,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionAsync<A> Append(OptionAsync<A> x, OptionAsync<A> y) =>
-            Plus(x, y);
+            PlusAsync(x, y);
 
         [Pure]
         public Func<Unit, Task<S>> FoldAsync<S>(OptionAsync<A> ma, S state, Func<S, A, S> f) => async _ => 
@@ -342,15 +289,13 @@ namespace LanguageExt.ClassInstances
             BiFoldAsync(ma, state, fa, fb);
 
         [Pure]
-        public OptionAsync<A> Apply(Func<A, A, A> f, OptionAsync<A> fa, OptionAsync<A> fb) => 
-            new Task<Option<A>>(() =>
+        public OptionAsync<A> ApplyAsync(Func<A, A, A> f, OptionAsync<A> fa, OptionAsync<A> fb) =>
+            default(MOptionAsync<A>).RunAsync( async _ =>
             {
-                var ta = fa.ToOption();
-                var tb = fb.ToOption();
-                Task.WaitAll(ta, tb);
-                return !ta.IsFaulted && !tb.IsFaulted && ta.Result.IsSome && tb.Result.IsSome
-                    ? Option<A>.Some(f(ta.Result.Value, tb.Result.Value))
-                    : Option<A>.None;
-            }).ToAsync();
+                var somes = await Task.WhenAll(fa.IsSome, fb.IsSome);
+                if (!somes[0] || !somes[1]) return None;
+                var values = await Task.WhenAll(fa.Value, fb.Value);
+                return f(values[0], values[1]);
+            });
     }
 }

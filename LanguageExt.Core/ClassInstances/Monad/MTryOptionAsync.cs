@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
@@ -10,54 +8,61 @@ namespace LanguageExt.ClassInstances
 {
     public struct MTryOptionAsync<A> :
         Alternative<TryOptionAsync<A>, Unit, A>,
-        Optional<TryOptionAsync<A>, A>,
         OptionalAsync<TryOptionAsync<A>, A>,
-        Monad<TryOptionAsync<A>, A>,
-        BiFoldable<TryOptionAsync<A>, A, Unit>,
+        MonadAsync<TryOptionAsync<A>, A>,
         BiFoldableAsync<TryOptionAsync<A>, A, Unit>
     {
         public static readonly MTryOptionAsync<A> Inst = default(MTryOptionAsync<A>);
 
-        static TryOptionAsync<A> none = () => throw new BottomException();
-
-        [Pure]
-        public TryOptionAsync<A> None => none;
+        static TryOptionAsync<A> none = new TryOptionAsync<A>(() => Task.FromResult(OptionalResult<A>.None));
 
         [Pure]
         public TryOptionAsync<A> NoneAsync => none;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(TryOptionAsync<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
-            default(MONADB).IdAsync(_ => ma.Try().ContinueWith(task =>
+        public MB BindAsync<MONADB, MB, B>(TryOptionAsync<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            default(MONADB).RunAsync(async _ =>
             {
                 try
                 {
-                    return task.IsFaulted
-                        ? default(MONADB).Fail(task.Exception)
-                        : task.IsCanceled
-                            ? default(MONADB).Fail(new TaskCanceledException())
-                            : task.Result.IsFaulted
-                                ? default(MONADB).Fail(task.Result.Exception)
-                                : task.Result.Value.IsNone
-                                    ? default(MONADB).Fail(Option<A>.None)
-                                    : task.Result.IsBottom
-                                        ? default(MONADB).Fail(BottomException.Default)
-                                        : f(task.Result.Value.Value);
+                    var ra = await ma.Try();
+                    if (ra.IsBottom) return default(MONADB).FailAsync(new TaskCanceledException());
+                    if (ra.IsFaulted) return default(MONADB).FailAsync(ra.Exception);
+                    if (ra.IsFaultedOrNone) return default(MONADB).ZeroAsync();
+                    return f(ra.Value.Value);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
-                    return default(MONADB).Fail(e);
+                    return default(MONADB).FailAsync(e);
                 }
-            }));
+            });
 
         [Pure]
-        public TryOptionAsync<A> Fail(object err = null) =>
+        public MB BindAsync<MONADB, MB, B>(TryOptionAsync<A> ma, Func<A, Task<MB>> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            default(MONADB).RunAsync(async _ =>
+            {
+                try
+                {
+                    var ra = await ma.Try();
+                    if (ra.IsBottom) return default(MONADB).FailAsync(new TaskCanceledException());
+                    if (ra.IsFaulted) return default(MONADB).FailAsync(ra.Exception);
+                    if (ra.IsFaultedOrNone) return default(MONADB).ZeroAsync();
+                    return await f(ra.Value.Value);
+                }
+                catch (Exception e)
+                {
+                    return default(MONADB).FailAsync(e);
+                }
+            });
+
+        [Pure]
+        public TryOptionAsync<A> FailAsync(object err = null) =>
             err != null && err is Exception
                 ? TryOptionAsync<A>((Exception)err)
                 : TryOptionAsync(Option<A>.None);
 
         [Pure]
-        public TryOptionAsync<A> Plus(TryOptionAsync<A> ma, TryOptionAsync<A> mb) => async () =>
+        public TryOptionAsync<A> PlusAsync(TryOptionAsync<A> ma, TryOptionAsync<A> mb) => async () =>
         {
             // Run in parallel
             var resA = ma.Try();
@@ -84,107 +89,29 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
         [Pure]
-        public TryOptionAsync<A> Return(Func<Unit, A> f) =>
-            () => Task.FromResult(new OptionalResult<A>(f(unit)));
+        public TryOptionAsync<A> ReturnAsync(Task<A> x) =>
+            new TryOptionAsync<A>(async () => new OptionalResult<A>(await x));
+
+        /// <summary>
+        /// Monad return
+        /// </summary>
+        /// <typeparam name="A">Type of the bound monad value</typeparam>
+        /// <returns>Monad of A</returns>
+        [Pure]
+        public TryOptionAsync<A> ReturnAsync(Func<Unit, Task<A>> f) =>
+            new TryOptionAsync<A>(async () => new OptionalResult<A>(await f(unit)));
 
         [Pure]
-        public TryOptionAsync<A> Zero() =>
-            none;
+        public TryOptionAsync<A> ZeroAsync() =>
+            NoneAsync;
 
         [Pure]
-        public bool IsNone(TryOptionAsync<A> opt) =>
-            !IsSome(opt);
+        public TryOptionAsync<A> RunAsync(Func<Unit, Task<TryOptionAsync<A>>> ma) =>
+            new TryOptionAsync<A>(async () => await (await ma(unit)).Try());
 
         [Pure]
-        public bool IsSome(TryOptionAsync<A> opt) =>
-            Match(opt, Some: _ => true, None: () => false);
-
-        [Pure]
-        public bool IsUnsafe(TryOptionAsync<A> opt) =>
-            true;
-
-        [Pure]
-        public B Match<B>(TryOptionAsync<A> opt, Func<A, B> Some, Func<B> None)
-        {
-            try
-            {
-                var res = opt.Try().Result; // TODO: No asynchrony
-                if (res.IsFaultedOrNone)
-                    return None();
-                else
-                    return Some(res.Value.Value);
-            }
-            catch
-            {
-                return None();
-            }
-        }
-
-        public Unit Match(TryOptionAsync<A> opt, Action<A> Some, Action None) =>
-            Match(opt,
-                x => { Some(x); return unit; },
-                () => { None(); return unit; });
-
-        [Pure]
-        public B MatchUnsafe<B>(TryOptionAsync<A> opt, Func<A, B> Some, Func<B> None) =>
-            Match(opt, Some, None);
-
-        [Pure]
-        public Func<Unit, S> Fold<S>(TryOptionAsync<A> ma, S state, Func<S, A, S> f) => _ =>
-            Inst.Match(ma, x => f(state, x), () => state);
-
-        [Pure]
-        public Func<Unit, S> FoldBack<S>(TryOptionAsync<A> ma, S state, Func<S, A, S> f) => _ =>
-            Inst.Match(ma, x => f(state, x), () => state);
-
-        [Pure]
-        public S BiFold<S>(TryOptionAsync<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
-            Match(ma, x => fa(state, x), () => fb(state, unit));
-
-        [Pure]
-        public S BiFoldBack<S>(TryOptionAsync<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
-            Match(ma, x => fa(state, x), () => fb(state, unit));
-
-        [Pure]
-        public Func<Unit, int> Count(TryOptionAsync<A> ma) => _ =>
-            Inst.Match(ma, x => 1, () => 0);
-
-        [Pure]
-        public TryOptionAsync<A> Some(A value) =>
-            Return(_ => value);
-
-        [Pure]
-        public TryOptionAsync<A> Optional(A value) =>
-            Return(_ => value);
-
-        [Pure]
-        public TryOptionAsync<A> Id(Func<Unit, TryOptionAsync<A>> ma) =>
-            ma(unit);
-
-        [Pure]
-        public TryOptionAsync<A> IdAsync(Func<Unit, Task<TryOptionAsync<A>>> ma) =>
-            new TryOptionAsync<A>(() =>
-            {
-                try
-                {
-                    return from a in ma(unit)
-                           let b = a()
-                           from c in b
-                           select c;
-                }
-                catch (Exception e)
-                {
-                    return Task.FromResult(new OptionalResult<A>(e));
-                }
-            });
-
-        [Pure]
-        public TryOptionAsync<A> BindReturn(Unit _, TryOptionAsync<A> mb) =>
+        public TryOptionAsync<A> BindReturnAsync(Unit _, TryOptionAsync<A> mb) =>
             mb;
-
-        [Pure]
-        public TryOptionAsync<A> Return(A x) =>
-            Return(_ => x);
 
         [Pure]
         public Func<Unit, Task<S>> FoldAsync<S>(TryOptionAsync<A> ma, S state, Func<S, A, S> f) => _ =>
@@ -212,7 +139,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryOptionAsync<A> Append(TryOptionAsync<A> x, TryOptionAsync<A> y) =>
-            Plus(x, y);
+            PlusAsync(x, y);
 
         [Pure]
         public Task<S> BiFoldAsync<S>(TryOptionAsync<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
@@ -247,7 +174,7 @@ namespace LanguageExt.ClassInstances
             default(MTryOptionAsync<A>).MatchAsync(ma, x => fa(state, x), () => fb(state, unit));
 
         public Task<bool> IsUnsafeAsync(TryOptionAsync<A> opt) =>
-            Task.FromResult(default(MTryOptionAsync<A>).IsUnsafe(opt));
+            Task.FromResult(false);
 
         public Task<bool> IsSomeAsync(TryOptionAsync<A> opt) =>
             opt.Map(x => true).IfNoneOrFail(false);
@@ -316,7 +243,7 @@ namespace LanguageExt.ClassInstances
             TryOptionAsync(value);
 
         [Pure]
-        public TryOptionAsync<A> Apply(Func<A, A, A> f, TryOptionAsync<A> fa, TryOptionAsync<A> fb) => async () =>
+        public TryOptionAsync<A> ApplyAsync(Func<A, A, A> f, TryOptionAsync<A> fa, TryOptionAsync<A> fb) => async () =>
         {
             // Run in parallel
             var resA = fa.Try();

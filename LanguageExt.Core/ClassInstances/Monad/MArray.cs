@@ -1,12 +1,9 @@
-﻿using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
-using static LanguageExt.TypeClass;
+﻿using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -16,8 +13,8 @@ namespace LanguageExt.ClassInstances
     /// <typeparam name="A"></typeparam>
     public struct MArray<A> :
         Monad<A[], A>,
-        Foldable<A[], A>,
         Eq<A[]>,
+        Ord<A[]>,
         Monoid<A[]>
    {
         public static readonly MArray<A> Inst = default(MArray<A>);
@@ -45,6 +42,22 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public bool Equals(A[] x, A[] y) =>
             Enumerable.SequenceEqual(x, y);
+
+        [Pure]
+        public int Compare(A[] x, A[] y)
+        {
+            int cmp = x.Length.CompareTo(y.Length);
+            if (cmp != 0) return cmp;
+
+            var iterA = x.AsEnumerable().GetEnumerator();
+            var iterB = y.AsEnumerable().GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
+            {
+                cmp = default(OrdDefault<A>).Compare(iterA.Current, iterB.Current);
+                if (cmp != 0) return cmp;
+            }
+            return 0;
+        }
 
         [Pure]
         public A[] Fail(object err = null) =>
@@ -86,54 +99,12 @@ namespace LanguageExt.ClassInstances
             hash(x);
 
         [Pure]
-        public A[] Id(Func<Unit, A[]> ma) =>
+        public A[] Run(Func<Unit, A[]> ma) =>
             ma(unit);
 
         [Pure]
         public A[] BindReturn(Unit _, A[] mb) =>
             mb;
-
-        [Pure]
-        public A[] IdAsync(Func<Unit, Task<A[]>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(A[] fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(A[] fa, S state, Func<S, A, Task<S>> f) => _ =>
-        {
-            Task<S> s = Task.FromResult(state);
-            foreach (var item in fa)
-            {
-                s = from x in s
-                    from y in f(x, item)
-                    select y;
-            }
-            return s;
-        };
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(A[] fa, S state, Func<S, A, S> f) => _ =>
-             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(A[] fa, S state, Func<S, A, Task<S>> f) => _ =>
-        {
-            Task<S> s = Task.FromResult(state);
-            foreach (var item in fa.Reverse())
-            {
-                s = from x in s
-                    from y in f(x, item)
-                    select y;
-            }
-            return s;
-        };
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(A[] fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
 
         [Pure]
         public A[] Apply(Func<A, A, A> f, A[] fa, A[] fb) =>

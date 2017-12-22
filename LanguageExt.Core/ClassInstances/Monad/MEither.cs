@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -133,7 +130,7 @@ namespace LanguageExt.ClassInstances
             value;
 
         [Pure]
-        public Either<L, R> Id(Func<Unit, Either<L, R>> ma) =>
+        public Either<L, R> Run(Func<Unit, Either<L, R>> ma) =>
             ma(unit);
 
         [Pure]
@@ -145,42 +142,12 @@ namespace LanguageExt.ClassInstances
             Return(_ => x);
 
         [Pure]
-        public Either<L, R> IdAsync(Func<Unit, Task<Either<L, R>>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
         public Either<L, R> Empty() =>
             Either<L, R>.Bottom;
 
         [Pure]
         public Either<L, R> Append(Either<L, R> x, Either<L, R> y) =>
             Plus(x, y);
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Either<L, R> fa, S state, Func<S, R, S> f) => _ =>
-            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Either<L, R> fa, S state, Func<S, R, Task<S>> f) => _ =>
-            fa.Match(
-                Right: r => f(state, r),
-                Left: l => Task.FromResult(state),
-                Bottom: () => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Either<L, R> fa, S state, Func<S, R, S> f) => _ =>
-             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Either<L, R> fa, S state, Func<S, R, Task<S>> f) => _ =>
-            fa.Match(
-                Right: r => f(state, r),
-                Left: l => Task.FromResult(state),
-                Bottom: () => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(Either<L, R> fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
 
         [Pure]
         public bool IsUnsafe(Either<L, R> choice) =>

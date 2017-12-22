@@ -257,7 +257,7 @@ namespace LanguageExt
         public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, R> Some, Func<R> None)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync( ma,
-                Some: x => Some(x),
+                Some: x  => Some(x),
                 None: () => None()
             );
 

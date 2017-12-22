@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -154,7 +151,7 @@ namespace LanguageExt.ClassInstances
             Return(value);
 
         [Pure]
-        public TryOption<A> Id(Func<Unit, TryOption<A>> ma) =>
+        public TryOption<A> Run(Func<Unit, TryOption<A>> ma) =>
             ma(unit);
 
         [Pure]
@@ -164,30 +161,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public TryOption<A> Return(A x) =>
             () => x;
-
-        [Pure]
-        public TryOption<A> IdAsync(Func<Unit, Task<TryOption<A>>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(TryOption<A> fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(fa.Map(a => f(state, a)).IfNoneOrFail(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(TryOption<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-            fa.Map(a => f(state, a)).IfNoneOrFail(Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(TryOption<A> fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(fa.Map(a => f(state, a)).IfNoneOrFail(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(TryOption<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-            fa.Map(a => f(state, a)).IfNoneOrFail(Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(TryOption<A> fa) => _ =>
-            Task.FromResult(fa.Map(a => 1).IfNoneOrFail(0));
 
         [Pure]
         public TryOption<A> Empty() =>

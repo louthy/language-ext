@@ -25,6 +25,27 @@ public static class TaskExtensions
         Task.FromResult(self);
 
     /// <summary>
+    /// Flatten the nested Task type
+    /// </summary>
+    public static async Task<A> Flatten<A>(this Task<Task<A>> self)
+    {
+        var t = await self;
+        var u = await t;
+        return u;
+    }
+
+    /// <summary>
+    /// Flatten the nested Task type
+    /// </summary>
+    public static async Task<A> Flatten<A>(this Task<Task<Task<A>>> self)
+    {
+        var t = await self;
+        var u = await t;
+        var v = await u;
+        return v;
+    }
+
+    /// <summary>
     /// Standard LINQ Select implementation for Task
     /// </summary>
     public static async Task<U> Select<T, U>(this Task<T> self, Func<T, U> map) =>
