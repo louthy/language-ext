@@ -6,7 +6,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests
 {
-    public class NullDefaultTests
+    public class DefaultTests
     {
         [Fact]
         public void IsDefaultTests()
