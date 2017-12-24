@@ -363,20 +363,22 @@ namespace LanguageExt
 
         static class Check<T>
         {
-            static readonly bool IsValueType;
+            static readonly bool IsReferenceType;
             static readonly bool IsNullable;
+            static readonly EqualityComparer<T> DefaultEqualityComparer;
 
             static Check()
             {
                 IsNullable = Nullable.GetUnderlyingType(typeof(T)) != null;
-                IsValueType = typeof(T).GetTypeInfo().IsValueType;
+                IsReferenceType = !typeof(T).GetTypeInfo().IsValueType;
+                DefaultEqualityComparer = EqualityComparer<T>.Default;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static bool IsNull(T value) =>
                 IsNullable
                     ? value.Equals(default(T))
-                    : !IsValueType && EqualityComparer<T>.Default.Equals(value, default(T));
+                    : IsReferenceType && DefaultEqualityComparer.Equals(value, default(T));
         }
    }
 }
