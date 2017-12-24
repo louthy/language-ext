@@ -809,7 +809,7 @@ namespace LanguageExt
             FEitherUnsafeBi<L, R, Ret, R>.Inst.BiMap(this, mapper, identity);
 
         /// <summary>
-        /// Bi-maps the value in the EitherUnsafe if it's in a Right state
+        /// Bi-maps the value in the EitherUnsafe into a Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
@@ -820,7 +820,7 @@ namespace LanguageExt
         /// <param name="Left">Left map function</param>
         /// <returns>Mapped EitherUnsafe</returns>
         [Pure]
-        public EitherUnsafe<L, Ret> BiMap<LRet, Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
+        public EitherUnsafe<L, Ret> BiMap<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             FEitherUnsafe<L, R, Ret>.Inst.BiMap(this, Left, Right);
 
         /// <summary>

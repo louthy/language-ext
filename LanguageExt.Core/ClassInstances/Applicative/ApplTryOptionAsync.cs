@@ -9,7 +9,7 @@ namespace LanguageExt.ClassInstances
     public struct ApplTryOptionAsync<A, B> : 
         FunctorAsync<TryOptionAsync<A>, TryOptionAsync<B>, A, B>,
         BiFunctorAsync<TryOptionAsync<A>, TryOptionAsync<B>, A, Unit, B>,
-        Applicative<TryOptionAsync<Func<A, B>>, TryOptionAsync<A>, TryOptionAsync<B>, A, B>
+        ApplicativeAsync<TryOptionAsync<Func<A, B>>, TryOptionAsync<A>, TryOptionAsync<B>, A, B>
     {
         public static readonly ApplTryOptionAsync<A, B> Inst = default(ApplTryOptionAsync<A, B>);
 
@@ -38,7 +38,7 @@ namespace LanguageExt.ClassInstances
             default(FTryOptionAsync<A, B>).MapAsync(ma, f);
 
         [Pure]
-        public TryOptionAsync<B> Apply(TryOptionAsync<Func<A, B>> fab, TryOptionAsync<A> fa) =>
+        public TryOptionAsync<B> ApplyAsync(TryOptionAsync<Func<A, B>> fab, TryOptionAsync<A> fa) =>
             async () =>
             {
                 var f = fab.Try();
@@ -61,11 +61,11 @@ namespace LanguageExt.ClassInstances
             };
 
         [Pure]
-        public TryOptionAsync<A> Pure(A x) =>
-            MTryOptionAsync<A>.Inst.ReturnAsync(x.AsTask());
+        public TryOptionAsync<A> PureAsync(Task<A> x) =>
+            MTryOptionAsync<A>.Inst.ReturnAsync(x);
 
         [Pure]
-        public TryOptionAsync<B> Action(TryOptionAsync<A> fa, TryOptionAsync<B> fb) =>
+        public TryOptionAsync<B> ActionAsync(TryOptionAsync<A> fa, TryOptionAsync<B> fb) =>
             async () =>
             {
                 var a = fa.Try();
@@ -89,12 +89,12 @@ namespace LanguageExt.ClassInstances
     }
 
     public struct ApplTryOptionAsync<A, B, C> :
-        Applicative<TryOptionAsync<Func<A, Func<B, C>>>, TryOptionAsync<Func<B, C>>, TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>, A, B, C>
+        ApplicativeAsync<TryOptionAsync<Func<A, Func<B, C>>>, TryOptionAsync<Func<B, C>>, TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>, A, B, C>
     {
         public static readonly ApplTryOptionAsync<A, B, C> Inst = default(ApplTryOptionAsync<A, B, C>);
 
         [Pure]
-        public TryOptionAsync<Func<B, C>> Apply(TryOptionAsync<Func<A, Func<B, C>>> fabc, TryOptionAsync<A> fa) =>
+        public TryOptionAsync<Func<B, C>> ApplyAsync(TryOptionAsync<Func<A, Func<B, C>>> fabc, TryOptionAsync<A> fa) =>
             async () =>
             {
                 var f = fabc.Try();
@@ -117,7 +117,7 @@ namespace LanguageExt.ClassInstances
             };
 
         [Pure]
-        public TryOptionAsync<C> Apply(TryOptionAsync<Func<A, Func<B, C>>> fabc, TryOptionAsync<A> fa, TryOptionAsync<B> fb) =>
+        public TryOptionAsync<C> ApplyAsync(TryOptionAsync<Func<A, Func<B, C>>> fabc, TryOptionAsync<A> fa, TryOptionAsync<B> fb) =>
             async () =>
             {
                 var f = fabc.Try();
@@ -146,16 +146,16 @@ namespace LanguageExt.ClassInstances
             };
 
         [Pure]
-        public TryOptionAsync<A> Pure(A x) =>
-            MTryOptionAsync<A>.Inst.ReturnAsync(x.AsTask());
+        public TryOptionAsync<A> PureAsync(Task<A> x) =>
+            MTryOptionAsync<A>.Inst.ReturnAsync(x);
     }
 
 
     public struct ApplTryOptionAsync<A> :
         FunctorAsync<TryOptionAsync<A>, TryOptionAsync<A>, A, A>,
         BiFunctorAsync<TryOptionAsync<A>, TryOptionAsync<A>, A, Unit, A>,
-        Applicative<TryOptionAsync<Func<A, A>>, TryOptionAsync<A>, TryOptionAsync<A>, A, A>,
-        Applicative<TryOptionAsync<Func<A, Func<A, A>>>, TryOptionAsync<Func<A, A>>, TryOptionAsync<A>, TryOptionAsync<A>, TryOptionAsync<A>, A, A, A>
+        ApplicativeAsync<TryOptionAsync<Func<A, A>>, TryOptionAsync<A>, TryOptionAsync<A>, A, A>,
+        ApplicativeAsync<TryOptionAsync<Func<A, Func<A, A>>>, TryOptionAsync<Func<A, A>>, TryOptionAsync<A>, TryOptionAsync<A>, TryOptionAsync<A>, A, A, A>
     {
         public static readonly ApplTryOptionAsync<A> Inst = default(ApplTryOptionAsync<A>);
 
@@ -184,7 +184,7 @@ namespace LanguageExt.ClassInstances
             default(FTryOptionAsync<A, A>).MapAsync(ma, f);
 
         [Pure]
-        public TryOptionAsync<A> Apply(TryOptionAsync<Func<A, A>> fab, TryOptionAsync<A> fa) =>
+        public TryOptionAsync<A> ApplyAsync(TryOptionAsync<Func<A, A>> fab, TryOptionAsync<A> fa) =>
             async () =>
             {
                 var f = fab.Try();
@@ -207,11 +207,11 @@ namespace LanguageExt.ClassInstances
             };
 
         [Pure]
-        public TryOptionAsync<A> Pure(A x) =>
-            MTryOptionAsync<A>.Inst.ReturnAsync(x.AsTask());
+        public TryOptionAsync<A> PureAsync(Task<A> x) =>
+            MTryOptionAsync<A>.Inst.ReturnAsync(x);
 
         [Pure]
-        public TryOptionAsync<A> Action(TryOptionAsync<A> fa, TryOptionAsync<A> fb) =>
+        public TryOptionAsync<A> ActionAsync(TryOptionAsync<A> fa, TryOptionAsync<A> fb) =>
             async () =>
             {
                 var a = fa.Try();
@@ -234,7 +234,7 @@ namespace LanguageExt.ClassInstances
             };
 
         [Pure]
-        public TryOptionAsync<Func<A, A>> Apply(TryOptionAsync<Func<A, Func<A, A>>> fabc, TryOptionAsync<A> fa) =>
+        public TryOptionAsync<Func<A, A>> ApplyAsync(TryOptionAsync<Func<A, Func<A, A>>> fabc, TryOptionAsync<A> fa) =>
             async () =>
             {
                 var f = fabc.Try();
@@ -257,7 +257,7 @@ namespace LanguageExt.ClassInstances
             };
 
         [Pure]
-        public TryOptionAsync<A> Apply(TryOptionAsync<Func<A, Func<A, A>>> fabc, TryOptionAsync<A> fa, TryOptionAsync<A> fb) =>
+        public TryOptionAsync<A> ApplyAsync(TryOptionAsync<Func<A, Func<A, A>>> fabc, TryOptionAsync<A> fa, TryOptionAsync<A> fb) =>
             async () =>
             {
                 var f = fabc.Try();

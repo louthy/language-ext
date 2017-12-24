@@ -12,7 +12,8 @@ namespace LanguageExt.ClassInstances
         Monad<Option<A>, A>,
         BiFoldable<Option<A>, A, Unit>,
         Eq<Option<A>>,
-        Ord<Option<A>>
+        Ord<Option<A>>,
+        AsyncPair<Option<A>, OptionAsync<A>>
     {
         public static readonly MOption<A> Inst = default(MOption<A>);
 
@@ -196,5 +197,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int Compare(Option<A> x, Option<A> y) =>
             compare<OrdDefault<A>, A>(x, y);
+
+        [Pure]
+        public OptionAsync<A> ToAsync(Option<A> sa) =>
+            sa.ToAsync();
     }
 }

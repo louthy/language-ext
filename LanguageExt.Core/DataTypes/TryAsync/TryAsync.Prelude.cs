@@ -125,7 +125,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
         public static TryAsync<B> apply<A, B>(TryAsync<Func<A, B>> fab, TryAsync<A> fa) =>
-            ApplTryAsync<A, B>.Inst.Apply(fab, fa);
+            ApplTryAsync<A, B>.Inst.ApplyAsync(fab, fa);
 
         /// <summary>
         /// Apply
@@ -135,7 +135,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
         public static TryAsync<B> apply<A, B>(Func<A, B> fab, TryAsync<A> fa) =>
-            ApplTryAsync<A, B>.Inst.Apply(TryAsync(fab), fa);
+            ApplTryAsync<A, B>.Inst.ApplyAsync(TryAsync(fab), fa);
 
         /// <summary>
         /// Apply
@@ -146,7 +146,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static TryAsync<C> apply<A, B, C>(TryAsync<Func<A, B, C>> fabc, TryAsync<A> fa, TryAsync<B> fb) =>
-            fabc.Bind(f => ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa, fb));
+            fabc.Bind(f => ApplTryAsync<A, B, C>.Inst.ApplyAsync(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa, fb));
 
         /// <summary>
         /// Apply
@@ -157,7 +157,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static TryAsync<C> apply<A, B, C>(Func<A, B, C> fabc, TryAsync<A> fa, TryAsync<B> fb) =>
-            ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa, fb);
+            ApplTryAsync<A, B, C>.Inst.ApplyAsync(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa, fb);
 
         /// <summary>
         /// Apply
@@ -167,7 +167,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static TryAsync<Func<B, C>> apply<A, B, C>(TryAsync<Func<A, B, C>> fabc, TryAsync<A> fa) =>
-            fabc.Bind(f => ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa));
+            fabc.Bind(f => ApplTryAsync<A, B, C>.Inst.ApplyAsync(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa));
 
         /// <summary>
         /// Apply
@@ -177,7 +177,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static TryAsync<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, TryAsync<A> fa) =>
-            ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa);
+            ApplTryAsync<A, B, C>.Inst.ApplyAsync(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa);
 
         /// <summary>
         /// Apply
@@ -187,7 +187,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static TryAsync<Func<B, C>> apply<A, B, C>(TryAsync<Func<A, Func<B, C>>> fabc, TryAsync<A> fa) =>
-            ApplTryAsync<A, B, C>.Inst.Apply(fabc, fa);
+            ApplTryAsync<A, B, C>.Inst.ApplyAsync(fabc, fa);
 
         /// <summary>
         /// Apply
@@ -197,7 +197,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static TryAsync<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, TryAsync<A> fa) =>
-            ApplTryAsync<A, B, C>.Inst.Apply(TryAsync(fabc), fa);
+            ApplTryAsync<A, B, C>.Inst.ApplyAsync(TryAsync(fabc), fa);
 
         /// <summary>
         /// Evaluate fa, then fb, ignoring the result of fa
@@ -207,7 +207,7 @@ namespace LanguageExt
         /// <returns>Applicative of type Option<B></returns>
         [Pure]
         public static TryAsync<B> action<A, B>(TryAsync<A> fa, TryAsync<B> fb) =>
-            ApplTryAsync<A, B>.Inst.Action(fa, fb);
+            ApplTryAsync<A, B>.Inst.ActionAsync(fa, fb);
 
         /// <summary>
         /// Test if the TryAsync computation is successful

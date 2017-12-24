@@ -9,7 +9,7 @@ namespace LanguageExt.ClassInstances
     public struct ApplTryAsync<A, B> : 
         FunctorAsync<TryAsync<A>, TryAsync<B>, A, B>,
         BiFunctorAsync<TryAsync<A>, TryAsync<B>, A, Unit, B>,
-        Applicative<TryAsync<Func<A, B>>, TryAsync<A>, TryAsync<B>, A, B>
+        ApplicativeAsync<TryAsync<Func<A, B>>, TryAsync<A>, TryAsync<B>, A, B>
     {
         public static readonly ApplTryAsync<A, B> Inst = default(ApplTryAsync<A, B>);
 
@@ -38,7 +38,7 @@ namespace LanguageExt.ClassInstances
             default(FTryAsync<A, B>).MapAsync(ma, f);
 
         [Pure]
-        public TryAsync<B> Apply(TryAsync<Func<A, B>> fab, TryAsync<A> fa) =>
+        public TryAsync<B> ApplyAsync(TryAsync<Func<A, B>> fab, TryAsync<A> fa) =>
             async () =>
             {
                 var f = fab.Try();
@@ -59,11 +59,11 @@ namespace LanguageExt.ClassInstances
             };
 
         [Pure]
-        public TryAsync<A> Pure(A x) =>
-            MTryAsync<A>.Inst.ReturnAsync(x.AsTask());
+        public TryAsync<A> PureAsync(Task<A> x) =>
+            MTryAsync<A>.Inst.ReturnAsync(x);
 
         [Pure]
-        public TryAsync<B> Action(TryAsync<A> fa, TryAsync<B> fb) =>
+        public TryAsync<B> ActionAsync(TryAsync<A> fa, TryAsync<B> fb) =>
             async () =>
             {
                 var a = fa.Try();
@@ -85,12 +85,12 @@ namespace LanguageExt.ClassInstances
     }
 
     public struct ApplTryAsync<A, B, C> :
-        Applicative<TryAsync<Func<A, Func<B, C>>>, TryAsync<Func<B, C>>, TryAsync<A>, TryAsync<B>, TryAsync<C>, A, B, C>
+        ApplicativeAsync<TryAsync<Func<A, Func<B, C>>>, TryAsync<Func<B, C>>, TryAsync<A>, TryAsync<B>, TryAsync<C>, A, B, C>
     {
         public static readonly ApplTryAsync<A, B, C> Inst = default(ApplTryAsync<A, B, C>);
 
         [Pure]
-        public TryAsync<Func<B, C>> Apply(TryAsync<Func<A, Func<B, C>>> fabc, TryAsync<A> fa) =>
+        public TryAsync<Func<B, C>> ApplyAsync(TryAsync<Func<A, Func<B, C>>> fabc, TryAsync<A> fa) =>
             async () =>
             {
                 var f = fabc.Try();
@@ -111,7 +111,7 @@ namespace LanguageExt.ClassInstances
             };
 
         [Pure]
-        public TryAsync<C> Apply(TryAsync<Func<A, Func<B, C>>> fabc, TryAsync<A> fa, TryAsync<B> fb) =>
+        public TryAsync<C> ApplyAsync(TryAsync<Func<A, Func<B, C>>> fabc, TryAsync<A> fa, TryAsync<B> fb) =>
             async () =>
             {
                 var f = fabc.Try();
@@ -137,16 +137,16 @@ namespace LanguageExt.ClassInstances
             };
 
         [Pure]
-        public TryAsync<A> Pure(A x) =>
-            MTryAsync<A>.Inst.ReturnAsync(x.AsTask());
+        public TryAsync<A> PureAsync(Task<A> x) =>
+            MTryAsync<A>.Inst.ReturnAsync(x);
     }
 
 
     public struct ApplTryAsync<A> :
         FunctorAsync<TryAsync<A>, TryAsync<A>, A, A>,
         BiFunctorAsync<TryAsync<A>, TryAsync<A>, A, Unit, A>,
-        Applicative<TryAsync<Func<A, A>>, TryAsync<A>, TryAsync<A>, A, A>,
-        Applicative<TryAsync<Func<A, Func<A, A>>>, TryAsync<Func<A, A>>, TryAsync<A>, TryAsync<A>, TryAsync<A>, A, A, A>
+        ApplicativeAsync<TryAsync<Func<A, A>>, TryAsync<A>, TryAsync<A>, A, A>,
+        ApplicativeAsync<TryAsync<Func<A, Func<A, A>>>, TryAsync<Func<A, A>>, TryAsync<A>, TryAsync<A>, TryAsync<A>, A, A, A>
     {
         public static readonly ApplTryAsync<A> Inst = default(ApplTryAsync<A>);
 
@@ -187,7 +187,7 @@ namespace LanguageExt.ClassInstances
                 Fail: e => new Result<A>(e));
 
         [Pure]
-        public TryAsync<A> Apply(TryAsync<Func<A, A>> fab, TryAsync<A> fa) =>
+        public TryAsync<A> ApplyAsync(TryAsync<Func<A, A>> fab, TryAsync<A> fa) =>
             async () =>
             {
                 var f = fab.Try();
@@ -208,11 +208,11 @@ namespace LanguageExt.ClassInstances
             };
 
         [Pure]
-        public TryAsync<A> Pure(A x) =>
-            MTryAsync<A>.Inst.ReturnAsync(x.AsTask());
+        public TryAsync<A> PureAsync(Task<A> x) =>
+            MTryAsync<A>.Inst.ReturnAsync(x);
 
         [Pure]
-        public TryAsync<A> Action(TryAsync<A> fa, TryAsync<A> fb) =>
+        public TryAsync<A> ActionAsync(TryAsync<A> fa, TryAsync<A> fb) =>
             async () =>
             {
                 var a = fa.Try();
@@ -233,7 +233,7 @@ namespace LanguageExt.ClassInstances
             };
 
         [Pure]
-        public TryAsync<Func<A, A>> Apply(TryAsync<Func<A, Func<A, A>>> fabc, TryAsync<A> fa) =>
+        public TryAsync<Func<A, A>> ApplyAsync(TryAsync<Func<A, Func<A, A>>> fabc, TryAsync<A> fa) =>
             async () =>
             {
                 var f = fabc.Try();
@@ -254,7 +254,7 @@ namespace LanguageExt.ClassInstances
             };
 
         [Pure]
-        public TryAsync<A> Apply(TryAsync<Func<A, Func<A, A>>> fabc, TryAsync<A> fa, TryAsync<A> fb) =>
+        public TryAsync<A> ApplyAsync(TryAsync<Func<A, Func<A, A>>> fabc, TryAsync<A> fa, TryAsync<A> fb) =>
             async () =>
             {
                 var f = fabc.Try();

@@ -6,15 +6,9 @@ namespace LanguageExt
     public partial class Prelude
     {
         /// <summary>
-        /// Get the Sum of a Task int.  Returns either the wrapped value or 0 if cancelled or faulted.
-        /// </summary>
-        public static int sum(Task<int> self) =>
-            self.Sum();
-
-        /// <summary>
         /// Get the Count of a Task T.  Returns either 1 or 0 if cancelled or faulted.
         /// </summary>
-        public static int count<T>(Task<T> self) => self.Count();
+        public static Task<int> count<T>(Task<T> self) => self.Count();
 
         /// <summary>
         /// Monadic bind operation for Task
@@ -26,14 +20,14 @@ namespace LanguageExt
         /// Returns false if the Task is cancelled or faulted, otherwise
         /// it returns the result of pred(Result)
         /// </summary>
-        public static bool exists<T>(Task<T> self, Func<T, bool> pred) =>
+        public static Task<bool> exists<T>(Task<T> self, Func<T, bool> pred) =>
             self.Exists(pred);
 
         /// <summary>
         /// Returns false if the Task is cancelled or faulted, otherwise
         /// it returns the result of pred(Result)
         /// </summary>
-        public static bool forall<T>(Task<T> self, Func<T, bool> pred) =>
+        public static Task<bool> forall<T>(Task<T> self, Func<T, bool> pred) =>
             self.ForAll(pred);
 
         /// <summary>
@@ -47,13 +41,13 @@ namespace LanguageExt
         /// Folds the Task.  Returns folder(state,Result) if not faulted or
         /// cancelled.  Returns state otherwise.
         /// </summary>
-        public static S fold<T, S>(Task<T> self, S state, Func<S, T, S> folder) =>
+        public static Task<S> fold<T, S>(Task<T> self, S state, Func<S, T, S> folder) =>
             self.Fold(state, folder);
 
         /// <summary>
         /// Iterates the Task.  Invokes f(Result) if not faulted or cancelled
         /// </summary>
-        public static Unit iter<T>(Task<T> self, Action<T> f) =>
+        public static Task<Unit> iter<T>(Task<T> self, Action<T> f) =>
             self.Iter(f);
 
         /// <summary>

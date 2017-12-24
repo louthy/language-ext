@@ -522,6 +522,13 @@ namespace LanguageExt
             toOption<MEither<L, R>, Either<L, R>, L, R>(this);
 
         /// <summary>
+        /// Convert the Either to an EitherAsync
+        /// </summary>
+        [Pure]
+        public EitherAsync<L, R> ToAsync() =>
+            new EitherAsync<L, R>(this.Head().AsTask());
+
+        /// <summary>
         /// Convert the Either to an EitherUnsafe
         /// </summary>
         /// <returns>EitherUnsafe</returns>
@@ -854,7 +861,7 @@ namespace LanguageExt
             FEitherBi<L, R, Ret, R>.Inst.BiMap(this, mapper, identity);
 
         /// <summary>
-        /// Bi-maps the value in the Either if it's in a Right state
+        /// Bi-maps the value in the Either into a Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
@@ -865,7 +872,7 @@ namespace LanguageExt
         /// <param name="Left">Left map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public Either<L, Ret> BiMap<LRet, Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
+        public Either<L, Ret> BiMap<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             FEither<L, R, Ret>.Inst.BiMap(this, Left, Right);
 
         /// <summary>

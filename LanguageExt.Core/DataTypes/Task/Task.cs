@@ -60,7 +60,7 @@ public static class TaskExtensions
         var res = pred(resT);
         if (!res)
         {
-            throw new OperationCanceledException();
+            throw new TaskCanceledException();
         }
         return resT;
     }
@@ -89,23 +89,19 @@ public static class TaskExtensions
     }
 
     /// <summary>
-    /// Get the Sum of a Task int.  Returns either the wrapped value or 0 if cancelled or faulted.
-    /// </summary>
-    public static int Sum(this Task<int> self)
-    {
-        if (self.IsFaulted || self.IsCanceled) return 0;
-        return self.Result;
-    }
-
-    /// <summary>
     /// Get the Count of a Task T.  Returns either 1 or 0 if cancelled or faulted.
     /// </summary>
-    public static int Count<T>(this Task<T> self)
+    public static async Task<int> Count<T>(this Task<T> self)
     {
-        if (self.IsFaulted || self.IsCanceled) return 0;
-        self.Wait();
-        if (self.IsFaulted || self.IsCanceled) return 0;
-        return 1;
+        try
+        {
+            await self;
+            return 1;
+        }
+        catch(Exception)
+        {
+            return 0;
+        }
     }
 
     /// <summary>
@@ -118,25 +114,29 @@ public static class TaskExtensions
     /// Returns false if the Task is cancelled or faulted, otherwise
     /// it returns the result of pred(Result)
     /// </summary>
-    public static bool Exists<T>(this Task<T> self, Func<T, bool> pred)
-    {
-        if (self.IsFaulted || self.IsCanceled) return false;
-        self.Wait();
-        if (self.IsFaulted || self.IsCanceled) return false;
-        return pred(self.Result);
-    }
+    public static async Task<bool> Exists<T>(this Task<T> self, Func<T, bool> pred) =>
+        pred(await self);
 
     /// <summary>
     /// Returns false if the Task is cancelled or faulted, otherwise
     /// it returns the result of pred(Result)
     /// </summary>
-    public static bool ForAll<T>(this Task<T> self, Func<T, bool> pred)
-    {
-        if (self.IsFaulted || self.IsCanceled) return false;
-        self.Wait();
-        if (self.IsFaulted || self.IsCanceled) return false;
-        return pred(self.Result);
-    }
+    public static async Task<bool> ExistsAsync<T>(this Task<T> self, Func<T, Task<bool>> pred) =>
+        await pred(await self);
+
+    /// <summary>
+    /// Returns false if the Task is cancelled or faulted, otherwise
+    /// it returns the result of pred(Result)
+    /// </summary>
+    public static async Task<bool> ForAll<T>(this Task<T> self, Func<T, bool> pred) =>
+        pred(await self);
+
+    /// <summary>
+    /// Returns false if the Task is cancelled or faulted, otherwise
+    /// it returns the result of pred(Result)
+    /// </summary>
+    public static async Task<bool> ForAllAsync<T>(this Task<T> self, Func<T, Task<bool>> pred) =>
+        await pred(await self);
 
     /// <summary>
     /// Filters the task.  This throws a BottomException when pred(Result)
@@ -149,29 +149,36 @@ public static class TaskExtensions
     /// Folds the Task.  Returns folder(state,Result) if not faulted or
     /// cancelled.  Returns state otherwise.
     /// </summary>
-    public static S Fold<T, S>(this Task<T> self, S state, Func<S, T, S> folder)
-    {
-        if (self.IsFaulted || self.IsCanceled) return state;
-        self.Wait();
-        if (self.IsFaulted || self.IsCanceled) return state;
-        return folder(state, self.Result);
-    }
+    public static async Task<S> Fold<T, S>(this Task<T> self, S state, Func<S, T, S> folder) =>
+        folder(state, await self);
+
+    /// <summary>
+    /// Folds the Task.  Returns folder(state,Result) if not faulted or
+    /// cancelled.  Returns state otherwise.
+    /// </summary>
+    public static async Task<S> FoldAsync<T, S>(this Task<T> self, S state, Func<S, T, Task<S>> folder) =>
+        await folder(state, await self);
 
     /// <summary>
     /// Iterates the Task.  Invokes f(Result) if not faulted or cancelled
     /// </summary>
-    public static Unit Iter<T>(this Task<T> self, Action<T> f)
+    public static async Task<Unit> Iter<T>(this Task<T> self, Action<T> f)
     {
-        if (self.IsFaulted || self.IsCanceled) return unit;
-        self.ContinueWith(t => f(t.Result));
+        f(await self);
         return unit;
     }
 
     /// <summary>
     /// Returns map(Result) if not faulted or cancelled.
     /// </summary>
-    public static Task<U> Map<T, U>(this Task<T> self, Func<T, U> map) =>
-        self.Select(map);
+    public static async Task<U> Map<T, U>(this Task<T> self, Func<T, U> map) =>
+        map(await self);
+
+    /// <summary>
+    /// Returns map(Result) if not faulted or cancelled.
+    /// </summary>
+    public static async Task<U> MapAsync<T, U>(this Task<T> self, Func<T, Task<U>> map) =>
+        await map(await self);
 
     public static async Task<V> Join<T, U, K, V>(
         this Task<T> source,

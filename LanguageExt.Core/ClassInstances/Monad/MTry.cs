@@ -12,7 +12,8 @@ namespace LanguageExt.ClassInstances
         Alternative<Try<A>, Unit, A>,
         Optional<Try<A>, A>,
         Monad<Try<A>, A>,
-        BiFoldable<Try<A>, A, Unit>
+        BiFoldable<Try<A>, A, Unit>,
+        AsyncPair<Try<A>, TryAsync<A>>
     {
         public static readonly MTry<A> Inst = default(MTry<A>);
 
@@ -175,5 +176,9 @@ namespace LanguageExt.ClassInstances
             from a in fa
             from b in fb
             select f(a, b);
+
+        [Pure]
+        public TryAsync<A> ToAsync(Try<A> sa) =>
+            sa.ToAsync();
     }
 }

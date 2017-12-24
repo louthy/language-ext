@@ -294,7 +294,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
         public static OptionAsync<B> apply<A, B>(OptionAsync<Func<A, B>> fab, OptionAsync<A> fa) =>
-            ApplOptionAsync<A, B>.Inst.Apply(fab, fa);
+            ApplOptionAsync<A, B>.Inst.ApplyAsync(fab, fa);
 
         /// <summary>
         /// Apply
@@ -304,7 +304,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
         public static OptionAsync<B> apply<A, B>(Func<A, B> fab, OptionAsync<A> fa) =>
-            ApplOptionAsync<A, B>.Inst.Apply(fab, fa);
+            ApplOptionAsync<A, B>.Inst.ApplyAsync(fab, fa);
 
         /// <summary>
         /// Apply
@@ -316,7 +316,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<C> apply<A, B, C>(OptionAsync<Func<A, B, C>> fabc, OptionAsync<A> fa, OptionAsync<B> fb) =>
             from x in fabc
-            from y in ApplOptionAsync<A, B, C>.Inst.Apply(curry(x), fa, fb)
+            from y in ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(x), fa, fb)
             select y;
 
         /// <summary>
@@ -328,7 +328,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static OptionAsync<C> apply<A, B, C>(Func<A, B, C> fabc, OptionAsync<A> fa, OptionAsync<B> fb) =>
-            ApplOptionAsync<A, B, C>.Inst.Apply(curry(fabc), fa, fb);
+            ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(fabc), fa, fb);
 
         /// <summary>
         /// Apply
@@ -339,7 +339,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<Func<B, C>> apply<A, B, C>(OptionAsync<Func<A, B, C>> fabc, OptionAsync<A> fa) =>
             from x in fabc
-            from y in ApplOptionAsync<A, B, C>.Inst.Apply(curry(x), fa)
+            from y in ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(x), fa)
             select y;
 
         /// <summary>
@@ -350,7 +350,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static OptionAsync<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, OptionAsync<A> fa) =>
-            ApplOptionAsync<A, B, C>.Inst.Apply(curry(fabc), fa);
+            ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(fabc), fa);
 
         /// <summary>
         /// Apply
@@ -360,7 +360,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static OptionAsync<Func<B, C>> apply<A, B, C>(OptionAsync<Func<A, Func<B, C>>> fabc, OptionAsync<A> fa) =>
-            ApplOptionAsync<A, B, C>.Inst.Apply(fabc, fa);
+            ApplOptionAsync<A, B, C>.Inst.ApplyAsync(fabc, fa);
 
         /// <summary>
         /// Apply
@@ -370,7 +370,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static OptionAsync<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, OptionAsync<A> fa) =>
-            ApplOptionAsync<A, B, C>.Inst.Apply(fabc, fa);
+            ApplOptionAsync<A, B, C>.Inst.ApplyAsync(fabc, fa);
 
         /// <summary>
         /// Evaluate fa, then fb, ignoring the result of fa
@@ -380,7 +380,7 @@ namespace LanguageExt
         /// <returns>Applicative of type OptionAsync<B></returns>
         [Pure]
         public static OptionAsync<B> action<A, B>(OptionAsync<A> fa, OptionAsync<B> fb) =>
-            ApplOptionAsync<A, B>.Inst.Action(fa, fb);
+            ApplOptionAsync<A, B>.Inst.ActionAsync(fa, fb);
 
         /// <summary>
         /// <para>

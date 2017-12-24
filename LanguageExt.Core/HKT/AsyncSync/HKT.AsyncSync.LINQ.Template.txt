@@ -1,0 +1,29 @@
+﻿        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OUTER_A` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OUTER_A Where<GENS, A>(this OUTER_A ma, Func<A, bool> pred) =>
+            default(ASYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).BindAsync<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
+                a => pred(a)
+                    ? default(M_INNER_A).Return(a)
+                    : default(M_INNER_A).Zero());
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OUTER_B` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OUTER_B Select<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
+            default(ASYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
+                .MapAsync<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
+

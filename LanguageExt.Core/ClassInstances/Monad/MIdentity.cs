@@ -2,6 +2,7 @@
 using static LanguageExt.Prelude;
 using System;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -9,7 +10,9 @@ namespace LanguageExt.ClassInstances
     /// 
     /// </summary>
     /// <typeparam name="A"></typeparam>
-    public struct MIdentity<A> : Monad<Identity<A>, A>
+    public struct MIdentity<A> : 
+        Monad<Identity<A>, A>,
+        AsyncPair<Identity<A>, Task<A>>
     {
         public static readonly MIdentity<A> Inst = new MIdentity<A>();
 
@@ -65,5 +68,8 @@ namespace LanguageExt.ClassInstances
             default(MIdentity<A>).Bind<MIdentity<A>, Identity<A>, A>(fb, b =>
             default(MIdentity<A>).Return(_ => f(a, b))));
 
+        [Pure]
+        public Task<A> ToAsync(Identity<A> sa) =>
+            sa.Value.AsTask();
     }
 }

@@ -1593,7 +1593,7 @@ public static class TryOptionAsyncExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static TryOptionAsync<B> Apply<A, B>(this TryOptionAsync<Func<A, B>> fab, TryOptionAsync<A> fa) =>
-        ApplTryOptionAsync<A, B>.Inst.Apply(fab, fa);
+        ApplTryOptionAsync<A, B>.Inst.ApplyAsync(fab, fa);
 
     /// <summary>
     /// Apply
@@ -1603,7 +1603,7 @@ public static class TryOptionAsyncExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static TryOptionAsync<B> Apply<A, B>(this Func<A, B> fab, TryOptionAsync<A> fa) =>
-        ApplTryOptionAsync<A, B>.Inst.Apply(TryOptionAsync(fab), fa);
+        ApplTryOptionAsync<A, B>.Inst.ApplyAsync(TryOptionAsync(fab), fa);
 
     /// <summary>
     /// Apply
@@ -1614,7 +1614,7 @@ public static class TryOptionAsyncExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static TryOptionAsync<C> Apply<A, B, C>(this TryOptionAsync<Func<A, B, C>> fabc, TryOptionAsync<A> fa, TryOptionAsync<B> fb) =>
-        fabc.Bind(f => ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa, fb));
+        fabc.Bind(f => ApplTryOptionAsync<A, B, C>.Inst.ApplyAsync(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa, fb));
 
     /// <summary>
     /// Apply
@@ -1625,7 +1625,7 @@ public static class TryOptionAsyncExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static TryOptionAsync<C> Apply<A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<A> fa, TryOptionAsync<B> fb) =>
-        ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa, fb);
+        ApplTryOptionAsync<A, B, C>.Inst.ApplyAsync(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa, fb);
 
     /// <summary>
     /// Apply
@@ -1635,7 +1635,7 @@ public static class TryOptionAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static TryOptionAsync<Func<B, C>> Apply<A, B, C>(this TryOptionAsync<Func<A, B, C>> fabc, TryOptionAsync<A> fa) =>
-        fabc.Bind(f => ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa));
+        fabc.Bind(f => ApplTryOptionAsync<A, B, C>.Inst.ApplyAsync(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa));
 
     /// <summary>
     /// Apply
@@ -1645,7 +1645,7 @@ public static class TryOptionAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static TryOptionAsync<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<A> fa) =>
-        ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa);
+        ApplTryOptionAsync<A, B, C>.Inst.ApplyAsync(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa);
 
     /// <summary>
     /// Apply
@@ -1655,7 +1655,7 @@ public static class TryOptionAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static TryOptionAsync<Func<B, C>> Apply<A, B, C>(this TryOptionAsync<Func<A, Func<B, C>>> fabc, TryOptionAsync<A> fa) =>
-        ApplTryOptionAsync<A, B, C>.Inst.Apply(fabc, fa);
+        ApplTryOptionAsync<A, B, C>.Inst.ApplyAsync(fabc, fa);
 
     /// <summary>
     /// Apply
@@ -1665,7 +1665,7 @@ public static class TryOptionAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static TryOptionAsync<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, TryOptionAsync<A> fa) =>
-        ApplTryOptionAsync<A, B, C>.Inst.Apply(TryOptionAsync(fabc), fa);
+        ApplTryOptionAsync<A, B, C>.Inst.ApplyAsync(TryOptionAsync(fabc), fa);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -1675,7 +1675,7 @@ public static class TryOptionAsyncExtensions
     /// <returns>Applicative of type Option<B></returns>
     [Pure]
     public static TryOptionAsync<B> Action<A, B>(this TryOptionAsync<A> fa, TryOptionAsync<B> fb) =>
-        ApplTryOptionAsync<A, B>.Inst.Action(fa, fb);
+        ApplTryOptionAsync<A, B>.Inst.ActionAsync(fa, fb);
 
     /// <summary>
     /// Compare the bound value of Try(x) to Try(y).  If either of the

@@ -6,7 +6,7 @@ using LanguageExt.Attributes;
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface BiFoldableAsync<F, A, B> : FoldableAsync<F, A>
+    public interface BiFoldableAsync<F, A, B>
     {
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary
@@ -146,7 +146,7 @@ namespace LanguageExt.TypeClasses
     }
 
     [Typeclass]
-    public interface BiFoldableAsync<F, A> : FoldableAsync<F, A>
+    public interface BiFoldableAsync<F, A>
     {
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary

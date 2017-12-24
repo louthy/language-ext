@@ -12,6 +12,7 @@ namespace LanguageExt.ClassInstances
     public struct MTask<A> :
         OptionalAsync<Task<A>, A>,
         MonadAsync<Task<A>, A>,
+        FoldableAsync<Task<A>, A>,
         BiFoldableAsync<Task<A>, A, Unit>
     {
         public static readonly MTask<A> Inst = default(MTask<A>);

@@ -10,6 +10,7 @@ namespace LanguageExt.ClassInstances
         Alternative<TryOptionAsync<A>, Unit, A>,
         OptionalAsync<TryOptionAsync<A>, A>,
         MonadAsync<TryOptionAsync<A>, A>,
+        FoldableAsync<TryOptionAsync<A>, A>,
         BiFoldableAsync<TryOptionAsync<A>, A, Unit>
     {
         public static readonly MTryOptionAsync<A> Inst = default(MTryOptionAsync<A>);

@@ -927,7 +927,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static OptionAsync<B> ApplyAsync<A, B>(this Option<Func<A, B>> fab, Option<A> fa) =>
-        ApplOptionAsync<A, B>.Inst.Apply(fab.ToAsync(), fa.ToAsync());
+        ApplOptionAsync<A, B>.Inst.ApplyAsync(fab.ToAsync(), fa.ToAsync());
 
     /// <summary>
     /// Apply
@@ -937,7 +937,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static OptionAsync<B> ApplyAsync<A, B>(this Func<A, B> fab, Option<A> fa) =>
-        ApplOptionAsync<A, B>.Inst.Apply(fab, fa.ToAsync());
+        ApplOptionAsync<A, B>.Inst.ApplyAsync(fab, fa.ToAsync());
 
     /// <summary>
     /// Apply
@@ -949,7 +949,7 @@ public static partial class OptionAsyncExtensions
     [Pure]
     public static OptionAsync<C> ApplyAsync<A, B, C>(this Option<Func<A, B, C>> fabc, Option<A> fa, Option<B> fb) =>
         from x in fabc.ToAsync()
-        from y in ApplOptionAsync<A, B, C>.Inst.Apply(curry(x), fa.ToAsync(), fb.ToAsync())
+        from y in ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(x), fa.ToAsync(), fb.ToAsync())
         select y;
 
     /// <summary>
@@ -961,7 +961,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static OptionAsync<C> ApplyAsync<A, B, C>(this Func<A, B, C> fabc, Option<A> fa, Option<B> fb) =>
-        ApplOptionAsync<A, B, C>.Inst.Apply(curry(fabc), fa.ToAsync(), fb.ToAsync());
+        ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(fabc), fa.ToAsync(), fb.ToAsync());
 
     /// <summary>
     /// Apply
@@ -972,7 +972,7 @@ public static partial class OptionAsyncExtensions
     [Pure]
     public static OptionAsync<Func<B, C>> ApplyAsync<A, B, C>(this Option<Func<A, B, C>> fabc, Option<A> fa) =>
         from x in fabc.ToAsync()
-        from y in ApplOptionAsync<A, B, C>.Inst.Apply(curry(x), fa.ToAsync())
+        from y in ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(x), fa.ToAsync())
         select y;
 
     /// <summary>
@@ -983,7 +983,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static OptionAsync<Func<B, C>> ApplyAsync<A, B, C>(this Func<A, B, C> fabc, Option<A> fa) =>
-        ApplOptionAsync<A, B, C>.Inst.Apply(curry(fabc), fa.ToAsync());
+        ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(fabc), fa.ToAsync());
 
     /// <summary>
     /// Apply
@@ -993,7 +993,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static OptionAsync<Func<B, C>> ApplyAsync<A, B, C>(this Option<Func<A, Func<B, C>>> fabc, Option<A> fa) =>
-        ApplOptionAsync<A, B, C>.Inst.Apply(fabc.ToAsync(), fa.ToAsync());
+        ApplOptionAsync<A, B, C>.Inst.ApplyAsync(fabc.ToAsync(), fa.ToAsync());
 
     /// <summary>
     /// Apply
@@ -1003,7 +1003,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static OptionAsync<Func<B, C>> ApplyAsync<A, B, C>(this Func<A, Func<B, C>> fabc, Option<A> fa) =>
-        ApplOptionAsync<A, B, C>.Inst.Apply(fabc, fa.ToAsync());
+        ApplOptionAsync<A, B, C>.Inst.ApplyAsync(fabc, fa.ToAsync());
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -1013,5 +1013,5 @@ public static partial class OptionAsyncExtensions
     /// <returns>Applicative of type OptionAsync<B></returns>
     [Pure]
     public static OptionAsync<B> ActionAsync<A, B>(this Option<A> fa, Option<B> fb) =>
-        ApplOptionAsync<A, B>.Inst.Action(fa.ToAsync(), fb.ToAsync());
+        ApplOptionAsync<A, B>.Inst.ActionAsync(fa.ToAsync(), fb.ToAsync());
 }

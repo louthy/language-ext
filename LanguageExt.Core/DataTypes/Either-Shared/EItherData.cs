@@ -5,6 +5,8 @@ namespace LanguageExt.DataTypes.Serialisation
 {
     public class EitherData<L, R> : IEquatable<EitherData<L, R>>
     {
+        public static EitherData<L, R> Bottom = new EitherData<L, R>(EitherStatus.IsBottom, default(R), default(L));
+
         public readonly EitherStatus State;
         public readonly R Right;
         public readonly L Left;

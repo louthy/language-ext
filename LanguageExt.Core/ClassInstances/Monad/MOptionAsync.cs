@@ -12,6 +12,7 @@ namespace LanguageExt.ClassInstances
         Alternative<OptionAsync<A>, Unit, A>,
         OptionalAsync<OptionAsync<A>, A>,
         MonadAsync<OptionAsync<A>, A>,
+        FoldableAsync<OptionAsync<A>, A>,
         BiFoldableAsync<OptionAsync<A>, A, Unit>
     {
         public static readonly MOptionAsync<A> Inst = default(MOptionAsync<A>);
