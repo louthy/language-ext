@@ -46,14 +46,11 @@ namespace LanguageExt.ClassInstances
                     : b);
 
         [Pure]
-        public OptionAsync<A> ReturnAsync(Func<Unit, Task<A>> f) =>
-            new OptionAsync<A>(OptionDataAsync.Lazy(async () =>
-            {
-                var a = await f(unit);
-                return a.IsNull()
-                    ? new Result<A>()
-                    : new Result<A>(a);
-            }));
+        public OptionAsync<A> ReturnAsync(Func<Unit, Task<A>> f)
+        {
+            async Task<OptionData<A>> Do(Func<Unit, Task<A>> ff) => OptionData<A>.Optional(await ff(unit));
+            return new OptionAsync<A>(Do(f));
+        }
 
         [Pure]
         public OptionAsync<A> ZeroAsync() =>
@@ -163,11 +160,11 @@ namespace LanguageExt.ClassInstances
         public OptionAsync<A> SomeAsync(A x) =>
             x.IsNull()
                 ? throw new ArgumentNullException("Option doesn't support null values.  Use OptionUnsafe if this is desired behaviour")
-                : new OptionAsync<A>(OptionDataAsync.Some(x));
+                : OptionAsync<A>.Some(x);
 
         [Pure]
         public OptionAsync<A> OptionalAsync(A x) =>
-            new OptionAsync<A>(OptionDataAsync.Optional(x));
+            OptionAsync<A>.Optional(x);
 
         [Pure]
         public OptionAsync<A> BindReturnAsync(Unit _, OptionAsync<A> mb) =>
@@ -178,14 +175,17 @@ namespace LanguageExt.ClassInstances
             ReturnAsync(_ => x);
 
         [Pure]
-        public OptionAsync<A> RunAsync(Func<Unit, Task<OptionAsync<A>>> ma) =>
-            new OptionAsync<A>(OptionDataAsync.Lazy(async () =>
+        public OptionAsync<A> RunAsync(Func<Unit, Task<OptionAsync<A>>> ma)
+        {
+            async Task<OptionData<A>> Do(Func<Unit, Task<OptionAsync<A>>> mma)
             {
-                var a = await ma(unit);
+                var a = await mma(unit);
                 return await a.IsSome
-                    ? new Result<A>(await a.Value)
-                    : Result<A>.None;
-            }));
+                    ? OptionData<A>.Optional(await a.Value)
+                    : OptionData<A>.None;
+            }
+            return new OptionAsync<A>(Do(ma));
+        }
 
         [Pure]
         public OptionAsync<A> Empty() =>

@@ -37,7 +37,7 @@ namespace LanguageExt
         IComparable<Option<A>>,
         ISerializable
     {
-        readonly OptionData<A> data;
+        internal readonly OptionData<A> data;
 
         /// <summary>
         /// None

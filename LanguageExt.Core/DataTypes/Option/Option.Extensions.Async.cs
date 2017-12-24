@@ -18,7 +18,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Asynchronous Try</returns>
     [Pure]
     public static OptionAsync<A> ToAsync<A>(this Option<A> self) =>
-        new OptionAsync<A>(self.IsSome ? OptionDataAsync.Some(self.Value) : OptionDataAsync<A>.None);
+        new OptionAsync<A>(self.data.AsTask());
 
     /// <summary>
     /// Projection from one value to another 

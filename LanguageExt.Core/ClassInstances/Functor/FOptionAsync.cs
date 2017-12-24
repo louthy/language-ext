@@ -13,32 +13,48 @@ namespace LanguageExt.ClassInstances
         public static readonly FOptionAsync<A, B> Inst = default(FOptionAsync<A, B>);
 
         [Pure]
-        public OptionAsync<B> BiMapAsync(OptionAsync<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
-            new OptionAsync<B>(OptionDataAsync.Lazy<B>(async () =>
-                await ma.Match(
-                    Some: x => fa(x),
-                    None: () => fb(unit))));
+        public OptionAsync<B> BiMapAsync(OptionAsync<A> ma, Func<A, B> fa, Func<Unit, B> fb)
+        {
+            async Task<OptionData<B>> Do(OptionAsync<A> mma, Func<A, B> ffa, Func<Unit, B> ffb) =>
+                await mma.Match(
+                    Some: x  => OptionData<B>.Some(ffa(x)),
+                    None: () => OptionData<B>.Some(ffb(unit)));
+
+            return new OptionAsync<B>(Do(ma, fa, fb));
+        }
 
         [Pure]
-        public OptionAsync<B> BiMapAsync(OptionAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, B> fb) =>
-            new OptionAsync<B>(OptionDataAsync.Lazy<B>(async () =>
-                await ma.Match(
-                    Some: x => fa(x),
-                    None: () => fb(unit))));
+        public OptionAsync<B> BiMapAsync(OptionAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, B> fb)
+        {
+            async Task<OptionData<B>> Do(OptionAsync<A> mma, Func<A, Task<B>> ffa, Func<Unit, B> ffb) =>
+                await mma.MatchAsync(
+                    Some: async x => OptionData<B>.Some(await ffa(x)),
+                    None: ()      => OptionData<B>.Some(ffb(unit)));
+
+            return new OptionAsync<B>(Do(ma, fa, fb));
+        }
 
         [Pure]
-        public OptionAsync<B> BiMapAsync(OptionAsync<A> ma, Func<A, B> fa, Func<Unit, Task<B>> fb) =>
-            new OptionAsync<B>(OptionDataAsync.Lazy<B>(async () =>
-                await ma.Match(
-                    Some: x => fa(x),
-                    None: () => fb(unit))));
+        public OptionAsync<B> BiMapAsync(OptionAsync<A> ma, Func<A, B> fa, Func<Unit, Task<B>> fb)
+        {
+            async Task<OptionData<B>> Do(OptionAsync<A> mma, Func<A, B> ffa, Func<Unit, Task<B>> ffb) =>
+                await mma.MatchAsync(
+                    Some: x        => OptionData<B>.Some(ffa(x)),
+                    None: async () => OptionData<B>.Some(await ffb(unit)));
+
+            return new OptionAsync<B>(Do(ma, fa, fb));
+        }
 
         [Pure]
-        public OptionAsync<B> BiMapAsync(OptionAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, Task<B>> fb) =>
-            new OptionAsync<B>(OptionDataAsync.Lazy<B>(async () =>
-                await ma.Match(
-                    Some: x => fa(x),
-                    None: () => fb(unit))));
+        public OptionAsync<B> BiMapAsync(OptionAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, Task<B>> fb)
+        {
+            async Task<OptionData<B>> Do(OptionAsync<A> mma, Func<A, Task<B>> ffa, Func<Unit, Task<B>> ffb) =>
+                await mma.MatchAsync(
+                    Some: async x  => OptionData<B>.Some(await ffa(x)),
+                    None: async () => OptionData<B>.Some(await ffb(unit)));
+
+            return new OptionAsync<B>(Do(ma, fa, fb));
+        }
 
         [Pure]
         public OptionAsync<B> MapAsync(OptionAsync<A> ma, Func<A, B> f) =>

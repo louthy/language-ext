@@ -89,5 +89,19 @@ namespace LanguageExt
         }
 
         public bool IsNone => !IsSome;
+
+        public static OptionData<A> Optional(A value) =>
+            Prelude.isnull(value)
+                ? None
+                : SomeUnsafe(value);
+
+        public static OptionData<A> Some(A value)
+        {
+            if (Prelude.isnull(value)) throw new ValueIsNullException();
+            return SomeUnsafe(value);
+        }
+
+        public static OptionData<A> SomeUnsafe(A value) =>
+            new OptionData<A>(OptionState.Some, value, null);
     }
 }

@@ -233,6 +233,24 @@ namespace LanguageExt
 
         /// <summary>
         /// Runs a predicate against the bound value(s).  If the predicate
+        /// holds for all values then true is returned.  
+        /// 
+        /// NOTE: An empty structure will return true.
+        /// </summary>
+        /// <param name="pred">Predicate to apply</param>
+        /// <returns>True if the predicate holds for all values</returns>
+        [Pure]
+        public static async Task<bool> forallAsync<FOLD, F, A>(F fa, Func<A, Task<bool>> pred) where FOLD : FoldableAsync<F, A>
+        {
+            foreach (var item in await toSeqAsync<FOLD, F, A>(fa))
+            {
+                if (!(await pred(item))) return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Runs a predicate against the bound value(s).  If the predicate
         /// returns true for any item then the operation immediately returns
         /// true.  False is returned if no items in the structure match the
         /// predicate.
@@ -247,6 +265,26 @@ namespace LanguageExt
             foreach (var item in await toSeqAsync<FOLD, F, A>(fa))
             {
                 if (pred(item)) return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Runs a predicate against the bound value(s).  If the predicate
+        /// returns true for any item then the operation immediately returns
+        /// true.  False is returned if no items in the structure match the
+        /// predicate.
+        /// 
+        /// NOTE: An empty structure will return false.
+        /// </summary>
+        /// <param name="pred">Predicate to apply</param>
+        /// <returns>True if the predicate holds for all values</returns>
+        [Pure]
+        public static async Task<bool> existsAsync<FOLD, F, A>(F fa, Func<A, Task<bool>> pred) where FOLD : FoldableAsync<F, A>
+        {
+            foreach (var item in await toSeqAsync<FOLD, F, A>(fa))
+            {
+                if (await pred(item)) return true;
             }
             return false;
         }
