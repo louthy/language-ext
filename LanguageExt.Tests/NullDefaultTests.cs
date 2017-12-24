@@ -9,35 +9,6 @@ namespace LanguageExt.Tests
     public class NullDefaultTests
     {
         [Fact]
-        public void IsNullTests()
-        {
-            string x = null;
-            string y = "hello";
-            int z = 0;
-
-            Assert.True(x.IsNull());
-            Assert.True(isnull(x));
-
-            Assert.False(y.IsNull());
-            Assert.False(isnull(y));
-
-            Assert.False(z.IsNull());
-            Assert.False(isnull(z));
-        }
-
-        [Fact]
-        public void NotNullTests()
-        {
-            string x = null;
-            string y = "hello";
-            int z = 0;
-
-            Assert.False(notnull(x));
-            Assert.True(notnull(y));
-            Assert.True(notnull(z));
-        }
-
-        [Fact]
         public void IsDefaultTests()
         {
             string x = null;
