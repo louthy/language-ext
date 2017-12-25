@@ -330,7 +330,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool isnull<T>(T value) =>
-            Check<T>.IsNull(value);
+            NullChecker<T>.IsNull(value);
 
         /// <summary>
         /// Returns true if the value is not null, and does so without
@@ -352,7 +352,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool notnull<T>(T value) =>
-            !Check<T>.IsNull(value);
+            !NullChecker<T>.IsNull(value);
 
         /// <summary>
         /// Convert a value to string
@@ -361,13 +361,13 @@ namespace LanguageExt
         public static string toString<T>(T value) =>
             value?.ToString();
 
-        static class Check<T>
+        static class NullChecker<T>
         {
             static readonly bool IsReferenceType;
             static readonly bool IsNullable;
             static readonly EqualityComparer<T> DefaultEqualityComparer;
 
-            static Check()
+            static NullChecker()
             {
                 IsNullable = Nullable.GetUnderlyingType(typeof(T)) != null;
                 IsReferenceType = !typeof(T).GetTypeInfo().IsValueType;
