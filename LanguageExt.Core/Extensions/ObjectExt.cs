@@ -41,15 +41,15 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNull<T>(this T value) =>
-            NullChecker<T>.IsNull(value);
+            Check<T>.IsNull(value);
 
-        private static class NullChecker<T>
+        private static class Check<T>
         {
             static readonly bool IsReferenceType;
             static readonly bool IsNullable;
             static readonly EqualityComparer<T> DefaultEqualityComparer;
 
-            static NullChecker()
+            static Check()
             {
                 IsNullable = Nullable.GetUnderlyingType(typeof(T)) != null;
                 IsReferenceType = !typeof(T).GetTypeInfo().IsValueType;
