@@ -28,12 +28,6 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
-        /// 'No value' state of Option T.
-        /// </summary>
-        public static OptionNone None =>
-            OptionNone.Default;
-
-        /// <summary>
         /// Unit constructor
         /// </summary>
         public static Unit unit =>
