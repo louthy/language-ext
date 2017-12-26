@@ -66,6 +66,12 @@ namespace LanguageExt
             value.IsNone;
 
         /// <summary>
+        /// 'No value' state of Option T.
+        /// </summary>
+        public static OptionNone None =>
+            OptionNone.Default;
+
+        /// <summary>
         /// Create a Some of T (Option<T>)
         /// </summary>
         /// <typeparam name="T">T</typeparam>
