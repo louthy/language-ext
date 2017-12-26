@@ -285,7 +285,8 @@ namespace LanguageExtTests
         {
             var list = List(1, 2, 3, 4, 5);
 
-            var skipped = list.SkipLast(2).Freeze();
+            // Was ambiguous with IEnumerable<T>. Remove this extension?
+            var skipped = ListExtensions.SkipLast(list, 2).Freeze();
 
             Assert.True(skipped == List(1, 2, 3));
         }
@@ -295,7 +296,8 @@ namespace LanguageExtTests
         {
             var list = List<int>();
 
-            var skipped = list.SkipLast(2).Freeze();
+            // Was ambiguous with IEnumerable<T>. Remove this extension?
+            var skipped = ListExtensions.SkipLast(list, 2).Freeze();
 
             Assert.True(skipped == list);
         }
