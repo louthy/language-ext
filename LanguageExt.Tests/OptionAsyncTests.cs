@@ -115,5 +115,29 @@ namespace LanguageExt.Tests
 
             taskOpt = optTask.Sequence();
         }
+
+        [Fact]
+        public async void HandlesException ()
+        {
+            Option<int> i = 1;
+            
+            await Assert.ThrowsAsync<MyException>(async () => await i.ToAsync().Match (
+                    async n =>
+                    {
+                        await DoWork();
+                        throw new MyException (n.ToString());
+                    },
+                    () => { }));
+        }
+        
+        
+
+    }
+
+    public class MyException : Exception 
+    {
+        public MyException (string message):base(message)
+        {
+        }
     }
 }
