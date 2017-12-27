@@ -95,17 +95,14 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void MTaskFold_InAsyncContextWithTaskWaitingForActivation_Halts() =>
-            AsyncContext.Run(() => MTaskFold_WithTaskWaitingForActivation_Halts());
-
-        private static void MTaskFold_WithTaskWaitingForActivation_Halts()
+        private static async Task MTaskFold_WithTaskWaitingForActivation_DoesNotHalt()
         {
             var intTask = TimeSpan
               .FromMilliseconds(100)
               .Apply(Task.Delay)
               .ContinueWith(_ => 0);
 
-            var actual = default(MTask<int>).FoldAsync(intTask, 0, (x, y) => 0)(unit);
+            var actual = await default(MTask<int>).FoldAsync(intTask, 0, (x, y) => 0)(unit);
 
             // execution terminates by reaching here
         }
