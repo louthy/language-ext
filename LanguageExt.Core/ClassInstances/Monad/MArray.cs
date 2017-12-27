@@ -28,6 +28,10 @@ namespace LanguageExt.ClassInstances
             ma.Fold(default(MONADB).Zero(), (s, a) => default(MONADB).Plus(s, f(a)));
 
         [Pure]
+        public MB BindAsync<MONADB, MB, B>(A[] ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            ma.Fold(default(MONADB).ZeroAsync(), (s, a) => default(MONADB).PlusAsync(s, f(a)));
+
+        [Pure]
         public Func<Unit, int> Count(A[] fa) =>
             _ => fa.Count();
 

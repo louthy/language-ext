@@ -100,6 +100,23 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>HKT.Async.Extensions.tt</DependentUpon>
     </None>
+    <None Update="HKT\SyncAsync\HKT.Async.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </None>
+    <None Update="HKT\SyncAsync\HKT.Async.Extensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.Async.Extensions.cs</LastGenOutput>
+    </None>
+    <None Update="HKT\SyncAsync\HKT.SyncAsync.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.SyncAsync.Extensions.tt</DependentUpon>
+    </None>
+    <None Update="HKT\SyncAsync\HKT.SyncAsync.Extensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.SyncAsync.Extensions.cs</LastGenOutput>
+    </None>
     <None Update="HKT\Sync\HKT.Extensions.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

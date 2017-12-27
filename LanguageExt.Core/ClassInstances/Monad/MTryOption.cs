@@ -29,6 +29,15 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
+        public MB BindAsync<MONADB, MB, B>(TryOption<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B>
+        {
+            var mr = ma.Try();
+            if (mr.IsFaulted) return default(MONADB).FailAsync(mr.Exception);
+            if (mr.Value.IsNone) return default(MONADB).FailAsync(None);
+            return f(mr.Value.Value);
+        }
+
+        [Pure]
         public TryOption<A> Fail(object err = null) =>
             err != null && err is Exception
                 ? TryOption<A>((Exception)err)

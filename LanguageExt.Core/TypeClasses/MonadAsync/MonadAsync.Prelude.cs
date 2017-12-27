@@ -67,6 +67,42 @@ namespace LanguageExt
             where MonadB : struct, MonadAsync<Env, Out, MB, B> =>
             default(MonadA).FoldAsync(ma, default(MonadB).ZeroAsync(), async (s, a) => default(MonadB).PlusAsync(s, await f(a)));
 
+        [Pure]
+        public static MB traverseSyncAsync<MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, MB> f)
+            where MonadA : struct, Monad<Unit, Unit, MA, A>
+            where MonadB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            default(MonadA).Fold(ma, default(MonadB).ZeroAsync(), (s, a) => default(MonadB).PlusAsync(s, f(a)))(unit);
+
+        [Pure]
+        public static Func<Env, MB> traverseSyncAsync<Env, Out, MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, MB> f)
+            where MonadA : struct, Monad<Env, Out, MA, A>
+            where MonadB : struct, MonadAsync<Env, Out, MB, B> =>
+            default(MonadA).Fold(ma, default(MonadB).ZeroAsync(), (s, a) => default(MonadB).PlusAsync(s, f(a)));
+
+        [Pure]
+        public static Task<MB> traverseAsyncSync<MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, MB> f)
+            where MonadA : struct, MonadAsync<Unit, Unit, MA, A>
+            where MonadB : struct, Monad<Unit, Unit, MB, B> =>
+            default(MonadA).FoldAsync(ma, default(MonadB).Zero(), (s, a) => default(MonadB).Plus(s, f(a)))(unit);
+
+        [Pure]
+        public static Func<Env, Task<MB>> traverseAsyncSync<Env, Out, MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, MB> f)
+            where MonadA : struct, MonadAsync<Env, Out, MA, A>
+            where MonadB : struct, Monad<Env, Out, MB, B> =>
+            default(MonadA).FoldAsync(ma, default(MonadB).Zero(), (s, a) => default(MonadB).Plus(s, f(a)));
+
+        [Pure]
+        public static Task<MB> traverseAsyncSync<MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, Task<MB>> f)
+            where MonadA : struct, MonadAsync<Unit, Unit, MA, A>
+            where MonadB : struct, Monad<Unit, Unit, MB, B> =>
+            default(MonadA).FoldAsync(ma, default(MonadB).Zero(), async (s, a) => default(MonadB).Plus(s, await f(a)))(unit);
+
+        [Pure]
+        public static Func<Env, Task<MB>> traverseAsyncSync<Env, Out, MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, Task<MB>> f)
+            where MonadA : struct, MonadAsync<Env, Out, MA, A>
+            where MonadB : struct, Monad<Env, Out, MB, B> =>
+            default(MonadA).FoldAsync(ma, default(MonadB).Zero(), async (s, a) => default(MonadB).Plus(s, await f(a)));
+
         /// <summary>
         /// Monadic bind
         /// </summary>

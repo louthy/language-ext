@@ -1,12 +1,9 @@
-﻿using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+﻿using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -28,6 +25,10 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public MB Bind<MONADB, MB, B>(Set<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             traverse<MSet<A>, MONADB, Set<A>, MB, A, B>(ma, f);
+
+        [Pure]
+        public MB BindAsync<MONADB, MB, B>(Set<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            traverseSyncAsync<MSet<A>, MONADB, Set<A>, MB, A, B>(ma, f);
 
         [Pure]
         public Func<Unit, int> Count(Set<A> fa) => _ =>

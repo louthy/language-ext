@@ -79,16 +79,16 @@ namespace LanguageExtTests
             select result;
 
         [Fact]
-        public void UrlTest()
+        public async Task UrlTest()
         {
             // Iterates all lines of content
-            getURLContent("http://www.google.com").IterT(x => Console.WriteLine(x));
+            await getURLContent("http://www.google.com").IterT(x => Console.WriteLine(x));
 
             // Counts the number of lines
-            int numberOfLines = getURLContent("http://www.google.com").CountT();
+            int numberOfLines = await getURLContent("http://www.google.com").CountT();
 
             // Maps the lines to line-lengths, then sums them
-            int totalSize = getURLContent("http://www.google.com")
+            int totalSize = await getURLContent("http://www.google.com")
                                 .MapT(x => x.Length)
                                 .SumT<TInt, int>();
         }

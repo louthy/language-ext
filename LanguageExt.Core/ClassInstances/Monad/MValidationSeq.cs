@@ -94,6 +94,12 @@ namespace LanguageExt.ClassInstances
                 Fail: e => default(MONADB).Fail(e));
 
         [Pure]
+        public MB BindAsync<MONADB, MB, B>(Validation<FAIL, SUCCESS> ma, Func<SUCCESS, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            ma.Match(
+                Succ: s => f(s),
+                Fail: e => default(MONADB).FailAsync(e));
+
+        [Pure]
         public Validation<FAIL, SUCCESS> BindReturn(Unit outputma, Validation<FAIL, SUCCESS> mb) =>
             mb;
 

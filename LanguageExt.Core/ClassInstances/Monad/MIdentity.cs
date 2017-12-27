@@ -21,6 +21,10 @@ namespace LanguageExt.ClassInstances
             f(ma.Value);
 
         [Pure]
+        public MB BindAsync<MONADB, MB, B>(Identity<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            f(ma.Value);
+
+        [Pure]
         public Identity<A> BindReturn(Unit maOutput, Identity<A> mb) =>
             mb;
 

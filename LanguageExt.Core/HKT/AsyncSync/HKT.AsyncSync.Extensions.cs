@@ -20,6 +20,26 @@ namespace LanguageExt
     public static partial class ArrT_AsyncSync_Extensions
     {
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`OptionAsync&lt;Arr&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static OptionAsync<Arr<C>> SelectMany< A, B, C>(
+            this OptionAsync<Arr<A>> ma,
+            Func<A, OptionAsync<Arr<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>).SelectManyAsync<MOptionAsync<Arr<B>>, OptionAsync<Arr<B>>, MArr<B>, Arr<B>, B, MOptionAsync<Arr<C>>, OptionAsync<Arr<C>>, MArr<C>, Arr<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -79,6 +99,19 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Arr<B>> BindT< A, B>(this OptionAsync<Arr<A>> ma, Func<A, Arr<B>> f) =>
+            default(TransAsyncSync<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
+                .BindAsync<MOptionAsync<Arr<B>>, OptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Arr<B>> BindT< A, B>(this OptionAsync<Arr<A>> ma, Func<A, OptionAsync<Arr<B>>> f) =>
             default(TransAsyncSync<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
                 .BindAsync<MOptionAsync<Arr<B>>, OptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
@@ -302,6 +335,26 @@ namespace LanguageExt
                                 default(MArr< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`Task&lt;Arr&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static Task<Arr<C>> SelectMany< A, B, C>(
+            this Task<Arr<A>> ma,
+            Func<A, Task<Arr<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>).SelectManyAsync<MTask<Arr<B>>, Task<Arr<B>>, MArr<B>, Arr<B>, B, MTask<Arr<C>>, Task<Arr<C>>, MArr<C>, Arr<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -361,6 +414,19 @@ namespace LanguageExt
         /// <returns>`Task&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Arr<B>> BindT< A, B>(this Task<Arr<A>> ma, Func<A, Arr<B>> f) =>
+            default(TransAsyncSync<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>)
+                .BindAsync<MTask<Arr<B>>, Task<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Task&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<Arr<B>> BindT< A, B>(this Task<Arr<A>> ma, Func<A, Task<Arr<B>>> f) =>
             default(TransAsyncSync<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>)
                 .BindAsync<MTask<Arr<B>>, Task<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
@@ -584,6 +650,26 @@ namespace LanguageExt
                                 default(MArr< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryAsync&lt;Arr&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryAsync<Arr<C>> SelectMany< A, B, C>(
+            this TryAsync<Arr<A>> ma,
+            Func<A, TryAsync<Arr<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>).SelectManyAsync<MTryAsync<Arr<B>>, TryAsync<Arr<B>>, MArr<B>, Arr<B>, B, MTryAsync<Arr<C>>, TryAsync<Arr<C>>, MArr<C>, Arr<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -643,6 +729,19 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Arr<B>> BindT< A, B>(this TryAsync<Arr<A>> ma, Func<A, Arr<B>> f) =>
+            default(TransAsyncSync<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
+                .BindAsync<MTryAsync<Arr<B>>, TryAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryAsync&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<Arr<B>> BindT< A, B>(this TryAsync<Arr<A>> ma, Func<A, TryAsync<Arr<B>>> f) =>
             default(TransAsyncSync<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
                 .BindAsync<MTryAsync<Arr<B>>, TryAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
@@ -866,6 +965,26 @@ namespace LanguageExt
                                 default(MArr< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryOptionAsync&lt;Arr&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryOptionAsync<Arr<C>> SelectMany< A, B, C>(
+            this TryOptionAsync<Arr<A>> ma,
+            Func<A, TryOptionAsync<Arr<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>).SelectManyAsync<MTryOptionAsync<Arr<B>>, TryOptionAsync<Arr<B>>, MArr<B>, Arr<B>, B, MTryOptionAsync<Arr<C>>, TryOptionAsync<Arr<C>>, MArr<C>, Arr<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -925,6 +1044,19 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Arr<B>> BindT< A, B>(this TryOptionAsync<Arr<A>> ma, Func<A, Arr<B>> f) =>
+            default(TransAsyncSync<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
+                .BindAsync<MTryOptionAsync<Arr<B>>, TryOptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOptionAsync&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<Arr<B>> BindT< A, B>(this TryOptionAsync<Arr<A>> ma, Func<A, TryOptionAsync<Arr<B>>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
                 .BindAsync<MTryOptionAsync<Arr<B>>, TryOptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
@@ -1156,6 +1288,26 @@ namespace LanguageExt
     public static partial class HashSetT_AsyncSync_Extensions
     {
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`OptionAsync&lt;HashSet&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static OptionAsync<HashSet<C>> SelectMany< A, B, C>(
+            this OptionAsync<HashSet<A>> ma,
+            Func<A, OptionAsync<HashSet<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>).SelectManyAsync<MOptionAsync<HashSet<B>>, OptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B, MOptionAsync<HashSet<C>>, OptionAsync<HashSet<C>>, MHashSet<C>, HashSet<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -1215,6 +1367,19 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<HashSet<B>> BindT< A, B>(this OptionAsync<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
+            default(TransAsyncSync<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .BindAsync<MOptionAsync<HashSet<B>>, OptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<HashSet<B>> BindT< A, B>(this OptionAsync<HashSet<A>> ma, Func<A, OptionAsync<HashSet<B>>> f) =>
             default(TransAsyncSync<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
                 .BindAsync<MOptionAsync<HashSet<B>>, OptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
@@ -1438,6 +1603,26 @@ namespace LanguageExt
                                 default(MHashSet< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`Task&lt;HashSet&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static Task<HashSet<C>> SelectMany< A, B, C>(
+            this Task<HashSet<A>> ma,
+            Func<A, Task<HashSet<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>).SelectManyAsync<MTask<HashSet<B>>, Task<HashSet<B>>, MHashSet<B>, HashSet<B>, B, MTask<HashSet<C>>, Task<HashSet<C>>, MHashSet<C>, HashSet<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -1497,6 +1682,19 @@ namespace LanguageExt
         /// <returns>`Task&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<HashSet<B>> BindT< A, B>(this Task<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
+            default(TransAsyncSync<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .BindAsync<MTask<HashSet<B>>, Task<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Task&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<HashSet<B>> BindT< A, B>(this Task<HashSet<A>> ma, Func<A, Task<HashSet<B>>> f) =>
             default(TransAsyncSync<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
                 .BindAsync<MTask<HashSet<B>>, Task<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
@@ -1720,6 +1918,26 @@ namespace LanguageExt
                                 default(MHashSet< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryAsync&lt;HashSet&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryAsync<HashSet<C>> SelectMany< A, B, C>(
+            this TryAsync<HashSet<A>> ma,
+            Func<A, TryAsync<HashSet<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>).SelectManyAsync<MTryAsync<HashSet<B>>, TryAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B, MTryAsync<HashSet<C>>, TryAsync<HashSet<C>>, MHashSet<C>, HashSet<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -1779,6 +1997,19 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<HashSet<B>> BindT< A, B>(this TryAsync<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
+            default(TransAsyncSync<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .BindAsync<MTryAsync<HashSet<B>>, TryAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryAsync&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<HashSet<B>> BindT< A, B>(this TryAsync<HashSet<A>> ma, Func<A, TryAsync<HashSet<B>>> f) =>
             default(TransAsyncSync<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
                 .BindAsync<MTryAsync<HashSet<B>>, TryAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
@@ -2002,6 +2233,26 @@ namespace LanguageExt
                                 default(MHashSet< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryOptionAsync&lt;HashSet&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryOptionAsync<HashSet<C>> SelectMany< A, B, C>(
+            this TryOptionAsync<HashSet<A>> ma,
+            Func<A, TryOptionAsync<HashSet<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>).SelectManyAsync<MTryOptionAsync<HashSet<B>>, TryOptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B, MTryOptionAsync<HashSet<C>>, TryOptionAsync<HashSet<C>>, MHashSet<C>, HashSet<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -2061,6 +2312,19 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<HashSet<B>> BindT< A, B>(this TryOptionAsync<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
+            default(TransAsyncSync<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .BindAsync<MTryOptionAsync<HashSet<B>>, TryOptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOptionAsync&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<HashSet<B>> BindT< A, B>(this TryOptionAsync<HashSet<A>> ma, Func<A, TryOptionAsync<HashSet<B>>> f) =>
             default(TransAsyncSync<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
                 .BindAsync<MTryOptionAsync<HashSet<B>>, TryOptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
@@ -2292,6 +2556,26 @@ namespace LanguageExt
     public static partial class LstT_AsyncSync_Extensions
     {
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`OptionAsync&lt;Lst&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static OptionAsync<Lst<C>> SelectMany< A, B, C>(
+            this OptionAsync<Lst<A>> ma,
+            Func<A, OptionAsync<Lst<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>).SelectManyAsync<MOptionAsync<Lst<B>>, OptionAsync<Lst<B>>, MLst<B>, Lst<B>, B, MOptionAsync<Lst<C>>, OptionAsync<Lst<C>>, MLst<C>, Lst<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -2351,6 +2635,19 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Lst<B>> BindT< A, B>(this OptionAsync<Lst<A>> ma, Func<A, Lst<B>> f) =>
+            default(TransAsyncSync<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
+                .BindAsync<MOptionAsync<Lst<B>>, OptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Lst<B>> BindT< A, B>(this OptionAsync<Lst<A>> ma, Func<A, OptionAsync<Lst<B>>> f) =>
             default(TransAsyncSync<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
                 .BindAsync<MOptionAsync<Lst<B>>, OptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
@@ -2574,6 +2871,26 @@ namespace LanguageExt
                                 default(MLst< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`Task&lt;Lst&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static Task<Lst<C>> SelectMany< A, B, C>(
+            this Task<Lst<A>> ma,
+            Func<A, Task<Lst<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>).SelectManyAsync<MTask<Lst<B>>, Task<Lst<B>>, MLst<B>, Lst<B>, B, MTask<Lst<C>>, Task<Lst<C>>, MLst<C>, Lst<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -2633,6 +2950,19 @@ namespace LanguageExt
         /// <returns>`Task&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Lst<B>> BindT< A, B>(this Task<Lst<A>> ma, Func<A, Lst<B>> f) =>
+            default(TransAsyncSync<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>)
+                .BindAsync<MTask<Lst<B>>, Task<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Task&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<Lst<B>> BindT< A, B>(this Task<Lst<A>> ma, Func<A, Task<Lst<B>>> f) =>
             default(TransAsyncSync<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>)
                 .BindAsync<MTask<Lst<B>>, Task<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
@@ -2856,6 +3186,26 @@ namespace LanguageExt
                                 default(MLst< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryAsync&lt;Lst&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryAsync<Lst<C>> SelectMany< A, B, C>(
+            this TryAsync<Lst<A>> ma,
+            Func<A, TryAsync<Lst<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>).SelectManyAsync<MTryAsync<Lst<B>>, TryAsync<Lst<B>>, MLst<B>, Lst<B>, B, MTryAsync<Lst<C>>, TryAsync<Lst<C>>, MLst<C>, Lst<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -2915,6 +3265,19 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Lst<B>> BindT< A, B>(this TryAsync<Lst<A>> ma, Func<A, Lst<B>> f) =>
+            default(TransAsyncSync<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
+                .BindAsync<MTryAsync<Lst<B>>, TryAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryAsync&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<Lst<B>> BindT< A, B>(this TryAsync<Lst<A>> ma, Func<A, TryAsync<Lst<B>>> f) =>
             default(TransAsyncSync<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
                 .BindAsync<MTryAsync<Lst<B>>, TryAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
@@ -3138,6 +3501,26 @@ namespace LanguageExt
                                 default(MLst< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryOptionAsync&lt;Lst&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryOptionAsync<Lst<C>> SelectMany< A, B, C>(
+            this TryOptionAsync<Lst<A>> ma,
+            Func<A, TryOptionAsync<Lst<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>).SelectManyAsync<MTryOptionAsync<Lst<B>>, TryOptionAsync<Lst<B>>, MLst<B>, Lst<B>, B, MTryOptionAsync<Lst<C>>, TryOptionAsync<Lst<C>>, MLst<C>, Lst<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -3197,6 +3580,19 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Lst<B>> BindT< A, B>(this TryOptionAsync<Lst<A>> ma, Func<A, Lst<B>> f) =>
+            default(TransAsyncSync<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
+                .BindAsync<MTryOptionAsync<Lst<B>>, TryOptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOptionAsync&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<Lst<B>> BindT< A, B>(this TryOptionAsync<Lst<A>> ma, Func<A, TryOptionAsync<Lst<B>>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
                 .BindAsync<MTryOptionAsync<Lst<B>>, TryOptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
@@ -3428,6 +3824,26 @@ namespace LanguageExt
     public static partial class OptionT_AsyncSync_Extensions
     {
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`OptionAsync&lt;Option&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static OptionAsync<Option<C>> SelectMany< A, B, C>(
+            this OptionAsync<Option<A>> ma,
+            Func<A, OptionAsync<Option<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>).SelectManyAsync<MOptionAsync<Option<B>>, OptionAsync<Option<B>>, MOption<B>, Option<B>, B, MOptionAsync<Option<C>>, OptionAsync<Option<C>>, MOption<C>, Option<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -3487,6 +3903,19 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Option<B>> BindT< A, B>(this OptionAsync<Option<A>> ma, Func<A, Option<B>> f) =>
+            default(TransAsyncSync<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>)
+                .BindAsync<MOptionAsync<Option<B>>, OptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Option<B>> BindT< A, B>(this OptionAsync<Option<A>> ma, Func<A, OptionAsync<Option<B>>> f) =>
             default(TransAsyncSync<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>)
                 .BindAsync<MOptionAsync<Option<B>>, OptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
@@ -3710,6 +4139,26 @@ namespace LanguageExt
                                 default(MOption< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`Task&lt;Option&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static Task<Option<C>> SelectMany< A, B, C>(
+            this Task<Option<A>> ma,
+            Func<A, Task<Option<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>).SelectManyAsync<MTask<Option<B>>, Task<Option<B>>, MOption<B>, Option<B>, B, MTask<Option<C>>, Task<Option<C>>, MOption<C>, Option<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -3769,6 +4218,19 @@ namespace LanguageExt
         /// <returns>`Task&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Option<B>> BindT< A, B>(this Task<Option<A>> ma, Func<A, Option<B>> f) =>
+            default(TransAsyncSync<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>)
+                .BindAsync<MTask<Option<B>>, Task<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Task&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<Option<B>> BindT< A, B>(this Task<Option<A>> ma, Func<A, Task<Option<B>>> f) =>
             default(TransAsyncSync<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>)
                 .BindAsync<MTask<Option<B>>, Task<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
@@ -3992,6 +4454,26 @@ namespace LanguageExt
                                 default(MOption< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryAsync&lt;Option&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryAsync<Option<C>> SelectMany< A, B, C>(
+            this TryAsync<Option<A>> ma,
+            Func<A, TryAsync<Option<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>).SelectManyAsync<MTryAsync<Option<B>>, TryAsync<Option<B>>, MOption<B>, Option<B>, B, MTryAsync<Option<C>>, TryAsync<Option<C>>, MOption<C>, Option<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -4051,6 +4533,19 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Option<B>> BindT< A, B>(this TryAsync<Option<A>> ma, Func<A, Option<B>> f) =>
+            default(TransAsyncSync<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>)
+                .BindAsync<MTryAsync<Option<B>>, TryAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryAsync&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<Option<B>> BindT< A, B>(this TryAsync<Option<A>> ma, Func<A, TryAsync<Option<B>>> f) =>
             default(TransAsyncSync<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>)
                 .BindAsync<MTryAsync<Option<B>>, TryAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
@@ -4274,6 +4769,26 @@ namespace LanguageExt
                                 default(MOption< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryOptionAsync&lt;Option&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryOptionAsync<Option<C>> SelectMany< A, B, C>(
+            this TryOptionAsync<Option<A>> ma,
+            Func<A, TryOptionAsync<Option<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>).SelectManyAsync<MTryOptionAsync<Option<B>>, TryOptionAsync<Option<B>>, MOption<B>, Option<B>, B, MTryOptionAsync<Option<C>>, TryOptionAsync<Option<C>>, MOption<C>, Option<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -4333,6 +4848,19 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Option<B>> BindT< A, B>(this TryOptionAsync<Option<A>> ma, Func<A, Option<B>> f) =>
+            default(TransAsyncSync<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>)
+                .BindAsync<MTryOptionAsync<Option<B>>, TryOptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOptionAsync&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<Option<B>> BindT< A, B>(this TryOptionAsync<Option<A>> ma, Func<A, TryOptionAsync<Option<B>>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>)
                 .BindAsync<MTryOptionAsync<Option<B>>, TryOptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
@@ -4564,6 +5092,26 @@ namespace LanguageExt
     public static partial class OptionUnsafeT_AsyncSync_Extensions
     {
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`OptionAsync&lt;OptionUnsafe&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static OptionAsync<OptionUnsafe<C>> SelectMany< A, B, C>(
+            this OptionAsync<OptionUnsafe<A>> ma,
+            Func<A, OptionAsync<OptionUnsafe<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>).SelectManyAsync<MOptionAsync<OptionUnsafe<B>>, OptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B, MOptionAsync<OptionUnsafe<C>>, OptionAsync<OptionUnsafe<C>>, MOptionUnsafe<C>, OptionUnsafe<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -4623,6 +5171,19 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<OptionUnsafe<B>> BindT< A, B>(this OptionAsync<OptionUnsafe<A>> ma, Func<A, OptionUnsafe<B>> f) =>
+            default(TransAsyncSync<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .BindAsync<MOptionAsync<OptionUnsafe<B>>, OptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<OptionUnsafe<B>> BindT< A, B>(this OptionAsync<OptionUnsafe<A>> ma, Func<A, OptionAsync<OptionUnsafe<B>>> f) =>
             default(TransAsyncSync<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
                 .BindAsync<MOptionAsync<OptionUnsafe<B>>, OptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
@@ -4846,6 +5407,26 @@ namespace LanguageExt
                                 default(MOptionUnsafe< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`Task&lt;OptionUnsafe&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static Task<OptionUnsafe<C>> SelectMany< A, B, C>(
+            this Task<OptionUnsafe<A>> ma,
+            Func<A, Task<OptionUnsafe<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>).SelectManyAsync<MTask<OptionUnsafe<B>>, Task<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B, MTask<OptionUnsafe<C>>, Task<OptionUnsafe<C>>, MOptionUnsafe<C>, OptionUnsafe<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -4905,6 +5486,19 @@ namespace LanguageExt
         /// <returns>`Task&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<OptionUnsafe<B>> BindT< A, B>(this Task<OptionUnsafe<A>> ma, Func<A, OptionUnsafe<B>> f) =>
+            default(TransAsyncSync<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .BindAsync<MTask<OptionUnsafe<B>>, Task<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Task&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<OptionUnsafe<B>> BindT< A, B>(this Task<OptionUnsafe<A>> ma, Func<A, Task<OptionUnsafe<B>>> f) =>
             default(TransAsyncSync<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
                 .BindAsync<MTask<OptionUnsafe<B>>, Task<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
@@ -5128,6 +5722,26 @@ namespace LanguageExt
                                 default(MOptionUnsafe< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryAsync&lt;OptionUnsafe&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryAsync<OptionUnsafe<C>> SelectMany< A, B, C>(
+            this TryAsync<OptionUnsafe<A>> ma,
+            Func<A, TryAsync<OptionUnsafe<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>).SelectManyAsync<MTryAsync<OptionUnsafe<B>>, TryAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B, MTryAsync<OptionUnsafe<C>>, TryAsync<OptionUnsafe<C>>, MOptionUnsafe<C>, OptionUnsafe<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -5187,6 +5801,19 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<OptionUnsafe<B>> BindT< A, B>(this TryAsync<OptionUnsafe<A>> ma, Func<A, OptionUnsafe<B>> f) =>
+            default(TransAsyncSync<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .BindAsync<MTryAsync<OptionUnsafe<B>>, TryAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryAsync&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<OptionUnsafe<B>> BindT< A, B>(this TryAsync<OptionUnsafe<A>> ma, Func<A, TryAsync<OptionUnsafe<B>>> f) =>
             default(TransAsyncSync<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
                 .BindAsync<MTryAsync<OptionUnsafe<B>>, TryAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
@@ -5410,6 +6037,26 @@ namespace LanguageExt
                                 default(MOptionUnsafe< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryOptionAsync&lt;OptionUnsafe&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryOptionAsync<OptionUnsafe<C>> SelectMany< A, B, C>(
+            this TryOptionAsync<OptionUnsafe<A>> ma,
+            Func<A, TryOptionAsync<OptionUnsafe<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>).SelectManyAsync<MTryOptionAsync<OptionUnsafe<B>>, TryOptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B, MTryOptionAsync<OptionUnsafe<C>>, TryOptionAsync<OptionUnsafe<C>>, MOptionUnsafe<C>, OptionUnsafe<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -5469,6 +6116,19 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<OptionUnsafe<B>> BindT< A, B>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, OptionUnsafe<B>> f) =>
+            default(TransAsyncSync<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .BindAsync<MTryOptionAsync<OptionUnsafe<B>>, TryOptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOptionAsync&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<OptionUnsafe<B>> BindT< A, B>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, TryOptionAsync<OptionUnsafe<B>>> f) =>
             default(TransAsyncSync<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
                 .BindAsync<MTryOptionAsync<OptionUnsafe<B>>, TryOptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
@@ -5700,6 +6360,26 @@ namespace LanguageExt
     public static partial class EitherT_AsyncSync_Extensions
     {
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`OptionAsync&lt;Either&lt;L, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static OptionAsync<Either<L, C>> SelectMany<L, A, B, C>(
+            this OptionAsync<Either<L, A>> ma,
+            Func<A, OptionAsync<Either<L, B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>).SelectManyAsync<MOptionAsync<Either<L, B>>, OptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B, MOptionAsync<Either<L, C>>, OptionAsync<Either<L, C>>, MEither<L, C>, Either<L, C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -5759,6 +6439,19 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Either<L, B>> BindT<L, A, B>(this OptionAsync<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
+            default(TransAsyncSync<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .BindAsync<MOptionAsync<Either<L, B>>, OptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Either<L, B>> BindT<L, A, B>(this OptionAsync<Either<L, A>> ma, Func<A, OptionAsync<Either<L, B>>> f) =>
             default(TransAsyncSync<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
                 .BindAsync<MOptionAsync<Either<L, B>>, OptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
@@ -5982,6 +6675,26 @@ namespace LanguageExt
                                 default(MEither<L, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`Task&lt;Either&lt;L, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static Task<Either<L, C>> SelectMany<L, A, B, C>(
+            this Task<Either<L, A>> ma,
+            Func<A, Task<Either<L, B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>).SelectManyAsync<MTask<Either<L, B>>, Task<Either<L, B>>, MEither<L, B>, Either<L, B>, B, MTask<Either<L, C>>, Task<Either<L, C>>, MEither<L, C>, Either<L, C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -6041,6 +6754,19 @@ namespace LanguageExt
         /// <returns>`Task&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Either<L, B>> BindT<L, A, B>(this Task<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
+            default(TransAsyncSync<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .BindAsync<MTask<Either<L, B>>, Task<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Task&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<Either<L, B>> BindT<L, A, B>(this Task<Either<L, A>> ma, Func<A, Task<Either<L, B>>> f) =>
             default(TransAsyncSync<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
                 .BindAsync<MTask<Either<L, B>>, Task<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
@@ -6264,6 +6990,26 @@ namespace LanguageExt
                                 default(MEither<L, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryAsync&lt;Either&lt;L, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryAsync<Either<L, C>> SelectMany<L, A, B, C>(
+            this TryAsync<Either<L, A>> ma,
+            Func<A, TryAsync<Either<L, B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>).SelectManyAsync<MTryAsync<Either<L, B>>, TryAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B, MTryAsync<Either<L, C>>, TryAsync<Either<L, C>>, MEither<L, C>, Either<L, C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -6323,6 +7069,19 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Either<L, B>> BindT<L, A, B>(this TryAsync<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
+            default(TransAsyncSync<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .BindAsync<MTryAsync<Either<L, B>>, TryAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryAsync&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<Either<L, B>> BindT<L, A, B>(this TryAsync<Either<L, A>> ma, Func<A, TryAsync<Either<L, B>>> f) =>
             default(TransAsyncSync<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
                 .BindAsync<MTryAsync<Either<L, B>>, TryAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
@@ -6546,6 +7305,26 @@ namespace LanguageExt
                                 default(MEither<L, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryOptionAsync&lt;Either&lt;L, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryOptionAsync<Either<L, C>> SelectMany<L, A, B, C>(
+            this TryOptionAsync<Either<L, A>> ma,
+            Func<A, TryOptionAsync<Either<L, B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>).SelectManyAsync<MTryOptionAsync<Either<L, B>>, TryOptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B, MTryOptionAsync<Either<L, C>>, TryOptionAsync<Either<L, C>>, MEither<L, C>, Either<L, C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -6605,6 +7384,19 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Either<L, B>> BindT<L, A, B>(this TryOptionAsync<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
+            default(TransAsyncSync<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .BindAsync<MTryOptionAsync<Either<L, B>>, TryOptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOptionAsync&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<Either<L, B>> BindT<L, A, B>(this TryOptionAsync<Either<L, A>> ma, Func<A, TryOptionAsync<Either<L, B>>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
                 .BindAsync<MTryOptionAsync<Either<L, B>>, TryOptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
@@ -6836,6 +7628,26 @@ namespace LanguageExt
     public static partial class EitherUnsafeT_AsyncSync_Extensions
     {
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`OptionAsync&lt;EitherUnsafe&lt;L, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static OptionAsync<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
+            this OptionAsync<EitherUnsafe<L, A>> ma,
+            Func<A, OptionAsync<EitherUnsafe<L, B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>).SelectManyAsync<MOptionAsync<EitherUnsafe<L, B>>, OptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B, MOptionAsync<EitherUnsafe<L, C>>, OptionAsync<EitherUnsafe<L, C>>, MEitherUnsafe<L, C>, EitherUnsafe<L, C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -6895,6 +7707,19 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<EitherUnsafe<L, B>> BindT<L, A, B>(this OptionAsync<EitherUnsafe<L, A>> ma, Func<A, EitherUnsafe<L, B>> f) =>
+            default(TransAsyncSync<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .BindAsync<MOptionAsync<EitherUnsafe<L, B>>, OptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<EitherUnsafe<L, B>> BindT<L, A, B>(this OptionAsync<EitherUnsafe<L, A>> ma, Func<A, OptionAsync<EitherUnsafe<L, B>>> f) =>
             default(TransAsyncSync<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
                 .BindAsync<MOptionAsync<EitherUnsafe<L, B>>, OptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
@@ -7118,6 +7943,26 @@ namespace LanguageExt
                                 default(MEitherUnsafe<L, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`Task&lt;EitherUnsafe&lt;L, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static Task<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
+            this Task<EitherUnsafe<L, A>> ma,
+            Func<A, Task<EitherUnsafe<L, B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>).SelectManyAsync<MTask<EitherUnsafe<L, B>>, Task<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B, MTask<EitherUnsafe<L, C>>, Task<EitherUnsafe<L, C>>, MEitherUnsafe<L, C>, EitherUnsafe<L, C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -7177,6 +8022,19 @@ namespace LanguageExt
         /// <returns>`Task&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<EitherUnsafe<L, B>> BindT<L, A, B>(this Task<EitherUnsafe<L, A>> ma, Func<A, EitherUnsafe<L, B>> f) =>
+            default(TransAsyncSync<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .BindAsync<MTask<EitherUnsafe<L, B>>, Task<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Task&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<EitherUnsafe<L, B>> BindT<L, A, B>(this Task<EitherUnsafe<L, A>> ma, Func<A, Task<EitherUnsafe<L, B>>> f) =>
             default(TransAsyncSync<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
                 .BindAsync<MTask<EitherUnsafe<L, B>>, Task<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
@@ -7400,6 +8258,26 @@ namespace LanguageExt
                                 default(MEitherUnsafe<L, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryAsync&lt;EitherUnsafe&lt;L, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryAsync<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
+            this TryAsync<EitherUnsafe<L, A>> ma,
+            Func<A, TryAsync<EitherUnsafe<L, B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>).SelectManyAsync<MTryAsync<EitherUnsafe<L, B>>, TryAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B, MTryAsync<EitherUnsafe<L, C>>, TryAsync<EitherUnsafe<L, C>>, MEitherUnsafe<L, C>, EitherUnsafe<L, C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -7459,6 +8337,19 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<EitherUnsafe<L, B>> BindT<L, A, B>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, EitherUnsafe<L, B>> f) =>
+            default(TransAsyncSync<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .BindAsync<MTryAsync<EitherUnsafe<L, B>>, TryAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryAsync&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<EitherUnsafe<L, B>> BindT<L, A, B>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, TryAsync<EitherUnsafe<L, B>>> f) =>
             default(TransAsyncSync<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
                 .BindAsync<MTryAsync<EitherUnsafe<L, B>>, TryAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
@@ -7682,6 +8573,26 @@ namespace LanguageExt
                                 default(MEitherUnsafe<L, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryOptionAsync&lt;EitherUnsafe&lt;L, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryOptionAsync<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
+            this TryOptionAsync<EitherUnsafe<L, A>> ma,
+            Func<A, TryOptionAsync<EitherUnsafe<L, B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>).SelectManyAsync<MTryOptionAsync<EitherUnsafe<L, B>>, TryOptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B, MTryOptionAsync<EitherUnsafe<L, C>>, TryOptionAsync<EitherUnsafe<L, C>>, MEitherUnsafe<L, C>, EitherUnsafe<L, C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -7741,6 +8652,19 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<EitherUnsafe<L, B>> BindT<L, A, B>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, EitherUnsafe<L, B>> f) =>
+            default(TransAsyncSync<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .BindAsync<MTryOptionAsync<EitherUnsafe<L, B>>, TryOptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOptionAsync&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<EitherUnsafe<L, B>> BindT<L, A, B>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, TryOptionAsync<EitherUnsafe<L, B>>> f) =>
             default(TransAsyncSync<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
                 .BindAsync<MTryOptionAsync<EitherUnsafe<L, B>>, TryOptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
@@ -7972,6 +8896,26 @@ namespace LanguageExt
     public static partial class TryT_AsyncSync_Extensions
     {
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`OptionAsync&lt;Try&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static OptionAsync<Try<C>> SelectMany< A, B, C>(
+            this OptionAsync<Try<A>> ma,
+            Func<A, OptionAsync<Try<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>).SelectManyAsync<MOptionAsync<Try<B>>, OptionAsync<Try<B>>, MTry<B>, Try<B>, B, MOptionAsync<Try<C>>, OptionAsync<Try<C>>, MTry<C>, Try<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -8031,6 +8975,19 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Try<B>> BindT< A, B>(this OptionAsync<Try<A>> ma, Func<A, Try<B>> f) =>
+            default(TransAsyncSync<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>)
+                .BindAsync<MOptionAsync<Try<B>>, OptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Try<B>> BindT< A, B>(this OptionAsync<Try<A>> ma, Func<A, OptionAsync<Try<B>>> f) =>
             default(TransAsyncSync<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>)
                 .BindAsync<MOptionAsync<Try<B>>, OptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
@@ -8254,6 +9211,26 @@ namespace LanguageExt
                                 default(MTry< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`Task&lt;Try&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static Task<Try<C>> SelectMany< A, B, C>(
+            this Task<Try<A>> ma,
+            Func<A, Task<Try<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>).SelectManyAsync<MTask<Try<B>>, Task<Try<B>>, MTry<B>, Try<B>, B, MTask<Try<C>>, Task<Try<C>>, MTry<C>, Try<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -8313,6 +9290,19 @@ namespace LanguageExt
         /// <returns>`Task&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Try<B>> BindT< A, B>(this Task<Try<A>> ma, Func<A, Try<B>> f) =>
+            default(TransAsyncSync<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>)
+                .BindAsync<MTask<Try<B>>, Task<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Task&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<Try<B>> BindT< A, B>(this Task<Try<A>> ma, Func<A, Task<Try<B>>> f) =>
             default(TransAsyncSync<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>)
                 .BindAsync<MTask<Try<B>>, Task<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
@@ -8536,6 +9526,26 @@ namespace LanguageExt
                                 default(MTry< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryAsync&lt;Try&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryAsync<Try<C>> SelectMany< A, B, C>(
+            this TryAsync<Try<A>> ma,
+            Func<A, TryAsync<Try<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>).SelectManyAsync<MTryAsync<Try<B>>, TryAsync<Try<B>>, MTry<B>, Try<B>, B, MTryAsync<Try<C>>, TryAsync<Try<C>>, MTry<C>, Try<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -8595,6 +9605,19 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Try<B>> BindT< A, B>(this TryAsync<Try<A>> ma, Func<A, Try<B>> f) =>
+            default(TransAsyncSync<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>)
+                .BindAsync<MTryAsync<Try<B>>, TryAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryAsync&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<Try<B>> BindT< A, B>(this TryAsync<Try<A>> ma, Func<A, TryAsync<Try<B>>> f) =>
             default(TransAsyncSync<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>)
                 .BindAsync<MTryAsync<Try<B>>, TryAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
@@ -8818,6 +9841,26 @@ namespace LanguageExt
                                 default(MTry< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryOptionAsync&lt;Try&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryOptionAsync<Try<C>> SelectMany< A, B, C>(
+            this TryOptionAsync<Try<A>> ma,
+            Func<A, TryOptionAsync<Try<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>).SelectManyAsync<MTryOptionAsync<Try<B>>, TryOptionAsync<Try<B>>, MTry<B>, Try<B>, B, MTryOptionAsync<Try<C>>, TryOptionAsync<Try<C>>, MTry<C>, Try<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -8877,6 +9920,19 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Try<B>> BindT< A, B>(this TryOptionAsync<Try<A>> ma, Func<A, Try<B>> f) =>
+            default(TransAsyncSync<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>)
+                .BindAsync<MTryOptionAsync<Try<B>>, TryOptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOptionAsync&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<Try<B>> BindT< A, B>(this TryOptionAsync<Try<A>> ma, Func<A, TryOptionAsync<Try<B>>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>)
                 .BindAsync<MTryOptionAsync<Try<B>>, TryOptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
@@ -9108,6 +10164,26 @@ namespace LanguageExt
     public static partial class TryOptionT_AsyncSync_Extensions
     {
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`OptionAsync&lt;TryOption&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static OptionAsync<TryOption<C>> SelectMany< A, B, C>(
+            this OptionAsync<TryOption<A>> ma,
+            Func<A, OptionAsync<TryOption<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>).SelectManyAsync<MOptionAsync<TryOption<B>>, OptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B, MOptionAsync<TryOption<C>>, OptionAsync<TryOption<C>>, MTryOption<C>, TryOption<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -9167,6 +10243,19 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<TryOption<B>> BindT< A, B>(this OptionAsync<TryOption<A>> ma, Func<A, TryOption<B>> f) =>
+            default(TransAsyncSync<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .BindAsync<MOptionAsync<TryOption<B>>, OptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<TryOption<B>> BindT< A, B>(this OptionAsync<TryOption<A>> ma, Func<A, OptionAsync<TryOption<B>>> f) =>
             default(TransAsyncSync<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
                 .BindAsync<MOptionAsync<TryOption<B>>, OptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
@@ -9390,6 +10479,26 @@ namespace LanguageExt
                                 default(MTryOption< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`Task&lt;TryOption&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static Task<TryOption<C>> SelectMany< A, B, C>(
+            this Task<TryOption<A>> ma,
+            Func<A, Task<TryOption<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>).SelectManyAsync<MTask<TryOption<B>>, Task<TryOption<B>>, MTryOption<B>, TryOption<B>, B, MTask<TryOption<C>>, Task<TryOption<C>>, MTryOption<C>, TryOption<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -9449,6 +10558,19 @@ namespace LanguageExt
         /// <returns>`Task&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<TryOption<B>> BindT< A, B>(this Task<TryOption<A>> ma, Func<A, TryOption<B>> f) =>
+            default(TransAsyncSync<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .BindAsync<MTask<TryOption<B>>, Task<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Task&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<TryOption<B>> BindT< A, B>(this Task<TryOption<A>> ma, Func<A, Task<TryOption<B>>> f) =>
             default(TransAsyncSync<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
                 .BindAsync<MTask<TryOption<B>>, Task<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
@@ -9672,6 +10794,26 @@ namespace LanguageExt
                                 default(MTryOption< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryAsync&lt;TryOption&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryAsync<TryOption<C>> SelectMany< A, B, C>(
+            this TryAsync<TryOption<A>> ma,
+            Func<A, TryAsync<TryOption<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>).SelectManyAsync<MTryAsync<TryOption<B>>, TryAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B, MTryAsync<TryOption<C>>, TryAsync<TryOption<C>>, MTryOption<C>, TryOption<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -9731,6 +10873,19 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<TryOption<B>> BindT< A, B>(this TryAsync<TryOption<A>> ma, Func<A, TryOption<B>> f) =>
+            default(TransAsyncSync<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .BindAsync<MTryAsync<TryOption<B>>, TryAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryAsync&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<TryOption<B>> BindT< A, B>(this TryAsync<TryOption<A>> ma, Func<A, TryAsync<TryOption<B>>> f) =>
             default(TransAsyncSync<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
                 .BindAsync<MTryAsync<TryOption<B>>, TryAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
@@ -9954,6 +11109,26 @@ namespace LanguageExt
                                 default(MTryOption< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryOptionAsync&lt;TryOption&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryOptionAsync<TryOption<C>> SelectMany< A, B, C>(
+            this TryOptionAsync<TryOption<A>> ma,
+            Func<A, TryOptionAsync<TryOption<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>).SelectManyAsync<MTryOptionAsync<TryOption<B>>, TryOptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B, MTryOptionAsync<TryOption<C>>, TryOptionAsync<TryOption<C>>, MTryOption<C>, TryOption<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -10013,6 +11188,19 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<TryOption<B>> BindT< A, B>(this TryOptionAsync<TryOption<A>> ma, Func<A, TryOption<B>> f) =>
+            default(TransAsyncSync<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .BindAsync<MTryOptionAsync<TryOption<B>>, TryOptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOptionAsync&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<TryOption<B>> BindT< A, B>(this TryOptionAsync<TryOption<A>> ma, Func<A, TryOptionAsync<TryOption<B>>> f) =>
             default(TransAsyncSync<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
                 .BindAsync<MTryOptionAsync<TryOption<B>>, TryOptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
@@ -10278,6 +11466,19 @@ namespace LanguageExt
                 .BindAsync<MOptionAsync<IEnumerable<B>>, OptionAsync<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
 
         /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<IEnumerable<B>> BindT< A, B>(this OptionAsync<IEnumerable<A>> ma, Func<A, OptionAsync<IEnumerable<B>>> f) =>
+            default(TransAsyncSync<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .BindAsync<MOptionAsync<IEnumerable<B>>, OptionAsync<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+
+        /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
         /// using the provided function `f`.
         /// </summary>
@@ -10527,6 +11728,19 @@ namespace LanguageExt
         /// <returns>`Task&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<IEnumerable<B>> BindT< A, B>(this Task<IEnumerable<A>> ma, Func<A, IEnumerable<B>> f) =>
+            default(TransAsyncSync<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .BindAsync<MTask<IEnumerable<B>>, Task<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Task&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<IEnumerable<B>> BindT< A, B>(this Task<IEnumerable<A>> ma, Func<A, Task<IEnumerable<B>>> f) =>
             default(TransAsyncSync<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
                 .BindAsync<MTask<IEnumerable<B>>, Task<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
 
@@ -10784,6 +11998,19 @@ namespace LanguageExt
                 .BindAsync<MTryAsync<IEnumerable<B>>, TryAsync<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
 
         /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryAsync&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<IEnumerable<B>> BindT< A, B>(this TryAsync<IEnumerable<A>> ma, Func<A, TryAsync<IEnumerable<B>>> f) =>
+            default(TransAsyncSync<MTryAsync<IEnumerable<A>>, TryAsync<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .BindAsync<MTryAsync<IEnumerable<B>>, TryAsync<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+
+        /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
         /// using the provided function `f`.
         /// </summary>
@@ -11037,6 +12264,19 @@ namespace LanguageExt
                 .BindAsync<MTryOptionAsync<IEnumerable<B>>, TryOptionAsync<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
 
         /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOptionAsync&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<IEnumerable<B>> BindT< A, B>(this TryOptionAsync<IEnumerable<A>> ma, Func<A, TryOptionAsync<IEnumerable<B>>> f) =>
+            default(TransAsyncSync<MTryOptionAsync<IEnumerable<A>>, TryOptionAsync<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .BindAsync<MTryOptionAsync<IEnumerable<B>>, TryOptionAsync<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+
+        /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
         /// using the provided function `f`.
         /// </summary>
@@ -11264,6 +12504,26 @@ namespace LanguageExt
     public static partial class SeqT_AsyncSync_Extensions
     {
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`OptionAsync&lt;Seq&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static OptionAsync<Seq<C>> SelectMany< A, B, C>(
+            this OptionAsync<Seq<A>> ma,
+            Func<A, OptionAsync<Seq<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MOptionAsync<Seq<A>>, OptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>).SelectManyAsync<MOptionAsync<Seq<B>>, OptionAsync<Seq<B>>, MSeq<B>, Seq<B>, B, MOptionAsync<Seq<C>>, OptionAsync<Seq<C>>, MSeq<C>, Seq<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -11323,6 +12583,19 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Seq<B>> BindT< A, B>(this OptionAsync<Seq<A>> ma, Func<A, Seq<B>> f) =>
+            default(TransAsyncSync<MOptionAsync<Seq<A>>, OptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .BindAsync<MOptionAsync<Seq<B>>, OptionAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Seq<B>> BindT< A, B>(this OptionAsync<Seq<A>> ma, Func<A, OptionAsync<Seq<B>>> f) =>
             default(TransAsyncSync<MOptionAsync<Seq<A>>, OptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
                 .BindAsync<MOptionAsync<Seq<B>>, OptionAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
 
@@ -11546,6 +12819,26 @@ namespace LanguageExt
                                 default(MSeq< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`Task&lt;Seq&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static Task<Seq<C>> SelectMany< A, B, C>(
+            this Task<Seq<A>> ma,
+            Func<A, Task<Seq<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTask<Seq<A>>, Task<Seq<A>>, MSeq<A>, Seq<A>, A>).SelectManyAsync<MTask<Seq<B>>, Task<Seq<B>>, MSeq<B>, Seq<B>, B, MTask<Seq<C>>, Task<Seq<C>>, MSeq<C>, Seq<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -11605,6 +12898,19 @@ namespace LanguageExt
         /// <returns>`Task&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Seq<B>> BindT< A, B>(this Task<Seq<A>> ma, Func<A, Seq<B>> f) =>
+            default(TransAsyncSync<MTask<Seq<A>>, Task<Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .BindAsync<MTask<Seq<B>>, Task<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Task&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<Seq<B>> BindT< A, B>(this Task<Seq<A>> ma, Func<A, Task<Seq<B>>> f) =>
             default(TransAsyncSync<MTask<Seq<A>>, Task<Seq<A>>, MSeq<A>, Seq<A>, A>)
                 .BindAsync<MTask<Seq<B>>, Task<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
 
@@ -11828,6 +13134,26 @@ namespace LanguageExt
                                 default(MSeq< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryAsync&lt;Seq&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryAsync<Seq<C>> SelectMany< A, B, C>(
+            this TryAsync<Seq<A>> ma,
+            Func<A, TryAsync<Seq<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryAsync<Seq<A>>, TryAsync<Seq<A>>, MSeq<A>, Seq<A>, A>).SelectManyAsync<MTryAsync<Seq<B>>, TryAsync<Seq<B>>, MSeq<B>, Seq<B>, B, MTryAsync<Seq<C>>, TryAsync<Seq<C>>, MSeq<C>, Seq<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -11887,6 +13213,19 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Seq<B>> BindT< A, B>(this TryAsync<Seq<A>> ma, Func<A, Seq<B>> f) =>
+            default(TransAsyncSync<MTryAsync<Seq<A>>, TryAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .BindAsync<MTryAsync<Seq<B>>, TryAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryAsync&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<Seq<B>> BindT< A, B>(this TryAsync<Seq<A>> ma, Func<A, TryAsync<Seq<B>>> f) =>
             default(TransAsyncSync<MTryAsync<Seq<A>>, TryAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
                 .BindAsync<MTryAsync<Seq<B>>, TryAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
 
@@ -12110,6 +13449,26 @@ namespace LanguageExt
                                 default(MSeq< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryOptionAsync&lt;Seq&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryOptionAsync<Seq<C>> SelectMany< A, B, C>(
+            this TryOptionAsync<Seq<A>> ma,
+            Func<A, TryOptionAsync<Seq<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryOptionAsync<Seq<A>>, TryOptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>).SelectManyAsync<MTryOptionAsync<Seq<B>>, TryOptionAsync<Seq<B>>, MSeq<B>, Seq<B>, B, MTryOptionAsync<Seq<C>>, TryOptionAsync<Seq<C>>, MSeq<C>, Seq<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -12169,6 +13528,19 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Seq<B>> BindT< A, B>(this TryOptionAsync<Seq<A>> ma, Func<A, Seq<B>> f) =>
+            default(TransAsyncSync<MTryOptionAsync<Seq<A>>, TryOptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .BindAsync<MTryOptionAsync<Seq<B>>, TryOptionAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOptionAsync&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<Seq<B>> BindT< A, B>(this TryOptionAsync<Seq<A>> ma, Func<A, TryOptionAsync<Seq<B>>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Seq<A>>, TryOptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
                 .BindAsync<MTryOptionAsync<Seq<B>>, TryOptionAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
 
@@ -12400,6 +13772,26 @@ namespace LanguageExt
     public static partial class SetT_AsyncSync_Extensions
     {
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`OptionAsync&lt;Set&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static OptionAsync<Set<C>> SelectMany< A, B, C>(
+            this OptionAsync<Set<A>> ma,
+            Func<A, OptionAsync<Set<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>).SelectManyAsync<MOptionAsync<Set<B>>, OptionAsync<Set<B>>, MSet<B>, Set<B>, B, MOptionAsync<Set<C>>, OptionAsync<Set<C>>, MSet<C>, Set<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -12459,6 +13851,19 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Set<B>> BindT< A, B>(this OptionAsync<Set<A>> ma, Func<A, Set<B>> f) =>
+            default(TransAsyncSync<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>)
+                .BindAsync<MOptionAsync<Set<B>>, OptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Set<B>> BindT< A, B>(this OptionAsync<Set<A>> ma, Func<A, OptionAsync<Set<B>>> f) =>
             default(TransAsyncSync<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>)
                 .BindAsync<MOptionAsync<Set<B>>, OptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
@@ -12682,6 +14087,26 @@ namespace LanguageExt
                                 default(MSet< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`Task&lt;Set&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static Task<Set<C>> SelectMany< A, B, C>(
+            this Task<Set<A>> ma,
+            Func<A, Task<Set<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>).SelectManyAsync<MTask<Set<B>>, Task<Set<B>>, MSet<B>, Set<B>, B, MTask<Set<C>>, Task<Set<C>>, MSet<C>, Set<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -12741,6 +14166,19 @@ namespace LanguageExt
         /// <returns>`Task&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Set<B>> BindT< A, B>(this Task<Set<A>> ma, Func<A, Set<B>> f) =>
+            default(TransAsyncSync<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>)
+                .BindAsync<MTask<Set<B>>, Task<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Task&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<Set<B>> BindT< A, B>(this Task<Set<A>> ma, Func<A, Task<Set<B>>> f) =>
             default(TransAsyncSync<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>)
                 .BindAsync<MTask<Set<B>>, Task<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
@@ -12964,6 +14402,26 @@ namespace LanguageExt
                                 default(MSet< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryAsync&lt;Set&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryAsync<Set<C>> SelectMany< A, B, C>(
+            this TryAsync<Set<A>> ma,
+            Func<A, TryAsync<Set<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>).SelectManyAsync<MTryAsync<Set<B>>, TryAsync<Set<B>>, MSet<B>, Set<B>, B, MTryAsync<Set<C>>, TryAsync<Set<C>>, MSet<C>, Set<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -13023,6 +14481,19 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Set<B>> BindT< A, B>(this TryAsync<Set<A>> ma, Func<A, Set<B>> f) =>
+            default(TransAsyncSync<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>)
+                .BindAsync<MTryAsync<Set<B>>, TryAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryAsync&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<Set<B>> BindT< A, B>(this TryAsync<Set<A>> ma, Func<A, TryAsync<Set<B>>> f) =>
             default(TransAsyncSync<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>)
                 .BindAsync<MTryAsync<Set<B>>, TryAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
@@ -13246,6 +14717,26 @@ namespace LanguageExt
                                 default(MSet< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryOptionAsync&lt;Set&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryOptionAsync<Set<C>> SelectMany< A, B, C>(
+            this TryOptionAsync<Set<A>> ma,
+            Func<A, TryOptionAsync<Set<B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>).SelectManyAsync<MTryOptionAsync<Set<B>>, TryOptionAsync<Set<B>>, MSet<B>, Set<B>, B, MTryOptionAsync<Set<C>>, TryOptionAsync<Set<C>>, MSet<C>, Set<C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -13305,6 +14796,19 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Set<B>> BindT< A, B>(this TryOptionAsync<Set<A>> ma, Func<A, Set<B>> f) =>
+            default(TransAsyncSync<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>)
+                .BindAsync<MTryOptionAsync<Set<B>>, TryOptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOptionAsync&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<Set<B>> BindT< A, B>(this TryOptionAsync<Set<A>> ma, Func<A, TryOptionAsync<Set<B>>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>)
                 .BindAsync<MTryOptionAsync<Set<B>>, TryOptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
@@ -13536,6 +15040,26 @@ namespace LanguageExt
     public static partial class ValidationT_AsyncSync_Extensions
     {
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`OptionAsync&lt;Validation&lt;FAIL, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static OptionAsync<Validation<FAIL, C>> SelectMany<FAIL, A, B, C>(
+            this OptionAsync<Validation<FAIL, A>> ma,
+            Func<A, OptionAsync<Validation<FAIL, B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MOptionAsync<Validation<FAIL, A>>, OptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>).SelectManyAsync<MOptionAsync<Validation<FAIL, B>>, OptionAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B, MOptionAsync<Validation<FAIL, C>>, OptionAsync<Validation<FAIL, C>>, MValidation<FAIL, C>, Validation<FAIL, C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -13595,6 +15119,19 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Validation<FAIL, B>> BindT<FAIL, A, B>(this OptionAsync<Validation<FAIL, A>> ma, Func<A, Validation<FAIL, B>> f) =>
+            default(TransAsyncSync<MOptionAsync<Validation<FAIL, A>>, OptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .BindAsync<MOptionAsync<Validation<FAIL, B>>, OptionAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionAsync&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionAsync<Validation<FAIL, B>> BindT<FAIL, A, B>(this OptionAsync<Validation<FAIL, A>> ma, Func<A, OptionAsync<Validation<FAIL, B>>> f) =>
             default(TransAsyncSync<MOptionAsync<Validation<FAIL, A>>, OptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
                 .BindAsync<MOptionAsync<Validation<FAIL, B>>, OptionAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
 
@@ -13818,6 +15355,26 @@ namespace LanguageExt
                                 default(MValidation<FAIL, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`Task&lt;Validation&lt;FAIL, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static Task<Validation<FAIL, C>> SelectMany<FAIL, A, B, C>(
+            this Task<Validation<FAIL, A>> ma,
+            Func<A, Task<Validation<FAIL, B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTask<Validation<FAIL, A>>, Task<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>).SelectManyAsync<MTask<Validation<FAIL, B>>, Task<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B, MTask<Validation<FAIL, C>>, Task<Validation<FAIL, C>>, MValidation<FAIL, C>, Validation<FAIL, C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -13877,6 +15434,19 @@ namespace LanguageExt
         /// <returns>`Task&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Validation<FAIL, B>> BindT<FAIL, A, B>(this Task<Validation<FAIL, A>> ma, Func<A, Validation<FAIL, B>> f) =>
+            default(TransAsyncSync<MTask<Validation<FAIL, A>>, Task<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .BindAsync<MTask<Validation<FAIL, B>>, Task<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Task&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Task&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Task<Validation<FAIL, B>> BindT<FAIL, A, B>(this Task<Validation<FAIL, A>> ma, Func<A, Task<Validation<FAIL, B>>> f) =>
             default(TransAsyncSync<MTask<Validation<FAIL, A>>, Task<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
                 .BindAsync<MTask<Validation<FAIL, B>>, Task<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
 
@@ -14100,6 +15670,26 @@ namespace LanguageExt
                                 default(MValidation<FAIL, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryAsync&lt;Validation&lt;FAIL, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryAsync<Validation<FAIL, C>> SelectMany<FAIL, A, B, C>(
+            this TryAsync<Validation<FAIL, A>> ma,
+            Func<A, TryAsync<Validation<FAIL, B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryAsync<Validation<FAIL, A>>, TryAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>).SelectManyAsync<MTryAsync<Validation<FAIL, B>>, TryAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B, MTryAsync<Validation<FAIL, C>>, TryAsync<Validation<FAIL, C>>, MValidation<FAIL, C>, Validation<FAIL, C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -14159,6 +15749,19 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Validation<FAIL, B>> BindT<FAIL, A, B>(this TryAsync<Validation<FAIL, A>> ma, Func<A, Validation<FAIL, B>> f) =>
+            default(TransAsyncSync<MTryAsync<Validation<FAIL, A>>, TryAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .BindAsync<MTryAsync<Validation<FAIL, B>>, TryAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryAsync&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryAsync&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryAsync<Validation<FAIL, B>> BindT<FAIL, A, B>(this TryAsync<Validation<FAIL, A>> ma, Func<A, TryAsync<Validation<FAIL, B>>> f) =>
             default(TransAsyncSync<MTryAsync<Validation<FAIL, A>>, TryAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
                 .BindAsync<MTryAsync<Validation<FAIL, B>>, TryAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
 
@@ -14382,6 +15985,26 @@ namespace LanguageExt
                                 default(MValidation<FAIL, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`TryOptionAsync&lt;Validation&lt;FAIL, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static TryOptionAsync<Validation<FAIL, C>> SelectMany<FAIL, A, B, C>(
+            this TryOptionAsync<Validation<FAIL, A>> ma,
+            Func<A, TryOptionAsync<Validation<FAIL, B>>> bind,
+            Func<A, B, C> project) =>
+            default(TransAsyncSync<MTryOptionAsync<Validation<FAIL, A>>, TryOptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>).SelectManyAsync<MTryOptionAsync<Validation<FAIL, B>>, TryOptionAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B, MTryOptionAsync<Validation<FAIL, C>>, TryOptionAsync<Validation<FAIL, C>>, MValidation<FAIL, C>, Validation<FAIL, C>, C>(
+                ma, 
+                bind, 
+                project);
+
+        /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
         /// `true` then that value is retained, else filtered out.
         /// </summary>
@@ -14441,6 +16064,19 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Validation<FAIL, B>> BindT<FAIL, A, B>(this TryOptionAsync<Validation<FAIL, A>> ma, Func<A, Validation<FAIL, B>> f) =>
+            default(TransAsyncSync<MTryOptionAsync<Validation<FAIL, A>>, TryOptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .BindAsync<MTryOptionAsync<Validation<FAIL, B>>, TryOptionAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOptionAsync&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOptionAsync<Validation<FAIL, B>> BindT<FAIL, A, B>(this TryOptionAsync<Validation<FAIL, A>> ma, Func<A, TryOptionAsync<Validation<FAIL, B>>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Validation<FAIL, A>>, TryOptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
                 .BindAsync<MTryOptionAsync<Validation<FAIL, B>>, TryOptionAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
 

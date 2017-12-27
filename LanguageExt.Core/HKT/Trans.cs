@@ -38,6 +38,13 @@ namespace LanguageExt
                     MInner.Bind<NewOuterMonad, NewOuterType, NewInnerType>(inner, a =>
                         f(a)));
 
+        public NewOuterType BindAsync<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, NewOuterType> f)
+            where NewOuterMonad : struct, MonadAsync<NewOuterType, NewInnerType>
+            where NewInnerMonad : struct, Monad<NewInnerType, B> =>
+                MOuter.BindAsync<NewOuterMonad, NewOuterType, NewInnerType>(ma, inner =>
+                    MInner.BindAsync<NewOuterMonad, NewOuterType, NewInnerType>(inner, a =>
+                        f(a)));
+
         public NewOuterType Map<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, B> f)
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
             where NewInnerMonad : struct, Monad<NewInnerType, B> =>

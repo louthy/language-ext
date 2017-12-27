@@ -21,6 +21,16 @@ namespace LanguageExt.ClassInstances
             });
 
         [Pure]
+        public MB BindAsync<MONADB, MB, B>(Writer<MonoidW, W, A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, (W, bool), MB, B> =>
+            default(MONADB).RunAsync(_ =>
+            {
+                var (a, output1, faulted) = ma();
+                return faulted
+                    ? default(MONADB).FailAsync().AsTask()
+                    : default(MONADB).BindReturnAsync((output1, faulted), f(a)).AsTask();
+            });
+
+        [Pure]
         public Writer<MonoidW, W, A> BindReturn((W, bool) output, Writer<MonoidW, W, A> mb)
         {
             var (b, output2, faulted) = mb();

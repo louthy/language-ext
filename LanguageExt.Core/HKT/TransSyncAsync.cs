@@ -25,6 +25,70 @@ namespace LanguageExt
 
         public static readonly TransSyncAsync<OuterMonad, OuterType, InnerMonad, InnerType, A> Inst;
 
+        public NewOuterC SelectManyAsync<NewOuterMonadB, NewOuterB, NewInnerMonadB, NewInnerB, B, NewOuterMonadC, NewOuterC, NewInnerMonadC, NewInnerC, C>(
+            OuterType ma,
+            Func<A, NewInnerB> bind,
+            Func<A, B, C> project)
+            where NewOuterMonadB : struct, Monad<NewOuterB, NewInnerB>
+            where NewInnerMonadB : struct, MonadAsync<NewInnerB, B>
+            where NewOuterMonadC : struct, Monad<NewOuterC, NewInnerC>
+            where NewInnerMonadC : struct, MonadAsync<NewInnerC, C> =>
+            default(TransSyncAsync<OuterMonad, OuterType, InnerMonad, InnerType, A>).BindAsync<NewOuterMonadC, NewOuterC, NewInnerMonadC, NewInnerC, C>(ma, a =>
+            {
+                return default(NewInnerMonadB).BindAsync<NewInnerMonadC, NewInnerC, C>(bind(a), b =>
+                {
+                    return default(NewInnerMonadC).ReturnAsync(project(a, b).AsTask());
+                });
+            });
+
+        public NewOuterC SelectManyAsync<NewOuterMonadB, NewOuterB, NewInnerMonadB, NewInnerB, B, NewOuterMonadC, NewOuterC, NewInnerMonadC, NewInnerC, C>(
+            OuterType ma,
+            Func<A, Task<NewInnerB>> bind,
+            Func<A, B, C> project)
+            where NewOuterMonadB : struct, Monad<NewOuterB, NewInnerB>
+            where NewInnerMonadB : struct, MonadAsync<NewInnerB, B>
+            where NewOuterMonadC : struct, Monad<NewOuterC, NewInnerC>
+            where NewInnerMonadC : struct, MonadAsync<NewInnerC, C> =>
+            default(TransSyncAsync<OuterMonad, OuterType, InnerMonad, InnerType, A>).BindAsync<NewOuterMonadC, NewOuterC, NewInnerMonadC, NewInnerC, C>(ma, async a =>
+            {
+                return default(NewInnerMonadB).BindAsync<NewInnerMonadC, NewInnerC, C>(await bind(a), b =>
+                {
+                    return default(NewInnerMonadC).ReturnAsync(project(a, b).AsTask());
+                });
+            });
+
+        public NewOuterC SelectManyAsync<NewOuterMonadB, NewOuterB, NewInnerMonadB, NewInnerB, B, NewOuterMonadC, NewOuterC, NewInnerMonadC, NewInnerC, C>(
+            OuterType ma,
+            Func<A, NewInnerB> bind,
+            Func<A, B, Task<C>> project)
+            where NewOuterMonadB : struct, Monad<NewOuterB, NewInnerB>
+            where NewInnerMonadB : struct, MonadAsync<NewInnerB, B>
+            where NewOuterMonadC : struct, Monad<NewOuterC, NewInnerC>
+            where NewInnerMonadC : struct, MonadAsync<NewInnerC, C> =>
+            default(TransSyncAsync<OuterMonad, OuterType, InnerMonad, InnerType, A>).BindAsync<NewOuterMonadC, NewOuterC, NewInnerMonadC, NewInnerC, C>(ma, a =>
+            {
+                return default(NewInnerMonadB).BindAsync<NewInnerMonadC, NewInnerC, C>(bind(a), b =>
+                {
+                    return default(NewInnerMonadC).ReturnAsync(project(a, b));
+                });
+            });
+
+        public NewOuterC SelectManyAsync<NewOuterMonadB, NewOuterB, NewInnerMonadB, NewInnerB, B, NewOuterMonadC, NewOuterC, NewInnerMonadC, NewInnerC, C>(
+            OuterType ma,
+            Func<A, Task<NewInnerB>> bind,
+            Func<A, B, Task<C>> project)
+            where NewOuterMonadB : struct, Monad<NewOuterB, NewInnerB>
+            where NewInnerMonadB : struct, MonadAsync<NewInnerB, B>
+            where NewOuterMonadC : struct, Monad<NewOuterC, NewInnerC>
+            where NewInnerMonadC : struct, MonadAsync<NewInnerC, C> =>
+            default(TransSyncAsync<OuterMonad, OuterType, InnerMonad, InnerType, A>).BindAsync<NewOuterMonadC, NewOuterC, NewInnerMonadC, NewInnerC, C>(ma, async a =>
+            {
+                return default(NewInnerMonadB).BindAsync<NewInnerMonadC, NewInnerC, C>(await bind(a), b =>
+                {
+                    return default(NewInnerMonadC).ReturnAsync(project(a, b));
+                });
+            });
+
         public NewOuterType BindAsync<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, NewInnerType> f)
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
             where NewInnerMonad : struct, MonadAsync<NewInnerType, B> =>

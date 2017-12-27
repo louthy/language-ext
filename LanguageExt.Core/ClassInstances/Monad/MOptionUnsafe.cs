@@ -34,6 +34,17 @@ namespace LanguageExt.ClassInstances
                     : default(MONADB).Fail(ValueIsNoneException.Default);
 
         [Pure]
+        public MB BindAsync<MONADB, MB, B>(OptionUnsafe<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            ma.IsLazy
+                ? default(MONADB).RunAsync(_ =>
+                    (ma.IsSome && f != null
+                        ? f(ma.Value)
+                        : default(MONADB).FailAsync(ValueIsNoneException.Default)).AsTask())
+                : ma.IsSome && f != null
+                    ? f(ma.Value)
+                    : default(MONADB).FailAsync(ValueIsNoneException.Default);
+
+        [Pure]
         public OptionUnsafe<A> Fail(object err = null) =>
             OptionUnsafe<A>.None;
 

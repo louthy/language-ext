@@ -106,7 +106,7 @@ namespace LanguageExt.Tests
         {
             var output = bottomResult.IfFail(defaultValue: 2);
 
-            Assert.Equal(output, 2);
+            Assert.Equal(2, output);
         }
 
         [Fact]
@@ -114,7 +114,7 @@ namespace LanguageExt.Tests
         {
             var output = successResult.IfFail(defaultValue: 2);
 
-            Assert.Equal(output, 1);
+            Assert.Equal(1, output);
         }
 
         [Fact]
@@ -122,7 +122,7 @@ namespace LanguageExt.Tests
         {
             var output = faultResult.IfFail(defaultValue: 2);
 
-            Assert.Equal(output, 2);
+            Assert.Equal(2, output);
         }
 
         [Fact]
@@ -130,7 +130,7 @@ namespace LanguageExt.Tests
         {
             var output = faultWithNullException.IfFail(defaultValue: 2);
 
-            Assert.Equal(output, 2);
+            Assert.Equal(2, output);
         }
 
         [Fact]
@@ -138,7 +138,7 @@ namespace LanguageExt.Tests
         {
             var output = bottomResult.IfFail(_ => 2);
 
-            Assert.Equal(output, 2);
+            Assert.Equal(2, output);
         }
 
         [Fact]
@@ -146,7 +146,7 @@ namespace LanguageExt.Tests
         {
             var output = successResult.IfFail(_ => 2);
 
-            Assert.Equal(output, 1);
+            Assert.Equal(1, output);
         }
 
         [Fact]
@@ -154,7 +154,7 @@ namespace LanguageExt.Tests
         {
             var output = faultResult.IfFail(_ => 2);
 
-            Assert.Equal(output, 2);
+            Assert.Equal(2, output);
         }
 
         [Fact]
@@ -162,7 +162,7 @@ namespace LanguageExt.Tests
         {
             var output = faultWithNullException.IfFail(_ => 2);
 
-            Assert.Equal(output, 2);
+            Assert.Equal(2, output);
         }
 
         [Fact]

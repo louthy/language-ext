@@ -30,6 +30,10 @@ namespace LanguageExt.ClassInstances
             traverse<MSeq<A>, MONADB, Seq<A>, MB, A, B>(ma, f);
 
         [Pure]
+        public MB BindAsync<MONADB, MB, B>(Seq<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            traverseSyncAsync<MSeq<A>, MONADB, Seq<A>, MB, A, B>(ma, f);
+
+        [Pure]
         public Func<Unit, int> Count(Seq<A> fa) => _ =>
             fa.Count();
 

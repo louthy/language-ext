@@ -39,10 +39,10 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void TryAsyncList()
+        public async Task TryAsyncList()
         {
-            var result = traverse<MTryAsync<int>, MLst<int>, TryAsync<int>, Lst<int>, int, int>(
-                TryAsync(() => 10),
+            var result = await traverseAsyncSync<MTryAsync<int>, MLst<int>, TryAsync<int>, Lst<int>, int, int>(
+                TryAsync(10.AsTask()),
                 x => x % 2 == 0
                     ? List(2, 4, 6, 8, 10)
                     : List(1, 3, 5, 7, 9)
@@ -54,11 +54,11 @@ namespace LanguageExt.Tests
         [Fact]
         public async void ListTryAsync()
         {
-            var result = traverse<MLst<int>, MTryAsync<string>, Lst<int>, TryAsync<string>, int, string>(
+            var result = traverseSyncAsync<MLst<int>, MTryAsync<string>, Lst<int>, TryAsync<string>, int, string>(
                 List(1, 2, 3, 4),
                 x => x % 2 == 0
-                    ? TryAsync(() => { Thread.Sleep(1); return "even"; })
-                    : TryAsync(() => { Thread.Sleep(3000); return "odd"; })
+                    ? TryAsync(async () => { await Task.Delay(1); return "even"; })
+                    : TryAsync(async () => { await Task.Delay(3000); return "odd"; })
                 );
 
             var res = await result.IfFail("failed");

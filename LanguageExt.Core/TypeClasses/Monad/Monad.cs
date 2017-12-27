@@ -50,6 +50,10 @@ namespace LanguageExt.TypeClasses
         MB Bind<MONADB, MB, B>(MA ma, Func<A, MB> f) 
             where MONADB : struct, Monad<Env, Out, MB, B>;
 
+        [Pure]
+        MB BindAsync<MonadB, MB, B>(MA ma, Func<A, MB> f) 
+            where MonadB : struct, MonadAsync<Env, Out, MB, B>;
+
         /// <summary>
         /// Lazy monad constructor function.  Provide the bound value `A` to construct 
         /// a new monad of type `MA`.  This varies from the 'standard' construction

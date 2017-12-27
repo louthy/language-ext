@@ -29,6 +29,15 @@ namespace LanguageExt.ClassInstances
                     : default(MONADB).BindReturn((next.Output,next.State,next.IsFaulted), f(next.Value));
             });
 
+        public MB BindAsync<MONADB, MB, B>(RWS<MonoidW, R, W, S, A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<(R Env, S State), (W, S, bool), MB, B> =>
+            default(MONADB).RunAsync(initial =>
+            {
+                var next = ma(initial.Env, initial.State);
+                return next.IsFaulted
+                    ? default(MONADB).FailAsync(default(MRWS<MonoidW, R, W, S, A>).Fail()).AsTask()
+                    : default(MONADB).BindReturnAsync((next.Output, next.State, next.IsFaulted), f(next.Value)).AsTask();
+            });
+
         public RWS<MonoidW, R, W, S, A> BindReturn((W Output, S State, bool IsFaulted) previous, RWS<MonoidW, R, W, S, A> mb) => (env, state) =>
         {
             var next = mb(env, previous.State);

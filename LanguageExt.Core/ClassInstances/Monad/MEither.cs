@@ -10,7 +10,8 @@ namespace LanguageExt.ClassInstances
         Alternative<Either<L, R>, L, R>,
         Monad<Either<L, R>, R>,
         Optional<Either<L, R>, R>,
-        BiFoldable<Either<L, R>, L, R>
+        BiFoldable<Either<L, R>, L, R>,
+        AsyncPair<Either<L, R>, EitherAsync<L, R>>
     {
         public static readonly MEither<L, R> Inst = default(MEither<L, R>);
 
@@ -20,6 +21,13 @@ namespace LanguageExt.ClassInstances
                 Left: l => default(MONADB).Fail(l),
                 Right: r => f(r),
                 Bottom: () => default(MONADB).Fail(BottomException.Default));
+
+        [Pure]
+        public MB BindAsync<MONADB, MB, B>(Either<L, R> ma, Func<R, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            ma.Match(
+                Left: l => default(MONADB).FailAsync(l),
+                Right: r => f(r),
+                Bottom: () => default(MONADB).FailAsync(BottomException.Default));
 
         [Pure]
         public Either<L, R> Fail(object err = null) =>
@@ -213,5 +221,9 @@ namespace LanguageExt.ClassInstances
             from a in fa
             from b in fb
             select f(a, b);
+
+        [Pure]
+        public EitherAsync<L, R> ToAsync(Either<L, R> sa) =>
+            sa.ToAsync();
     }
 }

@@ -29,6 +29,10 @@ namespace LanguageExt.ClassInstances
             traverse<MEnumerable<A>, MONADB, IEnumerable<A>, MB, A, B>(ma, f);
 
         [Pure]
+        public MB BindAsync<MONADB, MB, B>(IEnumerable<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            traverseSyncAsync<MEnumerable<A>, MONADB, IEnumerable<A>, MB, A, B>(ma, f);
+
+        [Pure]
         public Func<Unit, int> Count(IEnumerable<A> fa) => _ =>
             fa.Count();
 

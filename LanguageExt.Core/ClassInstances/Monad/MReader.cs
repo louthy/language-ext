@@ -23,6 +23,15 @@ namespace LanguageExt.ClassInstances
             });
 
         [Pure]
+        public MB BindAsync<MONADB, MB, B>(Reader<Env, A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Env, Unit, MB, B> =>
+            default(MONADB).RunAsync(env =>
+            {
+                var (a, faulted) = ma(env);
+                if (faulted) return default(MONADB).FailAsync().AsTask();
+                return f(a).AsTask();
+            });
+
+        [Pure]
         public Reader<Env, A> Fail(object err = null) =>
             new Reader<Env, A>(_ => (default(A), true));
 
