@@ -5,6 +5,7 @@ using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 using LanguageExt;
 using System.Net.Http;
+using Nito.AsyncEx;
 
 namespace LanguageExtTests
 {
@@ -91,6 +92,22 @@ namespace LanguageExtTests
             int totalSize = await getURLContent("http://www.google.com")
                                 .MapT(x => x.Length)
                                 .SumT<TInt, int>();
+        }
+
+        [Fact]
+        public void MTaskFold_InAsyncContextWithTaskWaitingForActivation_Halts() =>
+            AsyncContext.Run(() => MTaskFold_WithTaskWaitingForActivation_Halts());
+
+        private static void MTaskFold_WithTaskWaitingForActivation_Halts()
+        {
+            var intTask = TimeSpan
+              .FromMilliseconds(100)
+              .Apply(Task.Delay)
+              .ContinueWith(_ => 0);
+
+            var actual = default(MTask<int>).FoldAsync(intTask, 0, (x, y) => 0)(unit);
+
+            // execution terminates by reaching here
         }
     }
 }

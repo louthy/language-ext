@@ -135,34 +135,6 @@ namespace LanguageExt.ClassInstances
             Return(_ => x);
 
         [Pure]
-        public A? IdAsync(Func<Unit, Task<A?>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(A? fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(A? fa, S state, Func<S, A, Task<S>> f) => _ =>
-            fa.Match(
-                Some: r => f(state, r),
-                None: () => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(A? fa, S state, Func<S, A, S> f) => _ =>
-             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(A? fa, S state, Func<S, A, Task<S>> f) => _ =>
-            fa.Match(
-                Some: r => f(state, r),
-                None: () => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(A? fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
-
-        [Pure]
         public A? Apply(Func<A, A, A> f, A? fa, A? fb) =>
             from a in fa
             from b in fb
