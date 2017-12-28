@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace LanguageExt
 {
@@ -41,6 +41,26 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNull<T>(this T value) =>
-            Prelude.isnull(value);
+            Check<T>.IsNull(value);
+
+        private static class Check<T>
+        {
+            static readonly bool IsReferenceType;
+            static readonly bool IsNullable;
+            static readonly EqualityComparer<T> DefaultEqualityComparer;
+
+            static Check()
+            {
+                IsNullable = Nullable.GetUnderlyingType(typeof(T)) != null;
+                IsReferenceType = !typeof(T).GetTypeInfo().IsValueType;
+                DefaultEqualityComparer = EqualityComparer<T>.Default;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal static bool IsNull(T value) =>
+                IsNullable
+                    ? value.Equals(default(T))
+                    : IsReferenceType && DefaultEqualityComparer.Equals(value, default(T));
+        }
     }
 }

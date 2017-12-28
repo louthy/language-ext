@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
@@ -27,26 +26,6 @@ namespace LanguageExt
     /// </summary>
     public static partial class Prelude
     {
-        /// <summary>
-        /// 'No value' state of Option T.
-        /// </summary>
-        public static OptionNone None =>
-            OptionNone.Default;
-
-        /// <summary>
-        /// Unit constructor
-        /// </summary>
-        public static Unit unit =>
-            Unit.Default;
-
-        /// <summary>
-        /// Takes any value, ignores it, returns a unit
-        /// </summary>
-        /// <param name="anything">Value to ignore</param>
-        /// <returns>Unit</returns>
-        public static Unit ignore<T>(T anything) =>
-            unit;
-
         /// <summary>
         /// Projects a value into a lambda
         /// Useful when one needs to declare a local variable which breaks your
@@ -295,7 +274,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool isDefault<T>(T value) =>
-            EqualityComparer<T>.Default.Equals(value, default(T));
+            value.IsDefault();
 
         /// <summary>
         /// Returns true if the value is not equal to this type's
@@ -330,7 +309,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool isnull<T>(T value) =>
-            Check<T>.IsNull(value);
+            value.IsNull();
 
         /// <summary>
         /// Returns true if the value is not null, and does so without
@@ -352,7 +331,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool notnull<T>(T value) =>
-            !Check<T>.IsNull(value);
+            !isnull(value);
 
         /// <summary>
         /// Convert a value to string
@@ -360,23 +339,5 @@ namespace LanguageExt
         [Pure]
         public static string toString<T>(T value) =>
             value?.ToString();
-
-        static class Check<T>
-        {
-            static readonly bool IsValueType;
-            static readonly bool IsNullable;
-
-            static Check()
-            {
-                IsNullable = Nullable.GetUnderlyingType(typeof(T)) != null;
-                IsValueType = typeof(T).GetTypeInfo().IsValueType;
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static bool IsNull(T value) =>
-                IsNullable
-                    ? value.Equals(default(T))
-                    : !IsValueType && EqualityComparer<T>.Default.Equals(value, default(T));
-        }
    }
 }
