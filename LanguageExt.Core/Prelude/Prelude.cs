@@ -27,20 +27,6 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
-        /// Unit constructor
-        /// </summary>
-        public static Unit unit =>
-            Unit.Default;
-
-        /// <summary>
-        /// Takes any value, ignores it, returns a unit
-        /// </summary>
-        /// <param name="anything">Value to ignore</param>
-        /// <returns>Unit</returns>
-        public static Unit ignore<T>(T anything) =>
-            unit;
-
-        /// <summary>
         /// Projects a value into a lambda
         /// Useful when one needs to declare a local variable which breaks your
         /// expression.  This allows you to keep the expression going.
