@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
@@ -27,12 +26,6 @@ namespace LanguageExt
     /// </summary>
     public static partial class Prelude
     {
-        /// <summary>
-        /// 'No value' state of Option T.
-        /// </summary>
-        public static OptionNone None =>
-            OptionNone.Default;
-
         /// <summary>
         /// Projects a value into a lambda
         /// Useful when one needs to declare a local variable which breaks your
@@ -281,7 +274,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool isDefault<T>(T value) =>
-            EqualityComparer<T>.Default.Equals(value, default(T));
+            value.IsDefault();
 
         /// <summary>
         /// Returns true if the value is not equal to this type's
@@ -316,7 +309,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool isnull<T>(T value) =>
-            Check<T>.IsNull(value);
+            value.IsNull();
 
         /// <summary>
         /// Returns true if the value is not null, and does so without
@@ -338,7 +331,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool notnull<T>(T value) =>
-            !Check<T>.IsNull(value);
+            !isnull(value);
 
         /// <summary>
         /// Convert a value to string
@@ -346,25 +339,5 @@ namespace LanguageExt
         [Pure]
         public static string toString<T>(T value) =>
             value?.ToString();
-
-        static class Check<T>
-        {
-            static readonly bool IsReferenceType;
-            static readonly bool IsNullable;
-            static readonly EqualityComparer<T> DefaultEqualityComparer;
-
-            static Check()
-            {
-                IsNullable = Nullable.GetUnderlyingType(typeof(T)) != null;
-                IsReferenceType = !typeof(T).GetTypeInfo().IsValueType;
-                DefaultEqualityComparer = EqualityComparer<T>.Default;
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static bool IsNull(T value) =>
-                IsNullable
-                    ? value.Equals(default(T))
-                    : IsReferenceType && DefaultEqualityComparer.Equals(value, default(T));
-        }
    }
 }
