@@ -165,7 +165,7 @@ namespace LanguageExt
 
         [Pure]
         public static Option<TEnum> parseEnum<TEnum>(string value)
-            where TEnum: struct
+            where TEnum : struct
         {
             TEnum result;
             return Enum.TryParse(value, out result)
