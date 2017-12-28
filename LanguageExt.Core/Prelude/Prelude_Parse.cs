@@ -25,22 +25,12 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static Option<long> parseLong(string value)
-        {
-            long result;
-            return long.TryParse(value, out result)
-                ? Some(result)
-                : None;
-        }
+        public static Option<long> parseLong(string value) =>
+            Parse<long>(long.TryParse, value);
 
         [Pure]
-        public static Option<int> parseInt(string value)
-        {
-            int result;
-            return int.TryParse(value, out result)
-                ? Some(result)
-                : None;
-        }
+        public static Option<int> parseInt(string value) =>
+            Parse<int>(int.TryParse, value);
 
         [Pure]
         public static Option<int> parseInt(string value, int fromBase)
@@ -56,121 +46,63 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static Option<short> parseShort(string value)
-        {
-            short result;
-            return short.TryParse(value, out result)
-                ? Some(result)
-                : None;
-        }
+        public static Option<short> parseShort(string value) =>
+            Parse<short>(short.TryParse, value);
 
         [Pure]
-        public static Option<char> parseChar(string value)
-        {
-            char result;
-            return char.TryParse(value, out result)
-                ? Some(result)
-                : None;
-        }
+        public static Option<char> parseChar(string value) =>
+            Parse<char>(char.TryParse, value);
 
         [Pure]
-        public static Option<byte> parseByte(string value)
-        {
-            byte result;
-            return byte.TryParse(value, out result)
-                ? Some(result)
-                : None;
-        }
+        public static Option<byte> parseByte(string value) =>
+            Parse<byte>(byte.TryParse, value);
 
         [Pure]
-        public static Option<ulong> parseULong(string value)
-        {
-            ulong result;
-            return ulong.TryParse(value, out result)
-                ? Some(result)
-                : None;
-        }
+        public static Option<ulong> parseULong(string value) =>
+            Parse<ulong>(ulong.TryParse, value);
 
         [Pure]
-        public static Option<uint> parseUInt(string value)
-        {
-            uint result;
-            return uint.TryParse(value, out result)
-                ? Some(result)
-                : None;
-        }
+        public static Option<uint> parseUInt(string value) =>
+            Parse<uint>(uint.TryParse, value);
 
         [Pure]
-        public static Option<ushort> parseUShort(string value)
-        {
-            ushort result;
-            return ushort.TryParse(value, out result)
-                ? Some(result)
-                : None;
-        }
+        public static Option<ushort> parseUShort(string value) =>
+            Parse<ushort>(ushort.TryParse, value);
 
         [Pure]
-        public static Option<float> parseFloat(string value)
-        {
-            float result;
-            return float.TryParse(value, out result)
-                ? Some(result)
-                : None;
-        }
+        public static Option<float> parseFloat(string value) =>
+            Parse<float>(float.TryParse, value);
 
         [Pure]
-        public static Option<double> parseDouble(string value)
-        {
-            double result;
-            return double.TryParse(value, out result)
-                ? Some(result)
-                : None;
-        }
+        public static Option<double> parseDouble(string value) =>
+            Parse<double>(double.TryParse, value);
 
         [Pure]
-        public static Option<decimal> parseDecimal(string value)
-        {
-            decimal result;
-            return decimal.TryParse(value, out result)
-                ? Some(result)
-                : None;
-        }
+        public static Option<decimal> parseDecimal(string value) =>
+            Parse<decimal>(decimal.TryParse, value);
 
         [Pure]
-        public static Option<bool> parseBool(string value)
-        {
-            bool result;
-            return bool.TryParse(value, out result)
-                ? Some(result)
-                : None;
-        }
+        public static Option<bool> parseBool(string value) =>
+            Parse<bool>(bool.TryParse, value);
 
         [Pure]
-        public static Option<Guid> parseGuid(string value)
-        {
-            Guid result;
-            return Guid.TryParse(value, out result)
-                ? Some(result)
-                : None;
-        }
+        public static Option<Guid> parseGuid(string value) =>
+            Parse<Guid>(Guid.TryParse, value);
 
         [Pure]
-        public static Option<DateTime> parseDateTime(string value)
-        {
-            DateTime result;
-            return DateTime.TryParse(value, out result)
-                ? Some(result)
-                : None;
-        }
+        public static Option<DateTime> parseDateTime(string value) =>
+            Parse<DateTime>(DateTime.TryParse, value);
 
         [Pure]
         public static Option<TEnum> parseEnum<TEnum>(string value)
-            where TEnum : struct
-        {
-            TEnum result;
-            return Enum.TryParse(value, out result)
+            where TEnum : struct =>
+            Parse<TEnum>(Enum.TryParse, value);
+
+        private delegate bool TryParse<T>(string value, out T result);
+
+        private static Option<T> Parse<T>(TryParse<T> tryParse, string value) =>
+            tryParse(value, out T result)
                 ? Some(result)
                 : None;
-        }
     }
 }
