@@ -28,7 +28,7 @@ namespace LanguageExt
         public static Option<long> parseLong(string value)
         {
             long result;
-            return Int64.TryParse(value, out result)
+            return long.TryParse(value, out result)
                 ? Some(result)
                 : None;
         }
@@ -37,7 +37,7 @@ namespace LanguageExt
         public static Option<int> parseInt(string value)
         {
             int result;
-            return Int32.TryParse(value, out result)
+            return int.TryParse(value, out result)
                 ? Some(result)
                 : None;
         }
@@ -59,7 +59,7 @@ namespace LanguageExt
         public static Option<short> parseShort(string value)
         {
             short result;
-            return Int16.TryParse(value, out result)
+            return short.TryParse(value, out result)
                 ? Some(result)
                 : None;
         }
@@ -68,7 +68,7 @@ namespace LanguageExt
         public static Option<char> parseChar(string value)
         {
             char result;
-            return Char.TryParse(value, out result)
+            return char.TryParse(value, out result)
                 ? Some(result)
                 : None;
         }
@@ -77,7 +77,7 @@ namespace LanguageExt
         public static Option<byte> parseByte(string value)
         {
             byte result;
-            return Byte.TryParse(value, out result)
+            return byte.TryParse(value, out result)
                 ? Some(result)
                 : None;
         }
@@ -86,7 +86,7 @@ namespace LanguageExt
         public static Option<ulong> parseULong(string value)
         {
             ulong result;
-            return UInt64.TryParse(value, out result)
+            return ulong.TryParse(value, out result)
                 ? Some(result)
                 : None;
         }
@@ -95,7 +95,7 @@ namespace LanguageExt
         public static Option<uint> parseUInt(string value)
         {
             uint result;
-            return UInt32.TryParse(value, out result)
+            return uint.TryParse(value, out result)
                 ? Some(result)
                 : None;
         }
@@ -104,7 +104,7 @@ namespace LanguageExt
         public static Option<ushort> parseUShort(string value)
         {
             ushort result;
-            return UInt16.TryParse(value, out result)
+            return ushort.TryParse(value, out result)
                 ? Some(result)
                 : None;
         }
