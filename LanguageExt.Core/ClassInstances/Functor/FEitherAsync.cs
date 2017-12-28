@@ -26,7 +26,7 @@ namespace LanguageExt.ClassInstances
             ma.BiMapAsync<R2>(fb, fa);
 
         [Pure]
-        public EitherAsync<L, R2> MapAsync(EitherAsync<L, R> ma, Func<R, R2> f) =>
+        public EitherAsync<L, R2> Map(EitherAsync<L, R> ma, Func<R, R2> f) =>
             ma.Map(f);
 
         [Pure]

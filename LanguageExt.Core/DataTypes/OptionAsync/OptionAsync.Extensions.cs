@@ -109,7 +109,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static OptionAsync<B> Apply<A, B>(this OptionAsync<Func<A, B>> fab, OptionAsync<A> fa) =>
-        ApplOptionAsync<A, B>.Inst.ApplyAsync(fab, fa);
+        ApplOptionAsync<A, B>.Inst.Apply(fab, fa);
 
     /// <summary>
     /// Apply
@@ -119,7 +119,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static OptionAsync<B> Apply<A, B>(this Func<A, B> fab, OptionAsync<A> fa) =>
-        ApplOptionAsync<A, B>.Inst.ApplyAsync(fab, fa);
+        ApplOptionAsync<A, B>.Inst.Apply(fab, fa);
 
     /// <summary>
     /// Apply
@@ -131,7 +131,7 @@ public static partial class OptionAsyncExtensions
     [Pure]
     public static OptionAsync<C> Apply<A, B, C>(this OptionAsync<Func<A, B, C>> fabc, OptionAsync<A> fa, OptionAsync<B> fb) =>
         from x in fabc
-        from y in ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(x), fa, fb)
+        from y in ApplOptionAsync<A, B, C>.Inst.Apply(curry(x), fa, fb)
         select y;
 
     /// <summary>
@@ -143,7 +143,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static OptionAsync<C> Apply<A, B, C>(this Func<A, B, C> fabc, OptionAsync<A> fa, OptionAsync<B> fb) =>
-        ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(fabc), fa, fb);
+        ApplOptionAsync<A, B, C>.Inst.Apply(curry(fabc), fa, fb);
 
     /// <summary>
     /// Apply
@@ -154,7 +154,7 @@ public static partial class OptionAsyncExtensions
     [Pure]
     public static OptionAsync<Func<B, C>> Apply<A, B, C>(this OptionAsync<Func<A, B, C>> fabc, OptionAsync<A> fa) =>
         from x in fabc
-        from y in ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(x), fa)
+        from y in ApplOptionAsync<A, B, C>.Inst.Apply(curry(x), fa)
         select y;
 
     /// <summary>
@@ -165,7 +165,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static OptionAsync<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, OptionAsync<A> fa) =>
-        ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(fabc), fa);
+        ApplOptionAsync<A, B, C>.Inst.Apply(curry(fabc), fa);
 
     /// <summary>
     /// Apply
@@ -175,7 +175,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static OptionAsync<Func<B, C>> Apply<A, B, C>(this OptionAsync<Func<A, Func<B, C>>> fabc, OptionAsync<A> fa) =>
-        ApplOptionAsync<A, B, C>.Inst.ApplyAsync(fabc, fa);
+        ApplOptionAsync<A, B, C>.Inst.Apply(fabc, fa);
 
     /// <summary>
     /// Apply
@@ -185,7 +185,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static OptionAsync<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, OptionAsync<A> fa) =>
-        ApplOptionAsync<A, B, C>.Inst.ApplyAsync(fabc, fa);
+        ApplOptionAsync<A, B, C>.Inst.Apply(fabc, fa);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -195,7 +195,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Applicative of type OptionAsync<B></returns>
     [Pure]
     public static OptionAsync<B> Action<A, B>(this OptionAsync<A> fa, OptionAsync<B> fb) =>
-        ApplOptionAsync<A, B>.Inst.ActionAsync(fa, fb);
+        ApplOptionAsync<A, B>.Inst.Action(fa, fb);
 
     /// <summary>
     /// Convert the Option type to a Nullable of A

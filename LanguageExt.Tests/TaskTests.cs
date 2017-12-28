@@ -102,7 +102,7 @@ namespace LanguageExtTests
               .Apply(Task.Delay)
               .ContinueWith(_ => 0);
 
-            var actual = await default(MTask<int>).FoldAsync(intTask, 0, (x, y) => 0)(unit);
+            var actual = await default(MTask<int>).Fold(intTask, 0, (x, y) => 0)(unit);
 
             // execution terminates by reaching here
         }

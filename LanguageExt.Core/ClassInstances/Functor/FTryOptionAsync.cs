@@ -15,34 +15,34 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public TryOptionAsync<B> BiMapAsync(TryOptionAsync<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
             new TryOptionAsync<B>(() =>
-                default(MTryOptionAsync<A>).MatchAsync(ma,
-                    Some: a => new OptionalResult<B>(fa(a)),
-                    None: () => new OptionalResult<B>(fb(unit))));
+                default(MTryOptionAsync<A>).Match(ma,
+                    Succ: a => new OptionalResult<B>(fa(a)),
+                    Fail: () => new OptionalResult<B>(fb(unit))));
 
         [Pure]
         public TryOptionAsync<B> BiMapAsync(TryOptionAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, B> fb) =>
             new TryOptionAsync<B>(async () =>
                 await default(MTryOptionAsync<A>).MatchAsync(ma,
-                    Some: async a => new OptionalResult<B>(await fa(a)),
-                    None: () => new OptionalResult<B>(fb(unit))));
+                    SuccAsync: async a => new OptionalResult<B>(await fa(a)),
+                    Fail: () => new OptionalResult<B>(fb(unit))));
 
         [Pure]
         public TryOptionAsync<B> BiMapAsync(TryOptionAsync<A> ma, Func<A, B> fa, Func<Unit, Task<B>> fb) =>
             new TryOptionAsync<B>(async () =>
                 await default(MTryOptionAsync<A>).MatchAsync(ma,
-                    Some: a => new OptionalResult<B>(fa(a)),
-                    None: async () => new OptionalResult<B>(await fb(unit))));
+                    Succ: a => new OptionalResult<B>(fa(a)),
+                    FailAsync: async () => new OptionalResult<B>(await fb(unit))));
 
         [Pure]
         public TryOptionAsync<B> BiMapAsync(TryOptionAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, Task<B>> fb) =>
             new TryOptionAsync<B>(async () =>
                 await default(MTryOptionAsync<A>).MatchAsync(ma,
-                    Some: async a => new OptionalResult<B>(await fa(a)),
-                    None: async () => new OptionalResult<B>(await fb(unit))));
+                    SuccAsync: async a => new OptionalResult<B>(await fa(a)),
+                    FailAsync: async () => new OptionalResult<B>(await fb(unit))));
 
         [Pure]
-        public TryOptionAsync<B> MapAsync(TryOptionAsync<A> ma, Func<A, B> f) =>
-            default(MTryOptionAsync<A>).BindAsync<MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, a => Prelude.TryOptionAsync(f(a)));
+        public TryOptionAsync<B> Map(TryOptionAsync<A> ma, Func<A, B> f) =>
+            default(MTryOptionAsync<A>).Bind<MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, a => Prelude.TryOptionAsync(f(a)));
 
         [Pure]
         public TryOptionAsync<B> MapAsync(TryOptionAsync<A> ma, Func<A, Task<B>> f) =>

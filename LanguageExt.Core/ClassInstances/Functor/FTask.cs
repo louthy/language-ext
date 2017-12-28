@@ -29,7 +29,7 @@ namespace LanguageExt.ClassInstances
             default(MTask<A>).MatchAsync(ma, fa, () => fb(unit));
 
         [Pure]
-        public async Task<B> MapAsync(Task<A> ma, Func<A, B> f) =>
+        public async Task<B> Map(Task<A> ma, Func<A, B> f) =>
             f(await ma);
 
         [Pure]

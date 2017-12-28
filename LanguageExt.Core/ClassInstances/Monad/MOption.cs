@@ -37,10 +37,10 @@ namespace LanguageExt.ClassInstances
                 ? default(MonadB).RunAsync(_ =>
                     (ma.IsSome && f != null
                         ? f(ma.Value)
-                        : default(MonadB).FailAsync(ValueIsNoneException.Default)).AsTask())
+                        : default(MonadB).Fail(ValueIsNoneException.Default)).AsTask())
                 : ma.IsSome && f != null
                     ? f(ma.Value)
-                    : default(MonadB).FailAsync(ValueIsNoneException.Default);
+                    : default(MonadB).Fail(ValueIsNoneException.Default);
 
         [Pure]
         public Option<A> Fail(object err = null) =>

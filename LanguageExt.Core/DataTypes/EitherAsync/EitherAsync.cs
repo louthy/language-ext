@@ -139,36 +139,36 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="Ret">Return type</typeparam>
         /// <param name="Right">Function to invoke if in a Right state</param>
-        /// <param name="Left">Function to invoke if in a Left state</param>
+        /// <param name="LeftAsync">Function to invoke if in a Left state</param>
         /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
-        public async Task<Ret> MatchAsync<Ret>(Func<R, Ret> Right, Func<L, Task<Ret>> Left, Func<Ret> Bottom = null) =>
-            Check.NullReturn(await MatchUnsafeAsync(Right, Left, Bottom));
+        public async Task<Ret> MatchAsync<Ret>(Func<R, Ret> Right, Func<L, Task<Ret>> LeftAsync, Func<Ret> Bottom = null) =>
+            Check.NullReturn(await MatchUnsafeAsync(Right, LeftAsync, Bottom));
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the Either
         /// </summary>
         /// <typeparam name="Ret">Return type</typeparam>
-        /// <param name="Right">Function to invoke if in a Right state</param>
+        /// <param name="RightAsync">Function to invoke if in a Right state</param>
         /// <param name="Left">Function to invoke if in a Left state</param>
         /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
-        public async Task<Ret> MatchAsync<Ret>(Func<R, Task<Ret>> Right, Func<L, Ret> Left, Func<Ret> Bottom = null) =>
-            Check.NullReturn(await MatchUnsafeAsync(Right, Left, Bottom));
+        public async Task<Ret> MatchAsync<Ret>(Func<R, Task<Ret>> RightAsync, Func<L, Ret> Left, Func<Ret> Bottom = null) =>
+            Check.NullReturn(await MatchUnsafeAsync(RightAsync, Left, Bottom));
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the Either
         /// </summary>
         /// <typeparam name="Ret">Return type</typeparam>
-        /// <param name="Right">Function to invoke if in a Right state</param>
-        /// <param name="Left">Function to invoke if in a Left state</param>
+        /// <param name="RightAsync">Function to invoke if in a Right state</param>
+        /// <param name="LeftAsync">Function to invoke if in a Left state</param>
         /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
-        public async Task<Ret> MatchAsync<Ret>(Func<R, Task<Ret>> Right, Func<L, Task<Ret>> Left, Func<Ret> Bottom = null) =>
-            Check.NullReturn(await MatchUnsafeAsync(Right, Left, Bottom));
+        public async Task<Ret> MatchAsync<Ret>(Func<R, Task<Ret>> RightAsync, Func<L, Task<Ret>> LeftAsync, Func<Ret> Bottom = null) =>
+            Check.NullReturn(await MatchUnsafeAsync(RightAsync, LeftAsync, Bottom));
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the Either
@@ -196,12 +196,12 @@ namespace LanguageExt
         /// Invokes the Right or Left function depending on the state of the Either
         /// </summary>
         /// <typeparam name="Ret">Return type</typeparam>
-        /// <param name="Right">Function to invoke if in a Right state</param>
+        /// <param name="RightAsync">Function to invoke if in a Right state</param>
         /// <param name="Left">Function to invoke if in a Left state</param>
         /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
-        public async Task<Ret> MatchUnsafeAsync<Ret>(Func<R, Task<Ret>> Right, Func<L, Ret> Left, Func<Ret> Bottom = null) =>
+        public async Task<Ret> MatchUnsafeAsync<Ret>(Func<R, Task<Ret>> RightAsync, Func<L, Ret> Left, Func<Ret> Bottom = null) =>
             await IsBottom
                 ? Bottom == null
                     ? throw new BottomException()
@@ -210,50 +210,50 @@ namespace LanguageExt
                     ? Left == null
                         ? throw new ArgumentNullException(nameof(Left))
                         : Left((await data).Left)
-                    : Right == null
-                        ? throw new ArgumentNullException(nameof(Right))
-                        : await Right((await data).Right);
+                    : RightAsync == null
+                        ? throw new ArgumentNullException(nameof(RightAsync))
+                        : await RightAsync((await data).Right);
+
+        /// <summary>
+        /// Invokes the Right or Left function depending on the state of the Either
+        /// </summary>
+        /// <typeparam name="Ret">Return type</typeparam>
+        /// <param name="RightAsync">Function to invoke if in a Right state</param>
+        /// <param name="LeftAsync">Function to invoke if in a Left state</param>
+        /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
+        /// <returns>The return value of the invoked function</returns>
+        [Pure]
+        public async Task<Ret> MatchUnsafeAsync<Ret>(Func<R, Task<Ret>> RightAsync, Func<L, Task<Ret>> LeftAsync, Func<Ret> Bottom = null) =>
+            await IsBottom
+                ? Bottom == null
+                    ? throw new BottomException()
+                    : Bottom()
+                : await IsLeft
+                    ? LeftAsync == null
+                        ? throw new ArgumentNullException(nameof(LeftAsync))
+                        : await LeftAsync((await data).Left)
+                    : RightAsync == null
+                        ? throw new ArgumentNullException(nameof(RightAsync))
+                        : await RightAsync((await data).Right);
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the Either
         /// </summary>
         /// <typeparam name="Ret">Return type</typeparam>
         /// <param name="Right">Function to invoke if in a Right state</param>
-        /// <param name="Left">Function to invoke if in a Left state</param>
+        /// <param name="LeftAsync">Function to invoke if in a Left state</param>
         /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
-        public async Task<Ret> MatchUnsafeAsync<Ret>(Func<R, Task<Ret>> Right, Func<L, Task<Ret>> Left, Func<Ret> Bottom = null) =>
+        public async Task<Ret> MatchUnsafeAsync<Ret>(Func<R, Ret> Right, Func<L, Task<Ret>> LeftAsync, Func<Ret> Bottom = null) =>
             await IsBottom
                 ? Bottom == null
                     ? throw new BottomException()
                     : Bottom()
                 : await IsLeft
-                    ? Left == null
-                        ? throw new ArgumentNullException(nameof(Left))
-                        : await Left((await data).Left)
-                    : Right == null
-                        ? throw new ArgumentNullException(nameof(Right))
-                        : await Right((await data).Right);
-
-        /// <summary>
-        /// Invokes the Right or Left function depending on the state of the Either
-        /// </summary>
-        /// <typeparam name="Ret">Return type</typeparam>
-        /// <param name="Right">Function to invoke if in a Right state</param>
-        /// <param name="Left">Function to invoke if in a Left state</param>
-        /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
-        /// <returns>The return value of the invoked function</returns>
-        [Pure]
-        public async Task<Ret> MatchUnsafeAsync<Ret>(Func<R, Ret> Right, Func<L, Task<Ret>> Left, Func<Ret> Bottom = null) =>
-            await IsBottom
-                ? Bottom == null
-                    ? throw new BottomException()
-                    : Bottom()
-                : await IsLeft
-                    ? Left == null
-                        ? throw new ArgumentNullException(nameof(Left))
-                        : await Left((await data).Left)
+                    ? LeftAsync == null
+                        ? throw new ArgumentNullException(nameof(LeftAsync))
+                        : await LeftAsync((await data).Left)
                     : Right == null
                         ? throw new ArgumentNullException(nameof(Right))
                         : Right((await data).Right);
@@ -290,6 +290,99 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Invokes the Right or Left action depending on the state of the Either
+        /// </summary>
+        /// <param name="Right">Action to invoke if in a Right state</param>
+        /// <param name="LeftAsync">Action to invoke if in a Left state</param>
+        /// <returns>Unit</returns>
+        /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
+        public async Task<Unit> MatchAsync(Action<R> Right, Func<L, Task> LeftAsync, Action Bottom = null)
+        {
+            if (await IsRight)
+            {
+                Right?.Invoke((await data).Right);
+            }
+            else if (await IsLeft)
+            {
+                await LeftAsync?.Invoke((await data).Left);
+            }
+            else if (await IsBottom)
+            {
+                if (Bottom == null)
+                {
+                    Bottom();
+                }
+                else
+                {
+                    throw new BottomException();
+                }
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Invokes the Right or Left action depending on the state of the Either
+        /// </summary>
+        /// <param name="RightAsync">Action to invoke if in a Right state</param>
+        /// <param name="Left">Action to invoke if in a Left state</param>
+        /// <returns>Unit</returns>
+        /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
+        public async Task<Unit> MatchAsync(Func<R, Task> RightAsync, Action<L> Left, Action Bottom = null)
+        {
+            if (await IsRight)
+            {
+                await RightAsync?.Invoke((await data).Right);
+            }
+            else if (await IsLeft)
+            {
+                Left?.Invoke((await data).Left);
+            }
+            else if (await IsBottom)
+            {
+                if (Bottom == null)
+                {
+                    Bottom();
+                }
+                else
+                {
+                    throw new BottomException();
+                }
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Invokes the Right or Left action depending on the state of the Either
+        /// </summary>
+        /// <param name="RightAsync">Action to invoke if in a Right state</param>
+        /// <param name="LeftAsync">Action to invoke if in a Left state</param>
+        /// <returns>Unit</returns>
+        /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
+        public async Task<Unit> MatchAsync(Func<R, Task> RightAsync, Func<L, Task> LeftAsync, Action Bottom = null)
+        {
+            if (await IsRight)
+            {
+                await RightAsync?.Invoke((await data).Right);
+            }
+            else if (await IsLeft)
+            {
+                await LeftAsync?.Invoke((await data).Left);
+            }
+            else if (await IsBottom)
+            {
+                if (Bottom == null)
+                {
+                    Bottom();
+                }
+                else
+                {
+                    throw new BottomException();
+                }
+            }
+            return unit;
+        }
+
+        /// <summary>
         /// Executes the Left function if the Either is in a Left state.
         /// Returns the Right value if the Either is in a Right state.
         /// </summary>
@@ -305,61 +398,61 @@ namespace LanguageExt
         /// Executes the Left function if the Either is in a Left state.
         /// Returns the Right value if the Either is in a Right state.
         /// </summary>
+        /// <param name="LeftAsync">Function to generate a Right value if in the Left state</param>
+        /// <returns>Returns an unwrapped Right value</returns>
+        [Pure]
+        public Task<R> IfLeftAsync(Func<Task<R>> LeftAsync) =>
+            MatchAsync(
+                Right: r => r,
+                LeftAsync: l => LeftAsync());
+
+        /// <summary>
+        /// Executes the leftMap function if the Either is in a Left state.
+        /// Returns the Right value if the Either is in a Right state.
+        /// </summary>
         /// <param name="Left">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
-        public Task<R> IfLeftAsync(Func<Task<R>> Left) =>
-            MatchAsync(
+        public Task<R> IfLeft(Func<L, R> Left) =>
+            Match(
                 Right: r => r,
-                Left: l => Left());
+                Left: l => Left(l));
 
         /// <summary>
         /// Executes the leftMap function if the Either is in a Left state.
         /// Returns the Right value if the Either is in a Right state.
         /// </summary>
-        /// <param name="leftMap">Function to generate a Right value if in the Left state</param>
+        /// <param name="LeftAsync">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
-        public Task<R> IfLeft(Func<L, R> leftMap) =>
-            Match(
-                Right: r => r,
-                Left: l => leftMap(l));
-
-        /// <summary>
-        /// Executes the leftMap function if the Either is in a Left state.
-        /// Returns the Right value if the Either is in a Right state.
-        /// </summary>
-        /// <param name="leftMap">Function to generate a Right value if in the Left state</param>
-        /// <returns>Returns an unwrapped Right value</returns>
-        [Pure]
-        public Task<R> IfLeftAsync(Func<L, Task<R>> leftMap) =>
+        public Task<R> IfLeftAsync(Func<L, Task<R>> LeftAsync) =>
             MatchAsync(
                 Right: r => r,
-                Left: l => leftMap(l));
+                LeftAsync: l => LeftAsync(l));
 
         /// <summary>
         /// Returns the rightValue if the Either is in a Left state.
         /// Returns the Right value if the Either is in a Right state.
         /// </summary>
-        /// <param name="rightValue">Value to return if in the Left state</param>
+        /// <param name="Right">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
-        public Task<R> IfLeft(R rightValue) =>
+        public Task<R> IfLeft(R Right) =>
             Match(
                 Right: r => r,
-                Left: l => rightValue);
+                Left: l => Right);
 
         /// <summary>
         /// Returns the rightValue if the Either is in a Left state.
         /// Returns the Right value if the Either is in a Right state.
         /// </summary>
-        /// <param name="rightValue">Value to return if in the Left state</param>
+        /// <param name="RightAsync">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
-        public Task<R> IfLeftAsync(Task<R> rightValue) =>
+        public Task<R> IfLeftAsync(Task<R> RightAsync) =>
             MatchAsync(
                 Right: r => r,
-                Left: l => rightValue);
+                LeftAsync: l => RightAsync);
 
         /// <summary>
         /// Executes the Left action if the Either is in a Left state.
@@ -372,6 +465,16 @@ namespace LanguageExt
                 Left: l => Left(l));
 
         /// <summary>
+        /// Executes the Left action if the Either is in a Left state.
+        /// </summary>
+        /// <param name="Left">Function to generate a Right value if in the Left state</param>
+        /// <returns>Returns an unwrapped Right value</returns>
+        public Task<Unit> IfLeftAsync(Func<L, Task> LeftAsync) =>
+            MatchAsync(
+                Right: r => unit,
+                LeftAsync: async l => { await LeftAsync(l); return unit; });
+
+        /// <summary>
         /// Invokes the Right action if the Either is in a Right state, otherwise does nothing
         /// </summary>
         /// <param name="Right">Action to invoke</param>
@@ -382,15 +485,25 @@ namespace LanguageExt
                 Left: l => { });
 
         /// <summary>
+        /// Invokes the Right action if the Either is in a Right state, otherwise does nothing
+        /// </summary>
+        /// <param name="Right">Action to invoke</param>
+        /// <returns>Unit</returns>
+        public Task<Unit> IfRightAsync(Func<R, Task> RightAsync) =>
+            MatchAsync(
+                RightAsync: async r => { await RightAsync(r); return unit; },
+                Left: l => unit);
+
+        /// <summary>
         /// Returns the leftValue if the Either is in a Right state.
         /// Returns the Left value if the Either is in a Left state.
         /// </summary>
-        /// <param name="leftValue">Value to return if in the Left state</param>
+        /// <param name="Left">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
-        public Task<L> IfRight(L leftValue) =>
+        public Task<L> IfRight(L Left) =>
             Match(
-                Right: r => leftValue,
+                Right: r => Left,
                 Left: l => l);
 
         /// <summary>
@@ -409,36 +522,36 @@ namespace LanguageExt
         /// Returns the result of Right() if the Either is in a Right state.
         /// Returns the Left value if the Either is in a Left state.
         /// </summary>
+        /// <param name="RightAsync">Function to generate a Left value if in the Right state</param>
+        /// <returns>Returns an unwrapped Left value</returns>
+        [Pure]
+        public Task<L> IfRightAsync(Func<Task<L>> RightAsync) =>
+            MatchAsync(
+                RightAsync: r => RightAsync(),
+                Left: l => l);
+
+        /// <summary>
+        /// Returns the result of rightMap if the Either is in a Right state.
+        /// Returns the Left value if the Either is in a Left state.
+        /// </summary>
         /// <param name="Right">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
-        public Task<L> IfRightAsync(Func<Task<L>> Right) =>
-            MatchAsync(
-                Right: r => Right(),
-                Left: l => l);
-
-        /// <summary>
-        /// Returns the result of rightMap if the Either is in a Right state.
-        /// Returns the Left value if the Either is in a Left state.
-        /// </summary>
-        /// <param name="rightMap">Function to generate a Left value if in the Right state</param>
-        /// <returns>Returns an unwrapped Left value</returns>
-        [Pure]
-        public Task<L> IfRight(Func<R, L> rightMap) =>
+        public Task<L> IfRight(Func<R, L> Right) =>
             Match(
-                Right: r => rightMap(r),
+                Right: r => Right(r),
                 Left: l => l);
 
         /// <summary>
         /// Returns the result of rightMap if the Either is in a Right state.
         /// Returns the Left value if the Either is in a Left state.
         /// </summary>
-        /// <param name="rightMap">Function to generate a Left value if in the Right state</param>
+        /// <param name="RightAsync">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
-        public Task<L> IfRightAsync(Func<R, Task<L>> rightMap) =>
+        public Task<L> IfRightAsync(Func<R, Task<L>> RightAsync) =>
             MatchAsync(
-                Right: r => rightMap(r),
+                RightAsync: r => RightAsync(r),
                 Left: l => l);
 
         /// <summary>
@@ -640,7 +753,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static EitherAsync<L, R> operator |(EitherAsync<L, R> lhs, EitherAsync<L, R> rhs) =>
-            default(MEitherAsync<L, R>).PlusAsync(lhs, rhs);
+            default(MEitherAsync<L, R>).Plus(lhs, rhs);
 
         /// <summary>
         /// Find out the underlying Right type
@@ -759,7 +872,7 @@ namespace LanguageExt
         [Pure]
         public Task<bool> ForAllAsync(Func<R, Task<bool>> Right) =>
             MatchAsync(
-                Right: r => Right(r),
+                RightAsync: r => Right(r),
                 Left: l => true,
                 Bottom: () => true);
 
@@ -785,13 +898,13 @@ namespace LanguageExt
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
         /// <param name="self">Either to forall</param>
-        /// <param name="Right">Predicate</param>
+        /// <param name="RightAsync">Predicate</param>
         /// <param name="Left">Predicate</param>
         /// <returns>True if either Predicate returns true</returns>
         [Pure]
-        public Task<bool> BiForAllAsync(Func<R, Task<bool>> Right, Func<L, bool> Left) =>
+        public Task<bool> BiForAllAsync(Func<R, Task<bool>> RightAsync, Func<L, bool> Left) =>
             MatchAsync(
-                Right: r => Right(r),
+                RightAsync: r => RightAsync(r),
                 Left: l => Left(l),
                 Bottom: () => true);
 
@@ -802,13 +915,13 @@ namespace LanguageExt
         /// <typeparam name="R">Right</typeparam>
         /// <param name="self">Either to forall</param>
         /// <param name="Right">Predicate</param>
-        /// <param name="Left">Predicate</param>
+        /// <param name="LeftAsync">Predicate</param>
         /// <returns>True if either Predicate returns true</returns>
         [Pure]
-        public Task<bool> BiForAllAsync(Func<R, bool> Right, Func<L, Task<bool>> Left) =>
+        public Task<bool> BiForAllAsync(Func<R, bool> Right, Func<L, Task<bool>> LeftAsync) =>
             MatchAsync(
                 Right: r => Right(r),
-                Left: l => Left(l),
+                LeftAsync: l => LeftAsync(l),
                 Bottom: () => true);
 
         /// <summary>
@@ -817,14 +930,14 @@ namespace LanguageExt
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
         /// <param name="self">Either to forall</param>
-        /// <param name="Right">Predicate</param>
-        /// <param name="Left">Predicate</param>
+        /// <param name="RightAsync">Predicate</param>
+        /// <param name="LeftAsync">Predicate</param>
         /// <returns>True if either Predicate returns true</returns>
         [Pure]
-        public Task<bool> BiForAllAsync(Func<R, Task<bool>> Right, Func<L, Task<bool>> Left) =>
+        public Task<bool> BiForAllAsync(Func<R, Task<bool>> RightAsync, Func<L, Task<bool>> LeftAsync) =>
             MatchAsync(
-                Right: r => Right(r),
-                Left: l => Left(l),
+                RightAsync: r => RightAsync(r),
+                LeftAsync: l => LeftAsync(l),
                 Bottom: () => true);
 
         /// <summary>
@@ -862,12 +975,12 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="S">Aggregate state type</typeparam>
         /// <param name="state">Initial state</param>
-        /// <param name="Right">Folder function, applied if structure is in a Right state</param>
+        /// <param name="RightAsync">Folder function, applied if structure is in a Right state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        public Task<S> FoldAsync<S>(S state, Func<S, R, Task<S>> Right) =>
+        public Task<S> FoldAsync<S>(S state, Func<S, R, Task<S>> RightAsync) =>
             MatchAsync(
-                Right: r => Right(state, r),
+                RightAsync: r => RightAsync(state, r),
                 Left: _ => state,
                 Bottom: () => state);
 
@@ -907,13 +1020,13 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="S">Aggregate state type</typeparam>
         /// <param name="state">Initial state</param>
-        /// <param name="Right">Folder function, applied if Either is in a Right state</param>
+        /// <param name="RightAsync">Folder function, applied if Either is in a Right state</param>
         /// <param name="Left">Folder function, applied if Either is in a Left state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        public Task<S> BiFoldAsync<S>(S state, Func<S, R, Task<S>> Right, Func<S, L, S> Left) =>
+        public Task<S> BiFoldAsync<S>(S state, Func<S, R, Task<S>> RightAsync, Func<S, L, S> Left) =>
             MatchAsync(
-                Right: r => Right(state, r),
+                RightAsync: r => RightAsync(state, r),
                 Left: l => Left(state, l),
                 Bottom: () => state);
 
@@ -930,14 +1043,14 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="S">Aggregate state type</typeparam>
         /// <param name="state">Initial state</param>
-        /// <param name="Right">Folder function, applied if Either is in a Right state</param>
-        /// <param name="Left">Folder function, applied if Either is in a Left state</param>
+        /// <param name="RightAsync">Folder function, applied if Either is in a Right state</param>
+        /// <param name="LeftAsync">Folder function, applied if Either is in a Left state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        public Task<S> BiFoldAsync<S>(S state, Func<S, R, Task<S>> Right, Func<S, L, Task<S>> Left) =>
+        public Task<S> BiFoldAsync<S>(S state, Func<S, R, Task<S>> RightAsync, Func<S, L, Task<S>> LeftAsync) =>
             MatchAsync(
-                Right: r => Right(state, r),
-                Left: l => Left(state, l),
+                RightAsync: r => RightAsync(state, r),
+                LeftAsync: l => LeftAsync(state, l),
                 Bottom: () => state);
 
         /// <summary>
@@ -954,13 +1067,13 @@ namespace LanguageExt
         /// <typeparam name="S">Aggregate state type</typeparam>
         /// <param name="state">Initial state</param>
         /// <param name="Right">Folder function, applied if Either is in a Right state</param>
-        /// <param name="Left">Folder function, applied if Either is in a Left state</param>
+        /// <param name="LeftAsync">Folder function, applied if Either is in a Left state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        public Task<S> BiFoldAsync<S>(S state, Func<S, R, S> Right, Func<S, L, Task<S>> Left) =>
+        public Task<S> BiFoldAsync<S>(S state, Func<S, R, S> Right, Func<S, L, Task<S>> LeftAsync) =>
             MatchAsync(
                 Right: r => Right(state, r),
-                Left: l => Left(state, l),
+                LeftAsync: l => LeftAsync(state, l),
                 Bottom: () => state);
 
         /// <summary>
@@ -989,7 +1102,7 @@ namespace LanguageExt
         [Pure]
         public Task<bool> ExistsAsync(Func<R, Task<bool>> pred) =>
             MatchAsync(
-                Right: r => pred(r),
+                RightAsync: r => pred(r),
                 Left: _ => false,
                 Bottom: () => false);
 
@@ -1015,13 +1128,13 @@ namespace LanguageExt
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
         /// <param name="self">Either to check existence of</param>
-        /// <param name="Right">Right predicate</param>
+        /// <param name="RightAsync">Right predicate</param>
         /// <param name="Left">Left predicate</param>
         /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
         [Pure]
-        public Task<bool> BiExistsAsync(Func<R, Task<bool>> Right, Func<L, bool> Left) =>
+        public Task<bool> BiExistsAsync(Func<R, Task<bool>> RightAsync, Func<L, bool> Left) =>
             MatchAsync(
-                Right: r => Right(r),
+                RightAsync: r => RightAsync(r),
                 Left: l => Left(l),
                 Bottom: () => false);
 
@@ -1031,14 +1144,14 @@ namespace LanguageExt
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
         /// <param name="self">Either to check existence of</param>
-        /// <param name="Right">Right predicate</param>
-        /// <param name="Left">Left predicate</param>
+        /// <param name="RightAsync">Right predicate</param>
+        /// <param name="LeftAsync">Left predicate</param>
         /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
         [Pure]
-        public Task<bool> BiExistsAsync(Func<R, Task<bool>> Right, Func<L, Task<bool>> Left) =>
+        public Task<bool> BiExistsAsync(Func<R, Task<bool>> RightAsync, Func<L, Task<bool>> LeftAsync) =>
             MatchAsync(
-                Right: r => Right(r),
-                Left: l => Left(l),
+                RightAsync: r => RightAsync(r),
+                LeftAsync: l => LeftAsync(l),
                 Bottom: () => false);
 
         /// <summary>
@@ -1048,13 +1161,13 @@ namespace LanguageExt
         /// <typeparam name="R">Right</typeparam>
         /// <param name="self">Either to check existence of</param>
         /// <param name="Right">Right predicate</param>
-        /// <param name="Left">Left predicate</param>
+        /// <param name="LeftAsync">Left predicate</param>
         /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
         [Pure]
-        public Task<bool> BiExistsAsync(Func<R, bool> Right, Func<L, Task<bool>> Left) =>
+        public Task<bool> BiExistsAsync(Func<R, bool> Right, Func<L, Task<bool>> LeftAsync) =>
             MatchAsync(
                 Right: r => Right(r),
-                Left: l => Left(l),
+                LeftAsync: l => LeftAsync(l),
                 Bottom: () => false);
 
         /// <summary>
@@ -1064,11 +1177,11 @@ namespace LanguageExt
         /// <typeparam name="R">Right</typeparam>
         /// <typeparam name="Ret">Mapped Either type</typeparam>
         /// <param name="self">Either to map</param>
-        /// <param name="mapper">Map function</param>
+        /// <param name="f">Map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public EitherAsync<L, Ret> Map<Ret>(Func<R, Ret> mapper) =>
-            BiMap(mapper, identity);
+        public EitherAsync<L, Ret> Map<Ret>(Func<R, Ret> f) =>
+            BiMap(f, identity);
 
         /// Maps the value in the Either if it's in a Right state
         /// </summary>
@@ -1079,8 +1192,8 @@ namespace LanguageExt
         /// <param name="mapper">Map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public EitherAsync<L, Ret> MapAsync<Ret>(Func<R, Task<Ret>> mapper) =>
-            BiMapAsync(mapper, x => x);
+        public EitherAsync<L, Ret> MapAsync<Ret>(Func<R, Task<Ret>> f) =>
+            BiMapAsync(f, x => x);
 
         /// <summary>
         /// Maps the value in the Either if it's in a Left state
@@ -1089,11 +1202,11 @@ namespace LanguageExt
         /// <typeparam name="R">Right</typeparam>
         /// <typeparam name="Ret">Mapped Either type</typeparam>
         /// <param name="self">Either to map</param>
-        /// <param name="mapper">Map function</param>
+        /// <param name="f">Map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public EitherAsync<Ret, R> MapLeft<Ret>(Func<L, Ret> mapper) =>
-            BiMap(identity, mapper);
+        public EitherAsync<Ret, R> MapLeft<Ret>(Func<L, Ret> f) =>
+            BiMap(identity, f);
 
         /// <summary>
         /// Maps the value in the Either if it's in a Left state
@@ -1102,11 +1215,11 @@ namespace LanguageExt
         /// <typeparam name="R">Right</typeparam>
         /// <typeparam name="Ret">Mapped Either type</typeparam>
         /// <param name="self">Either to map</param>
-        /// <param name="mapper">Map function</param>
+        /// <param name="f">Map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public EitherAsync<Ret, R> MapLeftAsync<Ret>(Func<L, Task<Ret>> mapper) =>
-            BiMapAsync(x => x, mapper);
+        public EitherAsync<Ret, R> MapLeftAsync<Ret>(Func<L, Task<Ret>> f) =>
+            BiMapAsync(x => x, f);
 
         /// <summary>
         /// Bi-maps the value in the Either into a Right state
@@ -1138,18 +1251,18 @@ namespace LanguageExt
         /// <typeparam name="LRet">Left return</typeparam>
         /// <typeparam name="RRet">Right return</typeparam>
         /// <param name="self">Either to map</param>
-        /// <param name="Right">Right map function</param>
+        /// <param name="RightAsync">Right map function</param>
         /// <param name="Left">Left map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public EitherAsync<L, Ret> BiMapAsync<Ret>(Func<R, Task<Ret>> Right, Func<L, Ret> Left)
+        public EitherAsync<L, Ret> BiMapAsync<Ret>(Func<R, Task<Ret>> RightAsync, Func<L, Ret> Left)
         {
             async Task<Ret> Do(EitherAsync<L, R> self, Func<R, Task<Ret>> right, Func<L, Ret> left) =>
                 (await self.IsRight)
                     ? await right(await self.RightValue())
                     : left(await self.LeftValue());
 
-            return EitherAsync<L, Ret>.RightAsync(Do(this, Right, Left));
+            return EitherAsync<L, Ret>.RightAsync(Do(this, RightAsync, Left));
         }
 
         /// <summary>
@@ -1161,17 +1274,17 @@ namespace LanguageExt
         /// <typeparam name="RRet">Right return</typeparam>
         /// <param name="self">Either to map</param>
         /// <param name="Right">Right map function</param>
-        /// <param name="Left">Left map function</param>
+        /// <param name="LeftAsync">Left map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public EitherAsync<L, Ret> BiMapAsync<Ret>(Func<R, Ret> Right, Func<L, Task<Ret>> Left)
+        public EitherAsync<L, Ret> BiMapAsync<Ret>(Func<R, Ret> Right, Func<L, Task<Ret>> LeftAsync)
         {
             async Task<Ret> Do(EitherAsync<L, R> self, Func<R, Ret> right, Func<L, Task<Ret>> left) =>
                 (await self.IsRight)
                     ? right(await self.RightValue())
                     : await left(await self.LeftValue());
 
-            return EitherAsync<L, Ret>.RightAsync(Do(this, Right, Left));
+            return EitherAsync<L, Ret>.RightAsync(Do(this, Right, LeftAsync));
         }
 
         /// <summary>
@@ -1182,18 +1295,18 @@ namespace LanguageExt
         /// <typeparam name="LRet">Left return</typeparam>
         /// <typeparam name="RRet">Right return</typeparam>
         /// <param name="self">Either to map</param>
-        /// <param name="Right">Right map function</param>
-        /// <param name="Left">Left map function</param>
+        /// <param name="RightAsync">Right map function</param>
+        /// <param name="LeftAsync">Left map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public EitherAsync<L, Ret> BiMapAsync<Ret>(Func<R, Task<Ret>> Right, Func<L, Task<Ret>> Left)
+        public EitherAsync<L, Ret> BiMapAsync<Ret>(Func<R, Task<Ret>> RightAsync, Func<L, Task<Ret>> LeftAsync)
         {
             async Task<Ret> Do(EitherAsync<L, R> self, Func<R, Task<Ret>> right, Func<L, Task<Ret>> left) =>
                 (await self.IsRight)
                     ? await right(await self.RightValue())
                     : await left(await self.LeftValue());
 
-            return EitherAsync<L, Ret>.RightAsync(Do(this, Right, Left));
+            return EitherAsync<L, Ret>.RightAsync(Do(this, RightAsync, LeftAsync));
         }
 
         /// <summary>
@@ -1228,11 +1341,11 @@ namespace LanguageExt
         /// <typeparam name="LRet">Left return</typeparam>
         /// <typeparam name="RRet">Right return</typeparam>
         /// <param name="self">Either to map</param>
-        /// <param name="Right">Right map function</param>
+        /// <param name="RightAsync">Right map function</param>
         /// <param name="Left">Left map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public EitherAsync<L2, R2> BiMapAsync<L2, R2>(Func<R, Task<R2>> Right, Func<L, L2> Left)
+        public EitherAsync<L2, R2> BiMapAsync<L2, R2>(Func<R, Task<R2>> RightAsync, Func<L, L2> Left)
         {
             async Task<EitherData<L2, R2>> Do(EitherAsync<L, R> self, Func<R, Task<R2>> right, Func<L, L2> left) =>
                 (await self.IsRight)
@@ -1241,7 +1354,7 @@ namespace LanguageExt
                         ? new EitherData<L2, R2>(EitherStatus.IsLeft, default(R2), left(await self.LeftValue()))
                         : EitherData<L2, R2>.Bottom;
 
-            return new EitherAsync<L2, R2>(Do(this, Right, Left));
+            return new EitherAsync<L2, R2>(Do(this, RightAsync, Left));
         }
 
         /// <summary>
@@ -1253,10 +1366,10 @@ namespace LanguageExt
         /// <typeparam name="RRet">Right return</typeparam>
         /// <param name="self">Either to map</param>
         /// <param name="Right">Right map function</param>
-        /// <param name="Left">Left map function</param>
+        /// <param name="LeftAsync">Left map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public EitherAsync<L2, R2> BiMapAsync<L2, R2>(Func<R, R2> Right, Func<L, Task<L2>> Left)
+        public EitherAsync<L2, R2> BiMapAsync<L2, R2>(Func<R, R2> Right, Func<L, Task<L2>> LeftAsync)
         {
             async Task<EitherData<L2, R2>> Do(EitherAsync<L, R> self, Func<R, R2> right, Func<L, Task<L2>> left) =>
                 (await self.IsRight)
@@ -1265,7 +1378,7 @@ namespace LanguageExt
                         ? new EitherData<L2, R2>(EitherStatus.IsLeft, default(R2), await left(await self.LeftValue()))
                         : EitherData<L2, R2>.Bottom;
 
-            return new EitherAsync<L2, R2>(Do(this, Right, Left));
+            return new EitherAsync<L2, R2>(Do(this, Right, LeftAsync));
         }
 
         /// <summary>
@@ -1276,11 +1389,11 @@ namespace LanguageExt
         /// <typeparam name="LRet">Left return</typeparam>
         /// <typeparam name="RRet">Right return</typeparam>
         /// <param name="self">Either to map</param>
-        /// <param name="Right">Right map function</param>
-        /// <param name="Left">Left map function</param>
+        /// <param name="RightAsync">Right map function</param>
+        /// <param name="LeftAsync">Left map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public EitherAsync<L2, R2> BiMapAsync<L2, R2>(Func<R, Task<R2>> Right, Func<L, Task<L2>> Left)
+        public EitherAsync<L2, R2> BiMapAsync<L2, R2>(Func<R, Task<R2>> RightAsync, Func<L, Task<L2>> LeftAsync)
         {
             async Task<EitherData<L2, R2>> Do(EitherAsync<L, R> self, Func<R, Task<R2>> right, Func<L, Task<L2>> left) =>
                 (await self.IsRight)
@@ -1289,7 +1402,7 @@ namespace LanguageExt
                         ? new EitherData<L2, R2>(EitherStatus.IsLeft, default(R2), await left(await self.LeftValue()))
                         : EitherData<L2, R2>.Bottom;
 
-            return new EitherAsync<L2, R2>(Do(this, Right, Left));
+            return new EitherAsync<L2, R2>(Do(this, RightAsync, LeftAsync));
         }
 
         /// <summary>
@@ -1299,16 +1412,16 @@ namespace LanguageExt
         /// <typeparam name="R">Right</typeparam>
         /// <typeparam name="Ret"></typeparam>
         /// <param name="self"></param>
-        /// <param name="binder"></param>
+        /// <param name="f"></param>
         /// <returns>Bound Either</returns>
         [Pure]
-        public EitherAsync<L, Ret> Bind<Ret>(Func<R, EitherAsync<L, Ret>> binder)
+        public EitherAsync<L, Ret> Bind<Ret>(Func<R, EitherAsync<L, Ret>> f)
         {
-            async Task<EitherData<L, Ret>> Do(EitherAsync<L, R> self, Func<R, EitherAsync<L, Ret>> f)
+            async Task<EitherData<L, Ret>> Do(EitherAsync<L, R> self, Func<R, EitherAsync<L, Ret>> ff)
             {
                 if (await self.IsRight)
                 {
-                    var mb = f(await self.RightValue());
+                    var mb = ff(await self.RightValue());
                     return await mb.data;
                 }
                 else
@@ -1319,7 +1432,7 @@ namespace LanguageExt
                 }
             }
 
-            return new EitherAsync<L, Ret>(Do(this, binder));
+            return new EitherAsync<L, Ret>(Do(this, f));
         }
 
         /// <summary>
@@ -1329,16 +1442,16 @@ namespace LanguageExt
         /// <typeparam name="R">Right</typeparam>
         /// <typeparam name="Ret"></typeparam>
         /// <param name="self"></param>
-        /// <param name="binder"></param>
+        /// <param name="f"></param>
         /// <returns>Bound Either</returns>
         [Pure]
-        public EitherAsync<L, Ret> BindAsync<Ret>(Func<R, Task<EitherAsync<L, Ret>>> binder)
+        public EitherAsync<L, Ret> BindAsync<Ret>(Func<R, Task<EitherAsync<L, Ret>>> f)
         {
-            async Task<EitherData<L, Ret>> Do(EitherAsync<L, R> self, Func<R, Task<EitherAsync<L, Ret>>> f)
+            async Task<EitherData<L, Ret>> Do(EitherAsync<L, R> self, Func<R, Task<EitherAsync<L, Ret>>> ff)
             {
                 if (await self.IsRight)
                 {
-                    var mb = await f(await self.RightValue());
+                    var mb = await ff(await self.RightValue());
                     return await mb.data;
                 }
                 else
@@ -1349,7 +1462,7 @@ namespace LanguageExt
                 }
             }
 
-            return new EitherAsync<L, Ret>(Do(this, binder));
+            return new EitherAsync<L, Ret>(Do(this, f));
         }
 
         /// <summary>
@@ -1382,7 +1495,7 @@ namespace LanguageExt
         /// Bi-bind.  Allows mapping of both monad states
         /// </summary>
         [Pure]
-        public EitherAsync<L, B> BiBindAsync<B>(Func<R, Task<EitherAsync<L, B>>> Right, Func<L, EitherAsync<L, B>> Left)
+        public EitherAsync<L, B> BiBindAsync<B>(Func<R, Task<EitherAsync<L, B>>> RightAsync, Func<L, EitherAsync<L, B>> Left)
         {
             async Task<EitherData<L, B>> Do(EitherAsync<L, R> self, Func<R, Task<EitherAsync<L, B>>> right, Func<L, EitherAsync<L, B>> left)
             {
@@ -1401,14 +1514,14 @@ namespace LanguageExt
                     return EitherData<L, B>.Bottom;
                 }
             }
-            return new EitherAsync<L, B>(Do(this, Right, Left));
+            return new EitherAsync<L, B>(Do(this, RightAsync, Left));
         }
 
         /// <summary>
         /// Bi-bind.  Allows mapping of both monad states
         /// </summary>
         [Pure]
-        public EitherAsync<L, B> BiBindAsync<B>(Func<R, EitherAsync<L, B>> Right, Func<L, Task<EitherAsync<L, B>>> Left)
+        public EitherAsync<L, B> BiBindAsync<B>(Func<R, EitherAsync<L, B>> Right, Func<L, Task<EitherAsync<L, B>>> LeftAsync)
         {
             async Task<EitherData<L, B>> Do(EitherAsync<L, R> self, Func<R, EitherAsync<L, B>> right, Func<L, Task<EitherAsync<L, B>>> left)
             {
@@ -1427,14 +1540,14 @@ namespace LanguageExt
                     return EitherData<L, B>.Bottom;
                 }
             }
-            return new EitherAsync<L, B>(Do(this, Right, Left));
+            return new EitherAsync<L, B>(Do(this, Right, LeftAsync));
         }
 
         /// <summary>
         /// Bi-bind.  Allows mapping of both monad states
         /// </summary>
         [Pure]
-        public EitherAsync<L, B> BiBindAsync<B>(Func<R, Task<EitherAsync<L, B>>> Right, Func<L, Task<EitherAsync<L, B>>> Left)
+        public EitherAsync<L, B> BiBindAsync<B>(Func<R, Task<EitherAsync<L, B>>> RightAsync, Func<L, Task<EitherAsync<L, B>>> LeftAsync)
         {
             async Task<EitherData<L, B>> Do(EitherAsync<L, R> self, Func<R, Task<EitherAsync<L, B>>> right, Func<L, Task<EitherAsync<L, B>>> left)
             {
@@ -1453,7 +1566,7 @@ namespace LanguageExt
                     return EitherData<L, B>.Bottom;
                 }
             }
-            return new EitherAsync<L, B>(Do(this, Right, Left));
+            return new EitherAsync<L, B>(Do(this, RightAsync, LeftAsync));
         }
 
         /// <summary>

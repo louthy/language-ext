@@ -34,7 +34,7 @@ namespace LanguageExt.ClassInstances
         public MB BindAsync<MONADB, MB, B>(Try<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B>
         {
             var mr = ma.Try();
-            if (mr.IsFaulted) return default(MONADB).FailAsync(mr.Exception);
+            if (mr.IsFaulted) return default(MONADB).Fail(mr.Exception);
             return f(mr.Value);
         }
 

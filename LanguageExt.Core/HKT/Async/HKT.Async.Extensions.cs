@@ -34,8 +34,8 @@ namespace LanguageExt
             this OptionAsync<OptionAsync<A>> ma,
             Func<A, OptionAsync<OptionAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MOptionAsync<OptionAsync<C>>, OptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MOptionAsync<OptionAsync<C>>, OptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MOptionAsync<OptionAsync<C>>, OptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MOptionAsync<OptionAsync<C>>, OptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace LanguageExt
             Func<A, Task<OptionAsync<OptionAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MOptionAsync<OptionAsync<C>>, OptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MOptionAsync<OptionAsync<C>>, OptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MOptionAsync<OptionAsync<C>>, OptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace LanguageExt
             Func<A, Task<OptionAsync<OptionAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MOptionAsync<OptionAsync<C>>, OptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MOptionAsync<OptionAsync<C>>, OptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MOptionAsync<OptionAsync<C>>, OptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -91,8 +91,8 @@ namespace LanguageExt
             this OptionAsync<OptionAsync<A>> ma,
             Func<A, OptionAsync<OptionAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MOptionAsync<OptionAsync<C>>, OptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MOptionAsync<OptionAsync<C>>, OptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MOptionAsync<OptionAsync<C>>, OptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MOptionAsync<OptionAsync<C>>, OptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -106,10 +106,10 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;OptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static OptionAsync<OptionAsync<A>> Where< A>(this OptionAsync<OptionAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+            default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MOptionAsync<A>).ZeroAsync());
+                    : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -124,7 +124,7 @@ namespace LanguageExt
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MOptionAsync<A>).ZeroAsync());
+                    : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -138,7 +138,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<OptionAsync<B>> Select< A, B>(this OptionAsync<OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .MapAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Map<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;OptionAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -148,7 +148,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this OptionAsync<OptionAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `OptionAsync&lt;OptionAsync&lt;A&gt;&gt;`
@@ -158,7 +158,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `OptionAsync&lt;OptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this OptionAsync<OptionAsync<A>> ma) =>
-            default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -171,7 +171,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<OptionAsync<B>> BindT< A, B>(this OptionAsync<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Bind<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -184,7 +184,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<OptionAsync<B>> BindT< A, B>(this OptionAsync<OptionAsync<A>> ma, Func<A, OptionAsync<OptionAsync<B>>> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Bind<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -195,7 +195,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`OptionAsync&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OptionAsync<OptionAsync<B>> BindT< A, B>(this OptionAsync<OptionAsync<A>> ma, Func<A, Task<OptionAsync<OptionAsync<B>>>> f) =>
+        public static OptionAsync<OptionAsync<B>> BindAsyncT< A, B>(this OptionAsync<OptionAsync<A>> ma, Func<A, Task<OptionAsync<OptionAsync<B>>>> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -213,7 +213,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<OptionAsync<B>> Traverse< A, B>(this OptionAsync<OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .TraverseAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Traverse<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `OptionAsync&lt;OptionAsync&lt;A&gt;&gt;`, traverses the inner
@@ -227,7 +227,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`OptionAsync&lt;OptionAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static OptionAsync<OptionAsync<B>> Traverse< A, B>(this OptionAsync<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static OptionAsync<OptionAsync<B>> TraverseAsync< A, B>(this OptionAsync<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .TraverseAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -244,7 +244,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<OptionAsync<A>> Sequence< A>(this OptionAsync<OptionAsync<A>> ma) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .SequenceAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>>(ma);
+                .Sequence<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -258,7 +258,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<OptionAsync<B>> MapT< A, B>(this OptionAsync<OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .MapAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Map<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -270,7 +270,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`OptionAsync&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OptionAsync<OptionAsync<B>> MapT< A, B>(this OptionAsync<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static OptionAsync<OptionAsync<B>> MapAsyncT< A, B>(this OptionAsync<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .MapAsync<MOptionAsync<OptionAsync<B>>, OptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -287,7 +287,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this OptionAsync<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -300,7 +300,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this OptionAsync<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this OptionAsync<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -318,7 +318,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this OptionAsync<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -332,7 +332,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this OptionAsync<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this OptionAsync<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -348,7 +348,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this OptionAsync<OptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -362,7 +362,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this OptionAsync<OptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync&lt;OptionAsync&lt;A&gt;&gt;`
@@ -372,7 +372,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this OptionAsync<OptionAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -385,10 +385,10 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<OptionAsync<A>> FilterT< A>(this OptionAsync<OptionAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                .Bind<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MOptionAsync<A>).ZeroAsync());
+                        : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -399,12 +399,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;OptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<OptionAsync<A>> FilterT< A>(this OptionAsync<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static OptionAsync<OptionAsync<A>> FilterAsyncT< A>(this OptionAsync<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MOptionAsync<A>).ZeroAsync());
+                        : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -500,10 +500,10 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionAsync<OptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, OptionAsync<OptionAsync<A>> fa) =>
-            default(ApplOptionAsync< OptionAsync<A>, OptionAsync<B>>).ApplyAsync(
+            default(ApplOptionAsync< OptionAsync<A>, OptionAsync<B>>).Apply(
                 default(MOptionAsync< Func<OptionAsync<A>, OptionAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<OptionAsync<A>, OptionAsync<B>>>((OptionAsync<A> a) => 
-                        default(ApplOptionAsync< A, B>).ApplyAsync(
+                        default(ApplOptionAsync< A, B>).Apply(
                             default(MOptionAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -519,11 +519,11 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionAsync<OptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionAsync<OptionAsync<A>> fa, OptionAsync<OptionAsync<B>> fb) =>
-            default(ApplOptionAsync< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>).ApplyAsync(
+            default(ApplOptionAsync< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>).Apply(
                 default(MOptionAsync< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>((OptionAsync<A> a) =>
                         (OptionAsync<B> b) =>
-                            default(ApplOptionAsync< A, B, C>).ApplyAsync(
+                            default(ApplOptionAsync< A, B, C>).Apply(
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -541,8 +541,8 @@ namespace LanguageExt
             this EitherAsync<L, OptionAsync<A>> ma,
             Func<A, EitherAsync<L, OptionAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MEitherAsync<L, OptionAsync<C>>, EitherAsync<L, OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MEitherAsync<L, OptionAsync<C>>, EitherAsync<L, OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MEitherAsync<L, OptionAsync<C>>, EitherAsync<L, OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MEitherAsync<L, OptionAsync<C>>, EitherAsync<L, OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -561,7 +561,7 @@ namespace LanguageExt
             Func<A, Task<EitherAsync<L, OptionAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MEitherAsync<L, OptionAsync<C>>, EitherAsync<L, OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MEitherAsync<L, OptionAsync<C>>, EitherAsync<L, OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MEitherAsync<L, OptionAsync<C>>, EitherAsync<L, OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -580,7 +580,7 @@ namespace LanguageExt
             Func<A, Task<EitherAsync<L, OptionAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MEitherAsync<L, OptionAsync<C>>, EitherAsync<L, OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MEitherAsync<L, OptionAsync<C>>, EitherAsync<L, OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MEitherAsync<L, OptionAsync<C>>, EitherAsync<L, OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -598,8 +598,8 @@ namespace LanguageExt
             this EitherAsync<L, OptionAsync<A>> ma,
             Func<A, EitherAsync<L, OptionAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MEitherAsync<L, OptionAsync<C>>, EitherAsync<L, OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MEitherAsync<L, OptionAsync<C>>, EitherAsync<L, OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MEitherAsync<L, OptionAsync<C>>, EitherAsync<L, OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MEitherAsync<L, OptionAsync<C>>, EitherAsync<L, OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -613,10 +613,10 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, OptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static EitherAsync<L, OptionAsync<A>> Where<L, A>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+            default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MOptionAsync<A>).ZeroAsync());
+                    : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -631,7 +631,7 @@ namespace LanguageExt
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MOptionAsync<A>).ZeroAsync());
+                    : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -645,7 +645,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, OptionAsync<B>> Select<L, A, B>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .MapAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Map<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, OptionAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -655,7 +655,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, OptionAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `EitherAsync&lt;L, OptionAsync&lt;A&gt;&gt;`
@@ -665,7 +665,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `EitherAsync&lt;L, OptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT<L, A>(this EitherAsync<L, OptionAsync<A>> ma) =>
-            default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -678,7 +678,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, OptionAsync<B>> BindT<L, A, B>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Bind<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -691,7 +691,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, OptionAsync<B>> BindT<L, A, B>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, EitherAsync<L, OptionAsync<B>>> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Bind<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -702,7 +702,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`EitherAsync&lt;L, OptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static EitherAsync<L, OptionAsync<B>> BindT<L, A, B>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, Task<EitherAsync<L, OptionAsync<B>>>> f) =>
+        public static EitherAsync<L, OptionAsync<B>> BindAsyncT<L, A, B>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, Task<EitherAsync<L, OptionAsync<B>>>> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -720,7 +720,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .TraverseAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Traverse<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `EitherAsync&lt;L, OptionAsync&lt;A&gt;&gt;`, traverses the inner
@@ -734,7 +734,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`OptionAsync&lt;EitherAsync&lt;L, B&gt;&gt;`</returns>
         [Pure]
-        public static OptionAsync<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static OptionAsync<EitherAsync<L, B>> TraverseAsync<L, A, B>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .TraverseAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -751,7 +751,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<EitherAsync<L, A>> Sequence<L, A>(this EitherAsync<L, OptionAsync<A>> ma) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .SequenceAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>>(ma);
+                .Sequence<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -765,7 +765,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, OptionAsync<B>> MapT<L, A, B>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .MapAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Map<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -777,7 +777,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`EitherAsync&lt;L, OptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static EitherAsync<L, OptionAsync<B>> MapT<L, A, B>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static EitherAsync<L, OptionAsync<B>> MapAsyncT<L, A, B>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .MapAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -794,7 +794,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S, L, A>(this EitherAsync<L, OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -807,7 +807,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S, L, A>(this EitherAsync<L, OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -825,7 +825,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -839,7 +839,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S, L, A>(this EitherAsync<L, OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -855,7 +855,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT<L, A>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -869,7 +869,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT<L, A>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, OptionAsync&lt;A&gt;&gt;`
@@ -879,7 +879,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT<L, A>(this EitherAsync<L, OptionAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -892,10 +892,10 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, OptionAsync<A>> FilterT<L, A>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                .Bind<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MOptionAsync<A>).ZeroAsync());
+                        : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -906,12 +906,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`EitherAsync&lt;L, OptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static EitherAsync<L, OptionAsync<A>> FilterT<L, A>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static EitherAsync<L, OptionAsync<A>> FilterAsyncT<L, A>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MOptionAsync<A>).ZeroAsync());
+                        : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -1007,10 +1007,10 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, OptionAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherAsync<L, OptionAsync<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, OptionAsync<A>> fa) =>
-            default(ApplEitherAsync<L, OptionAsync<A>, OptionAsync<B>>).ApplyAsync(
+            default(ApplEitherAsync<L, OptionAsync<A>, OptionAsync<B>>).Apply(
                 default(MEitherAsync<L, Func<OptionAsync<A>, OptionAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<OptionAsync<A>, OptionAsync<B>>>((OptionAsync<A> a) => 
-                        default(ApplOptionAsync< A, B>).ApplyAsync(
+                        default(ApplOptionAsync< A, B>).Apply(
                             default(MOptionAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -1026,11 +1026,11 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, OptionAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherAsync<L, OptionAsync<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, OptionAsync<A>> fa, EitherAsync<L, OptionAsync<B>> fb) =>
-            default(ApplEitherAsync<L, OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>).ApplyAsync(
+            default(ApplEitherAsync<L, OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>).Apply(
                 default(MEitherAsync<L, Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>((OptionAsync<A> a) =>
                         (OptionAsync<B> b) =>
-                            default(ApplOptionAsync< A, B, C>).ApplyAsync(
+                            default(ApplOptionAsync< A, B, C>).Apply(
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -1048,8 +1048,8 @@ namespace LanguageExt
             this Task<OptionAsync<A>> ma,
             Func<A, Task<OptionAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTask<OptionAsync<C>>, Task<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MTask<OptionAsync<C>>, Task<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MTask<OptionAsync<C>>, Task<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MTask<OptionAsync<C>>, Task<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -1068,7 +1068,7 @@ namespace LanguageExt
             Func<A, Task<Task<OptionAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTask<OptionAsync<C>>, Task<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MTask<OptionAsync<C>>, Task<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MTask<OptionAsync<C>>, Task<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -1087,7 +1087,7 @@ namespace LanguageExt
             Func<A, Task<Task<OptionAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTask<OptionAsync<C>>, Task<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MTask<OptionAsync<C>>, Task<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MTask<OptionAsync<C>>, Task<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -1105,8 +1105,8 @@ namespace LanguageExt
             this Task<OptionAsync<A>> ma,
             Func<A, Task<OptionAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTask<OptionAsync<C>>, Task<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MTask<OptionAsync<C>>, Task<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MTask<OptionAsync<C>>, Task<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MTask<OptionAsync<C>>, Task<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -1120,10 +1120,10 @@ namespace LanguageExt
         /// <returns>`Task&lt;OptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static Task<OptionAsync<A>> Where< A>(this Task<OptionAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+            default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MOptionAsync<A>).ZeroAsync());
+                    : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -1138,7 +1138,7 @@ namespace LanguageExt
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MOptionAsync<A>).ZeroAsync());
+                    : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1152,7 +1152,7 @@ namespace LanguageExt
         [Pure]
         public static Task<OptionAsync<B>> Select< A, B>(this Task<OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .MapAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Map<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;OptionAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -1162,7 +1162,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this Task<OptionAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `Task&lt;OptionAsync&lt;A&gt;&gt;`
@@ -1172,7 +1172,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `Task&lt;OptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this Task<OptionAsync<A>> ma) =>
-            default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -1185,7 +1185,7 @@ namespace LanguageExt
         [Pure]
         public static Task<OptionAsync<B>> BindT< A, B>(this Task<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Bind<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -1198,7 +1198,7 @@ namespace LanguageExt
         [Pure]
         public static Task<OptionAsync<B>> BindT< A, B>(this Task<OptionAsync<A>> ma, Func<A, Task<OptionAsync<B>>> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Bind<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -1209,7 +1209,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`Task&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static Task<OptionAsync<B>> BindT< A, B>(this Task<OptionAsync<A>> ma, Func<A, Task<Task<OptionAsync<B>>>> f) =>
+        public static Task<OptionAsync<B>> BindAsyncT< A, B>(this Task<OptionAsync<A>> ma, Func<A, Task<Task<OptionAsync<B>>>> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -1227,7 +1227,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<Task<B>> Traverse< A, B>(this Task<OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .TraverseAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Traverse<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `Task&lt;OptionAsync&lt;A&gt;&gt;`, traverses the inner
@@ -1241,7 +1241,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`OptionAsync&lt;Task&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static OptionAsync<Task<B>> Traverse< A, B>(this Task<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static OptionAsync<Task<B>> TraverseAsync< A, B>(this Task<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .TraverseAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -1258,7 +1258,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<Task<A>> Sequence< A>(this Task<OptionAsync<A>> ma) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .SequenceAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>>(ma);
+                .Sequence<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1272,7 +1272,7 @@ namespace LanguageExt
         [Pure]
         public static Task<OptionAsync<B>> MapT< A, B>(this Task<OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .MapAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Map<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1284,7 +1284,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`Task&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static Task<OptionAsync<B>> MapT< A, B>(this Task<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static Task<OptionAsync<B>> MapAsyncT< A, B>(this Task<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .MapAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -1301,7 +1301,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this Task<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -1314,7 +1314,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this Task<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this Task<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -1332,7 +1332,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this Task<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -1346,7 +1346,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this Task<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this Task<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -1362,7 +1362,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this Task<OptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -1376,7 +1376,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this Task<OptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `Task&lt;OptionAsync&lt;A&gt;&gt;`
@@ -1386,7 +1386,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this Task<OptionAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -1399,10 +1399,10 @@ namespace LanguageExt
         [Pure]
         public static Task<OptionAsync<A>> FilterT< A>(this Task<OptionAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                .Bind<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MOptionAsync<A>).ZeroAsync());
+                        : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -1413,12 +1413,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;OptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<OptionAsync<A>> FilterT< A>(this Task<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static Task<OptionAsync<A>> FilterAsyncT< A>(this Task<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MOptionAsync<A>).ZeroAsync());
+                        : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -1514,10 +1514,10 @@ namespace LanguageExt
         /// <returns>`Task&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<OptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Task<OptionAsync<A>> fa) =>
-            default(ApplTask< OptionAsync<A>, OptionAsync<B>>).ApplyAsync(
+            default(ApplTask< OptionAsync<A>, OptionAsync<B>>).Apply(
                 default(MTask< Func<OptionAsync<A>, OptionAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<OptionAsync<A>, OptionAsync<B>>>((OptionAsync<A> a) => 
-                        default(ApplOptionAsync< A, B>).ApplyAsync(
+                        default(ApplOptionAsync< A, B>).Apply(
                             default(MOptionAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -1533,11 +1533,11 @@ namespace LanguageExt
         /// <returns>`Task&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<OptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<OptionAsync<A>> fa, Task<OptionAsync<B>> fb) =>
-            default(ApplTask< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>).ApplyAsync(
+            default(ApplTask< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>).Apply(
                 default(MTask< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>((OptionAsync<A> a) =>
                         (OptionAsync<B> b) =>
-                            default(ApplOptionAsync< A, B, C>).ApplyAsync(
+                            default(ApplOptionAsync< A, B, C>).Apply(
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -1555,8 +1555,8 @@ namespace LanguageExt
             this TryAsync<OptionAsync<A>> ma,
             Func<A, TryAsync<OptionAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTryAsync<OptionAsync<C>>, TryAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MTryAsync<OptionAsync<C>>, TryAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MTryAsync<OptionAsync<C>>, TryAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MTryAsync<OptionAsync<C>>, TryAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -1575,7 +1575,7 @@ namespace LanguageExt
             Func<A, Task<TryAsync<OptionAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTryAsync<OptionAsync<C>>, TryAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MTryAsync<OptionAsync<C>>, TryAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MTryAsync<OptionAsync<C>>, TryAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -1594,7 +1594,7 @@ namespace LanguageExt
             Func<A, Task<TryAsync<OptionAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTryAsync<OptionAsync<C>>, TryAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MTryAsync<OptionAsync<C>>, TryAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MTryAsync<OptionAsync<C>>, TryAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -1612,8 +1612,8 @@ namespace LanguageExt
             this TryAsync<OptionAsync<A>> ma,
             Func<A, TryAsync<OptionAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTryAsync<OptionAsync<C>>, TryAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MTryAsync<OptionAsync<C>>, TryAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MTryAsync<OptionAsync<C>>, TryAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MTryAsync<OptionAsync<C>>, TryAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -1627,10 +1627,10 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;OptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static TryAsync<OptionAsync<A>> Where< A>(this TryAsync<OptionAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+            default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MOptionAsync<A>).ZeroAsync());
+                    : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -1645,7 +1645,7 @@ namespace LanguageExt
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MOptionAsync<A>).ZeroAsync());
+                    : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1659,7 +1659,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<OptionAsync<B>> Select< A, B>(this TryAsync<OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .MapAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Map<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;OptionAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -1669,7 +1669,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryAsync<OptionAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `TryAsync&lt;OptionAsync&lt;A&gt;&gt;`
@@ -1679,7 +1679,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `TryAsync&lt;OptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this TryAsync<OptionAsync<A>> ma) =>
-            default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -1692,7 +1692,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<OptionAsync<B>> BindT< A, B>(this TryAsync<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Bind<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -1705,7 +1705,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<OptionAsync<B>> BindT< A, B>(this TryAsync<OptionAsync<A>> ma, Func<A, TryAsync<OptionAsync<B>>> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Bind<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -1716,7 +1716,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`TryAsync&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryAsync<OptionAsync<B>> BindT< A, B>(this TryAsync<OptionAsync<A>> ma, Func<A, Task<TryAsync<OptionAsync<B>>>> f) =>
+        public static TryAsync<OptionAsync<B>> BindAsyncT< A, B>(this TryAsync<OptionAsync<A>> ma, Func<A, Task<TryAsync<OptionAsync<B>>>> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -1734,7 +1734,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryAsync<B>> Traverse< A, B>(this TryAsync<OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .TraverseAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Traverse<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `TryAsync&lt;OptionAsync&lt;A&gt;&gt;`, traverses the inner
@@ -1748,7 +1748,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`OptionAsync&lt;TryAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static OptionAsync<TryAsync<B>> Traverse< A, B>(this TryAsync<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static OptionAsync<TryAsync<B>> TraverseAsync< A, B>(this TryAsync<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .TraverseAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -1765,7 +1765,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryAsync<A>> Sequence< A>(this TryAsync<OptionAsync<A>> ma) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .SequenceAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>>(ma);
+                .Sequence<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1779,7 +1779,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<OptionAsync<B>> MapT< A, B>(this TryAsync<OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .MapAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Map<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1791,7 +1791,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryAsync&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryAsync<OptionAsync<B>> MapT< A, B>(this TryAsync<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryAsync<OptionAsync<B>> MapAsyncT< A, B>(this TryAsync<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .MapAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -1808,7 +1808,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this TryAsync<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -1821,7 +1821,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this TryAsync<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this TryAsync<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -1839,7 +1839,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this TryAsync<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -1853,7 +1853,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this TryAsync<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this TryAsync<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -1869,7 +1869,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this TryAsync<OptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -1883,7 +1883,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this TryAsync<OptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `TryAsync&lt;OptionAsync&lt;A&gt;&gt;`
@@ -1893,7 +1893,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this TryAsync<OptionAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -1906,10 +1906,10 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<OptionAsync<A>> FilterT< A>(this TryAsync<OptionAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                .Bind<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MOptionAsync<A>).ZeroAsync());
+                        : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -1920,12 +1920,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;OptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<OptionAsync<A>> FilterT< A>(this TryAsync<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static TryAsync<OptionAsync<A>> FilterAsyncT< A>(this TryAsync<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MOptionAsync<A>).ZeroAsync());
+                        : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -2021,10 +2021,10 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<OptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<OptionAsync<A>> fa) =>
-            default(ApplTryAsync< OptionAsync<A>, OptionAsync<B>>).ApplyAsync(
+            default(ApplTryAsync< OptionAsync<A>, OptionAsync<B>>).Apply(
                 default(MTryAsync< Func<OptionAsync<A>, OptionAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<OptionAsync<A>, OptionAsync<B>>>((OptionAsync<A> a) => 
-                        default(ApplOptionAsync< A, B>).ApplyAsync(
+                        default(ApplOptionAsync< A, B>).Apply(
                             default(MOptionAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -2040,11 +2040,11 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<OptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<OptionAsync<A>> fa, TryAsync<OptionAsync<B>> fb) =>
-            default(ApplTryAsync< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>).ApplyAsync(
+            default(ApplTryAsync< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>).Apply(
                 default(MTryAsync< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>((OptionAsync<A> a) =>
                         (OptionAsync<B> b) =>
-                            default(ApplOptionAsync< A, B, C>).ApplyAsync(
+                            default(ApplOptionAsync< A, B, C>).Apply(
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -2062,8 +2062,8 @@ namespace LanguageExt
             this TryOptionAsync<OptionAsync<A>> ma,
             Func<A, TryOptionAsync<OptionAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTryOptionAsync<OptionAsync<C>>, TryOptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MTryOptionAsync<OptionAsync<C>>, TryOptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MTryOptionAsync<OptionAsync<C>>, TryOptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MTryOptionAsync<OptionAsync<C>>, TryOptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -2082,7 +2082,7 @@ namespace LanguageExt
             Func<A, Task<TryOptionAsync<OptionAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTryOptionAsync<OptionAsync<C>>, TryOptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MTryOptionAsync<OptionAsync<C>>, TryOptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MTryOptionAsync<OptionAsync<C>>, TryOptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -2101,7 +2101,7 @@ namespace LanguageExt
             Func<A, Task<TryOptionAsync<OptionAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTryOptionAsync<OptionAsync<C>>, TryOptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MTryOptionAsync<OptionAsync<C>>, TryOptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MTryOptionAsync<OptionAsync<C>>, TryOptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(await bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -2119,8 +2119,8 @@ namespace LanguageExt
             this TryOptionAsync<OptionAsync<A>> ma,
             Func<A, TryOptionAsync<OptionAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTryOptionAsync<OptionAsync<C>>, TryOptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).BindAsync<MTryOptionAsync<OptionAsync<C>>, TryOptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MTryOptionAsync<OptionAsync<C>>, TryOptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>).Bind<MTryOptionAsync<OptionAsync<C>>, TryOptionAsync<OptionAsync<C>>, MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
             default(MOptionAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -2134,10 +2134,10 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;OptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static TryOptionAsync<OptionAsync<A>> Where< A>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+            default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Bind<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MOptionAsync<A>).ZeroAsync());
+                    : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -2152,7 +2152,7 @@ namespace LanguageExt
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MOptionAsync<A>).ZeroAsync());
+                    : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2166,7 +2166,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<OptionAsync<B>> Select< A, B>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .MapAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Map<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;OptionAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -2176,7 +2176,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryOptionAsync<OptionAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `TryOptionAsync&lt;OptionAsync&lt;A&gt;&gt;`
@@ -2186,7 +2186,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `TryOptionAsync&lt;OptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this TryOptionAsync<OptionAsync<A>> ma) =>
-            default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -2199,7 +2199,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<OptionAsync<B>> BindT< A, B>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, OptionAsync<B>> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Bind<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -2212,7 +2212,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<OptionAsync<B>> BindT< A, B>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, TryOptionAsync<OptionAsync<B>>> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Bind<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -2223,7 +2223,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`TryOptionAsync&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryOptionAsync<OptionAsync<B>> BindT< A, B>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, Task<TryOptionAsync<OptionAsync<B>>>> f) =>
+        public static TryOptionAsync<OptionAsync<B>> BindAsyncT< A, B>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, Task<TryOptionAsync<OptionAsync<B>>>> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -2241,7 +2241,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .TraverseAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Traverse<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `TryOptionAsync&lt;OptionAsync&lt;A&gt;&gt;`, traverses the inner
@@ -2255,7 +2255,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`OptionAsync&lt;TryOptionAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static OptionAsync<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static OptionAsync<TryOptionAsync<B>> TraverseAsync< A, B>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .TraverseAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -2272,7 +2272,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<OptionAsync<A>> ma) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .SequenceAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>>(ma);
+                .Sequence<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2286,7 +2286,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<OptionAsync<B>> MapT< A, B>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .MapAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Map<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2298,7 +2298,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryOptionAsync&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryOptionAsync<OptionAsync<B>> MapT< A, B>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryOptionAsync<OptionAsync<B>> MapAsyncT< A, B>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .MapAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -2315,7 +2315,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this TryOptionAsync<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -2328,7 +2328,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this TryOptionAsync<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this TryOptionAsync<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -2346,7 +2346,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this TryOptionAsync<OptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -2360,7 +2360,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this TryOptionAsync<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this TryOptionAsync<OptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -2376,7 +2376,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -2390,7 +2390,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `TryOptionAsync&lt;OptionAsync&lt;A&gt;&gt;`
@@ -2400,7 +2400,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this TryOptionAsync<OptionAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -2413,10 +2413,10 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<OptionAsync<A>> FilterT< A>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
-                .BindAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
+                .Bind<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MOptionAsync<A>).ZeroAsync());
+                        : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -2427,12 +2427,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;OptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<OptionAsync<A>> FilterT< A>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static TryOptionAsync<OptionAsync<A>> FilterAsyncT< A>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MOptionAsync<A>).ZeroAsync());
+                        : default(MOptionAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -2528,10 +2528,10 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<OptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<OptionAsync<A>> fa) =>
-            default(ApplTryOptionAsync< OptionAsync<A>, OptionAsync<B>>).ApplyAsync(
+            default(ApplTryOptionAsync< OptionAsync<A>, OptionAsync<B>>).Apply(
                 default(MTryOptionAsync< Func<OptionAsync<A>, OptionAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<OptionAsync<A>, OptionAsync<B>>>((OptionAsync<A> a) => 
-                        default(ApplOptionAsync< A, B>).ApplyAsync(
+                        default(ApplOptionAsync< A, B>).Apply(
                             default(MOptionAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -2547,11 +2547,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;OptionAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<OptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<OptionAsync<A>> fa, TryOptionAsync<OptionAsync<B>> fb) =>
-            default(ApplTryOptionAsync< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>).ApplyAsync(
+            default(ApplTryOptionAsync< OptionAsync<A>, OptionAsync<B>, OptionAsync<C>>).Apply(
                 default(MTryOptionAsync< Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<OptionAsync<A>, Func<OptionAsync<B>, OptionAsync<C>>>>((OptionAsync<A> a) =>
                         (OptionAsync<B> b) =>
-                            default(ApplOptionAsync< A, B, C>).ApplyAsync(
+                            default(ApplOptionAsync< A, B, C>).Apply(
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
     }
@@ -2577,8 +2577,8 @@ namespace LanguageExt
             this OptionAsync<EitherAsync<L, A>> ma,
             Func<A, OptionAsync<EitherAsync<L, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MOptionAsync<EitherAsync<L, C>>, OptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
-            default(TransAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MOptionAsync<EitherAsync<L, C>>, OptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
+            default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MOptionAsync<EitherAsync<L, C>>, OptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
+            default(TransAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MOptionAsync<EitherAsync<L, C>>, OptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -2597,7 +2597,7 @@ namespace LanguageExt
             Func<A, Task<OptionAsync<EitherAsync<L, B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MOptionAsync<EitherAsync<L, C>>, OptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, async a =>
-            default(TransAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MOptionAsync<EitherAsync<L, C>>, OptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
+            default(TransAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MOptionAsync<EitherAsync<L, C>>, OptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -2616,7 +2616,7 @@ namespace LanguageExt
             Func<A, Task<OptionAsync<EitherAsync<L, B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MOptionAsync<EitherAsync<L, C>>, OptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, async a =>
-            default(TransAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MOptionAsync<EitherAsync<L, C>>, OptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
+            default(TransAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MOptionAsync<EitherAsync<L, C>>, OptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -2634,8 +2634,8 @@ namespace LanguageExt
             this OptionAsync<EitherAsync<L, A>> ma,
             Func<A, OptionAsync<EitherAsync<L, B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MOptionAsync<EitherAsync<L, C>>, OptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
-            default(TransAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MOptionAsync<EitherAsync<L, C>>, OptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
+            default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MOptionAsync<EitherAsync<L, C>>, OptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
+            default(TransAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MOptionAsync<EitherAsync<L, C>>, OptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b))));
 
 
@@ -2649,10 +2649,10 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static OptionAsync<EitherAsync<L, A>> Where<L, A>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
+            default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                 a => pred(a)
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                    : default(MEitherAsync<L, A>).ZeroAsync());
+                    : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -2667,7 +2667,7 @@ namespace LanguageExt
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                    : default(MEitherAsync<L, A>).ZeroAsync());
+                    : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2681,7 +2681,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<EitherAsync<L, B>> Select<L, A, B>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .MapAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Map<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;`
         /// </summary>
@@ -2691,7 +2691,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this OptionAsync<EitherAsync<L, A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `OptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;`
@@ -2701,7 +2701,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `OptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT<L, A>(this OptionAsync<EitherAsync<L, A>> ma) =>
-            default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).CountAsync(ma);
+            default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -2714,7 +2714,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<EitherAsync<L, B>> BindT<L, A, B>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, EitherAsync<L, B>> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Bind<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -2727,7 +2727,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<EitherAsync<L, B>> BindT<L, A, B>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, OptionAsync<EitherAsync<L, B>>> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Bind<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -2738,7 +2738,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`OptionAsync&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OptionAsync<EitherAsync<L, B>> BindT<L, A, B>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, Task<OptionAsync<EitherAsync<L, B>>>> f) =>
+        public static OptionAsync<EitherAsync<L, B>> BindAsyncT<L, A, B>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, Task<OptionAsync<EitherAsync<L, B>>>> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -2756,7 +2756,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, OptionAsync<B>> Traverse<L, A, B>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .TraverseAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Traverse<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `OptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
@@ -2770,7 +2770,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`EitherAsync&lt;L, OptionAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static EitherAsync<L, OptionAsync<B>> Traverse<L, A, B>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
+        public static EitherAsync<L, OptionAsync<B>> TraverseAsync<L, A, B>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .TraverseAsync<MEitherAsync<L, OptionAsync<B>>, EitherAsync<L, OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -2787,7 +2787,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, OptionAsync<A>> Sequence<L, A>(this OptionAsync<EitherAsync<L, A>> ma) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .SequenceAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>>(ma);
+                .Sequence<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2801,7 +2801,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<EitherAsync<L, B>> MapT<L, A, B>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .MapAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Map<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2813,7 +2813,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`OptionAsync&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OptionAsync<EitherAsync<L, B>> MapT<L, A, B>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
+        public static OptionAsync<EitherAsync<L, B>> MapAsyncT<L, A, B>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .MapAsync<MOptionAsync<EitherAsync<L, B>>, OptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -2830,7 +2830,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S, L, A>(this OptionAsync<EitherAsync<L, A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -2843,7 +2843,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S, L, A>(this OptionAsync<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S, L, A>(this OptionAsync<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -2861,7 +2861,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S, L, A>(this OptionAsync<EitherAsync<L, A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -2875,7 +2875,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S, L, A>(this OptionAsync<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S, L, A>(this OptionAsync<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -2891,7 +2891,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT<L, A>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, bool> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -2905,7 +2905,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT<L, A>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, bool> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;`
@@ -2915,7 +2915,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT<L, A>(this OptionAsync<EitherAsync<L, A>> ma, Action<A> f) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -2928,10 +2928,10 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<EitherAsync<L, A>> FilterT<L, A>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
+                .Bind<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                     a => pred(a)
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                        : default(MEitherAsync<L, A>).ZeroAsync());
+                        : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -2942,12 +2942,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<EitherAsync<L, A>> FilterT<L, A>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
+        public static OptionAsync<EitherAsync<L, A>> FilterAsyncT<L, A>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                        : default(MEitherAsync<L, A>).ZeroAsync());
+                        : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -3043,10 +3043,10 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionAsync<EitherAsync<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, OptionAsync<EitherAsync<L, A>> fa) =>
-            default(ApplOptionAsync< EitherAsync<L, A>, EitherAsync<L, B>>).ApplyAsync(
+            default(ApplOptionAsync< EitherAsync<L, A>, EitherAsync<L, B>>).Apply(
                 default(MOptionAsync< Func<EitherAsync<L, A>, EitherAsync<L, B>>>).ReturnAsync(
                     Task.FromResult<Func<EitherAsync<L, A>, EitherAsync<L, B>>>((EitherAsync<L, A> a) => 
-                        default(ApplEitherAsync<L, A, B>).ApplyAsync(
+                        default(ApplEitherAsync<L, A, B>).Apply(
                             default(MEitherAsync<L, Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -3062,11 +3062,11 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionAsync<EitherAsync<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, OptionAsync<EitherAsync<L, A>> fa, OptionAsync<EitherAsync<L, B>> fb) =>
-            default(ApplOptionAsync< EitherAsync<L, A>, EitherAsync<L, B>, EitherAsync<L, C>>).ApplyAsync(
+            default(ApplOptionAsync< EitherAsync<L, A>, EitherAsync<L, B>, EitherAsync<L, C>>).Apply(
                 default(MOptionAsync< Func<EitherAsync<L, A>, Func<EitherAsync<L, B>, EitherAsync<L, C>>>>).ReturnAsync(
                     Task.FromResult<Func<EitherAsync<L, A>, Func<EitherAsync<L, B>, EitherAsync<L, C>>>>((EitherAsync<L, A> a) =>
                         (EitherAsync<L, B> b) =>
-                            default(ApplEitherAsync<L, A, B, C>).ApplyAsync(
+                            default(ApplEitherAsync<L, A, B, C>).Apply(
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -3084,8 +3084,8 @@ namespace LanguageExt
             this EitherAsync<L, EitherAsync<L, A>> ma,
             Func<A, EitherAsync<L, EitherAsync<L, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MEitherAsync<L, EitherAsync<L, C>>, EitherAsync<L, EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
-            default(TransAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MEitherAsync<L, EitherAsync<L, C>>, EitherAsync<L, EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
+            default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MEitherAsync<L, EitherAsync<L, C>>, EitherAsync<L, EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
+            default(TransAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MEitherAsync<L, EitherAsync<L, C>>, EitherAsync<L, EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -3104,7 +3104,7 @@ namespace LanguageExt
             Func<A, Task<EitherAsync<L, EitherAsync<L, B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MEitherAsync<L, EitherAsync<L, C>>, EitherAsync<L, EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, async a =>
-            default(TransAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MEitherAsync<L, EitherAsync<L, C>>, EitherAsync<L, EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
+            default(TransAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MEitherAsync<L, EitherAsync<L, C>>, EitherAsync<L, EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -3123,7 +3123,7 @@ namespace LanguageExt
             Func<A, Task<EitherAsync<L, EitherAsync<L, B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MEitherAsync<L, EitherAsync<L, C>>, EitherAsync<L, EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, async a =>
-            default(TransAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MEitherAsync<L, EitherAsync<L, C>>, EitherAsync<L, EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
+            default(TransAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MEitherAsync<L, EitherAsync<L, C>>, EitherAsync<L, EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -3141,8 +3141,8 @@ namespace LanguageExt
             this EitherAsync<L, EitherAsync<L, A>> ma,
             Func<A, EitherAsync<L, EitherAsync<L, B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MEitherAsync<L, EitherAsync<L, C>>, EitherAsync<L, EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
-            default(TransAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MEitherAsync<L, EitherAsync<L, C>>, EitherAsync<L, EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
+            default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MEitherAsync<L, EitherAsync<L, C>>, EitherAsync<L, EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
+            default(TransAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MEitherAsync<L, EitherAsync<L, C>>, EitherAsync<L, EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b))));
 
 
@@ -3156,10 +3156,10 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, EitherAsync&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static EitherAsync<L, EitherAsync<L, A>> Where<L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
+            default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                 a => pred(a)
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                    : default(MEitherAsync<L, A>).ZeroAsync());
+                    : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -3174,7 +3174,7 @@ namespace LanguageExt
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                    : default(MEitherAsync<L, A>).ZeroAsync());
+                    : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3188,7 +3188,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, EitherAsync<L, B>> Select<L, A, B>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .MapAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Map<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, EitherAsync&lt;L, A&gt;&gt;`
         /// </summary>
@@ -3198,7 +3198,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, EitherAsync<L, A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `EitherAsync&lt;L, EitherAsync&lt;L, A&gt;&gt;`
@@ -3208,7 +3208,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `EitherAsync&lt;L, EitherAsync&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT<L, A>(this EitherAsync<L, EitherAsync<L, A>> ma) =>
-            default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).CountAsync(ma);
+            default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -3221,7 +3221,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, EitherAsync<L, B>> BindT<L, A, B>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, EitherAsync<L, B>> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Bind<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -3234,7 +3234,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, EitherAsync<L, B>> BindT<L, A, B>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, EitherAsync<L, EitherAsync<L, B>>> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Bind<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -3245,7 +3245,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`EitherAsync&lt;L, EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static EitherAsync<L, EitherAsync<L, B>> BindT<L, A, B>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, Task<EitherAsync<L, EitherAsync<L, B>>>> f) =>
+        public static EitherAsync<L, EitherAsync<L, B>> BindAsyncT<L, A, B>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, Task<EitherAsync<L, EitherAsync<L, B>>>> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -3263,7 +3263,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .TraverseAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Traverse<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `EitherAsync&lt;L, EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
@@ -3277,7 +3277,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`EitherAsync&lt;L, EitherAsync&lt;L, B&gt;&gt;`</returns>
         [Pure]
-        public static EitherAsync<L, EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
+        public static EitherAsync<L, EitherAsync<L, B>> TraverseAsync<L, A, B>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .TraverseAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -3294,7 +3294,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, EitherAsync<L, A>> Sequence<L, A>(this EitherAsync<L, EitherAsync<L, A>> ma) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .SequenceAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>>(ma);
+                .Sequence<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3308,7 +3308,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, EitherAsync<L, B>> MapT<L, A, B>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .MapAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Map<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3320,7 +3320,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`EitherAsync&lt;L, EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static EitherAsync<L, EitherAsync<L, B>> MapT<L, A, B>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
+        public static EitherAsync<L, EitherAsync<L, B>> MapAsyncT<L, A, B>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .MapAsync<MEitherAsync<L, EitherAsync<L, B>>, EitherAsync<L, EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -3337,7 +3337,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S, L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -3350,7 +3350,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S, L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -3368,7 +3368,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -3382,7 +3382,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S, L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -3398,7 +3398,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT<L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, bool> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -3412,7 +3412,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT<L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, bool> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, EitherAsync&lt;L, A&gt;&gt;`
@@ -3422,7 +3422,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT<L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, Action<A> f) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -3435,10 +3435,10 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, EitherAsync<L, A>> FilterT<L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
+                .Bind<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                     a => pred(a)
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                        : default(MEitherAsync<L, A>).ZeroAsync());
+                        : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -3449,12 +3449,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`EitherAsync&lt;L, EitherAsync&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static EitherAsync<L, EitherAsync<L, A>> FilterT<L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
+        public static EitherAsync<L, EitherAsync<L, A>> FilterAsyncT<L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                        : default(MEitherAsync<L, A>).ZeroAsync());
+                        : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -3550,10 +3550,10 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherAsync<L, EitherAsync<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, EitherAsync<L, A>> fa) =>
-            default(ApplEitherAsync<L, EitherAsync<L, A>, EitherAsync<L, B>>).ApplyAsync(
+            default(ApplEitherAsync<L, EitherAsync<L, A>, EitherAsync<L, B>>).Apply(
                 default(MEitherAsync<L, Func<EitherAsync<L, A>, EitherAsync<L, B>>>).ReturnAsync(
                     Task.FromResult<Func<EitherAsync<L, A>, EitherAsync<L, B>>>((EitherAsync<L, A> a) => 
-                        default(ApplEitherAsync<L, A, B>).ApplyAsync(
+                        default(ApplEitherAsync<L, A, B>).Apply(
                             default(MEitherAsync<L, Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -3569,11 +3569,11 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherAsync<L, EitherAsync<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, EitherAsync<L, A>> fa, EitherAsync<L, EitherAsync<L, B>> fb) =>
-            default(ApplEitherAsync<L, EitherAsync<L, A>, EitherAsync<L, B>, EitherAsync<L, C>>).ApplyAsync(
+            default(ApplEitherAsync<L, EitherAsync<L, A>, EitherAsync<L, B>, EitherAsync<L, C>>).Apply(
                 default(MEitherAsync<L, Func<EitherAsync<L, A>, Func<EitherAsync<L, B>, EitherAsync<L, C>>>>).ReturnAsync(
                     Task.FromResult<Func<EitherAsync<L, A>, Func<EitherAsync<L, B>, EitherAsync<L, C>>>>((EitherAsync<L, A> a) =>
                         (EitherAsync<L, B> b) =>
-                            default(ApplEitherAsync<L, A, B, C>).ApplyAsync(
+                            default(ApplEitherAsync<L, A, B, C>).Apply(
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -3591,8 +3591,8 @@ namespace LanguageExt
             this Task<EitherAsync<L, A>> ma,
             Func<A, Task<EitherAsync<L, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTask<EitherAsync<L, C>>, Task<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
-            default(TransAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MTask<EitherAsync<L, C>>, Task<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
+            default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MTask<EitherAsync<L, C>>, Task<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
+            default(TransAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MTask<EitherAsync<L, C>>, Task<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -3611,7 +3611,7 @@ namespace LanguageExt
             Func<A, Task<Task<EitherAsync<L, B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTask<EitherAsync<L, C>>, Task<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, async a =>
-            default(TransAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MTask<EitherAsync<L, C>>, Task<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
+            default(TransAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MTask<EitherAsync<L, C>>, Task<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -3630,7 +3630,7 @@ namespace LanguageExt
             Func<A, Task<Task<EitherAsync<L, B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTask<EitherAsync<L, C>>, Task<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, async a =>
-            default(TransAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MTask<EitherAsync<L, C>>, Task<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
+            default(TransAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MTask<EitherAsync<L, C>>, Task<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -3648,8 +3648,8 @@ namespace LanguageExt
             this Task<EitherAsync<L, A>> ma,
             Func<A, Task<EitherAsync<L, B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTask<EitherAsync<L, C>>, Task<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
-            default(TransAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MTask<EitherAsync<L, C>>, Task<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
+            default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MTask<EitherAsync<L, C>>, Task<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
+            default(TransAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MTask<EitherAsync<L, C>>, Task<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b))));
 
 
@@ -3663,10 +3663,10 @@ namespace LanguageExt
         /// <returns>`Task&lt;EitherAsync&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static Task<EitherAsync<L, A>> Where<L, A>(this Task<EitherAsync<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
+            default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                 a => pred(a)
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                    : default(MEitherAsync<L, A>).ZeroAsync());
+                    : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -3681,7 +3681,7 @@ namespace LanguageExt
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                    : default(MEitherAsync<L, A>).ZeroAsync());
+                    : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3695,7 +3695,7 @@ namespace LanguageExt
         [Pure]
         public static Task<EitherAsync<L, B>> Select<L, A, B>(this Task<EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .MapAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Map<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;EitherAsync&lt;L, A&gt;&gt;`
         /// </summary>
@@ -3705,7 +3705,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this Task<EitherAsync<L, A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `Task&lt;EitherAsync&lt;L, A&gt;&gt;`
@@ -3715,7 +3715,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `Task&lt;EitherAsync&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT<L, A>(this Task<EitherAsync<L, A>> ma) =>
-            default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).CountAsync(ma);
+            default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -3728,7 +3728,7 @@ namespace LanguageExt
         [Pure]
         public static Task<EitherAsync<L, B>> BindT<L, A, B>(this Task<EitherAsync<L, A>> ma, Func<A, EitherAsync<L, B>> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Bind<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -3741,7 +3741,7 @@ namespace LanguageExt
         [Pure]
         public static Task<EitherAsync<L, B>> BindT<L, A, B>(this Task<EitherAsync<L, A>> ma, Func<A, Task<EitherAsync<L, B>>> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Bind<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -3752,7 +3752,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`Task&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static Task<EitherAsync<L, B>> BindT<L, A, B>(this Task<EitherAsync<L, A>> ma, Func<A, Task<Task<EitherAsync<L, B>>>> f) =>
+        public static Task<EitherAsync<L, B>> BindAsyncT<L, A, B>(this Task<EitherAsync<L, A>> ma, Func<A, Task<Task<EitherAsync<L, B>>>> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -3770,7 +3770,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, Task<B>> Traverse<L, A, B>(this Task<EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .TraverseAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Traverse<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `Task&lt;EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
@@ -3784,7 +3784,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`EitherAsync&lt;L, Task&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static EitherAsync<L, Task<B>> Traverse<L, A, B>(this Task<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
+        public static EitherAsync<L, Task<B>> TraverseAsync<L, A, B>(this Task<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .TraverseAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -3801,7 +3801,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, Task<A>> Sequence<L, A>(this Task<EitherAsync<L, A>> ma) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .SequenceAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>>(ma);
+                .Sequence<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3815,7 +3815,7 @@ namespace LanguageExt
         [Pure]
         public static Task<EitherAsync<L, B>> MapT<L, A, B>(this Task<EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .MapAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Map<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3827,7 +3827,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`Task&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static Task<EitherAsync<L, B>> MapT<L, A, B>(this Task<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
+        public static Task<EitherAsync<L, B>> MapAsyncT<L, A, B>(this Task<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .MapAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -3844,7 +3844,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S, L, A>(this Task<EitherAsync<L, A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -3857,7 +3857,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S, L, A>(this Task<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S, L, A>(this Task<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -3875,7 +3875,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S, L, A>(this Task<EitherAsync<L, A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -3889,7 +3889,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S, L, A>(this Task<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S, L, A>(this Task<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -3905,7 +3905,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT<L, A>(this Task<EitherAsync<L, A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -3919,7 +3919,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT<L, A>(this Task<EitherAsync<L, A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `Task&lt;EitherAsync&lt;L, A&gt;&gt;`
@@ -3929,7 +3929,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT<L, A>(this Task<EitherAsync<L, A>> ma, Action<A> f) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -3942,10 +3942,10 @@ namespace LanguageExt
         [Pure]
         public static Task<EitherAsync<L, A>> FilterT<L, A>(this Task<EitherAsync<L, A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
+                .Bind<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                     a => pred(a)
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                        : default(MEitherAsync<L, A>).ZeroAsync());
+                        : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -3956,12 +3956,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;EitherAsync&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<EitherAsync<L, A>> FilterT<L, A>(this Task<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
+        public static Task<EitherAsync<L, A>> FilterAsyncT<L, A>(this Task<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                        : default(MEitherAsync<L, A>).ZeroAsync());
+                        : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -4057,10 +4057,10 @@ namespace LanguageExt
         /// <returns>`Task&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<EitherAsync<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, Task<EitherAsync<L, A>> fa) =>
-            default(ApplTask< EitherAsync<L, A>, EitherAsync<L, B>>).ApplyAsync(
+            default(ApplTask< EitherAsync<L, A>, EitherAsync<L, B>>).Apply(
                 default(MTask< Func<EitherAsync<L, A>, EitherAsync<L, B>>>).ReturnAsync(
                     Task.FromResult<Func<EitherAsync<L, A>, EitherAsync<L, B>>>((EitherAsync<L, A> a) => 
-                        default(ApplEitherAsync<L, A, B>).ApplyAsync(
+                        default(ApplEitherAsync<L, A, B>).Apply(
                             default(MEitherAsync<L, Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -4076,11 +4076,11 @@ namespace LanguageExt
         /// <returns>`Task&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<EitherAsync<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Task<EitherAsync<L, A>> fa, Task<EitherAsync<L, B>> fb) =>
-            default(ApplTask< EitherAsync<L, A>, EitherAsync<L, B>, EitherAsync<L, C>>).ApplyAsync(
+            default(ApplTask< EitherAsync<L, A>, EitherAsync<L, B>, EitherAsync<L, C>>).Apply(
                 default(MTask< Func<EitherAsync<L, A>, Func<EitherAsync<L, B>, EitherAsync<L, C>>>>).ReturnAsync(
                     Task.FromResult<Func<EitherAsync<L, A>, Func<EitherAsync<L, B>, EitherAsync<L, C>>>>((EitherAsync<L, A> a) =>
                         (EitherAsync<L, B> b) =>
-                            default(ApplEitherAsync<L, A, B, C>).ApplyAsync(
+                            default(ApplEitherAsync<L, A, B, C>).Apply(
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -4098,8 +4098,8 @@ namespace LanguageExt
             this TryAsync<EitherAsync<L, A>> ma,
             Func<A, TryAsync<EitherAsync<L, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTryAsync<EitherAsync<L, C>>, TryAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
-            default(TransAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MTryAsync<EitherAsync<L, C>>, TryAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
+            default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MTryAsync<EitherAsync<L, C>>, TryAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
+            default(TransAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MTryAsync<EitherAsync<L, C>>, TryAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -4118,7 +4118,7 @@ namespace LanguageExt
             Func<A, Task<TryAsync<EitherAsync<L, B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTryAsync<EitherAsync<L, C>>, TryAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, async a =>
-            default(TransAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MTryAsync<EitherAsync<L, C>>, TryAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
+            default(TransAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MTryAsync<EitherAsync<L, C>>, TryAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -4137,7 +4137,7 @@ namespace LanguageExt
             Func<A, Task<TryAsync<EitherAsync<L, B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTryAsync<EitherAsync<L, C>>, TryAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, async a =>
-            default(TransAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MTryAsync<EitherAsync<L, C>>, TryAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
+            default(TransAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MTryAsync<EitherAsync<L, C>>, TryAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -4155,8 +4155,8 @@ namespace LanguageExt
             this TryAsync<EitherAsync<L, A>> ma,
             Func<A, TryAsync<EitherAsync<L, B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTryAsync<EitherAsync<L, C>>, TryAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
-            default(TransAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MTryAsync<EitherAsync<L, C>>, TryAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
+            default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MTryAsync<EitherAsync<L, C>>, TryAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
+            default(TransAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MTryAsync<EitherAsync<L, C>>, TryAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b))));
 
 
@@ -4170,10 +4170,10 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;EitherAsync&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static TryAsync<EitherAsync<L, A>> Where<L, A>(this TryAsync<EitherAsync<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
+            default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                 a => pred(a)
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                    : default(MEitherAsync<L, A>).ZeroAsync());
+                    : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -4188,7 +4188,7 @@ namespace LanguageExt
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                    : default(MEitherAsync<L, A>).ZeroAsync());
+                    : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4202,7 +4202,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<EitherAsync<L, B>> Select<L, A, B>(this TryAsync<EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .MapAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Map<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;EitherAsync&lt;L, A&gt;&gt;`
         /// </summary>
@@ -4212,7 +4212,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this TryAsync<EitherAsync<L, A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `TryAsync&lt;EitherAsync&lt;L, A&gt;&gt;`
@@ -4222,7 +4222,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `TryAsync&lt;EitherAsync&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT<L, A>(this TryAsync<EitherAsync<L, A>> ma) =>
-            default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).CountAsync(ma);
+            default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -4235,7 +4235,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<EitherAsync<L, B>> BindT<L, A, B>(this TryAsync<EitherAsync<L, A>> ma, Func<A, EitherAsync<L, B>> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Bind<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -4248,7 +4248,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<EitherAsync<L, B>> BindT<L, A, B>(this TryAsync<EitherAsync<L, A>> ma, Func<A, TryAsync<EitherAsync<L, B>>> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Bind<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -4259,7 +4259,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`TryAsync&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryAsync<EitherAsync<L, B>> BindT<L, A, B>(this TryAsync<EitherAsync<L, A>> ma, Func<A, Task<TryAsync<EitherAsync<L, B>>>> f) =>
+        public static TryAsync<EitherAsync<L, B>> BindAsyncT<L, A, B>(this TryAsync<EitherAsync<L, A>> ma, Func<A, Task<TryAsync<EitherAsync<L, B>>>> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -4277,7 +4277,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryAsync<B>> Traverse<L, A, B>(this TryAsync<EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .TraverseAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Traverse<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `TryAsync&lt;EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
@@ -4291,7 +4291,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`EitherAsync&lt;L, TryAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static EitherAsync<L, TryAsync<B>> Traverse<L, A, B>(this TryAsync<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
+        public static EitherAsync<L, TryAsync<B>> TraverseAsync<L, A, B>(this TryAsync<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .TraverseAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -4308,7 +4308,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryAsync<A>> Sequence<L, A>(this TryAsync<EitherAsync<L, A>> ma) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .SequenceAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>>(ma);
+                .Sequence<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4322,7 +4322,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<EitherAsync<L, B>> MapT<L, A, B>(this TryAsync<EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .MapAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Map<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4334,7 +4334,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryAsync&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryAsync<EitherAsync<L, B>> MapT<L, A, B>(this TryAsync<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
+        public static TryAsync<EitherAsync<L, B>> MapAsyncT<L, A, B>(this TryAsync<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .MapAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -4351,7 +4351,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S, L, A>(this TryAsync<EitherAsync<L, A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -4364,7 +4364,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S, L, A>(this TryAsync<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S, L, A>(this TryAsync<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -4382,7 +4382,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S, L, A>(this TryAsync<EitherAsync<L, A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -4396,7 +4396,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S, L, A>(this TryAsync<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S, L, A>(this TryAsync<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -4412,7 +4412,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT<L, A>(this TryAsync<EitherAsync<L, A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -4426,7 +4426,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT<L, A>(this TryAsync<EitherAsync<L, A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `TryAsync&lt;EitherAsync&lt;L, A&gt;&gt;`
@@ -4436,7 +4436,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT<L, A>(this TryAsync<EitherAsync<L, A>> ma, Action<A> f) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -4449,10 +4449,10 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<EitherAsync<L, A>> FilterT<L, A>(this TryAsync<EitherAsync<L, A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
+                .Bind<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                     a => pred(a)
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                        : default(MEitherAsync<L, A>).ZeroAsync());
+                        : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -4463,12 +4463,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;EitherAsync&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<EitherAsync<L, A>> FilterT<L, A>(this TryAsync<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
+        public static TryAsync<EitherAsync<L, A>> FilterAsyncT<L, A>(this TryAsync<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                        : default(MEitherAsync<L, A>).ZeroAsync());
+                        : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -4564,10 +4564,10 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<EitherAsync<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, TryAsync<EitherAsync<L, A>> fa) =>
-            default(ApplTryAsync< EitherAsync<L, A>, EitherAsync<L, B>>).ApplyAsync(
+            default(ApplTryAsync< EitherAsync<L, A>, EitherAsync<L, B>>).Apply(
                 default(MTryAsync< Func<EitherAsync<L, A>, EitherAsync<L, B>>>).ReturnAsync(
                     Task.FromResult<Func<EitherAsync<L, A>, EitherAsync<L, B>>>((EitherAsync<L, A> a) => 
-                        default(ApplEitherAsync<L, A, B>).ApplyAsync(
+                        default(ApplEitherAsync<L, A, B>).Apply(
                             default(MEitherAsync<L, Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -4583,11 +4583,11 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<EitherAsync<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, TryAsync<EitherAsync<L, A>> fa, TryAsync<EitherAsync<L, B>> fb) =>
-            default(ApplTryAsync< EitherAsync<L, A>, EitherAsync<L, B>, EitherAsync<L, C>>).ApplyAsync(
+            default(ApplTryAsync< EitherAsync<L, A>, EitherAsync<L, B>, EitherAsync<L, C>>).Apply(
                 default(MTryAsync< Func<EitherAsync<L, A>, Func<EitherAsync<L, B>, EitherAsync<L, C>>>>).ReturnAsync(
                     Task.FromResult<Func<EitherAsync<L, A>, Func<EitherAsync<L, B>, EitherAsync<L, C>>>>((EitherAsync<L, A> a) =>
                         (EitherAsync<L, B> b) =>
-                            default(ApplEitherAsync<L, A, B, C>).ApplyAsync(
+                            default(ApplEitherAsync<L, A, B, C>).Apply(
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -4605,8 +4605,8 @@ namespace LanguageExt
             this TryOptionAsync<EitherAsync<L, A>> ma,
             Func<A, TryOptionAsync<EitherAsync<L, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTryOptionAsync<EitherAsync<L, C>>, TryOptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
-            default(TransAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MTryOptionAsync<EitherAsync<L, C>>, TryOptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
+            default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MTryOptionAsync<EitherAsync<L, C>>, TryOptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
+            default(TransAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MTryOptionAsync<EitherAsync<L, C>>, TryOptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -4625,7 +4625,7 @@ namespace LanguageExt
             Func<A, Task<TryOptionAsync<EitherAsync<L, B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTryOptionAsync<EitherAsync<L, C>>, TryOptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, async a =>
-            default(TransAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MTryOptionAsync<EitherAsync<L, C>>, TryOptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
+            default(TransAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MTryOptionAsync<EitherAsync<L, C>>, TryOptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -4644,7 +4644,7 @@ namespace LanguageExt
             Func<A, Task<TryOptionAsync<EitherAsync<L, B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTryOptionAsync<EitherAsync<L, C>>, TryOptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, async a =>
-            default(TransAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MTryOptionAsync<EitherAsync<L, C>>, TryOptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
+            default(TransAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MTryOptionAsync<EitherAsync<L, C>>, TryOptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(await bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -4662,8 +4662,8 @@ namespace LanguageExt
             this TryOptionAsync<EitherAsync<L, A>> ma,
             Func<A, TryOptionAsync<EitherAsync<L, B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTryOptionAsync<EitherAsync<L, C>>, TryOptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
-            default(TransAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).BindAsync<MTryOptionAsync<EitherAsync<L, C>>, TryOptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
+            default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MTryOptionAsync<EitherAsync<L, C>>, TryOptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(ma, a =>
+            default(TransAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>).Bind<MTryOptionAsync<EitherAsync<L, C>>, TryOptionAsync<EitherAsync<L, C>>, MEitherAsync<L, C>, EitherAsync<L, C>, C>(bind(a), b =>
             default(MEitherAsync<L, C>).ReturnAsync(project(a, b))));
 
 
@@ -4677,10 +4677,10 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static TryOptionAsync<EitherAsync<L, A>> Where<L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
+            default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Bind<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                 a => pred(a)
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                    : default(MEitherAsync<L, A>).ZeroAsync());
+                    : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -4695,7 +4695,7 @@ namespace LanguageExt
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                    : default(MEitherAsync<L, A>).ZeroAsync());
+                    : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4709,7 +4709,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<EitherAsync<L, B>> Select<L, A, B>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .MapAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Map<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;`
         /// </summary>
@@ -4719,7 +4719,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this TryOptionAsync<EitherAsync<L, A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `TryOptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;`
@@ -4729,7 +4729,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `TryOptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT<L, A>(this TryOptionAsync<EitherAsync<L, A>> ma) =>
-            default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).CountAsync(ma);
+            default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -4742,7 +4742,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<EitherAsync<L, B>> BindT<L, A, B>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, EitherAsync<L, B>> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Bind<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -4755,7 +4755,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<EitherAsync<L, B>> BindT<L, A, B>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, TryOptionAsync<EitherAsync<L, B>>> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Bind<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -4766,7 +4766,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`TryOptionAsync&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryOptionAsync<EitherAsync<L, B>> BindT<L, A, B>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, Task<TryOptionAsync<EitherAsync<L, B>>>> f) =>
+        public static TryOptionAsync<EitherAsync<L, B>> BindAsyncT<L, A, B>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, Task<TryOptionAsync<EitherAsync<L, B>>>> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -4784,7 +4784,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryOptionAsync<B>> Traverse<L, A, B>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .TraverseAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Traverse<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `TryOptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
@@ -4798,7 +4798,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`EitherAsync&lt;L, TryOptionAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static EitherAsync<L, TryOptionAsync<B>> Traverse<L, A, B>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
+        public static EitherAsync<L, TryOptionAsync<B>> TraverseAsync<L, A, B>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .TraverseAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -4815,7 +4815,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryOptionAsync<A>> Sequence<L, A>(this TryOptionAsync<EitherAsync<L, A>> ma) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .SequenceAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>>(ma);
+                .Sequence<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4829,7 +4829,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<EitherAsync<L, B>> MapT<L, A, B>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .MapAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Map<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4841,7 +4841,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryOptionAsync&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryOptionAsync<EitherAsync<L, B>> MapT<L, A, B>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
+        public static TryOptionAsync<EitherAsync<L, B>> MapAsyncT<L, A, B>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .MapAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -4858,7 +4858,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S, L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -4871,7 +4871,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S, L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S, L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -4889,7 +4889,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S, L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -4903,7 +4903,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S, L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S, L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -4919,7 +4919,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT<L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -4933,7 +4933,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT<L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `TryOptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;`
@@ -4943,7 +4943,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT<L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, Action<A> f) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -4956,10 +4956,10 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<EitherAsync<L, A>> FilterT<L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
-                .BindAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
+                .Bind<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                     a => pred(a)
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                        : default(MEitherAsync<L, A>).ZeroAsync());
+                        : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -4970,12 +4970,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<EitherAsync<L, A>> FilterT<L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
+        public static TryOptionAsync<EitherAsync<L, A>> FilterAsyncT<L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
-                        : default(MEitherAsync<L, A>).ZeroAsync());
+                        : default(MEitherAsync<L, A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -5071,10 +5071,10 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<EitherAsync<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, TryOptionAsync<EitherAsync<L, A>> fa) =>
-            default(ApplTryOptionAsync< EitherAsync<L, A>, EitherAsync<L, B>>).ApplyAsync(
+            default(ApplTryOptionAsync< EitherAsync<L, A>, EitherAsync<L, B>>).Apply(
                 default(MTryOptionAsync< Func<EitherAsync<L, A>, EitherAsync<L, B>>>).ReturnAsync(
                     Task.FromResult<Func<EitherAsync<L, A>, EitherAsync<L, B>>>((EitherAsync<L, A> a) => 
-                        default(ApplEitherAsync<L, A, B>).ApplyAsync(
+                        default(ApplEitherAsync<L, A, B>).Apply(
                             default(MEitherAsync<L, Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -5090,11 +5090,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;EitherAsync&lt;L, B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<EitherAsync<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<EitherAsync<L, A>> fa, TryOptionAsync<EitherAsync<L, B>> fb) =>
-            default(ApplTryOptionAsync< EitherAsync<L, A>, EitherAsync<L, B>, EitherAsync<L, C>>).ApplyAsync(
+            default(ApplTryOptionAsync< EitherAsync<L, A>, EitherAsync<L, B>, EitherAsync<L, C>>).Apply(
                 default(MTryOptionAsync< Func<EitherAsync<L, A>, Func<EitherAsync<L, B>, EitherAsync<L, C>>>>).ReturnAsync(
                     Task.FromResult<Func<EitherAsync<L, A>, Func<EitherAsync<L, B>, EitherAsync<L, C>>>>((EitherAsync<L, A> a) =>
                         (EitherAsync<L, B> b) =>
-                            default(ApplEitherAsync<L, A, B, C>).ApplyAsync(
+                            default(ApplEitherAsync<L, A, B, C>).Apply(
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
     }
@@ -5120,8 +5120,8 @@ namespace LanguageExt
             this OptionAsync<Task<A>> ma,
             Func<A, OptionAsync<Task<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MOptionAsync<Task<C>>, OptionAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
-            default(TransAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MOptionAsync<Task<C>>, OptionAsync<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
+            default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>).Bind<MOptionAsync<Task<C>>, OptionAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
+            default(TransAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>).Bind<MOptionAsync<Task<C>>, OptionAsync<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -5140,7 +5140,7 @@ namespace LanguageExt
             Func<A, Task<OptionAsync<Task<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MOptionAsync<Task<C>>, OptionAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, async a =>
-            default(TransAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MOptionAsync<Task<C>>, OptionAsync<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
+            default(TransAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>).Bind<MOptionAsync<Task<C>>, OptionAsync<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -5159,7 +5159,7 @@ namespace LanguageExt
             Func<A, Task<OptionAsync<Task<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MOptionAsync<Task<C>>, OptionAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, async a =>
-            default(TransAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MOptionAsync<Task<C>>, OptionAsync<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
+            default(TransAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>).Bind<MOptionAsync<Task<C>>, OptionAsync<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -5177,8 +5177,8 @@ namespace LanguageExt
             this OptionAsync<Task<A>> ma,
             Func<A, OptionAsync<Task<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MOptionAsync<Task<C>>, OptionAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
-            default(TransAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MOptionAsync<Task<C>>, OptionAsync<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
+            default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>).Bind<MOptionAsync<Task<C>>, OptionAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
+            default(TransAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>).Bind<MOptionAsync<Task<C>>, OptionAsync<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b))));
 
 
@@ -5192,10 +5192,10 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Task&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static OptionAsync<Task<A>> Where< A>(this OptionAsync<Task<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
+            default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>).Bind<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
-                    : default(MTask<A>).ZeroAsync());
+                    : default(MTask<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -5210,7 +5210,7 @@ namespace LanguageExt
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
-                    : default(MTask<A>).ZeroAsync());
+                    : default(MTask<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5224,7 +5224,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<Task<B>> Select< A, B>(this OptionAsync<Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .MapAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Map<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;Task&lt;A&gt;&gt;`
         /// </summary>
@@ -5234,7 +5234,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this OptionAsync<Task<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `OptionAsync&lt;Task&lt;A&gt;&gt;`
@@ -5244,7 +5244,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `OptionAsync&lt;Task&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this OptionAsync<Task<A>> ma) =>
-            default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>).CountAsync(ma);
+            default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -5257,7 +5257,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<Task<B>> BindT< A, B>(this OptionAsync<Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Bind<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -5270,7 +5270,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<Task<B>> BindT< A, B>(this OptionAsync<Task<A>> ma, Func<A, OptionAsync<Task<B>>> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Bind<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -5281,7 +5281,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`OptionAsync&lt;Task&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OptionAsync<Task<B>> BindT< A, B>(this OptionAsync<Task<A>> ma, Func<A, Task<OptionAsync<Task<B>>>> f) =>
+        public static OptionAsync<Task<B>> BindAsyncT< A, B>(this OptionAsync<Task<A>> ma, Func<A, Task<OptionAsync<Task<B>>>> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -5299,7 +5299,7 @@ namespace LanguageExt
         [Pure]
         public static Task<OptionAsync<B>> Traverse< A, B>(this OptionAsync<Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .TraverseAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Traverse<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `OptionAsync&lt;Task&lt;A&gt;&gt;`, traverses the inner
@@ -5313,7 +5313,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`Task&lt;OptionAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static Task<OptionAsync<B>> Traverse< A, B>(this OptionAsync<Task<A>> ma, Func<A, Task<B>> f) =>
+        public static Task<OptionAsync<B>> TraverseAsync< A, B>(this OptionAsync<Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .TraverseAsync<MTask<OptionAsync<B>>, Task<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -5330,7 +5330,7 @@ namespace LanguageExt
         [Pure]
         public static Task<OptionAsync<A>> Sequence< A>(this OptionAsync<Task<A>> ma) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .SequenceAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>>(ma);
+                .Sequence<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5344,7 +5344,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<Task<B>> MapT< A, B>(this OptionAsync<Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .MapAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Map<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5356,7 +5356,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`OptionAsync&lt;Task&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OptionAsync<Task<B>> MapT< A, B>(this OptionAsync<Task<A>> ma, Func<A, Task<B>> f) =>
+        public static OptionAsync<Task<B>> MapAsyncT< A, B>(this OptionAsync<Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .MapAsync<MOptionAsync<Task<B>>, OptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -5373,7 +5373,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this OptionAsync<Task<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -5386,7 +5386,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this OptionAsync<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this OptionAsync<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -5404,7 +5404,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this OptionAsync<Task<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -5418,7 +5418,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this OptionAsync<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this OptionAsync<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -5434,7 +5434,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this OptionAsync<Task<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -5448,7 +5448,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this OptionAsync<Task<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync&lt;Task&lt;A&gt;&gt;`
@@ -5458,7 +5458,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this OptionAsync<Task<A>> ma, Action<A> f) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -5471,10 +5471,10 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<Task<A>> FilterT< A>(this OptionAsync<Task<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
+                .Bind<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
-                        : default(MTask<A>).ZeroAsync());
+                        : default(MTask<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -5485,12 +5485,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Task&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Task<A>> FilterT< A>(this OptionAsync<Task<A>> ma, Func<A, Task<bool>> pred) =>
+        public static OptionAsync<Task<A>> FilterAsyncT< A>(this OptionAsync<Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
-                        : default(MTask<A>).ZeroAsync());
+                        : default(MTask<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -5586,10 +5586,10 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Task&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionAsync<Task<B>> ApplyT< A, B>(this Func<A, B> fab, OptionAsync<Task<A>> fa) =>
-            default(ApplOptionAsync< Task<A>, Task<B>>).ApplyAsync(
+            default(ApplOptionAsync< Task<A>, Task<B>>).Apply(
                 default(MOptionAsync< Func<Task<A>, Task<B>>>).ReturnAsync(
                     Task.FromResult<Func<Task<A>, Task<B>>>((Task<A> a) => 
-                        default(ApplTask< A, B>).ApplyAsync(
+                        default(ApplTask< A, B>).Apply(
                             default(MTask< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -5605,11 +5605,11 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Task&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionAsync<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionAsync<Task<A>> fa, OptionAsync<Task<B>> fb) =>
-            default(ApplOptionAsync< Task<A>, Task<B>, Task<C>>).ApplyAsync(
+            default(ApplOptionAsync< Task<A>, Task<B>, Task<C>>).Apply(
                 default(MOptionAsync< Func<Task<A>, Func<Task<B>, Task<C>>>>).ReturnAsync(
                     Task.FromResult<Func<Task<A>, Func<Task<B>, Task<C>>>>((Task<A> a) =>
                         (Task<B> b) =>
-                            default(ApplTask< A, B, C>).ApplyAsync(
+                            default(ApplTask< A, B, C>).Apply(
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -5627,8 +5627,8 @@ namespace LanguageExt
             this EitherAsync<L, Task<A>> ma,
             Func<A, EitherAsync<L, Task<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MEitherAsync<L, Task<C>>, EitherAsync<L, Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
-            default(TransAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MEitherAsync<L, Task<C>>, EitherAsync<L, Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
+            default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>).Bind<MEitherAsync<L, Task<C>>, EitherAsync<L, Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
+            default(TransAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>).Bind<MEitherAsync<L, Task<C>>, EitherAsync<L, Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -5647,7 +5647,7 @@ namespace LanguageExt
             Func<A, Task<EitherAsync<L, Task<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MEitherAsync<L, Task<C>>, EitherAsync<L, Task<C>>, MTask<C>, Task<C>, C>(ma, async a =>
-            default(TransAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MEitherAsync<L, Task<C>>, EitherAsync<L, Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
+            default(TransAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>).Bind<MEitherAsync<L, Task<C>>, EitherAsync<L, Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -5666,7 +5666,7 @@ namespace LanguageExt
             Func<A, Task<EitherAsync<L, Task<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MEitherAsync<L, Task<C>>, EitherAsync<L, Task<C>>, MTask<C>, Task<C>, C>(ma, async a =>
-            default(TransAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MEitherAsync<L, Task<C>>, EitherAsync<L, Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
+            default(TransAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>).Bind<MEitherAsync<L, Task<C>>, EitherAsync<L, Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -5684,8 +5684,8 @@ namespace LanguageExt
             this EitherAsync<L, Task<A>> ma,
             Func<A, EitherAsync<L, Task<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MEitherAsync<L, Task<C>>, EitherAsync<L, Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
-            default(TransAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MEitherAsync<L, Task<C>>, EitherAsync<L, Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
+            default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>).Bind<MEitherAsync<L, Task<C>>, EitherAsync<L, Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
+            default(TransAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>).Bind<MEitherAsync<L, Task<C>>, EitherAsync<L, Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b))));
 
 
@@ -5699,10 +5699,10 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, Task&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static EitherAsync<L, Task<A>> Where<L, A>(this EitherAsync<L, Task<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>(ma, 
+            default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>).Bind<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
-                    : default(MTask<A>).ZeroAsync());
+                    : default(MTask<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -5717,7 +5717,7 @@ namespace LanguageExt
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
-                    : default(MTask<A>).ZeroAsync());
+                    : default(MTask<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5731,7 +5731,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, Task<B>> Select<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
-                .MapAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Map<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, Task&lt;A&gt;&gt;`
         /// </summary>
@@ -5741,7 +5741,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, Task<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `EitherAsync&lt;L, Task&lt;A&gt;&gt;`
@@ -5751,7 +5751,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `EitherAsync&lt;L, Task&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT<L, A>(this EitherAsync<L, Task<A>> ma) =>
-            default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>).CountAsync(ma);
+            default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -5764,7 +5764,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, Task<B>> BindT<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Bind<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -5777,7 +5777,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, Task<B>> BindT<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, EitherAsync<L, Task<B>>> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Bind<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -5788,7 +5788,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`EitherAsync&lt;L, Task&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static EitherAsync<L, Task<B>> BindT<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, Task<EitherAsync<L, Task<B>>>> f) =>
+        public static EitherAsync<L, Task<B>> BindAsyncT<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, Task<EitherAsync<L, Task<B>>>> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -5806,7 +5806,7 @@ namespace LanguageExt
         [Pure]
         public static Task<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
-                .TraverseAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Traverse<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `EitherAsync&lt;L, Task&lt;A&gt;&gt;`, traverses the inner
@@ -5820,7 +5820,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`Task&lt;EitherAsync&lt;L, B&gt;&gt;`</returns>
         [Pure]
-        public static Task<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, Task<B>> f) =>
+        public static Task<EitherAsync<L, B>> TraverseAsync<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
                 .TraverseAsync<MTask<EitherAsync<L, B>>, Task<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -5837,7 +5837,7 @@ namespace LanguageExt
         [Pure]
         public static Task<EitherAsync<L, A>> Sequence<L, A>(this EitherAsync<L, Task<A>> ma) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
-                .SequenceAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>>(ma);
+                .Sequence<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5851,7 +5851,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, Task<B>> MapT<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
-                .MapAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Map<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5863,7 +5863,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`EitherAsync&lt;L, Task&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static EitherAsync<L, Task<B>> MapT<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, Task<B>> f) =>
+        public static EitherAsync<L, Task<B>> MapAsyncT<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
                 .MapAsync<MEitherAsync<L, Task<B>>, EitherAsync<L, Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -5880,7 +5880,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S, L, A>(this EitherAsync<L, Task<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -5893,7 +5893,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S, L, A>(this EitherAsync<L, Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -5911,7 +5911,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, Task<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -5925,7 +5925,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S, L, A>(this EitherAsync<L, Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -5941,7 +5941,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT<L, A>(this EitherAsync<L, Task<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -5955,7 +5955,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT<L, A>(this EitherAsync<L, Task<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, Task&lt;A&gt;&gt;`
@@ -5965,7 +5965,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT<L, A>(this EitherAsync<L, Task<A>> ma, Action<A> f) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -5978,10 +5978,10 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, Task<A>> FilterT<L, A>(this EitherAsync<L, Task<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>(ma, 
+                .Bind<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
-                        : default(MTask<A>).ZeroAsync());
+                        : default(MTask<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -5992,12 +5992,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`EitherAsync&lt;L, Task&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static EitherAsync<L, Task<A>> FilterT<L, A>(this EitherAsync<L, Task<A>> ma, Func<A, Task<bool>> pred) =>
+        public static EitherAsync<L, Task<A>> FilterAsyncT<L, A>(this EitherAsync<L, Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
-                        : default(MTask<A>).ZeroAsync());
+                        : default(MTask<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -6093,10 +6093,10 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, Task&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherAsync<L, Task<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, Task<A>> fa) =>
-            default(ApplEitherAsync<L, Task<A>, Task<B>>).ApplyAsync(
+            default(ApplEitherAsync<L, Task<A>, Task<B>>).Apply(
                 default(MEitherAsync<L, Func<Task<A>, Task<B>>>).ReturnAsync(
                     Task.FromResult<Func<Task<A>, Task<B>>>((Task<A> a) => 
-                        default(ApplTask< A, B>).ApplyAsync(
+                        default(ApplTask< A, B>).Apply(
                             default(MTask< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -6112,11 +6112,11 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, Task&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherAsync<L, Task<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, Task<A>> fa, EitherAsync<L, Task<B>> fb) =>
-            default(ApplEitherAsync<L, Task<A>, Task<B>, Task<C>>).ApplyAsync(
+            default(ApplEitherAsync<L, Task<A>, Task<B>, Task<C>>).Apply(
                 default(MEitherAsync<L, Func<Task<A>, Func<Task<B>, Task<C>>>>).ReturnAsync(
                     Task.FromResult<Func<Task<A>, Func<Task<B>, Task<C>>>>((Task<A> a) =>
                         (Task<B> b) =>
-                            default(ApplTask< A, B, C>).ApplyAsync(
+                            default(ApplTask< A, B, C>).Apply(
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -6134,8 +6134,8 @@ namespace LanguageExt
             this Task<Task<A>> ma,
             Func<A, Task<Task<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTask<Task<C>>, Task<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
-            default(TransAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MTask<Task<C>>, Task<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
+            default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>).Bind<MTask<Task<C>>, Task<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
+            default(TransAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>).Bind<MTask<Task<C>>, Task<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -6154,7 +6154,7 @@ namespace LanguageExt
             Func<A, Task<Task<Task<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTask<Task<C>>, Task<Task<C>>, MTask<C>, Task<C>, C>(ma, async a =>
-            default(TransAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MTask<Task<C>>, Task<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
+            default(TransAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>).Bind<MTask<Task<C>>, Task<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -6173,7 +6173,7 @@ namespace LanguageExt
             Func<A, Task<Task<Task<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTask<Task<C>>, Task<Task<C>>, MTask<C>, Task<C>, C>(ma, async a =>
-            default(TransAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MTask<Task<C>>, Task<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
+            default(TransAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>).Bind<MTask<Task<C>>, Task<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -6191,8 +6191,8 @@ namespace LanguageExt
             this Task<Task<A>> ma,
             Func<A, Task<Task<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTask<Task<C>>, Task<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
-            default(TransAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MTask<Task<C>>, Task<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
+            default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>).Bind<MTask<Task<C>>, Task<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
+            default(TransAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>).Bind<MTask<Task<C>>, Task<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b))));
 
 
@@ -6206,10 +6206,10 @@ namespace LanguageExt
         /// <returns>`Task&lt;Task&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static Task<Task<A>> Where< A>(this Task<Task<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>(ma, 
+            default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>).Bind<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
-                    : default(MTask<A>).ZeroAsync());
+                    : default(MTask<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -6224,7 +6224,7 @@ namespace LanguageExt
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
-                    : default(MTask<A>).ZeroAsync());
+                    : default(MTask<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6238,7 +6238,7 @@ namespace LanguageExt
         [Pure]
         public static Task<Task<B>> Select< A, B>(this Task<Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
-                .MapAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Map<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;Task&lt;A&gt;&gt;`
         /// </summary>
@@ -6248,7 +6248,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this Task<Task<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `Task&lt;Task&lt;A&gt;&gt;`
@@ -6258,7 +6258,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `Task&lt;Task&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this Task<Task<A>> ma) =>
-            default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>).CountAsync(ma);
+            default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -6271,7 +6271,7 @@ namespace LanguageExt
         [Pure]
         public static Task<Task<B>> BindT< A, B>(this Task<Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Bind<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -6284,7 +6284,7 @@ namespace LanguageExt
         [Pure]
         public static Task<Task<B>> BindT< A, B>(this Task<Task<A>> ma, Func<A, Task<Task<B>>> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Bind<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -6295,7 +6295,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`Task&lt;Task&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static Task<Task<B>> BindT< A, B>(this Task<Task<A>> ma, Func<A, Task<Task<Task<B>>>> f) =>
+        public static Task<Task<B>> BindAsyncT< A, B>(this Task<Task<A>> ma, Func<A, Task<Task<Task<B>>>> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -6313,7 +6313,7 @@ namespace LanguageExt
         [Pure]
         public static Task<Task<B>> Traverse< A, B>(this Task<Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
-                .TraverseAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Traverse<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `Task&lt;Task&lt;A&gt;&gt;`, traverses the inner
@@ -6327,7 +6327,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`Task&lt;Task&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static Task<Task<B>> Traverse< A, B>(this Task<Task<A>> ma, Func<A, Task<B>> f) =>
+        public static Task<Task<B>> TraverseAsync< A, B>(this Task<Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
                 .TraverseAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -6344,7 +6344,7 @@ namespace LanguageExt
         [Pure]
         public static Task<Task<A>> Sequence< A>(this Task<Task<A>> ma) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
-                .SequenceAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>>(ma);
+                .Sequence<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6358,7 +6358,7 @@ namespace LanguageExt
         [Pure]
         public static Task<Task<B>> MapT< A, B>(this Task<Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
-                .MapAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Map<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6370,7 +6370,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`Task&lt;Task&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static Task<Task<B>> MapT< A, B>(this Task<Task<A>> ma, Func<A, Task<B>> f) =>
+        public static Task<Task<B>> MapAsyncT< A, B>(this Task<Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
                 .MapAsync<MTask<Task<B>>, Task<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -6387,7 +6387,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this Task<Task<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -6400,7 +6400,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this Task<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this Task<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -6418,7 +6418,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this Task<Task<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -6432,7 +6432,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this Task<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this Task<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -6448,7 +6448,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this Task<Task<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -6462,7 +6462,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this Task<Task<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `Task&lt;Task&lt;A&gt;&gt;`
@@ -6472,7 +6472,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this Task<Task<A>> ma, Action<A> f) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -6485,10 +6485,10 @@ namespace LanguageExt
         [Pure]
         public static Task<Task<A>> FilterT< A>(this Task<Task<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>(ma, 
+                .Bind<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
-                        : default(MTask<A>).ZeroAsync());
+                        : default(MTask<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -6499,12 +6499,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Task&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Task<A>> FilterT< A>(this Task<Task<A>> ma, Func<A, Task<bool>> pred) =>
+        public static Task<Task<A>> FilterAsyncT< A>(this Task<Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
-                        : default(MTask<A>).ZeroAsync());
+                        : default(MTask<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -6600,10 +6600,10 @@ namespace LanguageExt
         /// <returns>`Task&lt;Task&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<Task<B>> ApplyT< A, B>(this Func<A, B> fab, Task<Task<A>> fa) =>
-            default(ApplTask< Task<A>, Task<B>>).ApplyAsync(
+            default(ApplTask< Task<A>, Task<B>>).Apply(
                 default(MTask< Func<Task<A>, Task<B>>>).ReturnAsync(
                     Task.FromResult<Func<Task<A>, Task<B>>>((Task<A> a) => 
-                        default(ApplTask< A, B>).ApplyAsync(
+                        default(ApplTask< A, B>).Apply(
                             default(MTask< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -6619,11 +6619,11 @@ namespace LanguageExt
         /// <returns>`Task&lt;Task&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<Task<A>> fa, Task<Task<B>> fb) =>
-            default(ApplTask< Task<A>, Task<B>, Task<C>>).ApplyAsync(
+            default(ApplTask< Task<A>, Task<B>, Task<C>>).Apply(
                 default(MTask< Func<Task<A>, Func<Task<B>, Task<C>>>>).ReturnAsync(
                     Task.FromResult<Func<Task<A>, Func<Task<B>, Task<C>>>>((Task<A> a) =>
                         (Task<B> b) =>
-                            default(ApplTask< A, B, C>).ApplyAsync(
+                            default(ApplTask< A, B, C>).Apply(
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -6641,8 +6641,8 @@ namespace LanguageExt
             this TryAsync<Task<A>> ma,
             Func<A, TryAsync<Task<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTryAsync<Task<C>>, TryAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
-            default(TransAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MTryAsync<Task<C>>, TryAsync<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
+            default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>).Bind<MTryAsync<Task<C>>, TryAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
+            default(TransAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>).Bind<MTryAsync<Task<C>>, TryAsync<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -6661,7 +6661,7 @@ namespace LanguageExt
             Func<A, Task<TryAsync<Task<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTryAsync<Task<C>>, TryAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, async a =>
-            default(TransAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MTryAsync<Task<C>>, TryAsync<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>).Bind<MTryAsync<Task<C>>, TryAsync<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -6680,7 +6680,7 @@ namespace LanguageExt
             Func<A, Task<TryAsync<Task<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTryAsync<Task<C>>, TryAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, async a =>
-            default(TransAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MTryAsync<Task<C>>, TryAsync<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>).Bind<MTryAsync<Task<C>>, TryAsync<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -6698,8 +6698,8 @@ namespace LanguageExt
             this TryAsync<Task<A>> ma,
             Func<A, TryAsync<Task<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTryAsync<Task<C>>, TryAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
-            default(TransAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MTryAsync<Task<C>>, TryAsync<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
+            default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>).Bind<MTryAsync<Task<C>>, TryAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
+            default(TransAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>).Bind<MTryAsync<Task<C>>, TryAsync<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b))));
 
 
@@ -6713,10 +6713,10 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Task&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static TryAsync<Task<A>> Where< A>(this TryAsync<Task<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
+            default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>).Bind<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
-                    : default(MTask<A>).ZeroAsync());
+                    : default(MTask<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -6731,7 +6731,7 @@ namespace LanguageExt
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
-                    : default(MTask<A>).ZeroAsync());
+                    : default(MTask<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6745,7 +6745,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<Task<B>> Select< A, B>(this TryAsync<Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .MapAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Map<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;Task&lt;A&gt;&gt;`
         /// </summary>
@@ -6755,7 +6755,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryAsync<Task<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `TryAsync&lt;Task&lt;A&gt;&gt;`
@@ -6765,7 +6765,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `TryAsync&lt;Task&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this TryAsync<Task<A>> ma) =>
-            default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>).CountAsync(ma);
+            default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -6778,7 +6778,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<Task<B>> BindT< A, B>(this TryAsync<Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Bind<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -6791,7 +6791,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<Task<B>> BindT< A, B>(this TryAsync<Task<A>> ma, Func<A, TryAsync<Task<B>>> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Bind<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -6802,7 +6802,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`TryAsync&lt;Task&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryAsync<Task<B>> BindT< A, B>(this TryAsync<Task<A>> ma, Func<A, Task<TryAsync<Task<B>>>> f) =>
+        public static TryAsync<Task<B>> BindAsyncT< A, B>(this TryAsync<Task<A>> ma, Func<A, Task<TryAsync<Task<B>>>> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -6820,7 +6820,7 @@ namespace LanguageExt
         [Pure]
         public static Task<TryAsync<B>> Traverse< A, B>(this TryAsync<Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .TraverseAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Traverse<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `TryAsync&lt;Task&lt;A&gt;&gt;`, traverses the inner
@@ -6834,7 +6834,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`Task&lt;TryAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static Task<TryAsync<B>> Traverse< A, B>(this TryAsync<Task<A>> ma, Func<A, Task<B>> f) =>
+        public static Task<TryAsync<B>> TraverseAsync< A, B>(this TryAsync<Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .TraverseAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -6851,7 +6851,7 @@ namespace LanguageExt
         [Pure]
         public static Task<TryAsync<A>> Sequence< A>(this TryAsync<Task<A>> ma) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .SequenceAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>>(ma);
+                .Sequence<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6865,7 +6865,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<Task<B>> MapT< A, B>(this TryAsync<Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .MapAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Map<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6877,7 +6877,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryAsync&lt;Task&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryAsync<Task<B>> MapT< A, B>(this TryAsync<Task<A>> ma, Func<A, Task<B>> f) =>
+        public static TryAsync<Task<B>> MapAsyncT< A, B>(this TryAsync<Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .MapAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -6894,7 +6894,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this TryAsync<Task<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -6907,7 +6907,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this TryAsync<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this TryAsync<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -6925,7 +6925,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this TryAsync<Task<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -6939,7 +6939,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this TryAsync<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this TryAsync<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -6955,7 +6955,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this TryAsync<Task<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -6969,7 +6969,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this TryAsync<Task<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `TryAsync&lt;Task&lt;A&gt;&gt;`
@@ -6979,7 +6979,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this TryAsync<Task<A>> ma, Action<A> f) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -6992,10 +6992,10 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<Task<A>> FilterT< A>(this TryAsync<Task<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
+                .Bind<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
-                        : default(MTask<A>).ZeroAsync());
+                        : default(MTask<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -7006,12 +7006,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Task&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Task<A>> FilterT< A>(this TryAsync<Task<A>> ma, Func<A, Task<bool>> pred) =>
+        public static TryAsync<Task<A>> FilterAsyncT< A>(this TryAsync<Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
-                        : default(MTask<A>).ZeroAsync());
+                        : default(MTask<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -7107,10 +7107,10 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Task&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<Task<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<Task<A>> fa) =>
-            default(ApplTryAsync< Task<A>, Task<B>>).ApplyAsync(
+            default(ApplTryAsync< Task<A>, Task<B>>).Apply(
                 default(MTryAsync< Func<Task<A>, Task<B>>>).ReturnAsync(
                     Task.FromResult<Func<Task<A>, Task<B>>>((Task<A> a) => 
-                        default(ApplTask< A, B>).ApplyAsync(
+                        default(ApplTask< A, B>).Apply(
                             default(MTask< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -7126,11 +7126,11 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Task&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<Task<A>> fa, TryAsync<Task<B>> fb) =>
-            default(ApplTryAsync< Task<A>, Task<B>, Task<C>>).ApplyAsync(
+            default(ApplTryAsync< Task<A>, Task<B>, Task<C>>).Apply(
                 default(MTryAsync< Func<Task<A>, Func<Task<B>, Task<C>>>>).ReturnAsync(
                     Task.FromResult<Func<Task<A>, Func<Task<B>, Task<C>>>>((Task<A> a) =>
                         (Task<B> b) =>
-                            default(ApplTask< A, B, C>).ApplyAsync(
+                            default(ApplTask< A, B, C>).Apply(
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -7148,8 +7148,8 @@ namespace LanguageExt
             this TryOptionAsync<Task<A>> ma,
             Func<A, TryOptionAsync<Task<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTryOptionAsync<Task<C>>, TryOptionAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
-            default(TransAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MTryOptionAsync<Task<C>>, TryOptionAsync<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
+            default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>).Bind<MTryOptionAsync<Task<C>>, TryOptionAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
+            default(TransAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>).Bind<MTryOptionAsync<Task<C>>, TryOptionAsync<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -7168,7 +7168,7 @@ namespace LanguageExt
             Func<A, Task<TryOptionAsync<Task<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTryOptionAsync<Task<C>>, TryOptionAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, async a =>
-            default(TransAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MTryOptionAsync<Task<C>>, TryOptionAsync<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>).Bind<MTryOptionAsync<Task<C>>, TryOptionAsync<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -7187,7 +7187,7 @@ namespace LanguageExt
             Func<A, Task<TryOptionAsync<Task<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTryOptionAsync<Task<C>>, TryOptionAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, async a =>
-            default(TransAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MTryOptionAsync<Task<C>>, TryOptionAsync<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>).Bind<MTryOptionAsync<Task<C>>, TryOptionAsync<Task<C>>, MTask<C>, Task<C>, C>(await bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -7205,8 +7205,8 @@ namespace LanguageExt
             this TryOptionAsync<Task<A>> ma,
             Func<A, TryOptionAsync<Task<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTryOptionAsync<Task<C>>, TryOptionAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
-            default(TransAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>).BindAsync<MTryOptionAsync<Task<C>>, TryOptionAsync<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
+            default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>).Bind<MTryOptionAsync<Task<C>>, TryOptionAsync<Task<C>>, MTask<C>, Task<C>, C>(ma, a =>
+            default(TransAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>).Bind<MTryOptionAsync<Task<C>>, TryOptionAsync<Task<C>>, MTask<C>, Task<C>, C>(bind(a), b =>
             default(MTask<C>).ReturnAsync(project(a, b))));
 
 
@@ -7220,10 +7220,10 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Task&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static TryOptionAsync<Task<A>> Where< A>(this TryOptionAsync<Task<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
+            default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>).Bind<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
-                    : default(MTask<A>).ZeroAsync());
+                    : default(MTask<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -7238,7 +7238,7 @@ namespace LanguageExt
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
-                    : default(MTask<A>).ZeroAsync());
+                    : default(MTask<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7252,7 +7252,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<Task<B>> Select< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .MapAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Map<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;Task&lt;A&gt;&gt;`
         /// </summary>
@@ -7262,7 +7262,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryOptionAsync<Task<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `TryOptionAsync&lt;Task&lt;A&gt;&gt;`
@@ -7272,7 +7272,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `TryOptionAsync&lt;Task&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this TryOptionAsync<Task<A>> ma) =>
-            default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>).CountAsync(ma);
+            default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -7285,7 +7285,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<Task<B>> BindT< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Bind<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -7298,7 +7298,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<Task<B>> BindT< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, TryOptionAsync<Task<B>>> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Bind<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -7309,7 +7309,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`TryOptionAsync&lt;Task&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryOptionAsync<Task<B>> BindT< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, Task<TryOptionAsync<Task<B>>>> f) =>
+        public static TryOptionAsync<Task<B>> BindAsyncT< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, Task<TryOptionAsync<Task<B>>>> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -7327,7 +7327,7 @@ namespace LanguageExt
         [Pure]
         public static Task<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .TraverseAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Traverse<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `TryOptionAsync&lt;Task&lt;A&gt;&gt;`, traverses the inner
@@ -7341,7 +7341,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`Task&lt;TryOptionAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static Task<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, Task<B>> f) =>
+        public static Task<TryOptionAsync<B>> TraverseAsync< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .TraverseAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -7358,7 +7358,7 @@ namespace LanguageExt
         [Pure]
         public static Task<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<Task<A>> ma) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .SequenceAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>>(ma);
+                .Sequence<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7372,7 +7372,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<Task<B>> MapT< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .MapAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Map<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7384,7 +7384,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryOptionAsync&lt;Task&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryOptionAsync<Task<B>> MapT< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, Task<B>> f) =>
+        public static TryOptionAsync<Task<B>> MapAsyncT< A, B>(this TryOptionAsync<Task<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .MapAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -7401,7 +7401,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this TryOptionAsync<Task<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -7414,7 +7414,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this TryOptionAsync<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this TryOptionAsync<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -7432,7 +7432,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this TryOptionAsync<Task<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -7446,7 +7446,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this TryOptionAsync<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this TryOptionAsync<Task<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -7462,7 +7462,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this TryOptionAsync<Task<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -7476,7 +7476,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this TryOptionAsync<Task<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `TryOptionAsync&lt;Task&lt;A&gt;&gt;`
@@ -7486,7 +7486,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this TryOptionAsync<Task<A>> ma, Action<A> f) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -7499,10 +7499,10 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<Task<A>> FilterT< A>(this TryOptionAsync<Task<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
-                .BindAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
+                .Bind<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
-                        : default(MTask<A>).ZeroAsync());
+                        : default(MTask<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -7513,12 +7513,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Task&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Task<A>> FilterT< A>(this TryOptionAsync<Task<A>> ma, Func<A, Task<bool>> pred) =>
+        public static TryOptionAsync<Task<A>> FilterAsyncT< A>(this TryOptionAsync<Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
-                        : default(MTask<A>).ZeroAsync());
+                        : default(MTask<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -7614,10 +7614,10 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Task&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<Task<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<Task<A>> fa) =>
-            default(ApplTryOptionAsync< Task<A>, Task<B>>).ApplyAsync(
+            default(ApplTryOptionAsync< Task<A>, Task<B>>).Apply(
                 default(MTryOptionAsync< Func<Task<A>, Task<B>>>).ReturnAsync(
                     Task.FromResult<Func<Task<A>, Task<B>>>((Task<A> a) => 
-                        default(ApplTask< A, B>).ApplyAsync(
+                        default(ApplTask< A, B>).Apply(
                             default(MTask< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -7633,11 +7633,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Task&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<Task<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<Task<A>> fa, TryOptionAsync<Task<B>> fb) =>
-            default(ApplTryOptionAsync< Task<A>, Task<B>, Task<C>>).ApplyAsync(
+            default(ApplTryOptionAsync< Task<A>, Task<B>, Task<C>>).Apply(
                 default(MTryOptionAsync< Func<Task<A>, Func<Task<B>, Task<C>>>>).ReturnAsync(
                     Task.FromResult<Func<Task<A>, Func<Task<B>, Task<C>>>>((Task<A> a) =>
                         (Task<B> b) =>
-                            default(ApplTask< A, B, C>).ApplyAsync(
+                            default(ApplTask< A, B, C>).Apply(
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
     }
@@ -7663,8 +7663,8 @@ namespace LanguageExt
             this OptionAsync<TryAsync<A>> ma,
             Func<A, OptionAsync<TryAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MOptionAsync<TryAsync<C>>, OptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
-            default(TransAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MOptionAsync<TryAsync<C>>, OptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MOptionAsync<TryAsync<C>>, OptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
+            default(TransAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MOptionAsync<TryAsync<C>>, OptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -7683,7 +7683,7 @@ namespace LanguageExt
             Func<A, Task<OptionAsync<TryAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MOptionAsync<TryAsync<C>>, OptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, async a =>
-            default(TransAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MOptionAsync<TryAsync<C>>, OptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MOptionAsync<TryAsync<C>>, OptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -7702,7 +7702,7 @@ namespace LanguageExt
             Func<A, Task<OptionAsync<TryAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MOptionAsync<TryAsync<C>>, OptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, async a =>
-            default(TransAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MOptionAsync<TryAsync<C>>, OptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MOptionAsync<TryAsync<C>>, OptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -7720,8 +7720,8 @@ namespace LanguageExt
             this OptionAsync<TryAsync<A>> ma,
             Func<A, OptionAsync<TryAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MOptionAsync<TryAsync<C>>, OptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
-            default(TransAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MOptionAsync<TryAsync<C>>, OptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MOptionAsync<TryAsync<C>>, OptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
+            default(TransAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MOptionAsync<TryAsync<C>>, OptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -7735,10 +7735,10 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;TryAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static OptionAsync<TryAsync<A>> Where< A>(this OptionAsync<TryAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
+            default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryAsync<A>).ZeroAsync());
+                    : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -7753,7 +7753,7 @@ namespace LanguageExt
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryAsync<A>).ZeroAsync());
+                    : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7767,7 +7767,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryAsync<B>> Select< A, B>(this OptionAsync<TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .MapAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Map<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;TryAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -7777,7 +7777,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this OptionAsync<TryAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `OptionAsync&lt;TryAsync&lt;A&gt;&gt;`
@@ -7787,7 +7787,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `OptionAsync&lt;TryAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this OptionAsync<TryAsync<A>> ma) =>
-            default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -7800,7 +7800,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryAsync<B>> BindT< A, B>(this OptionAsync<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Bind<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -7813,7 +7813,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryAsync<B>> BindT< A, B>(this OptionAsync<TryAsync<A>> ma, Func<A, OptionAsync<TryAsync<B>>> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Bind<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -7824,7 +7824,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`OptionAsync&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OptionAsync<TryAsync<B>> BindT< A, B>(this OptionAsync<TryAsync<A>> ma, Func<A, Task<OptionAsync<TryAsync<B>>>> f) =>
+        public static OptionAsync<TryAsync<B>> BindAsyncT< A, B>(this OptionAsync<TryAsync<A>> ma, Func<A, Task<OptionAsync<TryAsync<B>>>> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -7842,7 +7842,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<OptionAsync<B>> Traverse< A, B>(this OptionAsync<TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .TraverseAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Traverse<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `OptionAsync&lt;TryAsync&lt;A&gt;&gt;`, traverses the inner
@@ -7856,7 +7856,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryAsync&lt;OptionAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static TryAsync<OptionAsync<B>> Traverse< A, B>(this OptionAsync<TryAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryAsync<OptionAsync<B>> TraverseAsync< A, B>(this OptionAsync<TryAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .TraverseAsync<MTryAsync<OptionAsync<B>>, TryAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -7873,7 +7873,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<OptionAsync<A>> Sequence< A>(this OptionAsync<TryAsync<A>> ma) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .SequenceAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>>(ma);
+                .Sequence<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7887,7 +7887,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryAsync<B>> MapT< A, B>(this OptionAsync<TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .MapAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Map<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7899,7 +7899,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`OptionAsync&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OptionAsync<TryAsync<B>> MapT< A, B>(this OptionAsync<TryAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static OptionAsync<TryAsync<B>> MapAsyncT< A, B>(this OptionAsync<TryAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .MapAsync<MOptionAsync<TryAsync<B>>, OptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -7916,7 +7916,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this OptionAsync<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -7929,7 +7929,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this OptionAsync<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this OptionAsync<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -7947,7 +7947,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this OptionAsync<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -7961,7 +7961,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this OptionAsync<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this OptionAsync<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -7977,7 +7977,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this OptionAsync<TryAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -7991,7 +7991,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this OptionAsync<TryAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync&lt;TryAsync&lt;A&gt;&gt;`
@@ -8001,7 +8001,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this OptionAsync<TryAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -8014,10 +8014,10 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryAsync<A>> FilterT< A>(this OptionAsync<TryAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
+                .Bind<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryAsync<A>).ZeroAsync());
+                        : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -8028,12 +8028,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;TryAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<TryAsync<A>> FilterT< A>(this OptionAsync<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static OptionAsync<TryAsync<A>> FilterAsyncT< A>(this OptionAsync<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryAsync<A>).ZeroAsync());
+                        : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -8129,10 +8129,10 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionAsync<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, OptionAsync<TryAsync<A>> fa) =>
-            default(ApplOptionAsync< TryAsync<A>, TryAsync<B>>).ApplyAsync(
+            default(ApplOptionAsync< TryAsync<A>, TryAsync<B>>).Apply(
                 default(MOptionAsync< Func<TryAsync<A>, TryAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<TryAsync<A>, TryAsync<B>>>((TryAsync<A> a) => 
-                        default(ApplTryAsync< A, B>).ApplyAsync(
+                        default(ApplTryAsync< A, B>).Apply(
                             default(MTryAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -8148,11 +8148,11 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionAsync<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionAsync<TryAsync<A>> fa, OptionAsync<TryAsync<B>> fb) =>
-            default(ApplOptionAsync< TryAsync<A>, TryAsync<B>, TryAsync<C>>).ApplyAsync(
+            default(ApplOptionAsync< TryAsync<A>, TryAsync<B>, TryAsync<C>>).Apply(
                 default(MOptionAsync< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>((TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            default(ApplTryAsync< A, B, C>).ApplyAsync(
+                            default(ApplTryAsync< A, B, C>).Apply(
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -8170,8 +8170,8 @@ namespace LanguageExt
             this EitherAsync<L, TryAsync<A>> ma,
             Func<A, EitherAsync<L, TryAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MEitherAsync<L, TryAsync<C>>, EitherAsync<L, TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
-            default(TransAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MEitherAsync<L, TryAsync<C>>, EitherAsync<L, TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MEitherAsync<L, TryAsync<C>>, EitherAsync<L, TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
+            default(TransAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MEitherAsync<L, TryAsync<C>>, EitherAsync<L, TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -8190,7 +8190,7 @@ namespace LanguageExt
             Func<A, Task<EitherAsync<L, TryAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MEitherAsync<L, TryAsync<C>>, EitherAsync<L, TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, async a =>
-            default(TransAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MEitherAsync<L, TryAsync<C>>, EitherAsync<L, TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MEitherAsync<L, TryAsync<C>>, EitherAsync<L, TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -8209,7 +8209,7 @@ namespace LanguageExt
             Func<A, Task<EitherAsync<L, TryAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MEitherAsync<L, TryAsync<C>>, EitherAsync<L, TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, async a =>
-            default(TransAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MEitherAsync<L, TryAsync<C>>, EitherAsync<L, TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MEitherAsync<L, TryAsync<C>>, EitherAsync<L, TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -8227,8 +8227,8 @@ namespace LanguageExt
             this EitherAsync<L, TryAsync<A>> ma,
             Func<A, EitherAsync<L, TryAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MEitherAsync<L, TryAsync<C>>, EitherAsync<L, TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
-            default(TransAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MEitherAsync<L, TryAsync<C>>, EitherAsync<L, TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MEitherAsync<L, TryAsync<C>>, EitherAsync<L, TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
+            default(TransAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MEitherAsync<L, TryAsync<C>>, EitherAsync<L, TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -8242,10 +8242,10 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, TryAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static EitherAsync<L, TryAsync<A>> Where<L, A>(this EitherAsync<L, TryAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
+            default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryAsync<A>).ZeroAsync());
+                    : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -8260,7 +8260,7 @@ namespace LanguageExt
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryAsync<A>).ZeroAsync());
+                    : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8274,7 +8274,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryAsync<B>> Select<L, A, B>(this EitherAsync<L, TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .MapAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Map<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, TryAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -8284,7 +8284,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, TryAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `EitherAsync&lt;L, TryAsync&lt;A&gt;&gt;`
@@ -8294,7 +8294,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `EitherAsync&lt;L, TryAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT<L, A>(this EitherAsync<L, TryAsync<A>> ma) =>
-            default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -8307,7 +8307,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryAsync<B>> BindT<L, A, B>(this EitherAsync<L, TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Bind<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -8320,7 +8320,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryAsync<B>> BindT<L, A, B>(this EitherAsync<L, TryAsync<A>> ma, Func<A, EitherAsync<L, TryAsync<B>>> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Bind<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -8331,7 +8331,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`EitherAsync&lt;L, TryAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static EitherAsync<L, TryAsync<B>> BindT<L, A, B>(this EitherAsync<L, TryAsync<A>> ma, Func<A, Task<EitherAsync<L, TryAsync<B>>>> f) =>
+        public static EitherAsync<L, TryAsync<B>> BindAsyncT<L, A, B>(this EitherAsync<L, TryAsync<A>> ma, Func<A, Task<EitherAsync<L, TryAsync<B>>>> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -8349,7 +8349,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .TraverseAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Traverse<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `EitherAsync&lt;L, TryAsync&lt;A&gt;&gt;`, traverses the inner
@@ -8363,7 +8363,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryAsync&lt;EitherAsync&lt;L, B&gt;&gt;`</returns>
         [Pure]
-        public static TryAsync<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, TryAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryAsync<EitherAsync<L, B>> TraverseAsync<L, A, B>(this EitherAsync<L, TryAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .TraverseAsync<MTryAsync<EitherAsync<L, B>>, TryAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -8380,7 +8380,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<EitherAsync<L, A>> Sequence<L, A>(this EitherAsync<L, TryAsync<A>> ma) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .SequenceAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>>(ma);
+                .Sequence<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8394,7 +8394,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryAsync<B>> MapT<L, A, B>(this EitherAsync<L, TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .MapAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Map<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8406,7 +8406,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`EitherAsync&lt;L, TryAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static EitherAsync<L, TryAsync<B>> MapT<L, A, B>(this EitherAsync<L, TryAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static EitherAsync<L, TryAsync<B>> MapAsyncT<L, A, B>(this EitherAsync<L, TryAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .MapAsync<MEitherAsync<L, TryAsync<B>>, EitherAsync<L, TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -8423,7 +8423,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S, L, A>(this EitherAsync<L, TryAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -8436,7 +8436,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S, L, A>(this EitherAsync<L, TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -8454,7 +8454,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, TryAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -8468,7 +8468,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S, L, A>(this EitherAsync<L, TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -8484,7 +8484,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT<L, A>(this EitherAsync<L, TryAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -8498,7 +8498,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT<L, A>(this EitherAsync<L, TryAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, TryAsync&lt;A&gt;&gt;`
@@ -8508,7 +8508,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT<L, A>(this EitherAsync<L, TryAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -8521,10 +8521,10 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryAsync<A>> FilterT<L, A>(this EitherAsync<L, TryAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
+                .Bind<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryAsync<A>).ZeroAsync());
+                        : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -8535,12 +8535,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`EitherAsync&lt;L, TryAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static EitherAsync<L, TryAsync<A>> FilterT<L, A>(this EitherAsync<L, TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static EitherAsync<L, TryAsync<A>> FilterAsyncT<L, A>(this EitherAsync<L, TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryAsync<A>).ZeroAsync());
+                        : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -8636,10 +8636,10 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, TryAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherAsync<L, TryAsync<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, TryAsync<A>> fa) =>
-            default(ApplEitherAsync<L, TryAsync<A>, TryAsync<B>>).ApplyAsync(
+            default(ApplEitherAsync<L, TryAsync<A>, TryAsync<B>>).Apply(
                 default(MEitherAsync<L, Func<TryAsync<A>, TryAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<TryAsync<A>, TryAsync<B>>>((TryAsync<A> a) => 
-                        default(ApplTryAsync< A, B>).ApplyAsync(
+                        default(ApplTryAsync< A, B>).Apply(
                             default(MTryAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -8655,11 +8655,11 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, TryAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherAsync<L, TryAsync<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, TryAsync<A>> fa, EitherAsync<L, TryAsync<B>> fb) =>
-            default(ApplEitherAsync<L, TryAsync<A>, TryAsync<B>, TryAsync<C>>).ApplyAsync(
+            default(ApplEitherAsync<L, TryAsync<A>, TryAsync<B>, TryAsync<C>>).Apply(
                 default(MEitherAsync<L, Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>((TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            default(ApplTryAsync< A, B, C>).ApplyAsync(
+                            default(ApplTryAsync< A, B, C>).Apply(
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -8677,8 +8677,8 @@ namespace LanguageExt
             this Task<TryAsync<A>> ma,
             Func<A, Task<TryAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTask<TryAsync<C>>, Task<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
-            default(TransAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MTask<TryAsync<C>>, Task<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MTask<TryAsync<C>>, Task<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
+            default(TransAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MTask<TryAsync<C>>, Task<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -8697,7 +8697,7 @@ namespace LanguageExt
             Func<A, Task<Task<TryAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTask<TryAsync<C>>, Task<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MTask<TryAsync<C>>, Task<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MTask<TryAsync<C>>, Task<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -8716,7 +8716,7 @@ namespace LanguageExt
             Func<A, Task<Task<TryAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTask<TryAsync<C>>, Task<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MTask<TryAsync<C>>, Task<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MTask<TryAsync<C>>, Task<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -8734,8 +8734,8 @@ namespace LanguageExt
             this Task<TryAsync<A>> ma,
             Func<A, Task<TryAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTask<TryAsync<C>>, Task<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
-            default(TransAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MTask<TryAsync<C>>, Task<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MTask<TryAsync<C>>, Task<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
+            default(TransAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MTask<TryAsync<C>>, Task<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -8749,10 +8749,10 @@ namespace LanguageExt
         /// <returns>`Task&lt;TryAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static Task<TryAsync<A>> Where< A>(this Task<TryAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
+            default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryAsync<A>).ZeroAsync());
+                    : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -8767,7 +8767,7 @@ namespace LanguageExt
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryAsync<A>).ZeroAsync());
+                    : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8781,7 +8781,7 @@ namespace LanguageExt
         [Pure]
         public static Task<TryAsync<B>> Select< A, B>(this Task<TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .MapAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Map<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;TryAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -8791,7 +8791,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this Task<TryAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `Task&lt;TryAsync&lt;A&gt;&gt;`
@@ -8801,7 +8801,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `Task&lt;TryAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this Task<TryAsync<A>> ma) =>
-            default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -8814,7 +8814,7 @@ namespace LanguageExt
         [Pure]
         public static Task<TryAsync<B>> BindT< A, B>(this Task<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Bind<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -8827,7 +8827,7 @@ namespace LanguageExt
         [Pure]
         public static Task<TryAsync<B>> BindT< A, B>(this Task<TryAsync<A>> ma, Func<A, Task<TryAsync<B>>> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Bind<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -8838,7 +8838,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`Task&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static Task<TryAsync<B>> BindT< A, B>(this Task<TryAsync<A>> ma, Func<A, Task<Task<TryAsync<B>>>> f) =>
+        public static Task<TryAsync<B>> BindAsyncT< A, B>(this Task<TryAsync<A>> ma, Func<A, Task<Task<TryAsync<B>>>> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -8856,7 +8856,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<Task<B>> Traverse< A, B>(this Task<TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .TraverseAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Traverse<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `Task&lt;TryAsync&lt;A&gt;&gt;`, traverses the inner
@@ -8870,7 +8870,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryAsync&lt;Task&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static TryAsync<Task<B>> Traverse< A, B>(this Task<TryAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryAsync<Task<B>> TraverseAsync< A, B>(this Task<TryAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .TraverseAsync<MTryAsync<Task<B>>, TryAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -8887,7 +8887,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<Task<A>> Sequence< A>(this Task<TryAsync<A>> ma) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .SequenceAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>>(ma);
+                .Sequence<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8901,7 +8901,7 @@ namespace LanguageExt
         [Pure]
         public static Task<TryAsync<B>> MapT< A, B>(this Task<TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .MapAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Map<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8913,7 +8913,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`Task&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static Task<TryAsync<B>> MapT< A, B>(this Task<TryAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static Task<TryAsync<B>> MapAsyncT< A, B>(this Task<TryAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .MapAsync<MTask<TryAsync<B>>, Task<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -8930,7 +8930,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this Task<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -8943,7 +8943,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this Task<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this Task<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -8961,7 +8961,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this Task<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -8975,7 +8975,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this Task<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this Task<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -8991,7 +8991,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this Task<TryAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -9005,7 +9005,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this Task<TryAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `Task&lt;TryAsync&lt;A&gt;&gt;`
@@ -9015,7 +9015,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this Task<TryAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -9028,10 +9028,10 @@ namespace LanguageExt
         [Pure]
         public static Task<TryAsync<A>> FilterT< A>(this Task<TryAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
+                .Bind<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryAsync<A>).ZeroAsync());
+                        : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -9042,12 +9042,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;TryAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<TryAsync<A>> FilterT< A>(this Task<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static Task<TryAsync<A>> FilterAsyncT< A>(this Task<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryAsync<A>).ZeroAsync());
+                        : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -9143,10 +9143,10 @@ namespace LanguageExt
         /// <returns>`Task&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Task<TryAsync<A>> fa) =>
-            default(ApplTask< TryAsync<A>, TryAsync<B>>).ApplyAsync(
+            default(ApplTask< TryAsync<A>, TryAsync<B>>).Apply(
                 default(MTask< Func<TryAsync<A>, TryAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<TryAsync<A>, TryAsync<B>>>((TryAsync<A> a) => 
-                        default(ApplTryAsync< A, B>).ApplyAsync(
+                        default(ApplTryAsync< A, B>).Apply(
                             default(MTryAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -9162,11 +9162,11 @@ namespace LanguageExt
         /// <returns>`Task&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<TryAsync<A>> fa, Task<TryAsync<B>> fb) =>
-            default(ApplTask< TryAsync<A>, TryAsync<B>, TryAsync<C>>).ApplyAsync(
+            default(ApplTask< TryAsync<A>, TryAsync<B>, TryAsync<C>>).Apply(
                 default(MTask< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>((TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            default(ApplTryAsync< A, B, C>).ApplyAsync(
+                            default(ApplTryAsync< A, B, C>).Apply(
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -9184,8 +9184,8 @@ namespace LanguageExt
             this TryAsync<TryAsync<A>> ma,
             Func<A, TryAsync<TryAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTryAsync<TryAsync<C>>, TryAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
-            default(TransAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MTryAsync<TryAsync<C>>, TryAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MTryAsync<TryAsync<C>>, TryAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
+            default(TransAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MTryAsync<TryAsync<C>>, TryAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -9204,7 +9204,7 @@ namespace LanguageExt
             Func<A, Task<TryAsync<TryAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTryAsync<TryAsync<C>>, TryAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MTryAsync<TryAsync<C>>, TryAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MTryAsync<TryAsync<C>>, TryAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -9223,7 +9223,7 @@ namespace LanguageExt
             Func<A, Task<TryAsync<TryAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTryAsync<TryAsync<C>>, TryAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MTryAsync<TryAsync<C>>, TryAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MTryAsync<TryAsync<C>>, TryAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -9241,8 +9241,8 @@ namespace LanguageExt
             this TryAsync<TryAsync<A>> ma,
             Func<A, TryAsync<TryAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTryAsync<TryAsync<C>>, TryAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
-            default(TransAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MTryAsync<TryAsync<C>>, TryAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MTryAsync<TryAsync<C>>, TryAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
+            default(TransAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MTryAsync<TryAsync<C>>, TryAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -9256,10 +9256,10 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;TryAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static TryAsync<TryAsync<A>> Where< A>(this TryAsync<TryAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
+            default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryAsync<A>).ZeroAsync());
+                    : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -9274,7 +9274,7 @@ namespace LanguageExt
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryAsync<A>).ZeroAsync());
+                    : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9288,7 +9288,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryAsync<B>> Select< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .MapAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Map<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;TryAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -9298,7 +9298,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryAsync<TryAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `TryAsync&lt;TryAsync&lt;A&gt;&gt;`
@@ -9308,7 +9308,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `TryAsync&lt;TryAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this TryAsync<TryAsync<A>> ma) =>
-            default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -9321,7 +9321,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryAsync<B>> BindT< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Bind<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -9334,7 +9334,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryAsync<B>> BindT< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, TryAsync<TryAsync<B>>> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Bind<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -9345,7 +9345,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`TryAsync&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryAsync<TryAsync<B>> BindT< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, Task<TryAsync<TryAsync<B>>>> f) =>
+        public static TryAsync<TryAsync<B>> BindAsyncT< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, Task<TryAsync<TryAsync<B>>>> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -9363,7 +9363,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryAsync<B>> Traverse< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .TraverseAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Traverse<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `TryAsync&lt;TryAsync&lt;A&gt;&gt;`, traverses the inner
@@ -9377,7 +9377,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryAsync&lt;TryAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static TryAsync<TryAsync<B>> Traverse< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryAsync<TryAsync<B>> TraverseAsync< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .TraverseAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -9394,7 +9394,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryAsync<A>> Sequence< A>(this TryAsync<TryAsync<A>> ma) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .SequenceAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>>(ma);
+                .Sequence<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9408,7 +9408,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryAsync<B>> MapT< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .MapAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Map<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9420,7 +9420,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryAsync&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryAsync<TryAsync<B>> MapT< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryAsync<TryAsync<B>> MapAsyncT< A, B>(this TryAsync<TryAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .MapAsync<MTryAsync<TryAsync<B>>, TryAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -9437,7 +9437,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this TryAsync<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -9450,7 +9450,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this TryAsync<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this TryAsync<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -9468,7 +9468,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this TryAsync<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -9482,7 +9482,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this TryAsync<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this TryAsync<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -9498,7 +9498,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this TryAsync<TryAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -9512,7 +9512,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this TryAsync<TryAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `TryAsync&lt;TryAsync&lt;A&gt;&gt;`
@@ -9522,7 +9522,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this TryAsync<TryAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -9535,10 +9535,10 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryAsync<A>> FilterT< A>(this TryAsync<TryAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
+                .Bind<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryAsync<A>).ZeroAsync());
+                        : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -9549,12 +9549,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;TryAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<TryAsync<A>> FilterT< A>(this TryAsync<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static TryAsync<TryAsync<A>> FilterAsyncT< A>(this TryAsync<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryAsync<A>).ZeroAsync());
+                        : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -9650,10 +9650,10 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<TryAsync<A>> fa) =>
-            default(ApplTryAsync< TryAsync<A>, TryAsync<B>>).ApplyAsync(
+            default(ApplTryAsync< TryAsync<A>, TryAsync<B>>).Apply(
                 default(MTryAsync< Func<TryAsync<A>, TryAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<TryAsync<A>, TryAsync<B>>>((TryAsync<A> a) => 
-                        default(ApplTryAsync< A, B>).ApplyAsync(
+                        default(ApplTryAsync< A, B>).Apply(
                             default(MTryAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -9669,11 +9669,11 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<TryAsync<A>> fa, TryAsync<TryAsync<B>> fb) =>
-            default(ApplTryAsync< TryAsync<A>, TryAsync<B>, TryAsync<C>>).ApplyAsync(
+            default(ApplTryAsync< TryAsync<A>, TryAsync<B>, TryAsync<C>>).Apply(
                 default(MTryAsync< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>((TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            default(ApplTryAsync< A, B, C>).ApplyAsync(
+                            default(ApplTryAsync< A, B, C>).Apply(
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -9691,8 +9691,8 @@ namespace LanguageExt
             this TryOptionAsync<TryAsync<A>> ma,
             Func<A, TryOptionAsync<TryAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTryOptionAsync<TryAsync<C>>, TryOptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
-            default(TransAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MTryOptionAsync<TryAsync<C>>, TryOptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MTryOptionAsync<TryAsync<C>>, TryOptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
+            default(TransAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MTryOptionAsync<TryAsync<C>>, TryOptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -9711,7 +9711,7 @@ namespace LanguageExt
             Func<A, Task<TryOptionAsync<TryAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTryOptionAsync<TryAsync<C>>, TryOptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MTryOptionAsync<TryAsync<C>>, TryOptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MTryOptionAsync<TryAsync<C>>, TryOptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -9730,7 +9730,7 @@ namespace LanguageExt
             Func<A, Task<TryOptionAsync<TryAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTryOptionAsync<TryAsync<C>>, TryOptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MTryOptionAsync<TryAsync<C>>, TryOptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MTryOptionAsync<TryAsync<C>>, TryOptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -9748,8 +9748,8 @@ namespace LanguageExt
             this TryOptionAsync<TryAsync<A>> ma,
             Func<A, TryOptionAsync<TryAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTryOptionAsync<TryAsync<C>>, TryOptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
-            default(TransAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).BindAsync<MTryOptionAsync<TryAsync<C>>, TryOptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MTryOptionAsync<TryAsync<C>>, TryOptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(ma, a =>
+            default(TransAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>).Bind<MTryOptionAsync<TryAsync<C>>, TryOptionAsync<TryAsync<C>>, MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
             default(MTryAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -9763,10 +9763,10 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;TryAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static TryOptionAsync<TryAsync<A>> Where< A>(this TryOptionAsync<TryAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
+            default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Bind<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryAsync<A>).ZeroAsync());
+                    : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -9781,7 +9781,7 @@ namespace LanguageExt
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryAsync<A>).ZeroAsync());
+                    : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9795,7 +9795,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryAsync<B>> Select< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .MapAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Map<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;TryAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -9805,7 +9805,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryOptionAsync<TryAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `TryOptionAsync&lt;TryAsync&lt;A&gt;&gt;`
@@ -9815,7 +9815,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `TryOptionAsync&lt;TryAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this TryOptionAsync<TryAsync<A>> ma) =>
-            default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -9828,7 +9828,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryAsync<B>> BindT< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, TryAsync<B>> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Bind<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -9841,7 +9841,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryAsync<B>> BindT< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, TryOptionAsync<TryAsync<B>>> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Bind<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -9852,7 +9852,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`TryOptionAsync&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryOptionAsync<TryAsync<B>> BindT< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, Task<TryOptionAsync<TryAsync<B>>>> f) =>
+        public static TryOptionAsync<TryAsync<B>> BindAsyncT< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, Task<TryOptionAsync<TryAsync<B>>>> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -9870,7 +9870,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .TraverseAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Traverse<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `TryOptionAsync&lt;TryAsync&lt;A&gt;&gt;`, traverses the inner
@@ -9884,7 +9884,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryAsync&lt;TryOptionAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static TryAsync<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryAsync<TryOptionAsync<B>> TraverseAsync< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .TraverseAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -9901,7 +9901,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<TryAsync<A>> ma) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .SequenceAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>>(ma);
+                .Sequence<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9915,7 +9915,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryAsync<B>> MapT< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .MapAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Map<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9927,7 +9927,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryOptionAsync&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryOptionAsync<TryAsync<B>> MapT< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryOptionAsync<TryAsync<B>> MapAsyncT< A, B>(this TryOptionAsync<TryAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .MapAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -9944,7 +9944,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this TryOptionAsync<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -9957,7 +9957,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this TryOptionAsync<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this TryOptionAsync<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -9975,7 +9975,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this TryOptionAsync<TryAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -9989,7 +9989,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this TryOptionAsync<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this TryOptionAsync<TryAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -10005,7 +10005,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this TryOptionAsync<TryAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -10019,7 +10019,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this TryOptionAsync<TryAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `TryOptionAsync&lt;TryAsync&lt;A&gt;&gt;`
@@ -10029,7 +10029,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this TryOptionAsync<TryAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -10042,10 +10042,10 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryAsync<A>> FilterT< A>(this TryOptionAsync<TryAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
-                .BindAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
+                .Bind<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryAsync<A>).ZeroAsync());
+                        : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -10056,12 +10056,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;TryAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<TryAsync<A>> FilterT< A>(this TryOptionAsync<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static TryOptionAsync<TryAsync<A>> FilterAsyncT< A>(this TryOptionAsync<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryAsync<A>).ZeroAsync());
+                        : default(MTryAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -10157,10 +10157,10 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<TryAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<TryAsync<A>> fa) =>
-            default(ApplTryOptionAsync< TryAsync<A>, TryAsync<B>>).ApplyAsync(
+            default(ApplTryOptionAsync< TryAsync<A>, TryAsync<B>>).Apply(
                 default(MTryOptionAsync< Func<TryAsync<A>, TryAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<TryAsync<A>, TryAsync<B>>>((TryAsync<A> a) => 
-                        default(ApplTryAsync< A, B>).ApplyAsync(
+                        default(ApplTryAsync< A, B>).Apply(
                             default(MTryAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -10176,11 +10176,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;TryAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<TryAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<TryAsync<A>> fa, TryOptionAsync<TryAsync<B>> fb) =>
-            default(ApplTryOptionAsync< TryAsync<A>, TryAsync<B>, TryAsync<C>>).ApplyAsync(
+            default(ApplTryOptionAsync< TryAsync<A>, TryAsync<B>, TryAsync<C>>).Apply(
                 default(MTryOptionAsync< Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<TryAsync<A>, Func<TryAsync<B>, TryAsync<C>>>>((TryAsync<A> a) =>
                         (TryAsync<B> b) =>
-                            default(ApplTryAsync< A, B, C>).ApplyAsync(
+                            default(ApplTryAsync< A, B, C>).Apply(
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
     }
@@ -10206,8 +10206,8 @@ namespace LanguageExt
             this OptionAsync<TryOptionAsync<A>> ma,
             Func<A, OptionAsync<TryOptionAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MOptionAsync<TryOptionAsync<C>>, OptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MOptionAsync<TryOptionAsync<C>>, OptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MOptionAsync<TryOptionAsync<C>>, OptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MOptionAsync<TryOptionAsync<C>>, OptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -10226,7 +10226,7 @@ namespace LanguageExt
             Func<A, Task<OptionAsync<TryOptionAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MOptionAsync<TryOptionAsync<C>>, OptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MOptionAsync<TryOptionAsync<C>>, OptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MOptionAsync<TryOptionAsync<C>>, OptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -10245,7 +10245,7 @@ namespace LanguageExt
             Func<A, Task<OptionAsync<TryOptionAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MOptionAsync<TryOptionAsync<C>>, OptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MOptionAsync<TryOptionAsync<C>>, OptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MOptionAsync<TryOptionAsync<C>>, OptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -10263,8 +10263,8 @@ namespace LanguageExt
             this OptionAsync<TryOptionAsync<A>> ma,
             Func<A, OptionAsync<TryOptionAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MOptionAsync<TryOptionAsync<C>>, OptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MOptionAsync<TryOptionAsync<C>>, OptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MOptionAsync<TryOptionAsync<C>>, OptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MOptionAsync<TryOptionAsync<C>>, OptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -10278,10 +10278,10 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static OptionAsync<TryOptionAsync<A>> Where< A>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
+            default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryOptionAsync<A>).ZeroAsync());
+                    : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -10296,7 +10296,7 @@ namespace LanguageExt
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryOptionAsync<A>).ZeroAsync());
+                    : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10310,7 +10310,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryOptionAsync<B>> Select< A, B>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .MapAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Map<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -10320,7 +10320,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this OptionAsync<TryOptionAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `OptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;`
@@ -10330,7 +10330,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `OptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this OptionAsync<TryOptionAsync<A>> ma) =>
-            default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -10343,7 +10343,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryOptionAsync<B>> BindT< A, B>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Bind<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -10356,7 +10356,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryOptionAsync<B>> BindT< A, B>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, OptionAsync<TryOptionAsync<B>>> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Bind<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -10367,7 +10367,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`OptionAsync&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OptionAsync<TryOptionAsync<B>> BindT< A, B>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, Task<OptionAsync<TryOptionAsync<B>>>> f) =>
+        public static OptionAsync<TryOptionAsync<B>> BindAsyncT< A, B>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, Task<OptionAsync<TryOptionAsync<B>>>> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -10385,7 +10385,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<OptionAsync<B>> Traverse< A, B>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .TraverseAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
+                .Traverse<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `OptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
@@ -10399,7 +10399,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryOptionAsync&lt;OptionAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static TryOptionAsync<OptionAsync<B>> Traverse< A, B>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryOptionAsync<OptionAsync<B>> TraverseAsync< A, B>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .TraverseAsync<MTryOptionAsync<OptionAsync<B>>, TryOptionAsync<OptionAsync<B>>, MOptionAsync<B>, OptionAsync<B>, B>(ma, f);
 
@@ -10416,7 +10416,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<OptionAsync<A>> Sequence< A>(this OptionAsync<TryOptionAsync<A>> ma) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .SequenceAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>>(ma);
+                .Sequence<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10430,7 +10430,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryOptionAsync<B>> MapT< A, B>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .MapAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Map<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10442,7 +10442,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`OptionAsync&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OptionAsync<TryOptionAsync<B>> MapT< A, B>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static OptionAsync<TryOptionAsync<B>> MapAsyncT< A, B>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .MapAsync<MOptionAsync<TryOptionAsync<B>>, OptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -10459,7 +10459,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this OptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -10472,7 +10472,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this OptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this OptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -10490,7 +10490,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this OptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -10504,7 +10504,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this OptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this OptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -10520,7 +10520,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -10534,7 +10534,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `OptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;`
@@ -10544,7 +10544,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this OptionAsync<TryOptionAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -10557,10 +10557,10 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryOptionAsync<A>> FilterT< A>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
+                .Bind<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryOptionAsync<A>).ZeroAsync());
+                        : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -10571,12 +10571,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<TryOptionAsync<A>> FilterT< A>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static OptionAsync<TryOptionAsync<A>> FilterAsyncT< A>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryOptionAsync<A>).ZeroAsync());
+                        : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -10672,10 +10672,10 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OptionAsync<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, OptionAsync<TryOptionAsync<A>> fa) =>
-            default(ApplOptionAsync< TryOptionAsync<A>, TryOptionAsync<B>>).ApplyAsync(
+            default(ApplOptionAsync< TryOptionAsync<A>, TryOptionAsync<B>>).Apply(
                 default(MOptionAsync< Func<TryOptionAsync<A>, TryOptionAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<TryOptionAsync<A>, TryOptionAsync<B>>>((TryOptionAsync<A> a) => 
-                        default(ApplTryOptionAsync< A, B>).ApplyAsync(
+                        default(ApplTryOptionAsync< A, B>).Apply(
                             default(MTryOptionAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -10691,11 +10691,11 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OptionAsync<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, OptionAsync<TryOptionAsync<A>> fa, OptionAsync<TryOptionAsync<B>> fb) =>
-            default(ApplOptionAsync< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>).ApplyAsync(
+            default(ApplOptionAsync< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>).Apply(
                 default(MOptionAsync< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>((TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            default(ApplTryOptionAsync< A, B, C>).ApplyAsync(
+                            default(ApplTryOptionAsync< A, B, C>).Apply(
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -10713,8 +10713,8 @@ namespace LanguageExt
             this EitherAsync<L, TryOptionAsync<A>> ma,
             Func<A, EitherAsync<L, TryOptionAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MEitherAsync<L, TryOptionAsync<C>>, EitherAsync<L, TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MEitherAsync<L, TryOptionAsync<C>>, EitherAsync<L, TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MEitherAsync<L, TryOptionAsync<C>>, EitherAsync<L, TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MEitherAsync<L, TryOptionAsync<C>>, EitherAsync<L, TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -10733,7 +10733,7 @@ namespace LanguageExt
             Func<A, Task<EitherAsync<L, TryOptionAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MEitherAsync<L, TryOptionAsync<C>>, EitherAsync<L, TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MEitherAsync<L, TryOptionAsync<C>>, EitherAsync<L, TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MEitherAsync<L, TryOptionAsync<C>>, EitherAsync<L, TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -10752,7 +10752,7 @@ namespace LanguageExt
             Func<A, Task<EitherAsync<L, TryOptionAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MEitherAsync<L, TryOptionAsync<C>>, EitherAsync<L, TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MEitherAsync<L, TryOptionAsync<C>>, EitherAsync<L, TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MEitherAsync<L, TryOptionAsync<C>>, EitherAsync<L, TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -10770,8 +10770,8 @@ namespace LanguageExt
             this EitherAsync<L, TryOptionAsync<A>> ma,
             Func<A, EitherAsync<L, TryOptionAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MEitherAsync<L, TryOptionAsync<C>>, EitherAsync<L, TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MEitherAsync<L, TryOptionAsync<C>>, EitherAsync<L, TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MEitherAsync<L, TryOptionAsync<C>>, EitherAsync<L, TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MEitherAsync<L, TryOptionAsync<C>>, EitherAsync<L, TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -10785,10 +10785,10 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, TryOptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static EitherAsync<L, TryOptionAsync<A>> Where<L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
+            default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryOptionAsync<A>).ZeroAsync());
+                    : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -10803,7 +10803,7 @@ namespace LanguageExt
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryOptionAsync<A>).ZeroAsync());
+                    : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10817,7 +10817,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryOptionAsync<B>> Select<L, A, B>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .MapAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Map<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, TryOptionAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -10827,7 +10827,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, TryOptionAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `EitherAsync&lt;L, TryOptionAsync&lt;A&gt;&gt;`
@@ -10837,7 +10837,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `EitherAsync&lt;L, TryOptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT<L, A>(this EitherAsync<L, TryOptionAsync<A>> ma) =>
-            default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -10850,7 +10850,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryOptionAsync<B>> BindT<L, A, B>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Bind<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -10863,7 +10863,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryOptionAsync<B>> BindT<L, A, B>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, EitherAsync<L, TryOptionAsync<B>>> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Bind<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -10874,7 +10874,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`EitherAsync&lt;L, TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static EitherAsync<L, TryOptionAsync<B>> BindT<L, A, B>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, Task<EitherAsync<L, TryOptionAsync<B>>>> f) =>
+        public static EitherAsync<L, TryOptionAsync<B>> BindAsyncT<L, A, B>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, Task<EitherAsync<L, TryOptionAsync<B>>>> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -10892,7 +10892,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .TraverseAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
+                .Traverse<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `EitherAsync&lt;L, TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
@@ -10906,7 +10906,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryOptionAsync&lt;EitherAsync&lt;L, B&gt;&gt;`</returns>
         [Pure]
-        public static TryOptionAsync<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryOptionAsync<EitherAsync<L, B>> TraverseAsync<L, A, B>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .TraverseAsync<MTryOptionAsync<EitherAsync<L, B>>, TryOptionAsync<EitherAsync<L, B>>, MEitherAsync<L, B>, EitherAsync<L, B>, B>(ma, f);
 
@@ -10923,7 +10923,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<EitherAsync<L, A>> Sequence<L, A>(this EitherAsync<L, TryOptionAsync<A>> ma) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .SequenceAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>>(ma);
+                .Sequence<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10937,7 +10937,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryOptionAsync<B>> MapT<L, A, B>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .MapAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Map<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10949,7 +10949,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`EitherAsync&lt;L, TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static EitherAsync<L, TryOptionAsync<B>> MapT<L, A, B>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static EitherAsync<L, TryOptionAsync<B>> MapAsyncT<L, A, B>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .MapAsync<MEitherAsync<L, TryOptionAsync<B>>, EitherAsync<L, TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -10966,7 +10966,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S, L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -10979,7 +10979,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S, L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -10997,7 +10997,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -11011,7 +11011,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S, L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -11027,7 +11027,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT<L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -11041,7 +11041,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT<L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, TryOptionAsync&lt;A&gt;&gt;`
@@ -11051,7 +11051,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT<L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -11064,10 +11064,10 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryOptionAsync<A>> FilterT<L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
+                .Bind<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryOptionAsync<A>).ZeroAsync());
+                        : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -11078,12 +11078,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`EitherAsync&lt;L, TryOptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static EitherAsync<L, TryOptionAsync<A>> FilterT<L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static EitherAsync<L, TryOptionAsync<A>> FilterAsyncT<L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryOptionAsync<A>).ZeroAsync());
+                        : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -11179,10 +11179,10 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static EitherAsync<L, TryOptionAsync<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, TryOptionAsync<A>> fa) =>
-            default(ApplEitherAsync<L, TryOptionAsync<A>, TryOptionAsync<B>>).ApplyAsync(
+            default(ApplEitherAsync<L, TryOptionAsync<A>, TryOptionAsync<B>>).Apply(
                 default(MEitherAsync<L, Func<TryOptionAsync<A>, TryOptionAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<TryOptionAsync<A>, TryOptionAsync<B>>>((TryOptionAsync<A> a) => 
-                        default(ApplTryOptionAsync< A, B>).ApplyAsync(
+                        default(ApplTryOptionAsync< A, B>).Apply(
                             default(MTryOptionAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -11198,11 +11198,11 @@ namespace LanguageExt
         /// <returns>`EitherAsync&lt;L, TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static EitherAsync<L, TryOptionAsync<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, TryOptionAsync<A>> fa, EitherAsync<L, TryOptionAsync<B>> fb) =>
-            default(ApplEitherAsync<L, TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>).ApplyAsync(
+            default(ApplEitherAsync<L, TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>).Apply(
                 default(MEitherAsync<L, Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>((TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            default(ApplTryOptionAsync< A, B, C>).ApplyAsync(
+                            default(ApplTryOptionAsync< A, B, C>).Apply(
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -11220,8 +11220,8 @@ namespace LanguageExt
             this Task<TryOptionAsync<A>> ma,
             Func<A, Task<TryOptionAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTask<TryOptionAsync<C>>, Task<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MTask<TryOptionAsync<C>>, Task<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MTask<TryOptionAsync<C>>, Task<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MTask<TryOptionAsync<C>>, Task<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -11240,7 +11240,7 @@ namespace LanguageExt
             Func<A, Task<Task<TryOptionAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTask<TryOptionAsync<C>>, Task<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MTask<TryOptionAsync<C>>, Task<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MTask<TryOptionAsync<C>>, Task<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -11259,7 +11259,7 @@ namespace LanguageExt
             Func<A, Task<Task<TryOptionAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTask<TryOptionAsync<C>>, Task<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MTask<TryOptionAsync<C>>, Task<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MTask<TryOptionAsync<C>>, Task<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -11277,8 +11277,8 @@ namespace LanguageExt
             this Task<TryOptionAsync<A>> ma,
             Func<A, Task<TryOptionAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTask<TryOptionAsync<C>>, Task<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MTask<TryOptionAsync<C>>, Task<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MTask<TryOptionAsync<C>>, Task<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MTask<TryOptionAsync<C>>, Task<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -11292,10 +11292,10 @@ namespace LanguageExt
         /// <returns>`Task&lt;TryOptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static Task<TryOptionAsync<A>> Where< A>(this Task<TryOptionAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
+            default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryOptionAsync<A>).ZeroAsync());
+                    : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -11310,7 +11310,7 @@ namespace LanguageExt
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryOptionAsync<A>).ZeroAsync());
+                    : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -11324,7 +11324,7 @@ namespace LanguageExt
         [Pure]
         public static Task<TryOptionAsync<B>> Select< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .MapAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Map<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;TryOptionAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -11334,7 +11334,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this Task<TryOptionAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `Task&lt;TryOptionAsync&lt;A&gt;&gt;`
@@ -11344,7 +11344,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `Task&lt;TryOptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this Task<TryOptionAsync<A>> ma) =>
-            default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -11357,7 +11357,7 @@ namespace LanguageExt
         [Pure]
         public static Task<TryOptionAsync<B>> BindT< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Bind<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -11370,7 +11370,7 @@ namespace LanguageExt
         [Pure]
         public static Task<TryOptionAsync<B>> BindT< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, Task<TryOptionAsync<B>>> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Bind<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -11381,7 +11381,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`Task&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static Task<TryOptionAsync<B>> BindT< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, Task<Task<TryOptionAsync<B>>>> f) =>
+        public static Task<TryOptionAsync<B>> BindAsyncT< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, Task<Task<TryOptionAsync<B>>>> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -11399,7 +11399,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<Task<B>> Traverse< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .TraverseAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
+                .Traverse<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `Task&lt;TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
@@ -11413,7 +11413,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryOptionAsync&lt;Task&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static TryOptionAsync<Task<B>> Traverse< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryOptionAsync<Task<B>> TraverseAsync< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .TraverseAsync<MTryOptionAsync<Task<B>>, TryOptionAsync<Task<B>>, MTask<B>, Task<B>, B>(ma, f);
 
@@ -11430,7 +11430,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<Task<A>> Sequence< A>(this Task<TryOptionAsync<A>> ma) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .SequenceAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>>(ma);
+                .Sequence<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -11444,7 +11444,7 @@ namespace LanguageExt
         [Pure]
         public static Task<TryOptionAsync<B>> MapT< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .MapAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Map<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -11456,7 +11456,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`Task&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static Task<TryOptionAsync<B>> MapT< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static Task<TryOptionAsync<B>> MapAsyncT< A, B>(this Task<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .MapAsync<MTask<TryOptionAsync<B>>, Task<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -11473,7 +11473,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this Task<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -11486,7 +11486,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this Task<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this Task<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -11504,7 +11504,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this Task<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -11518,7 +11518,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this Task<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this Task<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -11534,7 +11534,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this Task<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -11548,7 +11548,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this Task<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `Task&lt;TryOptionAsync&lt;A&gt;&gt;`
@@ -11558,7 +11558,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this Task<TryOptionAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -11571,10 +11571,10 @@ namespace LanguageExt
         [Pure]
         public static Task<TryOptionAsync<A>> FilterT< A>(this Task<TryOptionAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
+                .Bind<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryOptionAsync<A>).ZeroAsync());
+                        : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -11585,12 +11585,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;TryOptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<TryOptionAsync<A>> FilterT< A>(this Task<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static Task<TryOptionAsync<A>> FilterAsyncT< A>(this Task<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryOptionAsync<A>).ZeroAsync());
+                        : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -11686,10 +11686,10 @@ namespace LanguageExt
         /// <returns>`Task&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static Task<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, Task<TryOptionAsync<A>> fa) =>
-            default(ApplTask< TryOptionAsync<A>, TryOptionAsync<B>>).ApplyAsync(
+            default(ApplTask< TryOptionAsync<A>, TryOptionAsync<B>>).Apply(
                 default(MTask< Func<TryOptionAsync<A>, TryOptionAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<TryOptionAsync<A>, TryOptionAsync<B>>>((TryOptionAsync<A> a) => 
-                        default(ApplTryOptionAsync< A, B>).ApplyAsync(
+                        default(ApplTryOptionAsync< A, B>).Apply(
                             default(MTryOptionAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -11705,11 +11705,11 @@ namespace LanguageExt
         /// <returns>`Task&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static Task<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<TryOptionAsync<A>> fa, Task<TryOptionAsync<B>> fb) =>
-            default(ApplTask< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>).ApplyAsync(
+            default(ApplTask< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>).Apply(
                 default(MTask< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>((TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            default(ApplTryOptionAsync< A, B, C>).ApplyAsync(
+                            default(ApplTryOptionAsync< A, B, C>).Apply(
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -11727,8 +11727,8 @@ namespace LanguageExt
             this TryAsync<TryOptionAsync<A>> ma,
             Func<A, TryAsync<TryOptionAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTryAsync<TryOptionAsync<C>>, TryAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MTryAsync<TryOptionAsync<C>>, TryAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MTryAsync<TryOptionAsync<C>>, TryAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MTryAsync<TryOptionAsync<C>>, TryAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -11747,7 +11747,7 @@ namespace LanguageExt
             Func<A, Task<TryAsync<TryOptionAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTryAsync<TryOptionAsync<C>>, TryAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MTryAsync<TryOptionAsync<C>>, TryAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MTryAsync<TryOptionAsync<C>>, TryAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -11766,7 +11766,7 @@ namespace LanguageExt
             Func<A, Task<TryAsync<TryOptionAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTryAsync<TryOptionAsync<C>>, TryAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MTryAsync<TryOptionAsync<C>>, TryAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MTryAsync<TryOptionAsync<C>>, TryAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -11784,8 +11784,8 @@ namespace LanguageExt
             this TryAsync<TryOptionAsync<A>> ma,
             Func<A, TryAsync<TryOptionAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTryAsync<TryOptionAsync<C>>, TryAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MTryAsync<TryOptionAsync<C>>, TryAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MTryAsync<TryOptionAsync<C>>, TryAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MTryAsync<TryOptionAsync<C>>, TryAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -11799,10 +11799,10 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;TryOptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static TryAsync<TryOptionAsync<A>> Where< A>(this TryAsync<TryOptionAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
+            default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryOptionAsync<A>).ZeroAsync());
+                    : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -11817,7 +11817,7 @@ namespace LanguageExt
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryOptionAsync<A>).ZeroAsync());
+                    : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -11831,7 +11831,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryOptionAsync<B>> Select< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .MapAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Map<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;TryOptionAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -11841,7 +11841,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryAsync<TryOptionAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `TryAsync&lt;TryOptionAsync&lt;A&gt;&gt;`
@@ -11851,7 +11851,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `TryAsync&lt;TryOptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this TryAsync<TryOptionAsync<A>> ma) =>
-            default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -11864,7 +11864,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryOptionAsync<B>> BindT< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Bind<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -11877,7 +11877,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryOptionAsync<B>> BindT< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, TryAsync<TryOptionAsync<B>>> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Bind<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -11888,7 +11888,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`TryAsync&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryAsync<TryOptionAsync<B>> BindT< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, Task<TryAsync<TryOptionAsync<B>>>> f) =>
+        public static TryAsync<TryOptionAsync<B>> BindAsyncT< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, Task<TryAsync<TryOptionAsync<B>>>> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -11906,7 +11906,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryAsync<B>> Traverse< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .TraverseAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
+                .Traverse<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `TryAsync&lt;TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
@@ -11920,7 +11920,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryOptionAsync&lt;TryAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static TryOptionAsync<TryAsync<B>> Traverse< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryOptionAsync<TryAsync<B>> TraverseAsync< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .TraverseAsync<MTryOptionAsync<TryAsync<B>>, TryOptionAsync<TryAsync<B>>, MTryAsync<B>, TryAsync<B>, B>(ma, f);
 
@@ -11937,7 +11937,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryAsync<A>> Sequence< A>(this TryAsync<TryOptionAsync<A>> ma) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .SequenceAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>>(ma);
+                .Sequence<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -11951,7 +11951,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryOptionAsync<B>> MapT< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .MapAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Map<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -11963,7 +11963,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryAsync&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryAsync<TryOptionAsync<B>> MapT< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryAsync<TryOptionAsync<B>> MapAsyncT< A, B>(this TryAsync<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .MapAsync<MTryAsync<TryOptionAsync<B>>, TryAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -11980,7 +11980,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this TryAsync<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -11993,7 +11993,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this TryAsync<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this TryAsync<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -12011,7 +12011,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this TryAsync<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -12025,7 +12025,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this TryAsync<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this TryAsync<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -12041,7 +12041,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this TryAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -12055,7 +12055,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this TryAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `TryAsync&lt;TryOptionAsync&lt;A&gt;&gt;`
@@ -12065,7 +12065,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this TryAsync<TryOptionAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -12078,10 +12078,10 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryOptionAsync<A>> FilterT< A>(this TryAsync<TryOptionAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
+                .Bind<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryOptionAsync<A>).ZeroAsync());
+                        : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -12092,12 +12092,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;TryOptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<TryOptionAsync<A>> FilterT< A>(this TryAsync<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static TryAsync<TryOptionAsync<A>> FilterAsyncT< A>(this TryAsync<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryOptionAsync<A>).ZeroAsync());
+                        : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -12193,10 +12193,10 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryAsync<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryAsync<TryOptionAsync<A>> fa) =>
-            default(ApplTryAsync< TryOptionAsync<A>, TryOptionAsync<B>>).ApplyAsync(
+            default(ApplTryAsync< TryOptionAsync<A>, TryOptionAsync<B>>).Apply(
                 default(MTryAsync< Func<TryOptionAsync<A>, TryOptionAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<TryOptionAsync<A>, TryOptionAsync<B>>>((TryOptionAsync<A> a) => 
-                        default(ApplTryOptionAsync< A, B>).ApplyAsync(
+                        default(ApplTryOptionAsync< A, B>).Apply(
                             default(MTryOptionAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -12212,11 +12212,11 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryAsync<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryAsync<TryOptionAsync<A>> fa, TryAsync<TryOptionAsync<B>> fb) =>
-            default(ApplTryAsync< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>).ApplyAsync(
+            default(ApplTryAsync< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>).Apply(
                 default(MTryAsync< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>((TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            default(ApplTryOptionAsync< A, B, C>).ApplyAsync(
+                            default(ApplTryOptionAsync< A, B, C>).Apply(
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
         /// <summary>
@@ -12234,8 +12234,8 @@ namespace LanguageExt
             this TryOptionAsync<TryOptionAsync<A>> ma,
             Func<A, TryOptionAsync<TryOptionAsync<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTryOptionAsync<TryOptionAsync<C>>, TryOptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MTryOptionAsync<TryOptionAsync<C>>, TryOptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MTryOptionAsync<TryOptionAsync<C>>, TryOptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MTryOptionAsync<TryOptionAsync<C>>, TryOptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -12254,7 +12254,7 @@ namespace LanguageExt
             Func<A, Task<TryOptionAsync<TryOptionAsync<B>>>> bind,
             Func<A, B, C> project) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTryOptionAsync<TryOptionAsync<C>>, TryOptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MTryOptionAsync<TryOptionAsync<C>>, TryOptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MTryOptionAsync<TryOptionAsync<C>>, TryOptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -12273,7 +12273,7 @@ namespace LanguageExt
             Func<A, Task<TryOptionAsync<TryOptionAsync<B>>>> bind,
             Func<A, B, Task<C>> project) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTryOptionAsync<TryOptionAsync<C>>, TryOptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, async a =>
-            default(TransAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MTryOptionAsync<TryOptionAsync<C>>, TryOptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
+            default(TransAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MTryOptionAsync<TryOptionAsync<C>>, TryOptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -12291,8 +12291,8 @@ namespace LanguageExt
             this TryOptionAsync<TryOptionAsync<A>> ma,
             Func<A, TryOptionAsync<TryOptionAsync<B>>> bind,
             Func<A, B, Task<C>> project) =>
-            default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTryOptionAsync<TryOptionAsync<C>>, TryOptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
-            default(TransAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).BindAsync<MTryOptionAsync<TryOptionAsync<C>>, TryOptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
+            default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MTryOptionAsync<TryOptionAsync<C>>, TryOptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(ma, a =>
+            default(TransAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>).Bind<MTryOptionAsync<TryOptionAsync<C>>, TryOptionAsync<TryOptionAsync<C>>, MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
             default(MTryOptionAsync<C>).ReturnAsync(project(a, b))));
 
 
@@ -12306,10 +12306,10 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
         public static TryOptionAsync<TryOptionAsync<A>> Where< A>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, bool> pred) =>
-            default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
+            default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Bind<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                 a => pred(a)
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryOptionAsync<A>).ZeroAsync());
+                    : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -12324,7 +12324,7 @@ namespace LanguageExt
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                 async a => (await pred(a))
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                    : default(MTryOptionAsync<A>).ZeroAsync());
+                    : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -12338,7 +12338,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryOptionAsync<B>> Select< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .MapAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Map<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;`
         /// </summary>
@@ -12348,7 +12348,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryOptionAsync<TryOptionAsync<A>> ma)
             where NumA : struct, Num<A> =>
-                default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).SumAsync(ma);
+                default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `TryOptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;`
@@ -12358,7 +12358,7 @@ namespace LanguageExt
         /// <returns>Number of `A`s in `TryOptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<int> CountT< A>(this TryOptionAsync<TryOptionAsync<A>> ma) =>
-            default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).CountAsync(ma);
+            default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -12371,7 +12371,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryOptionAsync<B>> BindT< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<B>> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Bind<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -12384,7 +12384,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryOptionAsync<B>> BindT< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, TryOptionAsync<TryOptionAsync<B>>> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Bind<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -12395,7 +12395,7 @@ namespace LanguageExt
         /// <param name="f">The bind function to apply</param>
         /// <returns>`TryOptionAsync&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryOptionAsync<TryOptionAsync<B>> BindT< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, Task<TryOptionAsync<TryOptionAsync<B>>>> f) =>
+        public static TryOptionAsync<TryOptionAsync<B>> BindAsyncT< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, Task<TryOptionAsync<TryOptionAsync<B>>>> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -12413,7 +12413,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .TraverseAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Traverse<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `TryOptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
@@ -12427,7 +12427,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryOptionAsync&lt;TryOptionAsync&lt;B&gt;&gt;`</returns>
         [Pure]
-        public static TryOptionAsync<TryOptionAsync<B>> Traverse< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryOptionAsync<TryOptionAsync<B>> TraverseAsync< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .TraverseAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -12444,7 +12444,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryOptionAsync<A>> Sequence< A>(this TryOptionAsync<TryOptionAsync<A>> ma) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .SequenceAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>>(ma);
+                .Sequence<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -12458,7 +12458,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryOptionAsync<B>> MapT< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, B> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .MapAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
+                .Map<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -12470,7 +12470,7 @@ namespace LanguageExt
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`TryOptionAsync&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static TryOptionAsync<TryOptionAsync<B>> MapT< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
+        public static TryOptionAsync<TryOptionAsync<B>> MapAsyncT< A, B>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, Task<B>> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .MapAsync<MTryOptionAsync<TryOptionAsync<B>>, TryOptionAsync<TryOptionAsync<B>>, MTryOptionAsync<B>, TryOptionAsync<B>, B>(ma, f);
 
@@ -12487,7 +12487,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldT<S,  A>(this TryOptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -12500,7 +12500,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S,  A>(this TryOptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S,  A>(this TryOptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .FoldAsync(ma, state, f);
 
@@ -12518,7 +12518,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> FoldBackT<S,  A>(this TryOptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, S> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -12532,7 +12532,7 @@ namespace LanguageExt
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S,  A>(this TryOptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S,  A>(this TryOptionAsync<TryOptionAsync<A>> ma, S state, Func<S, A, Task<S>> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -12548,7 +12548,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ExistsT< A>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -12562,7 +12562,7 @@ namespace LanguageExt
         [Pure]
         public static Task<bool> ForAllT< A>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, bool> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `TryOptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;`
@@ -12572,7 +12572,7 @@ namespace LanguageExt
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT< A>(this TryOptionAsync<TryOptionAsync<A>> ma, Action<A> f) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -12585,10 +12585,10 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryOptionAsync<A>> FilterT< A>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, bool> pred) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
-                .BindAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
+                .Bind<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                     a => pred(a)
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryOptionAsync<A>).ZeroAsync());
+                        : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -12599,12 +12599,12 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<TryOptionAsync<A>> FilterT< A>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
+        public static TryOptionAsync<TryOptionAsync<A>> FilterAsyncT< A>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
                     async a => (await pred(a))
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
-                        : default(MTryOptionAsync<A>).ZeroAsync());
+                        : default(MTryOptionAsync<A>).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -12700,10 +12700,10 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static TryOptionAsync<TryOptionAsync<B>> ApplyT< A, B>(this Func<A, B> fab, TryOptionAsync<TryOptionAsync<A>> fa) =>
-            default(ApplTryOptionAsync< TryOptionAsync<A>, TryOptionAsync<B>>).ApplyAsync(
+            default(ApplTryOptionAsync< TryOptionAsync<A>, TryOptionAsync<B>>).Apply(
                 default(MTryOptionAsync< Func<TryOptionAsync<A>, TryOptionAsync<B>>>).ReturnAsync(
                     Task.FromResult<Func<TryOptionAsync<A>, TryOptionAsync<B>>>((TryOptionAsync<A> a) => 
-                        default(ApplTryOptionAsync< A, B>).ApplyAsync(
+                        default(ApplTryOptionAsync< A, B>).Apply(
                             default(MTryOptionAsync< Func<A, B>>).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -12719,11 +12719,11 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;TryOptionAsync&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static TryOptionAsync<TryOptionAsync<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<TryOptionAsync<A>> fa, TryOptionAsync<TryOptionAsync<B>> fb) =>
-            default(ApplTryOptionAsync< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>).ApplyAsync(
+            default(ApplTryOptionAsync< TryOptionAsync<A>, TryOptionAsync<B>, TryOptionAsync<C>>).Apply(
                 default(MTryOptionAsync< Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>).ReturnAsync(
                     Task.FromResult<Func<TryOptionAsync<A>, Func<TryOptionAsync<B>, TryOptionAsync<C>>>>((TryOptionAsync<A> a) =>
                         (TryOptionAsync<B> b) =>
-                            default(ApplTryOptionAsync< A, B, C>).ApplyAsync(
+                            default(ApplTryOptionAsync< A, B, C>).Apply(
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);
 
     }

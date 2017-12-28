@@ -13,8 +13,8 @@
             this OUTER_A ma,
             Func<A, OUTER_B> bind,
             Func<A, B, C> project) =>
-            default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).BindAsync<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(ma, a =>
-            default(TRANS<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>).BindAsync<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(bind(a), b =>
+            default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(ma, a =>
+            default(TRANS<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>).Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(bind(a), b =>
             default(M_INNER_C).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -33,7 +33,7 @@
             Func<A, Task<OUTER_B>> bind,
             Func<A, B, C> project) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).BindAsync<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(ma, async a =>
-            default(TRANS<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>).BindAsync<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(await bind(a), b =>
+            default(TRANS<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>).Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(await bind(a), b =>
             default(M_INNER_C).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
@@ -52,7 +52,7 @@
             Func<A, Task<OUTER_B>> bind,
             Func<A, B, Task<C>> project) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).BindAsync<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(ma, async a =>
-            default(TRANS<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>).BindAsync<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(await bind(a), b =>
+            default(TRANS<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>).Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(await bind(a), b =>
             default(M_INNER_C).ReturnAsync(project(a, b))));
 
         /// <summary>
@@ -70,8 +70,8 @@
             this OUTER_A ma,
             Func<A, OUTER_B> bind,
             Func<A, B, Task<C>> project) =>
-            default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).BindAsync<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(ma, a =>
-            default(TRANS<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>).BindAsync<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(bind(a), b =>
+            default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(ma, a =>
+            default(TRANS<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>).Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(bind(a), b =>
             default(M_INNER_C).ReturnAsync(project(a, b))));
 
 
@@ -85,10 +85,10 @@
         /// <returns>`OUTER_A` with the predicate `f(a)` applied</returns>
         [Pure]
         public static OUTER_A Where<GENS, A>(this OUTER_A ma, Func<A, bool> pred) =>
-            default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).BindAsync<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
+            default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).Bind<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
                 a => pred(a)
                     ? default(M_INNER_A).ReturnAsync(a.AsTask())
-                    : default(M_INNER_A).ZeroAsync());
+                    : default(M_INNER_A).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -103,7 +103,7 @@
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).BindAsync<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
                 async a => (await pred(a))
                     ? default(M_INNER_A).ReturnAsync(a.AsTask())
-                    : default(M_INNER_A).ZeroAsync());
+                    : default(M_INNER_A).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -117,4 +117,4 @@
         [Pure]
         public static OUTER_B Select<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .MapAsync<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
+                .Map<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);

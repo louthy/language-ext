@@ -12,25 +12,25 @@ namespace LanguageExt.TypeClasses
         /// True if the optional type allows nulls
         /// </summary>
         [Pure]
-        Task<bool> IsUnsafeAsync(OA opt);
+        Task<bool> IsUnsafe(OA opt);
 
         /// <summary>
         /// Is the option in a Some state
         /// </summary>
         [Pure]
-        Task<bool> IsSomeAsync(OA opt);
+        Task<bool> IsSome(OA opt);
 
         /// <summary>
         /// Is the option in a None state
         /// </summary>
         [Pure]
-        Task<bool> IsNoneAsync(OA opt);
+        Task<bool> IsNone(OA opt);
 
         /// <summary>
         /// Match the two states of the Option and return a non-null B.
         /// </summary>
         [Pure]
-        Task<B> MatchAsync<B>(OA opt, Func<A, B> Some, Func<B> None);
+        Task<B> Match<B>(OA opt, Func<A, B> Some, Func<B> None);
 
         /// <summary>
         /// Match the two states of the Option and return a non-null B.
@@ -54,7 +54,7 @@ namespace LanguageExt.TypeClasses
         /// Match the two states of the Option and return a B, which can be null.
         /// </summary>
         [Pure]
-        Task<B> MatchUnsafeAsync<B>(OA opt, Func<A, B> Some, Func<B> None);
+        Task<B> MatchUnsafe<B>(OA opt, Func<A, B> Some, Func<B> None);
 
         /// <summary>
         /// Match the two states of the Option and return a B, which can be null.
@@ -79,15 +79,42 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <param name="Some">Some match operation</param>
         /// <param name="None">None match operation</param>
-        Task<Unit> MatchAsync(OA opt, Action<A> Some, Action None);
+        Task<Unit> Match(OA opt, Action<A> Some, Action None);
+
+        /// <summary>
+        /// Match the two states of the Option A
+        /// </summary>
+        /// <param name="Some">Some match operation</param>
+        /// <param name="None">None match operation</param>
+        Task<Unit> MatchAsync(OA opt, Func<A, Task> Some, Action None);
+
+        /// <summary>
+        /// Match the two states of the Option A
+        /// </summary>
+        /// <param name="Some">Some match operation</param>
+        /// <param name="None">None match operation</param>
+        Task<Unit> MatchAsync(OA opt, Func<A, Task> Some, Func<Task> None);
+
+        /// <summary>
+        /// Match the two states of the Option A
+        /// </summary>
+        /// <param name="Some">Some match operation</param>
+        /// <param name="None">None match operation</param>
+        Task<Unit> MatchAsync(OA opt, Action<A> Some, Func<Task> None);
 
         [Pure]
-        OA NoneAsync { get; }
+        OA None { get; }
 
         [Pure]
-        OA SomeAsync(A value);
+        OA Some(A value);
 
         [Pure]
-        OA OptionalAsync(A value);
+        OA SomeAsync(Task<A> value);
+
+        [Pure]
+        OA Optional(A value);
+
+        [Pure]
+        OA OptionalAsync(Task<A> value);
     }
 }

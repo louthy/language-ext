@@ -21,7 +21,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> MapAsync<A, B>(this Task<Option<A>> self, Func<A, B> f) =>
-        default(FOptionAsync<A, B>).MapAsync(self.ToAsync(), f);
+        default(FOptionAsync<A, B>).Map(self.ToAsync(), f);
 
     /// <summary>
     /// Projection from one value to another 
@@ -38,7 +38,7 @@ public static class TaskOptionAsyncExtensions
     /// </summary>
     [Pure]
     public static OptionAsync<B> BindAsync<A, B>(this Task<Option<A>> self, Func<A, Option<B>> f) =>
-        default(MOptionAsync<A>).BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), a => f(a).ToAsync());
+        default(MOptionAsync<A>).Bind<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), a => f(a).ToAsync());
 
     /// <summary>
     /// Monad bind operation
@@ -52,7 +52,7 @@ public static class TaskOptionAsyncExtensions
     /// </summary>
     [Pure]
     public static OptionAsync<B> BindAsync<A, B>(this Task<Option<A>> self, Func<A, OptionAsync<B>> f) =>
-        default(MOptionAsync<A>).BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), f);
+        default(MOptionAsync<A>).Bind<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), f);
 
     /// <summary>
     /// Monad bind operation
@@ -211,8 +211,8 @@ public static class TaskOptionAsyncExtensions
     /// <param name="None">None match operation. Must not return null.</param>
     /// <returns>A non-null B</returns>
     [Pure]
-    public static Task<B> MatchAsync<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<B> None) =>
-        MOptionAsync<A>.Inst.MatchAsync(self.ToAsync(), Some, None);
+    public static Task<B> Match<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<B> None) =>
+        MOptionAsync<A>.Inst.Match(self.ToAsync(), Some, None);
 
     /// <summary>
     /// Match the two states of the Option and return a non-null R.
@@ -255,8 +255,8 @@ public static class TaskOptionAsyncExtensions
     /// <param name="None">None match operation. May return null.</param>
     /// <returns>B, or null</returns>
     [Pure]
-    public static Task<B> MatchUnsafeAsync<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<B> None) =>
-        MOptionAsync<A>.Inst.MatchUnsafeAsync(self.ToAsync(), Some, None);
+    public static Task<B> MatchUnsafe<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<B> None) =>
+        MOptionAsync<A>.Inst.MatchUnsafe(self.ToAsync(), Some, None);
 
     /// <summary>
     /// Match the two states of the Option and return a B, which can be null.
@@ -296,8 +296,8 @@ public static class TaskOptionAsyncExtensions
     /// </summary>
     /// <param name="Some">Some match operation</param>
     /// <param name="None">None match operation</param>
-    public static Task<Unit> MatchAsync<A>(this Task<Option<A>> self, Action<A> Some, Action None) =>
-        MOptionAsync<A>.Inst.MatchAsync(self.ToAsync(), Some, None);
+    public static Task<Unit> Match<A>(this Task<Option<A>> self, Action<A> Some, Action None) =>
+        MOptionAsync<A>.Inst.Match(self.ToAsync(), Some, None);
 
     /// <summary>
     /// Invokes the action if Option is in the Some state, otherwise nothing happens.
@@ -424,7 +424,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>The aggregate state</returns>
     [Pure]
     public static Task<S> FoldAsync<S, A>(this Task<Option<A>> self, S state, Func<S, A, S> folder) =>
-        MOptionAsync<A>.Inst.FoldAsync(self.ToAsync(), state, folder)(unit);
+        MOptionAsync<A>.Inst.Fold(self.ToAsync(), state, folder)(unit);
 
     /// <summary>
     /// <para>
@@ -472,7 +472,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>The aggregate state</returns>
     [Pure]
     public static Task<S> FoldBackAsync<S, A>(this Task<Option<A>> self, S state, Func<S, A, S> folder) =>
-        MOptionAsync<A>.Inst.FoldBackAsync(self.ToAsync(), state, folder)(unit);
+        MOptionAsync<A>.Inst.FoldBack(self.ToAsync(), state, folder)(unit);
 
     /// <summary>
     /// <para>
@@ -521,7 +521,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>The aggregate state</returns>
     [Pure]
     public static Task<S> BiFoldAsync<S, A>(this Task<Option<A>> self, S state, Func<S, A, S> Some, Func<S, Unit, S> None) =>
-        MOptionAsync<A>.Inst.BiFoldAsync(self.ToAsync(), state, Some, None);
+        MOptionAsync<A>.Inst.BiFold(self.ToAsync(), state, Some, None);
 
     /// <summary>
     /// <para>
@@ -621,7 +621,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>The aggregate state</returns>
     [Pure]
     public static Task<S> BiFoldAsync<S, A>(this Task<Option<A>> self, S state, Func<S, A, S> Some, Func<S, S> None) =>
-        MOptionAsync<A>.Inst.BiFoldAsync(self.ToAsync(), state, Some, (s, _) => None(s));
+        MOptionAsync<A>.Inst.BiFold(self.ToAsync(), state, Some, (s, _) => None(s));
 
     /// <summary>
     /// <para>
@@ -800,7 +800,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns></returns>
     [Pure]
     public static Task<int> CountAsync<A>(this Task<Option<A>> self) =>
-        MOptionAsync<A>.Inst.CountAsync(self.ToAsync())(unit);
+        MOptionAsync<A>.Inst.Count(self.ToAsync())(unit);
 
     /// <summary>
     /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -1000,7 +1000,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static OptionAsync<B> ApplyAsync<A, B>(this Option<Func<A, B>> fab, Task<Option<A>> fa) =>
-        ApplOptionAsync<A, B>.Inst.ApplyAsync(fab.ToAsync(), fa.ToAsync());
+        ApplOptionAsync<A, B>.Inst.Apply(fab.ToAsync(), fa.ToAsync());
 
     /// <summary>
     /// Apply
@@ -1010,7 +1010,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static OptionAsync<B> ApplyAsync<A, B>(this Func<A, B> fab, Task<Option<A>> fa) =>
-        ApplOptionAsync<A, B>.Inst.ApplyAsync(fab, fa.ToAsync());
+        ApplOptionAsync<A, B>.Inst.Apply(fab, fa.ToAsync());
 
     /// <summary>
     /// Apply
@@ -1022,7 +1022,7 @@ public static class TaskOptionAsyncExtensions
     [Pure]
     public static OptionAsync<C> ApplyAsync<A, B, C>(this Option<Func<A, B, C>> fabc, Task<Option<A>> fa, Option<B> fb) =>
         from x in fabc.ToAsync()
-        from y in ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(x), fa.ToAsync(), fb.ToAsync())
+        from y in ApplOptionAsync<A, B, C>.Inst.Apply(curry(x), fa.ToAsync(), fb.ToAsync())
         select y;
 
     /// <summary>
@@ -1034,7 +1034,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static OptionAsync<C> ApplyAsync<A, B, C>(this Func<A, B, C> fabc, Task<Option<A>> fa, Option<B> fb) =>
-        ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(fabc), fa.ToAsync(), fb.ToAsync());
+        ApplOptionAsync<A, B, C>.Inst.Apply(curry(fabc), fa.ToAsync(), fb.ToAsync());
 
     /// <summary>
     /// Apply
@@ -1045,7 +1045,7 @@ public static class TaskOptionAsyncExtensions
     [Pure]
     public static OptionAsync<Func<B, C>> ApplyAsync<A, B, C>(this Option<Func<A, B, C>> fabc, Task<Option<A>> fa) =>
         from x in fabc.ToAsync()
-        from y in ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(x), fa.ToAsync())
+        from y in ApplOptionAsync<A, B, C>.Inst.Apply(curry(x), fa.ToAsync())
         select y;
 
     /// <summary>
@@ -1056,7 +1056,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static OptionAsync<Func<B, C>> ApplyAsync<A, B, C>(this Func<A, B, C> fabc, Task<Option<A>> fa) =>
-        ApplOptionAsync<A, B, C>.Inst.ApplyAsync(curry(fabc), fa.ToAsync());
+        ApplOptionAsync<A, B, C>.Inst.Apply(curry(fabc), fa.ToAsync());
 
     /// <summary>
     /// Apply
@@ -1066,7 +1066,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static OptionAsync<Func<B, C>> ApplyAsync<A, B, C>(this Option<Func<A, Func<B, C>>> fabc, Task<Option<A>> fa) =>
-        ApplOptionAsync<A, B, C>.Inst.ApplyAsync(fabc.ToAsync(), fa.ToAsync());
+        ApplOptionAsync<A, B, C>.Inst.Apply(fabc.ToAsync(), fa.ToAsync());
 
     /// <summary>
     /// Apply
@@ -1076,7 +1076,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static OptionAsync<Func<B, C>> ApplyAsync<A, B, C>(this Func<A, Func<B, C>> fabc, Task<Option<A>> fa) =>
-        ApplOptionAsync<A, B, C>.Inst.ApplyAsync(fabc, fa.ToAsync());
+        ApplOptionAsync<A, B, C>.Inst.Apply(fabc, fa.ToAsync());
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -1086,6 +1086,6 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Applicative of type OptionAsync<B></returns>
     [Pure]
     public static OptionAsync<B> ActionAsync<A, B>(this Task<Option<A>> fa, Option<B> fb) =>
-        ApplOptionAsync<A, B>.Inst.ActionAsync(fa.ToAsync(), fb.ToAsync());
+        ApplOptionAsync<A, B>.Inst.Action(fa.ToAsync(), fb.ToAsync());
 
 }

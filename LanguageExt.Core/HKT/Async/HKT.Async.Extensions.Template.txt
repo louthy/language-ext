@@ -7,7 +7,7 @@
         [Pure]
         public static Task<A> SumT<NumA, GENS, A>(this OUTER_A ma)
             where NumA : struct, Num<A> =>
-                default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, NumA, A>).SumAsync(ma);
+                default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, NumA, A>).Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `OUTER_A`
@@ -17,7 +17,7 @@
         /// <returns>Number of `A`s in `OUTER_A`</returns>
         [Pure]
         public static Task<int> CountT<GENS, A>(this OUTER_A ma) =>
-            default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).CountAsync(ma);
+            default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -30,7 +30,7 @@
         [Pure]
         public static OUTER_B BindT<GENS, A, B>(this OUTER_A ma, Func<A, INNER_B> f) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .BindAsync<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
+                .Bind<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -43,7 +43,7 @@
         [Pure]
         public static OUTER_B BindT<GENS, A, B>(this OUTER_A ma, Func<A, OUTER_B> f) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .BindAsync<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
+                .Bind<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -54,7 +54,7 @@
         /// <param name="f">The bind function to apply</param>
         /// <returns>`OUTER_B` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OUTER_B BindT<GENS, A, B>(this OUTER_A ma, Func<A, Task<OUTER_B>> f) =>
+        public static OUTER_B BindAsyncT<GENS, A, B>(this OUTER_A ma, Func<A, Task<OUTER_B>> f) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
                 .BindAsync<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
@@ -72,7 +72,7 @@
         [Pure]
         public static FLIPPED_OUTER_B Traverse<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
             default(FLIP_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .TraverseAsync<M_FLIPPED_OUTER_B, FLIPPED_OUTER_B, M_FLIPPED_INNER_B, FLIPPED_INNER_B, B>(ma, f);
+                .Traverse<M_FLIPPED_OUTER_B, FLIPPED_OUTER_B, M_FLIPPED_INNER_B, FLIPPED_INNER_B, B>(ma, f);
 
         /// <summary>
         /// Traverse operation.  Takes a value of type `OUTER_A`, traverses the inner
@@ -86,7 +86,7 @@
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`FLIPPED_OUTER_B`</returns>
         [Pure]
-        public static FLIPPED_OUTER_B Traverse<GENS, A, B>(this OUTER_A ma, Func<A, Task<B>> f) =>
+        public static FLIPPED_OUTER_B TraverseAsync<GENS, A, B>(this OUTER_A ma, Func<A, Task<B>> f) =>
             default(FLIP_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
                 .TraverseAsync<M_FLIPPED_OUTER_B, FLIPPED_OUTER_B, M_FLIPPED_INNER_B, FLIPPED_INNER_B, B>(ma, f);
 
@@ -103,7 +103,7 @@
         [Pure]
         public static FLIPPED_OUTER_A Sequence<GENS, A>(this OUTER_A ma) =>
             default(FLIP_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .SequenceAsync<M_FLIPPED_OUTER_A, FLIPPED_OUTER_A, M_FLIPPED_INNER_A, FLIPPED_INNER_A>(ma);
+                .Sequence<M_FLIPPED_OUTER_A, FLIPPED_OUTER_A, M_FLIPPED_INNER_A, FLIPPED_INNER_A>(ma);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -117,7 +117,7 @@
         [Pure]
         public static OUTER_B MapT<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .MapAsync<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
+                .Map<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -129,7 +129,7 @@
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`OUTER_B` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OUTER_B MapT<GENS, A, B>(this OUTER_A ma, Func<A, Task<B>> f) =>
+        public static OUTER_B MapAsyncT<GENS, A, B>(this OUTER_A ma, Func<A, Task<B>> f) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
                 .MapAsync<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
@@ -146,7 +146,7 @@
         [Pure]
         public static Task<S> FoldT<S, GENS, A>(this OUTER_A ma, S state, Func<S, A, S> f) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .FoldAsync(ma, state, f);
+                .Fold(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing the bound value(s) of the nested
@@ -159,7 +159,7 @@
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldT<S, GENS, A>(this OUTER_A ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldAsyncT<S, GENS, A>(this OUTER_A ma, S state, Func<S, A, Task<S>> f) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
                 .FoldAsync(ma, state, f);
 
@@ -177,7 +177,7 @@
         [Pure]
         public static Task<S> FoldBackT<S, GENS, A>(this OUTER_A ma, S state, Func<S, A, S> f) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .FoldBackAsync(ma, state, f);
+                .FoldBack(ma, state, f);
 
         /// <summary>
         /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
@@ -191,7 +191,7 @@
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static Task<S> FoldBackT<S, GENS, A>(this OUTER_A ma, S state, Func<S, A, Task<S>> f) =>
+        public static Task<S> FoldBackAsyncT<S, GENS, A>(this OUTER_A ma, S state, Func<S, A, Task<S>> f) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
                 .FoldBackAsync(ma, state, f);
 
@@ -207,7 +207,7 @@
         [Pure]
         public static Task<bool> ExistsT<GENS, A>(this OUTER_A ma, Func<A, bool> f) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .FoldAsync(ma, false, (s, x) => s || f(x));
+                .Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
         /// Returns true if all of the bound value(s) return true when applied to the 
@@ -221,7 +221,7 @@
         [Pure]
         public static Task<bool> ForAllT<GENS, A>(this OUTER_A ma, Func<A, bool> f) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .FoldAsync(ma, true, (s, x) => s && f(x));
+                .Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
         /// Side-effecting operation to iterate all of the bound value(s) in `OUTER_A`
@@ -231,7 +231,7 @@
         /// <param name="f">The action that contains the side-effects</param>
         public static Task<Unit> IterT<GENS, A>(this OUTER_A ma, Action<A> f) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .FoldAsync(ma, unit, (s, x) => { f(x); return unit; });
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -244,10 +244,10 @@
         [Pure]
         public static OUTER_A FilterT<GENS, A>(this OUTER_A ma, Func<A, bool> pred) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .BindAsync<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
+                .Bind<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
                     a => pred(a)
                         ? default(M_INNER_A).ReturnAsync(a.AsTask())
-                        : default(M_INNER_A).ZeroAsync());
+                        : default(M_INNER_A).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -258,12 +258,12 @@
         /// <param name="f">The predicate function</param>
         /// <returns>`OUTER_A` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OUTER_A FilterT<GENS, A>(this OUTER_A ma, Func<A, Task<bool>> pred) =>
+        public static OUTER_A FilterAsyncT<GENS, A>(this OUTER_A ma, Func<A, Task<bool>> pred) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
                 .BindAsync<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
                     async a => (await pred(a))
                         ? default(M_INNER_A).ReturnAsync(a.AsTask())
-                        : default(M_INNER_A).ZeroAsync());
+                        : default(M_INNER_A).Zero());
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -359,10 +359,10 @@
         /// <returns>`OUTER_B` which is the result of performing `fab(fa)`</returns>
         [Pure]
         public static OUTER_B ApplyT<GENS, A, B>(this Func<A, B> fab, OUTER_A fa) =>
-            default(APPL_INNER_AB).ApplyAsync(
+            default(APPL_INNER_AB).Apply(
                 default(M_INNER_FUNC_AB).ReturnAsync(
                     Task.FromResult<Func<INNER_A, INNER_B>>((INNER_A a) => 
-                        default(APPL_AB).ApplyAsync(
+                        default(APPL_AB).Apply(
                             default(M_FUNC_AB).ReturnAsync(fab.AsTask()), 
                             a))),
                 fa);
@@ -378,9 +378,9 @@
         /// <returns>`OUTER_B` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
         public static OUTER_C ApplyT<GENS, A, B, C>(this Func<A, B, C> fabc, OUTER_A fa, OUTER_B fb) =>
-            default(APPL_INNER_ABC).ApplyAsync(
+            default(APPL_INNER_ABC).Apply(
                 default(M_INNER_FUNC_ABC).ReturnAsync(
                     Task.FromResult<Func<INNER_A, Func<INNER_B, INNER_C>>>((INNER_A a) =>
                         (INNER_B b) =>
-                            default(APPL_ABC).ApplyAsync(
+                            default(APPL_ABC).Apply(
                                 default(M_FUNC_ABC).ReturnAsync(curry(fabc).AsTask()), a, b))), fa, fb);

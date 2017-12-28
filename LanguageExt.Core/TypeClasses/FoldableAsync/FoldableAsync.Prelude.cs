@@ -26,7 +26,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public static Task<S> foldAsync<FOLD, F, A, S>(F fa, S state, Func<S, A, S> f) where FOLD : FoldableAsync<F, A> =>
-            default(FOLD).FoldAsync(fa, state, f)(unit);
+            default(FOLD).Fold(fa, state, f)(unit);
 
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary
@@ -61,7 +61,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public static Task<S> foldBackAsync<FOLD, F, A, S>(F fa, S state, Func<S, A, S> f) where FOLD : FoldableAsync<F, A> =>
-            default(FOLD).FoldBackAsync(fa, state, f)(unit);
+            default(FOLD).FoldBack(fa, state, f)(unit);
 
         /// <summary>
         /// In the case of lists, 'FoldBack', when applied to a binary
@@ -99,7 +99,7 @@ namespace LanguageExt
         /// <returns>Sequence of As</returns>
         [Pure]
         public static Task<Seq<A>> toSeqAsync<FOLD, F, A>(F fa) where FOLD : FoldableAsync<F, A> =>
-            default(FOLD).FoldBackAsync(fa, Seq<A>.Empty, (s, x) => x.Cons(s))(unit);
+            default(FOLD).FoldBack(fa, Seq<A>.Empty, (s, x) => x.Cons(s))(unit);
 
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace LanguageExt
         /// <returns>Sequence of As that represent the value(s) in the structure</returns>
         [Pure]
         public static Task<IEnumerable<B>> collectAsync<FOLD, F, A, B>(F self, Func<A, B> f) where FOLD : FoldableAsync<F, A> =>
-            default(FOLD).FoldBackAsync(self, new B[0].AsEnumerable(), (s, x) => f(x).Cons(s))(unit);
+            default(FOLD).FoldBack(self, new B[0].AsEnumerable(), (s, x) => f(x).Cons(s))(unit);
 
         /// <summary>
         /// Get the first item in a foldable structure
@@ -174,7 +174,7 @@ namespace LanguageExt
         /// <returns>True if empty, False otherwise</returns>
         [Pure]
         public static Task<int> countAsync<FOLD, F, A>(F fa) where FOLD : FoldableAsync<F, A> =>
-            default(FOLD).CountAsync(fa)(unit);
+            default(FOLD).Count(fa)(unit);
 
         /// <summary>
         /// Does the element occur in the structure?
@@ -199,7 +199,7 @@ namespace LanguageExt
         public static Task<A> sumAsync<NUM, FOLD, F, A>(F fa) 
             where FOLD : FoldableAsync<F, A> 
             where NUM : struct, Num<A> =>
-                default(FOLD).FoldAsync(fa, fromInteger<NUM, A>(0), (s, x) => plus<NUM, A>(s, x))(unit);
+                default(FOLD).Fold(fa, fromInteger<NUM, A>(0), (s, x) => plus<NUM, A>(s, x))(unit);
 
         /// <summary>
         /// The 'product' function computes the product of the numbers of a structure.
@@ -211,7 +211,7 @@ namespace LanguageExt
         public static Task<A> productAsync<NUM, FOLD, F, A>(F fa)
             where FOLD : FoldableAsync<F, A>
             where NUM : struct, Num<A> =>
-                default(FOLD).FoldAsync(fa, fromInteger<NUM, A>(1), (s, x) => product<NUM, A>(s, x))(unit);
+                default(FOLD).Fold(fa, fromInteger<NUM, A>(1), (s, x) => product<NUM, A>(s, x))(unit);
 
         /// <summary>
         /// Runs a predicate against the bound value(s).  If the predicate

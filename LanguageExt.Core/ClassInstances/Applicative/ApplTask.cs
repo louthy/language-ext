@@ -30,15 +30,15 @@ namespace LanguageExt.ClassInstances
             FTask<A, B>.Inst.BiMapAsync(ma, fa, fb);
 
         [Pure]
-        public Task<B> MapAsync(Task<A> ma, Func<A, B> f) =>
-            FTask<A, B>.Inst.MapAsync(ma, f);
+        public Task<B> Map(Task<A> ma, Func<A, B> f) =>
+            FTask<A, B>.Inst.Map(ma, f);
 
         [Pure]
         public Task<B> MapAsync(Task<A> ma, Func<A, Task<B>> f) =>
             FTask<A, B>.Inst.MapAsync(ma, f);
 
         [Pure]
-        public async Task<B> ApplyAsync(Task<Func<A, B>> fab, Task<A> fa)
+        public async Task<B> Apply(Task<Func<A, B>> fab, Task<A> fa)
         {
             await Task.WhenAll(fab, fa);
 
@@ -53,7 +53,7 @@ namespace LanguageExt.ClassInstances
             MTask<A>.Inst.ReturnAsync(x);
 
         [Pure]
-        public async Task<B> ActionAsync(Task<A> fa, Task<B> fb)
+        public async Task<B> Action(Task<A> fa, Task<B> fb)
         {
             await Task.WhenAll(fa, fb);
 
@@ -70,7 +70,7 @@ namespace LanguageExt.ClassInstances
         public static readonly ApplTask<A, B, C> Inst = default(ApplTask<A, B, C>);
 
         [Pure]
-        public async Task<Func<B, C>> ApplyAsync(Task<Func<A, Func<B, C>>> fabc, Task<A> fa)
+        public async Task<Func<B, C>> Apply(Task<Func<A, Func<B, C>>> fabc, Task<A> fa)
         {
             await Task.WhenAll(fabc, fa);
 
@@ -81,7 +81,7 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public async Task<C> ApplyAsync(Task<Func<A, Func<B, C>>> fabc, Task<A> fa, Task<B> fb)
+        public async Task<C> Apply(Task<Func<A, Func<B, C>>> fabc, Task<A> fa, Task<B> fb)
         {
             await Task.WhenAll(fabc, fa, fb);
 
@@ -123,15 +123,15 @@ namespace LanguageExt.ClassInstances
             default(FTask<A, A>).BiMapAsync(ma, fa, fb);
 
         [Pure]
-        public Task<A> MapAsync(Task<A> ma, Func<A, A> f) =>
-            default(FTask<A, A>).MapAsync(ma, f);
+        public Task<A> Map(Task<A> ma, Func<A, A> f) =>
+            default(FTask<A, A>).Map(ma, f);
 
         [Pure]
         public Task<A> MapAsync(Task<A> ma, Func<A, Task<A>> f) =>
             default(FTask<A, A>).MapAsync(ma, f);
 
         [Pure]
-        public async Task<A> ApplyAsync(Task<Func<A, A>> fab, Task<A> fa)
+        public async Task<A> Apply(Task<Func<A, A>> fab, Task<A> fa)
         {
             await Task.WhenAll(fab, fa);
 
@@ -146,7 +146,7 @@ namespace LanguageExt.ClassInstances
             MTask<A>.Inst.ReturnAsync(x);
 
         [Pure]
-        public async Task<A> ActionAsync(Task<A> fa, Task<A> fb)
+        public async Task<A> Action(Task<A> fa, Task<A> fb)
         {
             await Task.WhenAll(fa, fb);
 
@@ -157,7 +157,7 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public async Task<Func<A, A>> ApplyAsync(Task<Func<A, Func<A, A>>> fabc, Task<A> fa)
+        public async Task<Func<A, A>> Apply(Task<Func<A, Func<A, A>>> fabc, Task<A> fa)
         {
             await Task.WhenAll(fabc, fa);
 
@@ -168,7 +168,7 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public async Task<A> ApplyAsync(Task<Func<A, Func<A, A>>> fabc, Task<A> fa, Task<A> fb)
+        public async Task<A> Apply(Task<Func<A, Func<A, A>>> fabc, Task<A> fa, Task<A> fb)
         {
             await Task.WhenAll(fabc, fa, fb);
 

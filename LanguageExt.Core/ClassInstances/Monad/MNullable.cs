@@ -29,7 +29,7 @@ namespace LanguageExt.ClassInstances
         public MB BindAsync<MONADB, MB, B>(A? ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
             ma.HasValue && f != null
                 ? f(ma.Value)
-                : default(MONADB).FailAsync(ValueIsNoneException.Default);
+                : default(MONADB).Fail(ValueIsNoneException.Default);
 
         [Pure]
         public A? Fail(object err = null) =>

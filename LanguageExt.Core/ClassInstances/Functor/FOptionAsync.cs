@@ -57,13 +57,13 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public OptionAsync<B> MapAsync(OptionAsync<A> ma, Func<A, B> f) =>
-            default(MOptionAsync<A>).BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(ma,
+        public OptionAsync<B> Map(OptionAsync<A> ma, Func<A, B> f) =>
+            default(MOptionAsync<A>).Bind<MOptionAsync<B>, OptionAsync<B>, B>(ma,
                 a => default(MOptionAsync<B>).ReturnAsync(f(a).AsTask()));
 
         [Pure]
         public OptionAsync<B> MapAsync(OptionAsync<A> ma, Func<A, Task<B>> f) =>
-            default(MOptionAsync<A>).BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(ma,
+            default(MOptionAsync<A>).Bind<MOptionAsync<B>, OptionAsync<B>, B>(ma,
                 a => default(MOptionAsync<B>).ReturnAsync(f(a)));
     }
 }

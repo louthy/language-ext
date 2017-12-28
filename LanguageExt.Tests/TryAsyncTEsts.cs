@@ -71,8 +71,8 @@ namespace LanguageExt.Tests
             });
 
             var res = AsyncHelper.CompletesImmediately(() =>
-                MTryAsync<int>.Inst.BindAsync<MTryAsync<int>, TryAsync<int>, int>(ma, a =>
-                    MTryAsync<int>.Inst.BindAsync<MTryAsync<int>, TryAsync<int>, int>(mb, b =>
+                MTryAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(ma, a =>
+                    MTryAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(mb, b =>
                         TryAsync(a + b))));
 
             var ab = await AsyncHelper.TakesRoughly(2000, () => res.IfFail(0));
@@ -96,9 +96,9 @@ namespace LanguageExt.Tests
             });
 
             var res = AsyncHelper.CompletesImmediately(() =>
-                MTryAsync<int>.Inst.BindAsync<MTryAsync<int>, TryAsync<int>, int>(ma, a =>
-                    MTryAsync<int>.Inst.BindAsync<MTryAsync<int>, TryAsync<int>, int>(mb, b =>
-                        MTryAsync<int>.Inst.FailAsync())));
+                MTryAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(ma, a =>
+                    MTryAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(mb, b =>
+                        MTryAsync<int>.Inst.Fail())));
 
             var ab = await AsyncHelper.TakesRoughly(2000, () => res.IfFail(0));
 
@@ -121,7 +121,7 @@ namespace LanguageExt.Tests
             });
 
             var res = AsyncHelper.CompletesImmediately(() =>
-                MTryAsync<int>.Inst.BindAsync<MTryAsync<int>, TryAsync<int>, int>(ma, a =>
+                MTryAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(ma, a =>
                     MTryAsync<int>.Inst.BindAsync<MTryAsync<int>, TryAsync<int>, int>(mb, async b =>
                         await ThrowNotImplementedException<TryAsync<int>>())));
 
@@ -152,8 +152,8 @@ namespace LanguageExt.Tests
             });
 
             var res = AsyncHelper.CompletesImmediately(() =>
-                MTryAsync<int>.Inst.BindAsync<MTryAsync<int>, TryAsync<int>, int>(ma, a =>
-                    MTryOptionAsync<int>.Inst.BindAsync<MTryAsync<int>, TryAsync<int>, int>(mb, b =>
+                MTryAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(ma, a =>
+                    MTryOptionAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(mb, b =>
                         TryAsync(a + b))));
 
             var ab = await AsyncHelper.TakesRoughly(2000, () => res.IfFail(0));
@@ -177,7 +177,7 @@ namespace LanguageExt.Tests
             });
 
             var res = AsyncHelper.CompletesImmediately(() =>
-                MTryAsync<int>.Inst.BindAsync<MTryAsync<int>, TryAsync<int>, int>(ma, a =>
+                MTryAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(ma, a =>
                     MTryOptionAsync<int>.Inst.BindAsync<MTryAsync<int>, TryAsync<int>, int>(mb, b =>
                         ThrowNotSupportedException<TryAsync<int>>("hello"))));
 
@@ -205,7 +205,7 @@ namespace LanguageExt.Tests
             });
 
             var res = AsyncHelper.CompletesImmediately(() =>
-                MTryOptionAsync<int>.Inst.BindAsync<MTryOptionAsync<int>, TryOptionAsync<int>, int>(ma, a =>
+                MTryOptionAsync<int>.Inst.Bind<MTryOptionAsync<int>, TryOptionAsync<int>, int>(ma, a =>
                     MTryAsync<int>.Inst.BindAsync<MTryOptionAsync<int>, TryOptionAsync<int>, int>(mb, b =>
                         ThrowNotSupportedException<TryOptionAsync<int>>("hello"))));
 
@@ -233,9 +233,9 @@ namespace LanguageExt.Tests
             });
 
             var res = AsyncHelper.CompletesImmediately(() =>
-                MTryOptionAsync<int>.Inst.BindAsync<MTryOptionAsync<int>, TryOptionAsync<int>, int>(ma, a =>
-                    MTryAsync<int>.Inst.BindAsync<MTryOptionAsync<int>, TryOptionAsync<int>, int>(mb, b =>
-                         MTryOptionAsync<int>.Inst.FailAsync())));
+                MTryOptionAsync<int>.Inst.Bind<MTryOptionAsync<int>, TryOptionAsync<int>, int>(ma, a =>
+                    MTryAsync<int>.Inst.Bind<MTryOptionAsync<int>, TryOptionAsync<int>, int>(mb, b =>
+                         MTryOptionAsync<int>.Inst.Fail())));
 
             var ab = await AsyncHelper.TakesRoughly(2000, () =>
                 res.Match(

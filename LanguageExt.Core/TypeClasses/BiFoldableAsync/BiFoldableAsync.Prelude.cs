@@ -28,7 +28,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> biFoldAsync<FOLD, F, A, B, S>(F foldable, S state, Func<S, A, S> fa, Func<S, B, S> fb)
             where FOLD : struct, BiFoldableAsync<F, A, B> =>
-            default(FOLD).BiFoldAsync(foldable, state, fa, fb);
+            default(FOLD).BiFold(foldable, state, fa, fb);
 
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary
@@ -107,7 +107,7 @@ namespace LanguageExt
         [Pure]
         public static Task<S> biFoldBackAsync<FOLD, F, A, B, S>(F foldable, S state, Func<S, A, S> fa, Func<S, B, S> fb)
             where FOLD : struct, BiFoldableAsync<F, A, B> =>
-            default(FOLD).BiFoldBackAsync(foldable, state, fa, fb);
+            default(FOLD).BiFoldBack(foldable, state, fa, fb);
 
         /// <summary>
         /// In the case of lists, 'FoldBack', when applied to a binary

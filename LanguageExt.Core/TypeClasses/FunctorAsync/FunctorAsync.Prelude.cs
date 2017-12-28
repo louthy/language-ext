@@ -23,7 +23,7 @@ namespace LanguageExt
         [Pure]
         public static FB mapAsync<FunctorAB, FA, FB, A, B>(FA ma, Func<A, B> f)
             where FunctorAB : FunctorAsync<FA, FB, A, B> =>
-                default(FunctorAB).MapAsync(ma, f);
+                default(FunctorAB).Map(ma, f);
 
         /// <summary>
         /// Projection from one value to another

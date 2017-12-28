@@ -10,14 +10,16 @@ namespace LanguageExt.ClassInstances
         BiFunctorAsync<EitherAsync<L, A>, EitherAsync<L, B>, L, A, B>,
         ApplicativeAsync<EitherAsync<L, Func<A, B>>, EitherAsync<L, A>, EitherAsync<L, B>, A, B>
     {
+        public static ApplEitherAsync<L, A, B> Inst = default(ApplEitherAsync<L, A, B>);
+
         [Pure]
-        public EitherAsync<L, B> ActionAsync(EitherAsync<L, A> fa, EitherAsync<L, B> fb) =>
+        public EitherAsync<L, B> Action(EitherAsync<L, A> fa, EitherAsync<L, B> fb) =>
             from a in fa
             from b in fb
             select b;
 
         [Pure]
-        public EitherAsync<L, B> ApplyAsync(EitherAsync<L, Func<A, B>> fab, EitherAsync<L, A> fa) =>
+        public EitherAsync<L, B> Apply(EitherAsync<L, Func<A, B>> fab, EitherAsync<L, A> fa) =>
             from f in fab
             from a in fa
             select f(a);
@@ -39,7 +41,7 @@ namespace LanguageExt.ClassInstances
             default(FEitherAsync<L, A, B>).BiMapAsync(ma, fa, fb);
 
         [Pure]
-        public EitherAsync<L, B> MapAsync(EitherAsync<L, A> ma, Func<A, B> f) =>
+        public EitherAsync<L, B> Map(EitherAsync<L, A> ma, Func<A, B> f) =>
             ma.Map(f);
 
         [Pure]
@@ -54,12 +56,14 @@ namespace LanguageExt.ClassInstances
     public struct ApplEitherAsync<L, A, B, C> :
         ApplicativeAsync<EitherAsync<L, Func<A, Func<B, C>>>, EitherAsync<L, Func<B, C>>, EitherAsync<L, A>, EitherAsync<L, B>, EitherAsync<L, C>, A, B, C>
     {
-        public EitherAsync<L, Func<B, C>> ApplyAsync(EitherAsync<L, Func<A, Func<B, C>>> fabc, EitherAsync<L, A> fa) =>
+        public static ApplEitherAsync<L, A, B, C> Inst = default(ApplEitherAsync<L, A, B, C>);
+
+        public EitherAsync<L, Func<B, C>> Apply(EitherAsync<L, Func<A, Func<B, C>>> fabc, EitherAsync<L, A> fa) =>
             from f in fabc
             from a in fa
             select f(a);
 
-        public EitherAsync<L, C> ApplyAsync(EitherAsync<L, Func<A, Func<B, C>>> fabc, EitherAsync<L, A> fa, EitherAsync<L, B> fb) =>
+        public EitherAsync<L, C> Apply(EitherAsync<L, Func<A, Func<B, C>>> fabc, EitherAsync<L, A> fa, EitherAsync<L, B> fb) =>
             from f in fabc
             from a in fa
             from b in fb

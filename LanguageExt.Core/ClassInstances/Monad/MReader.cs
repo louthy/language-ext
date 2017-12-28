@@ -27,7 +27,7 @@ namespace LanguageExt.ClassInstances
             default(MONADB).RunAsync(env =>
             {
                 var (a, faulted) = ma(env);
-                if (faulted) return default(MONADB).FailAsync().AsTask();
+                if (faulted) return default(MONADB).Fail().AsTask();
                 return f(a).AsTask();
             });
 

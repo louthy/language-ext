@@ -27,8 +27,8 @@ namespace LanguageExt.ClassInstances
             {
                 var (a, sa, faulted) = ma(state);
                 return faulted
-                    ? default(MONADB).FailAsync(default(MState<S, A>).Fail()).AsTask()
-                    : default(MONADB).BindReturnAsync((sa, faulted), f(a)).AsTask();
+                    ? default(MONADB).Fail(default(MState<S, A>).Fail()).AsTask()
+                    : default(MONADB).BindReturn((sa, faulted), f(a)).AsTask();
             });
 
         [Pure]

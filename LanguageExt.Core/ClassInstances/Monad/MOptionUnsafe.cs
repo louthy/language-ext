@@ -39,10 +39,10 @@ namespace LanguageExt.ClassInstances
                 ? default(MONADB).RunAsync(_ =>
                     (ma.IsSome && f != null
                         ? f(ma.Value)
-                        : default(MONADB).FailAsync(ValueIsNoneException.Default)).AsTask())
+                        : default(MONADB).Fail(ValueIsNoneException.Default)).AsTask())
                 : ma.IsSome && f != null
                     ? f(ma.Value)
-                    : default(MONADB).FailAsync(ValueIsNoneException.Default);
+                    : default(MONADB).Fail(ValueIsNoneException.Default);
 
         [Pure]
         public OptionUnsafe<A> Fail(object err = null) =>

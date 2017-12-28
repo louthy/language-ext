@@ -39,7 +39,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
-        FB ApplyAsync(FAB fab, FA fa);
+        FB Apply(FAB fab, FA fa);
 
         /// <summary>
         /// Evaluate fa, then fb, ignoring the result of fa
@@ -48,7 +48,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="fb">Applicative to evaluate second and then return</param>
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
-        FB ActionAsync(FA fa, FB fb);
+        FB Action(FA fa, FB fb);
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
-        FBC ApplyAsync(FABC fabc, FA fa);
+        FBC Apply(FABC fabc, FA fa);
 
         /// <summary>
         /// Apply
@@ -81,6 +81,6 @@ namespace LanguageExt.TypeClasses
         /// <param name="fb">Applicative b to apply</param>
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
-        FC ApplyAsync(FABC fabc, FA fa, FB fb);
+        FC Apply(FABC fabc, FA fa, FB fb);
     }
 }

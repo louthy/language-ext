@@ -47,49 +47,49 @@ namespace LanguageExt
         public static Func<Env, Task<MB>> traverseAsync<Env, Out, MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, B> f)
             where MonadA : struct, MonadAsync<Env, Out, MA, A>
             where MonadB : struct, MonadAsync<Env, Out, MB, B> =>
-            default(MonadA).FoldAsync(ma, default(MonadB).ZeroAsync(), (s, a) => default(MonadB).PlusAsync(s, default(MonadB).ReturnAsync(_ => f(a).AsTask())));
+            default(MonadA).Fold(ma, default(MonadB).Zero(), (s, a) => default(MonadB).Plus(s, default(MonadB).ReturnAsync(_ => f(a).AsTask())));
 
         [Pure]
         public static Func<Env, Task<MB>> traverseAsync<Env, Out, MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, Task<B>> f)
             where MonadA : struct, MonadAsync<Env, Out, MA, A>
             where MonadB : struct, MonadAsync<Env, Out, MB, B> =>
-            default(MonadA).FoldAsync(ma, default(MonadB).ZeroAsync(), (s, a) => default(MonadB).PlusAsync(s, default(MonadB).ReturnAsync(async _ => await f(a))));
+            default(MonadA).Fold(ma, default(MonadB).Zero(), (s, a) => default(MonadB).Plus(s, default(MonadB).ReturnAsync(async _ => await f(a))));
 
         [Pure]
         public static Func<Env, Task<MB>> traverseAsync<Env, Out, MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, MB> f)
             where MonadA : struct, MonadAsync<Env, Out, MA, A>
             where MonadB : struct, MonadAsync<Env, Out, MB, B> =>
-            default(MonadA).FoldAsync(ma, default(MonadB).ZeroAsync(), (s, a) => default(MonadB).PlusAsync(s, f(a)));
+            default(MonadA).Fold(ma, default(MonadB).Zero(), (s, a) => default(MonadB).Plus(s, f(a)));
 
         [Pure]
         public static Func<Env, Task<MB>> traverseAsync<Env, Out, MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, Task<MB>> f)
             where MonadA : struct, MonadAsync<Env, Out, MA, A>
             where MonadB : struct, MonadAsync<Env, Out, MB, B> =>
-            default(MonadA).FoldAsync(ma, default(MonadB).ZeroAsync(), async (s, a) => default(MonadB).PlusAsync(s, await f(a)));
+            default(MonadA).FoldAsync(ma, default(MonadB).Zero(), async (s, a) => default(MonadB).Plus(s, await f(a)));
 
         [Pure]
         public static MB traverseSyncAsync<MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, MB> f)
             where MonadA : struct, Monad<Unit, Unit, MA, A>
             where MonadB : struct, MonadAsync<Unit, Unit, MB, B> =>
-            default(MonadA).Fold(ma, default(MonadB).ZeroAsync(), (s, a) => default(MonadB).PlusAsync(s, f(a)))(unit);
+            default(MonadA).Fold(ma, default(MonadB).Zero(), (s, a) => default(MonadB).Plus(s, f(a)))(unit);
 
         [Pure]
         public static Func<Env, MB> traverseSyncAsync<Env, Out, MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, MB> f)
             where MonadA : struct, Monad<Env, Out, MA, A>
             where MonadB : struct, MonadAsync<Env, Out, MB, B> =>
-            default(MonadA).Fold(ma, default(MonadB).ZeroAsync(), (s, a) => default(MonadB).PlusAsync(s, f(a)));
+            default(MonadA).Fold(ma, default(MonadB).Zero(), (s, a) => default(MonadB).Plus(s, f(a)));
 
         [Pure]
         public static Task<MB> traverseAsyncSync<MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, MB> f)
             where MonadA : struct, MonadAsync<Unit, Unit, MA, A>
             where MonadB : struct, Monad<Unit, Unit, MB, B> =>
-            default(MonadA).FoldAsync(ma, default(MonadB).Zero(), (s, a) => default(MonadB).Plus(s, f(a)))(unit);
+            default(MonadA).Fold(ma, default(MonadB).Zero(), (s, a) => default(MonadB).Plus(s, f(a)))(unit);
 
         [Pure]
         public static Func<Env, Task<MB>> traverseAsyncSync<Env, Out, MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, MB> f)
             where MonadA : struct, MonadAsync<Env, Out, MA, A>
             where MonadB : struct, Monad<Env, Out, MB, B> =>
-            default(MonadA).FoldAsync(ma, default(MonadB).Zero(), (s, a) => default(MonadB).Plus(s, f(a)));
+            default(MonadA).Fold(ma, default(MonadB).Zero(), (s, a) => default(MonadB).Plus(s, f(a)));
 
         [Pure]
         public static Task<MB> traverseAsyncSync<MonadA, MonadB, MA, MB, A, B>(MA ma, Func<A, Task<MB>> f)
@@ -114,7 +114,7 @@ namespace LanguageExt
         public static MB bindAsync<MONADA, MONADB, MA, MB, A, B>(MA ma, Func<A, MB> f)
             where MONADA : struct, MonadAsync<MA, A>
             where MONADB : struct, MonadAsync<MB, B> =>
-            default(MONADA).BindAsync<MONADB, MB, B>(ma, f);
+            default(MONADA).Bind<MONADB, MB, B>(ma, f);
 
         /// <summary>
         /// Monadic bind
@@ -134,7 +134,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static MA failAsync<MONAD, MA, A>(Exception err = null) where MONAD : struct, MonadAsync<MA, A> =>
-            default(MONAD).FailAsync(err);
+            default(MONAD).Fail(err);
 
         /// <summary>
         /// Performs a map operation on the monad
@@ -147,7 +147,7 @@ namespace LanguageExt
         public static MB liftMAsync<MONAD, FUNCTOR, MA, MB, A, B>(MA ma, Func<A, B> f)
             where FUNCTOR : struct, FunctorAsync<MA, MB, A, B>
             where MONAD   : struct, MonadAsync<MA, A> =>
-            default(FUNCTOR).MapAsync(ma, f);
+            default(FUNCTOR).Map(ma, f);
 
         /// <summary>
         /// Performs a map operation on the monad
@@ -176,11 +176,11 @@ namespace LanguageExt
             where MONADA : struct, MonadAsync<MA, A>
             where MONADB : struct, MonadAsync<MB, B>
             where MONADD : struct, MonadAsync<MD, D> =>
-                default(MONADA).BindAsync<MONADD, MD, D>(self,  x =>
-                default(MONADB).BindAsync<MONADD, MD, D>(inner, y =>
+                default(MONADA).Bind<MONADD, MD, D>(self,  x =>
+                default(MONADB).Bind<MONADD, MD, D>(inner, y =>
                     default(EQ).Equals(outerKeyMap(x), innerKeyMap(y))
                         ? default(MONADD).ReturnAsync(_ => project(x, y).AsTask())
-                        : default(MONADD).FailAsync()));
+                        : default(MONADD).Fail()));
 
         /// <summary>
         /// Monad join
@@ -196,11 +196,11 @@ namespace LanguageExt
             where MONADA : struct, MonadAsync<MA, A>
             where MONADB : struct, MonadAsync<MB, B>
             where MONADD : struct, MonadAsync<MD, D> =>
-                default(MONADA).BindAsync<MONADD, MD, D>(self, x =>
-                default(MONADB).BindAsync<MONADD, MD, D>(inner, y =>
+                default(MONADA).Bind<MONADD, MD, D>(self, x =>
+                default(MONADB).Bind<MONADD, MD, D>(inner, y =>
                    default(EQ).Equals(outerKeyMap(x), innerKeyMap(y))
                        ? default(MONADD).ReturnAsync(async _ => await project(x, y))
-                       : default(MONADD).FailAsync()));
+                       : default(MONADD).Fail()));
 
         /// <summary>
         /// Monad join
@@ -216,11 +216,11 @@ namespace LanguageExt
             where MONADA : struct, MonadAsync<MA, A>
             where MONADB : struct, MonadAsync<MB, B>
             where MONADD : struct, MonadAsync<MD, D> =>
-                default(MONADA).BindAsync<MONADD, MD, D>(self, x =>
+                default(MONADA).Bind<MONADD, MD, D>(self, x =>
                 default(MONADB).BindAsync<MONADD, MD, D>(inner, async y =>
                    default(EQ).Equals(await outerKeyMap(x), await innerKeyMap(y))
                        ? default(MONADD).ReturnAsync(async _ => await project(x, y))
-                       : default(MONADD).FailAsync()));
+                       : default(MONADD).Fail()));
 
         /// <summary>
         /// Monad join
@@ -236,11 +236,11 @@ namespace LanguageExt
             where MONADA : struct, MonadAsync<MA, A>
             where MONADB : struct, MonadAsync<MB, B>
             where MONADD : struct, MonadAsync<MD, D> =>
-                default(MONADA).BindAsync<MONADD, MD, D>(self, x =>
+                default(MONADA).Bind<MONADD, MD, D>(self, x =>
                 default(MONADB).BindAsync<MONADD, MD, D>(inner, async y =>
                    default(EQ).Equals(await outerKeyMap(x), await innerKeyMap(y))
                        ? default(MONADD).ReturnAsync(project(x, y).AsTask())
-                       : default(MONADD).FailAsync()));
+                       : default(MONADD).Fail()));
 
         /// <summary>
         /// Monadic bind and project
@@ -253,8 +253,8 @@ namespace LanguageExt
             where MONADA : struct, MonadAsync<MA, A>
             where MONADB : struct, MonadAsync<MB, B>
             where MONADC : struct, MonadAsync<MC, C> =>
-                default(MONADA).BindAsync<MONADC, MC, C>( self,    t => 
-                default(MONADB).BindAsync<MONADC, MC, C>( bind(t), u => 
+                default(MONADA).Bind<MONADC, MC, C>( self,    t => 
+                default(MONADB).Bind<MONADC, MC, C>( bind(t), u => 
                 default(MONADC).ReturnAsync(project(t, u).AsTask())));
 
         /// <summary>
@@ -269,7 +269,7 @@ namespace LanguageExt
             where MONADB : struct, MonadAsync<MB, B>
             where MONADC : struct, MonadAsync<MC, C> =>
                 default(MONADA).BindAsync<MONADC, MC, C>(self, async t =>
-                default(MONADB).BindAsync<MONADC, MC, C>(await bind(t), u =>
+                default(MONADB).Bind<MONADC, MC, C>(await bind(t), u =>
                 default(MONADC).ReturnAsync(project(t, u).AsTask())));
 
         /// <summary>
@@ -284,7 +284,7 @@ namespace LanguageExt
             where MONADB : struct, MonadAsync<MB, B>
             where MONADC : struct, MonadAsync<MC, C> =>
                 default(MONADA).BindAsync<MONADC, MC, C>(self, async t =>
-                default(MONADB).BindAsync<MONADC, MC, C>(await bind(t), u =>
+                default(MONADB).Bind<MONADC, MC, C>(await bind(t), u =>
                 default(MONADC).ReturnAsync(project(t, u))));
 
         /// <summary>
@@ -298,8 +298,8 @@ namespace LanguageExt
             where MONADA : struct, MonadAsync<MA, A>
             where MONADB : struct, MonadAsync<MB, B>
             where MONADC : struct, MonadAsync<MC, C> =>
-                default(MONADA).BindAsync<MONADC, MC, C>(self, t =>
-                default(MONADB).BindAsync<MONADC, MC, C>(bind(t), u =>
+                default(MONADA).Bind<MONADC, MC, C>(self, t =>
+                default(MONADB).Bind<MONADC, MC, C>(bind(t), u =>
                 default(MONADC).ReturnAsync(project(t, u))));
 
         /// <summary>
@@ -310,7 +310,7 @@ namespace LanguageExt
         /// <returns>Zero for the structure</returns>
         [Pure]
         public static MA mzeroAsync<MPLUS, MA, A>() where MPLUS : struct, MonadAsync<MA, A> =>
-            default(MPLUS).ZeroAsync();
+            default(MPLUS).Zero();
 
         /// <summary>
         /// Return monad x 'plus' monad y
@@ -333,7 +333,7 @@ namespace LanguageExt
         /// <returns>x 'plus' y </returns>
         [Pure]
         public static MA mplusAsync<MPLUS, MA, A>(MA x, MA y) where MPLUS : struct, MonadAsync<MA, A> =>
-            default(MPLUS).PlusAsync(x, y);
+            default(MPLUS).Plus(x, y);
 
         /// <summary>
         /// Performs the following fold operation: fold(xs, mzero, mplus)
@@ -366,7 +366,7 @@ namespace LanguageExt
         /// <returns>The filtered (or not) MonadAsync</returns>
         [Pure]
         public static MA filterAsync<MPLUS, MA, A>(MA ma, Func<A, bool> pred) where MPLUS : struct, MonadAsync<MA, A> =>
-            default(MPLUS).BindAsync<MPLUS, MA, A>(ma,
+            default(MPLUS).Bind<MPLUS, MA, A>(ma,
                 x => pred(x)
                     ? ma
                     : mzeroAsync<MPLUS, MA, A>());

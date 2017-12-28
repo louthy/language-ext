@@ -34,8 +34,8 @@ namespace LanguageExt.ClassInstances
             {
                 var next = ma(initial.Env, initial.State);
                 return next.IsFaulted
-                    ? default(MONADB).FailAsync(default(MRWS<MonoidW, R, W, S, A>).Fail()).AsTask()
-                    : default(MONADB).BindReturnAsync((next.Output, next.State, next.IsFaulted), f(next.Value)).AsTask();
+                    ? default(MONADB).Fail(default(MRWS<MonoidW, R, W, S, A>).Fail()).AsTask()
+                    : default(MONADB).BindReturn((next.Output, next.State, next.IsFaulted), f(next.Value)).AsTask();
             });
 
         public RWS<MonoidW, R, W, S, A> BindReturn((W Output, S State, bool IsFaulted) previous, RWS<MonoidW, R, W, S, A> mb) => (env, state) =>

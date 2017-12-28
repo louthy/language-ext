@@ -80,10 +80,10 @@
         /// <returns>`OUTER_A` with the predicate `f(a)` applied</returns>
         [Pure]
         public static OUTER_A Where<GENS, A>(this OUTER_A ma, Func<A, bool> pred) =>
-            default(SYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).BindAsync<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
+            default(SYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).Bind<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
                 a => pred(a)
                     ? default(M_INNER_A).ReturnAsync(a.AsTask())
-                    : default(M_INNER_A).ZeroAsync());
+                    : default(M_INNER_A).Zero());
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -98,7 +98,7 @@
             default(SYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).BindAsync<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
                 async a => (await pred(a))
                     ? default(M_INNER_A).ReturnAsync(a.AsTask())
-                    : default(M_INNER_A).ZeroAsync());
+                    : default(M_INNER_A).Zero());
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -112,4 +112,4 @@
         [Pure]
         public static OUTER_B Select<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
             default(SYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .MapAsync<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
+                .Map<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);

@@ -116,7 +116,7 @@ namespace Core.Tests
         public async Task what_i_desire()
         {
             Task<Either<Error, Pixel>> GetPixelE(PixelId id) =>
-                GetPixel(id).MatchAsync(
+                GetPixel(id).Match(
                     Some: p => Right<Error, Pixel>(p),
                     None: () => Error.New("pixel not found")
                 );

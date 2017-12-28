@@ -8,20 +8,21 @@ using LanguageExt.DataTypes.Serialisation;
 namespace LanguageExt.ClassInstances
 {
     public struct MEitherAsync<L, R> :
+        ChoiceAsync<EitherAsync<L, R>, L, R>,
         Alternative<EitherAsync<L, R>, L, R>,
         OptionalAsync<EitherAsync<L, R>, R>,
         MonadAsync<EitherAsync<L, R>, R>,
         FoldableAsync<EitherAsync<L, R>, R>,
         BiFoldableAsync<EitherAsync<L, R>, L, R>
     {
-        public EitherAsync<L, R> NoneAsync => throw new NotImplementedException();
+        public EitherAsync<L, R> None => throw new NotImplementedException();
 
         [Pure]
         public EitherAsync<L, R> Append(EitherAsync<L, R> ma, EitherAsync<L, R> mb) =>
-            PlusAsync(ma, mb);
+            Plus(ma, mb);
 
         [Pure]
-        public EitherAsync<L, R> ApplyAsync(Func<R, R, R> f, EitherAsync<L, R> ma, EitherAsync<L, R> mb)
+        public EitherAsync<L, R> Apply(Func<R, R, R> f, EitherAsync<L, R> ma, EitherAsync<L, R> mb)
         {
             async Task<EitherData<L, R>> Do(Func<R, R, R> ff, EitherAsync<L, R> mma, EitherAsync<L, R> mmb)
             {
@@ -40,7 +41,7 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public Task<S> BiFoldAsync<S>(EitherAsync<L, R> ma, S state, Func<S, L, S> fa, Func<S, R, S> fb) =>
+        public Task<S> BiFold<S>(EitherAsync<L, R> ma, S state, Func<S, L, S> fa, Func<S, R, S> fb) =>
             ma.BiFold(state, fb, fa);
 
         [Pure]
@@ -56,7 +57,7 @@ namespace LanguageExt.ClassInstances
             ma.BiFoldAsync(state, fb, fa);
 
         [Pure]
-        public Task<S> BiFoldBackAsync<S>(EitherAsync<L, R> ma, S state, Func<S, L, S> fa, Func<S, R, S> fb) =>
+        public Task<S> BiFoldBack<S>(EitherAsync<L, R> ma, S state, Func<S, L, S> fa, Func<S, R, S> fb) =>
             ma.BiFold(state, fb, fa);
 
         [Pure]
@@ -72,31 +73,31 @@ namespace LanguageExt.ClassInstances
             ma.BiFoldAsync(state, fb, fa);
 
         [Pure]
-        public MB BindAsync<MONADB, MB, B>(EitherAsync<L, R> ma, Func<R, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+        public MB Bind<MONADB, MB, B>(EitherAsync<L, R> ma, Func<R, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
             default(MONADB).RunAsync(_ =>
                 ma.Match(
-                    Left: l => default(MONADB).FailAsync(l),
+                    Left: l => default(MONADB).Fail(l),
                     Right: r => f(r),
-                    Bottom: () => default(MONADB).FailAsync(BottomException.Default)));
+                    Bottom: () => default(MONADB).Fail(BottomException.Default)));
 
         [Pure]
         public MB BindAsync<MONADB, MB, B>(EitherAsync<L, R> ma, Func<R, Task<MB>> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B>
         {
             Task<MB> Do(Unit _) =>
                 ma.MatchAsync(
-                    Left:  l       => default(MONADB).FailAsync(l),
-                    Right: async r => await f(r),
-                    Bottom: ()     => default(MONADB).FailAsync(BottomException.Default));
+                    Left:  l       => default(MONADB).Fail(l),
+                    RightAsync: async r => await f(r),
+                    Bottom: ()     => default(MONADB).Fail(BottomException.Default));
 
             return default(MONADB).RunAsync(Do);
         }
 
         [Pure]
-        public EitherAsync<L, R> BindReturnAsync(Unit outputma, EitherAsync<L, R> mb) =>
+        public EitherAsync<L, R> BindReturn(Unit outputma, EitherAsync<L, R> mb) =>
             mb;
 
         [Pure]
-        public Func<Unit, Task<int>> CountAsync(EitherAsync<L, R> fa) => _ =>
+        public Func<Unit, Task<int>> Count(EitherAsync<L, R> fa) => _ =>
             fa.Match(r => 1, l => 0, () => 0);
 
         [Pure]
@@ -104,13 +105,13 @@ namespace LanguageExt.ClassInstances
             EitherAsync<L, R>.Bottom;
 
         [Pure]
-        public EitherAsync<L, R> FailAsync(object err = null) =>
+        public EitherAsync<L, R> Fail(object err = null) =>
             err != null && err is L
                 ? EitherAsync<L, R>.Left((L)err)
                 : EitherAsync<L, R>.Bottom;
 
         [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(EitherAsync<L, R> fa, S state, Func<S, R, S> f) => _ =>
+        public Func<Unit, Task<S>> Fold<S>(EitherAsync<L, R> fa, S state, Func<S, R, S> f) => _ =>
             fa.Fold(state, f);
 
         [Pure]
@@ -126,7 +127,7 @@ namespace LanguageExt.ClassInstances
             fa.BiFoldAsync(state, (s, r) => s, f);
 
         [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(EitherAsync<L, R> fa, S state, Func<S, R, S> f) => _ =>
+        public Func<Unit, Task<S>> FoldBack<S>(EitherAsync<L, R> fa, S state, Func<S, R, S> f) => _ =>
             fa.Fold(state, f);
 
         [Pure]
@@ -142,19 +143,19 @@ namespace LanguageExt.ClassInstances
             fa.BiFoldAsync(state, (s, r) => s, f);
 
         [Pure]
-        public Task<bool> IsNoneAsync(EitherAsync<L, R> ma) =>
+        public Task<bool> IsNone(EitherAsync<L, R> ma) =>
             ma.IsLeft;
 
         [Pure]
-        public Task<bool> IsSomeAsync(EitherAsync<L, R> ma) =>
+        public Task<bool> IsSome(EitherAsync<L, R> ma) =>
             ma.IsRight;
 
         [Pure]
-        public Task<bool> IsUnsafeAsync(EitherAsync<L, R> ma) =>
+        public Task<bool> IsUnsafe(EitherAsync<L, R> ma) =>
             false.AsTask();
 
         [Pure]
-        public Task<B> MatchAsync<B>(EitherAsync<L, R> ma, Func<R, B> Some, Func<B> None) =>
+        public Task<B> Match<B>(EitherAsync<L, R> ma, Func<R, B> Some, Func<B> None) =>
             ma.Match(Some, l => None());
 
         [Pure]
@@ -170,11 +171,22 @@ namespace LanguageExt.ClassInstances
             ma.MatchAsync(Some, l => None());
 
         [Pure]
-        public Task<Unit> MatchAsync(EitherAsync<L, R> ma, Action<R> Some, Action None) =>
+        public Task<Unit> Match(EitherAsync<L, R> ma, Action<R> Some, Action None) =>
             ma.Match(Some, l => None());
+        [Pure]
+        public Task<Unit> MatchAsync(EitherAsync<L, R> ma, Func<R, Task> Some, Action None) =>
+            ma.MatchAsync(RightAsync: Some, Left: l => None());
 
         [Pure]
-        public Task<B> MatchUnsafeAsync<B>(EitherAsync<L, R> ma, Func<R, B> Some, Func<B> None) =>
+        public Task<Unit> MatchAsync(EitherAsync<L, R> ma, Action<R> Some, Func<Task> None) =>
+            ma.MatchAsync(Some, async l => await None());
+
+        [Pure]
+        public Task<Unit> MatchAsync(EitherAsync<L, R> ma, Func<R, Task> Some, Func<Task> None) =>
+            ma.MatchAsync(Some, async l => await None());
+
+        [Pure]
+        public Task<B> MatchUnsafe<B>(EitherAsync<L, R> ma, Func<R, B> Some, Func<B> None) =>
             ma.MatchUnsafe(Some, l => None());
 
         [Pure]
@@ -190,11 +202,15 @@ namespace LanguageExt.ClassInstances
             ma.MatchUnsafeAsync(Some, l => None());
 
         [Pure]
-        public EitherAsync<L, R> OptionalAsync(R value) =>
+        public EitherAsync<L, R> Optional(R value) =>
             EitherAsync<L, R>.Right(value);
 
         [Pure]
-        public EitherAsync<L, R> PlusAsync(EitherAsync<L, R> ma, EitherAsync<L, R> mb)
+        public EitherAsync<L, R> OptionalAsync(Task<R> value) =>
+            EitherAsync<L, R>.RightAsync(value);
+
+        [Pure]
+        public EitherAsync<L, R> Plus(EitherAsync<L, R> ma, EitherAsync<L, R> mb)
         {
             async Task<EitherData<L, R>> Do(EitherAsync<L, R> mma, EitherAsync<L, R> mmb)
             {
@@ -235,11 +251,71 @@ namespace LanguageExt.ClassInstances
             await(await ma(unit)).data;
 
         [Pure]
-        public EitherAsync<L, R> SomeAsync(R value) =>
+        public EitherAsync<L, R> Some(R value) =>
             EitherAsync<L, R>.Right(value);
 
         [Pure]
-        public EitherAsync<L, R> ZeroAsync() =>
+        public EitherAsync<L, R> SomeAsync(Task<R> value) =>
+            EitherAsync<L, R>.RightAsync(value);
+
+        [Pure]
+        public EitherAsync<L, R> Zero() =>
             EitherAsync<L, R>.Bottom;
+
+        [Pure]
+        public Task<bool> IsLeft(EitherAsync<L, R> choice) =>
+            choice.IsLeft;
+
+        [Pure]
+        public Task<bool> IsRight(EitherAsync<L, R> choice) =>
+            choice.IsRight;
+
+        [Pure]
+        public Task<bool> IsBottom(EitherAsync<L, R> choice) =>
+            choice.IsBottom;
+
+        [Pure]
+        public Task<C> Match<C>(EitherAsync<L, R> choice, Func<L, C> Left, Func<R, C> Right, Func<C> Bottom = null) =>
+            choice.Match(Right, Left, Bottom);
+
+        [Pure]
+        public Task<C> MatchAsync<C>(EitherAsync<L, R> choice, Func<L, Task<C>> LeftAsync, Func<R, C> Right, Func<C> Bottom = null) =>
+            choice.MatchAsync(Right, LeftAsync, Bottom);
+
+        [Pure]
+        public Task<C> MatchAsync<C>(EitherAsync<L, R> choice, Func<L, C> Left, Func<R, Task<C>> RightAsync, Func<C> Bottom = null) =>
+            choice.MatchAsync(RightAsync, Left, Bottom);
+
+        [Pure]
+        public Task<C> MatchAsync<C>(EitherAsync<L, R> choice, Func<L, Task<C>> LeftAsync, Func<R, Task<C>> RightAsync, Func<C> Bottom = null) =>
+            choice.MatchAsync(RightAsync, LeftAsync, Bottom);
+
+        public Task<Unit> Match(EitherAsync<L, R> choice, Action<L> Left, Action<R> Right, Action Bottom = null) =>
+            choice.Match(Right, Left, Bottom);
+
+        public Task<Unit> MatchAsync(EitherAsync<L, R> choice, Func<L, Task> LeftAsync, Action<R> Right, Action Bottom = null) =>
+            choice.MatchAsync(Right, LeftAsync, Bottom);
+
+        public Task<Unit> MatchAsync(EitherAsync<L, R> choice, Action<L> Left, Func<R, Task> RightAsync, Action Bottom = null) =>
+            choice.MatchAsync(RightAsync, Left, Bottom);
+
+        public Task<Unit> MatchAsync(EitherAsync<L, R> choice, Func<L, Task> LeftAsync, Func<R, Task> RightAsync, Action Bottom = null) =>
+            choice.MatchAsync(RightAsync, LeftAsync, Bottom);
+
+        [Pure]
+        public Task<C> MatchUnsafe<C>(EitherAsync<L, R> choice, Func<L, C> Left, Func<R, C> Right, Func<C> Bottom = null) =>
+            choice.MatchUnsafe(Right, Left, Bottom);
+
+        [Pure]
+        public Task<C> MatchUnsafeAsync<C>(EitherAsync<L, R> choice, Func<L, Task<C>> LeftAsync, Func<R, C> Right, Func<C> Bottom = null) =>
+            choice.MatchUnsafeAsync(Right, LeftAsync, Bottom);
+
+        [Pure]
+        public Task<C> MatchUnsafeAsync<C>(EitherAsync<L, R> choice, Func<L, C> Left, Func<R, Task<C>> RightAsync, Func<C> Bottom = null) =>
+            choice.MatchUnsafeAsync(RightAsync, Left, Bottom);
+
+        [Pure]
+        public Task<C> MatchUnsafeAsync<C>(EitherAsync<L, R> choice, Func<L, Task<C>> LeftAsync, Func<R, Task<C>> RightAsync, Func<C> Bottom = null) =>
+            choice.MatchUnsafeAsync(RightAsync, LeftAsync, Bottom);
     }
 }

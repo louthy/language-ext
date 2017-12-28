@@ -47,7 +47,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="f">Bind function</param>
         /// <returns>Monad of type `MB` derived from Monad of `B`</returns>
         [Pure]
-        MB BindAsync<MONADB, MB, B>(MA ma, Func<A, MB> f) 
+        MB Bind<MONADB, MB, B>(MA ma, Func<A, MB> f) 
             where MONADB : struct, MonadAsync<Env, Out, MB, B>;
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="mb">Monadic to invoke.  Get the results from this to combine with
         /// `outputma` and then re-wrap</param>
         /// <returns>Monad with the combined output</returns>
-        MA BindReturnAsync(Out outputma, MA mb);
+        MA BindReturn(Out outputma, MA mb);
 
         /// <summary>
         /// The `RunAsync` function allows the `Bind` function to asynchronously construct a monad from a function 
@@ -194,25 +194,25 @@ namespace LanguageExt.TypeClasses
         /// Produce a monad of `MA` in it's failed state
         /// </summary>
         [Pure]
-        MA FailAsync(object err = null);
+        MA Fail(object err = null);
 
         /// <summary>
         /// Associative binary operation
         /// </summary>
         [Pure]
-        MA PlusAsync(MA ma, MA mb);
+        MA Plus(MA ma, MA mb);
 
         /// <summary>
         /// Neutral element (`None` in `Option` for example)
         /// </summary>
         [Pure]
-        MA ZeroAsync();
+        MA Zero();
 
         /// <summary>
         /// Apply - used to facilitate default behavior for monad transformers 
         /// NOTE: Don't rely on this, it may not be a permanent addition to the project
         /// </summary>
         [Pure]
-        MA ApplyAsync(Func<A, A, A> f, MA ma, MA mb);
+        MA Apply(Func<A, A, A> f, MA ma, MA mb);
     }
 }

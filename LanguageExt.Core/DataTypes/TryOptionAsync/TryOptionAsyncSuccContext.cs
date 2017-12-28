@@ -27,7 +27,7 @@ namespace LanguageExt
 
         [Pure]
         public Task<B> Fail(Func<Exception, Task<B>> f) =>
-            value.Match(succHandler, noneHandler, f);
+            value.MatchAsync(succHandler, noneHandler, f);
 
         [Pure]
         public Task<B> Fail(B failValue) =>
@@ -35,7 +35,7 @@ namespace LanguageExt
 
         [Pure]
         public Task<B> Fail(Task<B> failValue) =>
-            value.Match(succHandler, noneHandler, _ => failValue);
+            value.MatchAsync(succHandler, noneHandler, _ => failValue);
     }
 
     public struct TryOptionAsyncSuccContext<A>

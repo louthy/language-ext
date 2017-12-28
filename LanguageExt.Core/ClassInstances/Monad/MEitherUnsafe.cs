@@ -24,9 +24,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public MB BindAsync<MONADB, MB, B>(EitherUnsafe<L, R> ma, Func<R, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
             Match(ma,
-                Left: l => default(MONADB).FailAsync(l),
+                Left: l => default(MONADB).Fail(l),
                 Right: r => f(r),
-                Bottom: () => default(MONADB).FailAsync(BottomException.Default));
+                Bottom: () => default(MONADB).Fail(BottomException.Default));
 
         [Pure]
         public EitherUnsafe<L, R> Fail(object err = null) =>

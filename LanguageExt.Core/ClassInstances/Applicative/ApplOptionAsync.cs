@@ -29,15 +29,15 @@ namespace LanguageExt.ClassInstances
             default(FOptionAsync<A, B>).BiMapAsync(ma, fa, fb);
 
         [Pure]
-        public OptionAsync<B> MapAsync(OptionAsync<A> ma, Func<A, B> f) =>
-            default(FOptionAsync<A, B>).MapAsync(ma, f);
+        public OptionAsync<B> Map(OptionAsync<A> ma, Func<A, B> f) =>
+            default(FOptionAsync<A, B>).Map(ma, f);
 
         [Pure]
         public OptionAsync<B> MapAsync(OptionAsync<A> ma, Func<A, Task<B>> f) =>
             default(FOptionAsync<A, B>).MapAsync(ma, f);
 
         [Pure]
-        public OptionAsync<B> ApplyAsync(OptionAsync<Func<A, B>> fab, OptionAsync<A> fa) =>
+        public OptionAsync<B> Apply(OptionAsync<Func<A, B>> fab, OptionAsync<A> fa) =>
             from f in fab
             from a in fa
             select f(a);
@@ -47,7 +47,7 @@ namespace LanguageExt.ClassInstances
             MOptionAsync<A>.Inst.ReturnAsync(x);
 
         [Pure]
-        public OptionAsync<B> ActionAsync(OptionAsync<A> fa, OptionAsync<B> fb) =>
+        public OptionAsync<B> Action(OptionAsync<A> fa, OptionAsync<B> fb) =>
             from a in fa
             from b in fb
             select b;
@@ -59,13 +59,13 @@ namespace LanguageExt.ClassInstances
         public static readonly ApplOptionAsync<A, B, C> Inst = default(ApplOptionAsync<A, B, C>);
 
         [Pure]
-        public OptionAsync<Func<B, C>> ApplyAsync(OptionAsync<Func<A, Func<B, C>>> fab, OptionAsync<A> fa) =>
+        public OptionAsync<Func<B, C>> Apply(OptionAsync<Func<A, Func<B, C>>> fab, OptionAsync<A> fa) =>
             from f in fab
             from a in fa
             select f(a);
 
         [Pure]
-        public OptionAsync<C> ApplyAsync(OptionAsync<Func<A, Func<B, C>>> fab, OptionAsync<A> fa, OptionAsync<B> fb) =>
+        public OptionAsync<C> Apply(OptionAsync<Func<A, Func<B, C>>> fab, OptionAsync<A> fa, OptionAsync<B> fb) =>
             from f in fab
             from a in fa
             from b in fb
