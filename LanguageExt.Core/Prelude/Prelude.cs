@@ -288,7 +288,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool isDefault<T>(T value) =>
-            EqualityComparer<T>.Default.Equals(value, default(T));
+            value.IsDefault();
 
         /// <summary>
         /// Returns true if the value is not equal to this type's
