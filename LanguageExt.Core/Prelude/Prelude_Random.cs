@@ -34,7 +34,9 @@ namespace LanguageExt
             if (bytesCount < 1) throw new ArgumentException($"The minimum value for {nameof(bytesCount)} is 1");
 
             var bytes = new byte[bytesCount];
-            rnd.GetBytes(bytes);
+            lock (rnd) {
+                rnd.GetBytes(bytes); 
+            }
             return Convert.ToBase64String(bytes);
         }
     }
