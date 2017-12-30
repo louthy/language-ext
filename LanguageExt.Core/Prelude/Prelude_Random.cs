@@ -26,7 +26,7 @@ namespace LanguageExt
         /// <summary>
         /// Thread-safe cryptographically strong random base-64 string generator
         /// </summary>
-        /// <param name="count">bytesCount - number of bytes generated that are then 
+        /// <param name="bytesCount">number of bytes generated that are then 
         /// returned Base64 encoded</param>
         /// <returns>Base64 encoded random string</returns>
         public static string randomBase64(int bytesCount)
