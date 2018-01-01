@@ -1143,8 +1143,6 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
 `out` method variants
 * `IDictionary<K, V>.TryGetValue`
 * `IReadOnlyDictionary<K, V>.TryGetValue`
-* `IImmutableDictionary<K, V>.TryGetValue`
-* `IImmutableSet<K, V>.TryGetValue`
 * `Int32.TryParse` becomes `parseInt`
 * `Int64.TryParse` becomes `parseLong`
 * `Int16.TryParse` becomes `parseShort`
