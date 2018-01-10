@@ -115,7 +115,7 @@ namespace LanguageExt
             !(a==b);
 
         public readonly static Result<A> Bottom =
-            new Result<A>(BottomException.Default);
+            None;
 
         [Pure]
         public A IfFail(A defaultValue) =>

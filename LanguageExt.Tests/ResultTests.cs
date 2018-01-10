@@ -7,10 +7,17 @@ namespace LanguageExt.Tests
     public class ResultTests
     {
         [Fact]
+        public void TestPartialEquivalenceBetweenExplicitAndImplicitBottom()
+        {
+            Assert.Equal(implicitBottomResult.IsFaulted, explicitBottomResult.IsFaulted);
+            Assert.Equal(implicitBottomResult.IsBottom, explicitBottomResult.IsBottom);
+        }
+        
+        [Fact]
         public void TestBottom()
         {
-            Assert.True(bottomResult.IsFaulted);
-            Assert.True(bottomResult.IsBottom);
+            Assert.True(implicitBottomResult.IsFaulted);
+            Assert.True(implicitBottomResult.IsBottom);
         }
 
         [Fact]
@@ -37,7 +44,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestMatchWithBottom()
         {
-            string output = bottomResult.Match(
+            string output = implicitBottomResult.Match(
                 Succ: _ => "Success",
                 Fail: _ => "Failure"
             );
@@ -92,7 +99,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestTransitiveMatchWithBottom()
         {
-            var output = bottomResult.Match(
+            var output = implicitBottomResult.Match(
                 Succ: v => v,
                 Fail: ex => new Result<int>(ex)
             );
@@ -104,7 +111,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestIfFailDefaultValueWithBottom()
         {
-            var output = bottomResult.IfFail(defaultValue: 2);
+            var output = implicitBottomResult.IfFail(defaultValue: 2);
 
             Assert.Equal(output, 2);
         }
@@ -136,7 +143,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestIfFailFuncWithBottom()
         {
-            var output = bottomResult.IfFail(_ => 2);
+            var output = implicitBottomResult.IfFail(_ => 2);
 
             Assert.Equal(output, 2);
         }
@@ -169,7 +176,7 @@ namespace LanguageExt.Tests
         public void TestIfFailActionWithBottom()
         {
             bool called = false;
-            bottomResult.IfFail(_ => called = true);
+            implicitBottomResult.IfFail(_ => called = true);
 
             Assert.True(called);
         }
@@ -205,7 +212,7 @@ namespace LanguageExt.Tests
         public void TestIfSuccWithBottom()
         {
             bool called = false;
-            bottomResult.IfSucc(_ => called = true);
+            implicitBottomResult.IfSucc(_ => called = true);
             
             Assert.False(called);
         }
@@ -240,7 +247,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestMapWithBottom()
         {
-            var output = bottomResult.Map(_ => 2);
+            var output = implicitBottomResult.Map(_ => 2);
             
             Assert.True(output.IsFaulted);
             Assert.False(output.IsBottom);
@@ -286,7 +293,8 @@ namespace LanguageExt.Tests
             Assert.False(output.IsBottom);
         }
 
-        private readonly Result<int> bottomResult = new Result<int>();
+        private readonly Result<int> implicitBottomResult = new Result<int>();
+        private readonly Result<int> explicitBottomResult = Result<int>.Bottom;
         private readonly Result<int> successResult = new Result<int>(1);
         private readonly Result<int> faultResult = new Result<int>(new InvalidOperationException());
         private readonly Result<int> faultWithNullException = new Result<int>((Exception) null);
