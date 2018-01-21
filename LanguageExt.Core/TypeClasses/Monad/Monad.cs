@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
@@ -14,7 +14,8 @@ namespace LanguageExt.TypeClasses
     public interface Monad<MA, A> : 
         Monad<Unit, Unit, MA, A>, 
         Foldable<MA, A>,
-        FoldableAsync<MA, A>
+        FoldableAsync<MA, A>,
+        Typeclass
     {
         /// <summary>
         /// Monad constructor function.  Provide the bound value A to construct
@@ -35,7 +36,8 @@ namespace LanguageExt.TypeClasses
     [Typeclass]
     public interface Monad<Env, Out, MA, A> : 
         Foldable<Env, MA, A>,
-        FoldableAsync<Env, MA, A>
+        FoldableAsync<Env, MA, A>,
+        Typeclass
     {
         /// <summary>
         /// Monadic bind
@@ -233,13 +235,7 @@ namespace LanguageExt.TypeClasses
         /// Produce a monad of `MA` in it's failed state
         /// </summary>
         [Pure]
-        MA Fail(Exception err = null);
-
-        /// <summary>
-        /// Produce a monad of `MA` in it's failed state
-        /// </summary>
-        [Pure]
-        MA Fail(object err);
+        MA Fail(object err = null);
 
         /// <summary>
         /// Associative binary operation
@@ -252,5 +248,12 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         [Pure]
         MA Zero();
+
+        /// <summary>
+        /// Apply - used to facilitate default behavior for monad transformers 
+        /// NOTE: Don't rely on this, it may not be a permanent addition to the project
+        /// </summary>
+        [Pure]
+        MA Apply(Func<A, A, A> faac, MA fa, MA fb);
     }
 }

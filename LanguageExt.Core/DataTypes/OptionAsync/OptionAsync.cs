@@ -37,13 +37,13 @@ namespace LanguageExt
         public static readonly OptionAsync<A> None = new OptionAsync<A>(OptionDataAsync<A>.None);
 
         /// <summary>
-        /// Construct an Option of A in a Some state
+        /// Construct an OptionAsync of A in a Some state
         /// </summary>
         /// <param name="value">Value to bind, must be non-null</param>
-        /// <returns>Option of A</returns>
+        /// <returns>OptionAsync of A</returns>
         [Pure]
-        public static Option<A> Some(A value) =>
-            value;
+        public static OptionAsync<A> Some(A value) =>
+            new OptionAsync<A>(new OptionDataAsync<A>(OptionState.Some, value, null));
 
         /// <summary>
         /// Takes the value-type OptionV<A>

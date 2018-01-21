@@ -12,91 +12,91 @@ namespace LanguageExtTests
 {
     public class CompositionTests
     {
-        private readonly Func<string> _f;
-        private readonly Func<string, string> _g;
-        private readonly Func<string, int> _h;
+        private readonly Func<string> f;
+        private readonly Func<string, string> g;
+        private readonly Func<string, int> h;
 
         public CompositionTests()
         {
-            _f = () => "Bob";
-            _g = (string name) => $"Hello, {name}";
-            _h = (string s) => s.Length;
+            f = () => "Bob";
+            g = (string name) => $"Hello, {name}";
+            h = (string s) => s.Length;
         }
 
         [Fact]
         public void Sanity()
         {
             string expected = "Hello, Bob";
-            Assert.Equal(_g(_f()), expected);
-            Assert.Equal(_h(_g(_f())), expected.Length);
+            Assert.Equal(g(f()), expected);
+            Assert.Equal(h(g(f())), expected.Length);
         }
 
         [Fact]
-        public void ComposeFuncWithNoArgFunc()
+        public void BackComposeFuncWithNoArgFunc()
         {
-            Assert.Equal(_g.Compose(_f)(), _g(_f()));
+            Assert.Equal(g.BackCompose(f)(), g(f()));
         }
 
         [Fact]
-        public void BackComposeNoArgFuncWithFunc()
+        public void ComposeNoArgFuncWithFunc()
         {
-            Assert.Equal(_f.BackCompose(_g)(), _g(_f()));
+            Assert.Equal(f.Compose(g)(), g(f()));
         }
 
         [Fact]
-        public void ComposeActionWithNoArgFunc()
-        {
-            string result;
-            var g = act((string name) => { result = _g(name); });
-
-            result = null;
-            g.Compose(_f)();
-            Assert.Equal(result, _g(_f()));
-        }
-
-        [Fact]
-        public void BackComposeNoArgFuncWithAction()
+        public void BackComposeActionWithNoArgFunc()
         {
             string result;
-            var g = act((string name) => { result = _g(name); });
+            var g = act((string name) => { result = this.g(name); });
 
             result = null;
-            _f.BackCompose(g)();
-            Assert.Equal(result, _g(_f()));
+            g.BackCompose(f)();
+            Assert.Equal(result, this.g(f()));
         }
 
         [Fact]
-        public void ComposeFuncWithFunc()
+        public void ComposeNoArgFuncWithAction()
         {
-            Assert.Equal(_h.Compose(_g)(_f()), _h(_g(_f())));
+            string result;
+            var g = act((string name) => { result = this.g(name); });
+
+            result = null;
+            f.Compose(g)();
+            Assert.Equal(result, this.g(f()));
         }
 
         [Fact]
         public void BackComposeFuncWithFunc()
         {
-            Assert.Equal(_g.BackCompose(_h)(_f()), _h(_g(_f())));
+            Assert.Equal(h.BackCompose(g)(f()), h(g(f())));
         }
 
         [Fact]
-        public void ComposeActionWithFunc()
+        public void ComposeFuncWithFunc()
         {
-            int? result;
-            var h = act((string s) => { result = _h(s); });
-
-            result = null;
-            h.Compose(_g)(_f());
-            Assert.Equal(result, _h(_g(_f())));
+            Assert.Equal(g.Compose(h)(f()), h(g(f())));
         }
 
         [Fact]
-        public void BackComposeFuncWithAction()
+        public void BackComposeActionWithFunc()
         {
             int? result;
-            var h = act((string s) => { result = _h(s); });
+            var h = act((string s) => { result = this.h(s); });
 
             result = null;
-            _g.BackCompose(h)(_f());
-            Assert.Equal(result, _h(_g(_f())));
+            h.BackCompose(g)(f());
+            Assert.Equal(result, this.h(g(f())));
+        }
+
+        [Fact]
+        public void ComposeFuncWithAction()
+        {
+            int? result;
+            var h = act((string s) => { result = this.h(s); });
+
+            result = null;
+            g.Compose(h)(f());
+            Assert.Equal(result, this.h(g(f())));
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface Optional<OA, A>
+    public interface Optional<OA, A> : Typeclass
     {
         /// <summary>
         /// True if the optional type allows nulls

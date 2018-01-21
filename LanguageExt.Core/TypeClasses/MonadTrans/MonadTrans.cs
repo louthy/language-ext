@@ -1,9 +1,10 @@
 ﻿using System;
-using LanguageExt.TypeClasses;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
-    public interface MonadTrans<OuterMonad, OuterType, InnerMonad, InnerType, A>
+    [Typeclass]
+    public interface MonadTrans<OuterMonad, OuterType, InnerMonad, InnerType, A> : Typeclass
         where OuterMonad : struct, Monad<OuterType, InnerType>
         where InnerMonad : struct, Monad<InnerType, A>
     {

@@ -8,7 +8,13 @@ C# Functional Language Extensions
 This library uses and abuses the features of C# 6+ to provide a functional 'Base class library', that, if you squint, can look like 
 extensions to the language itself.
 
+## Reference
+
 #### [API Reference](https://louthy.github.io/language-ext)
+
+#### [Issues that contain documentation and examples](https://github.com/louthy/language-ext/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3A%22examples%20%2F%20documentation%22%20)
+
+## Nu-get
 
 Nu-get package | Description
 ---------------|-------------
@@ -19,6 +25,18 @@ Nu-get package | Description
 __Twitter:__ 
 https://twitter.com/paullouth
 
+## Supporting language-ext
+
+language-ext is an MIT-licensed open source project. Its ongoing development is made possible thanks to the support by these awesome [backers](/BACKERS.md). If you'd like to join them, check out the [language-ext Patreon campaign](https://www.patreon.com/louthy).  Or if you'd just like to help support the coffee fund, [that is very welcome too!](http://ko-fi.com/louthy).
+
+<p align="center">
+  <b>Special thanks to the generous sponsorship by:</b>
+  <br><br>
+  <a href="https://www.meddbase.com">
+    <img width="240px" src="/backers-images/meddbase.png">
+  </a>
+  <br><br>
+</p>
 
 ## Introduction
 One of the great features of C#6+ is that it allows us to treat static classes like namespaces.  This means that we can use static 
@@ -84,7 +102,7 @@ There is also:
 * [`LanguageExt.Map`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Map_.htm)
 * [`LanguageExt.HashMap`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashMap_.htm)
 * [`LanguageExt.Queue`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Queue_.htm)
-* [`LanguageExt.Set`](https://louthy.github.io/language-ext/LanguageExt.CoreLanguageExt/Set_.htm)
+* [`LanguageExt.Set`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Set_.htm)
 * [`LanguageExt.HashSet`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashSet_.htm)
 * [`LanguageExt.Stack` ](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Stack_.htm)
 * [`LanguageExt.TypeClass`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TypeClass_.htm)
@@ -126,6 +144,7 @@ Location | Feature | Description
 `Core` | `TryAsync<A>` | [Asynchronous exception handling lazy monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TryAsync_A.htm)
 `Core` | `TryOption<A>` | [Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TryOption_A.htm) 'Fail' that catches exceptions
 `Core` | `TryOptionAsync<A>` | [Asynchronous Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TryOptionAsync_A.htm) 'Fail' that catches exceptions
+`Core` | `Record<A>` | [Base type for creating record types](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Record_RECORDTYPE.htm)  with automatic structural equality, ordering, and hash code calculation.
 `Core` | `Reader<E, A>` | [Reader monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Reader_Env_A.htm)
 `Core` | `Writer<MonoidW, W, T>` | [Writer monad that logs to a `W` constrained to be a Monoid](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Writer_MonoidW_W_A.htm)
 `Core` | `State<S, A>` | [State monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/State_S_A.htm)
@@ -136,24 +155,42 @@ Location | Feature | Description
 `Core` | `FloatType<SELF, FLOATING, A, PRED>` | [Haskell `newtype` equivalent but for real numeric types](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/FloatType_SELF_FLOATING_A_PRED.htm) i.e: `class Hours : FloatType<Hours, TDouble, double> { public Hours(double value) : base(value) { } }`.  The resulting type is: equatable, comparable, foldable, a functor, a monoid, a semigroup, monadic, iterable, and can have complex artithmetic operations performed upon it.
 `Core` | `Nullable<T>` extensions | [Extension methods for `Nullable<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/NullableExtensions_.htm) that make it into a functor, applicative, foldable, iterable and a monad
 `Core` | `Task<T>` extensions | [Extension methods for `Task<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/TaskExtensions_.htm) that make it into a functor, applicative, foldable, iterable and a monad
+`Core` | `Validation<FAIL,SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Validation_FAIL_SUCCESS.htm) for collecting multiple errors before aborting an operation
+`Core` | `Validation<MonoidFail, FAIL, SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Validation_FAIL_SUCCESS.htm) for collecting multiple errors before aborting an operation, uses the supplied monoid in the first generic argument to collect the failure values.
 `Core` | Monad transformers | A higher kinded type (ish)
-`Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#curry<T1, T2, R>)
-`Core` | Partial application | [the process of fixing a number of arguments to a function, producing another function of smaller arity](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#par<T1, T2, R>)
-`Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#memo<T, R>)
+`Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#curry&lt;T1,%20T2,%20R&gt;)
+`Core` | Partial application | [the process of fixing a number of arguments to a function, producing another function of smaller arity](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#par&lt;T1,%20T2,%20R&gt;)
+`Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#memo&lt;T,%20R&gt;)
 `Core` | [Improved lambda type inference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#fun<R>) | `var add = fun( (int x, int y) => x + y)`
+`Core` | [`IQueryable<T>` extensions](https://louthy.github.io/language-ext/LanguageExt.Core/QueryExtensions_.htm)  |
 `Core` | [`IObservable<T>` extensions](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/ObservableExt_.htm)  |
 
 It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
 
-* Poor tuple support
-* Null reference problem
-* Lack of lambda and expression inference 
-* Void isn't a real type
-* Mutable lists and dictionaries
-* The awful 'out' parameter
+* [Poor tuple support](#poor-tuple-support)
+* [Null reference problem](#null-reference-problem)
+    * [Option](#option)
+* [Lack of lambda and expression inference](#lack-of-lambda-and-expression-inference)
+* [Void isn't a real type](#void-isn't-a-real-type)
+* [Mutable lists and dictionaries](#mutable-lists-and-dictionaries)
+   * [Lists](#lists)
+   * [List pattern matching](#list-pattern-matching)
+   * [Maps](#maps)
+* [Difficulty in creating immutable record types](#difficulty-in-creating-immutable-record-types)
+* [The awful 'out' parameter](#the-awful-out-parameter)
+* [The lack of ad-hoc polymorphism](#ad-hoc-polymorphism)
+   * [`Num<A>`](#num<A>)
+   * [`Eq<A>`](#eq<A>)
+   * [`Ord<A>`](#ord<A>)
+   * [`Semigroup<A>`](#semigroup<A>)
+   * [`Monoid<A>`](#monoid<A>)
+   * [`Monad`](#monad)
+   * [Transformer types](#transformer-types)
+
+   
 
 ## Poor tuple support
-I've been crying out for proper tuple support for ages.  When this library was created we we're no closer (C# 6).  
+I've been crying out for proper tuple support for ages.  When this library was created we were no closer (C# 6).  
 The standard way of creating them is ugly `Tuple.Create(foo,bar)` compared to functional languages where the syntax is often 
 `(foo,bar)` and to consume them you must work with the standard properties of `Item1`...`ItemN`.  Luckily now in C# 7
 we can use: `(foo,bar)`.  But for those that can't:
@@ -468,15 +505,17 @@ There's a kind of cheat way to do it in C# through extension methods.  It still 
 For example, below is a list of optional integers: `Lst<Option<int>>` (see lists later).  We want to double all of the `Some` values, leave the `None` alone and keep everything in the list:
 
 ```C#
-    using LanguageExt.Trans;  // Required for all transformer extension methods
+    using LanguageExt;
+    using static LanguageExt.Prelude;
+    using LanguageExt.ClassInstances;    // Required for TInt on Sum (see ad-hoc polymorphism later)
 
     var list = List(Some(1), None, Some(2), None, Some(3));
-    
-    var presum = list.SumT();                                // 6
-    
-    list  = list.MapT( x => x * 2 );
-    
-    var postsum = list.SumT();                               // 12
+
+    var presum = list.SumT<TInt, int>();                                // 6
+
+    list = list.MapT(x => x * 2);
+
+    var postsum = list.SumT<TInt, int>();
 ```
 Notice the use of `MapT` instead of `Map` (and `SumT` instead of `Sum`).  If we used `Map` (equivalent to `Select` in `LINQ`), it would look like this:
 ```C#
@@ -793,9 +832,9 @@ _`Map<K,V>` is an implementation of an AVL Tree (self balancing binary tree).  T
 Also you can pass in a list of tuples or key-value pairs:
 
 ```C#
-    var people = Map( Tuple(1, "Rod"),
-                      Tuple(2, "Jane"),
-                      Tuple(3, "Freddy") );
+    var people = Map((1, "Rod"),
+                     (2, "Jane"),
+                     (3, "Freddy"));
 ```
 To read an item call:
 ```C#
@@ -866,6 +905,185 @@ _Note, there are only fluent versions of the transformer functions._
 * `TrySetItemT`
 * `FoldT`
 * more coming...
+
+## Difficulty in creating immutable record types 
+
+It's no secret that implementing immutable record types, with structural equality, structural ordering, and efficient hashing solutions is a real manual head-ache of implementing `Equals`, `GetHashCode`, deriving from `IEquatable<A>`, `IComparer<A>`, and implementing the operators: `==`, `!=`, `<`, `<=`, `>`, `>=`.  It is a constant maintenance headache of making sure they're kept up to date when new fields are added to the type - with no compilation errors if you forget to do it.
+
+## `Record<A>`
+
+This can now be achieved simply by deriving your type from `Record<A>` where `A` is the type you want to have structural equality and ordering.  i.e.
+```c#
+    public class TestClass : Record<TestClass>
+    {
+        public readonly int X;
+        public readonly string Y;
+        public readonly Guid Z;
+
+        public TestClass(int x, string y, Guid z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+    }
+```
+This gives you `Equals`, `IEquatable.Equals`, `IComparer.CompareTo`, `GetHashCode`, `operator==`, `operator!=`, `operator >`, `operator >=`, `operator <`, and `operator <=` implemented by default.  It also gives you a default `ToString()` implementation and `ISerializable.GetObjectData()` with a deserialisation constructor.
+
+Note that only _fields_ or _field backed properties_ are used in the structural comparisons and hash-code building.  There are also `Attribute`s for opting fields out of the equality testing, ordering comparisons, hash-code generation, stringification (`ToString`),  and serialisation:
+
+* `Equals()` - `OptOutOfEq`
+* `CompareTo()` - `OptOutOfOrd`
+* `GetHashCode()` - `OptOutOfHashCode`
+* `ToString()` - `OptOutOfToString`
+* Serialization - `OptOutOfSerialization` (can also use `NonSerializable`)
+
+For example, here's a record type that opts out of various default behaviours:
+```c#
+    public class TestClass2 : Record<TestClass2>
+    {
+        [OptOutOfEq]
+        public readonly int X;
+
+        [OptOutOfHashCode]
+        public readonly string Y;
+
+        [OptOutOfToString]
+        public readonly Guid Z;
+
+        public TestClass2(int x, string y, Guid z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+    }
+```
+If you want your type to serialise with Json.NET or other serialisers then you will need to add an extra serialisation constructor that calls the default base implementation:
+```c#
+    public class TestClass : Record<TestClass>
+    {
+        public readonly int X;
+        public readonly string Y;
+        public readonly Guid Z;
+
+        public TestClass(int x, string y, Guid z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+        
+        TestClass(SerializationInfo info, StreamingContext context) 
+            : base(info, context) { }
+    }
+```
+This will do full structural equality as the following examples demonstrate:
+```c#
+public class Cons<A> : Record<Cons<A>>
+{
+    public readonly A Head;
+    public readonly Cons<A> Tail;
+
+    public Cons(A head, Cons<A> tail)
+    {
+        Head = head;
+        Tail = tail;
+    }
+}
+
+public void ConsTests()
+{
+    var listA = new Cons<int>(1, new Cons<int>(2, new Cons<int>(3, new Cons<int>(4, null))));
+    var listB = new Cons<int>(1, new Cons<int>(2, new Cons<int>(3, new Cons<int>(4, null))));
+    var listC = new Cons<int>(1, new Cons<int>(2, new Cons<int>(3, null)));
+
+    Assert.True(listA == listB);
+    Assert.True(listB != listC);
+    Assert.True(listA != listC);
+}
+
+public class Tree<A> : Record<Tree<A>>
+{
+    public readonly A Value;
+    public readonly Tree<A> Left;
+    public readonly Tree<A> Right;
+
+    public Tree(A value, Tree<A> left, Tree<A> right)
+    {
+        Value = value;
+        Left = left;
+        Right = right;
+    }
+}
+
+public void TreeTests()
+{
+    var treeA = new Tree<int>(5, new Tree<int>(3, null, null), new Tree<int>(7, null, new Tree<int>(9, null, null)));
+    var treeB = new Tree<int>(5, new Tree<int>(3, null, null), new Tree<int>(7, null, new Tree<int>(9, null, null)));
+    var treeC = new Tree<int>(5, new Tree<int>(3, null, null), new Tree<int>(7, null, null));
+
+    Assert.True(treeA == treeB);
+    Assert.True(treeB != treeC);
+    Assert.True(treeA != treeC);
+}
+```
+
+> No reflection is used to achieve this result, the `Record` type builds the IL directly, and so it's as efficient as writing the code by hand.
+
+There are some [unit tests](https://github.com/louthy/language-ext/blob/master/LanguageExt.Tests/RecordTypesTest.cs) to see this in action.
+
+## `RecordType<A>`
+
+You can also use the 'toolkit' that `Record<A>` uses to build this functionality in your own bespoke types (perhaps if you want to use this for `struct` comparisons or if you can't derive directly from `Record<A>`, or maybe you just want some of the functionality for ad-hoc behaviour):  
+
+The toolkit is composed of four functions:
+
+```c#
+    RecordType<A>.Hash(record);
+```
+This will provide the hash-code for the record of type `A` provided.  It can be used for your default `GetHashCode()` implementation.
+```c#
+    RecordType<A>.Equality(record, obj);
+```
+This provides structural equality with the record of type `A` and the record of type `object`.  The types must match for the equality to pass.  It can be used for your default `Equals(object)` implementation.
+```c#
+    RecordType<A>.EqualityTyped(record1, record2);
+```
+This provides structural equality with the record of type `A` and another record of type `A`.  It can be used for your default `Equals(a, b)` method for the `IEquatable<A>` implementation.
+```c#
+    RecordType<A>.Compare(this, other);
+```
+This provides a structural ordering comparison with the record of type `A` and another record the record of type `A`.  It can be used for your default `CompareTo(a, b)` method for the `IComparable<A>` implementation.
+
+Below is the toolkit in use,  it's used to build a `struct` type that has structural equality, ordering, and hash-code implementation.
+```c#
+    public class TestStruct : IEquatable<TestStruct>, IComparable<TestStruct>
+    {
+        public readonly int X;
+        public readonly string Y;
+        public readonly Guid Z;
+
+        public TestStruct(int x, string y, Guid z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+
+        public override int GetHashCode() =>
+            RecordType<TestStruct>.Hash(this);
+
+        public override bool Equals(object obj) =>
+            RecordType<TestStruct>.Equality(this, obj);
+
+        public int CompareTo(TestStruct other) =>
+            RecordType<TestStruct>.Compare(this, other);
+
+        public bool Equals(TestStruct other) =>
+            RecordType<TestStruct>.EqualityTyped(this, other);
+    }
+```
 
 ## The awful `out` parameter
 This has to be one of the most awful patterns in C#:
@@ -945,7 +1163,9 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
 _any others you think should be included, please get in touch_
 
 
-### Ad-hoc polymorphism
+## Ad-hoc polymorphism
+
+> _This is where things get a little crazy!  This section is taking what's possible with C# to its limits.  None of what follows is essential for 99% of the use cases for this library.  However, the seasoned C# programmer will recognise some of the issues raised (like no common numeric base-type); and experienced functional programmers will recognise the category theory creeping in...  Just remember, this is all optional, but also pretty powerful if you want to go for it_.
 
 Ad-hoc polymorphism has long been believed to not be possible in C#.  However with some cunning it is.  Ad-hoc polymorphism allows programmers to add traits to a type later.  For example in C# it would be amazing if we had an interface called `INumeric` for numeric types like `int`, `long`, `double`, etc.  The reason this doesn't exist is if you write a function like:
 ```c#
@@ -1326,60 +1546,89 @@ Or any two monads.  They will follow the built in rules for the type, and produc
 
 ### Transformer types
 
-Because using the super-generic stuff is hard, and most of the time not needed.  I have kept the transformer types, but they're now implemented in terms of the instance types.  There is a new [`MonadTrans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/MonadTrans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm) type-class and a default instance called [`Trans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Trans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm).
+Often you'll find yourself with nested monadic types `Option<Lst<A>>`, `Seq<Either<L, R>>`, `Try<Validation<Fail, Success>>`, ..., and you want to work with the bound value(s) of `A` without having to unwrap/match the values away.  And so there are around 100,000 lines of generated code for working with 'transformer types'. 
+
+There is a new [`MonadTrans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.TypeClasses/MonadTrans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm) type-class and a default instance called [`Trans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Trans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm).  It does all the heavy lifting, and it is what the generated code uses (it's also what you'd need to use if you create your own monadic types and you want to build transformers for the various pairs of monadic types).
 
 For every pair of nested monads: `Lst<Option<A>>`, `Try<Either<L, A>>`, etc.  there are the following extension methods (this is for `Arr<Lst<A>>`):
 ```c#
+
+// Sums all the bound value(s)
 A SumT<NumA, A>(this Arr<Lst<A>> ma);
 
+// Counds all the bound value(s)
 int CountT<A>(this Arr<Lst<A>> ma);
 
+// Monadic bind on the inner monad
 Arr<Lst<B>> BindT<A, B>(this Arr<Lst<A>> ma, Func<A, Lst<B>> f);
 
+// Flips the inner and outer monads (using the rules of the inner and outer 
+// monads to compose the result) and performs a map operation on the bound values
 Lst<Arr<B>> Traverse<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
 
+// Flips the inner and outer monads (using the rules of the inner and outer 
+// monads to compose the result) 
 Lst<Arr<A>> Sequence<A>(this Arr<Lst<A>> ma);
 
+// Maps the bound value(s)
 Arr<Lst<B>> MapT<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
 
+// Folds the bound value(s)
 S FoldT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
 
+// Reverse folds the bound value(s)
 S FoldBackT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
 
+// Returns true if f(x) returns true for any of the bound value(s)
 bool ExistsT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
 
+// Returns true if f(x) returns true for all of the bound value(s)
 bool ForAllT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
 
+// Iterates all of the bound values
 Unit IterT<A>(this Arr<Lst<A>> ma, Action<A> f);
 
+// Filters the bound value(s) with the predicate
 Arr<Lst<A>> FilterT< A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
 
+// Filters the bound value(s) with the predicate
 Arr<Lst<A>> Where<A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
 
+// Maps the bound value(s)
 Arr<Lst<A>> Select<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
 
+// LINQ monadic bind and project on the bound value(s)
 Arr<Lst<C>> SelectMany<A, B, C>(
         this Arr<Lst<A>> ma,
         Func<A, Lst<B>> bind,
         Func<A, B, C> project);
 
+// Plus operation on the bound value(s)
 Arr<Lst<A>> PlusT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
 
+// Subtraction operation on the bound value(s)
 Arr<Lst<A>> SubtractT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
 
+// Product operation on the bound value(s)
 Arr<Lst<A>> ProductT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A> =>
         ApplyT(default(NUM).Product, x, y);
 
+// Divide operation on the bound value(s)
 Arr<Lst<A>> DivideT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
 
+// Semigroup append operation on the bound value(s)
 AppendT<SEMI, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where SEMI : struct, Semigroup<A>;
 
+// Comparison operation on the bound value(s)
 int CompareT<ORD, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where ORD : struct, Ord<A>;
 
+// Equality operation on the bound value(s)
 bool EqualsT<EQ, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where EQ : struct, Eq<A>;
 
+// Applicative apply operation on the bound value(s)
 Arr<Lst<A>> ApplyT<A, B>(this Func<A, B> fab, Arr<Lst<A>> fa);
 
+// Application apply operation on the bound value(s)
 Arr<Lst<C>> ApplyT<A, B, C>(this Func<A, B, C> fabc, Arr<Lst<A>> fa, Arr<Lst<A>> fb);
 ```
 The number of functions has increased dramatically.  Some of the special ones are `Traverse` and `Sequence` which flips the inner and outer types.  So for example:

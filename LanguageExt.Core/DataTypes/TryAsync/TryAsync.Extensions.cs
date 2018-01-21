@@ -371,6 +371,13 @@ public static class TryAsyncExtensions
                 ? Fail(a.Exception)
                 : Observable.Return(Succ(a.Value)));
 
+
+    [Pure]
+    public static Task<Validation<Exception, A>> ToValidation<A>(this TryAsync<A> self) =>
+        self.Match(
+            Succ: v => Success<Exception, A>(v),
+            Fail: e => Fail<Exception, A>(e));
+
     [Pure]
     public static Task<Option<A>> ToOption<A>(this TryAsync<A> self) =>
         self.Match(
@@ -405,6 +412,7 @@ public static class TryAsyncExtensions
         try
         {
             var res = await self.Try();
+            if (res.IsBottom) throw new BottomException();
             if (res.IsFaulted) throw new InnerException(res.Exception);
             return res.Value;
         }

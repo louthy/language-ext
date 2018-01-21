@@ -312,6 +312,19 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Extracts from a list of 'Either' all the 'Left' elements.
+        /// All the 'Left' elements are extracted in order.
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="ma">Either list</param>
+        /// <returns>An enumerable of L</returns>
+        [Pure]
+        public static Seq<A> lefts<CHOICE, CH, A, B>(Seq<CH> ma)
+            where CHOICE : struct, Choice<CH, A, B> =>
+            Seq(lefts<CHOICE, CH, A, B>(ma.AsEnumerable()));
+
+        /// <summary>
         /// Extracts from a list of 'Either' all the 'Right' elements.
         /// All the 'Right' elements are extracted in order.
         /// </summary>
@@ -337,6 +350,19 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Extracts from a list of 'Either' all the 'Right' elements.
+        /// All the 'Right' elements are extracted in order.
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="ma">Choice  list</param>
+        /// <returns>An enumerable of L</returns>
+        [Pure]
+        public static Seq<B> rights<CHOICE, CH, A, B>(Seq<CH> ma)
+            where CHOICE : struct, Choice<CH, A, B> =>
+            Seq(rights<CHOICE, CH, A, B>(ma.AsEnumerable()));
+
+        /// <summary>
         /// Partitions a list of 'Either' into two lists.
         /// All the 'Left' elements are extracted, in order, to the first
         /// component of the output.  Similarly the 'Right' elements are extracted
@@ -347,9 +373,23 @@ namespace LanguageExt
         /// <param name="ma">Choice list</param>
         /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
         [Pure]
-        public static Tuple<IEnumerable<A>, IEnumerable<B>> partition<CHOICE, CH, A, B>(IEnumerable<CH> ma)
+        public static (IEnumerable<A> Lefts, IEnumerable<B> Rights) partition<CHOICE, CH, A, B>(IEnumerable<CH> ma)
             where CHOICE : struct, Choice<CH, A, B> =>
-            Tuple(lefts<CHOICE, CH, A, B>(ma), rights<CHOICE, CH, A, B>(ma));
+            (lefts<CHOICE, CH, A, B>(ma), rights<CHOICE, CH, A, B>(ma));
 
+        /// <summary>
+        /// Partitions a list of 'Either' into two lists.
+        /// All the 'Left' elements are extracted, in order, to the first
+        /// component of the output.  Similarly the 'Right' elements are extracted
+        /// to the second component of the output.
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="ma">Choice list</param>
+        /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
+        [Pure]
+        public static (Seq<A> Lefts, Seq<B> Rights) partition<CHOICE, CH, A, B>(Seq<CH> ma)
+            where CHOICE : struct, Choice<CH, A, B> =>
+            (lefts<CHOICE, CH, A, B>(ma), rights<CHOICE, CH, A, B>(ma));
     }
 }

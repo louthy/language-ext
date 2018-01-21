@@ -35,12 +35,14 @@ namespace LanguageExt.ClassInstances
                     return task.IsFaulted
                         ? default(MONADB).Fail(task.Exception)
                         : task.IsCanceled
-                            ? default(MONADB).Fail()
+                            ? default(MONADB).Fail(new TaskCanceledException())
                             : task.Result.IsFaulted
                                 ? default(MONADB).Fail(task.Result.Exception)
-                                : task.Result.Value.IsNone || task.Result.IsBottom
-                                    ? default(MONADB).Fail()
-                                    : f(task.Result.Value.Value);
+                                : task.Result.Value.IsNone
+                                    ? default(MONADB).Fail(Option<A>.None)
+                                    : task.Result.IsBottom
+                                        ? default(MONADB).Fail(BottomException.Default)
+                                        : f(task.Result.Value.Value);
                 }
                 catch(Exception e)
                 {
@@ -49,14 +51,10 @@ namespace LanguageExt.ClassInstances
             }));
 
         [Pure]
-        public TryOptionAsync<A> Fail(object err) =>
-            TryOptionAsync<A>(Option<A>.None);
-
-        [Pure]
-        public TryOptionAsync<A> Fail(Exception err = null) =>
-            err == null
-                ? TryOptionAsync<A>(Option<A>.None)
-                : TryOptionAsync<A>(err);
+        public TryOptionAsync<A> Fail(object err = null) =>
+            err != null && err is Exception
+                ? TryOptionAsync<A>((Exception)err)
+                : TryOptionAsync(Option<A>.None);
 
         [Pure]
         public TryOptionAsync<A> Plus(TryOptionAsync<A> ma, TryOptionAsync<A> mb) => async () =>
@@ -316,5 +314,18 @@ namespace LanguageExt.ClassInstances
 
         public TryOptionAsync<A> OptionalAsync(A value) =>
             TryOptionAsync(value);
+
+        [Pure]
+        public TryOptionAsync<A> Apply(Func<A, A, A> f, TryOptionAsync<A> fa, TryOptionAsync<A> fb) => async () =>
+        {
+            // Run in parallel
+            var resA = fa.Try();
+            var resB = fb.Try();
+            var completed = await Task.WhenAll(resA, resB);
+
+            return !completed[0].IsFaulted && !completed[1].IsFaulted && completed[0].Value.IsSome && completed[1].Value.IsSome
+                ? Option<A>.Some(f(completed[0].Value.Value, completed[1].Value.Value))
+                : Option<A>.None; // TODO: Propagate exceptions
+        };
     }
 }

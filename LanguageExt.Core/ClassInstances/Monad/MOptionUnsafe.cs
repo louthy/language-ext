@@ -34,11 +34,7 @@ namespace LanguageExt.ClassInstances
                     : default(MONADB).Fail(ValueIsNoneException.Default);
 
         [Pure]
-        public OptionUnsafe<A> Fail(object err) =>
-            OptionUnsafe<A>.None;
-
-        [Pure]
-        public OptionUnsafe<A> Fail(Exception err = null) =>
+        public OptionUnsafe<A> Fail(object err = null) =>
             OptionUnsafe<A>.None;
 
         [Pure]
@@ -54,11 +50,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<A> Return(Func<Unit, A> f) =>
-            new OptionUnsafe<A>(OptionData.Lazy(() =>
-            {
-                var a = f(unit);
-                return (true, a);
-            }));
+            new OptionUnsafe<A>(OptionData.Lazy(() => (true, f(unit))));
 
         [Pure]
         public OptionUnsafe<A> Zero() =>
@@ -130,7 +122,7 @@ namespace LanguageExt.ClassInstances
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return ma.IsNone
+            return ma.IsSome
                 ? fa(state, ma.Value)
                 : fb(state, unit);
         }
@@ -141,7 +133,7 @@ namespace LanguageExt.ClassInstances
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return ma.IsNone
+            return ma.IsSome
                 ? fa(state, ma.Value)
                 : fb(state, unit);
         }
@@ -249,5 +241,11 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(OptionUnsafe<A> x) =>
             EqOpt<EqDefault<A>, MOptionUnsafe<A>, OptionUnsafe<A>, A>.Inst.GetHashCode(x);
+
+        [Pure]
+        public OptionUnsafe<A> Apply(Func<A, A, A> f, OptionUnsafe<A> fa, OptionUnsafe<A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

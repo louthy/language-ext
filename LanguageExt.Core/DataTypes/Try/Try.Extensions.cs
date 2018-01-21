@@ -211,7 +211,9 @@ public static class TryExtensions
     {
         var res = self.Try();
         return res.IsFaulted
-            ? None
+            ? res.Exception == null || res.Exception is BottomException || res.Exception is ValueIsNoneException || res.Exception is ValueIsNullException
+                ? None
+                : new OptionalResult<A>(res.Exception)
             : Optional(res.Value);
     };
 
@@ -222,6 +224,15 @@ public static class TryExtensions
         return res.IsFaulted
             ? None
             : OptionUnsafe<A>.Some(res.Value);
+    }
+
+    [Pure]
+    public static Validation<Exception, A> ToValidation<A>(this Try<A> self)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail<Exception, A>(res.Exception)
+            : Success<Exception, A>(res.Value);
     }
 
     [Pure]
@@ -247,7 +258,10 @@ public static class TryExtensions
     {
         try
         {
-            return self().Value;
+            var res = self();
+            if (res.IsBottom) throw new BottomException();
+            if (res.IsFaulted) throw new InnerException(res.Exception);
+            return res.Value;
         }
         catch (Exception e)
         {
@@ -721,7 +735,7 @@ public static class TryExtensions
     public static int Compare<ORD, A>(this Try<A> lhs, Try<A> rhs) where ORD : struct, Ord<A>
     {
         var x = lhs.Try();
-        var y = lhs.Try();
+        var y = rhs.Try();
         if (x.IsFaulted && y.IsFaulted) return 0;
         if (x.IsFaulted && !y.IsFaulted) return -1;
         if (!x.IsFaulted && y.IsFaulted) return 1;

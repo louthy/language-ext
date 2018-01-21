@@ -345,6 +345,15 @@ public static class TryOptionExtensions
     }
 
     [Pure]
+    public static Validation<Exception, Option<A>> ToValidation<A>(this TryOption<A> self)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail<Exception, Option<A>>(res.Exception)
+            : Success<Exception, Option<A>>(res.Value);
+    }
+
+    [Pure]
     public static Either<Exception, Option<A>> ToEither<A>(this TryOption<A> self)
     {
         var res = TryOptionExtensions.Try(self);
@@ -371,7 +380,11 @@ public static class TryOptionExtensions
     {
         try
         {
-            return self().Value.Value;
+            var res = self();
+            if (res.IsBottom) throw new BottomException();
+            if (res.IsFaulted) throw new InnerException(res.Exception);
+            if (res.Value.IsNone) throw new ValueIsNoneException();
+            return res.Value.Value;
         }
         catch (Exception e)
         {

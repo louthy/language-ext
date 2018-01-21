@@ -48,11 +48,7 @@ namespace LanguageExt.ClassInstances
             x == y;
 
         [Pure]
-        public Que<A> Fail(object err) =>
-            Que<A>.Empty;
-
-        [Pure]
-        public Que<A> Fail(Exception err = null) =>
+        public Que<A> Fail(object err = null) =>
             Que<A>.Empty;
 
         [Pure]
@@ -132,5 +128,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(Que<A> fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public Que<A> Apply(Func<A, A, A> f, Que<A> fa, Que<A> fb) =>
+            toQueue(
+                from a in fa
+                from b in fb
+                select f(a, b));
     }
 }

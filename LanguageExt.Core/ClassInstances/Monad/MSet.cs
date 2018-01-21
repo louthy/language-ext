@@ -46,11 +46,7 @@ namespace LanguageExt.ClassInstances
             x == y;
 
         [Pure]
-        public Set<A> Fail(object err) =>
-            Empty();
-
-        [Pure]
-        public Set<A> Fail(Exception err = null) =>
+        public Set<A> Fail(object err = null) =>
             Empty();
 
         [Pure]
@@ -130,5 +126,11 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(Set<A> fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public Set<A> Apply(Func<A, A, A> f, Set<A> fa, Set<A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

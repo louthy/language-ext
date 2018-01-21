@@ -700,5 +700,60 @@ namespace LanguageExt
         [Pure]
         public static Map<OrdK, K, V> Freeze<OrdK, K, V>(this IDictionary<K, V> dict) where OrdK : struct, Ord<K> =>
             toMap<OrdK, K, V>(dict.AsEnumerable());
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, V> union<OrdK, K, V>(Map<OrdK, K, V> left, Map<OrdK, K, V> right, WhenMatched<K, V, V, V> Merge) where OrdK : struct, Ord<K> =>
+            left.Union(right, (k, v) => v, (k, v) => v, Merge);
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, A> union<OrdK, K, A, B>(Map<OrdK, K, A> left, Map<OrdK, K, B> right, WhenMissing<K, B, A> MapRight, WhenMatched<K, A, B, A> Merge) where OrdK : struct, Ord<K> =>
+            left.Union(right, (k, v) => v, MapRight, Merge);
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, B> union<OrdK, K, A, B>(Map<OrdK, K, A> left, Map<OrdK, K, B> right, WhenMissing<K, A, B> MapLeft, WhenMatched<K, A, B, B> Merge) where OrdK : struct, Ord<K> =>
+            left.Union(right, MapLeft, (k, v) => v, Merge);
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, C> union<OrdK, K, A, B, C>(Map<OrdK, K, A> left, Map<OrdK, K, B> right, WhenMissing<K, A, C> MapLeft, WhenMissing<K, B, C> MapRight, WhenMatched<K, A, B, C> Merge) where OrdK : struct, Ord<K> =>
+            left.Union(right, MapLeft, MapRight, Merge);
+
+        /// <summary>
+        /// Intersect two maps.  Only keys that are in both maps are
+        /// returned.  The merge function is called for every resulting
+        /// key.
+        [Pure]
+        public static Map<OrdK, K, R> intersect<OrdK, K, A, B, R>(Map<OrdK, K, A> left, Map<OrdK, K, B> right, WhenMatched<K, A, B, R> merge) where OrdK : struct, Ord<K> =>
+            left.Intersect(right, merge);
+
+        /// <summary>
+        /// Map differencing based on key.  this - other.
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, V> except<OrdK, K, V>(Map<OrdK, K, V> left, Map<OrdK, K, V> right) where OrdK : struct, Ord<K> =>
+            left.Except(right);
+
+        /// <summary>
+        /// Keys that are in both maps are dropped and the remaining
+        /// items are merged and returned.
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, V> symmetricExcept<OrdK, K, V>(Map<OrdK, K, V> left, Map<OrdK, K, V> right) where OrdK : struct, Ord<K> =>
+            left.SymmetricExcept(right);
     }
 }

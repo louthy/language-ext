@@ -29,11 +29,7 @@ namespace LanguageExt.ClassInstances
             1;
 
         [Pure]
-        public Identity<A> Fail(Exception err = null) =>
-            Identity<A>.Bottom;
-
-        [Pure]
-        public Identity<A> Fail(object err) =>
+        public Identity<A> Fail(object err = null) =>
             Identity<A>.Bottom;
 
         [Pure]
@@ -89,5 +85,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(Identity<A> fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public Identity<A> Apply(Func<A, A, A> f, Identity<A> fa, Identity<A> fb) =>
+            default(MIdentity<A>).Bind<MIdentity<A>, Identity<A>, A>(fa, a =>
+            default(MIdentity<A>).Bind<MIdentity<A>, Identity<A>, A>(fb, b =>
+            default(MIdentity<A>).Return(_ => f(a, b))));
+
     }
 }

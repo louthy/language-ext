@@ -27,17 +27,13 @@ namespace LanguageExt.ClassInstances
                 ? default(MonadB).Id(_ =>
                     ma.IsSome && f != null
                         ? f(ma.Value)
-                        : default(MonadB).Fail())
+                        : default(MonadB).Fail(ValueIsNoneException.Default))
                 : ma.IsSome && f != null
                     ? f(ma.Value)
-                    : default(MonadB).Fail();
+                    : default(MonadB).Fail(ValueIsNoneException.Default);
 
         [Pure]
-        public Option<A> Fail(object err) =>
-            Option<A>.None;
-
-        [Pure]
-        public Option<A> Fail(Exception err = null) =>
+        public Option<A> Fail(object err = null) =>
             Option<A>.None;
 
         [Pure]
@@ -129,7 +125,7 @@ namespace LanguageExt.ClassInstances
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return Check.NullReturn(ma.IsNone
+            return Check.NullReturn(ma.IsSome
                 ? fa(state, ma.Value)
                 : fb(state, unit));
         }
@@ -140,7 +136,7 @@ namespace LanguageExt.ClassInstances
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return Check.NullReturn(ma.IsNone
+            return Check.NullReturn(ma.IsSome
                 ? fa(state, ma.Value)
                 : fb(state, unit));
         }
@@ -220,5 +216,11 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Option<A> x) =>
             EqOpt<EqDefault<A>, MOption<A>, Option<A>, A>.Inst.GetHashCode(x);
+
+        [Pure]
+        public Option<A> Apply(Func<A, A, A> f, Option<A> fa, Option<A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

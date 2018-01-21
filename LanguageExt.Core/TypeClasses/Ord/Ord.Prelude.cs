@@ -132,6 +132,23 @@ namespace LanguageExt
         ///  1 if x less than y
         /// </returns>
         [Pure]
+        public static int compare<MonoidA, ORDA, ORDB, A, B>(Validation<MonoidA, A, B> x, Validation<MonoidA, A, B> y)
+            where MonoidA : struct, Monoid<A>, Eq<A>
+            where ORDA : struct, Ord<A>
+            where ORDB : struct, Ord<B> =>
+            OrdChoice<ORDA, ORDB, FoldValidation<MonoidA, A, B>, Validation<MonoidA, A, B>, A, B>.Inst.Compare(x, y);
+
+        /// <summary>
+        /// Compare one item to another to ascertain ordering
+        /// </summary>
+        /// <param name="x">The first item to compare</param>
+        /// <param name="y">The second item to compare</param>
+        /// <returns>
+        ///  0 if x is equal to y
+        /// -1 if x greater than y
+        ///  1 if x less than y
+        /// </returns>
+        [Pure]
         public static int compare<ORD, A>(A[] x, A[] y)
             where ORD : struct, Ord<A> =>
             OrdArray<ORD, A>.Inst.Compare(x, y);

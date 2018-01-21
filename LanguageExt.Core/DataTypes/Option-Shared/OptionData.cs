@@ -6,15 +6,33 @@ namespace LanguageExt
 {
     internal enum OptionState : byte
     {
-        Lazy,
         None,
         Some,
+        Lazy
     }
 
     internal static class OptionData
     {
-        public static OptionData<A> Lazy<A>(OptionLazy<A> f) =>
-            new OptionData<A>(OptionState.Lazy, default(A), f);
+        public static OptionData<A> Lazy<A>(OptionLazy<A> f)
+        {
+            object sync = new object();
+            (bool, A) value = default((bool, A));
+            bool hasValue = false;
+
+            return new OptionData<A>(OptionState.Lazy, default(A), () =>
+            {
+                if (hasValue) return value;
+                lock (sync)
+                {
+                    if (!hasValue)
+                    {
+                        value = f();
+                        hasValue = true;
+                    }
+                }
+                return value;
+            });
+        }
 
         public static OptionData<A> Some<A>(A value) =>
             new OptionData<A>(OptionState.Some, value, null);
@@ -28,7 +46,7 @@ namespace LanguageExt
                 : Some(value);
     }
 
-    internal class OptionData<A>
+    internal struct OptionData<A>
     {
         public readonly static OptionData<A> None = new OptionData<A>(OptionState.None, default(A), null);
 
@@ -36,12 +54,23 @@ namespace LanguageExt
         A value;
         readonly OptionLazy<A> lazy;
 
+        public OptionData(OptionState state, A value, OptionLazy<A> lazy)
+        {
+            this.state = state;
+            this.value = value;
+            this.lazy = lazy;
+        }
+
         public A Value
         {
             get
             {
-                CheckLazy();
-                return value;
+                if (state == OptionState.Some) return value;
+                if (state == OptionState.None) throw new ValueIsNoneException();
+
+                var (isSome, x) = lazy();
+                if (isSome) return x;
+                throw new ValueIsNoneException();
             }
         }
 
@@ -52,30 +81,13 @@ namespace LanguageExt
         {
             get
             {
-                CheckLazy();
-                return state == OptionState.Some;
+                if (state == OptionState.Some) return true;
+                if (state == OptionState.None) return false;
+                var (isSome, x) = lazy();
+                return isSome;
             }
         }
 
         public bool IsNone => !IsSome;
-
-        public OptionData(OptionState state, A value, OptionLazy<A> lazy)
-        {
-            this.state = state;
-            this.value = value;
-            this.lazy = lazy;
-        }
-
-        void CheckLazy()
-        {
-            if (state == OptionState.Lazy)
-            {
-                var (isSome, a) = lazy();
-                value = a;
-                state = isSome
-                    ? OptionState.Some
-                    : OptionState.None;
-            }
-        }
     }
 }

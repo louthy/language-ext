@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface Choice<CH, L, R>
+    public interface Choice<CH, L, R> : Typeclass
     {
         /// <summary>
         /// True if the choice type allows nulls

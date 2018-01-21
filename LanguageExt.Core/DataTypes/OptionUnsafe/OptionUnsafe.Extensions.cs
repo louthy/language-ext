@@ -17,8 +17,8 @@ using LanguageExt.ClassInstances;
 public static class OptionUnsafeExtensions
 {
     /// <summary>
-    /// Extracts from a list of 'OptionUnsafe' all the 'Some' elements.
-    /// All the 'Some' elements are extracted in order.
+    /// Extracts from a list of `OptionUnsafe` all the `Some` elements.
+    /// All the `Some` elements are extracted in order.
     /// </summary>
     [Pure]
     public static IEnumerable<A> Somes<A>(this IEnumerable<OptionUnsafe<A>> self)
@@ -31,7 +31,27 @@ public static class OptionUnsafeExtensions
             }
         }
     }
-
+    
+    /// <summary>
+    /// Extracts from a list of `OptionUnsafe` all the `Some` elements.
+    /// All the `Some` elements are extracted in order.
+    /// </summary>
+    [Pure]
+    public static Seq<A> Somes<A>(this Seq<OptionUnsafe<A>> self)
+    {
+        IEnumerable<A> ToSequence(Seq<OptionUnsafe<A>> items)
+        {
+            foreach (var item in items)
+            {
+                if (item.IsSome)
+                {
+                    yield return item.Value;
+                }
+            }
+        }
+        return Seq(ToSequence(self));
+    }
+    
     /// <summary>
     /// Add the bound values of x and y, uses an Add type-class to provide the add
     /// operation for type A.  For example x.Add<TInteger,int>(y)

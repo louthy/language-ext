@@ -4,8 +4,8 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
-    
-    class OptionCoalesceTests
+
+    public class OptionCoalesceTests
     {
         [Fact]
         public void OptionCoalesceTest1()

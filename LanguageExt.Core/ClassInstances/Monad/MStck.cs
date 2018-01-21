@@ -46,11 +46,7 @@ namespace LanguageExt.ClassInstances
             x == y;
 
         [Pure]
-        public Stck<A> Fail(object err) =>
-            Stck<A>.Empty;
-
-        [Pure]
-        public Stck<A> Fail(Exception err = null) =>
+        public Stck<A> Fail(object err = null) =>
             Stck<A>.Empty;
 
         [Pure]
@@ -130,5 +126,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(Stck<A> fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public Stck<A> Apply(Func<A, A, A> f, Stck<A> fa, Stck<A> fb) =>
+            toStack(
+                from a in fa
+                from b in fb
+                select f(a, b));
     }
 }

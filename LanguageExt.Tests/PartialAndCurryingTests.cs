@@ -3,7 +3,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
-    class PartialAndCurryingTests
+    public class PartialAndCurryingTests
     {
         [Fact]
         public void CurryTest()

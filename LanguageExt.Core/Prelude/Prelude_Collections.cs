@@ -48,7 +48,7 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public static Seq<A> Cons<A>(this A head, A[] tail) =>
-            SeqArray<A>.New(head, tail);
+            SeqCons<A>.New(head, SeqArray<A>.New(tail));
 
         /// <summary>
         /// Construct a list from head and tail head becomes the first item in 
@@ -60,7 +60,7 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public static Seq<A> Cons<A>(this A head, Arr<A> tail) =>
-            SeqArr<A>.New(head, tail);
+            SeqCons<A>.New(head, SeqArr<A>.New(tail));
 
         /// <summary>
         /// Construct a list from head and tail; head becomes the first item in 
@@ -332,8 +332,19 @@ namespace LanguageExt
         /// Create an immutable list
         /// </summary>
         [Pure]
-        public static Lst<T> List<T>(T x, params T[] xs) =>
-            new Lst<T>(x.Cons(xs));
+        public static Lst<T> List<T>(T x, params T[] xs)
+        {
+            return new Lst<T>(Yield());
+
+            IEnumerable<T> Yield()
+            {
+                yield return x;
+                foreach(var item in xs)
+                {
+                    yield return item;
+                }
+            }
+        }
 
         /// <summary>
         /// Create an immutable list
@@ -502,6 +513,48 @@ namespace LanguageExt
         [Pure]
         public static Stck<T> toStack<T>(IEnumerable<T> items) =>
             new Stck<T>(items);
+
+        /// <summary>
+        /// Create an immutable map, updating duplicates so that the final value of any key is retained
+        /// </summary>
+        [Pure]
+        public static Map<K, V> toMapUpdate<K, V>(IEnumerable<Tuple<K, V>> keyValues) =>
+            LanguageExt.Map<K, V>.Empty.AddOrUpdateRange(keyValues);
+
+        /// <summary>
+        /// Create an immutable map, updating duplicates so that the final value of any key is retained
+        /// </summary>
+        [Pure]
+        public static Map<K, V> toMapUpdate<K, V>(IEnumerable<(K, V)> keyValues) =>
+            LanguageExt.Map<K, V>.Empty.AddOrUpdateRange(keyValues);
+
+        /// <summary>
+        /// Create an immutable map, updating duplicates so that the final value of any key is retained
+        /// </summary>
+        [Pure]
+        public static Map<K, V> toMapUpdate<K, V>(IEnumerable<KeyValuePair<K, V>> keyValues) =>
+            LanguageExt.Map<K, V>.Empty.AddOrUpdateRange(keyValues);
+
+        /// <summary>
+        /// Create an immutable map, ignoring duplicates so the first value of any key is retained
+        /// </summary>
+        [Pure]
+        public static Map<K, V> toMapTry<K, V>(IEnumerable<Tuple<K, V>> keyValues) =>
+            LanguageExt.Map<K, V>.Empty.TryAddRange(keyValues);
+
+        /// <summary>
+        /// Create an immutable map, ignoring duplicates so the first value of any key is retained
+        /// </summary>
+        [Pure]
+        public static Map<K, V> toMapTry<K, V>(IEnumerable<(K, V)> keyValues) =>
+            LanguageExt.Map<K, V>.Empty.TryAddRange(keyValues);
+
+        /// <summary>
+        /// Create an immutable map, ignoring duplicates so the first value of any key is retained
+        /// </summary>
+        [Pure]
+        public static Map<K, V> toMapTry<K, V>(IEnumerable<KeyValuePair<K, V>> keyValues) =>
+            LanguageExt.Map<K, V>.Empty.TryAddRange(keyValues);
 
 
 
@@ -716,7 +769,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(A a, A b, params A[] cs) =>
-            SeqCons<A>.New(a, SeqArray<A>.New(b, cs));
+            SeqCons<A>.New(a, SeqCons<A>.New(b, SeqArray<A>.New(cs)));
 
         /// <summary>
         /// Construct a sequence from an immutable array

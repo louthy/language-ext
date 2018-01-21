@@ -7,7 +7,7 @@ namespace LanguageExt
     /// A unit type is a type that allows only one value (and thus can hold no information)
     /// </summary>
     [Serializable]
-    public struct Unit : IEquatable<Unit>
+    public struct Unit : IEquatable<Unit>, IComparable<Unit>
     {
         public static readonly Unit Default = new Unit();
 
@@ -35,6 +35,22 @@ namespace LanguageExt
         public static bool operator !=(Unit lhs, Unit rhs) =>
             false;
 
+        [Pure]
+        public static bool operator >(Unit lhs, Unit rhs) =>
+            false;
+
+        [Pure]
+        public static bool operator >=(Unit lhs, Unit rhs) =>
+            true;
+
+        [Pure]
+        public static bool operator <(Unit lhs, Unit rhs) =>
+            false;
+
+        [Pure]
+        public static bool operator <=(Unit lhs, Unit rhs) =>
+            true;
+
         /// <summary>
         /// Provide an alternative value to unit
         /// </summary>
@@ -52,5 +68,12 @@ namespace LanguageExt
         /// <returns>Alternative value</returns>
         [Pure]
         public T Return<T>(Func<T> anything) => anything();
+
+        /// <summary>
+        /// Always equal
+        /// </summary>
+        [Pure]
+        public int CompareTo(Unit other) =>
+            0;
     }
 }

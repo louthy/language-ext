@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface BiFoldable<F, A, B>
+    public interface BiFoldable<F, A, B> : Typeclass
     {
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary

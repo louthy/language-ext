@@ -47,7 +47,7 @@ namespace LanguageExt.ClassInstances
         /// </returns>
         [Pure]
         public int Compare(string x, string y) =>
-            default(OrdDefault<string>).Compare(x,y);
+            default(OrdString).Compare(x,y);
 
         /// <summary>
         /// Get the hash-code of the provided value
@@ -55,7 +55,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>Hash code of x</returns>
         [Pure]
         public int GetHashCode(string x) =>
-            x.IsNull() ? 0 : x.GetHashCode();
+            default(OrdString).GetHashCode(x);
     }
 
     public struct TStringOrdinalIgnoreCase : Ord<string>, Monoid<string>

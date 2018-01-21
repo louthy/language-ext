@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
@@ -7,7 +8,7 @@ namespace LanguageExt.TypeClasses
     /// Functor type-class
     /// </summary>
     [Typeclass]
-    public interface BiFunctor<FAB, FR, A, B, R>
+    public interface BiFunctor<FAB, FR, A, B, R> : Typeclass
     {
         /// <summary>
         /// Projection from one bi-functor to another.  This operation
@@ -31,7 +32,7 @@ namespace LanguageExt.TypeClasses
     /// Functor type-class
     /// </summary>
     [Typeclass]
-    public interface BiFunctor<FAB, FUV, A, B, U, V>
+    public interface BiFunctor<FAB, FUV, A, B, U, V> : Typeclass
     {
         /// <summary>
         /// Projection from one value to another.  Both elements of

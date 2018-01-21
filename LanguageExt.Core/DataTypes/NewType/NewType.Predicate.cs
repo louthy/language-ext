@@ -3,6 +3,7 @@ using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
+using System.Runtime.Serialization;
 
 namespace LanguageExt
 {
@@ -48,12 +49,27 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Deserialisation ctor
+        /// </summary>
+        protected NewType(SerializationInfo info, StreamingContext context)
+        {
+            Value = (A)info.GetValue("Value", typeof(A));
+            if (!default(PRED).True(Value)) throw new ArgumentOutOfRangeException(nameof(Value));
+            if (isnull(Value)) throw new ArgumentNullException(nameof(Value));
+        }
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            info.AddValue("Value", Value);
+
+        /// <summary>
         /// Explicit conversion operator for extracting the bound value
         /// </summary>
         /// <param name="type"></param>
         [Pure]
         public static explicit operator A(NewType<NEWTYPE, A, PRED> type) =>
-            type.Value;
+            ReferenceEquals(type, null)
+                ? throw new ArgumentException($"Can't explictly convert from a null {typeof(NEWTYPE).Name}")
+                : type.Value;
 
         [Pure]
         public virtual int CompareTo(NEWTYPE other) =>
@@ -61,15 +77,16 @@ namespace LanguageExt
 
         [Pure]
         public virtual bool Equals(NEWTYPE other) =>
-            EqDefault<A>.Inst.Equals(Value, other.Value);
+            !ReferenceEquals(other, null) &&
+             (Class<Eq<A>>.Default?.Equals(Value, other.Value) ?? EqDefault<A>.Inst.Equals(Value, other.Value));
 
         [Pure]
         public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) && obj is NEWTYPE && Equals((NEWTYPE)obj);
+            !ReferenceEquals(obj, null) && obj is NEWTYPE b && Equals(b);
 
         [Pure]
         public override int GetHashCode() =>
-            Value?.GetHashCode() ?? 0;
+            Class<Eq<A>>.Default?.GetHashCode(Value) ?? Value?.GetHashCode() ?? 0;
 
         [Pure]
         public static bool operator ==(NewType<NEWTYPE, A, PRED> lhs, NewType<NEWTYPE, A, PRED> rhs) =>

@@ -8,6 +8,7 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances.Pred;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -220,41 +221,21 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public LstInternal<A> Remove(A value) => 
-            Remove(value, Comparer<A>.Default);
+            Remove(value, EqualityComparer<A>.Default);
 
         /// <summary>
-        /// Remove an item from the list
+        /// Remove all items that match `value` from the list
         /// </summary>
         [Pure]
-        public LstInternal<A> Remove(A value, IComparer<A> equalityComparer)
-        {
-            var index = ListModule.Find(Root, value, 0, Count, equalityComparer);
-            return index >= 0 && index < Count
-                ? Wrap(ListModule.Remove(Root, index), Rev)
-                : this;
-        }
+        public LstInternal<A> Remove(A value, IEqualityComparer<A> equalityComparer) =>
+            Wrap(ListModule.Remove(Root, value, equalityComparer));
 
         /// <summary>
         /// Remove all items that match a predicate
         /// </summary>
         [Pure]
-        public LstInternal<A> RemoveAll(Predicate<A> pred)
-        {
-            var self = this;
-            int index = 0;
-            foreach (var item in this)
-            {
-                if (pred(item))
-                {
-                    self = self.RemoveAt(index);
-                }
-                else
-                {
-                    index++;
-                }
-            }
-            return self;
-        }
+        public LstInternal<A> RemoveAll(Func<A, bool> pred) =>
+            Wrap(ListModule.Remove(Root, pred));
 
         /// <summary>
         /// Remove item at location
@@ -345,6 +326,18 @@ namespace LanguageExt
         public LstInternal<U> Map<U>(Func<A, U> map) =>
             new LstInternal<U>(ListModule.Map(Root, map), Rev);
 
+        [Pure]
+        public IEnumerable<A> FindRange(int index, int count)
+        {
+            if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+            if (count < 0) throw new ArgumentOutOfRangeException(nameof(index));
+            var iter = new ListModule.ListEnumerator<A>(Root, Rev, index, count);
+            while (iter.MoveNext())
+            {
+                yield return iter.Current;
+            }
+        }
+
         /// <summary>
         /// Filter
         /// </summary>
@@ -428,6 +421,36 @@ namespace LanguageExt
         [Pure]
         public static bool operator !=(LstInternal<A> lhs, LstInternal<A> rhs) =>
             !lhs.Equals(rhs);
+
+        [Pure]
+        public int CompareTo(LstInternal<A> other)
+        {
+            var cmp = Count.CompareTo(other.Count);
+            if (cmp != 0) return cmp;
+            var iterA = GetEnumerator();
+            var iterB = other.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
+            {
+                cmp = default(OrdDefault<A>).Compare(iterA.Current, iterB.Current);
+                if (cmp != 0) return cmp;
+            }
+            return 0;
+        }
+
+        [Pure]
+        public int CompareTo<OrdA>(LstInternal<A> other) where OrdA : struct, Ord<A>
+        {
+            var cmp = Count.CompareTo(other.Count);
+            if (cmp != 0) return cmp;
+            var iterA = GetEnumerator();
+            var iterB = other.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
+            {
+                cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
+                if (cmp != 0) return cmp;
+            }
+            return 0;
+        }
     }
 
     [Serializable]
@@ -491,7 +514,7 @@ namespace LanguageExt
         public static bool ForAll<K, V>(MapItem<K, V> node, Func<K, V, bool> pred) =>
             node.IsEmpty
                 ? true
-                : pred(node.Key, node.Value)
+                : pred(node.KeyValue.Key, node.KeyValue.Value)
                     ? ForAll(node.Left, pred) && ForAll(node.Right, pred)
                     : false;
 
@@ -513,13 +536,19 @@ namespace LanguageExt
             {
                 return new ListItem<T>(1, 1, key, ListItem<T>.Empty, ListItem<T>.Empty);
             }
-            if (index <= node.Left.Count)
+            else if (index == node.Left.Count)
+            {
+                var insertedLeft = Balance(Make(key, node.Left, ListItem<T>.Empty));
+                var newThis = Balance(Make(node.Key, insertedLeft, node.Right));
+                return newThis;
+            }
+            else if (index < node.Left.Count)
             {
                 return Balance(Make(node.Key, Insert(node.Left, key, index), node.Right));
             }
             else
             {
-                return Balance(Make(node.Key, node.Left, Insert(node.Right, key, index)));
+                return Balance(Make(node.Key, node.Left, Insert(node.Right, key, index - node.Left.Count - 1)));
             }
         }
 
@@ -529,13 +558,19 @@ namespace LanguageExt
             {
                 return insertNode;
             }
-            if (index <= node.Left.Count)
+            else if (index == node.Left.Count)
+            {
+                var insertedLeft = Balance(Make(insertNode.Key, node.Left, ListItem<T>.Empty));
+                var newThis = Balance(Make(node.Key, insertedLeft, node.Right));
+                return newThis;
+            }
+            else if (index < node.Left.Count)
             {
                 return Balance(Make(node.Key, Insert(node.Left, insertNode, index), node.Right));
             }
             else
             {
-                return Balance(Make(node.Key, node.Left, Insert(node.Right, insertNode, index)));
+                return Balance(Make(node.Key, node.Left, Insert(node.Right, insertNode, index - node.Left.Count - 1)));
             }
         }
 
@@ -569,7 +604,7 @@ namespace LanguageExt
             }
             else
             {
-                return new ListItem<T>(node.Height, node.Count, node.Key, SetItem(node.Right, key, index - node.Left.Count -1), node.Right);
+                return new ListItem<T>(node.Height, node.Count, node.Key, node.Left, SetItem(node.Right, key, index - node.Left.Count - 1));
             }
         }
 
@@ -592,6 +627,105 @@ namespace LanguageExt
             {
                 return GetItem(node.Right, index - node.Left.Count - 1);
             }
+        }
+
+
+        public static ListItem<T> Remove<T>(ListItem<T> node, Func<T, bool> pred)
+        {
+            if (node.IsEmpty)
+            {
+                return node;
+            }
+
+            var result = node;
+
+            var left = node.Left.IsEmpty ? node.Left : Remove(node.Left, pred);
+            var right = node.Right.IsEmpty ? node.Right : Remove(node.Right, pred);
+
+            if (pred(node.Key))
+            {
+                if (right.IsEmpty && left.IsEmpty)
+                {
+                    result = ListItem<T>.Empty;
+                }
+                else if (right.IsEmpty && !left.IsEmpty)
+                {
+                    result = left;
+                }
+                else if (!right.IsEmpty && left.IsEmpty)
+                {
+                    result = Balance(right);
+                }
+                else
+                {
+                    var next = right;
+                    while (!next.Left.IsEmpty)
+                    {
+                        next = next.Left;
+                    }
+
+                    right = Remove(right, 0);
+                    result = Balance(Make(next.Key, left, right));
+                }
+            }
+            else
+            {
+                if (!ReferenceEquals(left, node.Left) || !ReferenceEquals(right, node.Right))
+                {
+                    result = Balance(Make(node.Key, left, right));
+                }
+            }
+
+            return result.IsEmpty || result.IsBalanced ? result : Balance(result);
+        }
+
+        public static ListItem<T> Remove<T>(ListItem<T> node, T value, IEqualityComparer<T> compare)
+        {
+            if (node.IsEmpty)
+            {
+                return node;
+            }
+
+            var result = node;
+
+            var left = node.Left.IsEmpty ? node.Left : Remove(node.Left, value, compare);
+            var right = node.Right.IsEmpty ? node.Right : Remove(node.Right, value, compare);
+
+            if (ReferenceEquals(node.Key, value) || compare.Equals(node.Key, value))
+            {
+                if (right.IsEmpty && left.IsEmpty)
+                {
+                    result = ListItem<T>.Empty;
+                }
+                else if (right.IsEmpty && !left.IsEmpty)
+                {
+                    result = left;
+                }
+                else if (!right.IsEmpty && left.IsEmpty)
+                {
+                    result = Balance(right);
+                }
+                else
+                {
+                    var next = right;
+                    while (!next.Left.IsEmpty)
+                    {
+                        next = next.Left;
+                    }
+
+                    right = Remove(right, 0);
+                    result = Balance(Make(next.Key, left, right));
+                }
+            }
+            else
+            {
+                if(!ReferenceEquals(left, node.Left) || !ReferenceEquals(right, node.Right))
+                {
+                    result = Balance(Make(node.Key, left, right));
+                }
+            }
+
+            return result.IsEmpty || result.IsBalanced ? result : Balance(result);
         }
 
         public static ListItem<T> Remove<T>(ListItem<T> node, int index)
@@ -762,13 +896,15 @@ namespace LanguageExt
             int left;
             bool rev;
             int start;
+            int count;
 
-            public ListEnumerator(ListItem<T> root, bool rev, int start)
+            public ListEnumerator(ListItem<T> root, bool rev, int start, int count = Int32.MaxValue)
             {
                 this.rev = rev;
                 this.start = start;
                 map = root;
                 stack = pool.GetItem();
+                this.count = count;
                 Reset();
             }
 
@@ -807,11 +943,12 @@ namespace LanguageExt
 
             public bool MoveNext()
             {
-                if (left > 0 && stack.Count > 0)
+                if (count > 0 && left > 0 && stack.Count > 0)
                 {
                     NodeCurrent = stack.Pop();
                     Push(Next(NodeCurrent));
                     left--;
+                    count--;
                     return true;
                 }
 

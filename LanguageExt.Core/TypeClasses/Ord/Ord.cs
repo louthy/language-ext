@@ -1,4 +1,4 @@
-﻿
+﻿using LanguageExt.Attributes;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt.TypeClasses

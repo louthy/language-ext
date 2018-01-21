@@ -132,7 +132,6 @@ namespace LanguageExt.Tests
 
             Assert.True(y == 10);
             Assert.True(n == 1);
-            Assert.True(y.IsLazy == false);
         }
 
         [Fact]

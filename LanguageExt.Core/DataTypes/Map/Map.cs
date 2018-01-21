@@ -11,6 +11,9 @@ using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
+    public delegate B WhenMissing<K, A, B>(K key, A value);
+    public delegate C WhenMatched<K, A, B, C>(K key, A left, B right);
+
     /// <summary>
     /// Immutable map
     /// AVL tree implementation
@@ -22,6 +25,7 @@ namespace LanguageExt
     [Serializable]
     public struct Map<K, V> :
         IEnumerable<(K Key, V Value)>,
+        IComparable<Map<K, V>>,
         IEquatable<Map<K, V>>
     {
         readonly MapInternal<OrdDefault<K>, K, V> value;
@@ -480,11 +484,11 @@ namespace LanguageExt
         public IEnumerable<V> Values => Value.Values;
 
         /// <summary>
-        /// Convert the map to an IDictionary
+        /// Convert the map to an `IReadOnlyDictionary<K, V>`
         /// </summary>
         /// <returns></returns>
         [Pure]
-        public IDictionary<K, V> ToDictionary() => Value.ToDictionary();
+        public IReadOnlyDictionary<K, V> ToDictionary() => Value.ToDictionary();
 
         /// <summary>
         /// Map the map the a dictionary
@@ -546,7 +550,7 @@ namespace LanguageExt
 
         [Pure]
         public bool Equals(Map<K, V> y) =>
-            Value == y.Value;
+            Value.Equals(y.Value);
 
         [Pure]
         public static implicit operator Map<K, V>(ValueTuple<(K, V)> items) =>
@@ -619,6 +623,22 @@ namespace LanguageExt
         [Pure]
         public static bool operator !=(Map<K, V> lhs, Map<K, V> rhs) =>
             !(lhs == rhs);
+        
+        [Pure]
+        public static bool operator <(Map<K, V> lhs, Map<K, V> rhs) =>
+            lhs.CompareTo(rhs) < 0;
+
+        [Pure]
+        public static bool operator <=(Map<K, V> lhs, Map<K, V> rhs) =>
+            lhs.CompareTo(rhs) <= 0;
+
+        [Pure]
+        public static bool operator >(Map<K, V> lhs, Map<K, V> rhs) =>
+            lhs.CompareTo(rhs) > 0;
+
+        [Pure]
+        public static bool operator >=(Map<K, V> lhs, Map<K, V> rhs) =>
+            lhs.CompareTo(rhs) >= 0;
 
         [Pure]
         public static Map<K, V> operator +(Map<K, V> lhs, Map<K, V> rhs) =>
@@ -630,7 +650,7 @@ namespace LanguageExt
 
         [Pure]
         public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) && obj is Map<K, V> && Equals(this, (Map<K, V>)obj);
+            !ReferenceEquals(obj, null) && obj is Map<K, V> && Equals((Map<K, V>)obj);
 
         [Pure]
         public override int GetHashCode() =>
@@ -896,5 +916,145 @@ namespace LanguageExt
         [Pure]
         public S Fold<S>(S state, Func<S, V, S> folder) =>
             MapModule.Fold(Value.Root, state, folder);
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public Map<K, V> Union(Map<K, V> other, WhenMatched<K, V, V, V> Merge) =>
+            Union(other, (k, v) => v, (k, v) => v, Merge);
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public Map<K, V> Union<V2>(Map<K, V2> other, WhenMissing<K, V2, V> MapRight, WhenMatched<K, V, V2, V> Merge) =>
+            Union(other, (k, v) => v, MapRight, Merge);
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public Map<K, V2> Union<V2>(Map<K, V2> other, WhenMissing<K, V, V2> MapLeft, WhenMatched<K, V, V2, V2> Merge) =>
+            Union(other, MapLeft, (k, v) => v, Merge);
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public Map<K, R> Union<V2, R>(Map<K, V2> other, WhenMissing<K, V, R> MapLeft, WhenMissing<K, V2, R> MapRight, WhenMatched<K, V, V2, R> Merge)
+        {
+            // TODO: Look into more optimal solution
+
+            if (MapLeft == null) throw new ArgumentNullException(nameof(MapLeft));
+            if (MapRight == null) throw new ArgumentNullException(nameof(MapRight));
+            if (Merge == null) throw new ArgumentNullException(nameof(Merge));
+
+            var result = Map<K, R>.Empty;
+            foreach (var right in other)
+            {
+                var key = right.Key;
+                var left = Find(key);
+                if(left.IsSome)
+                {
+                    result = result.Add(key, Merge(key, left.Value, right.Value));
+                }
+                else
+                {
+                    result = result.Add(key, MapRight(key, right.Value));
+                }
+            }
+            foreach (var left in this)
+            {
+                var key = left.Key;
+                var right = other.Find(key);
+                if (right.IsNone)
+                {
+                    result = result.Add(key, MapLeft(key, left.Value));
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Intersect two maps.  Only keys that are in both maps are
+        /// returned.  The merge function is called for every resulting
+        /// key.
+        [Pure]
+        public Map<K, R> Intersect<V2, R>(Map<K, V2> other, WhenMatched<K, V, V2, R> Merge)
+        {
+            // TODO: Look into more optimal solution
+
+            if (Merge == null) throw new ArgumentNullException(nameof(Merge));
+
+            var map = Map<K, R>.Empty;
+            foreach (var right in other)
+            {
+                var left = Find(right.Key);
+                if (left.IsSome)
+                {
+                    map = map.Add(right.Key, Merge(right.Key, left.Value, right.Value));
+                }
+            }
+            return map;
+        }
+
+        /// <summary>
+        /// Map differencing based on key.  this - other.
+        /// </summary>
+        [Pure]
+        public Map<K, V> Except(Map<K, V> other)
+        {
+            // TODO: Look into more optimal solution
+
+            var map = this;
+            foreach (var right in other)
+            {
+                if (map.ContainsKey(right.Key))
+                {
+                    map = map.Remove(right.Key);
+                }
+            }
+            return map;
+        }
+
+        /// <summary>
+        /// Keys that are in both maps are dropped and the remaining
+        /// items are merged and returned.
+        /// </summary>
+        [Pure]
+        public Map<K, V> SymmetricExcept(Map<K, V> other)
+        {
+            // TODO: Look into more optimal solution
+
+            var map = Map<K, V>.Empty;
+            foreach (var left in this)
+            {
+                if (!other.ContainsKey(left.Key))
+                {
+                    map = map.Add(left.Key, left.Value);
+                }
+            }
+            foreach (var right in other)
+            {
+                if (!ContainsKey(right.Key))
+                {
+                    map = map.Add(right.Key, right.Value);
+                }
+            }
+            return map;
+        }
+
+        [Pure]
+        public int CompareTo(Map<K, V> other) =>
+            Value.CompareTo(other.Value);
+
+        [Pure]
+        public int CompareTo<OrdK>(Map<K, V> other) where OrdK : struct, Ord<K> =>
+            Value.CompareTo(other.Value);
     }
 }

@@ -141,26 +141,13 @@ namespace LanguageExt
         S Fold<S>(S state, Func<S, A, S> f);
 
         /// <summary>
-        /// Fold the sequence from the last item to the first.  For 
-        /// sequences that are not lazy and are less than 5000 items
-        /// long, FoldBackRec is called instead, because it is faster.
+        /// Fold the sequence from the last item to the first. 
         /// </summary>
         /// <typeparam name="S">State type</typeparam>
         /// <param name="state">Initial state</param>
         /// <param name="f">Fold function</param>
         /// <returns>Aggregated state</returns>
         S FoldBack<S>(S state, Func<S, A, S> f);
-
-        /// <summary>
-        /// Fold the sequence (recursively) from the last item to the 
-        /// first.  This is faster than FoldBack, but be wary of calling 
-        /// this with sequences that are large, you can blow the stack.
-        /// </summary>
-        /// <typeparam name="S">State type</typeparam>
-        /// <param name="state">Initial state</param>
-        /// <param name="f">Fold function</param>
-        /// <returns>Aggregated state</returns>
-        S FoldBackRec<S>(S state, Func<S, A, S> f);
 
         /// <summary>
         /// Returns true if the supplied predicate returns true for any

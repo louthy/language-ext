@@ -487,7 +487,7 @@ namespace LanguageExt
 
         [Pure]
         public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) && obj is HashSet<A> && Equals(this, (HashSet<A>)obj);
+            !ReferenceEquals(obj, null) && obj is HashSet<A> && Equals((HashSet<A>)obj);
 
         [Pure]
         public override int GetHashCode() =>

@@ -687,6 +687,13 @@ public static class TryOptionAsyncExtensions
                     : None());
 
     [Pure]
+    public static Task<Validation<Exception, Option<A>>> ToValidation<A>(this TryOptionAsync<A> self) =>
+        self.Match(
+            Some: v => Success<Exception, Option<A>>(Option<A>.Some(v)),
+            None: () => Success<Exception, Option<A>>(Option<A>.None),
+            Fail: e => Fail<Exception, Option<A>>(e));
+
+    [Pure]
     public static Task<Option<A>> ToOption<A>(this TryOptionAsync<A> self) =>
         self.Match(
             Some: v  => Option<A>.Some(v),
@@ -724,7 +731,9 @@ public static class TryOptionAsyncExtensions
         try
         {
             var res = await self.Try();
-            if (res.IsFaultedOrNone) throw new InnerException(res.Exception ?? new BottomException());
+            if (res.IsBottom) throw new BottomException();
+            if (res.IsFaulted) throw new InnerException(res.Exception);
+            if (res.Value.IsNone) throw new ValueIsNoneException();
             return res.Value.Value;
         }
         catch (Exception e)

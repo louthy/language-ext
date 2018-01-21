@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
@@ -27,26 +26,6 @@ namespace LanguageExt
     /// </summary>
     public static partial class Prelude
     {
-        /// <summary>
-        /// 'No value' state of Option T.
-        /// </summary>
-        public static OptionNone None =>
-            OptionNone.Default;
-
-        /// <summary>
-        /// Unit constructor
-        /// </summary>
-        public static Unit unit =>
-            Unit.Default;
-
-        /// <summary>
-        /// Takes any value, ignores it, returns a unit
-        /// </summary>
-        /// <param name="anything">Value to ignore</param>
-        /// <returns>Unit</returns>
-        public static Unit ignore<T>(T anything) =>
-            unit;
-
         /// <summary>
         /// Projects a value into a lambda
         /// Useful when one needs to declare a local variable which breaks your
@@ -185,7 +164,7 @@ namespace LanguageExt
             throw new Exception(message);
         }
 
-#if !COREFX
+#if !COREFX13
         /// <summary>
         /// Raises an ApplicationException with the message provided
         /// </summary>
@@ -249,6 +228,33 @@ namespace LanguageExt
         /// Not function, for prettifying code and removing the need to 
         /// use the ! operator.
         /// </summary>
+        /// <param name="f">Predicate function to perform the not operation on</param>
+        /// <returns>!f</returns>
+        public static Func<A, bool> not<A>(Func<A, bool> f) => 
+            x => !f(x);
+
+        /// <summary>
+        /// Not function, for prettifying code and removing the need to 
+        /// use the ! operator.
+        /// </summary>
+        /// <param name="f">Predicate function to perform the not operation on</param>
+        /// <returns>!f</returns>
+        public static Func<A, B, bool> not<A, B>(Func<A, B, bool> f) => 
+            (x, y) => !f(x, y);
+
+        /// <summary>
+        /// Not function, for prettifying code and removing the need to 
+        /// use the ! operator.
+        /// </summary>
+        /// <param name="f">Predicate function to perform the not operation on</param>
+        /// <returns>!f</returns>
+        public static Func<A, B, C, bool> not<A, B, C>(Func<A, B, C, bool> f) => 
+            (x, y, z) => !f(x, y, z);
+
+        /// <summary>
+        /// Not function, for prettifying code and removing the need to 
+        /// use the ! operator.
+        /// </summary>
         /// <param name="value">Value to perform the not operation on</param>
         /// <returns>!value</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -268,7 +274,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool isDefault<T>(T value) =>
-            EqualityComparer<T>.Default.Equals(value, default(T));
+            value.IsDefault();
 
         /// <summary>
         /// Returns true if the value is not equal to this type's
@@ -303,7 +309,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool isnull<T>(T value) =>
-            Check<T>.IsNull(value);
+            value.IsNull();
 
         /// <summary>
         /// Returns true if the value is not null, and does so without
@@ -325,7 +331,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool notnull<T>(T value) =>
-            !Check<T>.IsNull(value);
+            !isnull(value);
 
         /// <summary>
         /// Convert a value to string
@@ -333,19 +339,5 @@ namespace LanguageExt
         [Pure]
         public static string toString<T>(T value) =>
             value?.ToString();
-
-        static class Check<T>
-        {
-            static bool IsValueType;
-
-            static Check()
-            {
-                IsValueType = typeof(T).GetTypeInfo().IsValueType;
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static bool IsNull(T value) =>
-                !IsValueType && EqualityComparer<T>.Default.Equals(value, default(T));
-        }
    }
 }

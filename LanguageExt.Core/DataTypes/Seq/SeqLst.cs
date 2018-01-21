@@ -5,113 +5,141 @@ namespace LanguageExt
 {
     internal class SeqLst<A> : Seq<A>
     {
-        readonly IEnumerator<A> iter;
         readonly Lst<A> list;
         readonly int index;
-        Seq<A> tail;
+        readonly int count;
 
         /// <summary>
         /// Construct a new sequence
         /// </summary>
-        SeqLst(A head, IEnumerator<A> iter, Lst<A> list, int index) : base(head, list.Count - index + 1)
+        SeqLst(Lst<A> list, int index, int count)
         {
-            this.iter = iter;
             this.list = list;
             this.index = index;
+            this.count = count == -1
+                ? list.Count - index
+                : count;
         }
+
+        public override int Count =>
+            count;
+
+        public override A Head =>
+            list[index];
+
+        public override bool IsEmpty =>
+            false;
+
+        public static Seq<A> New(Lst<A> seq, int index = 0, int count = -1) =>
+            seq.Count == 0
+                ? Empty
+                : new SeqLst<A>(seq, index, count);
 
         /// <summary>
         /// Stream as an enumerable
         /// </summary>
         public override IEnumerable<A> AsEnumerable()
         {
-            yield return Head;
-            foreach(var item in list.Skip(index))
+            for (int i = index; i < index + count; i++)
             {
-                yield return item;
+                yield return list[i];
             }
-        }
-
-        public static Seq<A> New(A head, Lst<A> seq) =>
-            new SeqLst<A>(head, seq.GetEnumerator(), seq, 0);
-
-        public static Seq<A> New(Lst<A> seq)
-        {
-            var iter = seq.GetEnumerator();
-            return iter.MoveNext()
-                ? new SeqLst<A>(iter.Current, iter, seq, 1)
-                : Empty;
         }
 
         /// <summary>
         /// Get an enumerator for the sequence
         /// </summary>
         /// <returns>An IEnumerator of As</returns>
-        public override IEnumerator<A> GetEnumerator()
-        {
-            Seq<A> current = this;
-            while (current != Empty)
-            {
-                yield return current.Head;
-                current = current.Tail;
-            }
-        }
+        public override IEnumerator<A> GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
 
         /// <summary>
         /// Tail of the sequence
         /// </summary>
         public override Seq<A> Tail =>
-           tail ?? TailLazy();
-
-        /// <summary>
-        /// Lazily 
-        /// </summary>
-        /// <returns></returns>
-        Seq<A> TailLazy()
-        {
-            lock (iter)
-            {
-                if (tail != null) return tail;
-                if (iter.MoveNext())
-                {
-                    tail = new SeqLst<A>(iter.Current, iter, list, index + 1);
-                }
-                else
-                {
-                    tail = Empty;
-                }
-            }
-            return tail;
-        }
+            count == 1
+                ? Empty
+                : new SeqLst<A>(list, index + 1, count - 1);
 
         /// <summary>
         /// Skip count items
         /// </summary>
-        public override Seq<A> Skip(int count)
+        public override Seq<A> Skip(int skipCount)
         {
-            if (count == 0) return this;
-            if (count >= Count) return Empty;
-
-            switch(count)
-            {
-                case 0: return this;
-                case 1: return Tail;
-                case 2: return Tail.Tail;
-                case 3: return Tail.Tail.Tail;
-
-                default:
-                    var index = this.index + count;
-
-                    var iter = list.Skip(index - 1).GetEnumerator();
-                    if (iter.MoveNext())
-                    {
-                        return new SeqLst<A>(iter.Current, iter, list, index);
-                    }
-                    else
-                    {
-                        return Empty;
-                    }
-            }
+            if (skipCount == 0) return this;
+            if (skipCount >= count) return Empty;
+            return new SeqLst<A>(list, index + skipCount, count - skipCount);
         }
+
+        public override S Fold<S>(S state, Func<S, A, S> f)
+        {
+            foreach(var item in list.FindRange(index, count))
+            {
+                state = f(state, item);
+            }
+            return state;
+        }
+
+        public override S FoldBack<S>(S state, Func<S, A, S> f)
+        {
+            foreach (var item in list.Reverse().FindRange(index, count))
+            {
+                state = f(state, item);
+            }
+            return state;
+        }
+
+        public override bool Exists(Func<A, bool> f)
+        {
+            foreach (var item in list.FindRange(index, count))
+            {
+                if (f(item)) return true;
+            }
+            return false;
+        }
+
+        public override bool ForAll(Func<A, bool> f)
+        {
+            foreach (var item in list.FindRange(index, count))
+            {
+                if (!f(item)) return false;
+            }
+            return true;
+        }
+
+        public override Seq<A> Take(int takeCount) =>
+            takeCount > 0 && takeCount < count
+                ? new SeqLst<A>(list, index, takeCount)
+                : this;
+
+        public override Seq<A> TakeWhile(Func<A, bool> pred)
+        {
+            int takeCount = 0;
+            foreach (var item in list.FindRange(index, count))
+            {
+                if (!pred(item))
+                {
+                    return Take(takeCount);
+                }
+                takeCount++;
+            }
+            return this;
+        }
+
+        public override Seq<A> TakeWhile(Func<A, int, bool> pred)
+        {
+            int takeCount = 0;
+            foreach (var item in list.FindRange(index, count))
+            {
+                if (!pred(item, takeCount))
+                {
+                    return Take(takeCount);
+                }
+                takeCount++;
+            }
+            return this;
+        }
+
+        internal override bool IsTerminator => true;
     }
 }

@@ -147,6 +147,7 @@ namespace LanguageExtTests
             var optionr = IsEqual<EqInt, MOption<int>, Option<int>, int>(optionx, optiony);
 
             Assert.True(optionr);
+            Assert.True(optionx == optiony);
         }
 
         [Fact]
@@ -158,6 +159,8 @@ namespace LanguageExtTests
             var optionr = IsEqual<EqStringCurrentCultureIgnoreCase, MOption<string>, Option<string>, string>(optionx, optiony);
 
             Assert.True(optionr);
+
+            Assert.True(optionx != optiony);
         }
 
         [Fact]
@@ -167,8 +170,9 @@ namespace LanguageExtTests
             var optiony = Right<Exception, int>(123);
 
             var optionr = IsEqual<EqInt, MEither<Exception, int>, Either<Exception, int>, int>(optionx, optiony);
-
             Assert.True(optionr);
+
+            Assert.True(optionx == optiony);
         }
 
         [Fact]
@@ -180,6 +184,7 @@ namespace LanguageExtTests
             var optionr = IsEqual<EqStringCurrentCultureIgnoreCase, MEither<Exception, string>, Either<Exception, string>, string>(optionx, optiony);
 
             Assert.True(optionr);
+            Assert.True(optionx != optiony);
         }
 
         public static bool IsEqual<EqA, MonadA, MA, A>(MA mx, MA my)
@@ -188,5 +193,51 @@ namespace LanguageExtTests
             default(MonadA).Fold(mx, false, (s1, x) =>
                 default(MonadA).Fold(my, false, (s2, y) =>
                     default(EqA).Equals(x, y))(unit))(unit);
+    }
+
+
+    public class EqualityTestsWithStaticProperties
+    {
+        public class Foo : Record<Foo>
+        {
+            public static Foo Default { get; } 
+
+            static Foo()
+            {
+                Default = new Foo( 10,20,List(1,2) );
+            }
+
+            public Foo(int age, int s, Lst<int> numbers)
+            {
+                Age = age;
+                String = s;
+                Numbers = numbers;
+            }
+            public int Age { get; }
+            public int String { get; }
+            public Lst<int> Numbers { get; }
+        }
+
+        [Fact]
+        public void EqualRecordsShouldBeEqual()
+        {
+
+            var a = new Foo( 10, 20, List( 0, 1, 2 ) );
+            var b = new Foo( 10, 20, List( 0, 1, 2 ) );
+
+            Assert.Equal( b, a );
+
+        }
+
+        [Fact]
+        public void NonEqualRecordsShouldBeNotEqual()
+        {
+
+            var a = new Foo( 10, 20, List( 0, 1, 2 ) );
+            var b = new Foo( 10, 20, List( 0, -1, 2 ) );
+
+            Assert.NotEqual( b, a );
+
+        }
     }
 }

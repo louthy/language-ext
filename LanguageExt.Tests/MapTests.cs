@@ -221,5 +221,104 @@ namespace LanguageExtTests
 
             Assert.True(m.CountT() == 2);
         }
+
+        [Fact]
+        public void MapValuesTest()
+        {
+            var m = Map((1, 1), (2, 2), (3, 3), (4, 4), (5, 5));
+
+            var vs = Seq(m.Values);
+
+            Assert.True(vs.Head == 1);
+            Assert.True(vs.Tail.Head == 2);
+            Assert.True(vs.Tail.Tail.Head == 3);
+            Assert.True(vs.Tail.Tail.Tail.Head == 4);
+            Assert.True(vs.Tail.Tail.Tail.Tail.Head == 5);
+            Assert.True(vs.Count == 5);
+        }
+
+        [Fact]
+        public void MapKeysTest()
+        {
+            var m = Map((1, 1), (2, 2), (3, 3), (4, 4), (5, 5));
+
+            var vs = Seq(m.Keys);
+
+            Assert.True(vs.Head == 1);
+            Assert.True(vs.Tail.Head == 2);
+            Assert.True(vs.Tail.Tail.Head == 3);
+            Assert.True(vs.Tail.Tail.Tail.Head == 4);
+            Assert.True(vs.Tail.Tail.Tail.Tail.Head == 5);
+            Assert.True(vs.Count == 5);
+        }
+
+        [Fact]
+        public void MapUnionTest1()
+        {
+            var x = Map((1, 1), (2, 2), (3, 3));
+            var y = Map((1, 1), (2, 2), (3, 3));
+
+            var z = union(x, y, (k, l, r) => l + r);
+
+            Assert.True(z == Map((1, 2), (2, 4), (3, 6)));
+        }
+
+        [Fact]
+        public void MapUnionTest2()
+        {
+            var x = Map((1, 1), (2, 2), (3, 3));
+            var y = Map((4, 4), (5, 5), (6, 6));
+
+            var z = union(x, y, (k, l, r) => l + r);
+
+            Assert.True(z == Map((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6)));
+        }
+
+        [Fact]
+        public void MapIntesectTest1()
+        {
+            var x = Map(        (2, 2), (3, 3));
+            var y = Map((1, 1), (2, 2)        );
+
+            var z = intersect(x, y, (k, l, r) => l + r);
+
+            Assert.True(z == Map((2, 4)));
+        }
+
+        [Fact]
+        public void MapExceptTest()
+        {
+            var x = Map((1, 1), (2, 2), (3, 3));
+            var y = Map((1, 1));
+
+            var z = except(x, y);
+
+            Assert.True(z == Map((2, 2), (3, 3)));
+        }
+
+        [Fact]
+        public void MapSymmetricExceptTest()
+        {
+            var x = Map((1, 1), (2, 2), (3, 3));
+            var y = Map((1, 1),         (3, 3));
+
+            var z = symmetricExcept(x, y);
+
+            Assert.True(z == Map((2, 2)));
+        }
+
+        [Fact]
+        public void EqualsTest()
+        {
+            Assert.True(Map<int, int>().Equals(Map<int, int>()));
+            Assert.False(Map<int, int>((1, 2)).Equals(Map<int, int>()));
+            Assert.False(Map<int, int>().Equals(Map<int, int>((1, 2))));
+            Assert.True(Map<int, int>((1, 2)).Equals(Map<int, int>((1, 2))));
+            Assert.False(Map<int, int>((1, 2), (3, 4)).Equals(Map<int, int>((1, 2))));
+            Assert.False(Map<int, int>((1, 2)).Equals(Map<int, int>((1, 2), (3, 4))));
+            Assert.True(Map<int, int>((1, 2), (3, 4)).Equals(Map<int, int>((1, 2), (3, 4))));
+            Assert.True(Map<int, int>((3, 4), (1, 2)).Equals(Map<int, int>((1, 2), (3, 4))));
+            Assert.True(Map<int, int>((3, 4), (1, 2)).Equals(Map<int, int>((3, 4), (1, 2))));
+        }
     }
 }

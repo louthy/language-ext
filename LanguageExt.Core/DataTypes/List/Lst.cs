@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances.Pred;
+using LanguageExt.ClassInstances;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -15,6 +17,7 @@ namespace LanguageExt
     [Serializable]
     public struct Lst<A> :
         IEnumerable<A>, 
+        IComparable<Lst<A>>,
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
         IEquatable<Lst<A>>
@@ -95,6 +98,25 @@ namespace LanguageExt
             new Lst<T>(list);
 
         /// <summary>
+        /// Find if a value is in the collection
+        /// </summary>
+        /// <param name="value">Value to test</param>
+        /// <returns>True if collection contains value</returns>
+        [Pure]
+        public bool Contains(A value) =>
+            Value.Find(a => default(EqDefault<A>).Equals(a,value)).IsSome;
+
+        /// <summary>
+        /// Contains with provided Eq class instance
+        /// </summary>
+        /// <typeparam name="EqA">Eq class instance</typeparam>
+        /// <param name="value">Value to test</param>
+        /// <returns>True if collection contains value</returns>
+        [Pure]
+        public bool Contains<EqA>(A value) where EqA : struct, Eq<A> =>
+            Value.Find(a => default(EqA).Equals(a, value)).IsSome;
+
+        /// <summary>
         /// Add an item to the end of the list
         /// </summary>
         [Pure]
@@ -151,24 +173,24 @@ namespace LanguageExt
             Value.LastIndexOf(item, index, count, equalityComparer);
 
         /// <summary>
-        /// Remove an item from the list
+        /// Remove all items that match the value from the list
         /// </summary>
         [Pure]
         public Lst<A> Remove(A value) =>
             Wrap(Value.Remove(value));
 
         /// <summary>
-        /// Remove an item from the list
+        /// Remove all items that match the value from the list
         /// </summary>
         [Pure]
-        public Lst<A> Remove(A value, IComparer<A> equalityComparer) =>
+        public Lst<A> Remove(A value, IEqualityComparer<A> equalityComparer) =>
             Wrap(Value.Remove(value, equalityComparer));
 
         /// <summary>
         /// Remove all items that match a predicate
         /// </summary>
         [Pure]
-        public Lst<A> RemoveAll(Predicate<A> pred) =>
+        public Lst<A> RemoveAll(Func<A, bool> pred) =>
             Wrap(Value.RemoveAll(pred));
 
         /// <summary>
@@ -193,6 +215,17 @@ namespace LanguageExt
         [Pure]
         public Lst<A> SetItem(int index, A value) =>
             Wrap(Value.SetItem(index, value));
+
+        /// <summary>
+        /// Returns an enumerable range from the collection.  This is the fastest way of
+        /// iterating sub-ranges of the collection.
+        /// </summary>
+        /// <param name="index">Index into the collection</param>
+        /// <param name="count">Number of items to find</param>
+        /// <returns>IEnumerable of items</returns>
+        [Pure]
+        public IEnumerable<A> FindRange(int index, int count) =>
+            Value.FindRange(index, count);
 
         [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
@@ -292,7 +325,27 @@ namespace LanguageExt
             !(lhs == rhs);
 
         [Pure]
+        public static bool operator <(Lst<A> lhs, Lst<A> rhs) =>
+            lhs.CompareTo(rhs) < 0;
+
+        [Pure]
+        public static bool operator <=(Lst<A> lhs, Lst<A> rhs) =>
+            lhs.CompareTo(rhs) <= 0;
+
+        [Pure]
+        public static bool operator >(Lst<A> lhs, Lst<A> rhs) =>
+            lhs.CompareTo(rhs) > 0;
+
+        [Pure]
+        public static bool operator >=(Lst<A> lhs, Lst<A> rhs) =>
+            lhs.CompareTo(rhs) >= 0;
+
+        [Pure]
         public Arr<A> ToArray() =>
             toArray(this);
-   }
+
+        [Pure]
+        public int CompareTo(Lst<A> other) =>
+            Value.CompareTo(other.Value);
+    }
 }

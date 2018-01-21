@@ -138,8 +138,7 @@ public static class WriterExtensions
 
     /// <summary>
     /// Censor is an action that executes the writer monad and applies the function f 
-    /// to its output, leaving the return value, leaving the return value
-    /// unchanged.
+    /// to its output,  leaving the return value unchanged.
     /// </summary>
     public static Writer<MonoidW, W, A> Censor<MonoidW, W, A>(this Writer<MonoidW, W, A> self, Func<W, W> f)
         where MonoidW : struct, Monoid<W> =>

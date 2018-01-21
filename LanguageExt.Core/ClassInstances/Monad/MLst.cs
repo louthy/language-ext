@@ -47,11 +47,7 @@ namespace LanguageExt.ClassInstances
             Enumerable.SequenceEqual(x, y);
 
         [Pure]
-        public Lst<A> Fail(object err) =>
-            Empty();
-
-        [Pure]
-        public Lst<A> Fail(Exception err = null) =>
+        public Lst<A> Fail(object err = null) =>
             Empty();
 
         [Pure]
@@ -131,5 +127,11 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(Lst<A> fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public Lst<A> Apply(Func<A, A, A> f, Lst<A> fa, Lst<A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

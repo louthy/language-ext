@@ -30,12 +30,10 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public Try<A> Fail(object err) =>
-            Try<A>(BottomException.Default);
-
-        [Pure]
-        public Try<A> Fail(Exception err = null) =>
-            Try<A>(err ?? BottomException.Default);
+        public Try<A> Fail(object err = null) =>
+            err != null && err is Exception
+                ? Try<A>((Exception)err)
+                : Try<A>(BottomException.Default);
 
         [Pure]
         public Try<A> Plus(Try<A> ma, Try<A> mb) => () =>
@@ -195,5 +193,11 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Try<A> Append(Try<A> x, Try<A> y) =>
             Plus(x, y);
+
+        [Pure]
+        public Try<A> Apply(Func<A, A, A> f, Try<A> fa, Try<A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

@@ -4,6 +4,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using Xunit;
 using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace LanguageExtTests
 {
@@ -134,6 +135,42 @@ namespace LanguageExtTests
 
             Assert.True(right == right2);
             Assert.True(left == left2);
+        }
+
+        [Fact]
+        public void ValidationTest()
+        {
+            var succ = Success<string, string>("test");
+            var fail = Fail<string, string>("error");
+
+            var succText = JsonConvert.SerializeObject(succ);
+            var failText = JsonConvert.SerializeObject(fail);
+
+            var succ2 = JsonConvert.DeserializeObject<Validation<string, string>>(succText);
+            var fail2 = JsonConvert.DeserializeObject<Validation<string, string>>(failText);
+
+            Assert.True(succ == succ2);
+            Assert.True(fail == fail2);
+        }
+
+        [Fact]
+        public void ActionTypeTest()
+        {
+            var x = ActionType.New("Test1");
+            var y = ActionType.New("Test2");
+            var z = ActionType.New("Test3");
+
+            Assert.False(x == y);
+            Assert.False(x > y);
+            Assert.True(x < y);
+            Assert.True(x != y);
+        }
+
+        [Serializable]
+        public class ActionType : NewType<ActionType, string>, ISerializable
+        {
+            public ActionType(string value) : base(value) { }
+            protected ActionType(SerializationInfo info, StreamingContext context) : base(info, context) { }
         }
     }
 }

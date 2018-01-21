@@ -17,7 +17,7 @@ namespace LanguageExt.ClassInstances
             {
                 var (a, sa, faulted) = ma(state);
                 return faulted
-                    ? default(MONADB).Fail()
+                    ? default(MONADB).Fail(default(MState<S, A>).Fail())
                     : default(MONADB).BindReturn((sa, faulted), f(a));
             });
 
@@ -26,12 +26,8 @@ namespace LanguageExt.ClassInstances
             _ => mb(output.State);
 
         [Pure]
-        public State<S, A> Fail(object err) => state =>
-            (default(A), state, true);
-
-        [Pure]
-        public State<S, A> Fail(Exception err = null) => state =>
-             (default(A), state, true);
+        public State<S, A> Fail(object err = null) =>
+            new State<S, A>(state => (default(A), state, true));
 
         [Pure]
         public State<S, S> Get() => state =>
@@ -133,5 +129,10 @@ namespace LanguageExt.ClassInstances
             return Task.FromResult(mr(env).Value);
         };
 
+        [Pure]
+        public State<S, A> Apply(Func<A, A, A> f, State<S, A> fa, State<S, A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

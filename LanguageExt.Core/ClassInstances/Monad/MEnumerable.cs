@@ -46,11 +46,7 @@ namespace LanguageExt.ClassInstances
             Enumerable.SequenceEqual(x, y);
 
         [Pure]
-        public IEnumerable<A> Fail(object err) =>
-            Empty();
-
-        [Pure]
-        public IEnumerable<A> Fail(Exception err = null) =>
+        public IEnumerable<A> Fail(object err = null) =>
             Empty();
 
         [Pure]
@@ -133,5 +129,17 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(IEnumerable<A> fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public MB Apply<MonadB, MB, B>(Func<A, A, B> faab, IEnumerable<A> fa, IEnumerable<A> fb) where MonadB : struct, Monad<Unit, Unit, MB, B> =>
+            default(MEnumerable<A>).Bind<MonadB, MB, B>(fa, a =>
+            default(MEnumerable<A>).Bind<MonadB, MB, B>(fb, b =>
+            default(MonadB).Return(_ => faab(a, b))));
+
+        [Pure]
+        public IEnumerable<A> Apply(Func<A, A, A> f, IEnumerable<A> fa, IEnumerable<A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

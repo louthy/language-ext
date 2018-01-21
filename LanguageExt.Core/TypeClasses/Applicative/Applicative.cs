@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+﻿using System.Diagnostics.Contracts;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
@@ -9,7 +8,7 @@ namespace LanguageExt.TypeClasses
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
     [Typeclass]
-    public interface ApplicativePure<FA, A>
+    public interface ApplicativePure<FA, A> : Typeclass
     {
         /// <summary>
         /// Applicative return

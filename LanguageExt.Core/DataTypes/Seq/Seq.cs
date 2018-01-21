@@ -16,23 +16,12 @@ namespace LanguageExt
     public abstract class Seq<A> : ISeq<A>
     {
         public static readonly Seq<A> Empty = SeqEmpty<A>.Default;
-        public readonly A head;
-        internal int count = -1;
-
-        /// <summary>
-        /// Construct a new sequence
-        /// </summary>
-        internal Seq(A head, int count)
-        {
-            this.head = head;
-            this.count = count;
-        }
 
         /// <summary>
         /// Head item in the sequence.  NOTE:  If `IsEmpty` is true then Head 
         /// is undefined.  Call HeadOrNone() if for maximum safety.
         /// </summary>
-        public virtual A Head => head;
+        public abstract A Head { get;  }
 
         /// <summary>
         /// Tail of the sequence
@@ -45,24 +34,29 @@ namespace LanguageExt
         public Option<A> HeadOrNone() =>
             IsEmpty
                 ? None
-                : Some(head);
+                : Some(Head);
 
         /// <summary>
         /// True if this cons node is the Empty node
         /// </summary>
-        public bool IsEmpty => 
-            ReferenceEquals(this, Empty);
+        public abstract bool IsEmpty { get; }
 
         /// <summary>
         /// Returns the number of items in the sequence
         /// </summary>
         /// <returns>Number of items in the sequence</returns>
-        public int Count =>
-            count == -1
-                ? count = Tail.count == -1
-                    ? WalkAndCount()
-                    : Tail.count + 1
-                : count;
+        public abstract int Count { get; }
+
+        ///// <summary>
+        ///// Returns the number of items in the sequence
+        ///// </summary>
+        ///// <returns>Number of items in the sequence</returns>
+        //public int Count =>
+        //    count == -1
+        //        ? count = Tail.count == -1
+        //            ? WalkAndCount()
+        //            : Tail.count + 1
+        //        : count;
 
         /// <summary>
         /// Get an enumerator for the sequence
@@ -260,16 +254,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="f">Fold function</param>
         /// <returns>Aggregated state</returns>
-        public S Fold<S>(S state, Func<S, A, S> f)
-        {
-            var current = this;
-            while (!current.IsEmpty)
-            {
-                state = f(state, current.Head);
-                current = current.Tail;
-            }
-            return state;
-        }
+        public abstract S Fold<S>(S state, Func<S, A, S> f);
 
         /// <summary>
         /// Fold the sequence from the last item to the first.  For 
@@ -280,49 +265,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="f">Fold function</param>
         /// <returns>Aggregated state</returns>
-        public S FoldBack<S>(S state, Func<S, A, S> f)
-        {
-            if (count != -1 && count < 5000)
-            {
-                // Recursive fold is faster, but will blow the stack bank
-                // if we use it with sequences that are too large
-                return FoldBackRec(state, f);
-            }
-
-            var stack = count == -1
-                ? new Stack<A>()
-                : new Stack<A>(count + 1);
-
-            var current = this;
-            int itemCount = 0;
-            while(!current.IsEmpty)
-            {
-                stack.Push(current.Head);
-                current = current.Tail;
-                itemCount++;
-            }
-            this.count = itemCount;
-
-            for (var i = 0; i < itemCount; i++)
-            {
-                state = f(state, stack.Pop());
-            }
-            return state;
-        }
-
-        /// <summary>
-        /// Fold the sequence (recursively) from the last item to the 
-        /// first.  This is faster than FoldBack, but be wary of calling 
-        /// this with sequences that are large, you can blow the stack.
-        /// </summary>
-        /// <typeparam name="S">State type</typeparam>
-        /// <param name="state">Initial state</param>
-        /// <param name="f">Fold function</param>
-        /// <returns>Aggregated state</returns>
-        public S FoldBackRec<S>(S state, Func<S, A, S> f) =>
-            IsEmpty
-                ? state
-                : f(Tail.FoldBackRec(state, f), Head);
+        public abstract S FoldBack<S>(S state, Func<S, A, S> f);
 
         /// <summary>
         /// Returns true if the supplied predicate returns true for any
@@ -331,16 +274,7 @@ namespace LanguageExt
         /// <param name="f">Predicate to apply</param>
         /// <returns>True if the supplied predicate returns true for any
         /// item in the sequence.  False otherwise.</returns>
-        public bool Exists(Func<A, bool> f)
-        {
-            var current = this;
-            while (!current.IsEmpty)
-            {
-                if (f(current.Head)) return true;
-                current = current.Tail;
-            }
-            return false;
-        }
+        public abstract bool Exists(Func<A, bool> f);
 
         /// <summary>
         /// Returns true if the supplied predicate returns true for all
@@ -351,16 +285,7 @@ namespace LanguageExt
         /// <returns>True if the supplied predicate returns true for all
         /// items in the sequence.  False otherwise.  If there is an 
         /// empty sequence then true is returned.</returns>
-        public bool ForAll(Func<A, bool> f)
-        {
-            var current = this;
-            while (!current.IsEmpty)
-            {
-                if (!f(current.Head)) return false;
-                current = current.Tail;
-            }
-            return true;
-        }
+        public abstract bool ForAll(Func<A, bool> f);
 
         /// <summary>
         /// Returns true if the sequence has items in it
@@ -376,8 +301,8 @@ namespace LanguageExt
         public override int GetHashCode() =>
             IsEmpty
                 ? 0
-                : AsEnumerable().Fold(
-                    head.IsNull() ? 0 : head.GetHashCode(), 
+                : Fold(
+                    Head.IsNull() ? 0 : Head.GetHashCode(), 
                     (s, x) => s ^ (x.IsNull() ? 0 : x.GetHashCode()));
 
         /// <summary>
@@ -409,41 +334,12 @@ namespace LanguageExt
         /// <summary>
         /// Skip count items
         /// </summary>
-        public virtual Seq<A> Skip(int count)
-        {
-            var current = this;
-            while(count > 0)
-            {
-                current = current.Tail;
-                count--;
-            }
-            return current;
-        }
+        public abstract Seq<A> Skip(int count);
 
         /// <summary>
         /// Take count items
         /// </summary>
-        public virtual Seq<A> Take(int count)
-        {
-            if(this.count != -1 && this.count <= count)
-            {
-                // Short-cut out.  There aren't enough items in the sequence, or there are
-                // exactly the right amount (but no more).  So we just return ourselves
-                // knowing that the Take operation is valid.
-                return this;
-            }
-
-            IEnumerable<A> Yield(int num, Seq<A> current)
-            {
-                while (num > 0 && !current.IsEmpty)
-                {
-                    yield return current.Head;
-                    current = current.Tail;
-                    count--;
-                }
-            }
-            return Seq(Yield(count, this));
-        }
+        public abstract Seq<A> Take(int count);
 
         /// <summary>
         /// Iterate the sequence, yielding items if they match the predicate 
@@ -451,19 +347,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
-        public virtual Seq<A> TakeWhile(Func<A, bool> pred)
-        {
-            IEnumerable<A> Yield(Func<A, bool> f, Seq<A> current)
-            {
-                while (!current.IsEmpty && f(current.Head))
-                {
-                    yield return current.Head;
-                    current = current.Tail;
-                    count--;
-                }
-            }
-            return Seq(Yield(pred, this));
-        }
+        public abstract Seq<A> TakeWhile(Func<A, bool> pred);
 
         /// <summary>
         /// Iterate the sequence, yielding items if they match the predicate 
@@ -472,21 +356,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
-        public virtual Seq<A> TakeWhile(Func<A, int, bool> pred)
-        {
-            IEnumerable<A> Yield(Func<A, int, bool> f, Seq<A> current)
-            {
-                int index = 0;
-                while (!current.IsEmpty && f(current.Head, index))
-                {
-                    yield return current.Head;
-                    current = current.Tail;
-                    count--;
-                    index++;
-                }
-            }
-            return Seq(Yield(pred, this));
-        }
+        public abstract Seq<A> TakeWhile(Func<A, int, bool> pred);
 
 
         /// <summary>
@@ -495,30 +365,16 @@ namespace LanguageExt
         public int CompareTo(ISeq<A> other) =>
             default(OrdSeq<OrdDefault<A>, A>).Compare(this, other);
 
-        /// <summary>
-        /// Count the sequence by walking it, but also remember the counts
-        /// so we don't need to do this again.
-        /// </summary>
-        int WalkAndCount()
+        protected int GetCount()
         {
-            if (this.count > -1) return this.count;
-
             int count = 0;
-            Seq<A> current = this;
-            while (!current.IsEmpty)
+            foreach (var item in this)
             {
                 count++;
-                current = current.Tail;
             }
-
-            current = this;
-            while (!current.IsEmpty)
-            {
-                current.count = count;
-                current = current.Tail;
-                count--;
-            }
-            return this.count;
+            return count;
         }
+
+        internal abstract bool IsTerminator { get; }
     }
 }

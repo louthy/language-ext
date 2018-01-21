@@ -699,5 +699,60 @@ namespace LanguageExt
         [Pure]
         public static Map<K, V> Freeze<K, V>(this IDictionary<K, V> dict) =>
             toMap(dict.AsEnumerable());
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public static Map<K, V> union<K, V>(Map<K, V> left, Map<K, V> right, WhenMatched<K, V, V, V> Merge) =>
+            left.Union(right, (k, v) => v, (k, v) => v, Merge);
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public static Map<K, A> union<K, A, B>(Map<K, A> left, Map<K, B> right, WhenMissing<K, B, A> MapRight, WhenMatched<K, A, B, A> Merge) =>
+            left.Union(right, (k, v) => v, MapRight, Merge);
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public static Map<K, B> union<K, A, B>(Map<K, A> left, Map<K, B> right, WhenMissing<K, A, B> MapLeft, WhenMatched<K, A, B, B> Merge) =>
+            left.Union(right, MapLeft, (k, v) => v, Merge);
+
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public static Map<K, C> union<K, A, B, C>(Map<K, A> left, Map<K, B> right, WhenMissing<K, A, C> MapLeft, WhenMissing<K, B, C> MapRight, WhenMatched<K, A, B, C> Merge) =>
+            left.Union(right, MapLeft, MapRight, Merge);
+
+        /// <summary>
+        /// Intersect two maps.  Only keys that are in both maps are
+        /// returned.  The merge function is called for every resulting
+        /// key.
+        [Pure]
+        public static Map<K, R> intersect<K, A, B, R>(Map<K, A> left, Map<K, B> right, WhenMatched<K, A, B, R> merge) =>
+            left.Intersect(right, merge);
+
+        /// <summary>
+        /// Map differencing based on key.  this - other.
+        /// </summary>
+        [Pure]
+        public static Map<K, V> except<K, V>(Map<K, V> left, Map<K, V> right) =>
+            left.Except(right);
+
+        /// <summary>
+        /// Keys that are in both maps are dropped and the remaining
+        /// items are merged and returned.
+        /// </summary>
+        [Pure]
+        public static Map<K, V> symmetricExcept<K, V>(Map<K, V> left, Map<K, V> right) =>
+            left.SymmetricExcept(right);
     }
 }

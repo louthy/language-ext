@@ -27,12 +27,10 @@ namespace LanguageExt.ClassInstances
                     : f(task.Result)));
 
         [Pure]
-        public Task<A> Fail(object err) =>
-            None;
-
-        [Pure]
-        public Task<A> Fail(Exception err = null) =>
-            (err ?? new BottomException()).AsFailedTask<A>();
+        public Task<A> Fail(object err = null) =>
+            err != null && err is Exception
+                ? ((Exception)err).AsFailedTask<A>()
+                : default(MTask<A>).None;
 
         [Pure]
         public async Task<A> Plus(Task<A> ma, Task<A> mb)
@@ -189,5 +187,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(Task<A> fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public async Task<A> Apply(Func<A, A, A> f, Task<A> fa, Task<A> fb) 
+        {
+            await Task.WhenAll(fa, fb);
+            return !fa.IsFaulted && !fb.IsFaulted
+                ? f(fa.Result, fb.Result)
+                : throw fa.Exception;
+        }
     }
 }

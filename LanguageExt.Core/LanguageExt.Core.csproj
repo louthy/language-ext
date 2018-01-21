@@ -5,11 +5,14 @@
   <PropertyGroup Label="Configuration">
     <NoWarn>1701;1702;1705;IDE1006</NoWarn>
   </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(TargetFramework)' == 'netstandard1.3'">
-    <DefineConstants>COREFX</DefineConstants>
+  <PropertyGroup Label="Configuration" Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>COREFX20</DefineConstants>
   </PropertyGroup>
+  <!--<PropertyGroup Label="Configuration" Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <DefineConstants>COREFX13</DefineConstants>
+  </PropertyGroup>-->
   <PropertyGroup>
-    <PackageVersion>2.0.56-beta</PackageVersion>
+    <PackageVersion>2.1.31</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -20,7 +23,7 @@
     <PackageIconUrl>https://camo.githubusercontent.com/08525ae465a9061150679d871731e77b399c2a94/687474703a2f2f7777772e34666f75722e6f72672f696d616765732f6c616e672d6578742d6c6f676f2e706e67</PackageIconUrl>
     <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
-    <TargetFrameworks>netstandard1.3;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <OutputType>library</OutputType>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
@@ -37,12 +40,23 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Reactive" Version="3.1.1" />
-    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.3.0" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+  <!--<ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
     <PackageReference Include="System.Globalization.Extensions">
       <Version>4.3.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Linq" Version="4.3.0" />
+    <PackageReference Include="System.Linq.Queryable" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
+  </ItemGroup>-->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
+    <PackageReference Include="System.Globalization.Extensions">
+        <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Linq" Version="4.3.0" />
     <PackageReference Include="System.Linq.Queryable" Version="4.3.0" />

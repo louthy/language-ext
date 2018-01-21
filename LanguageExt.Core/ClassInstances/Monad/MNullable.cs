@@ -26,11 +26,7 @@ namespace LanguageExt.ClassInstances
                 : default(MONADB).Fail(ValueIsNoneException.Default);
 
         [Pure]
-        public A? Fail(object err) =>
-            null;
-
-        [Pure]
-        public A? Fail(Exception err = null) =>
+        public A? Fail(object err = null) =>
             null;
 
         [Pure]
@@ -159,5 +155,11 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(A? fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public A? Apply(Func<A, A, A> f, A? fa, A? fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

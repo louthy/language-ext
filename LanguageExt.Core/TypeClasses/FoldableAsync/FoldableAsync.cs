@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
@@ -10,7 +11,7 @@ namespace LanguageExt.TypeClasses
     }
 
     [Typeclass]
-    public interface FoldableAsync<Env, FA, A>
+    public interface FoldableAsync<Env, FA, A> : Typeclass
     {
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary

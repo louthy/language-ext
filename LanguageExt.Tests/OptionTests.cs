@@ -102,8 +102,7 @@ namespace LanguageExtTests
         [Fact]
         public void NullIsNotSomeTest()
         {
-            Assert.Throws(
-                typeof(ValueIsNullException),
+            Assert.Throws<ValueIsNullException>(
                 () =>
                 {
                     GetStringNone();
@@ -135,8 +134,7 @@ namespace LanguageExtTests
         [Fact]
         public void NullInSomeOrNoneTest()
         {
-            Assert.Throws(
-                typeof(ResultIsNullException),
+            Assert.Throws<ResultIsNullException>(
                 () =>
                 {
                     GetValue(true)
@@ -145,8 +143,7 @@ namespace LanguageExtTests
                 }
             );
 
-            Assert.Throws(
-                typeof(ResultIsNullException),
+            Assert.Throws<ResultIsNullException>(
                 () =>
                 {
                     GetValue(false)
@@ -169,8 +166,7 @@ namespace LanguageExtTests
         [Fact]
         public void NullableDenySomeNullTest()
         {
-            Assert.Throws(
-                    typeof(ValueIsNullException),
+            Assert.Throws<ValueIsNullException>(
                     () =>
                     {
                         var res = GetNullable(false)
@@ -178,6 +174,24 @@ namespace LanguageExtTests
                                     .None(() => 0);
                     }
                 );
+        }
+
+        [Fact]
+        public void BiIterSomeTest()
+        {
+            var x = Some(3);
+            int way = 0;
+            var dummy = x.BiIter(_ => way = 1, () => way = 2);
+            Assert.Equal(1, way);
+        }
+
+        [Fact]
+        public void BiIterNoneTest()
+        {
+            var x = Option<int>.None;
+            int way = 0;
+            var dummy = x.BiIter(_ => way = 1, () => way = 2);
+            Assert.Equal(2, way);
         }
 
         private Option<string> GetStringNone()

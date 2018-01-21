@@ -26,19 +26,15 @@ namespace LanguageExt.ClassInstances
         {
             var mr = ma.Try();
             if (mr.IsFaulted) return default(MONADB).Fail(mr.Exception);
-            if (mr.Value.IsNone) return default(MONADB).Fail(default(A));
+            if (mr.Value.IsNone) return default(MONADB).Fail(None);
             return f(mr.Value.Value);
         }
 
         [Pure]
-        public TryOption<A> Fail(object err) => 
-            none;
-
-        [Pure]
-        public TryOption<A> Fail(Exception err = null) => 
-            err == null 
-                ? TryOption<A>(Option<A>.None)
-                : TryOption<A>(err);
+        public TryOption<A> Fail(object err = null) =>
+            err != null && err is Exception
+                ? TryOption<A>((Exception)err)
+                : TryOption(Option<A>.None);
 
         [Pure]
         public TryOption<A> Plus(TryOption<A> ma, TryOption<A> mb) => () =>
@@ -200,5 +196,11 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public TryOption<A> Append(TryOption<A> x, TryOption<A> y) =>
             Plus(x, y);
+
+        [Pure]
+        public TryOption<A> Apply(Func<A, A, A> f, TryOption<A> fa, TryOption<A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

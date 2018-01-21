@@ -1,7 +1,6 @@
 using System;
-using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
-using static LanguageExt.Prelude;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
@@ -9,7 +8,7 @@ namespace LanguageExt.TypeClasses
     /// State monad type class
     /// </summary>
     [Typeclass]
-    public interface MonadWriter<MonoidW, W, A>
+    public interface MonadWriter<MonoidW, W, A> : Typeclass
         where MonoidW  : struct, Monoid<W>
     {
         /// <summary>

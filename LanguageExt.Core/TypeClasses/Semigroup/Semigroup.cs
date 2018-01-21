@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics.Contracts;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface Semigroup<A>
+    public interface Semigroup<A> : Typeclass
     {
         /// <summary>
         /// An associative binary operation.

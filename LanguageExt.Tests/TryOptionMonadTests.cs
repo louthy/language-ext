@@ -10,6 +10,7 @@ namespace LanguageExtTests
     
     public class TryMonadTests
     {
+        [Fact]
         public void TryOptionListTest()
         {
             var x = from a in List(1,2,3)

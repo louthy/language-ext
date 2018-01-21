@@ -1,9 +1,7 @@
-﻿using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+﻿using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics.Contracts;
 using LanguageExt;
@@ -19,6 +17,7 @@ namespace LanguageExt.ClassInstances
         Monad<Arr<A>, A>,
         Foldable<Arr<A>, A>,
         Eq<Arr<A>>,
+        Ord<Arr<A>>,
         Monoid<Arr<A>>
    {
         public static readonly MArr<A> Inst = default(MArr<A>);
@@ -44,11 +43,23 @@ namespace LanguageExt.ClassInstances
             Enumerable.SequenceEqual(x, y);
 
         [Pure]
-        public Arr<A> Fail(object err) =>
-            Empty();
+        public int Compare(Arr<A> x, Arr<A> y)
+        {
+            int cmp = x.Value.Length.CompareTo(y.Value.Length);
+            if (cmp != 0) return cmp;
+
+            var iterA = x.Value.AsEnumerable().GetEnumerator();
+            var iterB = y.Value.AsEnumerable().GetEnumerator();
+            while(iterA.MoveNext() && iterB.MoveNext())
+            {
+                cmp = default(OrdDefault<A>).Compare(iterA.Current, iterB.Current);
+                if (cmp != 0) return cmp;
+            }
+            return 0;
+        }
 
         [Pure]
-        public Arr<A> Fail(Exception err = null) =>
+        public Arr<A> Fail(object err = null) =>
             Empty();
 
         [Pure]
@@ -132,5 +143,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(Arr<A> fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public Arr<A> Apply(Func<A, A, A> f, Arr<A> fa, Arr<A> fb) =>
+            new Arr<A>(
+                from a in fa
+                from b in fb
+                select f(a, b));
     }
 }

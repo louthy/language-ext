@@ -42,7 +42,8 @@ namespace LanguageExt
         IComparable<EitherUnsafe<L, R>>,
         IComparable<R>,
         IEquatable<EitherUnsafe<L, R>>,
-        IEquatable<R>
+        IEquatable<R>,
+        ISerializable
     {
         public readonly static EitherUnsafe<L, R> Bottom = new EitherUnsafe<L, R>();
 
@@ -51,9 +52,6 @@ namespace LanguageExt
 
         private EitherUnsafe(R right)
         {
-            if (isnull(right))
-                throw new ValueIsNullException();
-
             this.State = EitherStatus.IsRight;
             this.right = right;
             this.left = default(L);
@@ -61,12 +59,40 @@ namespace LanguageExt
 
         private EitherUnsafe(L left)
         {
-            if (isnull(left))
-                throw new ValueIsNullException();
-
             this.State = EitherStatus.IsLeft;
             this.right = default(R);
             this.left = left;
+        }
+
+        [Pure]
+        EitherUnsafe(SerializationInfo info, StreamingContext context)
+        {
+            State = (EitherStatus)info.GetValue("State", typeof(EitherStatus));
+            switch (State)
+            {
+                case EitherStatus.IsBottom:
+                    right = default(R);
+                    left = default(L);
+                    break;
+                case EitherStatus.IsRight:
+                    right = (R)info.GetValue("Right", typeof(R));
+                    left = default(L);
+                    break;
+                case EitherStatus.IsLeft:
+                    left = (L)info.GetValue("Left", typeof(L));
+                    right = default(R);
+                    break;
+
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("State", State);
+            if (IsRight) info.AddValue("Right", right);
+            if (IsLeft) info.AddValue("Left", left);
         }
 
         /// <summary>
@@ -148,23 +174,17 @@ namespace LanguageExt
         /// Implicit conversion operator from R to EitherUnsafe R L
         /// </summary>
         /// <param name="value">Value, must not be null.</param>
-        /// <exception cref="ValueIsNullException">Value is null</exception>
         [Pure]
         public static implicit operator EitherUnsafe<L, R>(R value) =>
-            isnull(value)
-                ? raise<EitherUnsafe<L, R>>(new ValueIsNullException())
-                : EitherUnsafe<L, R>.Right(value);
+            EitherUnsafe<L, R>.Right(value);
 
         /// <summary>
         /// Implicit conversion operator from L to EitherUnsafe R L
         /// </summary>
         /// <param name="value">Value, must not be null.</param>
-        /// <exception cref="ValueIsNullException">Value is null</exception>
         [Pure]
         public static implicit operator EitherUnsafe<L, R>(L value) =>
-            isnull(value)
-                ? raise<EitherUnsafe<L, R>>(new ValueIsNullException())
-                : EitherUnsafe<L, R>.Left(value);
+            EitherUnsafe<L, R>.Left(value);
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the EitherUnsafe
@@ -399,9 +419,15 @@ namespace LanguageExt
         /// Convert either to sequence of 0 or 1 right values
         /// </summary>
         [Pure]
-        public Seq<R> RightToSeq() =>
+        public Seq<R> ToSeq() =>
             RightAsEnumerable();
 
+        /// <summary>
+        /// Convert either to sequence of 0 or 1 right values
+        /// </summary>
+        [Pure]
+        public Seq<R> RightToSeq() =>
+            RightAsEnumerable();
 
         /// <summary>
         /// Convert either to sequence of 0 or 1 left values
@@ -425,6 +451,14 @@ namespace LanguageExt
         [Pure]
         public Seq<L> LeftAsEnumerable() =>
             leftAsEnumerable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
+
+        [Pure]
+        public Validation<L, R> ToValidation() =>
+            IsBottom
+                ? throw new BottomException()
+                : IsRight
+                    ? Success<L, R>(right)
+                    : Fail<L, R>(left);
 
         /// <summary>
         /// Convert the EitherUnsafe to an Option
@@ -478,7 +512,7 @@ namespace LanguageExt
         /// <returns>True if lhs > rhs</returns>
         [Pure]
         public static bool operator >(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
-            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) < 0;
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) > 0;
 
         /// <summary>
         /// Comparison operator
@@ -488,7 +522,7 @@ namespace LanguageExt
         /// <returns>True if lhs >= rhs</returns>
         [Pure]
         public static bool operator >=(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
-            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) <= 0;
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) >= 0;
 
         /// <summary>
         /// Equality operator override
@@ -816,6 +850,15 @@ namespace LanguageExt
         [Pure]
         public EitherUnsafe<L, Ret> Bind<Ret>(Func<R, EitherUnsafe<L, Ret>> binder) =>
             MEitherUnsafe<L, R>.Inst.Bind<MEitherUnsafe<L, Ret>, EitherUnsafe<L, Ret>, Ret>(this, binder);
+
+        /// <summary>
+        /// Bi-bind.  Allows mapping of both monad states
+        /// </summary>
+        [Pure]
+        public EitherUnsafe<L, B> BiBind<B>(Func<R, EitherUnsafe<L, B>> Right, Func<L, EitherUnsafe<L, B>> Left) =>
+            IsRight
+                ? Right(RightValue)
+                : Left(LeftValue);
 
         /// <summary>
         /// Filter the EitherUnsafe

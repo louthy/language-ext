@@ -63,7 +63,7 @@ namespace LanguageExt.ClassInstances
         public bool Equals(CH x, CH y) =>
             default(CHOICE).Match(x,
                 Left: a =>
-                    default(CHOICE).Match(y, Left: b => true,
+                    default(CHOICE).Match(y, Left: b => equals<EqDefault<A>, A>(a, b),
                                              Right: _ => false),
                 Right: a =>
                     default(CHOICE).Match(y, Left: _ => false,

@@ -892,8 +892,8 @@ namespace LanguageExt
         /// </summary>
         /// <returns></returns>
         [Pure]
-        public IDictionary<K, V> ToDictionary() =>
-            new Dictionary<K, V>((IDictionary<K, V>)this);
+        public IReadOnlyDictionary<K, V> ToDictionary() =>
+            this;
 
         /// <summary>
         /// Map the map the a dictionary
@@ -958,9 +958,43 @@ namespace LanguageExt
 
         IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
             AsEnumerable().Map(kv => new KeyValuePair<K, V>(kv.Item1, kv.Item2)).GetEnumerator();
+
+        [Pure]
+        public override bool Equals(object obj) =>
+            Equals(obj as HashMapInternal<EqK, K, V>);
+
+        [Pure]
+        public static bool operator ==(HashMapInternal<EqK, K, V> lhs, HashMapInternal<EqK, K, V> rhs) =>
+            lhs.Equals(rhs);
+
+        [Pure]
+        public static bool operator !=(HashMapInternal<EqK, K, V> lhs, HashMapInternal<EqK, K, V> rhs) =>
+            !(lhs == rhs);
+
+        [Pure]
+        public bool Equals(HashMapInternal<EqK, K, V> rhs)
+        {
+            if (ReferenceEquals(this, rhs)) return true;
+            if (Count != rhs.Count) return false;
+            if (hashCode != 0 && rhs.hashCode != 0 && hashCode != rhs.hashCode) return false;
+
+            var iterA = GetEnumerator();
+            var iterB = rhs.GetEnumerator();
+            var count = Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                iterA.MoveNext();
+                iterB.MoveNext();
+                if (!default(EqK).Equals(iterA.Current.Key, iterB.Current.Key)) return false;
+                if (!EqualityComparer<V>.Default.Equals(iterA.Current.Value, iterB.Current.Value)) return false;
+            }
+            return true;
+        }
+
     }
 
-    class HMapKeyValue<K, V> : IMapItem<K, V>
+    class HMapKeyValue<K, V> 
     {
         public K Key { get; }
         public V Value { get; }

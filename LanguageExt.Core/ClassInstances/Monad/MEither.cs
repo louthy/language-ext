@@ -25,14 +25,10 @@ namespace LanguageExt.ClassInstances
                 Bottom: () => default(MONADB).Fail(BottomException.Default));
 
         [Pure]
-        public Either<L, R> Fail(object err) =>
-            err is L
+        public Either<L, R> Fail(object err = null) =>
+            err != null && err is L
                 ? Either<L, R>.Left((L)err)
                 : Either<L, R>.Bottom;
-
-        [Pure]
-        public Either<L, R> Fail(Exception err = null) =>
-            Either<L, R>.Bottom;
 
         [Pure]
         public Either<L, R> Plus(Either<L, R> ma, Either<L, R> mb) =>
@@ -76,26 +72,20 @@ namespace LanguageExt.ClassInstances
                 : None();
 
         [Pure]
-        public Func<Unit, S> Fold<S>(Either<L, R> foldable, S state, Func<S, R, S> f)
-        {
-            var self = this;
-            return u => Check.NullReturn(
+        public Func<Unit, S> Fold<S>(Either<L, R> foldable, S state, Func<S, R, S> f) =>
+            u => Check.NullReturn(
                 foldable.Match(
                     Left:  _ => state,
                     Right: _ => f(state, foldable.RightValue),
                     Bottom: () => state));
-        }
 
         [Pure]
-        public Func<Unit, S> FoldBack<S>(Either<L, R> foldable, S state, Func<S, R, S> f)
-        {
-            var self = this;
-            return u => Check.NullReturn(
+        public Func<Unit, S> FoldBack<S>(Either<L, R> foldable, S state, Func<S, R, S> f) =>
+            u => Check.NullReturn(
                 foldable.Match(
                     Left:  _ => state,
                     Right: _ => f(state, foldable.RightValue),
                     Bottom: () => state));
-        }
 
         [Pure]
         public S BiFold<S>(Either<L, R> foldable, S state, Func<S, L, S> fa, Func<S, R, S> fb) =>
@@ -251,5 +241,10 @@ namespace LanguageExt.ClassInstances
                     ? Left(choice.left)
                     : Right(choice.right);
 
+        [Pure]
+        public Either<L, R> Apply(Func<R, R, R> f, Either<L, R> fa, Either<L, R> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

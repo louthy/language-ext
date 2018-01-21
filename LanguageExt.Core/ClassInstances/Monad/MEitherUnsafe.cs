@@ -23,14 +23,10 @@ namespace LanguageExt.ClassInstances
                 Bottom: () => default(MONADB).Fail(BottomException.Default));
 
         [Pure]
-        public EitherUnsafe<L, R> Fail(object err) =>
-            err is L
+        public EitherUnsafe<L, R> Fail(object err = null) =>
+            err != null && err is L
                 ? EitherUnsafe<L, R>.Left((L)err)
                 : EitherUnsafe<L, R>.Bottom;
-
-        [Pure]
-        public EitherUnsafe<L, R> Fail(Exception err = null) =>
-            EitherUnsafe<L, R>.Bottom;
 
         [Pure]
         public EitherUnsafe<L, R> Plus(EitherUnsafe<L, R> ma, EitherUnsafe<L, R> mb) =>
@@ -74,26 +70,20 @@ namespace LanguageExt.ClassInstances
                 : None();
 
         [Pure]
-        public Func<Unit, S> Fold<S>(EitherUnsafe<L, R> foldable, S state, Func<S, R, S> f)
-        {
-            var self = this;
-            return u => 
-                self.Match(foldable,
+        public Func<Unit, S> Fold<S>(EitherUnsafe<L, R> foldable, S state, Func<S, R, S> f) =>
+            u =>
+                foldable.MatchUnsafe(
                     Left: _ => state,
                     Right: _ => f(state, foldable.RightValue),
                     Bottom: () => state);
-        }
 
         [Pure]
-        public Func<Unit, S> FoldBack<S>(EitherUnsafe<L, R> foldable, S state, Func<S, R, S> f)
-        {
-            var self = this;
-            return u => 
-                self.Match(foldable,
+        public Func<Unit, S> FoldBack<S>(EitherUnsafe<L, R> foldable, S state, Func<S, R, S> f) =>
+            u =>
+                foldable.MatchUnsafe(
                     Left: _ => state,
                     Right: _ => f(state, foldable.RightValue),
                     Bottom: () => state);
-        }
 
         [Pure]
         public S BiFold<S>(EitherUnsafe<L, R> foldable, S state, Func<S, L, S> fa, Func<S, R, S> fb) =>
@@ -247,5 +237,11 @@ namespace LanguageExt.ClassInstances
                 : choice.State == EitherStatus.IsLeft
                     ? Left(choice.left)
                     : Right(choice.right);
+
+        [Pure]
+        public EitherUnsafe<L, R> Apply(Func<R, R, R> f, EitherUnsafe<L, R> fa, EitherUnsafe<L, R> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

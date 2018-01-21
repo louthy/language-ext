@@ -71,7 +71,7 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="T">T</typeparam>
         /// <param name="value">Non-null value to be made OptionAsyncal</param>
-        /// <returns>OptionAsync<T> in a Some state or throws ValueIsNullException
+        /// <returns>`OptionAsync<T>` in a Some state or throws ValueIsNullException
         /// if isnull(value).</returns>
         [Pure]
         public static OptionAsync<T> SomeAsync<T>(T value) =>

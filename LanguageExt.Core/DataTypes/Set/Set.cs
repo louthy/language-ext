@@ -22,6 +22,7 @@ namespace LanguageExt
     public struct Set<A> :
         IEnumerable<A>,
         IEquatable<Set<A>>,
+        IComparable<Set<A>>,
         IReadOnlyCollection<A>
     {
         public static readonly Set<A> Empty = new Set<A>(SetInternal<OrdDefault<A>, A>.Empty);
@@ -369,7 +370,7 @@ namespace LanguageExt
             Value.CopyTo(array, index);
 
         /// <summary>
-        /// Add operator - performs a union of the two sets
+        /// Add operator + performs a union of the two sets
         /// </summary>
         /// <param name="lhs">Left hand side set</param>
         /// <param name="rhs">Right hand side set</param>
@@ -379,7 +380,7 @@ namespace LanguageExt
             Wrap(lhs.Value + rhs.Value);
 
         /// <summary>
-        /// Add operator - performs a union of the two sets
+        /// Append performs a union of the two sets
         /// </summary>
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Unioned set</returns>
@@ -434,6 +435,22 @@ namespace LanguageExt
         [Pure]
         public static bool operator !=(Set<A> lhs, Set<A> rhs) =>
             lhs.Equals(rhs);
+
+        [Pure]
+        public static bool operator <(Set<A> lhs, Set<A> rhs) =>
+            lhs.CompareTo(rhs) < 0;
+
+        [Pure]
+        public static bool operator <=(Set<A> lhs, Set<A> rhs) =>
+            lhs.CompareTo(rhs) <= 0;
+
+        [Pure]
+        public static bool operator >(Set<A> lhs, Set<A> rhs) =>
+            lhs.CompareTo(rhs) > 0;
+
+        [Pure]
+        public static bool operator >=(Set<A> lhs, Set<A> rhs) =>
+            lhs.CompareTo(rhs) >= 0;
 
         /// <summary>
         /// Equality override
@@ -513,5 +530,13 @@ namespace LanguageExt
         [Pure]
         public IEnumerable<A> Skip(int amount) =>
             Value.Skip(amount);
+
+        [Pure]
+        public int CompareTo(Set<A> other) =>
+            Value.CompareTo(other.Value);
+
+        [Pure]
+        public int CompareTo<OrdA>(Set<A> other) where OrdA : struct, Ord<A> =>
+            Value.CompareTo<OrdA>(other.Value);
     }
 }

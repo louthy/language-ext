@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface Alternative<AltAB, A, B>
+    public interface Alternative<AltAB, A, B> : Typeclass
     {
         /// <summary>
         /// Identity

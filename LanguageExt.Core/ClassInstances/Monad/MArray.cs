@@ -47,11 +47,7 @@ namespace LanguageExt.ClassInstances
             Enumerable.SequenceEqual(x, y);
 
         [Pure]
-        public A[] Fail(object err) =>
-            Empty();
-
-        [Pure]
-        public A[] Fail(Exception err = null) =>
+        public A[] Fail(object err = null) =>
             Empty();
 
         [Pure]
@@ -138,5 +134,11 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, Task<int>> CountAsync(A[] fa) => _ =>
             Task.FromResult(Inst.Count(fa)(_));
+
+        [Pure]
+        public A[] Apply(Func<A, A, A> f, A[] fa, A[] fb) =>
+            (from a in fa
+             from b in fb
+             select f(a, b)).ToArray();
     }
 }

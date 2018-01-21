@@ -2,6 +2,7 @@
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances.Pred;
 using System.Diagnostics.Contracts;
+using System.Runtime.Serialization;
 
 namespace LanguageExt
 {
@@ -39,10 +40,22 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Deserialisation ctor
+        /// </summary>
+        protected FloatType(SerializationInfo info, StreamingContext context) : base((A)info.GetValue("Value", typeof(A)))
+        {
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            info.AddValue("Value", Value);
+
+        /// <summary>
         /// Explicit conversion operator for extracting the bound value
         /// </summary>
         [Pure]
         public static explicit operator A(FloatType<SELF, FLOATING, A> type) =>
-            type.Value;
+            ReferenceEquals(type, null)
+                ? default(FLOATING).Empty()
+                : type.Value;
     }
 }

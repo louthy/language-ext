@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
-    public interface Arithmetic<A>
+    [Typeclass]
+    public interface Arithmetic<A> : Typeclass
     {
         /// <summary>
         /// Find the sum of two values

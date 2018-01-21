@@ -34,29 +34,8 @@ namespace LanguageExt.ClassInstances
         /// if x equals y       : 0
         /// </returns>
         [Pure]
-        public int Compare(Lst<A> x, Lst<A> y)
-        {
-            var cmp = x.Count.CompareTo(y.Count);
-            if (cmp == 0)
-            {
-                var enumx = x.GetEnumerator();
-                var enumy = y.GetEnumerator();
-                var count = x.Count;
-
-                for (int i = 0; i < count; i++)
-                {
-                    enumx.MoveNext();
-                    enumy.MoveNext();
-                    cmp = default(ORD).Compare(enumx.Current, enumy.Current);
-                    if (cmp != 0) return cmp;
-                }
-                return 0;
-            }
-            else
-            {
-                return cmp;
-            }
-        }
+        public int Compare(Lst<A> x, Lst<A> y) =>
+            x.CompareTo(y);
 
         /// <summary>
         /// Get the hash-code of the provided value

@@ -2,6 +2,7 @@
 using LanguageExt.ClassInstances;
 using LanguageExt.ClassInstances.Pred;
 using System.Diagnostics.Contracts;
+using System.Runtime.Serialization;
 
 namespace LanguageExt
 {
@@ -31,10 +32,21 @@ namespace LanguageExt
         public NewType(A value) : base(value) {}
 
         /// <summary>
+        /// Deserialisation ctor
+        /// </summary>
+        protected NewType(SerializationInfo info, StreamingContext context) : base((A)info.GetValue("Value", typeof(A)))
+        { }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            info.AddValue("Value", Value);
+
+        /// <summary>
         /// Explicit conversion operator for extracting the bound value
         /// </summary>
         [Pure]
         public static explicit operator A(NewType<NEWTYPE, A> type) =>
-            type.Value;
+            ReferenceEquals(type, null)
+                ? throw new ArgumentException($"Can't explictly convert from a null {typeof(NEWTYPE).Name}")
+                : type.Value;
     }
 }

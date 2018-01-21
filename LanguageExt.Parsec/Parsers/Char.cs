@@ -67,7 +67,7 @@ namespace LanguageExt.Parsec
         /// oneOf(str) succeeds if the current character is in the supplied list of 
         /// characters str. Returns the parsed character. See also satisfy
         /// </summary>
-        public static Parser<char> oneOf(char[] str) =>
+        public static Parser<char> oneOf(params char[] str) =>
             satisfy(c => str.Contains(c));
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace LanguageExt.Parsec
         /// </summary>
         /// <returns>
         /// The parsed character.</returns>
-        public static Parser<char> noneOf(char[] str) =>
+        public static Parser<char> noneOf(params char[] str) =>
             satisfy(c => !str.Contains(c));
 
         /// <summary>

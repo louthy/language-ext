@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.Serialization;
 using LanguageExt;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
@@ -24,25 +25,25 @@ namespace LanguageExt
     ///
     /// Will not accept null values
     /// </summary>
-    /// <typeparam name="NUMTYPE">Self reference type - i.e. class Metres : NumType<Metres, ... ></typeparam>
+    /// <typeparam name="SELF">Self reference type - i.e. class Metres : NumType<Metres, ... ></typeparam>
     /// <typeparam name="NUM">Num of A, e.g. TInt, TDouble, TFloat, etc.</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <typeparam name="PRED">A predicate to be applied to the value passed into the constructor.
     /// Allows for constraints on the value stored.</typeparam>
     [Serializable]
-    public abstract class NumType<NUMTYPE, NUM, A, PRED> :
-        IEquatable<NUMTYPE>,
-        IComparable<NUMTYPE>
+    public abstract class NumType<SELF, NUM, A, PRED> :
+        IEquatable<SELF>,
+        IComparable<SELF>
         where NUM : struct, Num<A>
         where PRED : struct, Pred<A>
-        where NUMTYPE : NumType<NUMTYPE, NUM, A, PRED>
+        where SELF : NumType<SELF, NUM, A, PRED>
     {
         public readonly A Value;
 
         /// <summary>
         /// Constructor function
         /// </summary>
-        public static readonly Func<A, NUMTYPE> New = IL.Ctor<A, NUMTYPE>();
+        public static readonly Func<A, SELF> New = IL.Ctor<A, SELF>();
 
         /// <summary>
         /// Constructor
@@ -58,12 +59,25 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Deserialisation ctor
+        /// </summary>
+        protected NumType(SerializationInfo info, StreamingContext context)
+        {
+            Value = (A)info.GetValue("Value", typeof(A));
+            if (!default(PRED).True(Value)) throw new ArgumentOutOfRangeException(nameof(Value));
+            if (isnull(Value)) throw new ArgumentNullException(nameof(Value));
+        }
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            info.AddValue("Value", Value);
+
+        /// <summary>
         /// Explicit conversion operator for extracting the bound value
         /// </summary>
         /// <param name="type"></param>
         [Pure]
-        public static explicit operator A(NumType<NUMTYPE, NUM, A, PRED> type) =>
-            type.Value;
+        public static explicit operator A(NumType<SELF, NUM, A, PRED> type) =>
+            ValueOrDefault(type);
 
         /// <summary>
         /// Sum of NumType(x) and NumType(y)
@@ -71,7 +85,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
         [Pure]
-        public virtual NUMTYPE Plus(NUMTYPE rhs) =>
+        public virtual SELF Plus(SELF rhs) =>
             from x in this
             from y in rhs
             select plus<NUM, A>(x, y);
@@ -82,7 +96,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public virtual NUMTYPE Subtract(NUMTYPE rhs) =>
+        public virtual SELF Subtract(SELF rhs) =>
             from x in this
             from y in rhs
             select subtract<NUM, A>(x, y);
@@ -93,7 +107,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public virtual NUMTYPE Divide(NUMTYPE rhs) =>
+        public virtual SELF Divide(SELF rhs) =>
             from x in this
             from y in rhs
             select subtract<NUM, A>(x, y);
@@ -104,7 +118,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         [Pure]
-        public virtual NUMTYPE Product(NUMTYPE rhs) =>
+        public virtual SELF Product(SELF rhs) =>
             from x in this
             from y in rhs
             select subtract<NUM, A>(x, y);
@@ -114,7 +128,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="x">The value to find the absolute value of</param>
         /// <returns>The non-negative absolute value of x</returns>
-        public virtual NUMTYPE Abs() =>
+        public virtual SELF Abs() =>
             New(default(NUM).Abs(Value));
 
         /// <summary>
@@ -122,89 +136,97 @@ namespace LanguageExt
         /// </summary>
         /// <param name="x">The value to find the sign of</param>
         /// <returns>-1, 0, or +1</returns>
-        public virtual NUMTYPE Signum() =>
+        public virtual SELF Signum() =>
             New(default(NUM).Signum(Value));
 
-        public virtual NUMTYPE Min(NUMTYPE rhs) =>
+        public virtual SELF Min(SELF rhs) =>
             this < rhs
-                ? (NUMTYPE)this
+                ? (SELF)this
                 : rhs;
 
-        public virtual NUMTYPE Max(NUMTYPE rhs) =>
+        public virtual SELF Max(SELF rhs) =>
             this > rhs
-                ? (NUMTYPE)this
+                ? (SELF)this
                 : rhs;
 
         [Pure]
-        public virtual int CompareTo(NUMTYPE other) =>
-            default(NUM).Compare(Value, other.Value);
+        public virtual int CompareTo(SELF other) =>
+            ReferenceEquals(other, null)
+                ? 1
+                : default(NUM).Compare(Value, other.Value);
 
         [Pure]
-        public virtual bool Equals(NUMTYPE other) =>
-            default(NUM).Equals(Value, other.Value);
+        static A ValueOrDefault(NumType<SELF, NUM, A, PRED> numType) =>
+            ReferenceEquals(numType, null)
+                ? default(NUM).Empty()
+                : numType.Value;
 
         [Pure]
-        public virtual bool Equals(NUMTYPE other, NUMTYPE epsilon) =>
+        public virtual bool Equals(SELF other) =>
+            !ReferenceEquals(other, null) && default(NUM).Equals(Value, other.Value);
+
+        [Pure]
+        public virtual bool Equals(SELF other, SELF epsilon) =>
             (other - this).Abs() > epsilon;
 
         [Pure]
         public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) && obj is NUMTYPE && Equals((NUMTYPE)obj);
+            !ReferenceEquals(obj, null) && obj is SELF && Equals((SELF)obj);
 
         [Pure]
         public override int GetHashCode() =>
             Value?.GetHashCode() ?? 0;
 
         [Pure]
-        public static NUMTYPE operator -(NumType<NUMTYPE, NUM, A, PRED> x) =>
-             New(default(NUM).Subtract(default(NUM).FromInteger(0), x.Value));
+        public static SELF operator -(NumType<SELF, NUM, A, PRED> x) =>
+             New(default(NUM).Subtract(default(NUM).FromInteger(0), ValueOrDefault(x)));
 
         [Pure]
-        public static NUMTYPE operator +(NumType<NUMTYPE, NUM, A, PRED> lhs, NumType<NUMTYPE, NUM, A, PRED> rhs) =>
-             New(default(NUM).Plus(lhs.Value, rhs.Value));
+        public static SELF operator +(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
+             New(default(NUM).Plus(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
         [Pure]
-        public static NUMTYPE operator -(NumType<NUMTYPE, NUM, A, PRED> lhs, NumType<NUMTYPE, NUM, A, PRED> rhs) =>
-             New(default(NUM).Subtract(lhs.Value, rhs.Value));
+        public static SELF operator -(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
+             New(default(NUM).Subtract(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
         [Pure]
-        public static NUMTYPE operator *(NumType<NUMTYPE, NUM, A, PRED> lhs, NumType<NUMTYPE, NUM, A, PRED> rhs) =>
-             New(default(NUM).Product(lhs.Value, rhs.Value));
+        public static SELF operator *(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
+             New(default(NUM).Product(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
         [Pure]
-        public static NUMTYPE operator /(NumType<NUMTYPE, NUM, A, PRED> lhs, NumType<NUMTYPE, NUM, A, PRED> rhs) =>
-             New(default(NUM).Divide(lhs.Value, rhs.Value));
+        public static SELF operator /(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
+             New(default(NUM).Divide(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
         [Pure]
-        public static bool operator ==(NumType<NUMTYPE, NUM, A, PRED> lhs, NumType<NUMTYPE, NUM, A, PRED> rhs) =>
-             default(NUM).Equals(lhs.Value, rhs.Value);
+        public static bool operator ==(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
+             default(NUM).Equals(ValueOrDefault(lhs), ValueOrDefault(rhs));
 
         [Pure]
-        public static bool operator !=(NumType<NUMTYPE, NUM, A, PRED> lhs, NumType<NUMTYPE, NUM, A, PRED> rhs) =>
-             !default(NUM).Equals(lhs.Value, rhs.Value);
+        public static bool operator !=(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
+             !default(NUM).Equals(ValueOrDefault(lhs), ValueOrDefault(rhs));
 
         [Pure]
-        public static bool operator >(NumType<NUMTYPE, NUM, A, PRED> lhs, NumType<NUMTYPE, NUM, A, PRED> rhs) =>
-            default(NUM).Compare(lhs.Value, rhs.Value) > 0;
+        public static bool operator >(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
+            default(NUM).Compare(ValueOrDefault(lhs), ValueOrDefault(rhs)) > 0;
 
         [Pure]
-        public static bool operator >=(NumType<NUMTYPE, NUM, A, PRED> lhs, NumType<NUMTYPE, NUM, A, PRED> rhs) =>
-            default(NUM).Compare(lhs.Value, rhs.Value) >= 0;
+        public static bool operator >=(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
+            default(NUM).Compare(ValueOrDefault(lhs), ValueOrDefault(rhs)) >= 0;
 
         [Pure]
-        public static bool operator <(NumType<NUMTYPE, NUM, A, PRED> lhs, NumType<NUMTYPE, NUM, A, PRED> rhs) =>
-            default(NUM).Compare(lhs.Value, rhs.Value) < 0;
+        public static bool operator <(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
+            default(NUM).Compare(ValueOrDefault(lhs), ValueOrDefault(rhs)) < 0;
 
         [Pure]
-        public static bool operator <=(NumType<NUMTYPE, NUM, A, PRED> lhs, NumType<NUMTYPE, NUM, A, PRED> rhs) =>
-            default(NUM).Compare(lhs.Value, rhs.Value) <= 0;
+        public static bool operator <=(NumType<SELF, NUM, A, PRED> lhs, NumType<SELF, NUM, A, PRED> rhs) =>
+            default(NUM).Compare(ValueOrDefault(lhs), ValueOrDefault(rhs)) <= 0;
 
         /// <summary>
         /// Monadic bind of the bound value to a new value of the same type
         /// </summary>
         /// <param name="bind">Bind function</param>
         [Pure]
-        public virtual NUMTYPE Bind(Func<A, NUMTYPE> bind) =>
+        public virtual SELF Bind(Func<A, SELF> bind) =>
             bind(Value);
 
         /// <summary>
@@ -225,14 +247,14 @@ namespace LanguageExt
         /// Map the bound value to a new value of the same type
         /// </summary>
         [Pure]
-        public virtual NUMTYPE Map(Func<A, A> map) =>
+        public virtual SELF Map(Func<A, A> map) =>
             Select(map);
 
         /// <summary>
         /// Map the bound value to a new value of the same type
         /// </summary>
         [Pure]
-        public virtual NUMTYPE Select(Func<A, A> map) =>
+        public virtual SELF Select(Func<A, A> map) =>
             New(map(Value));
 
         /// <summary>
@@ -241,10 +263,10 @@ namespace LanguageExt
         /// <param name="bind">Bind function</param>
         /// <param name="project">Final projection (select)</param>
         [Pure]
-        public virtual NUMTYPE SelectMany(
-            Func<A, NumType<NUMTYPE, NUM, A, PRED>> bind,
+        public virtual SELF SelectMany(
+            Func<A, NumType<SELF, NUM, A, PRED>> bind,
             Func<A, A, A> project) =>
-            New(project(Value, bind(Value).Value));
+            New(project(Value, ValueOrDefault(bind(Value))));
 
         /// <summary>
         /// Invoke an action that takes the bound value as an argument
@@ -287,5 +309,9 @@ namespace LanguageExt
         /// Sum
         /// </summary>
         public virtual A Sum() => Value;
+
+        [Pure]
+        public static SELF FromInteger(int value) =>
+            New(default(NUM).FromInteger(value));
     }
 }

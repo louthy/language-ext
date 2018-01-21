@@ -516,7 +516,7 @@ namespace LanguageExt
 
         [Pure]
         public override bool Equals(object obj) =>
-            !obj.IsNull() && obj is HashSet<EqA, A> && Equals(this, (HashSet<EqA, A>)obj);
+            !obj.IsNull() && obj is HashSet<EqA, A> && Equals((HashSet<EqA, A>)obj);
 
         [Pure]
         public override int GetHashCode() =>

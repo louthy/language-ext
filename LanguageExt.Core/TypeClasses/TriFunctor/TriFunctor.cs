@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
@@ -7,7 +8,7 @@ namespace LanguageExt.TypeClasses
     /// Functor type-class
     /// </summary>
     [Typeclass]
-    public interface TriFunctor<FABC, FR, A, B, C, R>
+    public interface TriFunctor<FABC, FR, A, B, C, R> : Typeclass
     {
         /// <summary>
         /// Projection from one tri-functor to another.  This operation
@@ -33,7 +34,7 @@ namespace LanguageExt.TypeClasses
     /// Functor type-class
     /// </summary>
     [Typeclass]
-    public interface TriFunctor<FABC, FTUV, A, B, C, T, U, V>
+    public interface TriFunctor<FABC, FTUV, A, B, C, T, U, V> : Typeclass
     {
         /// <summary>
         /// Projection from one value to another.  All three elements of

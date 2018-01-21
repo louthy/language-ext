@@ -50,7 +50,7 @@ namespace LanguageExt
         /// <returns>OptionUnsafe of A</returns>
         [Pure]
         public static OptionUnsafe<A> Some(A value) =>
-            value;
+            new OptionUnsafe<A>(new OptionData<A>(OptionState.Some, value, null));
 
         /// <summary>
         /// Takes the value-type OptionV<A>
@@ -69,6 +69,27 @@ namespace LanguageExt
             this.data = first.Length == 0
                 ? OptionData<A>.None
                 : OptionData.Optional(first[0]);
+        }
+
+        [Pure]
+        OptionUnsafe(SerializationInfo info, StreamingContext context)
+        {
+            var isSome = (bool)info.GetValue("IsSome", typeof(bool));
+            if (isSome)
+            {
+                var value = (A)info.GetValue("Value", typeof(A));
+                data = OptionData.Some(value);
+            }
+            else
+            {
+                data = OptionData.None<A>();
+            }
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("IsSome", IsSome);
+            if(IsSome) info.AddValue("Value", data.Value);
         }
 
         public IEnumerator<A> GetEnumerator() =>
@@ -154,7 +175,7 @@ namespace LanguageExt
         /// <returns>True if lhs > rhs</returns>
         [Pure]
         public static bool operator >(OptionUnsafe<A> lhs, OptionUnsafe<A> rhs) =>
-            compare<OrdDefault<A>, A>(lhs, rhs) < 0;
+            compare<OrdDefault<A>, A>(lhs, rhs) > 0;
 
         /// <summary>
         /// Comparison operator
@@ -164,7 +185,7 @@ namespace LanguageExt
         /// <returns>True if lhs >= rhs</returns>
         [Pure]
         public static bool operator >=(OptionUnsafe<A> lhs, OptionUnsafe<A> rhs) =>
-            compare<OrdDefault<A>, A>(lhs, rhs) <= 0;
+            compare<OrdDefault<A>, A>(lhs, rhs) >= 0;
 
         /// <summary>
         /// Equality operator
@@ -270,14 +291,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool IsLazy =>
-            (data ?? OptionData<A>.None).IsLazy;
+            data.IsLazy;
 
         /// <summary>
         /// Is the option in a Some state
         /// </summary>
         [Pure]
         public bool IsSome =>
-            (data ?? OptionData<A>.None).IsSome;
+            data.IsSome;
 
         /// <summary>
         /// Is the option in a None state
@@ -290,7 +311,7 @@ namespace LanguageExt
         /// Helper accessor for the bound value
         /// </summary>
         internal A Value =>
-            (data ?? OptionData<A>.None).Value;
+            data.Value;
 
         /// <summary>
         /// Projection from one value to another 
@@ -318,6 +339,15 @@ namespace LanguageExt
         [Pure]
         public OptionUnsafe<B> Bind<B>(Func<A, OptionUnsafe<B>> f) =>
             MOptionUnsafe<A>.Inst.Bind<MOptionUnsafe<B>, OptionUnsafe<B>, B>(this, f);
+
+        /// <summary>
+        /// Bi-bind.  Allows mapping of both monad states
+        /// </summary>
+        [Pure]
+        public OptionUnsafe<B> BiBind<B>(Func<A, OptionUnsafe<B>> Some, Func<OptionUnsafe<B>> None) =>
+            IsSome
+                ? Some(Value)
+                : None();
 
         /// <summary>
         /// Monad bind operation
@@ -379,6 +409,12 @@ namespace LanguageExt
         [Pure]
         public Seq<A> AsEnumerable() =>
             asEnumerable<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this);
+
+        [Pure]
+        public Validation<FAIL, A> ToValidation<FAIL>(FAIL defaultFailureValue) =>
+            IsSome
+                ? Success<FAIL, A>(Value)
+                : Fail<FAIL, A>(defaultFailureValue);
 
         /// <summary>
         /// Convert the structure to an Either

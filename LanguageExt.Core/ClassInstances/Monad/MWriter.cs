@@ -32,12 +32,8 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public Writer<MonoidW, W, A> Fail(Exception err = null) =>
-            () => (default(A), default(MonoidW).Empty(), true);
-
-        [Pure]
-        public Writer<MonoidW, W, A> Fail(object err) =>
-            () => (default(A), default(MonoidW).Empty(), true);
+        public Writer<MonoidW, W, A> Fail(object err = null) =>
+            new Writer<MonoidW, W, A>(() => (default(A), default(MonoidW).Empty(), true));
 
         [Pure]
         public Writer<MonoidW, W, A> Writer(A value, W output) =>
@@ -162,5 +158,11 @@ namespace LanguageExt.ClassInstances
 
             return Task.FromResult(r.IsBottom ? 0 : 1);
         };
+
+        [Pure]
+        public Writer<MonoidW, W, A> Apply(Func<A, A, A> f, Writer<MonoidW, W, A> fa, Writer<MonoidW, W, A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

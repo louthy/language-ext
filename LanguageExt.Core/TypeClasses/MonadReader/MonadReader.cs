@@ -1,5 +1,5 @@
 ﻿using System;
-using LanguageExt.TypeClasses;
+using LanguageExt.Attributes;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt.TypeClasses
@@ -8,7 +8,7 @@ namespace LanguageExt.TypeClasses
     /// Reader monad type class
     /// </summary>
     [Typeclass]
-    public interface MonadReader<Env, A>
+    public interface MonadReader<Env, A> : Typeclass
     {
         /// <summary>
         /// Returns the state from the internals of the monad.

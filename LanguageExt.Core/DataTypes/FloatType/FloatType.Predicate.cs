@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
+using System.Runtime.Serialization;
 
 namespace LanguageExt
 {
@@ -59,12 +60,31 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Deserialisation ctor
+        /// </summary>
+        protected FloatType(SerializationInfo info, StreamingContext context)
+        {
+            Value = (A)info.GetValue("Value", typeof(A));
+            if (!default(PRED).True(Value)) throw new ArgumentOutOfRangeException(nameof(Value));
+            if (isnull(Value)) throw new ArgumentNullException(nameof(Value));
+        }
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            info.AddValue("Value", Value);
+
+        /// <summary>
         /// Explicit conversion operator for extracting the bound value
         /// </summary>
         /// <param name="type"></param>
         [Pure]
         public static explicit operator A(FloatType<SELF, FLOATING, A, PRED> type) =>
-            type.Value;
+            ValueOrDefault(type);
+
+        [Pure]
+        static A ValueOrDefault(FloatType<SELF, FLOATING, A, PRED> floatType) =>
+            ReferenceEquals(floatType, null)
+                ? default(FLOATING).Empty()
+                : floatType.Value;
 
         /// <summary>
         /// Sum of FloatType(x) and FloatType(y)
@@ -306,14 +326,16 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public virtual int CompareTo(SELF other) =>
-            default(FLOATING).Compare(Value, other.Value);
+            ReferenceEquals(other, null)
+                ? 1
+                : default(FLOATING).Compare(Value, other.Value);
 
         /// <summary>
         /// Equality test between this and other
         /// </summary>
         [Pure]
         public virtual bool Equals(SELF other) =>
-            default(FLOATING).Equals(Value, other.Value);
+            !ReferenceEquals(other, null) && default(FLOATING).Equals(Value, other.Value);
 
         /// <summary>
         /// Equality test between this and other
@@ -339,47 +361,47 @@ namespace LanguageExt
 
         [Pure]
         public static SELF operator -(FloatType<SELF, FLOATING, A, PRED> x) =>
-             New(default(FLOATING).Subtract(default(FLOATING).FromInteger(0), x.Value));
+             New(default(FLOATING).Subtract(default(FLOATING).FromInteger(0), ValueOrDefault(x)));
 
         [Pure]
         public static SELF operator +(FloatType<SELF, FLOATING, A, PRED> lhs, FloatType<SELF, FLOATING, A, PRED> rhs) =>
-             New(default(FLOATING).Plus(lhs.Value, rhs.Value));
+             New(default(FLOATING).Plus(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
         [Pure]
         public static SELF operator -(FloatType<SELF, FLOATING, A, PRED> lhs, FloatType<SELF, FLOATING, A, PRED> rhs) =>
-             New(default(FLOATING).Subtract(lhs.Value, rhs.Value));
+             New(default(FLOATING).Subtract(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
         [Pure]
         public static SELF operator *(FloatType<SELF, FLOATING, A, PRED> lhs, FloatType<SELF, FLOATING, A, PRED> rhs) =>
-             New(default(FLOATING).Product(lhs.Value, rhs.Value));
+             New(default(FLOATING).Product(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
         [Pure]
         public static SELF operator /(FloatType<SELF, FLOATING, A, PRED> lhs, FloatType<SELF, FLOATING, A, PRED> rhs) =>
-             New(default(FLOATING).Divide(lhs.Value, rhs.Value));
+             New(default(FLOATING).Divide(ValueOrDefault(lhs), ValueOrDefault(rhs)));
 
         [Pure]
         public static bool operator ==(FloatType<SELF, FLOATING, A, PRED> lhs, FloatType<SELF, FLOATING, A, PRED> rhs) =>
-             default(FLOATING).Equals(lhs.Value, rhs.Value);
+             default(FLOATING).Equals(ValueOrDefault(lhs), ValueOrDefault(rhs));
 
         [Pure]
         public static bool operator !=(FloatType<SELF, FLOATING, A, PRED> lhs, FloatType<SELF, FLOATING, A, PRED> rhs) =>
-             !default(FLOATING).Equals(lhs.Value, rhs.Value);
+             !default(FLOATING).Equals(ValueOrDefault(lhs), ValueOrDefault(rhs));
 
         [Pure]
         public static bool operator >(FloatType<SELF, FLOATING, A, PRED> lhs, FloatType<SELF, FLOATING, A, PRED> rhs) =>
-            default(FLOATING).Compare(lhs.Value, rhs.Value) > 0;
+            default(FLOATING).Compare(ValueOrDefault(lhs), ValueOrDefault(rhs)) > 0;
 
         [Pure]
         public static bool operator >=(FloatType<SELF, FLOATING, A, PRED> lhs, FloatType<SELF, FLOATING, A, PRED> rhs) =>
-            default(FLOATING).Compare(lhs.Value, rhs.Value) >= 0;
+            default(FLOATING).Compare(ValueOrDefault(lhs), ValueOrDefault(rhs)) >= 0;
 
         [Pure]
         public static bool operator <(FloatType<SELF, FLOATING, A, PRED> lhs, FloatType<SELF, FLOATING, A, PRED> rhs) =>
-            default(FLOATING).Compare(lhs.Value, rhs.Value) < 0;
+            default(FLOATING).Compare(ValueOrDefault(lhs), ValueOrDefault(rhs)) < 0;
 
         [Pure]
         public static bool operator <=(FloatType<SELF, FLOATING, A, PRED> lhs, FloatType<SELF, FLOATING, A, PRED> rhs) =>
-            default(FLOATING).Compare(lhs.Value, rhs.Value) <= 0;
+            default(FLOATING).Compare(ValueOrDefault(lhs), ValueOrDefault(rhs)) <= 0;
 
         /// <summary>
         /// Monadic bind of the bound value to a new value of the same type
@@ -426,7 +448,7 @@ namespace LanguageExt
         public virtual SELF SelectMany(
             Func<A, FloatType<SELF, FLOATING, A, PRED>> bind,
             Func<A, A, A> project) =>
-            New(project(Value, bind(Value).Value));
+            New(project(Value, ValueOrDefault(bind(Value))));
 
         /// <summary>
         /// Invoke an action that takes the bound value as an argument
@@ -464,10 +486,9 @@ namespace LanguageExt
         /// <returns>Folded state and FloatType bound value</returns>
         public virtual S FoldBack<S>(S state, Func<S, A, S> folder) =>
             folder(state, Value);
-        
-        /// <summary>
-        /// Sum
-        /// </summary>
-        public virtual A Sum() => Value;
+
+        [Pure]
+        public static SELF FromInteger(int value) =>
+            New(default(FLOATING).FromInteger(value));
     }
 }

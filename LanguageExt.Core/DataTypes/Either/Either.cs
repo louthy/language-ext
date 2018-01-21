@@ -39,7 +39,8 @@ namespace LanguageExt
         IComparable<Either<L, R>>,
         IComparable<R>,
         IEquatable<Either<L, R>>,
-        IEquatable<R>
+        IEquatable<R>, 
+        ISerializable
     {
         public readonly static Either<L, R> Bottom = new Either<L, R>();
 
@@ -64,6 +65,38 @@ namespace LanguageExt
             this.State = EitherStatus.IsLeft;
             this.right = default(R);
             this.left = left;
+        }
+
+
+        [Pure]
+        Either(SerializationInfo info, StreamingContext context)
+        {
+            State = (EitherStatus)info.GetValue("State", typeof(EitherStatus));
+            switch(State)
+            {
+                case EitherStatus.IsBottom:
+                    right = default(R);
+                    left = default(L);
+                    break;
+                case EitherStatus.IsRight:
+                    right = (R)info.GetValue("Right", typeof(R));
+                    left = default(L);
+                    break;
+                case EitherStatus.IsLeft:
+                    left = (L)info.GetValue("Left", typeof(L));
+                    right = default(R);
+                    break;
+
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("State", State);
+            if (IsRight) info.AddValue("Right", right);
+            if (IsLeft) info.AddValue("Left", left);
         }
 
         /// <summary>
@@ -116,18 +149,16 @@ namespace LanguageExt
         /// <summary>
         /// Is the Either in a Right state?
         /// </summary>
-        /// <exception cref="BottomException">EitherT state is Bottom</exception>
         [Pure]
         public bool IsRight =>
-            CheckInitialised(State == EitherStatus.IsRight);
+            State == EitherStatus.IsRight;
 
         /// <summary>
         /// Is the Either in a Left state?
         /// </summary>
-        /// <exception cref="BottomException">EitherT state is Bottom</exception>
         [Pure]
         public bool IsLeft =>
-            CheckInitialised(State == EitherStatus.IsLeft);
+            State == EitherStatus.IsLeft;
 
         /// <summary>
         /// Is the Either in a Bottom state?
@@ -154,8 +185,8 @@ namespace LanguageExt
         [Pure]
         public static implicit operator Either<L, R>(R value) =>
             isnull(value)
-                ? raise<Either<L, R>>(new ValueIsNullException())
-                : Either<L, R>.Right(value);
+                ? throw new ValueIsNullException()
+                : Right(value);
 
         /// <summary>
         /// Implicit conversion operator from L to Either R L
@@ -165,8 +196,8 @@ namespace LanguageExt
         [Pure]
         public static implicit operator Either<L, R>(L value) =>
             isnull(value)
-                ? raise<Either<L, R>>(new ValueIsNullException())
-                : Either<L, R>.Left(value);
+                ? throw new ValueIsNullException()
+                : Left(value);
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the Either
@@ -441,6 +472,13 @@ namespace LanguageExt
         /// Convert either to sequence of 0 or 1 right values
         /// </summary>
         [Pure]
+        public Seq<R> ToSeq() =>
+            RightAsEnumerable();
+
+        /// <summary>
+        /// Convert either to sequence of 0 or 1 right values
+        /// </summary>
+        [Pure]
         public Seq<R> RightToSeq() =>
             RightAsEnumerable();
 
@@ -466,6 +504,14 @@ namespace LanguageExt
         [Pure]
         public Seq<L> LeftAsEnumerable() =>
             leftAsEnumerable<MEither<L, R>, Either<L, R>, L, R>(this);
+
+        [Pure]
+        public Validation<L, R> ToValidation() =>
+            IsBottom
+                ? throw new BottomException()
+                : IsRight
+                    ? Success<L, R>(right)
+                    : Fail<L, R>(left);
 
         /// <summary>
         /// Convert the Either to an Option
@@ -519,7 +565,7 @@ namespace LanguageExt
         /// <returns>True if lhs > rhs</returns>
         [Pure]
         public static bool operator >(Either<L, R> lhs, Either<L, R> rhs) =>
-            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) < 0;
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) > 0;
 
         /// <summary>
         /// Comparison operator
@@ -529,7 +575,7 @@ namespace LanguageExt
         /// <returns>True if lhs >= rhs</returns>
         [Pure]
         public static bool operator >=(Either<L, R> lhs, Either<L, R> rhs) =>
-            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) <= 0;
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) >= 0;
 
         /// <summary>
         /// Equality operator override
@@ -634,12 +680,6 @@ namespace LanguageExt
             typeof(L);
 
         [Pure]
-        private U CheckInitialised<U>(U value) =>
-            State == EitherStatus.IsBottom
-                ? raise<U>(new BottomException("Either"))
-                : value;
-
-        [Pure]
         internal static Either<L, R> Right(R value) =>
             new Either<L, R>(value);
 
@@ -649,19 +689,17 @@ namespace LanguageExt
 
         [Pure]
         internal R RightValue =>
-            CheckInitialised(
+            Check.NullReturn(
                 IsRight
                     ? right
-                    : raise<R>(new EitherIsNotRightException())
-            );
+                    : raise<R>(new EitherIsNotRightException()));
 
         [Pure]
         internal L LeftValue =>
-            CheckInitialised(
+            Check.NullReturn(
                 IsLeft
                     ? left
-                    : raise<L>(new EitherIsNotLeftException())
-            );
+                    : raise<L>(new EitherIsNotLeftException()));
 
         [Pure]
         public R1 MatchUntyped<R1>(Func<object, R1> Some, Func<R1> None) =>
@@ -857,6 +895,15 @@ namespace LanguageExt
         [Pure]
         public Either<L, Ret> Bind<Ret>(Func<R, Either<L, Ret>> binder) =>
             MEither<L, R>.Inst.Bind<MEither<L, Ret>, Either<L, Ret>, Ret>(this, binder);
+
+        /// <summary>
+        /// Bi-bind.  Allows mapping of both monad states
+        /// </summary>
+        [Pure]
+        public Either<L, B> BiBind<B>(Func<R, Either<L, B>> Right, Func<L, Either<L, B>> Left) =>
+            IsRight
+                ? Right(RightValue)
+                : Left(LeftValue);
 
         /// <summary>
         /// Filter the Either

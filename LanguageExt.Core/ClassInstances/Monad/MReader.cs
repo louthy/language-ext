@@ -23,12 +23,8 @@ namespace LanguageExt.ClassInstances
             });
 
         [Pure]
-        public Reader<Env, A> Fail(object err) =>
-            _ => (default(A), true);
-
-        [Pure]
-        public Reader<Env, A> Fail(Exception err = null) =>
-            _ => (default(A), true);
+        public Reader<Env, A> Fail(object err = null) =>
+            new Reader<Env, A>(_ => (default(A), true));
 
         [Pure]
         public Reader<Env, A> Reader(Func<Env, A> f) => env => 
@@ -131,5 +127,11 @@ namespace LanguageExt.ClassInstances
                       select 1;
             return Task.FromResult(rdr(env).Value);
         };
+
+        [Pure]
+        public Reader<Env, A> Apply(Func<A, A, A> f, Reader<Env, A> fa, Reader<Env, A> fb) =>
+            from a in fa
+            from b in fb
+            select f(a, b);
     }
 }

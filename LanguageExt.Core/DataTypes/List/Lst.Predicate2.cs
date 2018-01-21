@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 using LanguageExt.TypeClasses;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -19,6 +20,7 @@ namespace LanguageExt
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
         IEquatable<Lst<PredList, PredItem, A>>,
+        IComparable<Lst<PredList, PredItem, A>>,
         ListInfo
         where PredList : struct, Pred<ListInfo>
         where PredItem : struct, Pred<A>
@@ -114,6 +116,25 @@ namespace LanguageExt
         internal bool Rev => value?.Rev ?? false;
 
         /// <summary>
+        /// Find if a value is in the collection
+        /// </summary>
+        /// <param name="value">Value to test</param>
+        /// <returns>True if collection contains value</returns>
+        [Pure]
+        public bool Contains(A value) =>
+            Value.Find(a => default(EqDefault<A>).Equals(a, value)).IsSome;
+
+        /// <summary>
+        /// Contains with provided Eq class instance
+        /// </summary>
+        /// <typeparam name="EqA">Eq class instance</typeparam>
+        /// <param name="value">Value to test</param>
+        /// <returns>True if collection contains value</returns>
+        [Pure]
+        public bool Contains<EqA>(A value) where EqA : struct, Eq<A> =>
+            Value.Find(a => default(EqA).Equals(a, value)).IsSome;
+
+        /// <summary>
         /// Add an item to the end of the list
         /// </summary>
         [Pure]
@@ -137,6 +158,17 @@ namespace LanguageExt
             }
             return new Lst<PredList, PredItem, A>(self);
         }
+
+        /// <summary>
+        /// Returns an enumerable range from the collection.  This is the fastest way of
+        /// iterating sub-ranges of the collection.
+        /// </summary>
+        /// <param name="index">Index into the collection</param>
+        /// <param name="count">Number of items to find</param>
+        /// <returns>IEnumerable of items</returns>
+        [Pure]
+        public IEnumerable<A> FindRange(int index, int count) =>
+            Value.FindRange(index, count);
 
         /// <summary>
         /// Get enumerator
@@ -184,24 +216,24 @@ namespace LanguageExt
             Value.LastIndexOf(item, index, count, equalityComparer);
 
         /// <summary>
-        /// Remove an item from the list
+        /// Remove all items that match the value from the list
         /// </summary>
         [Pure]
         public Lst<PredList, PredItem, A> Remove(A value) =>
             Wrap(Value.Remove(value));
 
         /// <summary>
-        /// Remove an item from the list
+        /// Remove all items that match the value from the list
         /// </summary>
         [Pure]
-        public Lst<PredList, PredItem, A> Remove(A value, IComparer<A> equalityComparer) =>
+        public Lst<PredList, PredItem, A> Remove(A value, IEqualityComparer<A> equalityComparer) =>
             Wrap(Value.Remove(value, equalityComparer));
 
         /// <summary>
         /// Remove all items that match a predicate
         /// </summary>
         [Pure]
-        public Lst<PredList, PredItem, A> RemoveAll(Predicate<A> pred) =>
+        public Lst<PredList, PredItem, A> RemoveAll(Func<A, bool> pred) =>
             Wrap(Value.RemoveAll(pred));
 
         /// <summary>
@@ -336,8 +368,28 @@ namespace LanguageExt
             !(lhs == rhs);
 
         [Pure]
+        public static bool operator <(Lst<PredList, PredItem, A> lhs, Lst<PredList, PredItem, A> rhs) =>
+            lhs.CompareTo(rhs) < 0;
+
+        [Pure]
+        public static bool operator <=(Lst<PredList, PredItem, A> lhs, Lst<PredList, PredItem, A> rhs) =>
+            lhs.CompareTo(rhs) <= 0;
+
+        [Pure]
+        public static bool operator >(Lst<PredList, PredItem, A> lhs, Lst<PredList, PredItem, A> rhs) =>
+            lhs.CompareTo(rhs) > 0;
+
+        [Pure]
+        public static bool operator >=(Lst<PredList, PredItem, A> lhs, Lst<PredList, PredItem, A> rhs) =>
+            lhs.CompareTo(rhs) >= 0;
+
+        [Pure]
         public Arr<A> ToArray() =>
             toArray(this);
+
+        [Pure]
+        public int CompareTo(Lst<PredList, PredItem, A> other) =>
+            Value.CompareTo(other.Value);
 
         [Pure]
         public static implicit operator Lst<PredList, PredItem, A>(Lst<A> list)

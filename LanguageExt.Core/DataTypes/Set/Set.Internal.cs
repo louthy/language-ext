@@ -579,7 +579,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Add operator - performs a union of the two sets
+        /// Add operator + performs a union of the two sets
         /// </summary>
         /// <param name="lhs">Left hand side set</param>
         /// <param name="rhs">Right hand side set</param>
@@ -589,7 +589,7 @@ namespace LanguageExt
             lhs.Append(rhs);
 
         /// <summary>
-        /// Add operator - performs a union of the two sets
+        /// Append performs a union of the two sets
         /// </summary>
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Unioned set</returns>
@@ -631,6 +631,36 @@ namespace LanguageExt
         [Pure]
         public bool Equals(SetInternal<OrdA, A> other) =>
             SetEquals(other.AsEnumerable());
+
+        [Pure]
+        public int CompareTo(SetInternal<OrdA, A> other)
+        {
+            var cmp = Count.CompareTo(other.Count);
+            if (cmp != 0) return cmp;
+            var iterA = GetEnumerator();
+            var iterB = other.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
+            {
+                cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
+                if (cmp != 0) return cmp;
+            }
+            return 0;
+        }
+
+        [Pure]
+        public int CompareTo<OrdAlt>(SetInternal<OrdA, A> other) where OrdAlt : struct, Ord<A>
+        {
+            var cmp = Count.CompareTo(other.Count);
+            if (cmp != 0) return cmp;
+            var iterA = GetEnumerator();
+            var iterB = other.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
+            {
+                cmp = default(OrdAlt).Compare(iterA.Current, iterB.Current);
+                if (cmp != 0) return cmp;
+            }
+            return 0;
+        }
     }
 
     internal class SetItem<K>
