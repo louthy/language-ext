@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Xunit;
 using static LanguageExt.Prelude;
 
@@ -72,6 +73,9 @@ namespace LanguageExt.Tests
             Assert.True(skipped.Count == 0);
             Assert.True(skipped.Count() == 0);
             Assert.Throws<InvalidOperationException>(() => skipped.Head);
+
+            var arrAsList = 1.Cons().ToList();
+            Assert.True(arrAsList.Count() == 1);
         }
         
         static int Sum(Seq<int> seq) =>

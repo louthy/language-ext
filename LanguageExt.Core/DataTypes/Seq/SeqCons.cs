@@ -43,7 +43,7 @@ namespace LanguageExt
         public override IEnumerator<A> GetEnumerator()
         {
             Seq<A> current = this;
-            while (!current.IsEmpty)
+            while (current != null && !current.IsEmpty)
             {
                 yield return current.Head;
 
