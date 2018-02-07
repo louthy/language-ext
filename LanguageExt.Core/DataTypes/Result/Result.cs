@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
+    public enum ResultState : byte
+    {
+        Bottom,
+        Faulted,
+        Success
+    }
+
     /// <summary>
     /// Represents the result of an operation:
     /// 
@@ -16,10 +23,9 @@ namespace LanguageExt
     /// <typeparam name="A">Bound value type</typeparam>
     public struct Result<A> : IEquatable<Result<A>>
     {
-        public static readonly Result<A> None = new Result<A>();
+        public static readonly Result<A> None = default(Result<A>);
 
-        readonly bool IsValid;
-        readonly bool IsSuccess;
+        internal readonly ResultState State;
         internal readonly A Value;
         internal Exception Exception;
 
@@ -30,8 +36,7 @@ namespace LanguageExt
         [Pure]
         public Result(A value)
         {
-            IsValid = true;
-            IsSuccess = true;
+            State = ResultState.Success;
             Value = value;
             Exception = null;
         }
@@ -43,8 +48,7 @@ namespace LanguageExt
         [Pure]
         public Result(Exception e)
         {
-            IsValid = true;
-            IsSuccess = false;
+            State = ResultState.Faulted;
             Exception = e;
             Value = default(A);
         }
@@ -61,39 +65,50 @@ namespace LanguageExt
         /// True if the result is faulted
         /// </summary>
         [Pure]
-        public bool IsFaulted => !IsSuccess;
+        public bool IsFaulted => 
+            State == ResultState.Faulted || State == ResultState.Bottom;
 
         /// <summary>
         /// True if the struct is in an invalid state
         /// </summary>
         [Pure]
-        public bool IsBottom => !IsValid;
+        public bool IsBottom => 
+            State == ResultState.Bottom;
+
+        /// <summary>
+        /// True if the struct is in an success
+        /// </summary>
+        [Pure]
+        public bool IsSuccess => 
+            State == ResultState.Success;
 
         /// <summary>
         /// Convert the value to a showable string
         /// </summary>
         [Pure]
         public override string ToString() =>
-            IsFaulted
-                ? Exception.ToString()
-                : Value.ToString();
+            IsBottom
+                ? "(Bottom)"
+                : IsFaulted
+                    ? Exception?.ToString() ?? "(Exception)"
+                    : Value?.ToString() ?? "(null)";
 
         /// <summary>
         /// Equality check
         /// </summary>
         [Pure]
         public bool Equals(Result<A> other) =>
-            IsBottom == other.IsBottom &&
-            IsFaulted
+            State == other.State &&
+            IsBottom || (IsFaulted
                 ? Exception == other.Exception
-                : EqDefault<A>.Inst.Equals(Value, other.Value);
+                : EqDefault<A>.Inst.Equals(Value, other.Value));
 
         /// <summary>
         /// Equality check
         /// </summary>
         [Pure]
         public override bool Equals(object obj) =>
-            obj is Result<A> && Equals((Result<A>)obj);
+            obj is Result<A> rhs && Equals(rhs);
 
         /// <summary>
         /// Get hash code for bound value
@@ -115,37 +130,42 @@ namespace LanguageExt
             !(a==b);
 
         public readonly static Result<A> Bottom =
-            new Result<A>(BottomException.Default);
+            default(Result<A>);
 
         [Pure]
         public A IfFail(A defaultValue) =>
-            IsFaulted
+            IsFaulted || IsBottom
                 ? defaultValue
                 : Value;
 
         [Pure]
         public A IfFail(Func<Exception, A> f) =>
-            IsFaulted
-                ? f(Exception)
-                : Value;
+            IsBottom
+                ? f(BottomException.Default)
+                : IsFaulted
+                    ? f(Exception)
+                    : Value;
 
         public Unit IfFail(Action<Exception> f)
         {
+            if (IsBottom) f(BottomException.Default);
             if (IsFaulted) f(Exception);
             return unit;
         }
 
         public Unit IfSucc(Action<A> f)
         {
-            if (!IsFaulted) f(Value);
+            if (IsSuccess) f(Value);
             return unit;
         }
 
         [Pure]
         public R Match<R>(Func<A, R> Succ, Func<Exception, R> Fail) =>
-            IsFaulted
-                ? Fail(Exception)
-                : Succ(Value);
+            IsBottom
+                ? Fail(BottomException.Default)
+                : IsFaulted
+                    ? Fail(Exception)
+                    : Succ(Value);
 
         [Pure]
         internal OptionalResult<A> ToOptional() =>
@@ -155,9 +175,11 @@ namespace LanguageExt
 
         [Pure]
         public Result<B> Map<B>(Func<A, B> f) =>
-            IsFaulted
-                ? new Result<B>(Exception)
-                : new Result<B>(f(Value));
+            IsBottom
+                ? Result<B>.Bottom
+                : IsFaulted 
+                    ? new Result<B>(Exception)
+                    : new Result<B>(f(Value));
 
         [Pure]
         public async Task<Result<B>> MapAsync<B>(Func<A, Task<B>> f) =>

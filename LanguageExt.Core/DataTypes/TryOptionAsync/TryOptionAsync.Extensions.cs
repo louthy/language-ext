@@ -1613,7 +1613,7 @@ public static class TryOptionAsyncExtensions
     [Pure]
     public static Task<int> Sum(this TryOptionAsync<int> self) =>
         from x in self.Try()
-        select x.IfFail(0);
+        select x.IfFailOrNone(0);
 
     [Pure]
     public static TryOptionAsync<T> Flatten<T>(this TryOptionAsync<TryOptionAsync<T>> self) =>

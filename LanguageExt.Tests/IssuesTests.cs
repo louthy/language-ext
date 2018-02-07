@@ -16,6 +16,14 @@ namespace LanguageExt.Tests
 {
     public class IssuesTests
     {
+        [Fact]
+        public void Issue314()
+        {
+
+            var x = Result<object>.Bottom.IsBottom;
+        }
+
+
         /// <summary>
         /// https://github.com/louthy/language-ext/issues/207
         /// </summary>
@@ -115,6 +123,9 @@ namespace Core.Tests
         [Fact]
         public async Task what_i_desire()
         {
+            var x = TryOption(Some(123));
+            var y = TryOption(Try(123));
+
             Task<Either<Error, Pixel>> GetPixelE(PixelId id) =>
                 GetPixel(id).Match(
                     Some: p => Right<Error, Pixel>(p),

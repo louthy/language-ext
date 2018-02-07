@@ -243,7 +243,7 @@ namespace LanguageExt.Tests
             var output = bottomResult.Map(_ => 2);
             
             Assert.True(output.IsFaulted);
-            Assert.False(output.IsBottom);
+            Assert.True(output.IsBottom);
         }
 
         [Fact]
@@ -286,7 +286,7 @@ namespace LanguageExt.Tests
             Assert.False(output.IsBottom);
         }
 
-        private readonly Result<int> bottomResult = new Result<int>();
+        private readonly Result<int> bottomResult;
         private readonly Result<int> successResult = new Result<int>(1);
         private readonly Result<int> faultResult = new Result<int>(new InvalidOperationException());
         private readonly Result<int> faultWithNullException = new Result<int>((Exception) null);

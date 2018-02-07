@@ -1,58 +1,326 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Threading.Tasks;
-//using static LanguageExt.Prelude;
+﻿using LanguageExt.TypeClasses;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using static LanguageExt.Prelude;
 
-//namespace LanguageExt
-//{
-//    public static class TaskTransformerExtensions
-//    {
-//        public static async Task<Arr<B>> Traverse<A, B>(this Arr<Task<A>> ma, Func<A, B> f) =>
-//            toArray((await Task.WhenAll(ma)).Map(f));
+namespace LanguageExt
+{
+    public static class SeqWriterExtensions
+    {
+        static Writer<MonoidW, W, List<A>> SequenceFast<MonoidW, W, A>(this IEnumerable<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> => () =>
+        {
+            var values = new List<A>();
+            var output = default(MonoidW).Empty();
+            foreach (var item in ma)
+            {
+                var (a, o, bottom) = item();
+                if (bottom) return (Value: new List<A>(), Output: default(MonoidW).Empty(), IsBottom: true);
+                values.Add(a);
+                output = default(MonoidW).Append(output, o);
+            }
+            return (Value: values, Output: output, IsBottom: false);
+        };
 
-//        public static async Task<Either<L, B>> Traverse<L, A, B>(this Either<L, Task<A>> ma, Func<A, B> f) =>
-//            await ma.MatchAsync(
-//                Right: r => Either<L, B>.Right(f(r)),
-//                Left:  l => Either<L, B>.Left(l));
+        static Writer<MonoidW, W, List<B>> TraverseFast<MonoidW, W, A, B>(this IEnumerable<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> => () =>
+        {
+            var values = new List<B>();
+            var output = default(MonoidW).Empty();
+            foreach (var item in ma)
+            {
+                var (a, o, bottom) = item();
+                if (bottom) return (Value: new List<B>(), Output: default(MonoidW).Empty(), IsBottom: true);
+                values.Add(f(a));
+                output = default(MonoidW).Append(output, o);
+            }
+            return (Value: values, Output: output, IsBottom: false);
+        };
 
-//        public static async Task<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Task<A>> ma, Func<A, B> f) =>
-//            await ma.MatchAsync(
-//                Right: r => EitherUnsafe<L, B>.Right(f(r)),
-//                Left:  l => EitherUnsafe<L, B>.Left(l));
+        public static Writer<MonoidW, W, Seq<A>> Sequence<MonoidW, W, A>(this Seq<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(Prelude.Seq);
 
-//        public static async Task<HashMap<K, B>> Traverse<K, A, B>(this HashMap<K, Task<A>> ma, Func<A, B> f)
-//        {
-//            await Task.WhenAll(ma.Values);
-//            return ma.Map(a => f(a.Result));    // Hmm, is this the best way?
-//        }
+        public static Writer<MonoidW, W, Lst<A>> Sequence<MonoidW, W, A>(this Lst<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(toList);
 
-//        public static async Task<HashSet<B>> Traverse<A, B>(this HashSet<Task<A>> ma, Func<A, B> f) =>
-//            toHashSet((await Task.WhenAll(ma)).Map(f));
+        public static Writer<MonoidW, W, Arr<A>> Sequence<MonoidW, W, A>(this Arr<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(toArray);
 
-//        public static async Task<Lst<B>> Traverse<A, B>(this Lst<Task<A>> ma, Func<A, B> f) =>
-//            toList((await Task.WhenAll(ma)).Map(f));
+        public static Writer<MonoidW, W, A[]> Sequence<MonoidW, W, A>(this Writer<MonoidW, W, A>[] ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(x => x.ToArray());
 
-//        public static async Task<Option<B>> Traverse<A, B>(this Option<Task<A>> ma, Func<A, B> f) =>
-//            await ma.MatchAsync(
-//                Some: async x => Option<B>.Some(f(await x)),
-//                None: ()      => Option<B>.None);
+        public static Writer<MonoidW, W, Set<A>> Sequence<MonoidW, W, A>(this Set<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(toSet);
 
-//        public static async Task<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<Task<A>> ma, Func<A, B> f) =>
-//            await ma.MatchAsync(
-//                Some: async x => OptionUnsafe<B>.Some(f(await x)),
-//                None: ()      => OptionUnsafe<B>.None);
+        public static Writer<MonoidW, W, HashSet<A>> Sequence<MonoidW, W, A>(this HashSet<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(toHashSet);
 
-//        public static async Task<Seq<B>> Traverse<A, B>(this Seq<Task<A>> ma, Func<A, B> f) =>
-//            Seq((await Task.WhenAll(ma)).Map(f));
+        public static Writer<MonoidW, W, Stck<A>> Sequence<MonoidW, W, A>(this Stck<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(toStack);
 
-//        public static async Task<Map<K, B>> Traverse<K, A, B>(this Map<K, Task<A>> ma, Func<A, B> f)
-//        {
-//            await Task.WhenAll(ma.Values);
-//            return ma.Map(a => f(a.Result));    // Hmm, is this the best way?
-//        }
+        public static Writer<MonoidW, W, IEnumerable<A>> Sequence<MonoidW, W, A>(this IEnumerable<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(Enumerable.AsEnumerable);
 
-//        public static async Task<IEnumerable<A>> Sequence<A>(this IEnumerable<Task<A>> ma) =>
-//            await Task.WhenAll(ma);
 
-//    }
-//}
+        public static Writer<MonoidW, W, Seq<B>> Traverse<MonoidW, W, A, B>(this Seq<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(Prelude.Seq);
+
+        public static Writer<MonoidW, W, Lst<B>> Traverse<MonoidW, W, A, B>(this Lst<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(toList);
+
+        public static Writer<MonoidW, W, Arr<B>> Traverse<MonoidW, W, A, B>(this Arr<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(toArray);
+
+        public static Writer<MonoidW, W, B[]> Traverse<MonoidW, W, A, B>(this Writer<MonoidW, W, A>[] ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(x => x.ToArray());
+
+        public static Writer<MonoidW, W, Set<B>> Traverse<MonoidW, W, A, B>(this Set<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(toSet);
+
+        public static Writer<MonoidW, W, HashSet<B>> Traverse<MonoidW, W, A, B>(this HashSet<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(toHashSet);
+
+        public static Writer<MonoidW, W, Stck<B>> Traverse<MonoidW, W, A, B>(this Stck<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(toStack);
+
+        public static Writer<MonoidW, W, IEnumerable<B>> Traverse<MonoidW, W, A, B>(this IEnumerable<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(Enumerable.AsEnumerable);
+    }
+
+    public static class SeqReaderExtensions
+    {
+        static Reader<Env, List<A>> SequenceFast<Env, A>(this IEnumerable<Reader<Env, A>> ma) => env =>
+        {
+            var values = new List<A>();
+            foreach (var item in ma)
+            {
+                var (a, bottom) = item(env);
+                if (bottom) return (Value: new List<A>(), IsFaulted: true);
+                values.Add(a);
+            }
+            return (Value: values, IsFaulted: false);
+        };
+
+        static Reader<Env, List<B>> TraverseFast<Env, A, B>(this IEnumerable<Reader<Env, A>> ma, Func<A, B> f) => env =>
+        {
+            var values = new List<B>();
+            foreach (var item in ma)
+            {
+                var (a, bottom) = item(env);
+                if (bottom) return (Value: new List<B>(), IsFaulted: true);
+                values.Add(f(a));
+            }
+            return (Value: values, IsFaulted: false);
+        };
+
+        public static Reader<Env, Seq<A>> Sequence<Env, A>(this Seq<Reader<Env, A>> ma) =>
+            SequenceFast(ma).Map(Prelude.Seq);
+
+        public static Reader<Env, Lst<A>> Sequence<Env, A>(this Lst<Reader<Env, A>> ma) =>
+            SequenceFast(ma).Map(toList);
+
+        public static Reader<Env, Arr<A>> Sequence<Env, A>(this Arr<Reader<Env, A>> ma) =>
+            SequenceFast(ma).Map(toArray);
+
+        public static Reader<Env, A[]> Sequence<Env, A>(this Reader<Env, A>[] ma) =>
+            SequenceFast(ma).Map(x => x.ToArray());
+
+        public static Reader<Env, Set<A>> Sequence<Env, A>(this Set<Reader<Env, A>> ma) =>
+            SequenceFast(ma).Map(toSet);
+
+        public static Reader<Env, HashSet<A>> Sequence<Env, A>(this HashSet<Reader<Env, A>> ma) =>
+            SequenceFast(ma).Map(toHashSet);
+
+        public static Reader<Env, Stck<A>> Sequence<Env, A>(this Stck<Reader<Env, A>> ma) =>
+            SequenceFast(ma).Map(toStack);
+
+        public static Reader<Env, IEnumerable<A>> Sequence<Env, A>(this IEnumerable<Reader<Env, A>> ma) =>
+            SequenceFast(ma).Map(Enumerable.AsEnumerable);
+
+
+        public static Reader<Env, Seq<B>> Traverse<Env, A, B>(this Seq<Reader<Env, A>> ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(Prelude.Seq);
+
+        public static Reader<Env, Lst<B>> Traverse<Env, A, B>(this Lst<Reader<Env, A>> ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(toList);
+
+        public static Reader<Env, Arr<B>> Traverse<Env, A, B>(this Arr<Reader<Env, A>> ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(toArray);
+
+        public static Reader<Env, B[]> Traverse<Env, A, B>(this Reader<Env, A>[] ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(x => x.ToArray());
+
+        public static Reader<Env, Set<B>> Traverse<Env, A, B>(this Set<Reader<Env, A>> ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(toSet);
+
+        public static Reader<Env, HashSet<B>> Traverse<Env, A, B>(this HashSet<Reader<Env, A>> ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(toHashSet);
+
+        public static Reader<Env, Stck<B>> Traverse<Env, A, B>(this Stck<Reader<Env, A>> ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(toStack);
+
+        public static Reader<Env, IEnumerable<B>> Traverse<Env, A, B>(this IEnumerable<Reader<Env, A>> ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(Enumerable.AsEnumerable);
+    }
+
+    public static class SeqStateExtensions
+    {
+        static State<S, List<A>> SequenceFast<S, A>(this IEnumerable<State<S, A>> ma) => state =>
+        {
+            var values = new List<A>();
+            foreach (var item in ma)
+            {
+                var (a, s, bottom) = item(state);
+                if (bottom) return (Value: new List<A>(), State: default(S), IsFaulted: true);
+                state = s;
+                values.Add(a);
+            }
+            return (Value: values, State: state, IsFaulted: false);
+        };
+
+        static State<S, List<B>> TraverseFast<S, A, B>(this IEnumerable<State<S, A>> ma, Func<A, B> f) => state =>
+        {
+            var values = new List<B>();
+            foreach (var item in ma)
+            {
+                var (a, s, bottom) = item(state);
+                if (bottom) return (Value: new List<B>(), State: default(S), IsFaulted: true);
+                state = s;
+                values.Add(f(a));
+            }
+            return (Value: values, State: state, IsFaulted: false);
+        };
+
+        public static State<S, Seq<A>> Sequence<S, A>(this Seq<State<S, A>> ma) =>
+            SequenceFast(ma).Map(Prelude.Seq);
+
+        public static State<S, Lst<A>> Sequence<S, A>(this Lst<State<S, A>> ma) =>
+            SequenceFast(ma).Map(toList);
+
+        public static State<S, Arr<A>> Sequence<S, A>(this Arr<State<S, A>> ma) =>
+            SequenceFast(ma).Map(toArray);
+
+        public static State<S, A[]> Sequence<S, A>(this State<S, A>[] ma) =>
+            SequenceFast(ma).Map(x => x.ToArray());
+
+        public static State<S, Set<A>> Sequence<S, A>(this Set<State<S, A>> ma) =>
+            SequenceFast(ma).Map(toSet);
+
+        public static State<S, HashSet<A>> Sequence<S, A>(this HashSet<State<S, A>> ma) =>
+            SequenceFast(ma).Map(toHashSet);
+
+        public static State<S, Stck<A>> Sequence<S, A>(this Stck<State<S, A>> ma) =>
+            SequenceFast(ma).Map(toStack);
+
+        public static State<S, IEnumerable<A>> Sequence<S, A>(this IEnumerable<State<S, A>> ma) =>
+            SequenceFast(ma).Map(Enumerable.AsEnumerable);
+
+
+        public static State<S, Seq<B>> Traverse<S, A, B>(this Seq<State<S, A>> ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(Prelude.Seq);
+
+        public static State<S, Lst<B>> Traverse<S, A, B>(this Lst<State<S, A>> ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(toList);
+
+        public static State<S, Arr<B>> Traverse<S, A, B>(this Arr<State<S, A>> ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(toArray);
+
+        public static State<S, B[]> Traverse<S, A, B>(this State<S, A>[] ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(x => x.ToArray());
+
+        public static State<S, Set<B>> Traverse<S, A, B>(this Set<State<S, A>> ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(toSet);
+
+        public static State<S, HashSet<B>> Traverse<S, A, B>(this HashSet<State<S, A>> ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(toHashSet);
+
+        public static State<S, Stck<B>> Traverse<S, A, B>(this Stck<State<S, A>> ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(toStack);
+
+        public static State<S, IEnumerable<B>> Traverse<S, A, B>(this IEnumerable<State<S, A>> ma, Func<A, B> f) =>
+            TraverseFast(ma, f).Map(Enumerable.AsEnumerable);
+    }
+
+    public static class RwsWriterExtensions
+    {
+        static RWS<MonoidW, R, W, S, List<A>> SequenceFast<MonoidW, R, W, S, A>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> => (env, state) =>
+        {
+            var values = new List<A>();
+            var output = default(MonoidW).Empty();
+            foreach (var item in ma)
+            {
+                var (a, o, s, bottom) = item(env, state);
+                if (bottom) return (Value: new List<A>(), Output: default(MonoidW).Empty(), State: state, IsFaulted: true);
+                values.Add(a);
+                state = s;
+                output = default(MonoidW).Append(output, o);
+            }
+            return (Value: values, Output: output, State: state, IsFaulted: false);
+        };
+
+        static RWS<MonoidW, R, W, S, List<B>> TraverseFast<MonoidW, R, W, S, A, B>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> => (env, state) =>
+        {
+            var values = new List<B>();
+            var output = default(MonoidW).Empty();
+            foreach (var item in ma)
+            {
+                var (a, o, s, bottom) = item(env, state);
+                if (bottom) return (Value: new List<B>(), Output: default(MonoidW).Empty(), State: state, IsFaulted: true);
+                values.Add(f(a));
+                state = s;
+                output = default(MonoidW).Append(output, o);
+            }
+            return (Value: values, Output: output, State: state, IsFaulted: false);
+        };
+
+        public static RWS<MonoidW, R, W, S, Seq<A>> Sequence<MonoidW, R, W, S, A>(this Seq<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(Prelude.Seq);
+
+        public static RWS<MonoidW, R, W, S, Lst<A>> Sequence<MonoidW, R, W, S, A>(this Lst<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(toList);
+
+        public static RWS<MonoidW, R, W, S, Arr<A>> Sequence<MonoidW, R, W, S, A>(this Arr<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(toArray);
+
+        public static RWS<MonoidW, R, W, S, A[]> Sequence<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A>[] ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(x => x.ToArray());
+
+        public static RWS<MonoidW, R, W, S, Set<A>> Sequence<MonoidW, R, W, S, A>(this Set<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(toSet);
+
+        public static RWS<MonoidW, R, W, S, HashSet<A>> Sequence<MonoidW, R, W, S, A>(this HashSet<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(toHashSet);
+
+        public static RWS<MonoidW, R, W, S, Stck<A>> Sequence<MonoidW, R, W, S, A>(this Stck<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(toStack);
+
+        public static RWS<MonoidW, R, W, S, IEnumerable<A>> Sequence<MonoidW, R, W, S, A>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> =>
+            SequenceFast(ma).Map(Enumerable.AsEnumerable);
+
+
+        public static RWS<MonoidW, R, W, S, Seq<B>> Traverse<MonoidW, R, W, S, A, B>(this Seq<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(Prelude.Seq);
+
+        public static RWS<MonoidW, R, W, S, Lst<B>> Traverse<MonoidW, R, W, S, A, B>(this Lst<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(toList);
+
+        public static RWS<MonoidW, R, W, S, Arr<B>> Traverse<MonoidW, R, W, S, A, B>(this Arr<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(toArray);
+
+        public static RWS<MonoidW, R, W, S, B[]> Traverse<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A>[] ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(x => x.ToArray());
+
+        public static RWS<MonoidW, R, W, S, Set<B>> Traverse<MonoidW, R, W, S, A, B>(this Set<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(toSet);
+
+        public static RWS<MonoidW, R, W, S, HashSet<B>> Traverse<MonoidW, R, W, S, A, B>(this HashSet<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(toHashSet);
+
+        public static RWS<MonoidW, R, W, S, Stck<B>> Traverse<MonoidW, R, W, S, A, B>(this Stck<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(toStack);
+
+        public static RWS<MonoidW, R, W, S, IEnumerable<B>> Traverse<MonoidW, R, W, S, A, B>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
+            TraverseFast(ma, f).Map(Enumerable.AsEnumerable);
+    }
+
+
+}

@@ -265,15 +265,22 @@ namespace LanguageExt
         /// Match the two states of the Either and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
-        public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> Right, Func<L, R2> Left) =>
-            matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), Left, Right);
+        public Task<R2> MatchAsync<R2>(Func<R, R2> Right, Func<L, Task<R2>> LeftAsync) =>
+            matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), LeftAsync, Right);
 
         /// <summary>
         /// Match the two states of the Either and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
-        public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> Right, Func<L, Task<R2>> Left) =>
-            matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), Left, Right);
+        public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> RightAsync, Func<L, R2> Left) =>
+            matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), Left, RightAsync);
+
+        /// <summary>
+        /// Match the two states of the Either and return a promise for a non-null R2.
+        /// </summary>
+        /// <returns>A promise to return a non-null R2</returns>
+        public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> RightAsync, Func<L, Task<R2>> LeftAsync) =>
+            matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), LeftAsync, RightAsync);
 
         /// <summary>
         /// Match the two states of the Either and return an observable stream of non-null R2s.
