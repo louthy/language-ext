@@ -399,15 +399,18 @@ namespace LanguageExt
                                                     .Where(m => default(EqArray<EqDefault<Type>, Type>).Equals(
                                                                    m.GetParameters().Map(p => p.ParameterType).ToArray(),
                                                                    new Type[0]))
-                                                    .Head();
+                                                    .HeadOrNone();
 
-                        var call = field.FieldType.GetTypeInfo().IsValueType
-                                       ? Expression.Call(propOrField, method)
-                                       : Expression.Condition(
-                                             Expression.ReferenceEqual(propOrField, Expression.Constant(null, field.FieldType)),
-                                             zero,
-                                             Expression.Call(propOrField, method)) as Expression;
-                        yield return call;
+                        if (method.IsSome)
+                        {
+                            var call = field.FieldType.GetTypeInfo().IsValueType
+                                           ? Expression.Call(propOrField, method.Value)
+                                           : Expression.Condition(
+                                                 Expression.ReferenceEqual(propOrField, Expression.Constant(null, field.FieldType)),
+                                                 zero,
+                                                 Expression.Call(propOrField, method.Value)) as Expression;
+                            yield return call;
+                        }
                     }
                     else
                     {
