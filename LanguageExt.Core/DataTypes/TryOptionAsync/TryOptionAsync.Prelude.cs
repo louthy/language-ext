@@ -677,6 +677,14 @@ namespace LanguageExt
             self.BiBind(Succ, Fail);
 
         [Pure]
+        public static TryOptionAsync<A> plus<A>(TryOptionAsync<A> ma, TryOptionAsync<A> mb) =>
+            default(MTryOptionAsync<A>).Plus(ma, mb);
+
+        [Pure]
+        public static TryOptionAsync<A> plusFirst<A>(TryOptionAsync<A> ma, TryOptionAsync<A> mb) =>
+            default(MTryOptionFirstAsync<A>).Plus(ma, mb);
+
+        [Pure]
         public static Task<Lst<T>> toList<T>(TryOptionAsync<T> tryDel) =>
             tryDel.ToList();
 

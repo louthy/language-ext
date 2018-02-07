@@ -477,6 +477,14 @@ namespace LanguageExt
             self.BiBind(Succ, Fail);
 
         [Pure]
+        public static TryAsync<A> plus<A>(TryAsync<A> ma, TryAsync<A> mb) =>
+            default(MTryAsync<A>).Plus(ma, mb);
+
+        [Pure]
+        public static TryAsync<A> plusFirst<A>(TryAsync<A> ma, TryAsync<A> mb) =>
+            default(MTryFirstAsync<A>).Plus(ma, mb);
+
+        [Pure]
         public static Task<Lst<T>> toList<T>(TryAsync<T> tryDel) =>
             tryDel.ToList();
 

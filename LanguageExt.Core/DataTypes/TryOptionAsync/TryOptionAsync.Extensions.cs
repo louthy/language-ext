@@ -1455,6 +1455,14 @@ public static class TryOptionAsyncExtensions
     });
 
     [Pure]
+    public static TryOptionAsync<A> Plus<A>(this TryOptionAsync<A> ma, TryOptionAsync<A> mb) =>
+        default(MTryOptionAsync<A>).Plus(ma, mb);
+
+    [Pure]
+    public static TryOptionAsync<A> PlusFirst<A>(this TryOptionAsync<A> ma, TryOptionAsync<A> mb) =>
+        default(MTryOptionFirstAsync<A>).Plus(ma, mb);
+
+    [Pure]
     public static Task<Seq<A>> ToSeq<A>(this TryOptionAsync<A> self) =>
         self.Match(
             Some: v => v.Cons(Empty),

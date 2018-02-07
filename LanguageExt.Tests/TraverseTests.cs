@@ -58,7 +58,22 @@ namespace LanguageExt.Tests
                 List(1, 2, 3, 4),
                 x => x % 2 == 0
                     ? TryAsync(async () => { await Task.Delay(1); return "even"; })
-                    : TryAsync(async () => { await Task.Delay(3000); return "odd"; })
+                    : TryAsync(async () => { await Task.Delay(100); return "odd"; })
+                );
+
+            var res = await result.IfFail("failed");
+
+            Assert.True(res == "odd");
+        }
+
+        [Fact]
+        public async void ListTryFirstAsync()
+        {
+            var result = traverseSyncAsync<MLst<int>, MTryFirstAsync<string>, Lst<int>, TryAsync<string>, int, string>(
+                List(1, 2, 3, 4),
+                x => x % 2 == 0
+                    ? TryAsync(async () => { await Task.Delay(1); return "even"; })
+                    : TryAsync(async () => { await Task.Delay(100); return "odd"; })
                 );
 
             var res = await result.IfFail("failed");

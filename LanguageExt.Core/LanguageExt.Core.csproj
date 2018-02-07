@@ -12,7 +12,7 @@
     <DefineConstants>COREFX13</DefineConstants>
   </PropertyGroup>-->
   <PropertyGroup>
-    <PackageVersion>2.2.3-beta</PackageVersion>
+    <PackageVersion>2.2.4-beta</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -40,6 +40,12 @@
     <Compile Remove="obj\**" />
     <EmbeddedResource Remove="obj\**" />
     <None Remove="obj\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="ClassInstances\Monad\MTaskFirst.cs" />
+    <None Remove="ClassInstances\Monad\MTryFirstAsync.cs" />
+    <None Remove="ClassInstances\Monad\MTryOptionFirstAsync.cs" />
+    <None Remove="DataTypes\Task\Task.Prelude.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Reactive" Version="3.1.1" />

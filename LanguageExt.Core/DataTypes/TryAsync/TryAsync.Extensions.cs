@@ -810,6 +810,14 @@ public static class TryAsyncExtensions
     });
 
     [Pure]
+    public static TryAsync<A> Plus<A>(this TryAsync<A> ma, TryAsync<A> mb) =>
+        default(MTryAsync<A>).Plus(ma, mb);
+
+    [Pure]
+    public static TryAsync<A> PlusFirst<A>(this TryAsync<A> ma, TryAsync<A> mb) =>
+        default(MTryFirstAsync<A>).Plus(ma, mb);
+
+    [Pure]
     public static Task<Seq<A>> ToSeq<A>(this TryAsync<A> self) =>
         self.Match(
             Succ: v => v.Cons(Empty),

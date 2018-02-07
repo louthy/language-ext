@@ -67,7 +67,12 @@ namespace LanguageExt.Tests
             var r = from a in Task.FromResult(Left<Exception, int>(new Exception("error 1")))
                     from b in Task.FromResult(Right<Exception, int>(1))
                     select a + b;
+        }
 
+        [Fact]
+        public void Issue346()
+        {
+            var list = 1.Cons().ToList();
         }
 
         static void EqPar()
