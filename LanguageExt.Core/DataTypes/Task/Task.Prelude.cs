@@ -140,5 +140,32 @@ namespace LanguageExt
         [Pure]
         public static Task<A> plusFirst<A>(this Task<A> ma, Task<A> mb) =>
             default(MTaskFirst<A>).Plus(ma, mb);
+
+        /// <summary>
+        /// Returns the first successful computation 
+        /// </summary>
+        /// <typeparam name="A">Bound value</typeparam>
+        /// <param name="ma">The first computation to run</param>
+        /// <param name="tail">The rest of the computations to run</param>
+        /// <returns>The first computation that succeeds</returns>
+        [Pure]
+        public static Task<A> choice<A>(Task<A> ma, params Task<A>[] tail) =>
+            choice(Cons(ma, tail));
+
+        /// <summary>
+        /// Returns the first successful computation 
+        /// </summary>
+        /// <typeparam name="A">Bound value</typeparam>
+        /// <param name="xs">Sequence of computations to run</param>
+        /// <returns>The first computation that succeeds</returns>
+        [Pure]
+        public static async Task<A> choice<A>(Seq<Task<A>> xs) =>
+            xs.IsEmpty
+                ? await BottomException.Default.AsFailedTask<A>()
+                : await default(MTask<A>).MatchAsync(
+                    xs.Head,
+                    SomeAsync: async x  => await xs.Head,
+                    NoneAsync: async () => await choice(xs.Tail));
+
     }
 }

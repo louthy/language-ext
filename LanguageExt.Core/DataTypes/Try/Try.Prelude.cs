@@ -40,6 +40,31 @@ namespace LanguageExt
             new Result<A>(ex);
 
         /// <summary>
+        /// Returns the first successful computation 
+        /// </summary>
+        /// <typeparam name="A">Bound value</typeparam>
+        /// <param name="ma">The first computation to run</param>
+        /// <param name="tail">The rest of the computations to run</param>
+        /// <returns>The first computation that succeeds</returns>
+        [Pure]
+        public static Try<A> choice<A>(Try<A> ma, params Try<A>[] tail) =>
+            choice(Cons(ma, tail));
+
+        /// <summary>
+        /// Returns the first successful computation 
+        /// </summary>
+        /// <typeparam name="A">Bound value</typeparam>
+        /// <param name="xs">Sequence of computations to run</param>
+        /// <returns>The first computation that succeeds</returns>
+        [Pure]
+        public static Try<A> choice<A>(Seq<Try<A>> xs) =>
+            xs.IsEmpty
+                ? new Try<A>(() => Result<A>.Bottom)
+                : xs.Head.BiBind(
+                    Succ: x => xs.Head,
+                    Fail: _ => choice(xs.Tail));
+
+        /// <summary>
         /// Append the bound value of Try(x) to Try(y).  If either of the
         /// Trys are Fail then the result is Fail
         /// </summary>

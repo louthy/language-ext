@@ -131,8 +131,8 @@ namespace LanguageExt.ClassInstances
             default(MTaskFirst<A>).MatchAsync(ma, Some, NoneAsync);
 
         [Pure]
-        public Task<B> MatchAsync<B>(Task<A> ma, Func<A, Task<B>> Some, Func<Task<B>> NoneAsync) =>
-            default(MTaskFirst<A>).MatchAsync(ma, Some, NoneAsync);
+        public Task<B> MatchAsync<B>(Task<A> ma, Func<A, Task<B>> SomeAsync, Func<Task<B>> NoneAsync) =>
+            default(MTaskFirst<A>).MatchAsync(ma, SomeAsync, NoneAsync);
 
         [Pure]
         public Task<B> MatchUnsafe<B>(Task<A> ma, Func<A, B> Some, Func<B> None) =>

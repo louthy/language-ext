@@ -695,5 +695,30 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<T> tryfun<T>(Func<TryOptionAsync<T>> f) => () => 
             f().Try();
+
+        /// <summary>
+        /// Returns the first successful computation 
+        /// </summary>
+        /// <typeparam name="A">Bound value</typeparam>
+        /// <param name="ma">The first computation to run</param>
+        /// <param name="tail">The rest of the computations to run</param>
+        /// <returns>The first computation that succeeds</returns>
+        [Pure]
+        public static TryOptionAsync<A> choice<A>(TryOptionAsync<A> ma, params TryOptionAsync<A>[] tail) =>
+            choice(Cons(ma, tail));
+
+        /// <summary>
+        /// Returns the first successful computation 
+        /// </summary>
+        /// <typeparam name="A">Bound value</typeparam>
+        /// <param name="xs">Sequence of computations to run</param>
+        /// <returns>The first computation that succeeds</returns>
+        [Pure]
+        public static TryOptionAsync<A> choice<A>(Seq<TryOptionAsync<A>> xs) =>
+            xs.IsEmpty
+                ? new TryOptionAsync<A>(() => OptionalResult<A>.None.AsTask())
+                : xs.Head.BiBind(
+                    Succ: x => xs.Head,
+                    Fail: () => choice(xs.Tail));
     }
 }
