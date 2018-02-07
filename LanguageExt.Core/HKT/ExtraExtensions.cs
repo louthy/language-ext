@@ -240,7 +240,7 @@ namespace LanguageExt
             TraverseFast(ma, f).Map(Enumerable.AsEnumerable);
     }
 
-    public static class RwsWriterExtensions
+    public static class SeqRwsExtensions
     {
         static RWS<MonoidW, R, W, S, List<A>> SequenceFast<MonoidW, R, W, S, A>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> => (env, state) =>
         {

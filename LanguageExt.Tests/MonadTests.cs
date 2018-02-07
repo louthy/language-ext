@@ -45,10 +45,10 @@ namespace LanguageExtTests
         [Fact]
         public void WriterSequenceTest()
         {
-            var (value, output, faulted) = multWithLog(Seq(1, 2, 3)).Invoke();
+            var res = multWithLog(Seq(1, 2, 3)).Run();
 
-            Assert.True(value == Seq(10, 20, 30));
-            Assert.True(output == Seq("Start", "Number: 1", "Number: 2", "Number: 3"));
+            Assert.True(res.Value.IfNoneOrFail(Seq<int>()) == Seq(10, 20, 30));
+            Assert.True(res.Output == Seq("Start", "Number: 1", "Number: 2", "Number: 3"));
         }
 
         private class Bindings
