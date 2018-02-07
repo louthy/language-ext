@@ -24,7 +24,7 @@ namespace LanguageExt
     /// <typeparam name="A">Bound value type</typeparam>
     public struct OptionalResult<A> : IEquatable<OptionalResult<A>>
     {
-        public static readonly OptionalResult<A> None = default(OptionalResult<A>);
+        public static readonly OptionalResult<A> None = new OptionalResult<A>(Prelude.None);
 
         internal readonly OptionalResultState State;
         internal readonly Option<A> Value;
