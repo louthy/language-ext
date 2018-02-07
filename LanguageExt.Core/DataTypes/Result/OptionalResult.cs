@@ -86,6 +86,20 @@ namespace LanguageExt
             State == OptionalResultState.Faulted;
 
         /// <summary>
+        /// True if the result is valid, but None
+        /// </summary>
+        [Pure]
+        public bool IsNone =>
+            State == OptionalResultState.Success && Value.IsNone;
+
+        /// <summary>
+        /// True if the result is valid and Some
+        /// </summary>
+        [Pure]
+        public bool IsSome =>
+            State == OptionalResultState.Success && Value.IsSome;
+
+        /// <summary>
         /// True if the result is faulted
         /// </summary>
         [Pure]
