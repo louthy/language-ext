@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 
 namespace LanguageExt
@@ -26,7 +25,7 @@ namespace LanguageExt
         /// <summary>
         /// Thread-safe cryptographically strong random base-64 string generator
         /// </summary>
-        /// <param name="count">bytesCount - number of bytes generated that are then 
+        /// <param name="bytesCount">number of bytes generated that are then 
         /// returned Base64 encoded</param>
         /// <returns>Base64 encoded random string</returns>
         public static string randomBase64(int bytesCount)
@@ -34,7 +33,9 @@ namespace LanguageExt
             if (bytesCount < 1) throw new ArgumentException($"The minimum value for {nameof(bytesCount)} is 1");
 
             var bytes = new byte[bytesCount];
-            rnd.GetBytes(bytes);
+            lock (rnd) {
+                rnd.GetBytes(bytes); 
+            }
             return Convert.ToBase64String(bytes);
         }
     }
