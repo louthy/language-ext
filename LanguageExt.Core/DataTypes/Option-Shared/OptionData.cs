@@ -103,5 +103,16 @@ namespace LanguageExt
 
         public static OptionData<A> SomeUnsafe(A value) =>
             new OptionData<A>(OptionState.Some, value, null);
+        
+        public override int GetHashCode() =>
+            IsSome
+                ? Value.GetHashCode()
+                : 0;
+        
+        public override string ToString() =>
+            IsSome
+                ? $"Some({Value})"
+                : "None";
+        
     }
 }
