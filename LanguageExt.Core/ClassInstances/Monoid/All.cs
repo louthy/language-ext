@@ -19,7 +19,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public bool And(bool a, bool b) =>
-            TBool.Inst.Or(a, b);
+            TBool.Inst.And(a, b);
 
         [Pure]
         public bool BiCondition(bool a, bool b) =>
