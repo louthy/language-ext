@@ -267,9 +267,7 @@ namespace LanguageExt
         /// state, in which case the hash-code will be 0</returns>
         [Pure]
         public override int GetHashCode() =>
-            IsSome
-                ? Value.GetHashCode()
-                : 0;
+            data.GetHashCode();
 
         /// <summary>
         /// Get a string representation of the Option
@@ -277,9 +275,7 @@ namespace LanguageExt
         /// <returns>String representation of the Option</returns>
         [Pure]
         public override string ToString() =>
-            IsSome
-                ? $"Some({Value})"
-                : "None";
+            data.ToString();
 
         /// <summary>
         /// True if this instance evaluates lazily

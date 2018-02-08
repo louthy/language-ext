@@ -22,11 +22,11 @@ public static class TryOptionAsyncExtensions
     public static TryOptionAsync<A> Memo<A>(this TryOptionAsync<A> ma)
     {
         bool run = false;
-        OptionalResult<A> result = new OptionalResult<A>();
-        return new TryOptionAsync<A>(async () =>
+        Task<OptionalResult<A>> result = Task.FromResult(new OptionalResult<A>());
+        return new TryOptionAsync<A>(() =>
         {
             if (run) return result;
-            result = await ma.Try();
+            result = ma.Try();
             run = true;
             return result;
         });
