@@ -21,7 +21,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsDefault<T>(this T value) =>
-            EqualityComparer<T>.Default.Equals(value, default(T));
+            Check<T>.IsDefault(value);
 
         /// <summary>
         /// Returns true if the value is null, and does so without
@@ -55,6 +55,10 @@ namespace LanguageExt
                 IsReferenceType = !typeof(T).GetTypeInfo().IsValueType;
                 DefaultEqualityComparer = EqualityComparer<T>.Default;
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal static bool IsDefault(T value) =>
+                DefaultEqualityComparer.Equals(value, default(T));
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal static bool IsNull(T value) =>

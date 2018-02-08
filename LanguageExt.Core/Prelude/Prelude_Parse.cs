@@ -94,6 +94,10 @@ namespace LanguageExt
             Parse<DateTime>(DateTime.TryParse, value);
 
         [Pure]
+        public static Option<DateTimeOffset> parseDateTimeOffset(string value) =>
+            Parse<DateTimeOffset>(DateTimeOffset.TryParse, value);
+
+        [Pure]
         public static Option<TEnum> parseEnum<TEnum>(string value)
             where TEnum : struct =>
             Parse<TEnum>(Enum.TryParse, value);
