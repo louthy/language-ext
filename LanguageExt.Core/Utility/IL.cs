@@ -428,7 +428,7 @@ namespace LanguageExt
                                       .GetTypeInfo()
                                       .GetAllMethods(true)
                                       .Where(m => m.Name == "GetHashCode")
-                                      .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == SeqOne(field.FieldType))
+                                      .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq1(field.FieldType))
                                       .Head(),
                                   Expression.PropertyOrField(self, field.Name)
                                   );

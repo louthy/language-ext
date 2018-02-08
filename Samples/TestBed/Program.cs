@@ -98,9 +98,9 @@ class Program
     {
         var computation = from x in Writer<MSeq<string>, Seq<string>, int>(100)
                           from y in Writer<MSeq<string>, Seq<string>, int>(200)
-                          from _1 in tell<MSeq<string>, Seq<string>>(SeqOne("Hello"))
-                          from _2 in tell<MSeq<string>, Seq<string>>(SeqOne("World"))
-                          from _3 in tell<MSeq<string>, Seq<string>>(SeqOne($"the result is {x + y}"))
+                          from _1 in tell<MSeq<string>, Seq<string>>(Seq1("Hello"))
+                          from _2 in tell<MSeq<string>, Seq<string>>(Seq1("World"))
+                          from _3 in tell<MSeq<string>, Seq<string>>(Seq1($"the result is {x + y}"))
                           select x + y;
 
         var result = computation();

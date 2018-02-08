@@ -8,7 +8,7 @@ namespace LanguageExt
 {
     public static class SeqWriterExtensions
     {
-        static Writer<MonoidW, W, List<A>> SequenceFast<MonoidW, W, A>(this IEnumerable<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> => () =>
+        internal static Writer<MonoidW, W, List<A>> SequenceFast<MonoidW, W, A>(this IEnumerable<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> => () =>
         {
             var values = new List<A>();
             var output = default(MonoidW).Empty();
@@ -22,7 +22,7 @@ namespace LanguageExt
             return (Value: values, Output: output, IsBottom: false);
         };
 
-        static Writer<MonoidW, W, List<B>> TraverseFast<MonoidW, W, A, B>(this IEnumerable<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> => () =>
+        internal static Writer<MonoidW, W, List<B>> TraverseFast<MonoidW, W, A, B>(this IEnumerable<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> => () =>
         {
             var values = new List<B>();
             var output = default(MonoidW).Empty();
@@ -88,7 +88,7 @@ namespace LanguageExt
 
     public static class SeqReaderExtensions
     {
-        static Reader<Env, List<A>> SequenceFast<Env, A>(this IEnumerable<Reader<Env, A>> ma) => env =>
+        internal static Reader<Env, List<A>> SequenceFast<Env, A>(this IEnumerable<Reader<Env, A>> ma) => env =>
         {
             var values = new List<A>();
             foreach (var item in ma)
@@ -100,7 +100,7 @@ namespace LanguageExt
             return (Value: values, IsFaulted: false);
         };
 
-        static Reader<Env, List<B>> TraverseFast<Env, A, B>(this IEnumerable<Reader<Env, A>> ma, Func<A, B> f) => env =>
+        internal static Reader<Env, List<B>> TraverseFast<Env, A, B>(this IEnumerable<Reader<Env, A>> ma, Func<A, B> f) => env =>
         {
             var values = new List<B>();
             foreach (var item in ma)
@@ -164,7 +164,7 @@ namespace LanguageExt
 
     public static class SeqStateExtensions
     {
-        static State<S, List<A>> SequenceFast<S, A>(this IEnumerable<State<S, A>> ma) => state =>
+        internal static State<S, List<A>> SequenceFast<S, A>(this IEnumerable<State<S, A>> ma) => state =>
         {
             var values = new List<A>();
             foreach (var item in ma)
@@ -177,7 +177,7 @@ namespace LanguageExt
             return (Value: values, State: state, IsFaulted: false);
         };
 
-        static State<S, List<B>> TraverseFast<S, A, B>(this IEnumerable<State<S, A>> ma, Func<A, B> f) => state =>
+        internal static State<S, List<B>> TraverseFast<S, A, B>(this IEnumerable<State<S, A>> ma, Func<A, B> f) => state =>
         {
             var values = new List<B>();
             foreach (var item in ma)
@@ -242,7 +242,7 @@ namespace LanguageExt
 
     public static class SeqRwsExtensions
     {
-        static RWS<MonoidW, R, W, S, List<A>> SequenceFast<MonoidW, R, W, S, A>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> => (env, state) =>
+        internal static RWS<MonoidW, R, W, S, List<A>> SequenceFast<MonoidW, R, W, S, A>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> => (env, state) =>
         {
             var values = new List<A>();
             var output = default(MonoidW).Empty();
@@ -257,7 +257,7 @@ namespace LanguageExt
             return (Value: values, Output: output, State: state, IsFaulted: false);
         };
 
-        static RWS<MonoidW, R, W, S, List<B>> TraverseFast<MonoidW, R, W, S, A, B>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> => (env, state) =>
+        internal static RWS<MonoidW, R, W, S, List<B>> TraverseFast<MonoidW, R, W, S, A, B>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> => (env, state) =>
         {
             var values = new List<B>();
             var output = default(MonoidW).Empty();
