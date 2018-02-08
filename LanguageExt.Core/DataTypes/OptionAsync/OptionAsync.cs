@@ -137,6 +137,16 @@ namespace LanguageExt
                 : 0;
 
         /// <summary>
+        /// Calculate the hash-code from the bound value, unless the Option is in a None
+        /// state, in which case the hash-code will be 0
+        /// </summary>
+        /// <returns>Hash-code from the bound value, unless the Option is in a None
+        /// state, in which case the hash-code will be 0</returns>
+        [Pure]
+        public Task<int> GetHashCodeAsync() =>
+            data.Map(a => a.GetHashCode());
+
+        /// <summary>
         /// Get a string representation of the Option
         /// </summary>
         /// <returns>String representation of the Option</returns>
@@ -145,6 +155,14 @@ namespace LanguageExt
             IsSome.Result
                 ? $"Some({Value.Result})"
                 : "None";
+
+        /// <summary>
+        /// Get a string representation of the Option
+        /// </summary>
+        /// <returns>String representation of the Option</returns>
+        [Pure]
+        public Task<string> ToStringAsync() =>
+            data.Map(toString);
 
         /// <summary>
         /// Is the option in a Some state
