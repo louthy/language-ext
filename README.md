@@ -1085,6 +1085,8 @@ Below is the toolkit in use,  it's used to build a `struct` type that has struct
     }
 ```
 
+> NOTE: Inheritance is not supported in `Record` derived types.  So, if you derive a type from a type that derives from `Record` then you won't magically inherit any equality, ordering, hash-code, etc. behaviours.  This feature is explicitly here to implement record-like functionality, which - in other functional languages - do not support inheritance.  Equality of origin is explicitly checked for also.
+
 ## The awful `out` parameter
 This has to be one of the most awful patterns in C#:
 
