@@ -1028,8 +1028,7 @@ public void TreeTests()
     Assert.True(treeA != treeC);
 }
 ```
-
-> No reflection is used to achieve this result, the `Record` type builds the IL directly, and so it's as efficient as writing the code by hand.
+> Inheritance is not supported in `Record` derived types.  So, if you derive a type from a type that derives from `Record` then you won't magically inherit any equality, ordering, hash-code, etc. behaviours.  This feature is explicitly here to implement record-like functionality, which - in other functional languages - do not support inheritance.  Equality of origin is explicitly checked for also.
 
 There are some [unit tests](https://github.com/louthy/language-ext/blob/master/LanguageExt.Tests/RecordTypesTest.cs) to see this in action.
 
@@ -1084,8 +1083,6 @@ Below is the toolkit in use,  it's used to build a `struct` type that has struct
             RecordType<TestStruct>.EqualityTyped(this, other);
     }
 ```
-
-> NOTE: Inheritance is not supported in `Record` derived types.  So, if you derive a type from a type that derives from `Record` then you won't magically inherit any equality, ordering, hash-code, etc. behaviours.  This feature is explicitly here to implement record-like functionality, which - in other functional languages - do not support inheritance.  Equality of origin is explicitly checked for also.
 
 ## The awful `out` parameter
 This has to be one of the most awful patterns in C#:
