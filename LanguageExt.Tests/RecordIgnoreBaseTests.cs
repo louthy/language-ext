@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace LanguageExt.Tests
@@ -15,25 +13,25 @@ namespace LanguageExt.Tests
                 X = x;
         }
 
-    public class SubClass1 : BaseClass, IEquatable<SubClass1>, IComparable<SubClass1>
-    {
-        public readonly int Y;
+        public class SubClass1 : BaseClass, IEquatable<SubClass1>, IComparable<SubClass1>
+        {
+            public readonly int Y;
 
-        public SubClass1(int x, int y) : base(x) =>
-            Y = y;
+            public SubClass1(int x, int y) : base(x) =>
+                Y = y;
 
-        public int CompareTo(SubClass1 other) =>
-            RecordTypeIgnoreBase<SubClass1>.Compare(this, other);
+            public int CompareTo(SubClass1 other) =>
+                RecordTypeIgnoreBase<SubClass1>.Compare(this, other);
 
-        public override bool Equals(object obj) =>
-            RecordTypeIgnoreBase<SubClass1>.Equality(this, obj);
+            public override bool Equals(object obj) =>
+                RecordTypeIgnoreBase<SubClass1>.Equality(this, obj);
 
-        public bool Equals(SubClass1 other) =>
-            RecordTypeIgnoreBase<SubClass1>.EqualityTyped(this, other);
+            public bool Equals(SubClass1 other) =>
+                RecordTypeIgnoreBase<SubClass1>.EqualityTyped(this, other);
 
-        public override int GetHashCode() =>
-            RecordTypeIgnoreBase<SubClass1>.Hash(this);
-    }
+            public override int GetHashCode() =>
+                RecordTypeIgnoreBase<SubClass1>.Hash(this);
+        }
 
         [IgnoreBase]
         public class SubClass2 : BaseClass, IEquatable<SubClass2>, IComparable<SubClass2>
@@ -76,6 +74,30 @@ namespace LanguageExt.Tests
                 RecordType<SubClass3>.Hash(this);
         }
 
+        public class FirstAttributeAttribute : Attribute { }
+
+        [FirstAttribute]
+        [IgnoreBase]
+        public class SubClass4 : BaseClass, IEquatable<SubClass4>, IComparable<SubClass4>
+        {
+            public readonly int Y;
+
+            public SubClass4(int x, int y) : base(x) =>
+                Y = y;
+
+            public int CompareTo(SubClass4 other) =>
+                RecordType<SubClass4>.Compare(this, other);
+
+            public override bool Equals(object obj) =>
+                RecordType<SubClass4>.Equality(this, obj);
+
+            public bool Equals(SubClass4 other) =>
+                RecordType<SubClass4>.EqualityTyped(this, other);
+
+            public override int GetHashCode() =>
+                RecordType<SubClass4>.Hash(this);
+        }
+
         [Fact]
         public void TestSubClass1Eq()
         {
@@ -108,5 +130,17 @@ namespace LanguageExt.Tests
             Assert.False(a.GetHashCode() == b.GetHashCode());
             Assert.False(a.CompareTo(b) == 0);
         }
+
+        [Fact]
+        public void TestSubClass4Eq()
+        {
+            var a = new SubClass4(0, 1);
+            var b = new SubClass4(1, 1);
+
+            Assert.True(a.Equals(b));
+            Assert.True(a.GetHashCode() == b.GetHashCode());
+            Assert.True(a.CompareTo(b) == 0);
+        }
+
     }
 }

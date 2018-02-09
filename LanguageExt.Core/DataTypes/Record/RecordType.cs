@@ -13,9 +13,9 @@ namespace LanguageExt
     {
         static RecordType()
         {
-            bool includeBase = !(typeof(A).CustomAttributes
-                                          .Map(a => a.AttributeType.Name)
-                                          .HeadOrNone() == Some("IgnoreBaseAttribute"));
+            bool includeBase = typeof(A).CustomAttributes
+                                        .Exists(a => a.AttributeType.Name == nameof(IgnoreBaseAttribute))
+                                        .Apply(not);
 
             Hash = IL.GetHashCode<A>(includeBase);
             Equality = IL.Equals<A>(includeBase);
