@@ -237,8 +237,15 @@ namespace LanguageExt.Tests
             Assert.True(x >= y);
             Assert.True(y < x);
             Assert.True(y <= x);
+
+            Assert.False(y > z);
+            Assert.False(y < z);
+            Assert.True(y <= z);
+            Assert.True(y >= z);
+
             Assert.True(y == z);
             Assert.True(z == y);
+
         }
 
         [Fact]
