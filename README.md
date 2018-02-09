@@ -1028,9 +1028,9 @@ public void TreeTests()
     Assert.True(treeA != treeC);
 }
 ```
-> Inheritance is not supported in `Record` derived types.  So, if you derive a type from a type that derives from `Record` then you won't magically inherit any equality, ordering, hash-code, etc. behaviours.  This feature is explicitly here to implement record-like functionality, which - in other functional languages - do not support inheritance.  Equality of origin is explicitly checked for also.
-
 There are some [unit tests](https://github.com/louthy/language-ext/blob/master/LanguageExt.Tests/RecordTypesTest.cs) to see this in action.
+
+> Inheritance is not supported in `Record` derived types.  So, if you derive a type from a type that derives from `Record` then you won't magically inherit any equality, ordering, hash-code, etc. behaviours.  This feature is explicitly here to implement record-like functionality, which - in other functional languages - do not support inheritance.  Equality of origin is explicitly checked for also.
 
 ## `RecordType<A>`
 
