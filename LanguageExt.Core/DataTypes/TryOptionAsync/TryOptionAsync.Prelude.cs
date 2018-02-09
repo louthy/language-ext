@@ -17,9 +17,8 @@ namespace LanguageExt
         /// <param name="f">Function to run asynchronously</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
-        public static TryOptionAsync<A> TryOptionAsync<A>(Func<A> f) =>
-            TryOptionAsyncExtensions.Memo<A>(() =>
-                Task.Run(() => new OptionalResult<A>(f())));
+        public static TryOptionAsync<A> TryOptionAsync<A>(Func<Task<A>> f) =>
+            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await f())));
 
         /// <summary>
         /// TryOptionAsync constructor function
@@ -28,9 +27,28 @@ namespace LanguageExt
         /// <param name="f">Function to run asynchronously</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
-        public static TryOptionAsync<A> TryOptionAsync<A>(Func<Option<A>> f) =>
-            TryOptionAsyncExtensions.Memo<A>(() =>
-                Task.Run(() => new OptionalResult<A>(f())));
+        public static TryOptionAsync<A> TryOptionAsync<A>(Func<Task<Option<A>>> f) =>
+            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await f())));
+
+        /// <summary>
+        /// TryOptionAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Task to run asynchronously</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryOptionAsync<A> TryOptionAsync<A>(Task<A> v) =>
+            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await v)));
+
+        /// <summary>
+        /// TryOptionAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Task to run asynchronously</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryOptionAsync<A> TryOptionAsync<A>(Task<Option<A>> v) =>
+            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await v)));
 
         /// <summary>
         /// TryOptionAsync constructor function
@@ -158,7 +176,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static TryOptionAsync<C> apply<A, B, C>(TryOptionAsync<Func<A, B, C>> fabc, TryOptionAsync<A> fa, TryOptionAsync<B> fb) =>
-            fabc.Bind(f => ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
+            fabc.Bind(f => ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa, fb));
 
         /// <summary>
         /// Apply
@@ -169,7 +187,7 @@ namespace LanguageExt
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static TryOptionAsync<C> apply<A, B, C>(Func<A, B, C> fabc, TryOptionAsync<A> fa, TryOptionAsync<B> fb) =>
-            ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
+            ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa, fb);
 
         /// <summary>
         /// Apply
@@ -179,7 +197,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static TryOptionAsync<Func<B, C>> apply<A, B, C>(TryOptionAsync<Func<A, B, C>> fabc, TryOptionAsync<A> fa) =>
-            fabc.Bind(f => ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa));
+            fabc.Bind(f => ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa));
 
         /// <summary>
         /// Apply
@@ -189,7 +207,7 @@ namespace LanguageExt
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
         public static TryOptionAsync<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, TryOptionAsync<A> fa) =>
-            ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
+            ApplTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa);
 
         /// <summary>
         /// Apply
@@ -336,7 +354,7 @@ namespace LanguageExt
         /// <returns>The result of either the Succ, None, or Fail delegate</returns>
         [Pure]
         public static Task<R> match<A, R>(TryOptionAsync<A> self, Func<A, R> Some, Func<Task<R>> None, Func<Exception, R> Fail) =>
-            self.Match(Some, None, Fail);
+            self.MatchAsync(Some, None, Fail);
 
         /// <summary>
         /// Pattern matches the three possible states of the Try computation
@@ -348,7 +366,7 @@ namespace LanguageExt
         /// <returns>The result of either the Succ, None, or Fail delegate</returns>
         [Pure]
         public static Task<R> match<A, R>(TryOptionAsync<A> self, Func<A, Task<R>> Some, Func<R> None, Func<Exception, R> Fail) =>
-            self.Match(Some, None, Fail);
+            self.MatchAsync(Some, None, Fail);
 
         /// <summary>
         /// Pattern matches the three possible states of the Try computation
@@ -360,7 +378,7 @@ namespace LanguageExt
         /// <returns>The result of either the Succ, None, or Fail delegate</returns>
         [Pure]
         public static Task<R> match<A, R>(TryOptionAsync<A> self, Func<A, Task<R>> Some, Func<Task<R>> None, Func<Exception, R> Fail) =>
-            self.Match(Some, None, Fail);
+            self.MatchAsync(Some, None, Fail);
 
         /// <summary>
         /// Pattern matches the three possible states of the Try computation
@@ -372,7 +390,7 @@ namespace LanguageExt
         /// <returns>The result of either the Succ, None, or Fail delegate</returns>
         [Pure]
         public static Task<R> match<A, R>(TryOptionAsync<A> self, Func<A, R> Some, Func<R> None, Func<Exception, Task<R>> Fail) =>
-            self.Match(Some, None, Fail);
+            self.MatchAsync(Some, None, Fail);
 
         /// <summary>
         /// Pattern matches the three possible states of the Try computation
@@ -384,7 +402,7 @@ namespace LanguageExt
         /// <returns>The result of either the Succ, None, or Fail delegate</returns>
         [Pure]
         public static Task<R> match<A, R>(TryOptionAsync<A> self, Func<A, R> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
-            self.Match(Some, None, Fail);
+            self.MatchAsync(Some, None, Fail);
 
         /// <summary>
         /// Pattern matches the three possible states of the Try computation
@@ -396,7 +414,7 @@ namespace LanguageExt
         /// <returns>The result of either the Succ, None, or Fail delegate</returns>
         [Pure]
         public static Task<R> match<A, R>(TryOptionAsync<A> self, Func<A, Task<R>> Some, Func<R> None, Func<Exception, Task<R>> Fail) =>
-            self.Match(Some, None, Fail);
+            self.MatchAsync(Some, None, Fail);
 
         /// <summary>
         /// Pattern matches the three possible states of the Try computation
@@ -408,7 +426,7 @@ namespace LanguageExt
         /// <returns>The result of either the Succ, None, or Fail delegate</returns>
         [Pure]
         public static Task<R> match<A, R>(TryOptionAsync<A> self, Func<A, Task<R>> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
-            self.Match(Some, None, Fail);
+            self.MatchAsync(Some, None, Fail);
 
         /// <summary>
         /// Pattern matches the three possible states of the Try computation
@@ -432,7 +450,7 @@ namespace LanguageExt
         /// <returns>The result of either the Succ, None, or Fail delegate</returns>
         [Pure]
         public static Task<R> match<A, R>(TryOptionAsync<A> self, Func<A, R> Some, Func<Task<R>> None, R Fail) =>
-            self.Match(Some, None, Fail);
+            self.MatchAsync(Some, None, Fail);
 
         /// <summary>
         /// Pattern matches the three possible states of the Try computation
@@ -444,7 +462,7 @@ namespace LanguageExt
         /// <returns>The result of either the Succ, None, or Fail delegate</returns>
         [Pure]
         public static Task<R> match<A, R>(TryOptionAsync<A> self, Func<A, Task<R>> Some, Func<R> None, R Fail) =>
-            self.Match(Some, None, Fail);
+            self.MatchAsync(Some, None, Fail);
 
         /// <summary>
         /// Pattern matches the three possible states of the Try computation
@@ -456,7 +474,7 @@ namespace LanguageExt
         /// <returns>The result of either the Succ, None, or Fail delegate</returns>
         [Pure]
         public static Task<R> match<A, R>(TryOptionAsync<A> self, Func<A, Task<R>> Some, Func<Task<R>> None, R Fail) =>
-            self.Match(Some, None, Fail);
+            self.MatchAsync(Some, None, Fail);
 
         /// <summary>
         /// Pattern matches the three possible states of the Try computation
@@ -659,6 +677,14 @@ namespace LanguageExt
             self.BiBind(Succ, Fail);
 
         [Pure]
+        public static TryOptionAsync<A> plus<A>(TryOptionAsync<A> ma, TryOptionAsync<A> mb) =>
+            default(MTryOptionAsync<A>).Plus(ma, mb);
+
+        [Pure]
+        public static TryOptionAsync<A> plusFirst<A>(TryOptionAsync<A> ma, TryOptionAsync<A> mb) =>
+            default(MTryOptionFirstAsync<A>).Plus(ma, mb);
+
+        [Pure]
         public static Task<Lst<T>> toList<T>(TryOptionAsync<T> tryDel) =>
             tryDel.ToList();
 
@@ -669,5 +695,30 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<T> tryfun<T>(Func<TryOptionAsync<T>> f) => () => 
             f().Try();
+
+        /// <summary>
+        /// Returns the first successful computation 
+        /// </summary>
+        /// <typeparam name="A">Bound value</typeparam>
+        /// <param name="ma">The first computation to run</param>
+        /// <param name="tail">The rest of the computations to run</param>
+        /// <returns>The first computation that succeeds</returns>
+        [Pure]
+        public static TryOptionAsync<A> choice<A>(TryOptionAsync<A> ma, params TryOptionAsync<A>[] tail) =>
+            choice(Cons(ma, tail));
+
+        /// <summary>
+        /// Returns the first successful computation 
+        /// </summary>
+        /// <typeparam name="A">Bound value</typeparam>
+        /// <param name="xs">Sequence of computations to run</param>
+        /// <returns>The first computation that succeeds</returns>
+        [Pure]
+        public static TryOptionAsync<A> choice<A>(Seq<TryOptionAsync<A>> xs) =>
+            xs.IsEmpty
+                ? new TryOptionAsync<A>(() => OptionalResult<A>.None.AsTask())
+                : xs.Head.BiBind(
+                    Succ: x => xs.Head,
+                    Fail: () => choice(xs.Tail));
     }
 }

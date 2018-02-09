@@ -218,8 +218,8 @@ public static class TaskTryOptionExtensions
     /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
-    public static Task<R> Match<A, R>(this Task<TryOption<A>> self, Func<A, Task<R>> Some, Func<R> None, Func<Exception, R> Fail) =>
-        self.ToAsync().Match(Some, None, Fail);
+    public static Task<R> MatchAsync<A, R>(this Task<TryOption<A>> self, Func<A, Task<R>> Some, Func<R> None, Func<Exception, R> Fail) =>
+        self.ToAsync().MatchAsync(Some, None, Fail);
 
     /// <summary>
     /// Pattern matches the three possible states of the computation computation
@@ -228,8 +228,8 @@ public static class TaskTryOptionExtensions
     /// <param name="Succ">Delegate to invoke if the computation completes successfully</param>
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
-    public static Task<R> Match<A, R>(this Task<TryOption<A>> self, Func<A, Task<R>> Succ, Func<Task<R>> Fail) =>
-        self.ToAsync().Match(Succ, Fail);
+    public static Task<R> MatchAsync<A, R>(this Task<TryOption<A>> self, Func<A, Task<R>> Succ, Func<Task<R>> Fail) =>
+        self.ToAsync().MatchAsync(Succ, Fail);
 
     /// <summary>
     /// Pattern matches the three possible states of the computation
@@ -239,8 +239,8 @@ public static class TaskTryOptionExtensions
     /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Some, None, or Fail delegate</returns>
-    public static Task<R> Match<A, R>(this Task<TryOption<A>> self, Func<A, Task<R>> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
-        self.ToAsync().Match(Some, None, Fail);
+    public static Task<R> MatchAsync<A, R>(this Task<TryOption<A>> self, Func<A, Task<R>> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
+        self.ToAsync().MatchAsync(Some, None, Fail);
 
     /// <summary>
     /// Pattern matches the three possible states of the computation computation
@@ -249,8 +249,8 @@ public static class TaskTryOptionExtensions
     /// <param name="Succ">Delegate to invoke if the computation completes successfully</param>
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, Fail delegate</returns>
-    public static Task<R> Match<A, R>(this Task<TryOption<A>> self, Func<A, R> Succ, Func<Task<R>> Fail) =>
-        self.ToAsync().Match(Succ, Fail);
+    public static Task<R> MatchAsync<A, R>(this Task<TryOption<A>> self, Func<A, R> Succ, Func<Task<R>> Fail) =>
+        self.ToAsync().MatchAsync(Succ, Fail);
 
     /// <summary>
     /// Pattern matches the three possible states of the computation
@@ -260,8 +260,8 @@ public static class TaskTryOptionExtensions
     /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Some, None, or Fail delegate</returns>
-    public static Task<R> Match<A, R>(this Task<TryOption<A>> self, Func<A, R> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
-        self.ToAsync().Match(Some, None, Fail);
+    public static Task<R> MatchAsync<A, R>(this Task<TryOption<A>> self, Func<A, R> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
+        self.ToAsync().MatchAsync(Some, None, Fail);
 
     [Pure]
     public static Task<Option<A>> ToOption<A>(this Task<TryOption<A>> self) =>

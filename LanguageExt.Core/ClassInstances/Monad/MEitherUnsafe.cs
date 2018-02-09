@@ -2,7 +2,6 @@
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -17,6 +16,13 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public MB Bind<MONADB, MB, B>(EitherUnsafe<L, R> ma, Func<R, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
+            Match(ma,
+                Left: l => default(MONADB).Fail(l),
+                Right: r => f(r),
+                Bottom: () => default(MONADB).Fail(BottomException.Default));
+
+        [Pure]
+        public MB BindAsync<MONADB, MB, B>(EitherUnsafe<L, R> ma, Func<R, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
             Match(ma,
                 Left: l => default(MONADB).Fail(l),
                 Right: r => f(r),
@@ -130,7 +136,7 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public EitherUnsafe<L, R> Id(Func<Unit, EitherUnsafe<L, R>> ma) =>
+        public EitherUnsafe<L, R> Run(Func<Unit, EitherUnsafe<L, R>> ma) =>
             ma(unit);
 
         [Pure]
@@ -140,36 +146,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public EitherUnsafe<L, R> Return(R x) =>
             Return(_ => x);
-
-        [Pure]
-        public EitherUnsafe<L, R> IdAsync(Func<Unit, Task<EitherUnsafe<L, R>>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(EitherUnsafe<L, R> fa, S state, Func<S, R, S> f) => _ =>
-            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(EitherUnsafe<L, R> fa, S state, Func<S, R, Task<S>> f) => _ =>
-            fa.MatchUnsafe(
-                Right: r   => f(state, r),
-                Left: l    => Task.FromResult(state),
-                Bottom: () => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(EitherUnsafe<L, R> fa, S state, Func<S, R, S> f) => _ =>
-             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(EitherUnsafe<L, R> fa, S state, Func<S, R, Task<S>> f) => _ =>
-            fa.MatchUnsafe(
-                Right: r   => f(state, r),
-                Left: l    => Task.FromResult(state),
-                Bottom: () => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(EitherUnsafe<L, R> fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
 
         [Pure]
         public EitherUnsafe<L, R> Empty() =>

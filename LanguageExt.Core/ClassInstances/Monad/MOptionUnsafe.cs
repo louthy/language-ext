@@ -25,10 +25,21 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public MB Bind<MONADB, MB, B>(OptionUnsafe<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             ma.IsLazy
-                ? default(MONADB).Id(_ =>
+                ? default(MONADB).Run(_ =>
                     ma.IsSome && f != null
                         ? f(ma.Value)
                         : default(MONADB).Fail(ValueIsNoneException.Default))
+                : ma.IsSome && f != null
+                    ? f(ma.Value)
+                    : default(MONADB).Fail(ValueIsNoneException.Default);
+
+        [Pure]
+        public MB BindAsync<MONADB, MB, B>(OptionUnsafe<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            ma.IsLazy
+                ? default(MONADB).RunAsync(_ =>
+                    (ma.IsSome && f != null
+                        ? f(ma.Value)
+                        : default(MONADB).Fail(ValueIsNoneException.Default)).AsTask())
                 : ma.IsSome && f != null
                     ? f(ma.Value)
                     : default(MONADB).Fail(ValueIsNoneException.Default);
@@ -40,7 +51,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionUnsafe<A> Plus(OptionUnsafe<A> a, OptionUnsafe<A> b) =>
             a.IsLazy
-                ? Id(_ =>
+                ? Run(_ =>
                       a.IsSome
                           ? a
                           : b)
@@ -183,7 +194,7 @@ namespace LanguageExt.ClassInstances
             new OptionUnsafe<A>(OptionData.Some(x));
 
         [Pure]
-        public OptionUnsafe<A> Id(Func<Unit, OptionUnsafe<A>> ma) =>
+        public OptionUnsafe<A> Run(Func<Unit, OptionUnsafe<A>> ma) =>
             new OptionUnsafe<A>(OptionData.Lazy(() =>
             {
                 var a = ma(unit);
@@ -197,34 +208,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionUnsafe<A> Return(A x) =>
             Optional(x);
-
-        [Pure]
-        public OptionUnsafe<A> IdAsync(Func<Unit, Task<OptionUnsafe<A>>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(OptionUnsafe<A> fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(OptionUnsafe<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-            fa.MatchUnsafe(
-                Some: r => f(state, r),
-                None: () => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(OptionUnsafe<A> fa, S state, Func<S, A, S> f) => _ =>
-             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(OptionUnsafe<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-            fa.MatchUnsafe(
-                Some: r => f(state, r),
-                None: () => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(OptionUnsafe<A> fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
 
         [Pure]
         public OptionUnsafe<A> Empty() =>

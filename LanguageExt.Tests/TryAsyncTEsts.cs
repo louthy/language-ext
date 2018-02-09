@@ -58,15 +58,15 @@ namespace LanguageExt.Tests
         [Fact]
         public async void BindingSuccess()
         {
-            var ma = TryAsync(() =>
+            var ma = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
-            var mb = TryAsync(() =>
+            var mb = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
@@ -83,15 +83,15 @@ namespace LanguageExt.Tests
         [Fact]
         public async void BindingFail()
         {
-            var ma = TryAsync(() =>
+            var ma = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
-            var mb = TryAsync(() =>
+            var mb = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
@@ -108,40 +108,46 @@ namespace LanguageExt.Tests
         [Fact]
         public async void BindingFail2()
         {
-            var ma = TryAsync(() =>
+            var ma = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
-            var mb = TryAsync(() =>
+            var mb = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
             var res = AsyncHelper.CompletesImmediately(() =>
                 MTryAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(ma, a =>
-                    MTryAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(mb, b =>
-                        throw new NotImplementedException())));
+                    MTryAsync<int>.Inst.BindAsync<MTryAsync<int>, TryAsync<int>, int>(mb, async b =>
+                        await ThrowNotImplementedException<TryAsync<int>>())));
 
             var ab = await AsyncHelper.TakesRoughly(2000, () => res.IfFail(0));
 
             Assert.True(ab == 0);
         }
 
+        Task<A> ThrowNotImplementedException<A>() =>
+            throw new NotImplementedException();
+
+        Task<A> ThrowNotSupportedException<A>(string msg) =>
+            throw new NotSupportedException(msg);
+
         [Fact]
         public async void BindingWithTryOptionSuccess()
         {
-            var ma = TryAsync(() =>
+            var ma = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
-            var mb = TryOptionAsync(() =>
+            var mb = TryOptionAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
@@ -158,22 +164,22 @@ namespace LanguageExt.Tests
         [Fact]
         public async void BindingWithTryOptionFail1()
         {
-            var ma = TryAsync(() =>
+            var ma = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
-            var mb = TryOptionAsync(() =>
+            var mb = TryOptionAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
             var res = AsyncHelper.CompletesImmediately(() =>
                 MTryAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(ma, a =>
-                    MTryOptionAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(mb, b =>
-                        throw new NotSupportedException("hello"))));
+                    MTryOptionAsync<int>.Inst.BindAsync<MTryAsync<int>, TryAsync<int>, int>(mb, b =>
+                        ThrowNotSupportedException<TryAsync<int>>("hello"))));
 
             var ab = await AsyncHelper.TakesRoughly(2000, () => 
                 res.Match(
@@ -186,22 +192,22 @@ namespace LanguageExt.Tests
         [Fact]
         public async void BindingWithTryOptionFail2()
         {
-            var ma = TryOptionAsync(() =>
+            var ma = TryOptionAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
-            var mb = TryAsync(() =>
+            var mb = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
             var res = AsyncHelper.CompletesImmediately(() =>
                 MTryOptionAsync<int>.Inst.Bind<MTryOptionAsync<int>, TryOptionAsync<int>, int>(ma, a =>
-                    MTryAsync<int>.Inst.Bind<MTryOptionAsync<int>, TryOptionAsync<int>, int>(mb, b =>
-                        throw new NotSupportedException("hello"))));
+                    MTryAsync<int>.Inst.BindAsync<MTryOptionAsync<int>, TryOptionAsync<int>, int>(mb, b =>
+                        ThrowNotSupportedException<TryOptionAsync<int>>("hello"))));
 
             var ab = await AsyncHelper.TakesRoughly(2000, () =>
                 res.Match(
@@ -214,15 +220,15 @@ namespace LanguageExt.Tests
         [Fact]
         public async void BindingWithTryOptionFail3()
         {
-            var ma = TryOptionAsync(() =>
+            var ma = TryOptionAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
-            var mb = TryAsync(() =>
+            var mb = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
@@ -243,15 +249,15 @@ namespace LanguageExt.Tests
         [Fact]
         public async void LinqBindingSuccess()
         {
-            var ma = TryAsync(() =>
+            var ma = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
-            var mb = TryAsync(() =>
+            var mb = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
@@ -268,15 +274,15 @@ namespace LanguageExt.Tests
         [Fact]
         public async void LinqBindingFail()
         {
-            var ma = TryAsync(() =>
+            var ma = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
-            var mb = TryAsync(() =>
+            var mb = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
@@ -293,15 +299,15 @@ namespace LanguageExt.Tests
         [Fact]
         public async void LinqBindingFail2()
         {
-            var ma = TryAsync(() =>
+            var ma = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
-            var mb = TryAsync(() =>
+            var mb = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
@@ -318,15 +324,15 @@ namespace LanguageExt.Tests
         [Fact]
         public async void LinqBindingWithTryOptionSuccess()
         {
-            var ma = TryAsync(() =>
+            var ma = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
-            var mb = TryOptionAsync(() =>
+            var mb = TryOptionAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
@@ -343,15 +349,15 @@ namespace LanguageExt.Tests
         [Fact]
         public async void LinqBindingWithTryOptionFail1()
         {
-            var ma = TryAsync(() =>
+            var ma = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
-            var mb = TryOptionAsync(() =>
+            var mb = TryOptionAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
@@ -371,15 +377,15 @@ namespace LanguageExt.Tests
         [Fact]
         public async void LinqBindingWithTryOptionFail2()
         {
-            var ma = TryOptionAsync(() =>
+            var ma = TryOptionAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 
-            var mb = TryAsync(() =>
+            var mb = TryAsync(async () =>
             {
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
                 return 100;
             });
 

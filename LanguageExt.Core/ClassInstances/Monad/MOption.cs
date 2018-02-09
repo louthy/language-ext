@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -14,7 +11,9 @@ namespace LanguageExt.ClassInstances
         Optional<Option<A>, A>,
         Monad<Option<A>, A>,
         BiFoldable<Option<A>, A, Unit>,
-        Eq<Option<A>>
+        Eq<Option<A>>,
+        Ord<Option<A>>,
+        AsyncPair<Option<A>, OptionAsync<A>>
     {
         public static readonly MOption<A> Inst = default(MOption<A>);
 
@@ -24,10 +23,21 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public MB Bind<MonadB, MB, B>(Option<A> ma, Func<A, MB> f) where MonadB : struct, Monad<Unit, Unit, MB, B> =>
             ma.IsLazy
-                ? default(MonadB).Id(_ =>
+                ? default(MonadB).Run(_ =>
                     ma.IsSome && f != null
                         ? f(ma.Value)
                         : default(MonadB).Fail(ValueIsNoneException.Default))
+                : ma.IsSome && f != null
+                    ? f(ma.Value)
+                    : default(MonadB).Fail(ValueIsNoneException.Default);
+
+        [Pure]
+        public MB BindAsync<MonadB, MB, B>(Option<A> ma, Func<A, MB> f) where MonadB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            ma.IsLazy
+                ? default(MonadB).RunAsync(_ =>
+                    (ma.IsSome && f != null
+                        ? f(ma.Value)
+                        : default(MonadB).Fail(ValueIsNoneException.Default)).AsTask())
                 : ma.IsSome && f != null
                     ? f(ma.Value)
                     : default(MonadB).Fail(ValueIsNoneException.Default);
@@ -39,7 +49,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Option<A> Plus(Option<A> a, Option<A> b) =>
             a.IsLazy
-                ? default(MOption<A>).Id(_ =>
+                ? default(MOption<A>).Run(_ =>
                     a.IsSome
                         ? a
                         : b)
@@ -158,7 +168,7 @@ namespace LanguageExt.ClassInstances
             new Option<A>(OptionData.Optional(x));
 
         [Pure]
-        public Option<A> Id(Func<Unit, Option<A>> ma) =>
+        public Option<A> Run(Func<Unit, Option<A>> ma) =>
             new Option<A>(OptionData.Lazy(() =>
             {
                 var a = ma(unit);
@@ -174,40 +184,12 @@ namespace LanguageExt.ClassInstances
             Optional(x);
 
         [Pure]
-        public Option<A> IdAsync(Func<Unit, Task<Option<A>>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
         public Option<A> Empty() =>
             None;
 
         [Pure]
         public Option<A> Append(Option<A> x, Option<A> y) =>
             Plus(x, y);
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Option<A> fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Option<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-            fa.Match(
-                Some: r => f(state, r),
-                None: () => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Option<A> fa, S state, Func<S, A, S> f) => _ =>
-             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Option<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-            fa.Match(
-                Some: r => f(state, r),
-                None: () => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(Option<A> fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
 
         [Pure]
         public bool Equals(Option<A> x, Option<A> y) =>
@@ -222,5 +204,13 @@ namespace LanguageExt.ClassInstances
             from a in fa
             from b in fb
             select f(a, b);
+
+        [Pure]
+        public int Compare(Option<A> x, Option<A> y) =>
+            compare<OrdDefault<A>, A>(x, y);
+
+        [Pure]
+        public OptionAsync<A> ToAsync(Option<A> sa) =>
+            sa.ToAsync();
     }
 }

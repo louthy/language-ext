@@ -544,5 +544,30 @@ namespace LanguageExt
         [Pure]
         public static TryOption<T> tryfun<T>(Func<TryOption<T>> tryDel) =>
             () => tryDel()();
+
+        /// <summary>
+        /// Returns the first successful computation 
+        /// </summary>
+        /// <typeparam name="A">Bound value</typeparam>
+        /// <param name="ma">The first computation to run</param>
+        /// <param name="tail">The rest of the computations to run</param>
+        /// <returns>The first computation that succeeds</returns>
+        [Pure]
+        public static TryOption<A> choice<A>(TryOption<A> ma, params TryOption<A>[] tail) =>
+            choice(Cons(ma, tail));
+
+        /// <summary>
+        /// Returns the first successful computation 
+        /// </summary>
+        /// <typeparam name="A">Bound value</typeparam>
+        /// <param name="xs">Sequence of computations to run</param>
+        /// <returns>The first computation that succeeds</returns>
+        [Pure]
+        public static TryOption<A> choice<A>(Seq<TryOption<A>> xs) =>
+            xs.IsEmpty
+                ? new TryOption<A>(() => OptionalResult<A>.None)
+                : xs.Head.BiBind(
+                    Some: x => xs.Head,
+                    Fail: () => choice(xs.Tail));
     }
 }

@@ -38,7 +38,7 @@ namespace LanguageExt
         /// <param name="value">Error value</param>
         /// <returns>Validation applicative</returns>
         public static Validation<ERROR, A> Fail<ERROR, A>(ERROR value) =>
-            Validation<ERROR, A>.Fail(SeqOne(value));
+            Validation<ERROR, A>.Fail(Seq1(value));
 
         /// <summary>
         /// Represents a failed operation

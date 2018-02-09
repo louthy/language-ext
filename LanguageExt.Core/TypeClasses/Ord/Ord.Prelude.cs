@@ -258,5 +258,50 @@ namespace LanguageExt
         public static int compare<ORD, L, R>(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where ORD : struct, Ord<R> =>
             OrdChoice<ORD, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Compare(x, y);
 
+        /// <summary>
+        /// Find the minimum value between any two values
+        /// </summary>
+        /// <param name="x">First value</param>
+        /// <param name="y">Second value</param>
+        /// <returns>When ordering the two values in ascending order, this is the first of those</returns>
+        [Pure]
+        public static A min<OrdA, A>(A x, A y) where OrdA : struct, Ord<A> =>
+            compare<OrdA, A>(x, y) < 0
+                ? x
+                : y;
+
+        /// <summary>
+        /// Find the minimum value between any two values
+        /// </summary>
+        /// <param name="x">First value</param>
+        /// <param name="y">Second value</param>
+        /// <returns>When ordering the two values in ascending order, this is the last of those</returns>
+        [Pure]
+        public static A max<OrdA, A>(A x, A y) where OrdA : struct, Ord<A> =>
+            compare<OrdA, A>(x, y) > 0
+                ? x
+                : y;
+
+        /// <summary>
+        /// Find the minimum value between a set of values
+        /// </summary>
+        /// <param name="x">First value</param>
+        /// <param name="y">Second value</param>
+        /// <param name="tail">Remaining values</param>
+        /// <returns>When ordering the values in ascending order, this is the first of those</returns>
+        [Pure]
+        public static A min<OrdA, A>(A x, A y, A z, params A[] tail) where OrdA : struct, Ord<A> =>
+            fold<MArray<A>, A[], A, A>(tail, min<OrdA, A>(x, min<OrdA, A>(y, z)), min<OrdA, A>);
+
+        /// <summary>
+        /// Find the minimum value between a set of values
+        /// </summary>
+        /// <param name="x">First value</param>
+        /// <param name="y">Second value</param>
+        /// <param name="tail">Remaining values</param>
+        /// <returns>When ordering the values in ascending order, this is the last of those</returns>
+        [Pure]
+        public static A max<OrdA, A>(A x, A y, A z, params A[] tail) where OrdA : struct, Ord<A> =>
+            fold<MArray<A>, A[], A, A>(tail, max<OrdA, A>(x, max<OrdA, A>(y, z)), max<OrdA, A>);
     }
 }

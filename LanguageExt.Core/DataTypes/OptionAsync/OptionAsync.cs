@@ -29,12 +29,12 @@ namespace LanguageExt
     public struct OptionAsync<A> :
         IOptionalAsync
     {
-        readonly OptionDataAsync<A> data;
+        internal readonly Task<OptionData<A>> data;
 
         /// <summary>
         /// None
         /// </summary>
-        public static readonly OptionAsync<A> None = new OptionAsync<A>(OptionDataAsync<A>.None);
+        public static readonly OptionAsync<A> None = new OptionAsync<A>(OptionData<A>.None.AsTask());
 
         /// <summary>
         /// Construct an OptionAsync of A in a Some state
@@ -43,12 +43,39 @@ namespace LanguageExt
         /// <returns>OptionAsync of A</returns>
         [Pure]
         public static OptionAsync<A> Some(A value) =>
-            new OptionAsync<A>(new OptionDataAsync<A>(OptionState.Some, value, null));
+            new OptionAsync<A>(OptionData<A>.Some(value).AsTask());
+
+        /// <summary>
+        /// Construct an OptionAsync of A in a Some state
+        /// </summary>
+        /// <param name="value">Value to bind, must be non-null</param>
+        /// <returns>OptionAsync of A</returns>
+        [Pure]
+        public static OptionAsync<A> SomeAsync(Task<A> value) =>
+            new OptionAsync<A>(value.Map(a => OptionData<A>.Some(a)));
+
+        /// <summary>
+        /// Construct an OptionAsync of A in a Some state
+        /// </summary>
+        /// <param name="value">Value to bind, must be non-null</param>
+        /// <returns>OptionAsync of A</returns>
+        [Pure]
+        public static OptionAsync<A> Optional(A value) =>
+            new OptionAsync<A>(OptionData<A>.Optional(value).AsTask());
+
+        /// <summary>
+        /// Construct an OptionAsync of A in a Some state
+        /// </summary>
+        /// <param name="value">Value to bind, must be non-null</param>
+        /// <returns>OptionAsync of A</returns>
+        [Pure]
+        public static OptionAsync<A> OptionalAsync(Task<A> value) =>
+            new OptionAsync<A>(value.Map(a => OptionData<A>.Optional(a)));
 
         /// <summary>
         /// Takes the value-type OptionV<A>
         /// </summary>
-        internal OptionAsync(OptionDataAsync<A> data) =>
+        internal OptionAsync(Task<OptionData<A>> data) =>
             this.data = data;
 
         /// <summary>
@@ -60,8 +87,8 @@ namespace LanguageExt
         {
             var first = option.Take(1).ToArray();
             this.data = first.Length == 0
-                ? OptionDataAsync<A>.None
-                : OptionDataAsync.Optional(first[0]);
+                ? OptionData<A>.None.AsTask()
+                : OptionData<A>.Optional(first[0]).AsTask();
         }
 
         /// <summary>
@@ -70,6 +97,14 @@ namespace LanguageExt
         /// <param name="a">Unit value</param>
         [Pure]
         public static implicit operator OptionAsync<A>(A a) =>
+            OptionalAsync(a.AsTask());
+
+        /// <summary>
+        /// Implicit conversion operator from A to Option<A>
+        /// </summary>
+        /// <param name="a">Unit value</param>
+        [Pure]
+        public static implicit operator OptionAsync<A>(Task<A> a) =>
             OptionalAsync(a);
 
         /// Implicit conversion operator from None to Option<A>
@@ -97,9 +132,17 @@ namespace LanguageExt
         /// state, in which case the hash-code will be 0</returns>
         [Pure]
         public override int GetHashCode() =>
-            IsSome.Result
-                ? Value.GetHashCode()
-                : 0;
+            GetHashCodeAsync().Result;
+
+        /// <summary>
+        /// Calculate the hash-code from the bound value, unless the Option is in a None
+        /// state, in which case the hash-code will be 0
+        /// </summary>
+        /// <returns>Hash-code from the bound value, unless the Option is in a None
+        /// state, in which case the hash-code will be 0</returns>
+        [Pure]
+        public Task<int> GetHashCodeAsync() =>
+            data.Map(a => a.GetHashCode());
 
         /// <summary>
         /// Get a string representation of the Option
@@ -107,36 +150,35 @@ namespace LanguageExt
         /// <returns>String representation of the Option</returns>
         [Pure]
         public override string ToString() =>
-            IsSome.Result
-                ? $"Some({Value.Result})"
-                : "None";
+            ToStringAsync().Result;
 
         /// <summary>
-        /// True if this instance evaluates lazily
+        /// Get a string representation of the Option
         /// </summary>
+        /// <returns>String representation of the Option</returns>
         [Pure]
-        public bool IsLazy =>
-            (data ?? OptionDataAsync<A>.None).IsLazy;
+        public Task<string> ToStringAsync() =>
+            data.Map(toString);
 
         /// <summary>
         /// Is the option in a Some state
         /// </summary>
         [Pure]
         public Task<bool> IsSome =>
-            (data ?? OptionDataAsync<A>.None).IsSome();
+            data.Map(a => a.IsSome);
 
         /// <summary>
         /// Is the option in a None state
         /// </summary>
         [Pure]
         public Task<bool> IsNone =>
-            (data ?? OptionDataAsync<A>.None).IsNone();
+            data.Map(a => a.IsNone);
 
         /// <summary>
         /// Helper accessor for the bound value
         /// </summary>
         internal Task<A> Value =>
-            (data ?? OptionDataAsync<A>.None).Value();
+            data.Map(a => a.Value);
 
         /// <summary>
         /// Projection from one value to another 
@@ -146,7 +188,8 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionAsync<B> Select<B>(Func<A, B> f) =>
-            FOptionAsync<A, B>.Inst.Map(this, f);
+            default(MOptionAsync<A>)
+                .Bind<MOptionAsync<B>, OptionAsync<B>, B>(this, x => OptionAsync<B>.Some(f(x)));
 
         /// <summary>
         /// Projection from one value to another 
@@ -156,7 +199,8 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionAsync<B> Map<B>(Func<A, B> f) =>
-            FOptionAsync<A, B>.Inst.Map(this, f);
+            default(MOptionAsync<A>)
+                .Bind<MOptionAsync<B>, OptionAsync<B>, B>(this, x => OptionAsync<B>.Some(f(x)));
 
         /// <summary>
         /// Projection from one value to another 
@@ -165,15 +209,23 @@ namespace LanguageExt
         /// <param name="f">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
-        public OptionAsync<B> Map<B>(Func<A, Task<B>> f) =>
-            FOptionAsync<A, B>.Inst.Map(this, f);
+        public OptionAsync<B> MapAsync<B>(Func<A, Task<B>> f) =>
+            default(MOptionAsync<A>)
+                .BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(this, async x => OptionAsync<B>.Some(await f(x)));
 
         /// <summary>
         /// Monad bind operation
         /// </summary>
         [Pure]
         public OptionAsync<B> Bind<B>(Func<A, OptionAsync<B>> f) =>
-            MOptionAsync<A>.Inst.Bind<MOptionAsync<B>, OptionAsync<B>, B>(this, f);
+            default(MOptionAsync<A>).Bind<MOptionAsync<B>, OptionAsync<B>, B>(this, f);
+
+        /// <summary>
+        /// Monad bind operation
+        /// </summary>
+        [Pure]
+        public OptionAsync<B> BindAsync<B>(Func<A, Task<OptionAsync<B>>> f) =>
+            default(MOptionAsync<A>).BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(this, f);
 
         /// <summary>
         /// Monad bind operation
@@ -182,7 +234,9 @@ namespace LanguageExt
         public OptionAsync<C> SelectMany<B, C>(
             Func<A, OptionAsync<B>> bind,
             Func<A, B, C> project) =>
-            SelectMany<MOptionAsync<A>, MOptionAsync<B>, MOptionAsync<C>, OptionAsync<A>, OptionAsync<B>, OptionAsync<C>, A, B, C>(this, bind, project);
+            default(MOptionAsync<A>).Bind<MOptionAsync<C>, OptionAsync<C>, C>(this,    a =>
+            default(MOptionAsync<B>).Bind<MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
+            default(MOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
 
         /// <summary>
         /// Match operation with an untyped value for Some. This can be
@@ -217,7 +271,7 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public Task<R> MatchUntyped<R>(Func<object, R> Some, Func<Task<R>> None) =>
+        public Task<R> MatchUntypedAsync<R>(Func<object, R> Some, Func<Task<R>> None) =>
             matchUntypedAsync<MOptionAsync<A>, OptionAsync<A>, A, R>(this, Some, None);
 
         /// <summary>
@@ -229,7 +283,7 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public Task<R> MatchUntyped<R>(Func<object, Task<R>> Some, Func<Task<R>> None) =>
+        public Task<R> MatchUntypedAsync<R>(Func<object, Task<R>> Some, Func<Task<R>> None) =>
             matchUntypedAsync<MOptionAsync<A>, OptionAsync<A>, A, R>(this, Some, None);
 
         /// <summary>
@@ -351,6 +405,17 @@ namespace LanguageExt
         /// <returns>A non-null B</returns>
         [Pure]
         public Task<B> Match<B>(Func<A, B> Some, Func<B> None) =>
+            MOptionAsync<A>.Inst.Match(this, Some, None);
+
+        /// <summary>
+        /// Match the two states of the Option and return a non-null R.
+        /// </summary>
+        /// <typeparam name="B">Return type</typeparam>
+        /// <param name="Some">Some match operation. Must not return null.</param>
+        /// <param name="None">None match operation. Must not return null.</param>
+        /// <returns>A non-null B</returns>
+        [Pure]
+        public Task<B> MatchAsync<B>(Func<A, Task<B>> Some, Func<B> None) =>
             MOptionAsync<A>.Inst.MatchAsync(this, Some, None);
 
         /// <summary>
@@ -361,7 +426,7 @@ namespace LanguageExt
         /// <param name="None">None match operation. Must not return null.</param>
         /// <returns>A non-null B</returns>
         [Pure]
-        public Task<B> Match<B>(Func<A, Task<B>> Some, Func<B> None) =>
+        public Task<B> MatchAsync<B>(Func<A, B> Some, Func<Task<B>> None) =>
             MOptionAsync<A>.Inst.MatchAsync(this, Some, None);
 
         /// <summary>
@@ -372,18 +437,7 @@ namespace LanguageExt
         /// <param name="None">None match operation. Must not return null.</param>
         /// <returns>A non-null B</returns>
         [Pure]
-        public Task<B> Match<B>(Func<A, B> Some, Func<Task<B>> None) =>
-            MOptionAsync<A>.Inst.MatchAsync(this, Some, None);
-
-        /// <summary>
-        /// Match the two states of the Option and return a non-null R.
-        /// </summary>
-        /// <typeparam name="B">Return type</typeparam>
-        /// <param name="Some">Some match operation. Must not return null.</param>
-        /// <param name="None">None match operation. Must not return null.</param>
-        /// <returns>A non-null B</returns>
-        [Pure]
-        public Task<B> Match<B>(Func<A, Task<B>> Some, Func<Task<B>> None) =>
+        public Task<B> MatchAsync<B>(Func<A, Task<B>> Some, Func<Task<B>> None) =>
             MOptionAsync<A>.Inst.MatchAsync(this, Some, None);
 
         /// <summary>
@@ -395,6 +449,17 @@ namespace LanguageExt
         /// <returns>B, or null</returns>
         [Pure]
         public Task<B> MatchUnsafe<B>(Func<A, B> Some, Func<B> None) =>
+            MOptionAsync<A>.Inst.MatchUnsafe(this, Some, None);
+
+        /// <summary>
+        /// Match the two states of the Option and return a B, which can be null.
+        /// </summary>
+        /// <typeparam name="B">Return type</typeparam>
+        /// <param name="Some">Some match operation. May return null.</param>
+        /// <param name="None">None match operation. May return null.</param>
+        /// <returns>B, or null</returns>
+        [Pure]
+        public Task<B> MatchUnsafeAsync<B>(Func<A, Task<B>> Some, Func<B> None) =>
             MOptionAsync<A>.Inst.MatchUnsafeAsync(this, Some, None);
 
         /// <summary>
@@ -405,7 +470,7 @@ namespace LanguageExt
         /// <param name="None">None match operation. May return null.</param>
         /// <returns>B, or null</returns>
         [Pure]
-        public Task<B> MatchUnsafe<B>(Func<A, Task<B>> Some, Func<B> None) =>
+        public Task<B> MatchUnsafeAsync<B>(Func<A, B> Some, Func<Task<B>> None) =>
             MOptionAsync<A>.Inst.MatchUnsafeAsync(this, Some, None);
 
         /// <summary>
@@ -416,18 +481,7 @@ namespace LanguageExt
         /// <param name="None">None match operation. May return null.</param>
         /// <returns>B, or null</returns>
         [Pure]
-        public Task<B> MatchUnsafe<B>(Func<A, B> Some, Func<Task<B>> None) =>
-            MOptionAsync<A>.Inst.MatchUnsafeAsync(this, Some, None);
-
-        /// <summary>
-        /// Match the two states of the Option and return a B, which can be null.
-        /// </summary>
-        /// <typeparam name="B">Return type</typeparam>
-        /// <param name="Some">Some match operation. May return null.</param>
-        /// <param name="None">None match operation. May return null.</param>
-        /// <returns>B, or null</returns>
-        [Pure]
-        public Task<B> MatchUnsafe<B>(Func<A, Task<B>> Some, Func<Task<B>> None) =>
+        public Task<B> MatchUnsafeAsync<B>(Func<A, Task<B>> Some, Func<Task<B>> None) =>
             MOptionAsync<A>.Inst.MatchUnsafeAsync(this, Some, None);
 
         /// <summary>
@@ -436,7 +490,7 @@ namespace LanguageExt
         /// <param name="Some">Some match operation</param>
         /// <param name="None">None match operation</param>
         public Task<Unit> Match(Action<A> Some, Action None) =>
-            MOptionAsync<A>.Inst.MatchAsync(this, Some, None);
+            MOptionAsync<A>.Inst.Match(this, Some, None);
 
         /// <summary>
         /// Invokes the action if Option is in the Some state, otherwise nothing happens.
@@ -450,7 +504,7 @@ namespace LanguageExt
         /// happens.
         /// </summary>
         /// <param name="f">Function to invoke if Option is in the Some state</param>
-        public Task<Unit> IfSome(Func<A, Task<Unit>> f) =>
+        public Task<Unit> IfSomeAsync(Func<A, Task<Unit>> f) =>
             ifSomeAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, f);
 
         /// <summary>
@@ -458,7 +512,7 @@ namespace LanguageExt
         /// happens.
         /// </summary>
         /// <param name="f">Function to invoke if Option is in the Some state</param>
-        public Task<Unit> IfSome(Func<A, Task> f) =>
+        public Task<Unit> IfSomeAsync(Func<A, Task> f) =>
             ifSomeAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, f);
 
         /// <summary>
@@ -490,7 +544,7 @@ namespace LanguageExt
         /// <returns>Tesult of invoking the None() operation if the optional 
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
-        public Task<A> IfNone(Func<Task<A>> None) =>
+        public Task<A> IfNoneAsync(Func<Task<A>> None) =>
             ifNoneAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, None);
 
         /// <summary>
@@ -526,7 +580,7 @@ namespace LanguageExt
         /// <returns>Tesult of invoking the None() operation if the optional 
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
-        public Task<A> IfNoneUnsafe(Func<Task<A>> None) =>
+        public Task<A> IfNoneUnsafeAsync(Func<Task<A>> None) =>
             ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, None);
 
         /// <summary>
@@ -563,7 +617,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public Task<S> Fold<S>(S state, Func<S, A, S> folder) =>
-            MOptionAsync<A>.Inst.FoldAsync(this, state, folder)(unit);
+            MOptionAsync<A>.Inst.Fold(this, state, folder)(unit);
 
         /// <summary>
         /// <para>
@@ -586,7 +640,7 @@ namespace LanguageExt
         /// <param name="folder">Folder function, applied if Option is in a Some state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        public Task<S> Fold<S>(S state, Func<S, A, Task<S>> folder) =>
+        public Task<S> FoldAsync<S>(S state, Func<S, A, Task<S>> folder) =>
             MOptionAsync<A>.Inst.FoldAsync(this, state, folder)(unit);
 
         /// <summary>
@@ -611,7 +665,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public Task<S> FoldBack<S>(S state, Func<S, A, S> folder) =>
-            MOptionAsync<A>.Inst.FoldBackAsync(this, state, folder)(unit);
+            MOptionAsync<A>.Inst.FoldBack(this, state, folder)(unit);
 
         /// <summary>
         /// <para>
@@ -634,7 +688,7 @@ namespace LanguageExt
         /// <param name="folder">Folder function, applied if Option is in a Some state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        public Task<S> FoldBack<S>(S state, Func<S, A, Task<S>> folder) =>
+        public Task<S> FoldBackAsync<S>(S state, Func<S, A, Task<S>> folder) =>
             MOptionAsync<A>.Inst.FoldBackAsync(this, state, folder)(unit);
 
         /// <summary>
@@ -660,7 +714,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public Task<S> BiFold<S>(S state, Func<S, A, S> Some, Func<S, Unit, S> None) =>
-            MOptionAsync<A>.Inst.BiFoldAsync(this, state, Some, None);
+            MOptionAsync<A>.Inst.BiFold(this, state, Some, None);
 
         /// <summary>
         /// <para>
@@ -709,7 +763,7 @@ namespace LanguageExt
         /// <param name="None">Folder function, applied if Option is in a None state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        public Task<S> BiFold<S>(S state, Func<S, A, S> Some, Func<S, Unit, Task<S>> None) =>
+        public Task<S> BiFoldAsync<S>(S state, Func<S, A, S> Some, Func<S, Unit, Task<S>> None) =>
             MOptionAsync<A>.Inst.BiFoldAsync(this, state, Some, None);
 
         /// <summary>
@@ -734,7 +788,7 @@ namespace LanguageExt
         /// <param name="None">Folder function, applied if Option is in a None state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        public Task<S> BiFold<S>(S state, Func<S, A, Task<S>> Some, Func<S, Unit, Task<S>> None) =>
+        public Task<S> BiFoldAsync<S>(S state, Func<S, A, Task<S>> Some, Func<S, Unit, Task<S>> None) =>
             MOptionAsync<A>.Inst.BiFoldAsync(this, state, Some, None);
 
         /// <summary>
@@ -760,6 +814,31 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public Task<S> BiFold<S>(S state, Func<S, A, S> Some, Func<S, S> None) =>
+            MOptionAsync<A>.Inst.BiFold(this, state, Some, (s, _) => None(s));
+
+        /// <summary>
+        /// <para>
+        /// Option types are like lists of 0 or 1 items, and therefore follow the 
+        /// same rules when folding.
+        /// </para><para>
+        /// In the case of lists, 'Fold', when applied to a binary
+        /// operator, a starting value(typically the left-identity of the operator),
+        /// and a list, reduces the list using the binary operator, from left to
+        /// right:
+        /// </para>
+        /// <para>
+        /// Note that, since the head of the resulting expression is produced by
+        /// an application of the operator to the first element of the list,
+        /// 'Fold' can produce a terminating expression from an infinite list.
+        /// </para>
+        /// </summary>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="Some">Folder function, applied if Option is in a Some state</param>
+        /// <param name="None">Folder function, applied if Option is in a None state</param>
+        /// <returns>The aggregate state</returns>
+        [Pure]
+        public Task<S> BiFoldAsync<S>(S state, Func<S, A, Task<S>> Some, Func<S, S> None) =>
             MOptionAsync<A>.Inst.BiFoldAsync(this, state, Some, (s, _) => None(s));
 
         /// <summary>
@@ -784,7 +863,7 @@ namespace LanguageExt
         /// <param name="None">Folder function, applied if Option is in a None state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        public Task<S> BiFold<S>(S state, Func<S, A, Task<S>> Some, Func<S, S> None) =>
+        public Task<S> BiFoldAsync<S>(S state, Func<S, A, S> Some, Func<S, Task<S>> None) =>
             MOptionAsync<A>.Inst.BiFoldAsync(this, state, Some, (s, _) => None(s));
 
         /// <summary>
@@ -809,32 +888,7 @@ namespace LanguageExt
         /// <param name="None">Folder function, applied if Option is in a None state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        public Task<S> BiFold<S>(S state, Func<S, A, S> Some, Func<S, Task<S>> None) =>
-            MOptionAsync<A>.Inst.BiFoldAsync(this, state, Some, (s, _) => None(s));
-
-        /// <summary>
-        /// <para>
-        /// Option types are like lists of 0 or 1 items, and therefore follow the 
-        /// same rules when folding.
-        /// </para><para>
-        /// In the case of lists, 'Fold', when applied to a binary
-        /// operator, a starting value(typically the left-identity of the operator),
-        /// and a list, reduces the list using the binary operator, from left to
-        /// right:
-        /// </para>
-        /// <para>
-        /// Note that, since the head of the resulting expression is produced by
-        /// an application of the operator to the first element of the list,
-        /// 'Fold' can produce a terminating expression from an infinite list.
-        /// </para>
-        /// </summary>
-        /// <typeparam name="S">Aggregate state type</typeparam>
-        /// <param name="state">Initial state</param>
-        /// <param name="Some">Folder function, applied if Option is in a Some state</param>
-        /// <param name="None">Folder function, applied if Option is in a None state</param>
-        /// <returns>The aggregate state</returns>
-        [Pure]
-        public Task<S> BiFold<S>(S state, Func<S, A, Task<S>> Some, Func<S, Task<S>> None) =>
+        public Task<S> BiFoldAsync<S>(S state, Func<S, A, Task<S>> Some, Func<S, Task<S>> None) =>
             MOptionAsync<A>.Inst.BiFoldAsync(this, state, Some, (s, _) => None(s));
 
         /// <summary>
@@ -846,7 +900,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionAsync<B> BiMap<B>(Func<A, B> Some, Func<Unit, B> None) =>
-            FOptionAsync<A, B>.Inst.BiMap(this, Some, None);
+            FOptionAsync<A, B>.Inst.BiMapAsync(this, Some, None);
 
         /// <summary>
         /// Projection from one value to another
@@ -857,7 +911,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionAsync<B> BiMap<B>(Func<A, B> Some, Func<B> None) =>
-            FOptionAsync<A, B>.Inst.BiMap(this, Some, _ => None());
+            FOptionAsync<A, B>.Inst.BiMapAsync(this, Some, _ => None());
 
         /// <summary>
         /// <para>
@@ -873,7 +927,7 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public Task<int> Count() =>
-            MOptionAsync<A>.Inst.CountAsync(this)(unit);
+            MOptionAsync<A>.Inst.Count(this)(unit);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -888,6 +942,21 @@ namespace LanguageExt
         /// predicate supplied.</returns>
         [Pure]
         public Task<bool> ForAll(Func<A, bool> pred) =>
+            forallAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
+
+        /// <summary>
+        /// Apply a predicate to the bound value.  If the Option is in a None state
+        /// then True is returned (because the predicate applies for-all values).
+        /// If the Option is in a Some state the value is the result of running 
+        /// applying the bound value to the predicate supplied.        
+        /// </summary>
+        /// <param name="pred"></param>
+        /// <returns>If the Option is in a None state then True is returned (because 
+        /// the predicate applies for-all values).  If the Option is in a Some state
+        /// the value is the result of running applying the bound value to the 
+        /// predicate supplied.</returns>
+        [Pure]
+        public Task<bool> ForAllAsync(Func<A, Task<bool>> pred) =>
             forallAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
 
         /// <summary>
@@ -935,6 +1004,21 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public Task<bool> Exists(Func<A, bool> pred) =>
+            existsAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
+
+        /// <summary>
+        /// Apply a predicate to the bound value.  If the Option is in a None state
+        /// then True is returned if invoking None returns True.
+        /// If the Option is in a Some state the value is the result of running 
+        /// applying the bound value to the Some predicate supplied.        
+        /// </summary>
+        /// <param name="pred"></param>
+        /// <returns>If the Option is in a None state then True is returned if 
+        /// invoking None returns True. If the Option is in a Some state the value 
+        /// is the result of running applying the bound value to the Some predicate 
+        /// supplied.</returns>
+        [Pure]
+        public Task<bool> ExistsAsync(Func<A, Task<bool>> pred) =>
             existsAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
 
         /// <summary>
@@ -1001,7 +1085,17 @@ namespace LanguageExt
         /// returns True.  None otherwise.</returns>
         [Pure]
         public OptionAsync<A> Filter(Func<A, bool> pred) =>
-            filter<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
+            filterAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
+
+        /// <summary>
+        /// Apply a predicate to the bound value (if in a Some state)
+        /// </summary>
+        /// <param name="pred">Predicate to apply</param>
+        /// <returns>Some(x) if the Option is in a Some state and the predicate
+        /// returns True.  None otherwise.</returns>
+        [Pure]
+        public OptionAsync<A> FilterAsync(Func<A, Task<bool>> pred) =>
+            filterAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
 
         /// <summary>
         /// Apply a predicate to the bound value (if in a Some state)
@@ -1011,7 +1105,17 @@ namespace LanguageExt
         /// returns True.  None otherwise.</returns>
         [Pure]
         public OptionAsync<A> Where(Func<A, bool> pred) =>
-            filter<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
+            filterAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
+
+        /// <summary>
+        /// Apply a predicate to the bound value (if in a Some state)
+        /// </summary>
+        /// <param name="pred">Predicate to apply</param>
+        /// <returns>Some(x) if the Option is in a Some state and the predicate
+        /// returns True.  None otherwise.</returns>
+        [Pure]
+        public OptionAsync<A> Where(Func<A, Task<bool>> pred) =>
+            filterAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, pred);
 
         /// <summary>
         /// Monadic join
@@ -1022,7 +1126,46 @@ namespace LanguageExt
             Func<A, C> outerKeyMap,
             Func<B, C> innerKeyMap,
             Func<A, B, D> project) =>
-            join<EqDefault<C>, MOptionAsync<A>, MOptionAsync<B>, MOptionAsync<D>, OptionAsync<A>, OptionAsync<B>, OptionAsync<D>, A, B, C, D>(
+            joinAsync<EqDefault<C>, MOptionAsync<A>, MOptionAsync<B>, MOptionAsync<D>, OptionAsync<A>, OptionAsync<B>, OptionAsync<D>, A, B, C, D>(
+                this, inner, outerKeyMap, innerKeyMap, project
+                );
+
+        /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public OptionAsync<D> Join<B, C, D>(
+            OptionAsync<B> inner,
+            Func<A, C> outerKeyMap,
+            Func<B, C> innerKeyMap,
+            Func<A, B, Task<D>> project) =>
+            joinAsync<EqDefault<C>, MOptionAsync<A>, MOptionAsync<B>, MOptionAsync<D>, OptionAsync<A>, OptionAsync<B>, OptionAsync<D>, A, B, C, D>(
+                this, inner, outerKeyMap, innerKeyMap, project
+                );
+
+        /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public OptionAsync<D> Join<B, C, D>(
+            OptionAsync<B> inner,
+            Func<A, Task<C>> outerKeyMap,
+            Func<B, Task<C>> innerKeyMap,
+            Func<A, B, Task<D>> project) =>
+            joinAsync<EqDefault<C>, MOptionAsync<A>, MOptionAsync<B>, MOptionAsync<D>, OptionAsync<A>, OptionAsync<B>, OptionAsync<D>, A, B, C, D>(
+                this, inner, outerKeyMap, innerKeyMap, project
+                );
+
+        /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public OptionAsync<D> Join<B, C, D>(
+            OptionAsync<B> inner,
+            Func<A, Task<C>> outerKeyMap,
+            Func<B, Task<C>> innerKeyMap,
+            Func<A, B, D> project) =>
+            joinAsync<EqDefault<C>, MOptionAsync<A>, MOptionAsync<B>, MOptionAsync<D>, OptionAsync<A>, OptionAsync<B>, OptionAsync<D>, A, B, C, D>(
                 this, inner, outerKeyMap, innerKeyMap, project
                 );
 

@@ -1091,4 +1091,8 @@ public static class TryOptionExtensions
             ? (A?)null
             : x.Value.Value;
     }
+
+    [Pure]
+    public static TryOption<A> Plus<A>(this TryOption<A> ma, TryOption<A> mb) =>
+        default(MTryOption<A>).Plus(ma, mb);
 }

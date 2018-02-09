@@ -13,6 +13,27 @@ using LanguageExt.TypeClasses;
 public static class WriterExtensions
 {
     /// <summary>
+    /// Conversion from tuple to writer
+    /// </summary>
+    /// <typeparam name="W">Type of the writer monad's output</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Tuple to convert to writeer</param>
+    /// <returns>Writer monad</returns>
+    public static Writer<MSeq<W>, Seq<W>, A> ToWriter<W, A>(this (A Value, Seq<W> Output) ma)=> () => 
+        ma.Add(false);
+
+    /// <summary>
+    /// Conversion from tuple to writer
+    /// </summary>
+    /// <typeparam name="W">Type of the writer monad's output</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Tuple to convert to writeer</param>
+    /// <returns>Writer monad</returns>
+    public static Writer<MonoidW, W, A> ToWriter<MonoidW, W, A>(this (A Value, W Output) ma)
+        where MonoidW : struct, Monoid<W> =>
+            () => ma.Add(false);
+
+    /// <summary>
     /// Runs the Writer monad and memoizes the result in a TryOption monad.  Use
     /// Match, IfSucc, IfNone, etc to extract.
     /// </summary>
@@ -37,11 +58,6 @@ public static class WriterExtensions
             return (() => new OptionalResult<A>(e), default(MonoidW).Empty());
         }
     }
-
-    [Pure]
-    public static Writer<MonoidW, W, int> Sum<MonoidW, W>(this Writer<MonoidW, W, int> self)
-        where MonoidW : struct, Monoid<W> =>
-        self;
 
     [Pure]
     public static Writer<MonoidW, W, Seq<A>> ToSeq<MonoidW, W, A>(this Writer<MonoidW, W, A> self)

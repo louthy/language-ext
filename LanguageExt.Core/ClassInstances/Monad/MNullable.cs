@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
@@ -11,7 +9,9 @@ namespace LanguageExt.ClassInstances
     public struct MNullable<A> :
         Optional<A?, A>,
         Monad<A?, A>,
-        BiFoldable<A?, A, Unit>
+        BiFoldable<A?, A, Unit>,
+        Eq<A?>,
+        Ord<A?>
         where A : struct
     {
         public static readonly MNullable<A> Inst = default(MNullable<A>);
@@ -21,6 +21,12 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public MB Bind<MONADB, MB, B>(A? ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
+            ma.HasValue && f != null
+                ? f(ma.Value)
+                : default(MONADB).Fail(ValueIsNoneException.Default);
+
+        [Pure]
+        public MB BindAsync<MONADB, MB, B>(A? ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
             ma.HasValue && f != null
                 ? f(ma.Value)
                 : default(MONADB).Fail(ValueIsNoneException.Default);
@@ -117,7 +123,7 @@ namespace LanguageExt.ClassInstances
             value;
 
         [Pure]
-        public A? Id(Func<Unit, A?> ma) =>
+        public A? Run(Func<Unit, A?> ma) =>
             ma(unit);
 
         [Pure]
@@ -129,37 +135,26 @@ namespace LanguageExt.ClassInstances
             Return(_ => x);
 
         [Pure]
-        public A? IdAsync(Func<Unit, Task<A?>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(A? fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(A? fa, S state, Func<S, A, Task<S>> f) => _ =>
-            fa.Match(
-                Some: r => f(state, r),
-                None: () => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(A? fa, S state, Func<S, A, S> f) => _ =>
-             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(A? fa, S state, Func<S, A, Task<S>> f) => _ =>
-            fa.Match(
-                Some: r => f(state, r),
-                None: () => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(A? fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
-
-        [Pure]
         public A? Apply(Func<A, A, A> f, A? fa, A? fb) =>
             from a in fa
             from b in fb
             select f(a, b);
+
+        [Pure]
+        public int Compare(A? x, A? y) =>
+            x.HasValue && y.HasValue ? default(OrdDefault<A>).Compare(x.Value, y.Value)
+          : x.HasValue               ? 1
+          : y.HasValue               ? -1
+          : 0;
+
+        [Pure]
+        public bool Equals(A? x, A? y) =>
+            x.HasValue && y.HasValue ? default(EqDefault<A>).Equals(x.Value, y.Value)
+          : x.HasValue || y.HasValue ? false
+          : true;
+
+        [Pure]
+        public int GetHashCode(A? x) =>
+            x.GetHashCode();
     }
 }

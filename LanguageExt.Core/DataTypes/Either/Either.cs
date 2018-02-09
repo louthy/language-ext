@@ -265,15 +265,22 @@ namespace LanguageExt
         /// Match the two states of the Either and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
-        public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> Right, Func<L, R2> Left) =>
-            matchAsync<MEither<L, R>, Either<L, R>, L, R, R2>(this, Left, Right);
+        public Task<R2> MatchAsync<R2>(Func<R, R2> Right, Func<L, Task<R2>> LeftAsync) =>
+            matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), LeftAsync, Right);
 
         /// <summary>
         /// Match the two states of the Either and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
-        public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> Right, Func<L, Task<R2>> Left) =>
-            matchAsync<MEither<L, R>, Either<L, R>, L, R, R2>(this, Left, Right);
+        public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> RightAsync, Func<L, R2> Left) =>
+            matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), Left, RightAsync);
+
+        /// <summary>
+        /// Match the two states of the Either and return a promise for a non-null R2.
+        /// </summary>
+        /// <returns>A promise to return a non-null R2</returns>
+        public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> RightAsync, Func<L, Task<R2>> LeftAsync) =>
+            matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), LeftAsync, RightAsync);
 
         /// <summary>
         /// Match the two states of the Either and return an observable stream of non-null R2s.
@@ -520,6 +527,13 @@ namespace LanguageExt
         [Pure]
         public Option<R> ToOption() =>
             toOption<MEither<L, R>, Either<L, R>, L, R>(this);
+
+        /// <summary>
+        /// Convert the Either to an EitherAsync
+        /// </summary>
+        [Pure]
+        public EitherAsync<L, R> ToAsync() =>
+            new EitherAsync<L, R>(this.Head().AsTask());
 
         /// <summary>
         /// Convert the Either to an EitherUnsafe
@@ -854,7 +868,7 @@ namespace LanguageExt
             FEitherBi<L, R, Ret, R>.Inst.BiMap(this, mapper, identity);
 
         /// <summary>
-        /// Bi-maps the value in the Either if it's in a Right state
+        /// Bi-maps the value in the Either into a Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
@@ -865,7 +879,7 @@ namespace LanguageExt
         /// <param name="Left">Left map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public Either<L, Ret> BiMap<LRet, Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
+        public Either<L, Ret> BiMap<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             FEither<L, R, Ret>.Inst.BiMap(this, Left, Right);
 
         /// <summary>

@@ -77,7 +77,7 @@ namespace LanguageExt
         public static OptionAsync<T> SomeAsync<T>(T value) =>
             isnull(value)
                 ? raise<OptionAsync<T>>(new ValueIsNullException())
-                : MOptionAsync<T>.Inst.Return(value);
+                : default(MOptionAsync<T>).ReturnAsync(_ => Task.FromResult(value));
 
         /// <summary>
         /// Create a lazy Some of T (OptionAsync<T>)
@@ -87,8 +87,8 @@ namespace LanguageExt
         /// <returns>OptionAsync<T> in a Some state or throws ValueIsNullException
         /// if isnull(value).</returns>
         [Pure]
-        public static OptionAsync<T> SomeAsync<T>(Func<Unit, T> f) =>
-            MOptionAsync<T>.Inst.Return(f);
+        public static OptionAsync<T> SomeAsync<T>(Func<Unit, Task<T>> f) =>
+            default(MOptionAsync<T>).ReturnAsync(f);
 
         /// <summary>
         /// Create a Some of T from a Nullable<T> (OptionAsync<T>)
@@ -100,7 +100,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<T> SomeAsync<T>(T? value) where T : struct =>
             value.HasValue
-                ? MOptionAsync<T>.Inst.Return(value.Value)
+                ? default(MOptionAsync<T>).ReturnAsync(_ => Task.FromResult(value.Value))
                 : raise<OptionAsync<T>>(new ValueIsNullException());
 
         /// <summary>
@@ -110,8 +110,8 @@ namespace LanguageExt
         /// <param name="value">Value to be made OptionAsyncal, or null</param>
         /// <returns>If the value is null it will be None else Some(value)</returns>
         [Pure]
-        public static OptionAsync<T> OptionalAsync<T>(T value) =>
-            MOptionAsync<T>.Inst.Return(value);
+        public static OptionAsync<T> OptionalAsync<T>(Task<T> value) =>
+            default(MOptionAsync<T>).ReturnAsync(_ => value);
 
         /// <summary>
         /// Create a lazy OptionAsync of T (OptionAsync<T>)
@@ -120,8 +120,8 @@ namespace LanguageExt
         /// <param name="f">A function that returns the value to construct the OptionAsync with</param>
         /// <returns>A lazy OptionAsync<T></returns>
         [Pure]
-        public static OptionAsync<T> OptionalAsync<T>(Func<Unit, T> f) =>
-            MOptionAsync<T>.Inst.Return(f);
+        public static OptionAsync<T> OptionalAsync<T>(Func<Unit, Task<T>> f) =>
+            default(MOptionAsync<T>).ReturnAsync(f);
 
         /// <summary>
         /// Create an OptionAsync
@@ -132,7 +132,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<T> OptionalAsync<T>(T? value) where T : struct =>
             value.HasValue
-                ? MOptionAsync<T>.Inst.Return(value.Value)
+                ? default(MOptionAsync<T>).ReturnAsync(_ => Task.FromResult(value.Value))
                 : OptionAsync<T>.None;
 
         /// <summary>
@@ -209,8 +209,8 @@ namespace LanguageExt
         /// <param name="None">None match operation. Must not return null.</param>
         /// <returns>A non-null B</returns>
         [Pure]
-        public static Task<R> match<T, R>(OptionAsync<T> ma, Func<T, Task<R>> Some, Func<R> None) =>
-            ma.Match(Some, None);
+        public static Task<R> matchAsync<T, R>(OptionAsync<T> ma, Func<T, Task<R>> Some, Func<R> None) =>
+            ma.MatchAsync(Some, None);
 
         /// <summary>
         /// Match the two states of the OptionAsync and return a non-null R.
@@ -220,8 +220,8 @@ namespace LanguageExt
         /// <param name="None">None match operation. Must not return null.</param>
         /// <returns>A non-null B</returns>
         [Pure]
-        public static Task<R> match<T, R>(OptionAsync<T> ma, Func<T, R> Some, Func<Task<R>> None) =>
-            ma.Match(Some, None);
+        public static Task<R> matchAsync<T, R>(OptionAsync<T> ma, Func<T, R> Some, Func<Task<R>> None) =>
+            ma.MatchAsync(Some, None);
 
         /// <summary>
         /// Match the two states of the OptionAsync and return a non-null R.
@@ -231,8 +231,8 @@ namespace LanguageExt
         /// <param name="None">None match operation. Must not return null.</param>
         /// <returns>A non-null B</returns>
         [Pure]
-        public static Task<R> match<T, R>(OptionAsync<T> ma, Func<T, Task<R>> Some, Func<Task<R>> None) =>
-            ma.Match(Some, None);
+        public static Task<R> matchAsync<T, R>(OptionAsync<T> ma, Func<T, Task<R>> Some, Func<Task<R>> None) =>
+            ma.MatchAsync(Some, None);
 
         /// <summary>
         /// Match the two states of the OptionAsync and return a B, which can be null.
@@ -253,8 +253,8 @@ namespace LanguageExt
         /// <param name="None">None match operation. May return null.</param>
         /// <returns>B, or null</returns>
         [Pure]
-        public static Task<R> matchUnsafe<T, R>(OptionAsync<T> ma, Func<T, Task<R>> Some, Func<R> None) =>
-            ma.MatchUnsafe(Some, None);
+        public static Task<R> matchUnsafeAsync<T, R>(OptionAsync<T> ma, Func<T, Task<R>> Some, Func<R> None) =>
+            ma.MatchUnsafeAsync(Some, None);
 
         /// <summary>
         /// Match the two states of the OptionAsync and return a B, which can be null.
@@ -264,8 +264,8 @@ namespace LanguageExt
         /// <param name="None">None match operation. May return null.</param>
         /// <returns>B, or null</returns>
         [Pure]
-        public static Task<R> matchUnsafe<T, R>(OptionAsync<T> ma, Func<T, R> Some, Func<Task<R>> None) =>
-            ma.MatchUnsafe(Some, None);
+        public static Task<R> matchUnsafeAsync<T, R>(OptionAsync<T> ma, Func<T, R> Some, Func<Task<R>> None) =>
+            ma.MatchUnsafeAsync(Some, None);
 
         /// <summary>
         /// Match the two states of the OptionAsync and return a B, which can be null.
@@ -275,8 +275,8 @@ namespace LanguageExt
         /// <param name="None">None match operation. May return null.</param>
         /// <returns>B, or null</returns>
         [Pure]
-        public static Task<R> matchUnsafe<T, R>(OptionAsync<T> ma, Func<T, Task<R>> Some, Func<Task<R>> None) =>
-            ma.MatchUnsafe(Some, None);
+        public static Task<R> matchUnsafeAsync<T, R>(OptionAsync<T> ma, Func<T, Task<R>> Some, Func<Task<R>> None) =>
+            ma.MatchUnsafeAsync(Some, None);
 
         /// <summary>
         /// Match the two states of the OptionAsync
@@ -428,7 +428,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public static Task<S> fold<S, A>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> folder) =>
-            ma.Fold(state, folder);
+            ma.FoldAsync(state, folder);
 
         /// <summary>
         /// <para>
@@ -476,7 +476,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public static Task<S> bifold<S, A>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> Some, Func<S, S> None) =>
-            ma.BiFold(state, Some, None);
+            ma.BiFoldAsync(state, Some, None);
 
         /// <summary>
         /// <para>
@@ -500,7 +500,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public static Task<S> bifold<S, A>(OptionAsync<A> ma, S state, Func<S, A, S> Some, Func<S, Task<S>> None) =>
-            ma.BiFold(state, Some, None);
+            ma.BiFoldAsync(state, Some, None);
 
         /// <summary>
         /// <para>
@@ -524,7 +524,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public static Task<S> bifold<S, A>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> Some, Func<S, Task<S>> None) =>
-            ma.BiFold(state, Some, None);
+            ma.BiFoldAsync(state, Some, None);
 
         /// <summary>
         /// <para>
@@ -596,7 +596,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public static Task<S> bifold<S, A>(OptionAsync<A> ma, S state, Func<S, A, S> Some, Func<S, Unit, Task<S>> None) =>
-            ma.BiFold(state, Some, None);
+            ma.BiFoldAsync(state, Some, None);
 
         /// <summary>
         /// <para>
@@ -620,7 +620,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public static Task<S> bifold<S, A>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> Some, Func<S, Unit, Task<S>> None) =>
-            ma.BiFold(state, Some, None);
+            ma.BiFoldAsync(state, Some, None);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the OptionAsync is in a None state
@@ -803,7 +803,7 @@ namespace LanguageExt
         /// <param name="Some">Some match operation</param>
         /// <param name="None">None match operation</param>
         [Pure]
-        public static Task<IEnumerable<R>> match<T, R>(IEnumerable<OptionAsync<T>> list,
+        public static async Task<IEnumerable<R>> match<T, R>(IEnumerable<OptionAsync<T>> list,
             Func<T, IEnumerable<R>> Some,
             Func<IEnumerable<R>> None
             )
@@ -816,7 +816,15 @@ namespace LanguageExt
                 }
             }
 
-            return Yield().Sequence().Map(x => x.Bind(y => y));
+            var results = new List<R>();
+            foreach (var item in Yield())
+            {
+                foreach(var inner in await item)
+                {
+                    results.Add(inner);
+                }
+            }
+            return results.AsEnumerable();
         }
 
         /// <summary>

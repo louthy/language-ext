@@ -14,8 +14,8 @@ namespace LanguageExt.Tests
         {
             var x = "test";
 
-            Assert.True(SeqOne(x).Count() == 1);
-            Assert.True(SeqOne(x).Head() == x);
+            Assert.True(Seq1(x).Count() == 1);
+            Assert.True(Seq1(x).Head() == x);
         }
 
         [Fact]

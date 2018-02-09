@@ -6,7 +6,7 @@ using LanguageExt.Attributes;
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface BiFoldableAsync<F, A, B> : FoldableAsync<F, A>
+    public interface BiFoldableAsync<F, A, B>
     {
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary
@@ -24,7 +24,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="fb">Folder function, applied for each item in foldable</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        Task<S> BiFoldAsync<S>(F foldable, S state, Func<S, A, S> fa, Func<S, B, S> fb);
+        Task<S> BiFold<S>(F foldable, S state, Func<S, A, S> fa, Func<S, B, S> fb);
 
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary
@@ -94,7 +94,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="f">Folder function, applied for each item in fa</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        Task<S> BiFoldBackAsync<S>(F foldable, S state, Func<S, A, S> fa, Func<S, B, S> fb);
+        Task<S> BiFoldBack<S>(F foldable, S state, Func<S, A, S> fa, Func<S, B, S> fb);
 
         /// <summary>
         /// In the case of lists, 'FoldBack', when applied to a binary
@@ -146,7 +146,7 @@ namespace LanguageExt.TypeClasses
     }
 
     [Typeclass]
-    public interface BiFoldableAsync<F, A> : FoldableAsync<F, A>
+    public interface BiFoldableAsync<F, A>
     {
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary
@@ -164,7 +164,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="fb">Folder function, applied for each item in foldable</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        Task<S> BiFoldAsync<S>(F foldable, S state, Func<S, A, S> fa, Func<S, S> fb);
+        Task<S> BiFold<S>(F foldable, S state, Func<S, A, S> fa, Func<S, S> fb);
 
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary
@@ -234,7 +234,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="f">Folder function, applied for each item in fa</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        Task<S> BiFoldBackAsync<S>(F foldable, S state, Func<S, A, S> fa, Func<S, S> fb);
+        Task<S> BiFoldBack<S>(F foldable, S state, Func<S, A, S> fa, Func<S, S> fb);
 
         /// <summary>
         /// In the case of lists, 'FoldBack', when applied to a binary

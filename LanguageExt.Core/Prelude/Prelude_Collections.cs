@@ -716,7 +716,17 @@ namespace LanguageExt
         ///     null  : []
         /// </summary>
         [Pure]
+        [Obsolete("SeqOne has been deprecated for the more concise Seq1")]
         public static Seq<A> SeqOne<A>(A value) =>
+            value.IsNull() ? Empty : SeqCons<A>.New(value, Empty);
+
+        /// <summary>
+        /// Construct a sequence from any value
+        ///     T     : [x]
+        ///     null  : []
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq1<A>(A value) =>
             value.IsNull() ? Empty : SeqCons<A>.New(value, Empty);
 
         /// <summary>
@@ -768,8 +778,8 @@ namespace LanguageExt
         /// Construct a sequence from an array
         /// </summary>
         [Pure]
-        public static Seq<A> Seq<A>(A a, A b, params A[] cs) =>
-            SeqCons<A>.New(a, SeqCons<A>.New(b, SeqArray<A>.New(cs)));
+        public static Seq<A> Seq<A>(A a, A b, A c, params A[] ds) =>
+            SeqCons<A>.New(a, SeqCons<A>.New(b, SeqCons<A>.New(c, SeqArray<A>.New(ds))));
 
         /// <summary>
         /// Construct a sequence from an immutable array

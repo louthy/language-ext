@@ -22,11 +22,11 @@ public static class TryAsyncExtensions
     public static TryAsync<A> Memo<A>(this TryAsync<A> ma)
     {
         bool run = false;
-        Result<A> result = new Result<A>();
-        return new TryAsync<A>(async () =>
+        Task<Result<A>> result = Task.FromResult(new Result<A>());
+        return new TryAsync<A>(() =>
         {
             if (run) return result;
-            result = await ma.Try();
+            result = ma.Try();
             run = true;
             return result;
         });
@@ -794,7 +794,11 @@ public static class TryAsyncExtensions
 
     [Pure]
     public static TryAsync<B> Bind<A, B>(this TryAsync<A> self, Func<A, TryAsync<B>> binder) =>
-        MTryAsync<A>.Inst.Bind<MTryAsync<B>, TryAsync<B>, B>(self, binder);
+        default(MTryAsync<A>).Bind<MTryAsync<B>, TryAsync<B>, B>(self, binder);
+
+    [Pure]
+    public static TryAsync<B> Bind<A, B>(this TryAsync<A> self, Func<A, Task<TryAsync<B>>> binder) =>
+        default(MTryAsync<A>).BindAsync<MTryAsync<B>, TryAsync<B>, B>(self, binder);
 
     [Pure]
     public static TryAsync<R> BiBind<A, R>(this TryAsync<A> self, Func<A, TryAsync<R>> Succ, Func<Exception, TryAsync<R>> Fail) => Memo<R>(async () =>
@@ -804,6 +808,14 @@ public static class TryAsyncExtensions
             ? await Fail(res.Exception).Try()
             : await Succ(res.Value).Try();
     });
+
+    [Pure]
+    public static TryAsync<A> Plus<A>(this TryAsync<A> ma, TryAsync<A> mb) =>
+        default(MTryAsync<A>).Plus(ma, mb);
+
+    [Pure]
+    public static TryAsync<A> PlusFirst<A>(this TryAsync<A> ma, TryAsync<A> mb) =>
+        default(MTryFirstAsync<A>).Plus(ma, mb);
 
     [Pure]
     public static Task<Seq<A>> ToSeq<A>(this TryAsync<A> self) =>
@@ -846,9 +858,36 @@ public static class TryAsyncExtensions
         this TryAsync<A> self,
         Func<A, TryAsync<B>> bind,
         Func<A, B, C> project) =>
-            MTryAsync<A>.Inst.Bind<MTryAsync<C>, TryAsync<C>, C>(self, a =>
-            MTryAsync<B>.Inst.Bind<MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
-            MTryAsync<C>.Inst.Return(project(a, b))));
+            default(MTryAsync<A>).Bind<MTryAsync<C>, TryAsync<C>, C>(self, a =>
+            default(MTryAsync<B>).Bind<MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
+            default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
+
+    [Pure]
+    public static TryAsync<C> SelectMany<A, B, C>(
+        this TryAsync<A> self,
+        Func<A, Task<TryAsync<B>>> bind,
+        Func<A, B, C> project) =>
+            default(MTryAsync<A>).BindAsync<MTryAsync<C>, TryAsync<C>, C>(self, async a =>
+            default(MTryAsync<B>).Bind<MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
+            default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
+
+    [Pure]
+    public static TryAsync<C> SelectMany<A, B, C>(
+        this TryAsync<A> self,
+        Func<A, Task<TryAsync<B>>> bind,
+        Func<A, B, Task<C>> project) =>
+            default(MTryAsync<A>).BindAsync<MTryAsync<C>, TryAsync<C>, C>(self, async a =>
+            default(MTryAsync<B>).Bind<MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
+            default(MTryAsync<C>).ReturnAsync(project(a, b))));
+
+    [Pure]
+    public static TryAsync<C> SelectMany<A, B, C>(
+        this TryAsync<A> self,
+        Func<A, TryAsync<B>> bind,
+        Func<A, B, Task<C>> project) =>
+            default(MTryAsync<A>).Bind<MTryAsync<C>, TryAsync<C>, C>(self, a =>
+            default(MTryAsync<B>).Bind<MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
+            default(MTryAsync<C>).ReturnAsync(project(a, b))));
 
     [Pure]
     public static TryAsync<V> Join<A, U, K, V>(
@@ -989,7 +1028,7 @@ public static class TryAsyncExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static TryAsync<C> Apply<A, B, C>(this TryAsync<Func<A, B, C>> fabc, TryAsync<A> fa, TryAsync<B> fb) =>
-        fabc.Bind(f => ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
+        fabc.Bind(f => ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa, fb));
 
     /// <summary>
     /// Apply
@@ -1000,7 +1039,7 @@ public static class TryAsyncExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static TryAsync<C> Apply<A, B, C>(this Func<A, B, C> fabc, TryAsync<A> fa, TryAsync<B> fb) =>
-        ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
+        ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa, fb);
 
     /// <summary>
     /// Apply
@@ -1010,7 +1049,7 @@ public static class TryAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static TryAsync<Func<B, C>> Apply<A, B, C>(this TryAsync<Func<A, B, C>> fabc, TryAsync<A> fa) =>
-        fabc.Bind(f => ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa));
+        fabc.Bind(f => ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(f).AsTask()), fa));
 
     /// <summary>
     /// Apply
@@ -1020,7 +1059,7 @@ public static class TryAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static TryAsync<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, TryAsync<A> fa) =>
-        ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
+        ApplTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.ReturnAsync(curry(fabc).AsTask()), fa);
 
     /// <summary>
     /// Apply

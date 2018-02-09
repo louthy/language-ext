@@ -16,7 +16,7 @@ namespace LanguageExt
         /// </summary>
         public static Task<Unit> ifSomeAsync<OPT, OA, A>(OA opt, Action<A> f)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(opt, f, noneIgnore);
+            default(OPT).Match(opt, f, noneIgnore);
 
         /// <summary>
         /// Invokes the f function if Option is in the Some state, otherwise nothing
@@ -24,7 +24,7 @@ namespace LanguageExt
         /// </summary>
         public static Task<Unit> ifSomeAsync<OPT, OA, A>(OA opt, Func<A, Unit> f)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(opt, f, noneIgnoreF);
+            default(OPT).Match(opt, f, noneIgnoreF);
 
         /// <summary>
         /// Invokes the f function if Option is in the Some state, otherwise nothing
@@ -53,7 +53,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> ifNoneAsync<OPT, OA, A>(OA opt, Func<A> None)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(opt, a => a, None);
+            default(OPT).Match(opt, a => a, None);
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 
@@ -79,7 +79,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> ifNoneAsync<OPT, OA, A>(OA opt, A noneValue)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(opt, a => a, () => noneValue);
+            default(OPT).Match(opt, a => a, () => noneValue);
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 
@@ -92,7 +92,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> ifNoneUnsafeAsync<OPT, OA, A>(OA opt, Func<A> None)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchUnsafeAsync(opt, a => a, None);
+            default(OPT).MatchUnsafe(opt, a => a, None);
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 
@@ -118,7 +118,7 @@ namespace LanguageExt
         [Pure]
         public static Task<A> ifNoneUnsafeAsync<OPT, OA, A>(OA opt, A noneValue)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchUnsafeAsync(opt, a => a, () => noneValue);
+            default(OPT).MatchUnsafe(opt, a => a, () => noneValue);
 
         /// <summary>
         /// Pattern match operation
@@ -130,7 +130,7 @@ namespace LanguageExt
         [Pure]
         public static Task<R> matchAsync<OPT, OA, A, R>(OA ma, Func<A, R> Some, Func<R> None)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(ma,
+            default(OPT).Match(ma,
                 Some: x => Some(x),
                 None: () => None()
             );
@@ -192,7 +192,7 @@ namespace LanguageExt
         [Pure]
         public static Task<R> matchUnsafeAsync<OPT, OA, A, R>(OA ma, Func<A, R> Some, Func<R> None)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchUnsafeAsync(ma,
+            default(OPT).MatchUnsafe(ma,
                 Some: x => Some(x),
                 None: () => None()
             );
@@ -256,8 +256,8 @@ namespace LanguageExt
         [Pure]
         public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, R> Some, Func<R> None)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync( ma,
-                Some: x => Some(x),
+            default(OPT).Match( ma,
+                Some: x  => Some(x),
                 None: () => None()
             );
 
@@ -317,7 +317,7 @@ namespace LanguageExt
         [Pure]
         public static Task<Arr<A>> toArrayAsync<OPT, OA, A>(OA ma)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync( ma,
+            default(OPT).Match( ma,
                 Some: x  => Arr.create(x), 
                 None: () => Arr.empty<A>());
 
@@ -348,7 +348,7 @@ namespace LanguageExt
         [Pure]
         public static Task<Either<L, A>> toEitherAsync<OPT, OA, L, A>(OA ma, L defaultLeftValue)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(ma,
+            default(OPT).Match(ma,
                 Some: x  => Right<L, A>(x),
                 None: () => Left<L, A>(defaultLeftValue));
 
@@ -358,7 +358,7 @@ namespace LanguageExt
         [Pure]
         public static Task<Either<L, A>> toEitherAsync<OPT, OA, L, A>(OA ma, Func<L> Left)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(ma,
+            default(OPT).Match(ma,
                 Some: x =>  Right<L, A>(x),
                 None: () => Left<L, A>(Left()));
 
@@ -368,7 +368,7 @@ namespace LanguageExt
         [Pure]
         public static Task<EitherUnsafe<L, A>> toEitherUnsafeAsync<OPT, OA, L, A>(OA ma, L defaultLeftValue)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(ma,
+            default(OPT).Match(ma,
                 Some: x  => RightUnsafe<L, A>(x),
                 None: () => LeftUnsafe<L, A>(defaultLeftValue));
 
@@ -378,7 +378,7 @@ namespace LanguageExt
         [Pure]
         public static Task<EitherUnsafe<L, A>> toEitherUnsafeAsync<OPT, OA, L, A>(OA ma, Func<L> Left)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(ma,
+            default(OPT).Match(ma,
                 Some: x  => RightUnsafe<L, A>(x),
                 None: () => LeftUnsafe<L, A>(Left()));
 
@@ -388,7 +388,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<A> toOptionAsync<OPT, OA, A>(OA ma)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(ma,
+            default(OPT).Match(ma,
                 Some: x  => Optional(x),
                 None: () => Option<A>.None).ToAsync();
 
@@ -398,7 +398,7 @@ namespace LanguageExt
         [Pure]
         public static Task<OptionUnsafe<A>> toOptionUnsafeAsync<OPT, OA, A>(OA ma)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(ma,
+            default(OPT).Match(ma,
                 Some: x  => SomeUnsafe(x),
                 None: () => OptionUnsafe<A>.None);
 
@@ -408,7 +408,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<A> toTryOptionAsync<OPT, OA, A>(OA ma)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(ma, 
+            default(OPT).Match(ma,
                 Some: x  => TryOption(x),
                 None: () => TryOption(Option<A>.None)).ToAsync();
 
@@ -418,7 +418,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<A> toTryAsync<OPT, OA, A>(OA ma)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(ma,
+            default(OPT).Match(ma,
                 Some: x  => Try(x),
                 None: () => Try<A>(BottomException.Default)).ToAsync();
 

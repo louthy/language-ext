@@ -1,12 +1,9 @@
-﻿using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+﻿using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -16,8 +13,8 @@ namespace LanguageExt.ClassInstances
     /// <typeparam name="A">Bound value type</typeparam>
     public struct MLst<A> :
         Monad<Lst<A>, A>,
-        Foldable<Lst<A>, A>,
         Eq<Lst<A>>,
+        Ord<Lst<A>>,
         Monoid<Lst<A>>
    {
         public static readonly MLst<A> Inst = default(MLst<A>);
@@ -29,6 +26,10 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public MB Bind<MONADB, MB, B>(Lst<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             traverse<MLst<A>, MONADB, Lst<A>, MB, A, B>(ma, f);
+
+        [Pure]
+        public MB BindAsync<MONADB, MB, B>(Lst<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            traverseSyncAsync<MLst<A>, MONADB, Lst<A>, MB, A, B>(ma, f);
 
         [Pure]
         public Func<Unit, int> Count(Lst<A> fa) => _ =>
@@ -45,6 +46,22 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public bool Equals(Lst<A> x, Lst<A> y) =>
             Enumerable.SequenceEqual(x, y);
+
+        [Pure]
+        public int Compare(Lst<A> x, Lst<A> y)
+        {
+            int cmp = x.Count.CompareTo(y.Count);
+            if (cmp != 0) return cmp;
+
+            var iterA = x.GetEnumerator();
+            var iterB = y.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
+            {
+                cmp = default(OrdDefault<A>).Compare(iterA.Current, iterB.Current);
+                if (cmp != 0) return cmp;
+            }
+            return 0;
+        }
 
         [Pure]
         public Lst<A> Fail(object err = null) =>
@@ -75,7 +92,7 @@ namespace LanguageExt.ClassInstances
             x.GetHashCode();
 
         [Pure]
-        public Lst<A> Id(Func<Unit, Lst<A>> ma) =>
+        public Lst<A> Run(Func<Unit, Lst<A>> ma) =>
             ma(unit);
 
         [Pure]
@@ -85,48 +102,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Lst<A> Return(A x) =>
             Return(_ => x);
-
-        [Pure]
-        public Lst<A> IdAsync(Func<Unit, Task<Lst<A>>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Lst<A> fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Lst<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-        {
-            Task<S> s = Task.FromResult(state);
-            foreach (var item in fa)
-            {
-                s = from x in s
-                    from y in f(x, item)
-                    select y;
-            }
-            return s;
-        };
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Lst<A> fa, S state, Func<S, A, S> f) => _ =>
-             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Lst<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-        {
-            Task<S> s = Task.FromResult(state);
-            foreach (var item in fa.Reverse())
-            {
-                s = from x in s
-                    from y in f(x, item)
-                    select y;
-            }
-            return s;
-        };
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(Lst<A> fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
 
         [Pure]
         public Lst<A> Apply(Func<A, A, A> f, Lst<A> fa, Lst<A> fb) =>

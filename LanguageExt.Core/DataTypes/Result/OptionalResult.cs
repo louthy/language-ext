@@ -8,6 +8,13 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
+    public enum OptionalResultState : byte
+    {
+        Bottom,
+        Faulted,
+        Success
+    }
+
     /// <summary>
     /// Represents the result of an operation:
     /// 
@@ -17,9 +24,9 @@ namespace LanguageExt
     /// <typeparam name="A">Bound value type</typeparam>
     public struct OptionalResult<A> : IEquatable<OptionalResult<A>>
     {
-        public static readonly OptionalResult<A> None = new OptionalResult<A>();
+        public static readonly OptionalResult<A> None = new OptionalResult<A>(Prelude.None);
 
-        readonly bool IsValid;
+        internal readonly OptionalResultState State;
         internal readonly Option<A> Value;
         internal Exception Exception;
 
@@ -30,7 +37,7 @@ namespace LanguageExt
         [Pure]
         public OptionalResult(Option<A> value)
         {
-            IsValid = true;
+            State = OptionalResultState.Success;
             Value = value;
             Exception = null;
         }
@@ -42,7 +49,7 @@ namespace LanguageExt
         [Pure]
         public OptionalResult(Exception e)
         {
-            IsValid = true;
+            State = OptionalResultState.Faulted;
             Exception = e;
             Value = Option<A>.None;
         }
@@ -75,45 +82,66 @@ namespace LanguageExt
         /// True if the result is faulted
         /// </summary>
         [Pure]
-        public bool IsFaulted => Exception != null || IsBottom;
+        public bool IsFaulted => 
+            State == OptionalResultState.Faulted;
+
+        /// <summary>
+        /// True if the result is valid, but None
+        /// </summary>
+        [Pure]
+        public bool IsNone =>
+            State == OptionalResultState.Success && Value.IsNone;
+
+        /// <summary>
+        /// True if the result is valid and Some
+        /// </summary>
+        [Pure]
+        public bool IsSome =>
+            State == OptionalResultState.Success && Value.IsSome;
 
         /// <summary>
         /// True if the result is faulted
         /// </summary>
         [Pure]
-        public bool IsFaultedOrNone => Exception != null || IsBottom || Value.IsNone;
+        public bool IsFaultedOrNone => 
+            State == OptionalResultState.Bottom ||
+            State == OptionalResultState.Faulted ||
+            Value.IsNone;
 
         /// <summary>
         /// True if the struct is in an invalid state
         /// </summary>
         [Pure]
-        public bool IsBottom => !IsValid;
+        public bool IsBottom =>
+            State == OptionalResultState.Bottom;
 
         /// <summary>
         /// Convert the value to a showable string
         /// </summary>
         [Pure]
         public override string ToString() =>
-            IsFaulted
-                ? Exception.ToString()
-                : Value.ToString();
+            IsBottom
+                ? "(Bottom)"
+                : IsFaulted
+                    ? Exception?.ToString() ?? "(Exception)"
+                    : Value.ToString();
 
         /// <summary>
         /// Equality check
         /// </summary>
         [Pure]
         public bool Equals(OptionalResult<A> other) =>
-            IsBottom == other.IsBottom &&
-            IsFaulted
+            State == other.State &&
+            IsBottom || (IsFaulted
                 ? Exception == other.Exception
-                : equals<EqDefault<A>, A>(Value, other.Value);
+                : equals<EqDefault<A>, A>(Value, other.Value));
 
         /// <summary>
         /// Equality check
         /// </summary>
         [Pure]
         public override bool Equals(object obj) =>
-            obj is OptionalResult<A> && Equals((OptionalResult<A>)obj);
+            obj is OptionalResult<A> rhs && Equals(rhs);
 
         /// <summary>
         /// Get hash code for bound value
@@ -135,28 +163,31 @@ namespace LanguageExt
             !(a==b);
 
         public readonly static OptionalResult<A> Bottom =
-            new OptionalResult<A>(BottomException.Default);
+            default(OptionalResult<A>);
 
         [Pure]
-        public A IfFail(A defaultValue) =>
-            IsFaulted || Value.IsNone
+        public A IfFailOrNone(A defaultValue) =>
+            IsBottom || IsFaulted || Value.IsNone
                 ? defaultValue
                 : Value.Value;
 
         [Pure]
         public Option<A> IfFail(Func<Exception, A> f) =>
-            IsFaulted
-                ? f(Exception)
-                : Value;
+            IsBottom
+                ? f(BottomException.Default)
+                : IsFaulted
+                    ? f(Exception)
+                    : Value;
 
-        public Unit IfFail(Action f)
+        public Unit IfFailOrNone(Action f)
         {
-            if (IsFaulted || Value.IsNone) f();
+            if (IsBottom || IsFaulted || Value.IsNone) f();
             return unit;
         }
 
         public Unit IfFail(Action<Exception> f)
         {
+            if (IsBottom) f(BottomException.Default);
             if (IsFaulted) f(Exception);
             return unit;
         }

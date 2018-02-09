@@ -209,20 +209,6 @@ namespace LanguageExt
             MEitherUnsafe<L, R>.Inst.Match(this, Left, Right, Bottom);
 
         /// <summary>
-        /// Match the two states of the EitherUnsafe and return a promise for a non-null R2.
-        /// </summary>
-        /// <returns>A promise to return a non-null R2</returns>
-        public Task<R2> MatchAsyncUnsafe<R2>(Func<R, Task<R2>> Right, Func<L, R2> Left) =>
-            matchAsync<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(this, Left, Right);
-
-        /// <summary>
-        /// Match the two states of the EitherUnsafe and return a promise for a non-null R2.
-        /// </summary>
-        /// <returns>A promise to return a non-null R2</returns>
-        public Task<R2> MatchAsyncUnsafe<R2>(Func<R, Task<R2>> Right, Func<L, Task<R2>> Left) =>
-            matchAsync<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(this, Left, Right);
-
-        /// <summary>
         /// Match the two states of the EitherUnsafe and return an observable stream of non-null R2s.
         /// </summary>
         [Pure]
@@ -809,7 +795,7 @@ namespace LanguageExt
             FEitherUnsafeBi<L, R, Ret, R>.Inst.BiMap(this, mapper, identity);
 
         /// <summary>
-        /// Bi-maps the value in the EitherUnsafe if it's in a Right state
+        /// Bi-maps the value in the EitherUnsafe into a Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
@@ -820,7 +806,7 @@ namespace LanguageExt
         /// <param name="Left">Left map function</param>
         /// <returns>Mapped EitherUnsafe</returns>
         [Pure]
-        public EitherUnsafe<L, Ret> BiMap<LRet, Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
+        public EitherUnsafe<L, Ret> BiMap<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             FEitherUnsafe<L, R, Ret>.Inst.BiMap(this, Left, Right);
 
         /// <summary>

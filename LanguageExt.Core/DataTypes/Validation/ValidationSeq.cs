@@ -152,7 +152,7 @@ namespace LanguageExt
         public static implicit operator Validation<FAIL, SUCCESS>(FAIL value) =>
             isnull(value)
                 ? throw new ValueIsNullException()
-                : Fail(SeqOne(value));
+                : Fail(Seq1(value));
 
         [Pure]
         public Validation<FAIL, SUCCESS> Disjunction<SUCCESSB>(Validation<FAIL, SUCCESSB> other)
@@ -226,15 +226,15 @@ namespace LanguageExt
         /// Match the two states of the Validation and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
-        public Task<R2> MatchAsync<R2>(Func<SUCCESS, Task<R2>> Succ, Func<Seq<FAIL>, R2> Fail) =>
-            matchAsync<FoldValidation<FAIL, SUCCESS>, Validation<FAIL, SUCCESS>, Seq<FAIL>, SUCCESS, R2>(this, Fail, Succ);
+        public async Task<R2> MatchAsync<R2>(Func<SUCCESS, Task<R2>> SuccAsync, Func<Seq<FAIL>, R2> Fail) =>
+            await Match(SuccAsync, f => Fail(f).AsTask());
 
         /// <summary>
         /// Match the two states of the Validation and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
-        public Task<R2> MatchAsync<R2>(Func<SUCCESS, Task<R2>> Succ, Func<Seq<FAIL>, Task<R2>> Fail) =>
-            matchAsync<FoldValidation<FAIL, SUCCESS>, Validation<FAIL, SUCCESS>, Seq<FAIL>, SUCCESS, R2>(this, Fail, Succ);
+        public async Task<R2> MatchAsync<R2>(Func<SUCCESS, Task<R2>> SuccAsync, Func<Seq<FAIL>, Task<R2>> FailAsync) =>
+            await Match(SuccAsync, FailAsync);
 
         /// <summary>
         /// Match the two states of the Validation and return an observable stream of non-null R2s.

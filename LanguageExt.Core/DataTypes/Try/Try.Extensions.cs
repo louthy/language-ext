@@ -821,4 +821,9 @@ public static class TryExtensions
             ? (A?)null
             : x.Value;
     }
+
+    [Pure]
+    public static Try<A> Plus<A>(this Try<A> ma, Try<A> mb) =>
+        default(MTry<A>).Plus(ma, mb);
+
 }

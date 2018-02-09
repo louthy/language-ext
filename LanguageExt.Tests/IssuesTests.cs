@@ -8,6 +8,8 @@ using LanguageExt;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
+using static LanguageExt.WriterT;
+using static LanguageExt.Seq;
 using Xunit;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
@@ -16,6 +18,14 @@ namespace LanguageExt.Tests
 {
     public class IssuesTests
     {
+        [Fact]
+        public void Issue314()
+        {
+
+            var x = Result<object>.Bottom.IsBottom;
+        }
+
+
         /// <summary>
         /// https://github.com/louthy/language-ext/issues/207
         /// </summary>
@@ -59,13 +69,24 @@ namespace LanguageExt.Tests
             var r = from a in Task.FromResult(Left<Exception, int>(new Exception("error 1")))
                     from b in Task.FromResult(Right<Exception, int>(1))
                     select a + b;
+        }
 
+        [Fact]
+        public void Issue346()
+        {
+            var list = 1.Cons().ToList();
         }
 
         static void EqPar()
         {
             var eq = par<string, string, bool>(equals<EqStringOrdinalIgnoreCase, string>, "abc");
         }
+
+        static Writer<MSeq<string>, Seq<string>, Seq<int>> multWithLog(Seq<int> input) =>
+            from _ in Writer(0, Seq1("Start"))
+            let c = input.Map(i => Writer(i * 10, Seq1($"Number: {i}")))
+            from r in c.Sequence()
+            select r;
     }
 
     public class ADUser : NewType<ADUser, string> { public ADUser(string u) : base(u) { } }
@@ -115,8 +136,11 @@ namespace Core.Tests
         [Fact]
         public async Task what_i_desire()
         {
+            var x = TryOption(Some(123));
+            var y = TryOption(Try(123));
+
             Task<Either<Error, Pixel>> GetPixelE(PixelId id) =>
-                GetPixel(id).MatchAsync(
+                GetPixel(id).Match(
                     Some: p => Right<Error, Pixel>(p),
                     None: () => Error.New("pixel not found")
                 );
@@ -330,20 +354,60 @@ namespace NickCuthbertOnGitter_RecordsTests
     public class Issue261
     {
         [Fact]
-        public void Test()
+        public void Test1()
         {
-            var computation = from x in Writer<MSeq<string>, Seq<string>, int>(100)
-                              from y in Writer<MSeq<string>, Seq<string>, int>(200)
-                              from _1 in tell<MSeq<string>, Seq<string>>(SeqOne("Hello"))
-                              from _2 in tell<MSeq<string>, Seq<string>>(SeqOne("World"))
-                              from _3 in tell<MSeq<string>, Seq<string>>(SeqOne($"the result is {x + y}"))
-                              select x + y;
+            var ma = Writer<MSeq<string>, Seq<string>, int>(100);
+            var mb = Writer<MSeq<string>, Seq<string>, int>(200);
 
-            var result = computation();
+            var mc = from x in ma
+                     from y in mb
+                     from _1 in tell<MSeq<string>, Seq<string>>(Seq1("Hello"))
+                     from _2 in tell<MSeq<string>, Seq<string>>(Seq1("World"))
+                     from _3 in tell<MSeq<string>, Seq<string>>(Seq1($"the result is {x + y}"))
+                     select x + y;
 
-            Assert.True(result.Value == 300);
-            Assert.True(result.Output.Count == 3);
-            Assert.True(String.Join(" ", result.Output) == "Hello World the result is 300");
+            var r = mc();
+
+            Assert.True(r.Value == 300);
+            Assert.True(r.Output == Seq("Hello", "World", "the result is 300"));
+        }
+
+        [Fact]
+        public void Test2()
+        {
+            var ma = Writer<string, int>(100);
+            var mb = Writer<string, int>(200);
+
+            var mc = from x in ma
+                     from y in mb
+                     from _1 in tell("Hello")
+                     from _2 in tell("World")
+                     from _3 in tell($"the result is {x + y}")
+                     select x + y;
+
+            var r = mc();
+
+            Assert.True(r.Value == 300);
+            Assert.True(r.Output == Seq("Hello", "World", "the result is 300"));
+        }
+
+        [Fact]
+        public void Test3()
+        {
+            var ma = (100, Seq<string>());
+            var mb = (200, Seq<string>());
+
+            var mc = from x in ma.ToWriter()
+                     from y in mb.ToWriter()
+                     from _1 in tell("Hello")
+                     from _2 in tell("World")
+                     from _3 in tell($"the result is {x + y}")
+                     select x + y;
+
+            var r = mc();
+
+            Assert.True(r.Value == 300);
+            Assert.True(r.Output == Seq("Hello", "World", "the result is 300") );
         }
     }
 }
