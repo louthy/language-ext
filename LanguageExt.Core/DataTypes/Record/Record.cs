@@ -25,16 +25,16 @@ namespace LanguageExt
             !(x == y);
 
         public static bool operator >(Record<RECORDTYPE> x, Record<RECORDTYPE> y) =>
-            RecordType<RECORDTYPE>.Compare((RECORDTYPE)(object)x, (RECORDTYPE)(object)y) > 0;
+            x?.CompareTo((RECORDTYPE)(object)y) > 0;
 
         public static bool operator >=(Record<RECORDTYPE> x, Record<RECORDTYPE> y) =>
-            RecordType<RECORDTYPE>.Compare((RECORDTYPE)(object)x, (RECORDTYPE)(object)y) >= 0;
+            x?.CompareTo((RECORDTYPE)(object)y) >= 0;
 
         public static bool operator <(Record<RECORDTYPE> x, Record<RECORDTYPE> y) =>
-            RecordType<RECORDTYPE>.Compare((RECORDTYPE)(object)x, (RECORDTYPE)(object)y) < 0;
+            x?.CompareTo((RECORDTYPE)(object)y) < 0;
 
         public static bool operator <=(Record<RECORDTYPE> x, Record<RECORDTYPE> y) =>
-            RecordType<RECORDTYPE>.Compare((RECORDTYPE)(object)x, (RECORDTYPE)(object)y) <= 0;
+            x?.CompareTo((RECORDTYPE)(object)y) <= 0;
 
         public override int GetHashCode() =>
             RecordType<RECORDTYPE>.Hash((RECORDTYPE)(object)this);
