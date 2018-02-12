@@ -1660,17 +1660,6 @@ namespace LanguageExt
         [Pure]
         public EitherAsync<L, V> SelectMany<U, V>(Func<R, EitherAsync<L, U>> bind, Func<R, U, V> project) =>
             Bind(a => bind(a).Bind(b => EitherAsync<L, V>.Right(project(a, b))));
-
-        // TODO: for EitherAsync
-        //[Pure]
-        //public Either<L, V> Join<U, K, V>(
-        //    Either<L, U> inner,
-        //    Func<R, K> outerKeyMap,
-        //    Func<U, K> innerKeyMap,
-        //    Func<R, U, V> project) =>
-        //    join<EqDefault<K>, MEither<L, R>, MEither<L, U>, MEither<L, V>, Either<L, R>, Either<L, U>, Either<L, V>, R, U, K, V>(
-        //        this, inner, outerKeyMap, innerKeyMap, project
-        //        );
     }
 
     /// <summary>
