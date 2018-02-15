@@ -37,4 +37,26 @@ namespace LanguageExt.ClassInstances
             return res.IsFaulted || res.Value.IsNull() ? 0 : res.Value.GetHashCode();
         }
     }
+
+    /// <summary>
+    /// Compare the equality of any values bound by the Try monad
+    /// </summary>
+    public struct EqTry<A> : Eq<Try<A>>
+    {
+        public static readonly EqTry<A> Inst = default(EqTry<A>);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public bool Equals(Try<A> x, Try<A> y) =>
+            default(EqTry<EqDefault<A>, A>).Equals(x, y);
+
+        [Pure]
+        public int GetHashCode(Try<A> x) =>
+            default(EqTry<EqDefault<A>, A>).GetHashCode(x);
+    }
 }

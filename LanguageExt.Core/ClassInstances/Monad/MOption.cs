@@ -193,11 +193,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public bool Equals(Option<A> x, Option<A> y) =>
-            equals<EqDefault<A>, A>(x, y);
+            default(EqOpt<MOption<A>, Option<A>, A>).Equals(x, y);
 
         [Pure]
         public int GetHashCode(Option<A> x) =>
-            EqOpt<EqDefault<A>, MOption<A>, Option<A>, A>.Inst.GetHashCode(x);
+            default(EqOpt<MOption<A>, Option<A>, A>).GetHashCode(x);
 
         [Pure]
         public Option<A> Apply(Func<A, A, A> f, Option<A> fa, Option<A> fb) =>

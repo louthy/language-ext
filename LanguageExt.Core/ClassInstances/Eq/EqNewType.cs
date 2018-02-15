@@ -40,6 +40,32 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Compare the equality of any type in the NewType type-class
     /// </summary>
+    public struct EqNewType<NEWTYPE, A> : Eq<NewType<NEWTYPE, A>>
+        where NEWTYPE : NewType<NEWTYPE, A>
+    {
+        public static readonly EqNewType<NEWTYPE, A> Inst = default(EqNewType<NEWTYPE, A>);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        public bool Equals(NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) =>
+            default(EqNewType<NEWTYPE, EqDefault<A>, A>).Equals(x, y);
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        public int GetHashCode(NewType<NEWTYPE, A> x) =>
+            default(EqNewType<NEWTYPE, EqDefault<A>, A>).GetHashCode(x);
+    }
+
+    /// <summary>
+    /// Compare the equality of any type in the NewType type-class
+    /// </summary>
     public struct EqNewType<NEWTYPE, EQ, A, PRED> : Eq<NewType<NEWTYPE, A, PRED>>
         where EQ : struct, Eq<A>
         where PRED : struct, Pred<A>

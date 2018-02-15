@@ -12,10 +12,10 @@ namespace LanguageExt.ClassInstances
     /// <param name="x">The left hand side of the equality operation</param>
     /// <param name="y">The right hand side of the equality operation</param>
     /// <returns>True if x and y are equal</returns>
-    public struct EqSeq<EQ, A> : Eq<ISeq<A>>
-        where EQ : struct, Eq<A>
+    public struct EqSeq<EqA, A> : Eq<ISeq<A>>
+        where EqA : struct, Eq<A>
     {
-        public static readonly EqSeq<EQ, A> Inst = default(EqSeq<EQ, A>);
+        public static readonly EqSeq<EqA, A> Inst = default(EqSeq<EqA, A>);
 
         /// <summary>
         /// Equality check
@@ -34,7 +34,7 @@ namespace LanguageExt.ClassInstances
                 if (a != b) return false;
                 if (a && b) return true;
 
-                if (!default(EQ).Equals(x.Head, y.Head)) return false;
+                if (!default(EqA).Equals(x.Head, y.Head)) return false;
                 x = x.Tail;
                 y = y.Tail;
             }
@@ -48,5 +48,32 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(ISeq<A> x) =>
             hash(x);
+    }
+
+    /// <summary>
+    /// Equality test
+    /// </summary>
+    /// <param name="x">The left hand side of the equality operation</param>
+    /// <param name="y">The right hand side of the equality operation</param>
+    /// <returns>True if x and y are equal</returns>
+    public struct EqSeq<A> : Eq<ISeq<A>>
+    {
+        public static readonly EqSeq<A> Inst = default(EqSeq<A>);
+
+        /// <summary>
+        /// Equality check
+        /// </summary>
+        [Pure]
+        public bool Equals(ISeq<A> x, ISeq<A> y) =>
+            default(EqSeq<EqDefault<A>, A>).Equals(x, y);
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        public int GetHashCode(ISeq<A> x) =>
+            default(EqSeq<EqDefault<A>, A>).GetHashCode(x);
     }
 }

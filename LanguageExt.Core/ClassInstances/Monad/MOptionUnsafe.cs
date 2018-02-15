@@ -219,11 +219,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public bool Equals(OptionUnsafe<A> x, OptionUnsafe<A> y) =>
-            equals<EqDefault<A>, A>(x, y);
+            default(EqOpt<MOptionUnsafe<A>, OptionUnsafe<A>, A>).Equals(x, y);
 
         [Pure]
         public int GetHashCode(OptionUnsafe<A> x) =>
-            EqOpt<EqDefault<A>, MOptionUnsafe<A>, OptionUnsafe<A>, A>.Inst.GetHashCode(x);
+            default(EqOpt<MOptionUnsafe<A>, OptionUnsafe<A>, A>).GetHashCode(x);
 
         [Pure]
         public OptionUnsafe<A> Apply(Func<A, A, A> f, OptionUnsafe<A> fa, OptionUnsafe<A> fb) =>

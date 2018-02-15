@@ -50,4 +50,33 @@ namespace LanguageExt.ClassInstances
         public int GetHashCode(OA x) =>
             x.IsNull() ? 0 : x.GetHashCode();
     }
+
+    /// <summary>
+    /// Compare the equality of any type in the Optional type-class
+    /// </summary>
+    public struct EqOpt<OPTION, OA, A> : Eq<OA>
+        where OPTION : struct, Optional<OA, A>
+    {
+        public static readonly EqOpt<OPTION, OA, A> Inst = default(EqOpt<OPTION, OA, A>);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public bool Equals(OA x, OA y) =>
+            default(EqOpt<EqDefault<A>, OPTION, OA, A>).Equals(x, y);
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        public int GetHashCode(OA x) =>
+            default(EqOpt<EqDefault<A>, OPTION, OA, A>).GetHashCode(x);
+    }
+
 }

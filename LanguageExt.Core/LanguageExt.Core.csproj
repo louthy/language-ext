@@ -12,7 +12,7 @@
     <DefineConstants>COREFX13</DefineConstants>
   </PropertyGroup>-->
   <PropertyGroup>
-    <PackageVersion>2.2.9-beta</PackageVersion>
+    <PackageVersion>2.2.10-beta</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -42,6 +42,7 @@
     <None Remove="obj\**" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="ClassInstances\Eq\EqMap.cs" />
     <None Remove="ClassInstances\Monad\MTaskFirst.cs" />
     <None Remove="ClassInstances\Monad\MTryFirstAsync.cs" />
     <None Remove="ClassInstances\Monad\MTryOptionFirstAsync.cs" />
