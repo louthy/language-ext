@@ -456,7 +456,7 @@ namespace LanguageExt
     [Serializable]
     class ListItem<T>
     {
-        public static readonly ListItem<T> Empty = new ListItem<T>(0, 0, default(T), null, null);
+        public static readonly ListItem<T> Empty = new ListItem<T>(0, 0, null, default(T), null);
 
         public bool IsEmpty => Count == 0;
         public readonly int Count;
@@ -467,7 +467,7 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        internal ListItem(byte height, int count, T key, ListItem<T> left, ListItem<T> right)
+        internal ListItem(byte height, int count, ListItem<T> left, T key, ListItem<T> right)
         {
             Count = count;
             Height = height;
@@ -511,10 +511,10 @@ namespace LanguageExt
             return state;
         }
 
-        public static bool ForAll<K, V>(MapItem<K, V> node, Func<K, V, bool> pred) =>
+        public static bool ForAll<A>(ListItem<A> node, Func<A, bool> pred) =>
             node.IsEmpty
                 ? true
-                : pred(node.KeyValue.Key, node.KeyValue.Value)
+                : pred(node.Key)
                     ? ForAll(node.Left, pred) && ForAll(node.Right, pred)
                     : false;
 
@@ -525,16 +525,16 @@ namespace LanguageExt
                     ? true
                     : Exists(node.Left, pred) || Exists(node.Right, pred);
 
-        public static ListItem<U> Map<T, U>(ListItem<T> node, Func<T, U> mapper) =>
+        public static ListItem<U> Map<T, U>(ListItem<T> node, Func<T, U> f) =>
             node.IsEmpty
                 ? ListItem<U>.Empty
-                : new ListItem<U>(node.Height, node.Count, mapper(node.Key), Map(node.Left, mapper), Map(node.Right, mapper));
+                : new ListItem<U>(node.Height, node.Count, Map(node.Left, f), f(node.Key), Map(node.Right, f));
 
         public static ListItem<T> Insert<T>(ListItem<T> node, T key, int index)
         {
             if (node.IsEmpty)
             {
-                return new ListItem<T>(1, 1, key, ListItem<T>.Empty, ListItem<T>.Empty);
+                return new ListItem<T>(1, 1, ListItem<T>.Empty, key, ListItem<T>.Empty);
             }
             else if (index == node.Left.Count)
             {
@@ -596,15 +596,15 @@ namespace LanguageExt
 
             if (index == node.Left.Count)
             {
-                return new ListItem<T>(node.Height, node.Count, key, node.Left, node.Right);
+                return new ListItem<T>(node.Height, node.Count, node.Left, key, node.Right);
             }
             else if (index < node.Left.Count)
             {
-                return new ListItem<T>(node.Height, node.Count, node.Key, SetItem(node.Left, key, index), node.Right);
+                return new ListItem<T>(node.Height, node.Count, SetItem(node.Left, key, index), node.Key, node.Right);
             }
             else
             {
-                return new ListItem<T>(node.Height, node.Count, node.Key, node.Left, SetItem(node.Right, key, index - node.Left.Count - 1));
+                return new ListItem<T>(node.Height, node.Count, node.Left, node.Key, SetItem(node.Right, key, index - node.Left.Count - 1));
             }
         }
 
@@ -854,7 +854,7 @@ namespace LanguageExt
         }
 
         public static ListItem<T> Make<T>(T k, ListItem<T> l, ListItem<T> r) =>
-            new ListItem<T>((byte)(1 + Math.Max(l.Height, r.Height)), l.Count + r.Count + 1, k, l, r);
+            new ListItem<T>((byte)(1 + Math.Max(l.Height, r.Height)), l.Count + r.Count + 1, l, k, r);
 
         public static ListItem<T> Balance<T>(ListItem<T> node) =>
             node.BalanceFactor >= 2
