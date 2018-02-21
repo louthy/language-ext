@@ -157,7 +157,7 @@ namespace LanguageExt.ClassInstances
                 : throw fa.Exception;
         }
 
-        public async Task<B> MatchAsync<B>(Task<A> ma, Func<A, Task<B>> Some, Func<B> None)
+        public async Task<B> MatchAsync<B>(Task<A> ma, Func<A, Task<B>> SomeAsync, Func<B> None)
         {
             if (ma.IsCanceled || ma.IsFaulted)
             {
@@ -166,7 +166,7 @@ namespace LanguageExt.ClassInstances
             try
             {
                 var a = await ma;
-                return await Some(a);
+                return await SomeAsync(a);
             }
             catch (Exception)
             {
@@ -174,11 +174,11 @@ namespace LanguageExt.ClassInstances
             }
         }
 
-        public async Task<B> MatchAsync<B>(Task<A> ma, Func<A, B> Some, Func<Task<B>> None)
+        public async Task<B> MatchAsync<B>(Task<A> ma, Func<A, B> Some, Func<Task<B>> NoneAsync)
         {
             if (ma.IsCanceled || ma.IsFaulted)
             {
-                return await None();
+                return await NoneAsync();
             }
             try
             {
@@ -187,24 +187,24 @@ namespace LanguageExt.ClassInstances
             }
             catch (Exception)
             {
-                return await None();
+                return await NoneAsync();
             }
         }
 
-        public async Task<B> MatchAsync<B>(Task<A> ma, Func<A, Task<B>> Some, Func<Task<B>> None)
+        public async Task<B> MatchAsync<B>(Task<A> ma, Func<A, Task<B>> SomeAsync, Func<Task<B>> NoneAsync)
         {
             if (ma.IsCanceled || ma.IsFaulted)
             {
-                return await None();
+                return await NoneAsync();
             }
             try
             {
                 var a = await ma;
-                return await Some(a);
+                return await SomeAsync(a);
             }
             catch (Exception)
             {
-                return await None();
+                return await NoneAsync();
             }
         }
 
@@ -225,7 +225,7 @@ namespace LanguageExt.ClassInstances
             }
         }
 
-        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, Task<B>> Some, Func<B> None)
+        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, Task<B>> SomeAsync, Func<B> None)
         {
             if (ma.IsCanceled || ma.IsFaulted)
             {
@@ -234,7 +234,7 @@ namespace LanguageExt.ClassInstances
             try
             {
                 var a = await ma;
-                return await Some(a);
+                return await SomeAsync(a);
             }
             catch (Exception)
             {
@@ -242,11 +242,11 @@ namespace LanguageExt.ClassInstances
             }
         }
 
-        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, B> Some, Func<Task<B>> None)
+        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, B> Some, Func<Task<B>> NoneAsync)
         {
             if (ma.IsCanceled || ma.IsFaulted)
             {
-                return await None();
+                return await NoneAsync();
             }
             try
             {
@@ -255,24 +255,24 @@ namespace LanguageExt.ClassInstances
             }
             catch (Exception)
             {
-                return await None();
+                return await NoneAsync();
             }
         }
 
-        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, Task<B>> Some, Func<Task<B>> None)
+        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, Task<B>> SomeAsync, Func<Task<B>> NoneAsync)
         {
             if (ma.IsCanceled || ma.IsFaulted)
             {
-                return await None();
+                return await NoneAsync();
             }
             try
             {
                 var a = await ma;
-                return await Some(a);
+                return await SomeAsync(a);
             }
             catch (Exception)
             {
-                return await None();
+                return await NoneAsync();
             }
         }
 
@@ -295,7 +295,7 @@ namespace LanguageExt.ClassInstances
             try
             {
                 var a = await ma;
-                await Some(a);
+                await SomeAsync(a);
             }
             catch (Exception)
             {
@@ -304,12 +304,12 @@ namespace LanguageExt.ClassInstances
             return unit;
         }
 
-        public async Task<Unit> MatchAsync(Task<A> ma, Action<A> SomeAsync, Func<Task> None)
+        public async Task<Unit> MatchAsync(Task<A> ma, Action<A> Some, Func<Task> None)
         {
             try
             {
                 var a = await ma;
-                await Some(a);
+                Some(a);
             }
             catch (Exception)
             {
@@ -323,7 +323,7 @@ namespace LanguageExt.ClassInstances
             try
             {
                 var a = await ma;
-                await Some(a);
+                await SomeAsync(a);
             }
             catch (Exception)
             {
@@ -345,18 +345,18 @@ namespace LanguageExt.ClassInstances
 
         public Task<S> BiFoldAsync<S>(Task<A> ma, S state, Func<S, A, Task<S>> SomeAsync, Func<S, Unit, S> None) =>
             MatchAsync(ma,
-                Some: x => SomeAsync(state, x),
+                SomeAsync: x => SomeAsync(state, x),
                 None: () => None(state, unit));
 
         public Task<S> BiFoldAsync<S>(Task<A> ma, S state, Func<S, A, S> Some, Func<S, Unit, Task<S>> NoneAsync) =>
             MatchAsync(ma,
                 Some: x => Some(state, x),
-                None: () => NoneAsync(state, unit));
+                NoneAsync: () => NoneAsync(state, unit));
 
         public Task<S> BiFoldAsync<S>(Task<A> ma, S state, Func<S, A, Task<S>> SomeAsync, Func<S, Unit, Task<S>> NoneAsync) =>
             MatchAsync(ma,
-                Some: x => SomeAsync(state, x),
-                None: () => NoneAsync(state, unit));
+                SomeAsync: x => SomeAsync(state, x),
+                NoneAsync: () => NoneAsync(state, unit));
 
         public Task<S> BiFoldBack<S>(Task<A> ma, S state, Func<S, A, S> Some, Func<S, Unit, S> None) =>
             Match(ma,
@@ -365,17 +365,17 @@ namespace LanguageExt.ClassInstances
 
         public Task<S> BiFoldBackAsync<S>(Task<A> ma, S state, Func<S, A, Task<S>> SomeAsync, Func<S, Unit, S> None) =>
             MatchAsync(ma,
-                Some: x => SomeAsync(state, x),
+                SomeAsync: x => SomeAsync(state, x),
                 None: () => None(state, unit));
 
         public Task<S> BiFoldBackAsync<S>(Task<A> ma, S state, Func<S, A, S> Some, Func<S, Unit, Task<S>> NoneAsync) =>
             MatchAsync(ma,
                 Some: x => Some(state, x),
-                None: () => NoneAsync(state, unit));
+                NoneAsync: () => NoneAsync(state, unit));
 
         public Task<S> BiFoldBackAsync<S>(Task<A> ma, S state, Func<S, A, Task<S>> SomeAsync, Func<S, Unit, Task<S>> NoneAsync) =>
             MatchAsync(ma,
-                Some: x => SomeAsync(state, x),
-                None: () => NoneAsync(state, unit));
+                SomeAsync: x => SomeAsync(state, x),
+                NoneAsync: () => NoneAsync(state, unit));
     }
 }
