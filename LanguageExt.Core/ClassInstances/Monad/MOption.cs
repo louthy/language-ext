@@ -9,6 +9,7 @@ namespace LanguageExt.ClassInstances
     public struct MOption<A> :
         Alternative<Option<A>, Unit, A>,
         Optional<Option<A>, A>,
+        OptionalUnsafe<Option<A>, A>,
         Monad<Option<A>, A>,
         BiFoldable<Option<A>, A, Unit>,
         Eq<Option<A>>,
@@ -78,10 +79,6 @@ namespace LanguageExt.ClassInstances
             opt.IsSome;
 
         [Pure]
-        public bool IsUnsafe(Option<A> opt) =>
-            false;
-
-        [Pure]
         public B Match<B>(Option<A> opt, Func<A, B> Some, Func<B> None)
         {
             if (Some == null) throw new ArgumentNullException(nameof(Some));
@@ -89,6 +86,15 @@ namespace LanguageExt.ClassInstances
             return opt.IsSome
                 ? Check.NullReturn(Some(opt.Value))
                 : Check.NullReturn(None());
+        }
+
+        [Pure]
+        public B Match<B>(Option<A> opt, Func<A, B> Some, B None)
+        {
+            if (Some == null) throw new ArgumentNullException(nameof(Some));
+            return opt.IsSome
+                ? Check.NullReturn(Some(opt.Value))
+                : Check.NullReturn(None);
         }
 
         public Unit Match(Option<A> opt, Action<A> Some, Action None)
@@ -110,9 +116,18 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
+        public B MatchUnsafe<B>(Option<A> opt, Func<A, B> Some, B None)
+        {
+            if (Some == null) throw new ArgumentNullException(nameof(Some));
+            return opt.IsSome
+                ? Some(opt.Value)
+                : None;
+        }
+
+        [Pure]
         public Func<Unit, S> Fold<S>(Option<A> ma, S state, Func<S, A, S> f) => _ =>
         {
-            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
+            if (isnull(state)) throw new ArgumentNullException(nameof(state));
             if (f == null) throw new ArgumentNullException(nameof(f));
             return Check.NullReturn(ma.IsSome
                 ? f(state, ma.Value)
@@ -122,7 +137,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Func<Unit, S> FoldBack<S>(Option<A> ma, S state, Func<S, A, S> f) => _ =>
         {
-            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
+            if (isnull(state)) throw new ArgumentNullException(nameof(state));
             if (f == null) throw new ArgumentNullException(nameof(f));
             return Check.NullReturn(ma.IsSome
                 ? f(state, ma.Value)
@@ -132,7 +147,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public S BiFold<S>(Option<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb)
         {
-            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
+            if (isnull(state)) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
             return Check.NullReturn(ma.IsSome
@@ -143,7 +158,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public S BiFoldBack<S>(Option<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb)
         {
-            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
+            if (isnull(state)) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
             return Check.NullReturn(ma.IsSome
@@ -193,11 +208,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public bool Equals(Option<A> x, Option<A> y) =>
-            default(EqOpt<MOption<A>, Option<A>, A>).Equals(x, y);
+            default(EqOptional<MOption<A>, Option<A>, A>).Equals(x, y);
 
         [Pure]
         public int GetHashCode(Option<A> x) =>
-            default(EqOpt<MOption<A>, Option<A>, A>).GetHashCode(x);
+            default(EqOptional<MOption<A>, Option<A>, A>).GetHashCode(x);
 
         [Pure]
         public Option<A> Apply(Func<A, A, A> f, Option<A> fa, Option<A> fb) =>

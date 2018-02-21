@@ -73,7 +73,7 @@ namespace LanguageExt
         /// </returns>
         [Pure]
         public static int compare<ORD, A>(Option<A> x, Option<A> y) where ORD : struct, Ord<A> =>
-            OrdOpt<ORD, MOption<A>, Option<A>, A>.Inst.Compare(x, y);
+            OrdOptional<ORD, MOption<A>, Option<A>, A>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -87,7 +87,7 @@ namespace LanguageExt
         /// </returns>
         [Pure]
         public static int compare<ORD, A>(OptionUnsafe<A> x, OptionUnsafe<A> y) where ORD : struct, Ord<A> =>
-            OrdOpt<ORD, MOptionUnsafe<A>, OptionUnsafe<A>, A>.Inst.Compare(x, y);
+            OrdOptionalUnsafe<ORD, MOptionUnsafe<A>, OptionUnsafe<A>, A>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -119,7 +119,7 @@ namespace LanguageExt
         public static int compare<ORDA, ORDB, A, B>(EitherUnsafe<A, B> x, EitherUnsafe<A, B> y)
             where ORDA : struct, Ord<A>
             where ORDB : struct, Ord<B> =>
-            OrdChoice<ORDA, ORDB, MEitherUnsafe<A, B>, EitherUnsafe<A, B>, A, B>.Inst.Compare(x, y);
+            OrdChoiceUnsafe<ORDA, ORDB, MEitherUnsafe<A, B>, EitherUnsafe<A, B>, A, B>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -214,7 +214,7 @@ namespace LanguageExt
         /// </returns>
         [Pure]
         public static int compare<ORD, A>(TryOption<A> x, TryOption<A> y) where ORD : struct, Ord<A> =>
-            OrdOpt<ORD, MTryOption<A>, TryOption<A>, A>.Inst.Compare(x, y);
+            OrdOptional<ORD, MTryOption<A>, TryOption<A>, A>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -228,7 +228,7 @@ namespace LanguageExt
         /// </returns>
         [Pure]
         public static int compare<ORD, A>(Try<A> x, Try<A> y) where ORD : struct, Ord<A> =>
-            OrdOpt<ORD, MTry<A>, Try<A>, A>.Inst.Compare(x, y);
+            OrdOptional<ORD, MTry<A>, Try<A>, A>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -256,7 +256,7 @@ namespace LanguageExt
         /// </returns>
         [Pure]
         public static int compare<ORD, L, R>(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where ORD : struct, Ord<R> =>
-            OrdChoice<ORD, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Compare(x, y);
+            OrdChoiceUnsafe<ORD, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Compare(x, y);
 
         /// <summary>
         /// Find the minimum value between any two values

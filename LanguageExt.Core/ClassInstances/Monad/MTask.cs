@@ -8,6 +8,7 @@ namespace LanguageExt.ClassInstances
 {
     public struct MTask<A> :
         OptionalAsync<Task<A>, A>,
+        OptionalUnsafeAsync<Task<A>, A>,
         MonadAsync<Task<A>, A>,
         FoldableAsync<Task<A>, A>,
         BiFoldableAsync<Task<A>, A, Unit>
@@ -73,10 +74,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Task<bool> IsSome(Task<A> ma) =>
             default(MTaskFirst<A>).IsSome(ma);
-
-        [Pure]
-        public Task<bool> IsUnsafe(Task<A> ma) =>
-            default(MTaskFirst<A>).IsUnsafe(ma);
 
         [Pure]
         public Task<B> Match<B>(Task<A> ma, Func<A, B> Some, Func<B> None) =>

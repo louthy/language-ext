@@ -8,6 +8,7 @@ namespace LanguageExt.ClassInstances
 {
     public struct MNullable<A> :
         Optional<A?, A>,
+        OptionalUnsafe<A?, A>,
         Monad<A?, A>,
         BiFoldable<A?, A, Unit>,
         Eq<A?>,
@@ -63,26 +64,35 @@ namespace LanguageExt.ClassInstances
             ma.HasValue;
 
         [Pure]
-        public bool IsUnsafe(A? ma) =>
-            true;
+        public Unit Match(A? ma, Action<A> Some, Action None)
+        {
+            if (ma.HasValue) Some(ma.Value); else None();
+            return unit;
+        }
 
         [Pure]
         public B Match<B>(A? ma, Func<A, B> Some, Func<B> None) =>
             ma.HasValue
-                ? Check.NullReturn(Some(ma.Value))
-                : Check.NullReturn(None());
+                ? Some(ma.Value)
+                : None();
 
-        public Unit Match(A? ma, Action<A> Some, Action None)
-        {
-            if (ma.HasValue) Some(ma.Value); else None();
-            return Unit.Default;
-        }
+        [Pure]
+        public B Match<B>(A? ma, Func<A, B> Some, B None) =>
+            Check.NullReturn(ma.HasValue
+                ? Some(ma.Value)
+                : None);
 
         [Pure]
         public B MatchUnsafe<B>(A? ma, Func<A, B> Some, Func<B> None) =>
             ma.HasValue
                 ? Some(ma.Value)
                 : None();
+
+        [Pure]
+        public B MatchUnsafe<B>(A? ma, Func<A, B> Some, B None) =>
+            ma.HasValue
+                ? Some(ma.Value)
+                : None;
 
         [Pure]
         public Func<Unit, S> Fold<S>(A? ma, S state, Func<S, A, S> f) => _ =>
@@ -98,13 +108,13 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public S BiFold<S>(A? ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
-            Check.NullReturn(!ma.HasValue
+            Check.NullReturn(ma.HasValue
                 ? fa(state, ma.Value)
                 : fb(state, unit));
 
         [Pure]
         public S BiFoldBack<S>(A? ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
-            Check.NullReturn(!ma.HasValue
+            Check.NullReturn(ma.HasValue
                 ? fa(state, ma.Value)
                 : fb(state, unit));
 

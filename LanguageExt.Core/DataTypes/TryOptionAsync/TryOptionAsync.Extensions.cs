@@ -214,7 +214,18 @@ public static class TryOptionAsyncExtensions
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, R> Succ, R Fail) =>
-        self.Match(Succ, () => Fail);
+        self.Match(a => Succ(a), () => Fail).Map(Check.NullReturn);
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Succ">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="Fail">Value to use if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static Task<R> MatchUnsafe<A, R>(this TryOptionAsync<A> self, Func<A, R> Succ, R Fail) =>
+        self.Match(a => Succ(a), () => Fail);
 
     /// <summary>
     /// Pattern matches the three possible states of the computation computation
@@ -274,8 +285,48 @@ public static class TryOptionAsyncExtensions
 
         var res = await self.Try();
         return res.IsFaultedOrNone
+            ? Check.NullReturn(Fail())
+            : Check.NullReturn(Succ(res.Value.Value));
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Succ">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafe<A, R>(this TryOptionAsync<A> self, Func<A, R> Succ, Func<R> Fail)
+    {
+        if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        var res = await self.Try();
+        return res.IsFaultedOrNone
             ? Fail()
             : Succ(res.Value.Value);
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Succ">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafe<A, R>(this TryOptionAsync<A> self, Func<A, R> Succ, Func<R> None, Func<Exception, R> Fail)
+    {
+        if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        var res = await self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception)
+            : res.IsNone
+                ? None()
+                : Succ(res.Value.Value);
     }
 
     /// <summary>
@@ -287,6 +338,25 @@ public static class TryOptionAsyncExtensions
     /// <returns>The result of either the Succ, Fail delegate</returns>
     [Pure]
     public static async Task<R> MatchAsync<A, R>(this TryOptionAsync<A> self, Func<A, R> Succ, Func<Task<R>> FailAsync)
+    {
+        if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
+        if (isnull(FailAsync)) throw new ArgumentNullException(nameof(FailAsync));
+
+        var res = await self.Try();
+        return res.IsFaultedOrNone
+            ? Check.NullReturn(await FailAsync())
+            : Check.NullReturn(Succ(res.Value.Value));
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Succ">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="FailAsync">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafeAsync<A, R>(this TryOptionAsync<A> self, Func<A, R> Succ, Func<Task<R>> FailAsync)
     {
         if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
         if (isnull(FailAsync)) throw new ArgumentNullException(nameof(FailAsync));
@@ -312,6 +382,25 @@ public static class TryOptionAsyncExtensions
 
         var res = await self.Try();
         return res.IsFaultedOrNone
+            ? Check.NullReturn(Fail())
+            : Check.NullReturn(await SuccAsync(res.Value.Value));
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="SuccAsync">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafeAsync<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> SuccAsync, Func<R> Fail)
+    {
+        if (isnull(SuccAsync)) throw new ArgumentNullException(nameof(SuccAsync));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        var res = await self.Try();
+        return res.IsFaultedOrNone
             ? Fail()
             : await SuccAsync(res.Value.Value);
     }
@@ -325,6 +414,25 @@ public static class TryOptionAsyncExtensions
     /// <returns>The result of either the Succ, Fail delegate</returns>
     [Pure]
     public static async Task<R> MatchAsync<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> SuccAsync, Func<Task<R>> FailAsync)
+    {
+        if (isnull(SuccAsync)) throw new ArgumentNullException(nameof(SuccAsync));
+        if (isnull(FailAsync)) throw new ArgumentNullException(nameof(FailAsync));
+
+        var res = await self.Try();
+        return res.IsFaultedOrNone
+            ? Check.NullReturn(await FailAsync())
+            : Check.NullReturn(await SuccAsync(res.Value.Value));
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="SuccAsync">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="FailAsync">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafeAsync<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> SuccAsync, Func<Task<R>> FailAsync)
     {
         if (isnull(SuccAsync)) throw new ArgumentNullException(nameof(SuccAsync));
         if (isnull(FailAsync)) throw new ArgumentNullException(nameof(FailAsync));
@@ -352,8 +460,29 @@ public static class TryOptionAsyncExtensions
 
         var res = await self.Try();
         return res.IsFaulted
-            ? Fail(res.Exception)
+            ? Check.NullReturn(Fail(res.Exception))
             : res.Value.Match(Some, None);
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUntypedUnsafe<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<R> None, Func<Exception, R> Fail)
+    {
+        if (isnull(Some)) throw new ArgumentNullException(nameof(Some));
+        if (isnull(None)) throw new ArgumentNullException(nameof(None));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        var res = await self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.MatchUnsafe(Some, None);
     }
 
     /// <summary>
@@ -366,6 +495,29 @@ public static class TryOptionAsyncExtensions
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> MatchAsync<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<Task<R>> NoneAsync, Func<Exception, R> Fail)
+    {
+        if (isnull(Some)) throw new ArgumentNullException(nameof(Some));
+        if (isnull(NoneAsync)) throw new ArgumentNullException(nameof(NoneAsync));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        var res = await self.Try();
+        return Check.NullReturn(res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? Some(res.Value.Value)
+                : await NoneAsync());
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="NoneAsync">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafeAsync<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<Task<R>> NoneAsync, Func<Exception, R> Fail)
     {
         if (isnull(Some)) throw new ArgumentNullException(nameof(Some));
         if (isnull(NoneAsync)) throw new ArgumentNullException(nameof(NoneAsync));
@@ -389,6 +541,29 @@ public static class TryOptionAsyncExtensions
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> MatchAsync<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> SomeAsync, Func<R> None, Func<Exception, R> Fail)
+    {
+        if (isnull(SomeAsync)) throw new ArgumentNullException(nameof(SomeAsync));
+        if (isnull(None)) throw new ArgumentNullException(nameof(None));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        var res = await self.Try();
+        return Check.NullReturn(res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? await SomeAsync(res.Value.Value)
+                : None());
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="SomeAsync">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafeAsync<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> SomeAsync, Func<R> None, Func<Exception, R> Fail)
     {
         if (isnull(SomeAsync)) throw new ArgumentNullException(nameof(SomeAsync));
         if (isnull(None)) throw new ArgumentNullException(nameof(None));
@@ -429,6 +604,29 @@ public static class TryOptionAsyncExtensions
     /// Pattern matches the three possible states of the computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="SomeAsync">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="NoneAsync">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafeAsync<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> SomeAsync, Func<Task<R>> NoneAsync, Func<Exception, R> Fail)
+    {
+        if (isnull(SomeAsync)) throw new ArgumentNullException(nameof(SomeAsync));
+        if (isnull(NoneAsync)) throw new ArgumentNullException(nameof(NoneAsync));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        var res = await self.Try();
+        return Check.NullReturn(res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? await SomeAsync(res.Value.Value)
+                : await NoneAsync());
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
     /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
     /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
     /// <param name="FailAsync">Delegate to invoke if the computation fails</param>
@@ -442,8 +640,29 @@ public static class TryOptionAsyncExtensions
 
         var res = await self.Try();
         return res.IsFaulted
-            ? await FailAsync(res.Exception)
+            ? Check.NullReturn(await FailAsync(res.Exception))
             : res.Value.Match(Some, None);
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="FailAsync">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafeAsync<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<R> None, Func<Exception, Task<R>> FailAsync)
+    {
+        if (isnull(Some)) throw new ArgumentNullException(nameof(Some));
+        if (isnull(None)) throw new ArgumentNullException(nameof(None));
+        if (isnull(FailAsync)) throw new ArgumentNullException(nameof(FailAsync));
+
+        var res = await self.Try();
+        return res.IsFaulted
+            ? await FailAsync(res.Exception)
+            : res.Value.MatchUnsafe(Some, None);
     }
 
     /// <summary>
@@ -456,6 +675,29 @@ public static class TryOptionAsyncExtensions
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> MatchAsync<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<Task<R>> NoneAsync, Func<Exception, Task<R>> FailAsync)
+    {
+        if (isnull(Some)) throw new ArgumentNullException(nameof(Some));
+        if (isnull(NoneAsync)) throw new ArgumentNullException(nameof(NoneAsync));
+        if (isnull(FailAsync)) throw new ArgumentNullException(nameof(FailAsync));
+
+        var res = await self.Try();
+        return Check.NullReturn(res.IsFaulted
+            ? await FailAsync(res.Exception)
+            : res.Value.IsSome
+                ? Some(res.Value.Value)
+                : await NoneAsync());
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="NoneAsync">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="FailAsync">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafeAsync<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<Task<R>> NoneAsync, Func<Exception, Task<R>> FailAsync)
     {
         if (isnull(Some)) throw new ArgumentNullException(nameof(Some));
         if (isnull(NoneAsync)) throw new ArgumentNullException(nameof(NoneAsync));
@@ -485,6 +727,29 @@ public static class TryOptionAsyncExtensions
         if (isnull(FailAsync)) throw new ArgumentNullException(nameof(FailAsync));
 
         var res = await self.Try();
+        return Check.NullReturn(res.IsFaulted
+            ? await FailAsync(res.Exception)
+            : res.Value.IsSome
+                ? await SomeAsync(res.Value.Value)
+                : None());
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="SomeAsync">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="FailAsync">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafeAsync<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> SomeAsync, Func<R> None, Func<Exception, Task<R>> FailAsync)
+    {
+        if (isnull(SomeAsync)) throw new ArgumentNullException(nameof(SomeAsync));
+        if (isnull(None)) throw new ArgumentNullException(nameof(None));
+        if (isnull(FailAsync)) throw new ArgumentNullException(nameof(FailAsync));
+
+        var res = await self.Try();
         return res.IsFaulted
             ? await FailAsync(res.Exception)
             : res.Value.IsSome
@@ -502,6 +767,29 @@ public static class TryOptionAsyncExtensions
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> MatchAsync<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> SomeAsync, Func<Task<R>> NoneAsync, Func<Exception, Task<R>> FailAsync)
+    {
+        if (isnull(SomeAsync)) throw new ArgumentNullException(nameof(SomeAsync));
+        if (isnull(NoneAsync)) throw new ArgumentNullException(nameof(NoneAsync));
+        if (isnull(FailAsync)) throw new ArgumentNullException(nameof(FailAsync));
+
+        var res = await self.Try();
+        return Check.NullReturn(res.IsFaulted
+            ? await FailAsync(res.Exception)
+            : res.Value.IsSome
+                ? await SomeAsync(res.Value.Value)
+                : await NoneAsync());
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="SomeAsync">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="NoneAsync">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="FailAsync">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafeAsync<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> SomeAsync, Func<Task<R>> NoneAsync, Func<Exception, Task<R>> FailAsync)
     {
         if (isnull(SomeAsync)) throw new ArgumentNullException(nameof(SomeAsync));
         if (isnull(NoneAsync)) throw new ArgumentNullException(nameof(NoneAsync));
@@ -532,8 +820,29 @@ public static class TryOptionAsyncExtensions
 
         var res = await self.Try();
         return res.IsFaulted
-            ? Fail
+            ? Check.NullReturn(Fail)
             : res.Value.Match(Some, None);
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafe<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<R> None, R Fail)
+    {
+        if (isnull(Some)) throw new ArgumentNullException(nameof(Some));
+        if (isnull(None)) throw new ArgumentNullException(nameof(None));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        var res = await self.Try();
+        return res.IsFaulted
+            ? Fail
+            : res.Value.MatchUnsafe(Some, None);
     }
 
     /// <summary>
@@ -546,6 +855,29 @@ public static class TryOptionAsyncExtensions
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> MatchAsync<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<Task<R>> NoneAsync, R Fail)
+    {
+        if (isnull(Some)) throw new ArgumentNullException(nameof(Some));
+        if (isnull(NoneAsync)) throw new ArgumentNullException(nameof(NoneAsync));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        var res = await self.Try();
+        return Check.NullReturn(res.IsFaulted
+            ? Fail
+            : res.Value.IsSome
+                ? Some(res.Value.Value)
+                : await NoneAsync());
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="NoneAsync">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafeAsync<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<Task<R>> NoneAsync, R Fail)
     {
         if (isnull(Some)) throw new ArgumentNullException(nameof(Some));
         if (isnull(NoneAsync)) throw new ArgumentNullException(nameof(NoneAsync));
@@ -575,6 +907,29 @@ public static class TryOptionAsyncExtensions
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
         var res = await self.Try();
+        return Check.NullReturn(res.IsFaulted
+            ? Fail
+            : res.Value.IsSome
+                ? await SomeAsync(res.Value.Value)
+                : None());
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="SomeAsync">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafeAsync<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> SomeAsync, Func<R> None, R Fail)
+    {
+        if (isnull(SomeAsync)) throw new ArgumentNullException(nameof(SomeAsync));
+        if (isnull(None)) throw new ArgumentNullException(nameof(None));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        var res = await self.Try();
         return res.IsFaulted
             ? Fail
             : res.Value.IsSome
@@ -592,6 +947,29 @@ public static class TryOptionAsyncExtensions
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> MatchAsync<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> SomeAsync, Func<Task<R>> NoneAsync, R Fail)
+    {
+        if (isnull(SomeAsync)) throw new ArgumentNullException(nameof(SomeAsync));
+        if (isnull(NoneAsync)) throw new ArgumentNullException(nameof(NoneAsync));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        var res = await self.Try();
+        return Check.NullReturn(res.IsFaulted
+            ? Fail
+            : res.Value.IsSome
+                ? await SomeAsync(res.Value.Value)
+                : await NoneAsync());
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="SomeAsync">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="NoneAsync">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> MatchUnsafeAsync<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> SomeAsync, Func<Task<R>> NoneAsync, R Fail)
     {
         if (isnull(SomeAsync)) throw new ArgumentNullException(nameof(SomeAsync));
         if (isnull(NoneAsync)) throw new ArgumentNullException(nameof(NoneAsync));
@@ -642,10 +1020,10 @@ public static class TryOptionAsyncExtensions
     public static IObservable<B> MatchObservable<A, B>(this TryOptionAsync<A> self, Func<A, IObservable<B>> Some, Func<B> None, Func<Exception, B> Fail) =>
         self.Try().ToObservable().SelectMany(
             a => a.IsFaulted
-                ? Observable.Return(Fail(a.Exception))
+                ? Observable.Return(Check.NullReturn(Fail(a.Exception)))
                 : a.Value.IsSome
-                    ? Some(a.Value.Value)
-                    : Observable.Return(None()));
+                    ? Some(a.Value.Value).Select(Check.NullReturn)
+                    : Observable.Return(Check.NullReturn(None())));
 
     /// <summary>
     /// Turns the computation into an observable stream
@@ -660,10 +1038,10 @@ public static class TryOptionAsyncExtensions
     public static IObservable<B> MatchObservable<A, B>(this TryOptionAsync<A> self, Func<A, IObservable<B>> Some, Func<IObservable<B>> None, Func<Exception, B> Fail) =>
         self.Try().ToObservable().SelectMany(
             a => a.IsFaulted
-                ? Observable.Return(Fail(a.Exception))
+                ? Observable.Return(Check.NullReturn((Fail(a.Exception))))
                 : a.Value.IsSome
-                    ? Some(a.Value.Value)
-                    : None());
+                    ? Some(a.Value.Value).Select(Check.NullReturn)
+                    : None().Select(Check.NullReturn));
 
     /// <summary>
     /// Turns the computation into an observable stream
@@ -678,10 +1056,10 @@ public static class TryOptionAsyncExtensions
     public static IObservable<R> MatchObservable<A, R>(this TryOptionAsync<A> self, Func<A, IObservable<R>> Some, Func<R> None, Func<Exception, IObservable<R>> Fail) =>
         self.Try().ToObservable().SelectMany(
             a => a.IsFaulted
-                ? Fail(a.Exception)
+                ? Fail(a.Exception).Select(Check.NullReturn)
                 : a.Value.IsSome
-                    ? Some(a.Value.Value)
-                    : Observable.Return(None()));
+                    ? Some(a.Value.Value).Select(Check.NullReturn)
+                    : Observable.Return(Check.NullReturn(None())));
 
     /// <summary>
     /// Turns the computation into an observable stream
@@ -696,10 +1074,10 @@ public static class TryOptionAsyncExtensions
     public static IObservable<R> MatchObservable<A, R>(this TryOptionAsync<A> self, Func<A, IObservable<R>> Some, Func<IObservable<R>> None, Func<Exception, IObservable<R>> Fail) =>
         self.Try().ToObservable().SelectMany(
             a => a.IsFaulted
-                ? Fail(a.Exception)
+                ? Fail(a.Exception).Select(Check.NullReturn)
                 : a.Value.IsSome
-                    ? Some(a.Value.Value)
-                    : None());
+                    ? Some(a.Value.Value).Select(Check.NullReturn)
+                    : None().Select(Check.NullReturn));
 
     /// <summary>
     /// Turns the computation into an observable stream
@@ -714,10 +1092,10 @@ public static class TryOptionAsyncExtensions
     public static IObservable<R> MatchObservable<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<R> None, Func<Exception, IObservable<R>> Fail) =>
         self.Try().ToObservable().SelectMany(
             a => a.IsFaulted
-                ? Fail(a.Exception)
+                ? Fail(a.Exception).Select(Check.NullReturn)
                 : a.Value.IsSome
-                    ? Observable.Return(Some(a.Value.Value))
-                    : Observable.Return(None()));
+                    ? Observable.Return(Check.NullReturn(Some(a.Value.Value)))
+                    : Observable.Return(Check.NullReturn(None())));
 
     /// <summary>
     /// Turns the computation into an observable stream
@@ -732,10 +1110,10 @@ public static class TryOptionAsyncExtensions
     public static IObservable<R> MatchObservable<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<IObservable<R>> None, Func<Exception, IObservable<R>> Fail) =>
         self.Try().ToObservable().SelectMany(
             a => a.IsFaulted
-                ? Fail(a.Exception)
+                ? Fail(a.Exception).Select(Check.NullReturn)
                 : a.Value.IsSome
-                    ? Observable.Return(Some(a.Value.Value))
-                    : None());
+                    ? Observable.Return(Check.NullReturn(Some(a.Value.Value)))
+                    : None().Select(Check.NullReturn));
 
     [Pure]
     public static Task<Validation<Exception, Option<A>>> ToValidation<A>(this TryOptionAsync<A> self) =>

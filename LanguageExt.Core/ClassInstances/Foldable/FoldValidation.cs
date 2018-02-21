@@ -58,16 +58,10 @@ namespace LanguageExt.ClassInstances
         public bool IsRight(Validation<MonoidFail, FAIL, SUCCESS> choice) =>
             choice.IsSuccess;
 
-        public bool IsUnsafe(Validation<MonoidFail, FAIL, SUCCESS> choice) =>
-            false;
-
         public C Match<C>(Validation<MonoidFail, FAIL, SUCCESS> choice, Func<FAIL, C> Left, Func<SUCCESS, C> Right, Func<C> Bottom = null) =>
             choice.Match(Right, Left);
 
         public Unit Match(Validation<MonoidFail, FAIL, SUCCESS> choice, Action<FAIL> Left, Action<SUCCESS> Right, Action Bottom = null) =>
             choice.Match(Right, Left);
-
-        public C MatchUnsafe<C>(Validation<MonoidFail, FAIL, SUCCESS> choice, Func<FAIL, C> Left, Func<SUCCESS, C> Right, Func<C> Bottom = null) =>
-            choice.MatchUnsafe(Right, Left);
     }
 }

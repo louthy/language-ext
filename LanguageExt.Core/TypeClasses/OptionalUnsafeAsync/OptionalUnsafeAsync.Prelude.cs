@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    public static partial class OptionalAsync
+    public static partial class OptionalUnsafeAsync
     {
         /// <summary>
         /// Invokes the f action if Option is in the Some state, otherwise nothing happens.
         /// </summary>
         public static Task<Unit> ifSomeAsync<OPT, OA, A>(OA opt, Action<A> f)
-            where OPT : struct, OptionalAsync<OA, A> =>
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
             default(OPT).Match(opt, f, Optional.noneIgnore);
 
         /// <summary>
@@ -21,24 +21,16 @@ namespace LanguageExt
         /// happens.
         /// </summary>
         public static Task<Unit> ifSomeAsync<OPT, OA, A>(OA opt, Func<A, Unit> f)
-            where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).Match(opt, f, Optional.noneIgnoreF);
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafe(opt, f, Optional.noneIgnoreF);
 
         /// <summary>
         /// Invokes the f function if Option is in the Some state, otherwise nothing
         /// happens.
         /// </summary>
         public static Task<Unit> ifSomeAsync<OPT, OA, A>(OA opt, Func<A, Task<Unit>> f)
-            where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(opt, f, Optional.noneIgnoreF);
-
-        /// <summary>
-        /// Invokes the f function if Option is in the Some state, otherwise nothing
-        /// happens.
-        /// </summary>
-        public static Task<Unit> ifSomeAsync<OPT, OA, A>(OA opt, Func<A, Task> f)
-            where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(opt, async a => { await f(a); return unit; } , Optional.noneIgnoreF);
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafeAsync(opt, f, Optional.noneIgnoreF);
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 
@@ -50,8 +42,8 @@ namespace LanguageExt
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         public static Task<A> ifNoneAsync<OPT, OA, A>(OA opt, Func<A> None)
-            where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).Match(opt, a => a, None);
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafe(opt, a => a, None);
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 
@@ -63,8 +55,8 @@ namespace LanguageExt
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         public static Task<A> ifNoneAsync<OPT, OA, A>(OA opt, Func<Task<A>> None)
-            where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(opt, a => a, None);
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafeAsync(opt, a => a, None);
 
         /// <summary>
         /// Returns the noneValue if the optional is in a None state, otherwise
@@ -76,8 +68,47 @@ namespace LanguageExt
         /// the bound Some(x) value is returned</returns>
         [Pure]
         public static Task<A> ifNoneAsync<OPT, OA, A>(OA opt, A noneValue)
-            where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).Match(opt, a => a, () => noneValue);
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafe(opt, a => a, () => noneValue);
+
+        /// <summary>
+        /// Returns the result of invoking the None() operation if the optional 
+        /// is in a None state, otherwise the bound Some(x) value is returned.
+        /// </summary>
+        /// <remarks>Will allow null the be returned from the None operation</remarks>
+        /// <param name="None">Operation to invoke if the structure is in a None state</param>
+        /// <returns>Tesult of invoking the None() operation if the optional 
+        /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
+        [Pure]
+        public static Task<A> ifNoneUnsafeAsync<OPT, OA, A>(OA opt, Func<A> None)
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafe(opt, a => a, None);
+
+        /// <summary>
+        /// Returns the result of invoking the None() operation if the optional 
+        /// is in a None state, otherwise the bound Some(x) value is returned.
+        /// </summary>
+        /// <remarks>Will allow null the be returned from the None operation</remarks>
+        /// <param name="None">Operation to invoke if the structure is in a None state</param>
+        /// <returns>Tesult of invoking the None() operation if the optional 
+        /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
+        [Pure]
+        public static Task<A> ifNoneUnsafeAsync<OPT, OA, A>(OA opt, Func<Task<A>> None)
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafeAsync(opt, a => a, None);
+
+        /// <summary>
+        /// Returns the noneValue if the optional is in a None state, otherwise
+        /// the bound Some(x) value is returned.
+        /// </summary>
+        /// <remarks>Will allow noneValue to be null</remarks>
+        /// <param name="noneValue">Value to return if in a None state</param>
+        /// <returns>noneValue if the optional is in a None state, otherwise
+        /// the bound Some(x) value is returned</returns>
+        [Pure]
+        public static Task<A> ifNoneUnsafeAsync<OPT, OA, A>(OA opt, A noneValue)
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafe(opt, a => a, () => noneValue);
 
         /// <summary>
         /// Pattern match operation
@@ -88,8 +119,8 @@ namespace LanguageExt
         /// <returns>The result of the match operation</returns>
         [Pure]
         public static Task<R> matchAsync<OPT, OA, A, R>(OA ma, Func<A, R> Some, Func<R> None)
-            where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).Match(ma,
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafe(ma,
                 Some: x => Some(x),
                 None: () => None()
             );
@@ -103,8 +134,8 @@ namespace LanguageExt
         /// <returns>The result of the match operation</returns>
         [Pure]
         public static Task<R> matchAsync<OPT, OA, A, R>(OA ma, Func<A, Task<R>> Some, Func<R> None)
-            where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(ma,
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafeAsync(ma,
                 Some: x => Some(x),
                 None: () => None()
             );
@@ -118,8 +149,8 @@ namespace LanguageExt
         /// <returns>The result of the match operation</returns>
         [Pure]
         public static Task<R> matchAsync<OPT, OA, A, R>(OA ma, Func<A, R> Some, Func<Task<R>> None)
-            where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(ma,
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafeAsync(ma,
                 Some: x => Some(x),
                 None: () => None()
             );
@@ -133,11 +164,75 @@ namespace LanguageExt
         /// <returns>The result of the match operation</returns>
         [Pure]
         public static Task<R> matchAsync<OPT, OA, A, R>(OA ma, Func<A, Task<R>> Some, Func<Task<R>> None)
-            where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(ma,
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafeAsync(ma,
                 Some: x => Some(x),
                 None: () => None()
             );
+
+
+
+        /// <summary>
+        /// Pattern match operation
+        /// </summary>
+        /// <typeparam name="R">The return type</typeparam>
+        /// <param name="Some">Operation to perform if the option is in a Some state</param>
+        /// <param name="None">Operation to perform if the option is in a None state</param>
+        /// <returns>The result of the match operation</returns>
+        [Pure]
+        public static Task<R> matchUnsafeAsync<OPT, OA, A, R>(OA ma, Func<A, R> Some, Func<R> None)
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafe(ma,
+                Some: x => Some(x),
+                None: () => None()
+            );
+
+        /// <summary>
+        /// Pattern match operation
+        /// </summary>
+        /// <typeparam name="R">The return type</typeparam>
+        /// <param name="Some">Operation to perform if the option is in a Some state</param>
+        /// <param name="None">Operation to perform if the option is in a None state</param>
+        /// <returns>The result of the match operation</returns>
+        [Pure]
+        public static Task<R> matchUnsafeAsync<OPT, OA, A, R>(OA ma, Func<A, Task<R>> Some, Func<R> None)
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafeAsync(ma,
+                Some: x => Some(x),
+                None: () => None()
+            );
+
+        /// <summary>
+        /// Pattern match operation
+        /// </summary>
+        /// <typeparam name="R">The return type</typeparam>
+        /// <param name="Some">Operation to perform if the option is in a Some state</param>
+        /// <param name="None">Operation to perform if the option is in a None state</param>
+        /// <returns>The result of the match operation</returns>
+        [Pure]
+        public static Task<R> matchUnsafeAsync<OPT, OA, A, R>(OA ma, Func<A, R> Some, Func<Task<R>> None)
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafeAsync(ma,
+                Some: x => Some(x),
+                None: () => None()
+            );
+
+        /// <summary>
+        /// Pattern match operation
+        /// </summary>
+        /// <typeparam name="R">The return type</typeparam>
+        /// <param name="Some">Operation to perform if the option is in a Some state</param>
+        /// <param name="None">Operation to perform if the option is in a None state</param>
+        /// <returns>The result of the match operation</returns>
+        [Pure]
+        public static Task<R> matchUnsafeAsync<OPT, OA, A, R>(OA ma, Func<A, Task<R>> Some, Func<Task<R>> None)
+            where OPT : struct, OptionalUnsafeAsync<OA, A> =>
+            default(OPT).MatchUnsafeAsync(ma,
+                Some: x => Some(x),
+                None: () => None()
+            );
+
+
 
 
         /// <summary>

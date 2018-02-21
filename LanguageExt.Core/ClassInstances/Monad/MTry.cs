@@ -11,6 +11,7 @@ namespace LanguageExt.ClassInstances
     public struct MTry<A> :
         Alternative<Try<A>, Unit, A>,
         Optional<Try<A>, A>,
+        OptionalUnsafe<Try<A>, A>,
         Monad<Try<A>, A>,
         BiFoldable<Try<A>, A, Unit>,
         AsyncPair<Try<A>, TryAsync<A>>
@@ -79,17 +80,21 @@ namespace LanguageExt.ClassInstances
                 Fail: ex => false);
 
         [Pure]
-        public bool IsUnsafe(Try<A> opt) =>
-            false;
-
-        [Pure]
         public B Match<B>(Try<A> opt, Func<A, B> Some, Func<B> None)
         {
             var res = opt.Try();
-            if (res.IsFaulted)
-                return None();
-            else
-                return Some(res.Value);
+            return Check.NullReturn(res.IsFaulted
+                ? None()
+                : Some(res.Value));
+        }
+
+        [Pure]
+        public B Match<B>(Try<A> opt, Func<A, B> Some, B None)
+        {
+            var res = opt.Try();
+            return Check.NullReturn(res.IsFaulted
+                ? None
+                : Some(res.Value));
         }
 
         public Unit Match(Try<A> opt, Action<A> Some, Action None)
@@ -105,6 +110,16 @@ namespace LanguageExt.ClassInstances
             var res = opt.Try();
             if (res.IsFaulted)
                 return None();
+            else
+                return Some(res.Value);
+        }
+
+        [Pure]
+        public B MatchUnsafe<B>(Try<A> opt, Func<A, B> Some, B None)
+        {
+            var res = opt.Try();
+            if (res.IsFaulted)
+                return None;
             else
                 return Some(res.Value);
         }

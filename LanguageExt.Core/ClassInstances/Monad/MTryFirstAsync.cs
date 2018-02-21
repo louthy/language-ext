@@ -9,6 +9,7 @@ namespace LanguageExt.ClassInstances
     public struct MTryFirstAsync<A> :
         Alternative<TryAsync<A>, Unit, A>,
         OptionalAsync<TryAsync<A>, A>,
+        OptionalUnsafeAsync<TryAsync<A>, A>,
         MonadAsync<TryAsync<A>, A>,
         FoldableAsync<TryAsync<A>, A>,
         BiFoldableAsync<TryAsync<A>, A, Unit>
@@ -127,13 +128,13 @@ namespace LanguageExt.ClassInstances
             {
                 var res = await opt.Try();
                 if (res.IsFaulted)
-                    return None();
+                    return Check.NullReturn(None());
                 else
-                    return Some(res.Value);
+                    return Check.NullReturn(Some(res.Value));
             }
             catch
             {
-                return None();
+                return Check.NullReturn(None());
             }
         }
 
@@ -144,13 +145,13 @@ namespace LanguageExt.ClassInstances
             {
                 var res = await opt.Try();
                 if (res.IsFaulted)
-                    return None();
+                    return Check.NullReturn(None());
                 else
-                    return await SomeAsync(res.Value);
+                    return Check.NullReturn(await SomeAsync(res.Value));
             }
             catch
             {
-                return None();
+                return Check.NullReturn(None());
             }
         }
 
@@ -161,13 +162,13 @@ namespace LanguageExt.ClassInstances
             {
                 var res = await opt.Try();
                 if (res.IsFaulted)
-                    return await NoneAsync();
+                    return Check.NullReturn(await NoneAsync());
                 else
-                    return Some(res.Value);
+                    return Check.NullReturn(Some(res.Value));
             }
             catch
             {
-                return await NoneAsync();
+                return Check.NullReturn(await NoneAsync());
             }
         }
 
@@ -178,13 +179,13 @@ namespace LanguageExt.ClassInstances
             {
                 var res = await opt.Try();
                 if (res.IsFaulted)
-                    return await NoneAsync();
+                    return Check.NullReturn(await NoneAsync());
                 else
-                    return await SomeAsync(res.Value);
+                    return Check.NullReturn(await SomeAsync(res.Value));
             }
             catch
             {
-                return await NoneAsync();
+                return Check.NullReturn(await NoneAsync());
             }
         }
 
@@ -303,10 +304,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Task<bool> IsSome(TryAsync<A> opt) =>
             Match(opt, Some: _ => true, None: () => false);
-
-        [Pure]
-        public Task<bool> IsUnsafe(TryAsync<A> opt) =>
-            Task.FromResult(true);
 
         [Pure]
         public TryAsync<A> Some(A value) =>

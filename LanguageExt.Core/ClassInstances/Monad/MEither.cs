@@ -7,9 +7,11 @@ namespace LanguageExt.ClassInstances
 {
     public struct MEither<L, R> :
         Choice<Either<L, R>, L, R>,
+        ChoiceUnsafe<Either<L, R>, L, R>,
         Alternative<Either<L, R>, L, R>,
         Monad<Either<L, R>, R>,
         Optional<Either<L, R>, R>,
+        OptionalUnsafe<Either<L, R>, R>,
         BiFoldable<Either<L, R>, L, R>,
         AsyncPair<Either<L, R>, EitherAsync<L, R>>
     {
@@ -63,6 +65,18 @@ namespace LanguageExt.ClassInstances
             opt.IsRight
                 ? Check.NullReturn(Some(opt.RightValue))
                 : Check.NullReturn(None());
+
+        [Pure]
+        public R2 MatchUnsafe<R2>(Either<L, R> opt, Func<R, R2> Some, R2 None) =>
+            opt.IsRight
+                ? Some(opt.RightValue)
+                : None;
+
+        [Pure]
+        public R2 Match<R2>(Either<L, R> opt, Func<R, R2> Some, R2 None) =>
+            opt.IsRight
+                ? Check.NullReturn(Some(opt.RightValue))
+                : Check.NullReturn(None);
 
         public Unit Match(Either<L, R> opt, Action<R> Some, Action None)
         {
@@ -158,10 +172,6 @@ namespace LanguageExt.ClassInstances
             Plus(x, y);
 
         [Pure]
-        public bool IsUnsafe(Either<L, R> choice) =>
-            false;
-
-        [Pure]
         public bool IsLeft(Either<L, R> choice) =>
             choice.State == EitherStatus.IsLeft;
 
@@ -187,22 +197,10 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Unit Match(Either<L, R> choice, Action<L> Left, Action<R> Right, Action Bottom = null)
         {
-            if (choice.State == EitherStatus.IsRight && Right != null)
-            {
-                Right(choice.right);
-            }
-            else if (choice.State == EitherStatus.IsLeft && Left != null)
-            {
-                Left(choice.left);
-            }
-            else if (choice.State == EitherStatus.IsBottom && Bottom != null)
-            {
-                Bottom();
-            }
-            else if (choice.State == EitherStatus.IsBottom && Bottom == null)
-            {
-                throw new BottomException();
-            }
+            if (choice.State == EitherStatus.IsRight) Right(choice.right);
+            if (choice.State == EitherStatus.IsLeft) Left(choice.left);
+            if (Bottom == null) throw new BottomException();
+            Bottom();
             return unit;
         }
 

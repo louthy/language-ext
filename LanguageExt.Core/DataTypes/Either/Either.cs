@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
+using static LanguageExt.Choice;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
@@ -717,7 +718,7 @@ namespace LanguageExt
 
         [Pure]
         public R1 MatchUntyped<R1>(Func<object, R1> Some, Func<R1> None) =>
-            matchUntyped<MEither<L, R>, Either<L, R>, R, R1>(this, Some, None);
+            matchUntyped<MEither<L, R>, Either<L, R>, L, R, R1>(this, Some, _ => None());
 
         [Pure]
         public Type GetUnderlyingType() => 

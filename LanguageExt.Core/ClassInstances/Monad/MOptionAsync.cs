@@ -11,6 +11,7 @@ namespace LanguageExt.ClassInstances
     public struct MOptionAsync<A> :
         Alternative<OptionAsync<A>, Unit, A>,
         OptionalAsync<OptionAsync<A>, A>,
+        OptionalUnsafeAsync<OptionAsync<A>, A>,
         MonadAsync<OptionAsync<A>, A>,
         FoldableAsync<OptionAsync<A>, A>,
         BiFoldableAsync<OptionAsync<A>, A, Unit>
@@ -63,10 +64,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Task<bool> IsSome(OptionAsync<A> opt) =>
             opt.IsSome;
-
-        [Pure]
-        public Task<bool> IsUnsafe(OptionAsync<A> opt) =>
-            Task.FromResult(false);
 
         [Pure]
         public async Task<B> Match<B>(OptionAsync<A> opt, Func<A, B> Some, Func<B> None)

@@ -9,12 +9,6 @@ namespace LanguageExt.TypeClasses
     public interface ChoiceAsync<CH, L, R> : Typeclass
     {
         /// <summary>
-        /// True if the choice type allows nulls
-        /// </summary>
-        [Pure]
-        Task<bool> IsUnsafe(CH choice);
-
-        /// <summary>
         /// Is the choice in the first state
         /// </summary>
         [Pure]

@@ -11,6 +11,7 @@ namespace LanguageExt.ClassInstances
         ChoiceAsync<EitherAsync<L, R>, L, R>,
         Alternative<EitherAsync<L, R>, L, R>,
         OptionalAsync<EitherAsync<L, R>, R>,
+        OptionalUnsafeAsync<EitherAsync<L, R>, R>,
         MonadAsync<EitherAsync<L, R>, R>,
         FoldableAsync<EitherAsync<L, R>, R>,
         BiFoldableAsync<EitherAsync<L, R>, L, R>
@@ -149,10 +150,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Task<bool> IsSome(EitherAsync<L, R> ma) =>
             ma.IsRight;
-
-        [Pure]
-        public Task<bool> IsUnsafe(EitherAsync<L, R> ma) =>
-            false.AsTask();
 
         [Pure]
         public Task<B> Match<B>(EitherAsync<L, R> ma, Func<R, B> Some, Func<B> None) =>

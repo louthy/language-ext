@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using static LanguageExt.Optional;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
@@ -470,7 +471,7 @@ namespace LanguageExt
         /// <param name="f">The Some(x) match operation</param>
         [Pure]
         public SomeUnitContext<MOption<A>, Option<A>, A> Some(Action<A> f) =>
-            new SomeUnitContext<MOption<A>, Option<A>, A>(this, f, false);
+            new SomeUnitContext<MOption<A>, Option<A>, A>(this, f);
 
         /// <summary>
         /// Fluent pattern matching.  Provide a Some handler and then follow
@@ -483,7 +484,7 @@ namespace LanguageExt
         /// <returns>The result of the match operation</returns>
         [Pure]
         public SomeContext<MOption<A>, Option<A>, A, B> Some<B>(Func<A, B> f) =>
-            new SomeContext<MOption<A>, Option<A>, A, B>(this, f, false);
+            new SomeContext<MOption<A>, Option<A>, A, B>(this, f);
 
         /// <summary>
         /// Match the two states of the Option and return a non-null R.
@@ -564,7 +565,7 @@ namespace LanguageExt
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         public A IfNoneUnsafe(Func<A> None) =>
-            ifNoneUnsafe<MOption<A>, Option<A>, A>(this, None);
+            OptionalUnsafe.ifNoneUnsafe<MOption<A>, Option<A>, A>(this, None);
 
         /// <summary>
         /// Returns the noneValue if the optional is in a None state, otherwise
@@ -576,7 +577,7 @@ namespace LanguageExt
         /// the bound Some(x) value is returned</returns>
         [Pure]
         public A IfNoneUnsafe(A noneValue) =>
-            ifNoneUnsafe<MOption<A>, Option<A>, A>(this, noneValue);
+            OptionalUnsafe.ifNoneUnsafe<MOption<A>, Option<A>, A>(this, noneValue);
 
         /// <summary>
         /// <para>

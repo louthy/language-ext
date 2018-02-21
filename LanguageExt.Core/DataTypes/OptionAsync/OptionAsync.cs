@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using static LanguageExt.OptionalAsync;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
@@ -569,7 +570,7 @@ namespace LanguageExt
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         public Task<A> IfNoneUnsafe(Func<A> None) =>
-            ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, None);
+            OptionalUnsafeAsync.ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, None);
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 
@@ -581,7 +582,7 @@ namespace LanguageExt
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         public Task<A> IfNoneUnsafeAsync(Func<Task<A>> None) =>
-            ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, None);
+            OptionalUnsafeAsync.ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, None);
 
         /// <summary>
         /// Returns the noneValue if the optional is in a None state, otherwise
@@ -593,7 +594,7 @@ namespace LanguageExt
         /// the bound Some(x) value is returned</returns>
         [Pure]
         public Task<A> IfNoneUnsafe(A noneValue) =>
-            ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, noneValue);
+            OptionalUnsafeAsync.ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, noneValue);
 
         /// <summary>
         /// <para>

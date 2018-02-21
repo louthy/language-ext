@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
-using System.ComponentModel;
+using static LanguageExt.Choice;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
@@ -180,6 +179,17 @@ namespace LanguageExt
         [Pure]
         public Ret Match<Ret>(Func<SUCCESS, Ret> Succ, Func<FAIL, Ret> Fail) =>
             Check.NullReturn(MatchUnsafe(Succ, Fail));
+
+        /// <summary>
+        /// Invokes the `Succ` or `Fail` function depending on the state of the `Validation`
+        /// </summary>
+        /// <typeparam name="Ret">Return type</typeparam>
+        /// <param name="Succ">Function to invoke if in a `Success` state</param>
+        /// <param name="Fail">Function to invoke if in a `Fail` state</param>
+        /// <returns>The return value of the invoked function</returns>
+        [Pure]
+        public Ret Match<Ret>(Ret Succ, Func<FAIL, Ret> Fail) =>
+            Check.NullReturn(MatchUnsafe(_ => Succ, Fail));
 
         /// <summary>
         /// Invokes the `Succ` or `Fail` function depending on the state of the `Validation`

@@ -8,6 +8,7 @@ namespace LanguageExt.ClassInstances
 {
     public struct MTaskFirst<A> :
         OptionalAsync<Task<A>, A>,
+        OptionalUnsafeAsync<Task<A>, A>,
         MonadAsync<Task<A>, A>,
         FoldableAsync<Task<A>, A>,
         BiFoldableAsync<Task<A>, A, Unit>
@@ -81,24 +82,20 @@ namespace LanguageExt.ClassInstances
             select !a;
 
         [Pure]
-        public Task<bool> IsUnsafe(Task<A> ma) =>
-            Task.FromResult(true);
-
-        [Pure]
         public async Task<B> Match<B>(Task<A> ma, Func<A, B> Some, Func<B> None)
         {
             if(ma.IsCanceled || ma.IsFaulted)
             {
-                return None();
+                return Check.NullReturn(None());
             }
             try
             {
                 var a = await ma;
-                return Some(a);
+                return Check.NullReturn(Some(a));
             }
             catch (Exception)
             {
-                return None();
+                return Check.NullReturn(None());
             }
         }
 
@@ -152,25 +149,26 @@ namespace LanguageExt.ClassInstances
         public async Task<A> Apply(Func<A, A, A> f, Task<A> fa, Task<A> fb) 
         {
             await Task.WhenAll(fa, fb);
-            return !fa.IsFaulted && !fb.IsFaulted
-                ? f(fa.Result, fb.Result)
-                : throw fa.Exception;
+            return fa.IsFaulted && fb.IsFaulted ? throw new AggregateException(fa.Exception, fb.Exception)
+                 : fa.IsFaulted                 ? throw new InnerException(fa.Exception)
+                 : fb.IsFaulted                 ? throw new InnerException(fb.Exception)
+                 : f(fa.Result, fb.Result);
         }
 
         public async Task<B> MatchAsync<B>(Task<A> ma, Func<A, Task<B>> SomeAsync, Func<B> None)
         {
             if (ma.IsCanceled || ma.IsFaulted)
             {
-                return None();
+                return Check.NullReturn(None());
             }
             try
             {
                 var a = await ma;
-                return await SomeAsync(a);
+                return Check.NullReturn(await SomeAsync(a));
             }
             catch (Exception)
             {
-                return None();
+                return Check.NullReturn(None());
             }
         }
 
@@ -178,16 +176,16 @@ namespace LanguageExt.ClassInstances
         {
             if (ma.IsCanceled || ma.IsFaulted)
             {
-                return await NoneAsync();
+                return Check.NullReturn(await NoneAsync());
             }
             try
             {
                 var a = await ma;
-                return Some(a);
+                return Check.NullReturn(Some(a));
             }
             catch (Exception)
             {
-                return await NoneAsync();
+                return Check.NullReturn(await NoneAsync());
             }
         }
 
@@ -195,84 +193,16 @@ namespace LanguageExt.ClassInstances
         {
             if (ma.IsCanceled || ma.IsFaulted)
             {
-                return await NoneAsync();
+                return Check.NullReturn(await NoneAsync());
             }
             try
             {
                 var a = await ma;
-                return await SomeAsync(a);
+                return Check.NullReturn(await SomeAsync(a));
             }
             catch (Exception)
             {
-                return await NoneAsync();
-            }
-        }
-
-        public async Task<B> MatchUnsafe<B>(Task<A> ma, Func<A, B> Some, Func<B> None)
-        {
-            if (ma.IsCanceled || ma.IsFaulted)
-            {
-                return None();
-            }
-            try
-            {
-                var a = await ma;
-                return Some(a);
-            }
-            catch (Exception)
-            {
-                return None();
-            }
-        }
-
-        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, Task<B>> SomeAsync, Func<B> None)
-        {
-            if (ma.IsCanceled || ma.IsFaulted)
-            {
-                return None();
-            }
-            try
-            {
-                var a = await ma;
-                return await SomeAsync(a);
-            }
-            catch (Exception)
-            {
-                return None();
-            }
-        }
-
-        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, B> Some, Func<Task<B>> NoneAsync)
-        {
-            if (ma.IsCanceled || ma.IsFaulted)
-            {
-                return await NoneAsync();
-            }
-            try
-            {
-                var a = await ma;
-                return Some(a);
-            }
-            catch (Exception)
-            {
-                return await NoneAsync();
-            }
-        }
-
-        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, Task<B>> SomeAsync, Func<Task<B>> NoneAsync)
-        {
-            if (ma.IsCanceled || ma.IsFaulted)
-            {
-                return await NoneAsync();
-            }
-            try
-            {
-                var a = await ma;
-                return await SomeAsync(a);
-            }
-            catch (Exception)
-            {
-                return await NoneAsync();
+                return Check.NullReturn(await NoneAsync());
             }
         }
 
@@ -377,5 +307,73 @@ namespace LanguageExt.ClassInstances
             MatchAsync(ma,
                 SomeAsync: x => SomeAsync(state, x),
                 NoneAsync: () => NoneAsync(state, unit));
+
+        public async Task<B> MatchUnsafe<B>(Task<A> ma, Func<A, B> Some, Func<B> None)
+        {
+            if (ma.IsCanceled || ma.IsFaulted)
+            {
+                return None();
+            }
+            try
+            {
+                var a = await ma;
+                return Some(a);
+            }
+            catch (Exception)
+            {
+                return None();
+            }
+        }
+
+        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, Task<B>> SomeAsync, Func<B> None)
+        {
+            if (ma.IsCanceled || ma.IsFaulted)
+            {
+                return None();
+            }
+            try
+            {
+                var a = await ma;
+                return await SomeAsync(a);
+            }
+            catch (Exception)
+            {
+                return None();
+            }
+        }
+
+        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, B> Some, Func<Task<B>> NoneAsync)
+        {
+            if (ma.IsCanceled || ma.IsFaulted)
+            {
+                return await NoneAsync();
+            }
+            try
+            {
+                var a = await ma;
+                return Some(a);
+            }
+            catch (Exception)
+            {
+                return await NoneAsync();
+            }
+        }
+
+        public async Task<B> MatchUnsafeAsync<B>(Task<A> ma, Func<A, Task<B>> SomeAsync, Func<Task<B>> NoneAsync)
+        {
+            if (ma.IsCanceled || ma.IsFaulted)
+            {
+                return await NoneAsync();
+            }
+            try
+            {
+                var a = await ma;
+                return await SomeAsync(a);
+            }
+            catch (Exception)
+            {
+                return await NoneAsync();
+            }
+        }
     }
 }

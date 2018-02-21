@@ -8,11 +8,11 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Compare the equality of any type in the Optional type-class
     /// </summary>
-    public struct EqOpt<EQ, OPTION, OA, A> : Eq<OA>
+    public struct EqOptionalUnsafe<EQ, OPTION, OA, A> : Eq<OA>
         where EQ     : struct, Eq<A>
-        where OPTION : struct, Optional<OA, A>
+        where OPTION : struct, OptionalUnsafe<OA, A>
     {
-        public static readonly EqOpt<EQ, OPTION, OA, A> Inst = default(EqOpt<EQ, OPTION, OA, A>);
+        public static readonly EqOptionalUnsafe<EQ, OPTION, OA, A> Inst = default(EqOptionalUnsafe<EQ, OPTION, OA, A>);
 
         /// <summary>
         /// Equality test
@@ -32,9 +32,9 @@ namespace LanguageExt.ClassInstances
                 ? true
                 : xIsNone || yIsNone
                     ? false
-                    : default(OPTION).Match(x,
+                    : default(OPTION).MatchUnsafe(x,
                         Some: a =>
-                            default(OPTION).Match(y,
+                            default(OPTION).MatchUnsafe(y,
                                 Some: b => @equals<EQ, A>(a, b),
                                 None: () => false),
                         None: () => false);
@@ -54,10 +54,10 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Compare the equality of any type in the Optional type-class
     /// </summary>
-    public struct EqOpt<OPTION, OA, A> : Eq<OA>
-        where OPTION : struct, Optional<OA, A>
+    public struct EqOptionalUnsafe<OPTION, OA, A> : Eq<OA>
+        where OPTION : struct, OptionalUnsafe<OA, A>
     {
-        public static readonly EqOpt<OPTION, OA, A> Inst = default(EqOpt<OPTION, OA, A>);
+        public static readonly EqOptionalUnsafe<OPTION, OA, A> Inst = default(EqOptionalUnsafe<OPTION, OA, A>);
 
         /// <summary>
         /// Equality test
@@ -67,7 +67,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>True if x and y are equal</returns>
         [Pure]
         public bool Equals(OA x, OA y) =>
-            default(EqOpt<EqDefault<A>, OPTION, OA, A>).Equals(x, y);
+            default(EqOptionalUnsafe<EqDefault<A>, OPTION, OA, A>).Equals(x, y);
 
         /// <summary>
         /// Get hash code of the value
@@ -76,7 +76,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(OA x) =>
-            default(EqOpt<EqDefault<A>, OPTION, OA, A>).GetHashCode(x);
+            default(EqOptionalUnsafe<EqDefault<A>, OPTION, OA, A>).GetHashCode(x);
     }
 
 }

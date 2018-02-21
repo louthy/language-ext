@@ -75,7 +75,7 @@ namespace LanguageExt
         /// <returns>True if x and y are equal</returns>
         [Pure]
         public static bool Equals<EQ, A>(this Option<A> x, Option<A> y) where EQ : struct, Eq<A> =>
-            EqOpt<EQ, MOption<A>, Option<A>, A>.Inst.Equals(x, y);
+            EqOptional<EQ, MOption<A>, Option<A>, A>.Inst.Equals(x, y);
 
         /// <summary>
         /// Structural equality test
@@ -85,7 +85,7 @@ namespace LanguageExt
         /// <returns>True if x and y are equal</returns>
         [Pure]
         public static bool Equals<EQ, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where EQ : struct, Eq<A> =>
-            EqOpt<EQ, MOptionUnsafe<A>, OptionUnsafe<A>, A>.Inst.Equals(x, y);
+            EqOptionalUnsafe<EQ, MOptionUnsafe<A>, OptionUnsafe<A>, A>.Inst.Equals(x, y);
 
         /// <summary>
         /// Structural equality test
@@ -97,7 +97,7 @@ namespace LanguageExt
         public static bool Equals<EQ, A>(this A? x, A? y) 
             where EQ : struct, Eq<A>
             where A  : struct =>
-            EqOpt<EQ, MNullable<A>, A?, A>.Inst.Equals(x, y);
+            EqOptional<EQ, MNullable<A>, A?, A>.Inst.Equals(x, y);
 
         /// <summary>
         /// Structural equality test
@@ -167,7 +167,7 @@ namespace LanguageExt
         /// <returns>True if x and y are equal</returns>
         [Pure]
         public static bool Equals<EQ, L, R>(this EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where EQ : struct, Eq<R> =>
-            EqChoice<EQ, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Equals(x, y);
+            EqChoiceUnsafe<EQ, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Equals(x, y);
 
         /// <summary>
         /// Structural equality test
@@ -191,6 +191,6 @@ namespace LanguageExt
         public static bool Equals<EQA, EQB, A, B>(this EitherUnsafe<A, B> x, EitherUnsafe<A, B> y)
             where EQA : struct, Eq<A>
             where EQB : struct, Eq<B> =>
-            EqChoice<EQA, EQB, MEitherUnsafe<A, B>, EitherUnsafe<A, B>, A, B>.Inst.Equals(x, y);
+            EqChoiceUnsafe<EQA, EQB, MEitherUnsafe<A, B>, EitherUnsafe<A, B>, A, B>.Inst.Equals(x, y);
     }
 }

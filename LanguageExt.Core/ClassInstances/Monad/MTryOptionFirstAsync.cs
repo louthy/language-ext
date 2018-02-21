@@ -9,6 +9,7 @@ namespace LanguageExt.ClassInstances
     public struct MTryOptionFirstAsync<A> :
         Alternative<TryOptionAsync<A>, Unit, A>,
         OptionalAsync<TryOptionAsync<A>, A>,
+        OptionalUnsafeAsync<TryOptionAsync<A>, A>,
         MonadAsync<TryOptionAsync<A>, A>,
         FoldableAsync<TryOptionAsync<A>, A>,
         BiFoldableAsync<TryOptionAsync<A>, A, Unit>
@@ -175,10 +176,6 @@ namespace LanguageExt.ClassInstances
             default(MTryOptionFirstAsync<A>).MatchAsync(ma, x => SuccAsync(state, x), () => FailAsync(state, unit));
 
         [Pure]
-        public Task<bool> IsUnsafe(TryOptionAsync<A> opt) =>
-            Task.FromResult(false);
-
-        [Pure]
         public Task<bool> IsSome(TryOptionAsync<A> opt) =>
             opt.Map(x => true).IfNoneOrFail(false);
 
@@ -216,9 +213,9 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Task<B> MatchUnsafe<B>(TryOptionAsync<A> opt, Func<A, B> Succ, Func<B> Fail) =>
-            opt.Match(
+            opt.MatchUnsafe(
                 Succ,
-                None: Fail,
+                None: () => Fail(),
                 Fail: _ => Fail());
 
         [Pure]

@@ -12,7 +12,7 @@ namespace LanguageExt.ClassInstances
     public struct MOptionUnsafe<A> :
         Alternative<OptionUnsafe<A>, Unit, A>,
         Monad<OptionUnsafe<A>, A>,
-        Optional<OptionUnsafe<A>, A>,
+        OptionalUnsafe<OptionUnsafe<A>, A>,
         Foldable<OptionUnsafe<A>, A>,
         BiFoldable<OptionUnsafe<A>, A, Unit>,
         Eq<OptionUnsafe<A>>
@@ -76,28 +76,6 @@ namespace LanguageExt.ClassInstances
             opt.IsSome;
 
         [Pure]
-        public bool IsUnsafe(OptionUnsafe<A> opt) =>
-            true;
-
-        [Pure]
-        public B Match<B>(OptionUnsafe<A> opt, Func<A, B> Some, Func<B> None)
-        {
-            if (Some == null) throw new ArgumentNullException(nameof(Some));
-            if (None == null) throw new ArgumentNullException(nameof(None));
-            return opt.IsSome
-                ? Some(opt.Value)
-                : None();
-        }
-
-        public Unit Match(OptionUnsafe<A> opt, Action<A> Some, Action None)
-        {
-            if (Some == null) throw new ArgumentNullException(nameof(Some));
-            if (None == null) throw new ArgumentNullException(nameof(None));
-            if (opt.IsSome) Some(opt.Value); else None();
-            return unit;
-        }
-
-        [Pure]
         public B MatchUnsafe<B>(OptionUnsafe<A> opt, Func<A, B> Some, Func<B> None)
         {
             if (Some == null) throw new ArgumentNullException(nameof(Some));
@@ -105,6 +83,25 @@ namespace LanguageExt.ClassInstances
             return opt.IsSome
                 ? Some(opt.Value)
                 : None();
+        }
+
+        [Pure]
+        public B MatchUnsafe<B>(OptionUnsafe<A> opt, Func<A, B> Some, B None)
+        {
+            if (Some == null) throw new ArgumentNullException(nameof(Some));
+            return opt.IsSome
+                ? Some(opt.Value)
+                : None;
+        }
+
+        [Pure]
+        public Unit Match(OptionUnsafe<A> opt, Action<A> Some, Action None)
+        {
+            if (Some == null) throw new ArgumentNullException(nameof(Some));
+            if (None == null) throw new ArgumentNullException(nameof(None));
+            if (opt.IsSome) Some(opt.Value);
+            None();
+            return unit;
         }
 
         [Pure]
@@ -156,36 +153,6 @@ namespace LanguageExt.ClassInstances
                 : 0;
 
         [Pure]
-        public bool IsLeft(OptionUnsafe<A> choice) =>
-            choice.IsNone;
-
-        [Pure]
-        public bool IsRight(OptionUnsafe<A> choice) =>
-            choice.IsSome;
-
-        [Pure]
-        public bool IsBottom(OptionUnsafe<A> choice) =>
-            false;
-
-        [Pure]
-        public C Match<C>(OptionUnsafe<A> choice, Func<Unit, C> Left, Func<A, C> Right, Func<C> Bottom = null) =>
-            choice.MatchUnsafe(
-                Some: Right,
-                None: () => Left(unit));
-
-        [Pure]
-        public Unit Match(OptionUnsafe<A> choice, Action<Unit> Left, Action<A> Right, Action Bottom = null) =>
-            choice.MatchUnsafe(
-                Some: Right,
-                None: () => Left(unit));
-
-        [Pure]
-        public C MatchUnsafe<C>(OptionUnsafe<A> choice, Func<Unit, C> Left, Func<A, C> Right, Func<C> Bottom = null) =>
-            choice.MatchUnsafe(
-                Some: Right,
-                None: () => Left(unit));
-
-        [Pure]
         public OptionUnsafe<A> Some(A x) =>
             new OptionUnsafe<A>(OptionData.Some(x));
 
@@ -219,11 +186,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public bool Equals(OptionUnsafe<A> x, OptionUnsafe<A> y) =>
-            default(EqOpt<MOptionUnsafe<A>, OptionUnsafe<A>, A>).Equals(x, y);
+            default(EqOptionalUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A>).Equals(x, y);
 
         [Pure]
         public int GetHashCode(OptionUnsafe<A> x) =>
-            default(EqOpt<MOptionUnsafe<A>, OptionUnsafe<A>, A>).GetHashCode(x);
+            default(EqOptionalUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A>).GetHashCode(x);
 
         [Pure]
         public OptionUnsafe<A> Apply(Func<A, A, A> f, OptionUnsafe<A> fa, OptionUnsafe<A> fb) =>

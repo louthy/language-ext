@@ -13,7 +13,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<B> BiMap(OptionUnsafe<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
-            FOptional<
+            FOptionalUnsafe<
                 MOptionUnsafe<A>, MOptionUnsafe<B>, 
                 OptionUnsafe<A>, OptionUnsafe<B>, 
                 A, B>

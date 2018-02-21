@@ -5,7 +5,7 @@ using LanguageExt.Attributes;
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface Choice<CH, L, R> : Typeclass
+    public interface ChoiceUnsafe<CH, L, R> : Typeclass
     {
         /// <summary>
         /// Is the choice in the first state
@@ -30,7 +30,7 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <typeparam name="C">Return type</typeparam>
         [Pure]
-        C Match<C>(CH choice, Func<L, C> Left, Func<R, C> Right, Func<C> Bottom = null);
+        C MatchUnsafe<C>(CH choice, Func<L, C> Left, Func<R, C> Right, Func<C> Bottom = null);
 
         /// <summary>
         /// Match the two states of the Choice and return a non-null C.

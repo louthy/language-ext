@@ -9,12 +9,6 @@ namespace LanguageExt.TypeClasses
     public interface OptionalAsync<OA, A> : Typeclass
     {
         /// <summary>
-        /// True if the optional type allows nulls
-        /// </summary>
-        [Pure]
-        Task<bool> IsUnsafe(OA opt);
-
-        /// <summary>
         /// Is the option in a Some state
         /// </summary>
         [Pure]
@@ -49,30 +43,6 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         [Pure]
         Task<B> MatchAsync<B>(OA opt, Func<A, Task<B>> Some, Func<Task<B>> None);
-
-        /// <summary>
-        /// Match the two states of the Option and return a B, which can be null.
-        /// </summary>
-        [Pure]
-        Task<B> MatchUnsafe<B>(OA opt, Func<A, B> Some, Func<B> None);
-
-        /// <summary>
-        /// Match the two states of the Option and return a B, which can be null.
-        /// </summary>
-        [Pure]
-        Task<B> MatchUnsafeAsync<B>(OA opt, Func<A, Task<B>> Some, Func<B> None);
-
-        /// <summary>
-        /// Match the two states of the Option and return a B, which can be null.
-        /// </summary>
-        [Pure]
-        Task<B> MatchUnsafeAsync<B>(OA opt, Func<A, B> Some, Func<Task<B>> None);
-
-        /// <summary>
-        /// Match the two states of the Option and return a B, which can be null.
-        /// </summary>
-        [Pure]
-        Task<B> MatchUnsafeAsync<B>(OA opt, Func<A, Task<B>> Some, Func<Task<B>> None);
 
         /// <summary>
         /// Match the two states of the Option A

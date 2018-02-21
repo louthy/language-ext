@@ -6,24 +6,24 @@ using System.Diagnostics.Contracts;
 namespace LanguageExt.ClassInstances
 {
     public struct MEitherUnsafe<L, R> :
-        Choice<EitherUnsafe<L, R>, L, R>,
+        ChoiceUnsafe<EitherUnsafe<L, R>, L, R>,
         Alternative<EitherUnsafe<L, R>, L, R>,
         Monad<EitherUnsafe<L, R>, R>,
-        Optional<EitherUnsafe<L, R>, R>,
+        OptionalUnsafe<EitherUnsafe<L, R>, R>,
         BiFoldable<EitherUnsafe<L, R>, L, R>
     {
         public static readonly MEitherUnsafe<L, R> Inst = default(MEitherUnsafe<L, R>);
 
         [Pure]
         public MB Bind<MONADB, MB, B>(EitherUnsafe<L, R> ma, Func<R, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
-            Match(ma,
+            MatchUnsafe(ma,
                 Left: l => default(MONADB).Fail(l),
                 Right: r => f(r),
                 Bottom: () => default(MONADB).Fail(BottomException.Default));
 
         [Pure]
         public MB BindAsync<MONADB, MB, B>(EitherUnsafe<L, R> ma, Func<R, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
-            Match(ma,
+            MatchUnsafe(ma,
                 Left: l => default(MONADB).Fail(l),
                 Right: r => f(r),
                 Bottom: () => default(MONADB).Fail(BottomException.Default));
@@ -36,7 +36,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public EitherUnsafe<L, R> Plus(EitherUnsafe<L, R> ma, EitherUnsafe<L, R> mb) =>
-            Match(ma,
+            MatchUnsafe(ma,
                 Left: _ => mb,
                 Right: _ => ma,
                 Bottom: () => mb);
@@ -58,22 +58,28 @@ namespace LanguageExt.ClassInstances
             opt.IsRight;
 
         [Pure]
-        public R2 Match<R2>(EitherUnsafe<L, R> opt, Func<R, R2> Some, Func<R2> None) =>
-            opt.IsRight
-                ? Some(opt.RightValue)
-                : None();
-
-        public Unit Match(EitherUnsafe<L, R> opt, Action<R> Some, Action None)
-        {
-            if (opt.IsRight) Some(opt.RightValue); else None();
-            return Unit.Default;
-        }
+        public R2 MatchUnsafe<R2>(EitherUnsafe<L, R> opt, Func<R, R2> Some, Func<R2> None) =>
+            opt.IsBottom
+                ? throw new BottomException()
+                : opt.IsRight
+                    ? Some(opt.RightValue)
+                    : None();
 
         [Pure]
-        public R2 MatchUnsafe<R2>(EitherUnsafe<L, R> opt, Func<R, R2> Some, Func<R2> None) =>
-            opt.IsRight
-                ? Some(opt.RightValue)
-                : None();
+        public R2 MatchUnsafe<R2>(EitherUnsafe<L, R> opt, Func<R, R2> Some, R2 None) =>
+            opt.IsBottom
+                ? throw new BottomException()
+                : opt.IsRight
+                    ? Some(opt.RightValue)
+                    : None;
+
+        [Pure]
+        public Unit Match(EitherUnsafe<L, R> choice, Action<R> Right, Action Left)
+        {
+            if (choice.State == EitherStatus.IsRight) Right(choice.right);
+            if (choice.State == EitherStatus.IsLeft) Left();
+            return unit;
+        }
 
         [Pure]
         public Func<Unit, S> Fold<S>(EitherUnsafe<L, R> foldable, S state, Func<S, R, S> f) =>
@@ -93,14 +99,14 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public S BiFold<S>(EitherUnsafe<L, R> foldable, S state, Func<S, L, S> fa, Func<S, R, S> fb) =>
-            Match(foldable,
+            MatchUnsafe(foldable,
                 Left: _ => fa(state, foldable.LeftValue),
                 Right: _ => fb(state, foldable.RightValue),
                 Bottom: () => state);
 
         [Pure]
         public S BiFoldBack<S>(EitherUnsafe<L, R> foldable, S state, Func<S, L, S> fa, Func<S, R, S> fb) =>
-            Match(foldable,
+            MatchUnsafe(foldable,
                 Left: _ => fa(state, foldable.LeftValue),
                 Right: _ => fb(state, foldable.RightValue),
                 Bottom: () => state);
@@ -109,7 +115,7 @@ namespace LanguageExt.ClassInstances
         public Func<Unit, int> Count(EitherUnsafe<L, R> ma)
         {
             var self = this;
-            return u => self.Match(ma,
+            return u => self.MatchUnsafe(ma,
                 Left: _ => 0,
                 Right: _ => 1,
                 Bottom: () => 0);
@@ -156,10 +162,6 @@ namespace LanguageExt.ClassInstances
             Plus(x, y);
 
         [Pure]
-        public bool IsUnsafe(EitherUnsafe<L, R> choice) =>
-            true;
-
-        [Pure]
         public bool IsLeft(EitherUnsafe<L, R> choice) =>
             choice.State == EitherStatus.IsLeft;
 
@@ -172,7 +174,7 @@ namespace LanguageExt.ClassInstances
             choice.State == EitherStatus.IsBottom;
 
         [Pure]
-        public C Match<C>(EitherUnsafe<L, R> choice, Func<L, C> Left, Func<R, C> Right, Func<C> Bottom = null) =>
+        public C MatchUnsafe<C>(EitherUnsafe<L, R> choice, Func<L, C> Left, Func<R, C> Right, Func<C> Bottom = null) =>
             choice.State == EitherStatus.IsBottom
                 ? Bottom == null
                     ? throw new BottomException()
@@ -184,35 +186,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Unit Match(EitherUnsafe<L, R> choice, Action<L> Left, Action<R> Right, Action Bottom = null)
         {
-            if (choice.State == EitherStatus.IsRight && Right != null)
-            {
-                Right(choice.right);
-            }
-            else if (choice.State == EitherStatus.IsLeft && Left != null)
-            {
-                Left(choice.left);
-            }
-            else if (choice.State == EitherStatus.IsBottom && Bottom != null)
-            {
-                Bottom();
-            }
-            else if (choice.State == EitherStatus.IsBottom && Bottom == null)
-            {
-                throw new BottomException();
-            }
-
+            if (choice.State == EitherStatus.IsRight) Right(choice.right);
+            if (choice.State == EitherStatus.IsLeft) Left(choice.left);
+            if (Bottom == null) throw new BottomException();
+            Bottom();
             return unit;
         }
-
-        [Pure]
-        public C MatchUnsafe<C>(EitherUnsafe<L, R> choice, Func<L, C> Left, Func<R, C> Right, Func<C> Bottom = null) =>
-            choice.State == EitherStatus.IsBottom
-                ? Bottom == null
-                    ? throw new BottomException()
-                    : Bottom()
-                : choice.State == EitherStatus.IsLeft
-                    ? Left(choice.left)
-                    : Right(choice.right);
 
         [Pure]
         public EitherUnsafe<L, R> Apply(Func<R, R, R> f, EitherUnsafe<L, R> fa, EitherUnsafe<L, R> fb) =>

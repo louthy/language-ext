@@ -8,6 +8,7 @@ namespace LanguageExt.ClassInstances
     public struct MTryOptionAsync<A> :
         Alternative<TryOptionAsync<A>, Unit, A>,
         OptionalAsync<TryOptionAsync<A>, A>,
+        OptionalUnsafeAsync<TryOptionAsync<A>, A>,
         MonadAsync<TryOptionAsync<A>, A>,
         FoldableAsync<TryOptionAsync<A>, A>,
         BiFoldableAsync<TryOptionAsync<A>, A, Unit>
@@ -129,10 +130,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Task<S> BiFoldBackAsync<S>(TryOptionAsync<A> ma, S state, Func<S, A, Task<S>> SuccAsync, Func<S, Unit, Task<S>> FailAsync) =>
             default(MTryOptionFirstAsync<A>).BiFoldBackAsync(ma, state, SuccAsync, FailAsync);
-
-        [Pure]
-        public Task<bool> IsUnsafe(TryOptionAsync<A> opt) =>
-            default(MTryOptionFirstAsync<A>).IsUnsafe(opt);
 
         [Pure]
         public Task<bool> IsSome(TryOptionAsync<A> opt) =>

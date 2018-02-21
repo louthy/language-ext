@@ -42,12 +42,28 @@
     <None Remove="obj\**" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="ClassInstances\Applicative\ApplOptionalUnsafe.cs" />
+    <None Remove="ClassInstances\Eq\EqChoiceUnsafe.cs" />
     <None Remove="ClassInstances\Eq\EqMap.cs" />
+    <None Remove="ClassInstances\Eq\EqOption.cs" />
+    <None Remove="ClassInstances\Eq\EqOptionalUnsafe.cs" />
+    <None Remove="ClassInstances\Eq\EqOptionUnsafe.cs" />
+    <None Remove="ClassInstances\Functor\FOptionalUnsafe.cs" />
     <None Remove="ClassInstances\Monad\MTaskFirst.cs" />
     <None Remove="ClassInstances\Monad\MTryFirstAsync.cs" />
     <None Remove="ClassInstances\Monad\MTryOptionFirstAsync.cs" />
+    <None Remove="ClassInstances\Ord\OrdChoiceUnsafe.cs" />
+    <None Remove="ClassInstances\Ord\OrdOption.cs" />
+    <None Remove="ClassInstances\Ord\OrdOptionalUnsafe.cs" />
+    <None Remove="ClassInstances\Ord\OrdOptionUnsafe.cs" />
     <None Remove="DataTypes\Task\Task.Prelude.cs" />
     <None Remove="HKT\ExtraPrelude.cs" />
+    <None Remove="TypeClasses\ChoiceUnsafe\ChoiceUnsafe.cs" />
+    <None Remove="TypeClasses\ChoiceUnsafe\ChoiceUnsafe.Prelude.cs" />
+    <None Remove="TypeClasses\OptionalUnsafeAsync\OptionalUnsafeAsync.cs" />
+    <None Remove="TypeClasses\OptionalUnsafeAsync\OptionalUnsafeAsync.Prelude.cs" />
+    <None Remove="TypeClasses\OptionalUnsafe\OptionalUnsafe.cs" />
+    <None Remove="TypeClasses\OptionalUnsafe\OptionalUnsafe.Prelude.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Reactive" Version="3.1.1" />

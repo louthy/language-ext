@@ -4,6 +4,7 @@ using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
+using static LanguageExt.ChoiceUnsafe;
 using System.Reactive.Linq;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
@@ -196,7 +197,7 @@ namespace LanguageExt
         /// <returns>The return value of the invoked function</returns>
         [Pure]
         public Ret MatchUnsafe<Ret>(Func<R, Ret> Right, Func<L, Ret> Left, Func<Ret> Bottom = null) =>
-            MEitherUnsafe<L, R>.Inst.Match(this, Left, Right, Bottom);
+            MEitherUnsafe<L, R>.Inst.MatchUnsafe(this, Left, Right, Bottom);
 
         /// <summary>
         /// Invokes the Right or Left action depending on the state of the EitherUnsafe
@@ -213,14 +214,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public IObservable<R2> MatchObservableUnsafe<R2>(Func<R, IObservable<R2>> Right, Func<L, R2> Left) =>
-            matchObservable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(this, Left, Right);
+            matchObservableUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(this, Left, Right);
 
         /// <summary>
         /// Match the two states of the EitherUnsafe and return an observable stream of non-null R2s.
         /// </summary>
         [Pure]
         public IObservable<R2> MatchObservableUnsafe<R2>(Func<R, IObservable<R2>> Right, Func<L, IObservable<R2>> Left) =>
-            matchObservable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(this, Left, Right);
+            matchObservableUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(this, Left, Right);
 
         /// <summary>
         /// Executes the Left function if the EitherUnsafe is in a Left state.
@@ -230,7 +231,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeftUnsafe(Func<R> Left) =>
-            ifLeft<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Left);
+            ifLeftUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Left);
 
         /// <summary>
         /// Executes the leftMap function if the EitherUnsafe is in a Left state.
@@ -240,7 +241,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeftUnsafe(Func<L, R> leftMap) =>
-            ifLeft<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, leftMap);
+            ifLeftUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, leftMap);
 
         /// <summary>
         /// Returns the rightValue if the EitherUnsafe is in a Left state.
@@ -250,7 +251,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeftUnsafe(R rightValue) =>
-            ifLeft<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, rightValue);
+            ifLeftUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, rightValue);
 
         /// <summary>
         /// Executes the Left action if the EitherUnsafe is in a Left state.
@@ -258,7 +259,7 @@ namespace LanguageExt
         /// <param name="Left">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         public Unit IfLeftUnsafe(Action<L> Left) =>
-            ifLeft<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Left);
+            ifLeftUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Left);
 
         /// <summary>
         /// Invokes the Right action if the EitherUnsafe is in a Right state, otherwise does nothing
@@ -266,7 +267,7 @@ namespace LanguageExt
         /// <param name="Right">Action to invoke</param>
         /// <returns>Unit</returns>
         public Unit IfRightUnsafe(Action<R> Right) =>
-            ifRight<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Right);
+            ifRightUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Right);
 
         /// <summary>
         /// Returns the leftValue if the EitherUnsafe is in a Right state.
@@ -276,7 +277,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRightUnsafe(L leftValue) =>
-            ifRight<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, leftValue);
+            ifRightUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, leftValue);
 
         /// <summary>
         /// Returns the result of Right() if the EitherUnsafe is in a Right state.
@@ -286,7 +287,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRightUnsafe(Func<L> Right) =>
-            ifRight<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Right);
+            ifRightUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Right);
 
         /// <summary>
         /// Returns the result of rightMap if the EitherUnsafe is in a Right state.
@@ -296,7 +297,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRightUnsafe(Func<R, L> rightMap) =>
-            ifRight<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, rightMap);
+            ifRightUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, rightMap);
 
         /// <summary>
         /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
@@ -349,7 +350,7 @@ namespace LanguageExt
         public override bool Equals(object obj) =>
             !ReferenceEquals(obj, null) &&
             obj is EitherUnsafe<L, R> &&
-            EqChoice<EqDefault<L>, EqDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Equals(this, (EitherUnsafe<L, R>)obj);
+            EqChoiceUnsafe<EqDefault<L>, EqDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Equals(this, (EitherUnsafe<L, R>)obj);
 
         /// <summary>
         /// Project the EitherUnsafe into a Lst R
@@ -447,28 +448,20 @@ namespace LanguageExt
                     : Fail<L, R>(left);
 
         /// <summary>
-        /// Convert the EitherUnsafe to an Option
+        /// Convert the EitherUnsafe to an OptionUnsafe
         /// </summary>
         /// <returns>Some(Right) or None</returns>
         [Pure]
-        public Option<R> ToOption() =>
-            toOption<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
+        public OptionUnsafe<R> ToOption() =>
+            toOptionUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
         /// Convert the EitherUnsafe to an EitherUnsafeUnsafe
         /// </summary>
         /// <returns>EitherUnsafeUnsafe</returns>
         [Pure]
-        public Either<L, R> ToEither() =>
-            toEither<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
-
-        /// <summary>
-        /// Convert the EitherUnsafe to an TryOption
-        /// </summary>
-        /// <returns>Some(Right) or None</returns>
-        [Pure]
-        public TryOption<R> ToTryOption() =>
-            toTryOption<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
+        public EitherUnsafe<L, R> ToEither() =>
+            toEitherUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
         /// Comparison operator
@@ -554,7 +547,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public int CompareTo(EitherUnsafe<L, R> other) =>
-            OrdChoice<OrdDefault<L>, OrdDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Compare(this, other);
+            OrdChoiceUnsafe<OrdDefault<L>, OrdDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Compare(this, other);
 
         /// <summary>
         /// CompareTo override
@@ -589,14 +582,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool Equals(EitherUnsafe<L, R> other) =>
-            EqChoice<EqDefault<L>, EqDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Equals(this, other);
+            EqChoiceUnsafe<EqDefault<L>, EqDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Equals(this, other);
 
         /// <summary>
         /// Match the Right and Left values but as objects.  This can be useful to avoid reflection.
         /// </summary>
         [Pure]
         public TResult MatchUntyped<TResult>(Func<object, TResult> Right, Func<object, TResult> Left) =>
-            matchUntyped<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, TResult>(this, Left: Left, Right: Right);
+            matchUntypedUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, TResult>(this, Left: Left, Right: Right);
 
         /// <summary>
         /// Find out the underlying Right type
@@ -644,7 +637,7 @@ namespace LanguageExt
 
         [Pure]
         public R1 MatchUntyped<R1>(Func<object, R1> Some, Func<R1> None) =>
-            matchUntyped<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R, R1>(this, Some, None);
+            matchUntypedUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R1>(this, Some, _ => None());
 
         [Pure]
         public Type GetUnderlyingType() =>

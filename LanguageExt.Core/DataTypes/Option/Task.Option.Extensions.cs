@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using static LanguageExt.OptionalAsync;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
@@ -376,7 +376,7 @@ public static class TaskOptionAsyncExtensions
     /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
     [Pure]
     public static Task<A> IfNoneUnsafeAsync<A>(this Task<Option<A>> self, Func<A> None) =>
-        ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), None);
+        OptionalUnsafeAsync.ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), None);
 
     /// <summary>
     /// Returns the result of invoking the None() operation if the optional 
@@ -388,7 +388,7 @@ public static class TaskOptionAsyncExtensions
     /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
     [Pure]
     public static Task<A> IfNoneUnsafeAsync<A>(this Task<Option<A>> self, Func<Task<A>> None) =>
-        ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), None);
+        OptionalUnsafeAsync.ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), None);
 
     /// <summary>
     /// Returns the noneValue if the optional is in a None state, otherwise
@@ -400,7 +400,7 @@ public static class TaskOptionAsyncExtensions
     /// the bound Some(x) value is returned</returns>
     [Pure]
     public static Task<A> IfNoneUnsafeAsync<A>(this Task<Option<A>> self, A noneValue) =>
-        ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), noneValue);
+        OptionalUnsafeAsync.ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), noneValue);
 
     /// <summary>
     /// <para>

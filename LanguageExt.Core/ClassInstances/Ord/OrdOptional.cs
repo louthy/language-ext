@@ -8,11 +8,11 @@ namespace LanguageExt.ClassInstances
     /// Compare the equality and ordering of any type in the Optional
     /// type-class
     /// </summary>
-    public struct OrdOpt<OrdA, OPTION, OA, A> : Ord<OA>
+    public struct OrdOptional<OrdA, OPTION, OA, A> : Ord<OA>
         where OrdA    : struct, Ord<A>
         where OPTION : struct, Optional<OA, A>
     {
-        public static readonly OrdOpt<OrdA, OPTION, OA, A> Inst = default(OrdOpt<OrdA, OPTION, OA, A>);
+        public static readonly OrdOptional<OrdA, OPTION, OA, A> Inst = default(OrdOptional<OrdA, OPTION, OA, A>);
 
         /// <summary>
         /// Equality test
@@ -22,7 +22,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>True if x and y are equal</returns>
         [Pure]
         public bool Equals(OA x, OA y) =>
-            default(EqOpt<OrdA, OPTION, OA, A>).Equals(x, y);
+            default(EqOptional<OrdA, OPTION, OA, A>).Equals(x, y);
 
         /// <summary>
         /// Compare two values
@@ -69,10 +69,10 @@ namespace LanguageExt.ClassInstances
     /// Compare the equality and ordering of any type in the Optional
     /// type-class
     /// </summary>
-    public struct OrdOpt<OPTION, OA, A> : Ord<OA>
+    public struct OrdOptional<OPTION, OA, A> : Ord<OA>
         where OPTION : struct, Optional<OA, A>
     {
-        public static readonly OrdOpt<OPTION, OA, A> Inst = default(OrdOpt<OPTION, OA, A>);
+        public static readonly OrdOptional<OPTION, OA, A> Inst = default(OrdOptional<OPTION, OA, A>);
 
         /// <summary>
         /// Equality test
@@ -82,7 +82,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>True if x and y are equal</returns>
         [Pure]
         public bool Equals(OA x, OA y) =>
-            default(OrdOpt<OrdDefault<A>, OPTION, OA, A>).Equals(x, y);
+            default(OrdOptional<OrdDefault<A>, OPTION, OA, A>).Equals(x, y);
 
         /// <summary>
         /// Compare two values
@@ -98,7 +98,7 @@ namespace LanguageExt.ClassInstances
         /// </returns>
         [Pure]
         public int Compare(OA mx, OA my) =>
-            default(OrdOpt<OrdDefault<A>, OPTION, OA, A>).Compare(mx, my);
+            default(OrdOptional<OrdDefault<A>, OPTION, OA, A>).Compare(mx, my);
 
         /// <summary>
         /// Get the hash-code of the provided value
@@ -106,6 +106,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>Hash code of x</returns>
         [Pure]
         public int GetHashCode(OA x) =>
-            default(OrdOpt<OrdDefault<A>, OPTION, OA, A>).GetHashCode(x);
+            default(OrdOptional<OrdDefault<A>, OPTION, OA, A>).GetHashCode(x);
     }
 }

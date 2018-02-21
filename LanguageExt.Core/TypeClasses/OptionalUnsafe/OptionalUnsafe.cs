@@ -5,7 +5,7 @@ using LanguageExt.Attributes;
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface Optional<OA, A> : Typeclass
+    public interface OptionalUnsafe<OA, A> : Typeclass
     {
         /// <summary>
         /// Is the option in a Some state
@@ -20,16 +20,16 @@ namespace LanguageExt.TypeClasses
         bool IsNone(OA opt);
 
         /// <summary>
-        /// Match the two states of the Option and return a non-null B.
+        /// Match the two states of the Option and return a B, which can be null.
         /// </summary>
         [Pure]
-        B Match<B>(OA opt, Func<A, B> Some, Func<B> None);
+        B MatchUnsafe<B>(OA opt, Func<A, B> Some, Func<B> None);
 
         /// <summary>
-        /// Match the two states of the Option and return a non-null B.
+        /// Match the two states of the Option and return a B, which can be null.
         /// </summary>
         [Pure]
-        B Match<B>(OA opt, Func<A, B> Some, B None);
+        B MatchUnsafe<B>(OA opt, Func<A, B> Some, B None);
 
         /// <summary>
         /// Match the two states of the Option A

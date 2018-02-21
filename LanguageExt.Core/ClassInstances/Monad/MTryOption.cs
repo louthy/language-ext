@@ -8,6 +8,7 @@ namespace LanguageExt.ClassInstances
     public struct MTryOption<A> :
         Alternative<TryOption<A>, Unit, A>,
         Optional<TryOption<A>, A>,
+        OptionalUnsafe<TryOption<A>, A>,
         Monad<TryOption<A>, A>,
         BiFoldable<TryOption<A>, A, Unit>,
         AsyncPair<TryOption<A>, TryOptionAsync<A>>
@@ -80,17 +81,23 @@ namespace LanguageExt.ClassInstances
                 Fail: ex => false);
 
         [Pure]
-        public bool IsUnsafe(TryOption<A> opt) =>
-            false;
-
-        [Pure]
         public B Match<B>(TryOption<A> opt, Func<A, B> Some, Func<B> None)
         {
             var res = opt.Try();
-            if (res.IsFaulted || res.Value.IsNone)
-                return None();
-            else
-                return Some(res.Value.Value);
+            return Check.NullReturn(
+                res.IsFaulted || res.Value.IsNone
+                    ? None()
+                    : Some(res.Value.Value));
+        }
+
+        [Pure]
+        public B Match<B>(TryOption<A> opt, Func<A, B> Some, B None)
+        {
+            var res = opt.Try();
+            return Check.NullReturn(
+                res.IsFaulted || res.Value.IsNone
+                    ? None
+                    : Some(res.Value.Value));
         }
 
         public Unit Match(TryOption<A> opt, Action<A> Some, Action None)
@@ -104,10 +111,18 @@ namespace LanguageExt.ClassInstances
         public B MatchUnsafe<B>(TryOption<A> opt, Func<A, B> Some, Func<B> None)
         {
             var res = opt.Try();
-            if (res.IsFaulted || res.Value.IsNone)
-                return None();
-            else
-                return Some(res.Value.Value);
+            return res.IsFaulted || res.Value.IsNone
+                ? None()
+                : Some(res.Value.Value);
+        }
+
+        [Pure]
+        public B MatchUnsafe<B>(TryOption<A> opt, Func<A, B> Some, B None)
+        {
+            var res = opt.Try();
+            return res.IsFaulted || res.Value.IsNone
+                ? None
+                : Some(res.Value.Value);
         }
 
         [Pure]
