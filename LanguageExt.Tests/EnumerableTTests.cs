@@ -51,6 +51,22 @@ namespace LanguageExtTests
             Assert.True(Enumerable.SequenceEqual(actual, expected), $"Expected {toString(expected)} but was {toString(actual)}");
         }
 
+        [Fact]
+        public void EnumerableMapIsCalculatedOnceTest() {
+            var n = 1;
+
+            int NextValue() {
+                return n++;
+            }
+
+            var actual = Enumerable.Range(0, 5).Map(_ => NextValue());
+            var expected = List(1, 2, 3, 4, 5);
+            Assert.True(Enumerable.SequenceEqual(actual, expected), $"Expected {toString(expected)} but was {toString(actual)}");
+            
+            // ensure the result of Map isn't recalculated each time it's iterated over
+            Assert.True(Enumerable.SequenceEqual(actual, expected), $"Expected {toString(expected)} but was {toString(actual)}");
+        }
+        
         //[Fact]
         //public void WrappedMapTest()
         //{

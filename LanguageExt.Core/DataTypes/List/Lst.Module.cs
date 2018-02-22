@@ -153,7 +153,7 @@ namespace LanguageExt
         /// <returns>Mapped enumerable</returns>
         [Pure]
         public static IEnumerable<R> map<T, R>(IEnumerable<T> list, Func<T, R> map) =>
-            list.Select(map);
+            list.Select(map).ToList();
 
         /// <summary>
         /// Partial application map
