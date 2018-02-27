@@ -13,6 +13,21 @@ csharp_indent_case_contents = true
 # http://kent-boogaart.com/blog/editorconfig-reference-for-c-developers#csharp_indent_switch_labels
 csharp_indent_switch_labels = true
 
+# http://kent-boogaart.com/blog/editorconfig-reference-for-c-developers#csharp_new_line_before_catch
+csharp_new_line_before_catch = true
+
+# http://kent-boogaart.com/blog/editorconfig-reference-for-c-developers#csharp_new_line_before_else
+csharp_new_line_before_else = true
+
+# http://kent-boogaart.com/blog/editorconfig-reference-for-c-developers#csharp_new_line_before_finally
+csharp_new_line_before_finally = true
+
+# http://kent-boogaart.com/blog/editorconfig-reference-for-c-developers#csharp_new_line_before_members_in_anonymous_types
+csharp_new_line_before_members_in_anonymous_types = true
+
+# http://kent-boogaart.com/blog/editorconfig-reference-for-c-developers#csharp_new_line_before_members_in_object_initializers
+csharp_new_line_before_members_in_object_initializers = true
+
 # http://kent-boogaart.com/blog/editorconfig-reference-for-c-developers#csharp_new_line_before_open_brace
 csharp_new_line_before_open_brace = all
 
