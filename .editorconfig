@@ -98,7 +98,7 @@ csharp_space_between_square_brackets = false
 csharp_style_expression_bodied_accessors = true:suggestion
 
 # http://kent-boogaart.com/blog/editorconfig-reference-for-c-developers#csharp_style_expression_bodied_constructors
-csharp_style_expression_bodied_constructors = false:suggestion
+csharp_style_expression_bodied_constructors = true:suggestion
 
 # http://kent-boogaart.com/blog/editorconfig-reference-for-c-developers#csharp_style_expression_bodied_indexers
 csharp_style_expression_bodied_indexers = true:suggestion
