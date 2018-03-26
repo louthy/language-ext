@@ -87,9 +87,9 @@ class Program
             from g in GetGenderByIdAsync(i).ToTryOptionAsync()
             select g;
 
-        return (await program()).Match(
+        return await program.Match(
             Some: gender => new Result<Gender>(gender),
-            None: () => Result<Gender>.None,
+            None: () => Result<Gender>.Bottom,
             Fail: e => Result<Gender>.Bottom
         );
     }

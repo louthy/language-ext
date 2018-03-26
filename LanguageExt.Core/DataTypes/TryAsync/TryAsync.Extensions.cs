@@ -22,7 +22,7 @@ public static class TryAsyncExtensions
     public static TryAsync<A> Memo<A>(this TryAsync<A> ma)
     {
         bool run = false;
-        Task<Result<A>> result = Task.FromResult(new Result<A>());
+        var result = Task.FromResult(Result<A>.Bottom);
         return new TryAsync<A>(() =>
         {
             if (run) return result;
@@ -31,6 +31,36 @@ public static class TryAsyncExtensions
             return result;
         });
     }
+
+    /// <summary>
+    /// Forces evaluation of the lazy TryAsync
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>The Try with the computation executed</returns>
+    public static TryAsync<A> Strict<A>(this TryAsync<A> ma)
+    {
+        var res = ma.Try();
+        return () => res;
+    }
+
+    /// <summary>
+    /// Test if the TryAsync is in a success state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation has succeeded</returns>
+    public static async Task<bool> IsSucc<A>(this TryAsync<A> ma) =>
+        (await ma.Try()).IsSuccess;
+
+    /// <summary>
+    /// Test if the TryAsync is in a faulted state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation is faulted</returns>
+    public static async Task<bool> IsFail<A>(this TryAsync<A> ma) =>
+        (await ma.Try()).IsFaulted;
 
     /// <summary>
     /// Invoke a delegate if the Try returns a value successfully

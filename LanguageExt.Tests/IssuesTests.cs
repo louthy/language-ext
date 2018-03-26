@@ -18,14 +18,6 @@ namespace LanguageExt.Tests
 {
     public class IssuesTests
     {
-        [Fact]
-        public void Issue314()
-        {
-
-            var x = Result<object>.Bottom.IsBottom;
-        }
-
-
         /// <summary>
         /// https://github.com/louthy/language-ext/issues/207
         /// </summary>
@@ -166,7 +158,7 @@ namespace Core.Tests
                 from resource in ScrapeUrl("http://google.com").AsTry()
                 select resource;
 
-            (await program.Try()).Match(
+            await program.Match(
                 Succ: r =>
                 {
                     Assert.True(false, "this should not pass");

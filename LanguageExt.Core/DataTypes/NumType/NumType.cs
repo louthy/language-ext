@@ -26,8 +26,8 @@ namespace LanguageExt
     /// <typeparam name="A">Bound value type</typeparam>
     [Serializable]
     public abstract class NumType<SELF, NUM, A> : NumType<SELF, NUM, A, True<A>>
-        where NUM     : struct, Num<A>
-        where SELF : NumType<SELF, NUM, A, True<A>>
+        where NUM  : struct, Num<A>
+        where SELF : NumType<SELF, NUM, A>
     {
         /// <summary>
         /// Constructor

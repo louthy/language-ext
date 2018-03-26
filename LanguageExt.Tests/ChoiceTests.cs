@@ -54,7 +54,7 @@ namespace LanguageExt.Tests
 
             var res = choice(ma, mb, mc);
 
-            Assert.True(res.Try().IsFaulted);
+            Assert.True(res.IsFail());
         }
 
         [Fact]
@@ -102,7 +102,7 @@ namespace LanguageExt.Tests
 
             var res = choice(ma, mb, mc);
 
-            Assert.True(res.Try().IsNone);
+            Assert.True(res.IsNone());
         }
 
         [Fact]
@@ -150,7 +150,7 @@ namespace LanguageExt.Tests
 
             var res = choice(ma, mb, mc);
 
-            Assert.True((await res.Try()).IsFaulted);
+            Assert.True(await res.IsFail());
         }
 
         [Fact]
@@ -198,7 +198,7 @@ namespace LanguageExt.Tests
 
             var res = choice(ma, mb, mc);
 
-            Assert.True((await res.Try()).IsNone);
+            Assert.True(await res.IsNone());
         }
 
         [Fact]

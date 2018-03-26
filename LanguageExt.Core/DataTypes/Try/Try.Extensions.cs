@@ -33,6 +33,36 @@ public static class TryExtensions
     }
 
     /// <summary>
+    /// Forces evaluation of the lazy try
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>The Try with the computation executed</returns>
+    public static Try<A> Strict<A>(this Try<A> ma)
+    {
+        var res = ma.Try();
+        return () => res;
+    }
+
+    /// <summary>
+    /// Test if the Try is in a success state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation has succeeded</returns>
+    public static bool IsSucc<A>(this Try<A> ma) =>
+        ma.Try().IsSuccess;
+
+    /// <summary>
+    /// Test if the Try is in a faulted state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation is faulted</returns>
+    public static bool IsFail<A>(this Try<A> ma) =>
+        ma.Try().IsFaulted;
+
+    /// <summary>
     /// Invoke a delegate if the Try returns a value successfully
     /// </summary>
     /// <param name="Succ">Delegate to invoke if successful</param>

@@ -22,7 +22,7 @@ public static class TryOptionAsyncExtensions
     public static TryOptionAsync<A> Memo<A>(this TryOptionAsync<A> ma)
     {
         bool run = false;
-        Task<OptionalResult<A>> result = Task.FromResult(new OptionalResult<A>());
+        var result = Task.FromResult(OptionalResult<A>.Bottom);
         return new TryOptionAsync<A>(() =>
         {
             if (run) return result;
@@ -31,6 +31,56 @@ public static class TryOptionAsyncExtensions
             return result;
         });
     }
+
+    /// <summary>
+    /// Forces evaluation of the lazy TryOptionAsync
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>The TryOption with the computation executed</returns>
+    public static TryOptionAsync<A> Strict<A>(this TryOptionAsync<A> ma)
+    {
+        var res = ma.Try();
+        return () => res;
+    }
+
+    /// <summary>
+    /// Test if the TryOptionAsync is in a success state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation has succeeded</returns>
+    public static async Task<bool> IsSome<A>(this TryOptionAsync<A> ma) =>
+        (await ma.Try()).IsSome;
+
+    /// <summary>
+    /// Test if the TryOptionAsync is in a Fail state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation is faulted</returns>
+    public static async Task<bool> IsFail<A>(this TryOptionAsync<A> ma) =>
+        (await ma.Try()).IsFaulted;
+
+    /// <summary>
+    /// Test if the TryOptionAsync is in a None or Fail state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation is faulted</returns>
+    public static async Task<bool> IsNoneOrFail<A>(this TryOptionAsync<A> ma) =>
+        (await ma.Try()).IsFaultedOrNone;
+
+    /// <summary>
+    /// Test if the TryOptionAsync is in a None state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation is faulted</returns>
+    public static async Task<bool> IsNone<A>(this TryOptionAsync<A> ma) =>
+        (await ma.Try()).IsNone;
+
+
 
     /// <summary>
     /// Invoke a delegate if the computation returns a value successfully

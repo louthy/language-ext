@@ -31,7 +31,7 @@ namespace LanguageExt.Tests
         public void TestFaultWithNullException()
         {
             Assert.True(faultWithNullException.IsFaulted);
-            Assert.False(faultWithNullException.IsBottom);
+            Assert.True(faultWithNullException.IsBottom);
         }
 
         [Fact]
@@ -98,7 +98,7 @@ namespace LanguageExt.Tests
             );
 
             Assert.True(output.IsFaulted);
-            Assert.False(output.IsBottom);
+            Assert.True(output.IsBottom);
         }
 
         [Fact]
@@ -283,7 +283,7 @@ namespace LanguageExt.Tests
             var output = faultWithNullException.Map(_ => 2);
             
             Assert.True(output.IsFaulted);
-            Assert.False(output.IsBottom);
+            Assert.True(output.IsBottom);
         }
 
         private readonly Result<int> bottomResult;

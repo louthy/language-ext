@@ -48,6 +48,7 @@
     <None Remove="ClassInstances\Eq\EqOption.cs" />
     <None Remove="ClassInstances\Eq\EqOptionalUnsafe.cs" />
     <None Remove="ClassInstances\Eq\EqOptionUnsafe.cs" />
+    <None Remove="ClassInstances\Eq\EqResult.cs" />
     <None Remove="ClassInstances\Functor\FOptionalUnsafe.cs" />
     <None Remove="ClassInstances\Monad\MTaskFirst.cs" />
     <None Remove="ClassInstances\Monad\MTryFirstAsync.cs" />
@@ -56,6 +57,7 @@
     <None Remove="ClassInstances\Ord\OrdOption.cs" />
     <None Remove="ClassInstances\Ord\OrdOptionalUnsafe.cs" />
     <None Remove="ClassInstances\Ord\OrdOptionUnsafe.cs" />
+    <None Remove="ClassInstances\Ord\OrdResult.cs" />
     <None Remove="DataTypes\Task\Task.Prelude.cs" />
     <None Remove="HKT\ExtraPrelude.cs" />
     <None Remove="TypeClasses\ChoiceUnsafe\ChoiceUnsafe.cs" />

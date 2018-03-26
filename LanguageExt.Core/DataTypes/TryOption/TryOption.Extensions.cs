@@ -22,7 +22,7 @@ public static class TryOptionExtensions
     public static TryOption<A> Memo<A>(this TryOption<A> ma)
     {
         bool run = false;
-        OptionalResult<A> result = new OptionalResult<A>();
+        var result = OptionalResult<A>.Bottom;
         return (() =>
         {
             if (run) return result;
@@ -31,6 +31,54 @@ public static class TryOptionExtensions
             return result;
         });
     }
+
+    /// <summary>
+    /// Forces evaluation of the lazy TryOption
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>The TryOption with the computation executed</returns>
+    public static TryOption<A> Strict<A>(this TryOption<A> ma)
+    {
+        var res = ma.Try();
+        return () => res;
+    }
+
+    /// <summary>
+    /// Test if the TryOption is in a success state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation has succeeded</returns>
+    public static bool IsSome<A>(this TryOption<A> ma) =>
+        ma.Try().IsSome;
+
+    /// <summary>
+    /// Test if the TryOption is in a Fail state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation is faulted</returns>
+    public static bool IsFail<A>(this TryOption<A> ma) =>
+        ma.Try().IsFaulted;
+
+    /// <summary>
+    /// Test if the TryOption is in a None or Fail state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation is faulted</returns>
+    public static bool IsNoneOrFail<A>(this TryOption<A> ma) =>
+        ma.Try().IsFaultedOrNone;
+
+    /// <summary>
+    /// Test if the TryOption is in a None state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation is faulted</returns>
+    public static bool IsNone<A>(this TryOption<A> ma) =>
+        ma.Try().IsNone;
 
     /// <summary>
     /// Invoke a delegate if the Try returns a value successfully
