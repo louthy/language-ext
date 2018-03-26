@@ -1337,7 +1337,7 @@ This is a slightly more complex example:
 ```
 The `OrdArray` which is an `Ord<A[]>`, does itself also take an `ORD` generic argument, which allows the contents of the array to be compared:
 ```c#
-    int x = OrdArray<TInt, int>.Inst.Compare(Array(1,2), Array(1,2)); // 0
+    int x = OrdArray<TInt, int>.Inst.Compare(new [] {1,2}, new [] {1,2}); // 0
 ```
 
 #### `Semigroup<A>`
