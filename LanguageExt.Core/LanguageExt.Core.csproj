@@ -60,6 +60,8 @@
     <None Remove="ClassInstances\Ord\OrdResult.cs" />
     <None Remove="DataTypes\Task\Task.Prelude.cs" />
     <None Remove="HKT\ExtraPrelude.cs" />
+    <None Remove="TypeClasses\ChoiceUnsafeAsync\ChoiceUnsafeAsync.cs" />
+    <None Remove="TypeClasses\ChoiceUnsafeAsync\ChoiceUnsafeAsync.Prelude.cs" />
     <None Remove="TypeClasses\ChoiceUnsafe\ChoiceUnsafe.cs" />
     <None Remove="TypeClasses\ChoiceUnsafe\ChoiceUnsafe.Prelude.cs" />
     <None Remove="TypeClasses\OptionalUnsafeAsync\OptionalUnsafeAsync.cs" />
