@@ -126,16 +126,10 @@ namespace Core.Tests
     public class ExternalOptionsAndEithersTests
     {
         [Fact]
-        public async Task what_i_desire()
+        public async Task what_i_desire_EitherAsync()
         {
-            var x = TryOption(Some(123));
-            var y = TryOption(Try(123));
-
-            Task<Either<Error, Pixel>> GetPixelE(PixelId id) =>
-                GetPixel(id).Match(
-                    Some: p => Right<Error, Pixel>(p),
-                    None: () => Error.New("pixel not found")
-                );
+            EitherAsync<Error, Pixel> GetPixelE(PixelId id) =>
+                GetPixel(id).ToEither(Error.New("pixel not found"));
 
             var program =
                 from pixel in GetPixelE(PixelId.New("wkrp"))
@@ -143,55 +137,11 @@ namespace Core.Tests
                 from resource in ScrapeUrl("http://google.com")
                 select resource;
 
-            (await program).Match(
+            await program.Match(
                 Right: r => Assert.True(false, "this should not pass"),
                 Left: e => Assert.Equal("pixel not found", e.Value)
             );
         }
-
-        [Fact]
-        public async Task what_im_forced_to_do()
-        {
-            var program =
-                from pixel in GetPixel(PixelId.New("wkrp")).AsTry("pixel not found")
-                from id in GenerateLinkId(pixel.Value).AsTry()
-                from resource in ScrapeUrl("http://google.com").AsTry()
-                select resource;
-
-            await program.Match(
-                Succ: r =>
-                {
-                    Assert.True(false, "this should not pass");
-                    return unit;
-                },
-                Fail: e =>
-                {
-                    Assert.Equal("pixel not found", e.Message);
-                    return unit;
-                }
-            );
-        }
-    }
-
-    static class Ext
-    {
-        public static Try<T> AsTry<TL, T>(this Either<TL, T> either) where TL : NewType<TL, string> =>
-            Try(either.Match(
-                    Left: e => throw new Exception(e.Value),
-                    Right: identity
-                ));
-
-        public static Try<T> AsTry<T>(this Option<T> option, string error) =>
-            Try(option.Match(
-                    None: () => throw new Exception(error),
-                    Some: identity
-                ));
-
-        public static TryAsync<T> AsTry<TL, T>(this Task<Either<TL, T>> task) where TL : NewType<TL, string> =>
-            task.Map(AsTry).ToAsync();
-
-        public static TryAsync<T> AsTry<T>(this Task<Option<T>> task, string error) =>
-            task.Map(o => o.AsTry(error)).ToAsync();
     }
 
     static class ExternalSystem
@@ -201,14 +151,14 @@ namespace Core.Tests
             public Error(string value) : base(value) { }
         }
 
-        public static Task<Option<Pixel>> GetPixel(PixelId id) =>
-            Task.FromResult(Option<Pixel>.None);
+        public static OptionAsync<Pixel> GetPixel(PixelId id) =>
+            Option<Pixel>.None.ToAsync();
 
-        public static Task<Either<Error, string>> GenerateLinkId(PixelId pixelId) =>
-            Task.FromResult(Right<Error, string>($"{pixelId}-1234"));
+        public static EitherAsync<Error, string> GenerateLinkId(PixelId pixelId) =>
+            Right<Error, string>($"{pixelId}-1234").ToAsync();
 
-        public static Task<Either<Error, WebResource>> ScrapeUrl(string url) =>
-            Task.FromResult(Right<Error, WebResource>(new WebResource(200)));
+        public static EitherAsync<Error, WebResource> ScrapeUrl(string url) =>
+            Right<Error, WebResource>(new WebResource(200)).ToAsync();
 
         public class WebResource : NewType<WebResource, int>
         {

@@ -41,11 +41,21 @@ namespace LanguageExt.ClassInstances
         public async Task<B> Apply(Task<Func<A, B>> fab, Task<A> fa)
         {
             await Task.WhenAll(fab, fa);
-
-            if (fab.IsFaulted) throw fab.Exception;
-            if (fa.IsFaulted) throw fa.Exception;
-
             return fab.Result(fa.Result);
+        }
+
+        [Pure]
+        public async Task<B> Apply(Task<Func<A, A, B>> fab, Task<A> fa, Task<A> fb)
+        {
+            await Task.WhenAll(fab, fa, fb);
+            return fab.Result(fa.Result, fb.Result);
+        }
+
+        [Pure]
+        public async Task<B> Apply(Func<A, A, B> fab, Task<A> fa, Task<A> fb)
+        {
+            await Task.WhenAll(fa, fb);
+            return fab(fa.Result, fb.Result);
         }
 
         [Pure]
@@ -56,10 +66,6 @@ namespace LanguageExt.ClassInstances
         public async Task<B> Action(Task<A> fa, Task<B> fb)
         {
             await Task.WhenAll(fa, fb);
-
-            if (fa.IsFaulted) throw fa.Exception;
-            if (fb.IsFaulted) throw fb.Exception;
-
             return await fb;
         }
     }
@@ -73,10 +79,6 @@ namespace LanguageExt.ClassInstances
         public async Task<Func<B, C>> Apply(Task<Func<A, Func<B, C>>> fabc, Task<A> fa)
         {
             await Task.WhenAll(fabc, fa);
-
-            if (fabc.IsFaulted) throw fabc.Exception;
-            if (fa.IsFaulted) throw fa.Exception;
-
             return (await fabc)(await fa);
         }
 
@@ -84,11 +86,6 @@ namespace LanguageExt.ClassInstances
         public async Task<C> Apply(Task<Func<A, Func<B, C>>> fabc, Task<A> fa, Task<B> fb)
         {
             await Task.WhenAll(fabc, fa, fb);
-
-            if (fabc.IsFaulted) throw fabc.Exception;
-            if (fa.IsFaulted) throw fa.Exception;
-            if (fb.IsFaulted) throw fb.Exception;
-
             return (await fabc)(await fa)(await fb);
         }
 
@@ -149,10 +146,6 @@ namespace LanguageExt.ClassInstances
         public async Task<A> Action(Task<A> fa, Task<A> fb)
         {
             await Task.WhenAll(fa, fb);
-
-            if (fa.IsFaulted) throw fa.Exception;
-            if (fb.IsFaulted) throw fb.Exception;
-
             return await fb;
         }
 
@@ -160,10 +153,6 @@ namespace LanguageExt.ClassInstances
         public async Task<Func<A, A>> Apply(Task<Func<A, Func<A, A>>> fabc, Task<A> fa)
         {
             await Task.WhenAll(fabc, fa);
-
-            if (fabc.IsFaulted) throw fabc.Exception;
-            if (fa.IsFaulted) throw fa.Exception;
-
             return (await fabc)(await fa);
         }
 
@@ -171,11 +160,6 @@ namespace LanguageExt.ClassInstances
         public async Task<A> Apply(Task<Func<A, Func<A, A>>> fabc, Task<A> fa, Task<A> fb)
         {
             await Task.WhenAll(fabc, fa, fb);
-
-            if (fabc.IsFaulted) throw fabc.Exception;
-            if (fa.IsFaulted) throw fa.Exception;
-            if (fb.IsFaulted) throw fb.Exception;
-
             return (await fabc)(await fa)(await fb);
         }
     }

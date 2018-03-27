@@ -260,10 +260,10 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, Task<R>> Some, Func<R> None)
+        public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, Task<R>> SomeAsync, Func<R> None)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
-                Some: x => Some(x),
+                SomeAsync: async x => await SomeAsync(x),
                 None: () => None()
             );
 
@@ -276,11 +276,11 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, R> Some, Func<Task<R>> None)
+        public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, R> Some, Func<Task<R>> NoneAsync)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
                 Some: x => Some(x),
-                None: () => None()
+                NoneAsync: async () => await NoneAsync()
             );
 
         /// <summary>
@@ -292,11 +292,11 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, Task<R>> Some, Func<Task<R>> None)
+        public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, Task<R>> SomeAsync, Func<Task<R>> NoneAsync)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
-                Some: x => Some(x),
-                None: () => None()
+                SomeAsync: async x => await SomeAsync(x),
+                NoneAsync: async () => await NoneAsync()
             );
 
         /// <summary>

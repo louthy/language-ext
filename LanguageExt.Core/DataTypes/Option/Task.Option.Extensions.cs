@@ -147,7 +147,7 @@ public static class TaskOptionAsyncExtensions
     /// <param name="defaultLeftValue">Default value if the structure is in a None state</param>
     /// <returns>An Either representation of the structure</returns>
     [Pure]
-    public static Task<Either<L, A>> ToEitherAsync<L, A>(this Task<Option<A>> self, L defaultLeftValue) =>
+    public static EitherAsync<L, A> ToEitherAsync<L, A>(this Task<Option<A>> self, L defaultLeftValue) =>
         toEitherAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(self.ToAsync(), defaultLeftValue);
 
     /// <summary>
@@ -157,8 +157,8 @@ public static class TaskOptionAsyncExtensions
     /// structure is in a None state</param>
     /// <returns>An Either representation of the structure</returns>
     [Pure]
-    public static Task<Either<L, A>> ToEitherAsync<L, A>(this Task<Option<A>> self, Func<L> Left) =>
-        toEitherAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(self.ToAsync(), Left);
+    public static EitherAsync<L, A> ToEitherAsync<L, A>(this Task<Option<A>> self, Func<L> Left) =>
+        toEitherAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(new OptionAsync<A>(self.Map(x => x.data)), Left);
 
     /// <summary>
     /// Convert the structure to an EitherUnsafe
@@ -167,7 +167,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>An EitherUnsafe representation of the structure</returns>
     [Pure]
     public static Task<EitherUnsafe<L, A>> ToEitherUnsafeAsync<L, A>(this Task<Option<A>> self, L defaultLeftValue) =>
-        toEitherUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(self.ToAsync(), defaultLeftValue);
+        toEitherUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(new OptionAsync<A>(self.Map(x => x.data)), defaultLeftValue);
 
     /// <summary>
     /// Convert the structure to an EitherUnsafe

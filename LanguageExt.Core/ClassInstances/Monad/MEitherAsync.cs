@@ -156,47 +156,47 @@ namespace LanguageExt.ClassInstances
             ma.Match(Some, l => None());
 
         [Pure]
-        public Task<B> MatchAsync<B>(EitherAsync<L, R> ma, Func<R, Task<B>> Some, Func<B> None) =>
-            ma.MatchAsync(Some, l => None());
+        public Task<B> MatchAsync<B>(EitherAsync<L, R> ma, Func<R, Task<B>> SomeAsync, Func<B> None) =>
+            ma.MatchAsync(SomeAsync, l => None());
 
         [Pure]
-        public Task<B> MatchAsync<B>(EitherAsync<L, R> ma, Func<R, B> Some, Func<Task<B>> None) =>
-            ma.MatchAsync(Some, l => None());
+        public Task<B> MatchAsync<B>(EitherAsync<L, R> ma, Func<R, B> Some, Func<Task<B>> NoneAsync) =>
+            ma.MatchAsync(Some, async l => await NoneAsync());
 
         [Pure]
-        public Task<B> MatchAsync<B>(EitherAsync<L, R> ma, Func<R, Task<B>> Some, Func<Task<B>> None) =>
-            ma.MatchAsync(Some, l => None());
+        public Task<B> MatchAsync<B>(EitherAsync<L, R> ma, Func<R, Task<B>> SomeAsync, Func<Task<B>> NoneAsync) =>
+            ma.MatchAsync(SomeAsync, async l => await NoneAsync());
 
         [Pure]
         public Task<Unit> Match(EitherAsync<L, R> ma, Action<R> Some, Action None) =>
             ma.Match(Some, l => None());
         [Pure]
-        public Task<Unit> MatchAsync(EitherAsync<L, R> ma, Func<R, Task> Some, Action None) =>
-            ma.MatchAsync(RightAsync: Some, Left: l => None());
+        public Task<Unit> MatchAsync(EitherAsync<L, R> ma, Func<R, Task> SomeAsync, Action None) =>
+            ma.MatchAsync(RightAsync: SomeAsync, Left: l => None());
 
         [Pure]
-        public Task<Unit> MatchAsync(EitherAsync<L, R> ma, Action<R> Some, Func<Task> None) =>
-            ma.MatchAsync(Some, async l => await None());
+        public Task<Unit> MatchAsync(EitherAsync<L, R> ma, Action<R> Some, Func<Task> NoneAsync) =>
+            ma.MatchAsync(Some, async l => await NoneAsync());
 
         [Pure]
-        public Task<Unit> MatchAsync(EitherAsync<L, R> ma, Func<R, Task> Some, Func<Task> None) =>
-            ma.MatchAsync(Some, async l => await None());
+        public Task<Unit> MatchAsync(EitherAsync<L, R> ma, Func<R, Task> SomeAsync, Func<Task> NoneAsync) =>
+            ma.MatchAsync(SomeAsync, async l => await NoneAsync());
 
         [Pure]
         public Task<B> MatchUnsafe<B>(EitherAsync<L, R> ma, Func<R, B> Some, Func<B> None) =>
             ma.MatchUnsafe(Some, l => None());
 
         [Pure]
-        public Task<B> MatchUnsafeAsync<B>(EitherAsync<L, R> ma, Func<R, Task<B>> Some, Func<B> None) =>
-            ma.MatchUnsafeAsync(Some, l => None());
+        public Task<B> MatchUnsafeAsync<B>(EitherAsync<L, R> ma, Func<R, Task<B>> SomeAsync, Func<B> None) =>
+            ma.MatchUnsafeAsync(SomeAsync, l => None());
 
         [Pure]
-        public Task<B> MatchUnsafeAsync<B>(EitherAsync<L, R> ma, Func<R, B> Some, Func<Task<B>> None) =>
-            ma.MatchUnsafeAsync(Some, l => None());
+        public Task<B> MatchUnsafeAsync<B>(EitherAsync<L, R> ma, Func<R, B> Some, Func<Task<B>> NoneAsync) =>
+            ma.MatchUnsafeAsync(Some, async l => await NoneAsync());
 
         [Pure]
-        public Task<B> MatchUnsafeAsync<B>(EitherAsync<L, R> ma, Func<R, Task<B>> Some, Func<Task<B>> None) =>
-            ma.MatchUnsafeAsync(Some, l => None());
+        public Task<B> MatchUnsafeAsync<B>(EitherAsync<L, R> ma, Func<R, Task<B>> SomeAsync, Func<Task<B>> NoneAsync) =>
+            ma.MatchUnsafeAsync(SomeAsync, async l => await NoneAsync());
 
         [Pure]
         public EitherAsync<L, R> Optional(R value) =>

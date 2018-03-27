@@ -141,7 +141,7 @@ public static partial class OptionAsyncExtensions
     /// <param name="defaultLeftValue">Default value if the structure is in a None state</param>
     /// <returns>An Either representation of the structure</returns>
     [Pure]
-    public static Task<Either<L, A>> ToEitherAsync<L, A>(this Option<A> self, L defaultLeftValue) =>
+    public static EitherAsync<L, A> ToEitherAsync<L, A>(this Option<A> self, L defaultLeftValue) =>
         toEitherAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(self.ToAsync(), defaultLeftValue);
 
     /// <summary>
@@ -151,7 +151,7 @@ public static partial class OptionAsyncExtensions
     /// structure is in a None state</param>
     /// <returns>An Either representation of the structure</returns>
     [Pure]
-    public static Task<Either<L, A>> ToEitherAsync<L, A>(this Option<A> self, Func<L> Left) =>
+    public static EitherAsync<L, A> ToEitherAsync<L, A>(this Option<A> self, Func<L> Left) =>
         toEitherAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(self.ToAsync(), Left);
 
     /// <summary>

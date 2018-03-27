@@ -12,7 +12,7 @@
     <DefineConstants>COREFX13</DefineConstants>
   </PropertyGroup>-->
   <PropertyGroup>
-    <PackageVersion>2.2.15-beta</PackageVersion>
+    <PackageVersion>2.2.16-beta</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -52,6 +52,8 @@
     <None Remove="ClassInstances\Eq\EqOptionUnsafe.cs" />
     <None Remove="ClassInstances\Eq\EqResult.cs" />
     <None Remove="ClassInstances\Eq\EqTaskAsync.cs" />
+    <None Remove="ClassInstances\Eq\EqTryAsync.cs" />
+    <None Remove="ClassInstances\Eq\EqTryOptionAsync.cs" />
     <None Remove="ClassInstances\Functor\FOptionalUnsafe.cs" />
     <None Remove="ClassInstances\Monad\MTaskFirst.cs" />
     <None Remove="ClassInstances\Monad\MTryFirstAsync.cs" />

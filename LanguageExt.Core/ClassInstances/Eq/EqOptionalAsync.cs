@@ -28,8 +28,10 @@ namespace LanguageExt.ClassInstances
             if (y.IsNull()) return false;
             if (ReferenceEquals(x, y)) return true;
 
-            var xIsSome = await default(OPTION).IsSome(x);
-            var yIsSome = await default(OPTION).IsSome(y);
+            var isSomes = await Task.WhenAll(default(OPTION).IsSome(x), default(OPTION).IsSome(y));
+
+            var xIsSome = isSomes[0];
+            var yIsSome = isSomes[1];
             var xIsNone = !xIsSome;
             var yIsNone = !yIsSome;
 
@@ -38,7 +40,7 @@ namespace LanguageExt.ClassInstances
                 : xIsNone || yIsNone
                     ? false
                     : await default(OPTION).MatchAsync(x,
-                        Some: a =>
+                        SomeAsync: a =>
                             default(OPTION).Match(y,
                                 Some: b => @equals<EQ, A>(a, b),
                                 None: () => false),

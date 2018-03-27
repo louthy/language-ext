@@ -46,9 +46,6 @@ namespace LanguageExt.ClassInstances
 
                 await Task.WhenAll(f, a);
 
-                if (f.IsFaulted) return new OptionalResult<B>(f.Exception);
-                if (a.IsFaulted) return new OptionalResult<B>(a.Exception);
-
                 var rf = await f;
                 if (rf.IsFaulted) return new OptionalResult<B>(rf.Exception);
                 if (rf.IsFaultedOrNone) return OptionalResult<B>.None;
@@ -58,6 +55,105 @@ namespace LanguageExt.ClassInstances
                 if (ra.IsFaultedOrNone) return OptionalResult<B>.None;
 
                 return new OptionalResult<B>(rf.Value.Value(ra.Value.Value));
+            };
+
+        [Pure]
+        public TryOptionAsync<B> Apply(Func<A, B> fab, TryOptionAsync<A> fa) =>
+            async () =>
+            {
+                var a = fa.Try();
+
+                var ra = await a;
+                if (ra.IsFaulted) return new OptionalResult<B>(ra.Exception);
+                if (ra.IsFaultedOrNone) return OptionalResult<B>.None;
+
+                return new OptionalResult<B>(fab(ra.Value.Value));
+            };
+
+        [Pure]
+        public TryOptionAsync<B> Apply(TryOptionAsync<Func<A, A, B>> fab, TryOptionAsync<A> fa, TryOptionAsync<A> fb) =>
+            async () =>
+            {
+                var f = fab.Try();
+                var a = fa.Try();
+                var b = fb.Try();
+
+                await Task.WhenAll(f, a, b);
+
+                var rf = await f;
+                if (rf.IsFaulted) return new OptionalResult<B>(rf.Exception);
+                if (rf.IsFaultedOrNone) return OptionalResult<B>.None;
+
+                var ra = await a;
+                if (ra.IsFaulted) return new OptionalResult<B>(ra.Exception);
+                if (ra.IsFaultedOrNone) return OptionalResult<B>.None;
+
+                var rb = await b;
+                if (rb.IsFaulted) return new OptionalResult<B>(rb.Exception);
+                if (rb.IsFaultedOrNone) return OptionalResult<B>.None;
+
+                return new OptionalResult<B>(rf.Value.Value(ra.Value.Value, rb.Value.Value));
+            };
+
+        [Pure]
+        public TryOptionAsync<B> Apply(Func<A, A, B> fab, TryOptionAsync<A> fa, TryOptionAsync<A> fb) =>
+            async () =>
+            {
+                var a = fa.Try();
+                var b = fb.Try();
+
+                await Task.WhenAll(a, b);
+
+                var ra = await a;
+                if (ra.IsFaulted) return new OptionalResult<B>(ra.Exception);
+                if (ra.IsFaultedOrNone) return OptionalResult<B>.None;
+
+                var rb = await b;
+                if (rb.IsFaulted) return new OptionalResult<B>(rb.Exception);
+                if (rb.IsFaultedOrNone) return OptionalResult<B>.None;
+
+                return new OptionalResult<B>(fab(ra.Value.Value, rb.Value.Value));
+            };
+
+        [Pure]
+        public TryOptionAsync<B> ApplyOption(Func<Option<A>, Option<A>, B> fab, TryOptionAsync<A> fa, TryOptionAsync<A> fb) =>
+            async () =>
+            {
+                var a = fa.Try();
+                var b = fb.Try();
+
+                await Task.WhenAll(a, b);
+
+                var ra = await a;
+                if (ra.IsFaulted) return new OptionalResult<B>(ra.Exception);
+
+                var rb = await b;
+                if (rb.IsFaulted) return new OptionalResult<B>(rb.Exception);
+
+                return new OptionalResult<B>(fab(ra.Value, rb.Value));
+            };
+
+        [Pure]
+        public TryOptionAsync<B> ApplyOption(TryOptionAsync<Func<Option<A>, Option<A>, B>> fab, TryOptionAsync<A> fa, TryOptionAsync<A> fb) =>
+            async () =>
+            {
+                var f = fab.Try();
+                var a = fa.Try();
+                var b = fb.Try();
+
+                await Task.WhenAll(f, a, b);
+
+                var rf = await f;
+                if (rf.IsFaulted) return new OptionalResult<B>(rf.Exception);
+                if (rf.IsFaultedOrNone) return OptionalResult<B>.None;
+
+                var ra = await a;
+                if (ra.IsFaulted) return new OptionalResult<B>(ra.Exception);
+
+                var rb = await b;
+                if (rb.IsFaulted) return new OptionalResult<B>(rb.Exception);
+
+                return new OptionalResult<B>(rf.Value.Value(ra.Value, rb.Value));
             };
 
         [Pure]
@@ -72,9 +168,6 @@ namespace LanguageExt.ClassInstances
                 var b = fb.Try();
 
                 await Task.WhenAll(a, b);
-
-                if (a.IsFaulted) return new OptionalResult<B>(a.Exception);
-                if (b.IsFaulted) return new OptionalResult<B>(b.Exception);
 
                 var ra = await a;
                 if (ra.IsFaulted) return new OptionalResult<B>(ra.Exception);
@@ -102,9 +195,6 @@ namespace LanguageExt.ClassInstances
 
                 await Task.WhenAll(f, a);
 
-                if (f.IsFaulted) return new OptionalResult<Func<B, C>>(f.Exception);
-                if (a.IsFaulted) return new OptionalResult<Func<B, C>>(a.Exception);
-
                 var rf = await f;
                 if (rf.IsFaulted) return new OptionalResult<Func<B, C>>(rf.Exception);
                 if (rf.IsFaultedOrNone) return OptionalResult<Func<B, C>>.None;
@@ -125,10 +215,6 @@ namespace LanguageExt.ClassInstances
                 var b = fb.Try();
 
                 await Task.WhenAll(f, a, b);
-
-                if (f.IsFaulted) return new OptionalResult<C>(f.Exception);
-                if (a.IsFaulted) return new OptionalResult<C>(a.Exception);
-                if (b.IsFaulted) return new OptionalResult<C>(b.Exception);
 
                 var rf = await f;
                 if (rf.IsFaulted) return new OptionalResult<C>(rf.Exception);
@@ -192,9 +278,6 @@ namespace LanguageExt.ClassInstances
 
                 await Task.WhenAll(f, a);
 
-                if (f.IsFaulted) return new OptionalResult<A>(f.Exception);
-                if (a.IsFaulted) return new OptionalResult<A>(a.Exception);
-
                 var rf = await f;
                 if (rf.IsFaulted) return new OptionalResult<A>(rf.Exception);
                 if (rf.IsFaultedOrNone) return OptionalResult<A>.None;
@@ -219,9 +302,6 @@ namespace LanguageExt.ClassInstances
 
                 await Task.WhenAll(a, b);
 
-                if (a.IsFaulted) return new OptionalResult<A>(a.Exception);
-                if (b.IsFaulted) return new OptionalResult<A>(b.Exception);
-
                 var ra = await a;
                 if (ra.IsFaulted) return new OptionalResult<A>(ra.Exception);
                 if (ra.IsFaultedOrNone) return OptionalResult<A>.None;
@@ -241,9 +321,6 @@ namespace LanguageExt.ClassInstances
                 var a = fa.Try();
 
                 await Task.WhenAll(f, a);
-
-                if (f.IsFaulted) return new OptionalResult<Func<A, A>>(f.Exception);
-                if (a.IsFaulted) return new OptionalResult<Func<A, A>>(a.Exception);
 
                 var rf = await f;
                 if (rf.IsFaulted) return new OptionalResult<Func<A, A>>(rf.Exception);
@@ -265,10 +342,6 @@ namespace LanguageExt.ClassInstances
                 var b = fb.Try();
 
                 await Task.WhenAll(f, a, b);
-
-                if (f.IsFaulted) return new OptionalResult<A>(f.Exception);
-                if (a.IsFaulted) return new OptionalResult<A>(a.Exception);
-                if (b.IsFaulted) return new OptionalResult<A>(b.Exception);
 
                 var rf = await f;
                 if (rf.IsFaulted) return new OptionalResult<A>(rf.Exception);

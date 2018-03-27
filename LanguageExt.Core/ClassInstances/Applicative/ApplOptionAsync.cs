@@ -37,10 +37,43 @@ namespace LanguageExt.ClassInstances
             default(FOptionAsync<A, B>).MapAsync(ma, f);
 
         [Pure]
-        public OptionAsync<B> Apply(OptionAsync<Func<A, B>> fab, OptionAsync<A> fa) =>
-            from f in fab
-            from a in fa
-            select f(a);
+        public OptionAsync<B> Apply(OptionAsync<Func<A, B>> fab, OptionAsync<A> fa)
+        {
+            async Task<OptionData<B>> Do()
+            {
+                await Task.WhenAll(fab.data, fa.data);
+                return fab.data.Result.IsSome && fa.data.Result.IsSome
+                    ? OptionData<B>.Optional(fab.data.Result.Value(fa.data.Result.Value))
+                    : OptionData<B>.None;
+            }
+            return new OptionAsync<B>(Do());
+        }
+
+        [Pure]
+        public OptionAsync<B> Apply(Func<A, B> fab, OptionAsync<A> fa)
+        {
+            async Task<OptionData<B>> Do()
+            {
+                var adata = await fa.data;
+                return adata.IsSome
+                    ? OptionData<B>.Optional(fab(adata.Value))
+                    : OptionData<B>.None;
+            }
+            return new OptionAsync<B>(Do());
+        }
+
+        [Pure]
+        public OptionAsync<B> Apply(Func<A, A, B> fab, OptionAsync<A> fa, OptionAsync<A> fb)
+        {
+            async Task<OptionData<B>> Do()
+            {
+                await Task.WhenAll(fa.data, fb.data);
+                return fa.data.Result.IsSome && fb.data.Result.IsSome
+                    ? OptionData<B>.Optional(fab(fa.data.Result.Value, fb.data.Result.Value))
+                    : OptionData<B>.None;
+            }
+            return new OptionAsync<B>(Do());
+        }
 
         [Pure]
         public OptionAsync<A> PureAsync(Task<A> x) =>
@@ -59,17 +92,57 @@ namespace LanguageExt.ClassInstances
         public static readonly ApplOptionAsync<A, B, C> Inst = default(ApplOptionAsync<A, B, C>);
 
         [Pure]
-        public OptionAsync<Func<B, C>> Apply(OptionAsync<Func<A, Func<B, C>>> fab, OptionAsync<A> fa) =>
-            from f in fab
-            from a in fa
-            select f(a);
+        public OptionAsync<Func<B, C>> Apply(OptionAsync<Func<A, Func<B, C>>> fab, OptionAsync<A> fa)
+        {
+            async Task<OptionData<Func<B, C>>> Do()
+            {
+                await Task.WhenAll(fab.data, fa.data);
+                return fab.data.Result.IsSome && fa.data.Result.IsSome
+                    ? OptionData<Func<B, C>>.Optional(fab.data.Result.Value(fa.data.Result.Value))
+                    : OptionData<Func<B, C>>.None;
+            }
+            return new OptionAsync<Func<B, C>>(Do());
+        }
 
         [Pure]
-        public OptionAsync<C> Apply(OptionAsync<Func<A, Func<B, C>>> fab, OptionAsync<A> fa, OptionAsync<B> fb) =>
-            from f in fab
-            from a in fa
-            from b in fb
-            select f(a)(b);
+        public OptionAsync<C> Apply(OptionAsync<Func<A, Func<B, C>>> fab, OptionAsync<A> fa, OptionAsync<B> fb)
+        {
+            async Task<OptionData<C>> Do()
+            {
+                await Task.WhenAll(fab.data, fa.data, fb.data);
+                return fab.data.Result.IsSome && fa.data.Result.IsSome && fb.data.Result.IsSome
+                    ? OptionData<C>.Optional(fab.data.Result.Value(fa.data.Result.Value)(fb.data.Result.Value))
+                    : OptionData<C>.None;
+            }
+            return new OptionAsync<C>(Do());
+        }
+
+
+        [Pure]
+        public OptionAsync<Func<B, C>> Apply(Func<A, Func<B, C>> fab, OptionAsync<A> fa)
+        {
+            async Task<OptionData<Func<B, C>>> Do()
+            {
+                var adata = await fa.data;
+                return adata.IsSome
+                    ? OptionData<Func<B, C>>.Optional(fab(adata.Value))
+                    : OptionData<Func<B, C>>.None;
+            }
+            return new OptionAsync<Func<B, C>>(Do());
+        }
+
+        [Pure]
+        public OptionAsync<C> Apply(Func<A, Func<B, C>> fab, OptionAsync<A> fa, OptionAsync<B> fb)
+        {
+            async Task<OptionData<C>> Do()
+            {
+                await Task.WhenAll(fa.data, fb.data);
+                return fa.data.Result.IsSome && fb.data.Result.IsSome
+                    ? OptionData<C>.Optional(fab(fa.data.Result.Value)(fb.data.Result.Value))
+                    : OptionData<C>.None;
+            }
+            return new OptionAsync<C>(Do());
+        }
 
         [Pure]
         public OptionAsync<A> PureAsync(Task<A> x) =>

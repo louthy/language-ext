@@ -15,9 +15,7 @@ namespace LanguageExt.ClassInstances
     public struct EqTaskAsync<EqA, A> : EqAsync<Task<A>> where EqA : struct, Eq<A>
     {
         public Task<bool> Equals(Task<A> x, Task<A> y) =>
-            from a in x
-            from b in y
-            select default(EqA).Equals(a, b);
+            default(ApplTask<A, bool>).Apply(default(EqA).Equals, x, y);
 
         public Task<int> GetHashCode(Task<A> x) =>
             x.Map(default(EqA).GetHashCode);

@@ -333,7 +333,7 @@ namespace LanguageExt
         /// <param name="defaultLeftValue">Default value if the structure is in a None state</param>
         /// <returns>An Either representation of the structure</returns>
         [Pure]
-        public Task<Either<L, A>> ToEither<L>(L defaultLeftValue) =>
+        public EitherAsync<L, A> ToEither<L>(L defaultLeftValue) =>
             toEitherAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(this, defaultLeftValue);
 
         /// <summary>
@@ -343,7 +343,7 @@ namespace LanguageExt
         /// structure is in a None state</param>
         /// <returns>An Either representation of the structure</returns>
         [Pure]
-        public Task<Either<L, A>> ToEither<L>(Func<L> Left) =>
+        public EitherAsync<L, A> ToEither<L>(Func<L> Left) =>
             toEitherAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(this, Left);
 
         /// <summary>

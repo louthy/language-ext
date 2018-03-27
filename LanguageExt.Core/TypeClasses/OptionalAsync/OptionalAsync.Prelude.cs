@@ -4,6 +4,7 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Threading.Tasks;
+using LanguageExt.DataTypes.Serialisation;
 
 namespace LanguageExt
 {
@@ -91,8 +92,7 @@ namespace LanguageExt
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).Match(ma,
                 Some: x => Some(x),
-                None: () => None()
-            );
+                None: () => None());
 
         /// <summary>
         /// Pattern match operation
@@ -102,12 +102,11 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public static Task<R> matchAsync<OPT, OA, A, R>(OA ma, Func<A, Task<R>> Some, Func<R> None)
+        public static Task<R> matchAsync<OPT, OA, A, R>(OA ma, Func<A, Task<R>> SomeAsync, Func<R> None)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
-                Some: x => Some(x),
-                None: () => None()
-            );
+                SomeAsync: async x => await SomeAsync(x),
+                None: () => None());
 
         /// <summary>
         /// Pattern match operation
@@ -117,12 +116,11 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public static Task<R> matchAsync<OPT, OA, A, R>(OA ma, Func<A, R> Some, Func<Task<R>> None)
+        public static Task<R> matchAsync<OPT, OA, A, R>(OA ma, Func<A, R> Some, Func<Task<R>> NoneAsync)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
                 Some: x => Some(x),
-                None: () => None()
-            );
+                NoneAsync: async () => await NoneAsync());
 
         /// <summary>
         /// Pattern match operation
@@ -132,13 +130,11 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public static Task<R> matchAsync<OPT, OA, A, R>(OA ma, Func<A, Task<R>> Some, Func<Task<R>> None)
+        public static Task<R> matchAsync<OPT, OA, A, R>(OA ma, Func<A, Task<R>> SomeAsync, Func<Task<R>> NoneAsync)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
-                Some: x => Some(x),
-                None: () => None()
-            );
-
+                SomeAsync: async x => await SomeAsync(x),
+                NoneAsync: async () => await NoneAsync());
 
         /// <summary>
         /// Match operation with an untyped value for Some. This can be
@@ -153,8 +149,7 @@ namespace LanguageExt
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).Match( ma,
                 Some: x  => Some(x),
-                None: () => None()
-            );
+                None: () => None());
 
         /// <summary>
         /// Match operation with an untyped value for Some. This can be
@@ -165,12 +160,11 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, Task<R>> Some, Func<R> None)
+        public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, Task<R>> SomeAsync, Func<R> None)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
-                Some: x => Some(x),
-                None: () => None()
-            );
+                SomeAsync: async x => await SomeAsync(x),
+                None: () => None());
 
         /// <summary>
         /// Match operation with an untyped value for Some. This can be
@@ -181,12 +175,11 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, R> Some, Func<Task<R>> None)
+        public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, R> Some, Func<Task<R>> NoneAsync)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
                 Some: x => Some(x),
-                None: () => None()
-            );
+                NoneAsync: async () => await NoneAsync());
 
         /// <summary>
         /// Match operation with an untyped value for Some. This can be
@@ -197,12 +190,11 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, Task<R>> Some, Func<Task<R>> None)
+        public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, Task<R>> SomeAsync, Func<Task<R>> NoneAsync)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
-                Some: x => Some(x),
-                None: () => None()
-            );
+                SomeAsync: async x => await SomeAsync(x),
+                NoneAsync: async () => await NoneAsync());
 
         /// <summary>
         /// Convert the Option to an enumerable of zero or one items
@@ -241,21 +233,23 @@ namespace LanguageExt
         /// Convert the structure to an Either
         /// </summary>
         [Pure]
-        public static Task<Either<L, A>> toEitherAsync<OPT, OA, L, A>(OA ma, L defaultLeftValue)
+        public static EitherAsync<L, A> toEitherAsync<OPT, OA, L, A>(OA ma, L defaultLeftValue)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).Match(ma,
-                Some: x  => Right<L, A>(x),
-                None: () => Left<L, A>(defaultLeftValue));
+            new EitherAsync<L, A>(
+                default(OPT).Match(ma,
+                    Some: x => new EitherData<L, A>(EitherStatus.IsRight, x, default(L)),
+                    None: () => new EitherData<L, A>(EitherStatus.IsLeft, default(A), defaultLeftValue)));
 
         /// <summary>
         /// Convert the structure to an Either
         /// </summary>
         [Pure]
-        public static Task<Either<L, A>> toEitherAsync<OPT, OA, L, A>(OA ma, Func<L> Left)
+        public static EitherAsync<L, A> toEitherAsync<OPT, OA, L, A>(OA ma, Func<L> Left)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).Match(ma,
-                Some: x =>  Right<L, A>(x),
-                None: () => Left<L, A>(Left()));
+            new EitherAsync<L, A>(
+                default(OPT).Match(ma,
+                    Some: x => new EitherData<L, A>(EitherStatus.IsRight, x, default(L)),
+                    None: () => new EitherData<L, A>(EitherStatus.IsLeft, default(A), Left())));
 
         /// <summary>
         /// Convert the structure to an EitherUnsafe
