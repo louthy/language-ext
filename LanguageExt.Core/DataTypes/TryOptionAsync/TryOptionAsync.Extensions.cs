@@ -1870,7 +1870,7 @@ public static class TryOptionAsyncExtensions
         default(MTryOptionAsync<A>).Bind<MTryOptionAsync<B>, TryOptionAsync<B>, B>(self, binder);
 
     [Pure]
-    public static TryOptionAsync<B> Bind<A, B>(this TryOptionAsync<A> self, Func<A, Task<TryOptionAsync<B>>> binder) =>
+    public static TryOptionAsync<B> BindAsync<A, B>(this TryOptionAsync<A> self, Func<A, Task<TryOptionAsync<B>>> binder) =>
         default(MTryOptionAsync<A>).BindAsync<MTryOptionAsync<B>, TryOptionAsync<B>, B>(self, binder);
 
     [Pure]

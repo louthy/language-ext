@@ -827,7 +827,7 @@ public static class TryAsyncExtensions
         default(MTryAsync<A>).Bind<MTryAsync<B>, TryAsync<B>, B>(self, binder);
 
     [Pure]
-    public static TryAsync<B> Bind<A, B>(this TryAsync<A> self, Func<A, Task<TryAsync<B>>> binder) =>
+    public static TryAsync<B> BindAsync<A, B>(this TryAsync<A> self, Func<A, Task<TryAsync<B>>> binder) =>
         default(MTryAsync<A>).BindAsync<MTryAsync<B>, TryAsync<B>, B>(self, binder);
 
     [Pure]

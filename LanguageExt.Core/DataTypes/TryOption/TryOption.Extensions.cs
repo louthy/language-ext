@@ -266,60 +266,6 @@ public static class TryOptionExtensions
         return Unit.Default;
     }
 
-    public static async Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, Task<R>> Some, Func<R> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return await (res.IsFaulted || res.Value.IsNone
-            ? Task.FromResult(Fail())
-            : Some(res.Value.Value));
-    }
-
-    public static async Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, Task<R>> Some, Func<R> None, Func<Exception, R> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return await (res.IsFaulted
-            ? Task.FromResult(Fail(res.Exception))
-            : res.Value.IsSome
-                ? Some(res.Value.Value)
-                : Task.FromResult(None()));
-    }
-
-    public static async Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, Task<R>> Some, Func<Task<R>> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return await (res.IsFaulted || res.Value.IsNone
-            ? Fail()
-            : Some(res.Value.Value));
-    }
-
-    public static async Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, Task<R>> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return await (res.IsFaulted
-            ? Fail(res.Exception)
-            : res.Value.IsSome
-                ? Some(res.Value.Value)
-                : None());
-    }
-
-    public static async Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, R> Some, Func<Task<R>> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return await (res.IsFaulted || res.Value.IsNone
-            ? Fail()
-            : Task.FromResult(Some(res.Value.Value)));
-    }
-
-    public static async Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, R> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return await (res.IsFaulted
-            ? Fail(res.Exception)
-            : res.Value.IsSome
-                ? Task.FromResult(Some(res.Value.Value))
-                : None());
-    }
-
     public static IObservable<R> MatchObservable<A, R>(this TryOption<A> self, Func<A, IObservable<R>> Some, Func<R> Fail)
     {
         var res = TryOptionExtensions.Try(self);

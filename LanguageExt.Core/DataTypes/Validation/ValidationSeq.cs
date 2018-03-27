@@ -777,5 +777,17 @@ namespace LanguageExt
                 ? bind(t).Map(u => project(t, u))
                 : Validation<FAIL, V>.Fail(FailValue);
         }
+
+        [Pure]
+        public Validation<FAIL, SUCCESS> Filter(Func<SUCCESS, bool> f) =>
+            IsSuccess && f(success)
+                ? this
+                : Fail(Seq<FAIL>.Empty);
+
+        [Pure]
+        public Validation<FAIL, SUCCESS> Where(Func<SUCCESS, bool> f) =>
+            IsSuccess && f(success)
+                ? this
+                : Fail(Seq<FAIL>.Empty);
     }
 }

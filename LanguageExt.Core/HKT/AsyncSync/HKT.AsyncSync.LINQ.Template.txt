@@ -13,10 +13,9 @@
             this OUTER_A ma,
             Func<A, OUTER_B> bind,
             Func<A, B, C> project) =>
-            default(ASYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).SelectManyAsync<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B, M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(M_INNER_C).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -27,11 +26,11 @@
         /// <param name="f">The predicate function</param>
         /// <returns>`OUTER_A` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OUTER_A Where<GENS, A>(this OUTER_A ma, Func<A, bool> pred) =>
-            default(ASYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).Bind<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
-                a => pred(a)
-                    ? default(M_INNER_A).Return(a)
-                    : default(M_INNER_A).Zero());
+        public static OUTER_A Where<GENS, A>(this OUTER_A ma, Func<A, bool> f)
+        {
+            OUTER_A Do(INNER_A a) => default(M_OUTER_A).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -44,6 +43,5 @@
         /// <returns>`OUTER_B` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OUTER_B Select<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
-            default(ASYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .Map<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
+            ma.BindT(a => default(M_OUTER_B).ReturnAsync(_ => default(M_INNER_B).Return(f(a)).AsTask()));
 

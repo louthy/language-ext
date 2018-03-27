@@ -34,10 +34,9 @@ namespace LanguageExt
             this OptionAsync<Arr<A>> ma,
             Func<A, OptionAsync<Arr<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>).SelectManyAsync<MOptionAsync<Arr<B>>, OptionAsync<Arr<B>>, MArr<B>, Arr<B>, B, MOptionAsync<Arr<C>>, OptionAsync<Arr<C>>, MArr<C>, Arr<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MArr<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -48,11 +47,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Arr&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Arr<A>> Where< A>(this OptionAsync<Arr<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>).Bind<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MArr<A>).Return(a)
-                    : default(MArr<A>).Zero());
+        public static OptionAsync<Arr<A>> Where< A>(this OptionAsync<Arr<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Arr<A>> Do(Arr<A> a) => default(MOptionAsync<Arr<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -65,8 +64,7 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Arr<B>> Select< A, B>(this OptionAsync<Arr<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
-                .Map<MOptionAsync<Arr<B>>, OptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.BindT(a => default(MOptionAsync<Arr<B>>).ReturnAsync(_ => default(MArr<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;Arr&lt;A&gt;&gt;`
@@ -101,19 +99,6 @@ namespace LanguageExt
         public static OptionAsync<Arr<B>> BindT< A, B>(this OptionAsync<Arr<A>> ma, Func<A, Arr<B>> f) =>
             default(TransAsyncSync<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
                 .Bind<MOptionAsync<Arr<B>>, OptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OptionAsync&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`OptionAsync&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static OptionAsync<Arr<B>> BindT< A, B>(this OptionAsync<Arr<A>> ma, Func<A, OptionAsync<Arr<B>>> f) =>
-            default(TransAsyncSync<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
-                .BindAsync<MOptionAsync<Arr<B>>, OptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -207,12 +192,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Arr&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Arr<A>> FilterT< A>(this OptionAsync<Arr<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
-                .Bind<MOptionAsync<Arr<A>>, OptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MArr<A>).Return(a)
-                        : default(MArr<A>).Zero());
+        public static OptionAsync<Arr<A>> FilterT< A>(this OptionAsync<Arr<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Arr<A>> Do(Arr<A> a) => default(MOptionAsync<Arr<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -340,6 +324,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`EitherAsync&lt;L, Arr&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static EitherAsync<L, Arr<C>> SelectMany<L, A, B, C>(
+            this EitherAsync<L, Arr<A>> ma,
+            Func<A, EitherAsync<L, Arr<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MArr<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Arr&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Arr<A>> Where<L, A>(this EitherAsync<L, Arr<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Arr<A>> Do(Arr<A> a) => default(MEitherAsync<L, Arr<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Arr<B>> Select<L, A, B>(this EitherAsync<L, Arr<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MEitherAsync<L, Arr<B>>).ReturnAsync(_ => default(MArr<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, Arr&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Arr&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, Arr&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, Arr<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MEitherAsync<L, Arr<A>>, EitherAsync<L, Arr<A>>, MArr<A>, Arr<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherAsync&lt;L, Arr&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Arr&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherAsync&lt;L, Arr&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, A>(this EitherAsync<L, Arr<A>> ma) =>
+            default(TransAsyncSync<MEitherAsync<L, Arr<A>>, EitherAsync<L, Arr<A>>, MArr<A>, Arr<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Arr<B>> BindT<L, A, B>(this EitherAsync<L, Arr<A>> ma, Func<A, Arr<B>> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Arr<A>>, EitherAsync<L, Arr<A>>, MArr<A>, Arr<A>, A>)
+                .Bind<MEitherAsync<L, Arr<B>>, EitherAsync<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Arr<B>> MapT<L, A, B>(this EitherAsync<L, Arr<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Arr<A>>, EitherAsync<L, Arr<A>>, MArr<A>, Arr<A>, A>)
+                .Map<MEitherAsync<L, Arr<B>>, EitherAsync<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, Arr<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Arr<A>>, EitherAsync<L, Arr<A>>, MArr<A>, Arr<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, Arr<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Arr<A>>, EitherAsync<L, Arr<A>>, MArr<A>, Arr<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, A>(this EitherAsync<L, Arr<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Arr<A>>, EitherAsync<L, Arr<A>>, MArr<A>, Arr<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, A>(this EitherAsync<L, Arr<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Arr<A>>, EitherAsync<L, Arr<A>>, MArr<A>, Arr<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, Arr&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, A>(this EitherAsync<L, Arr<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Arr<A>>, EitherAsync<L, Arr<A>>, MArr<A>, Arr<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Arr&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Arr<A>> FilterT<L, A>(this EitherAsync<L, Arr<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Arr<A>> Do(Arr<A> a) => default(MEitherAsync<L, Arr<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherAsync<L, Arr<A>> PlusT<NUM, L, A>(this EitherAsync<L, Arr<A>> x, EitherAsync<L, Arr<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherAsync<L, Arr<A>> SubtractT<NUM, L, A>(this EitherAsync<L, Arr<A>> x, EitherAsync<L, Arr<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherAsync<L, Arr<A>> ProductT<NUM, L, A>(this EitherAsync<L, Arr<A>> x, EitherAsync<L, Arr<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherAsync<L, Arr<A>> DivideT<NUM, L, A>(this EitherAsync<L, Arr<A>> x, EitherAsync<L, Arr<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherAsync<L, Arr<A>> AppendT<SEMI, L, A>(this EitherAsync<L, Arr<A>> x, EitherAsync<L, Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, Arr<A>> x, EitherAsync<L, Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, Arr<A>> x, EitherAsync<L, Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Arr&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Arr&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherAsync<L, Arr<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, Arr<A>> fa) =>
+            default(ApplEitherAsync<L, Arr<A>, Arr<B>>).Apply(
+                default(MEitherAsync<L, Func<Arr<A>, Arr<B>>>).ReturnAsync(
+                    Task.FromResult<Func<Arr<A>, Arr<B>>>((Arr<A> a) => 
+                        default(ApplArr< A, B>).Apply(
+                            default(MArr< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Arr&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `EitherAsync&lt;L, Arr&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Arr&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherAsync<L, Arr<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, Arr<A>> fa, EitherAsync<L, Arr<B>> fb) =>
+            default(ApplEitherAsync<L, Arr<A>, Arr<B>, Arr<C>>).Apply(
+                default(MEitherAsync<L, Func<Arr<A>, Func<Arr<B>, Arr<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Arr<A>, Func<Arr<B>, Arr<C>>>>((Arr<A> a) =>
+                        (Arr<B> b) =>
+                            default(ApplArr< A, B, C>).Apply(
+                                default(MArr< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `Task&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -349,10 +632,9 @@ namespace LanguageExt
             this Task<Arr<A>> ma,
             Func<A, Task<Arr<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>).SelectManyAsync<MTask<Arr<B>>, Task<Arr<B>>, MArr<B>, Arr<B>, B, MTask<Arr<C>>, Task<Arr<C>>, MArr<C>, Arr<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MArr<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -363,11 +645,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Arr&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Arr<A>> Where< A>(this Task<Arr<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>).Bind<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MArr<A>).Return(a)
-                    : default(MArr<A>).Zero());
+        public static Task<Arr<A>> Where< A>(this Task<Arr<A>> ma, Func<A, bool> f)
+        {
+            Task<Arr<A>> Do(Arr<A> a) => default(MTask<Arr<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -380,8 +662,7 @@ namespace LanguageExt
         /// <returns>`Task&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Arr<B>> Select< A, B>(this Task<Arr<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>)
-                .Map<MTask<Arr<B>>, Task<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.BindT(a => default(MTask<Arr<B>>).ReturnAsync(_ => default(MArr<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;Arr&lt;A&gt;&gt;`
@@ -416,19 +697,6 @@ namespace LanguageExt
         public static Task<Arr<B>> BindT< A, B>(this Task<Arr<A>> ma, Func<A, Arr<B>> f) =>
             default(TransAsyncSync<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>)
                 .Bind<MTask<Arr<B>>, Task<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Task&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`Task&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Task<Arr<B>> BindT< A, B>(this Task<Arr<A>> ma, Func<A, Task<Arr<B>>> f) =>
-            default(TransAsyncSync<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>)
-                .BindAsync<MTask<Arr<B>>, Task<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -522,12 +790,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Arr&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Arr<A>> FilterT< A>(this Task<Arr<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>)
-                .Bind<MTask<Arr<A>>, Task<Arr<A>>, MArr<A>, Arr<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MArr<A>).Return(a)
-                        : default(MArr<A>).Zero());
+        public static Task<Arr<A>> FilterT< A>(this Task<Arr<A>> ma, Func<A, bool> f)
+        {
+            Task<Arr<A>> Do(Arr<A> a) => default(MTask<Arr<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -664,10 +931,9 @@ namespace LanguageExt
             this TryAsync<Arr<A>> ma,
             Func<A, TryAsync<Arr<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>).SelectManyAsync<MTryAsync<Arr<B>>, TryAsync<Arr<B>>, MArr<B>, Arr<B>, B, MTryAsync<Arr<C>>, TryAsync<Arr<C>>, MArr<C>, Arr<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MArr<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -678,11 +944,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Arr&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Arr<A>> Where< A>(this TryAsync<Arr<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>).Bind<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MArr<A>).Return(a)
-                    : default(MArr<A>).Zero());
+        public static TryAsync<Arr<A>> Where< A>(this TryAsync<Arr<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Arr<A>> Do(Arr<A> a) => default(MTryAsync<Arr<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -695,8 +961,7 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Arr<B>> Select< A, B>(this TryAsync<Arr<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
-                .Map<MTryAsync<Arr<B>>, TryAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.BindT(a => default(MTryAsync<Arr<B>>).ReturnAsync(_ => default(MArr<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;Arr&lt;A&gt;&gt;`
@@ -731,19 +996,6 @@ namespace LanguageExt
         public static TryAsync<Arr<B>> BindT< A, B>(this TryAsync<Arr<A>> ma, Func<A, Arr<B>> f) =>
             default(TransAsyncSync<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
                 .Bind<MTryAsync<Arr<B>>, TryAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryAsync&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryAsync<Arr<B>> BindT< A, B>(this TryAsync<Arr<A>> ma, Func<A, TryAsync<Arr<B>>> f) =>
-            default(TransAsyncSync<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
-                .BindAsync<MTryAsync<Arr<B>>, TryAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -837,12 +1089,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Arr&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Arr<A>> FilterT< A>(this TryAsync<Arr<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
-                .Bind<MTryAsync<Arr<A>>, TryAsync<Arr<A>>, MArr<A>, Arr<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MArr<A>).Return(a)
-                        : default(MArr<A>).Zero());
+        public static TryAsync<Arr<A>> FilterT< A>(this TryAsync<Arr<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Arr<A>> Do(Arr<A> a) => default(MTryAsync<Arr<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -979,10 +1230,9 @@ namespace LanguageExt
             this TryOptionAsync<Arr<A>> ma,
             Func<A, TryOptionAsync<Arr<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>).SelectManyAsync<MTryOptionAsync<Arr<B>>, TryOptionAsync<Arr<B>>, MArr<B>, Arr<B>, B, MTryOptionAsync<Arr<C>>, TryOptionAsync<Arr<C>>, MArr<C>, Arr<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MArr<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -993,11 +1243,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Arr&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Arr<A>> Where< A>(this TryOptionAsync<Arr<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>).Bind<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MArr<A>).Return(a)
-                    : default(MArr<A>).Zero());
+        public static TryOptionAsync<Arr<A>> Where< A>(this TryOptionAsync<Arr<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Arr<A>> Do(Arr<A> a) => default(MTryOptionAsync<Arr<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1010,8 +1260,7 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Arr<B>> Select< A, B>(this TryOptionAsync<Arr<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
-                .Map<MTryOptionAsync<Arr<B>>, TryOptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.BindT(a => default(MTryOptionAsync<Arr<B>>).ReturnAsync(_ => default(MArr<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;Arr&lt;A&gt;&gt;`
@@ -1046,19 +1295,6 @@ namespace LanguageExt
         public static TryOptionAsync<Arr<B>> BindT< A, B>(this TryOptionAsync<Arr<A>> ma, Func<A, Arr<B>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
                 .Bind<MTryOptionAsync<Arr<B>>, TryOptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOptionAsync<Arr<B>> BindT< A, B>(this TryOptionAsync<Arr<A>> ma, Func<A, TryOptionAsync<Arr<B>>> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
-                .BindAsync<MTryOptionAsync<Arr<B>>, TryOptionAsync<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1152,12 +1388,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Arr&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Arr<A>> FilterT< A>(this TryOptionAsync<Arr<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>)
-                .Bind<MTryOptionAsync<Arr<A>>, TryOptionAsync<Arr<A>>, MArr<A>, Arr<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MArr<A>).Return(a)
-                        : default(MArr<A>).Zero());
+        public static TryOptionAsync<Arr<A>> FilterT< A>(this TryOptionAsync<Arr<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Arr<A>> Do(Arr<A> a) => default(MTryOptionAsync<Arr<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -1302,10 +1537,9 @@ namespace LanguageExt
             this OptionAsync<HashSet<A>> ma,
             Func<A, OptionAsync<HashSet<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>).SelectManyAsync<MOptionAsync<HashSet<B>>, OptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B, MOptionAsync<HashSet<C>>, OptionAsync<HashSet<C>>, MHashSet<C>, HashSet<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MHashSet<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -1316,11 +1550,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;HashSet&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<HashSet<A>> Where< A>(this OptionAsync<HashSet<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>).Bind<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MHashSet<A>).Return(a)
-                    : default(MHashSet<A>).Zero());
+        public static OptionAsync<HashSet<A>> Where< A>(this OptionAsync<HashSet<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<HashSet<A>> Do(HashSet<A> a) => default(MOptionAsync<HashSet<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1333,8 +1567,7 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<HashSet<B>> Select< A, B>(this OptionAsync<HashSet<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
-                .Map<MOptionAsync<HashSet<B>>, OptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.BindT(a => default(MOptionAsync<HashSet<B>>).ReturnAsync(_ => default(MHashSet<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;HashSet&lt;A&gt;&gt;`
@@ -1369,19 +1602,6 @@ namespace LanguageExt
         public static OptionAsync<HashSet<B>> BindT< A, B>(this OptionAsync<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             default(TransAsyncSync<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
                 .Bind<MOptionAsync<HashSet<B>>, OptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OptionAsync&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`OptionAsync&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static OptionAsync<HashSet<B>> BindT< A, B>(this OptionAsync<HashSet<A>> ma, Func<A, OptionAsync<HashSet<B>>> f) =>
-            default(TransAsyncSync<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
-                .BindAsync<MOptionAsync<HashSet<B>>, OptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1475,12 +1695,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;HashSet&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<HashSet<A>> FilterT< A>(this OptionAsync<HashSet<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
-                .Bind<MOptionAsync<HashSet<A>>, OptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MHashSet<A>).Return(a)
-                        : default(MHashSet<A>).Zero());
+        public static OptionAsync<HashSet<A>> FilterT< A>(this OptionAsync<HashSet<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<HashSet<A>> Do(HashSet<A> a) => default(MOptionAsync<HashSet<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -1608,6 +1827,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`EitherAsync&lt;L, HashSet&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static EitherAsync<L, HashSet<C>> SelectMany<L, A, B, C>(
+            this EitherAsync<L, HashSet<A>> ma,
+            Func<A, EitherAsync<L, HashSet<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MHashSet<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, HashSet<A>> Where<L, A>(this EitherAsync<L, HashSet<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, HashSet<A>> Do(HashSet<A> a) => default(MEitherAsync<L, HashSet<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, HashSet<B>> Select<L, A, B>(this EitherAsync<L, HashSet<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MEitherAsync<L, HashSet<B>>).ReturnAsync(_ => default(MHashSet<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, HashSet<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MEitherAsync<L, HashSet<A>>, EitherAsync<L, HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, A>(this EitherAsync<L, HashSet<A>> ma) =>
+            default(TransAsyncSync<MEitherAsync<L, HashSet<A>>, EitherAsync<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherAsync&lt;L, HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, HashSet<B>> BindT<L, A, B>(this EitherAsync<L, HashSet<A>> ma, Func<A, HashSet<B>> f) =>
+            default(TransAsyncSync<MEitherAsync<L, HashSet<A>>, EitherAsync<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .Bind<MEitherAsync<L, HashSet<B>>, EitherAsync<L, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, HashSet<B>> MapT<L, A, B>(this EitherAsync<L, HashSet<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MEitherAsync<L, HashSet<A>>, EitherAsync<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .Map<MEitherAsync<L, HashSet<B>>, EitherAsync<L, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, HashSet<A>>, EitherAsync<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, HashSet<A>>, EitherAsync<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, A>(this EitherAsync<L, HashSet<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, HashSet<A>>, EitherAsync<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, A>(this EitherAsync<L, HashSet<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, HashSet<A>>, EitherAsync<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, A>(this EitherAsync<L, HashSet<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MEitherAsync<L, HashSet<A>>, EitherAsync<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, HashSet<A>> FilterT<L, A>(this EitherAsync<L, HashSet<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, HashSet<A>> Do(HashSet<A> a) => default(MEitherAsync<L, HashSet<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherAsync<L, HashSet<A>> PlusT<NUM, L, A>(this EitherAsync<L, HashSet<A>> x, EitherAsync<L, HashSet<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherAsync<L, HashSet<A>> SubtractT<NUM, L, A>(this EitherAsync<L, HashSet<A>> x, EitherAsync<L, HashSet<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherAsync<L, HashSet<A>> ProductT<NUM, L, A>(this EitherAsync<L, HashSet<A>> x, EitherAsync<L, HashSet<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherAsync<L, HashSet<A>> DivideT<NUM, L, A>(this EitherAsync<L, HashSet<A>> x, EitherAsync<L, HashSet<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherAsync<L, HashSet<A>> AppendT<SEMI, L, A>(this EitherAsync<L, HashSet<A>> x, EitherAsync<L, HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, HashSet<A>> x, EitherAsync<L, HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, HashSet<A>> x, EitherAsync<L, HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, HashSet&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherAsync<L, HashSet<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, HashSet<A>> fa) =>
+            default(ApplEitherAsync<L, HashSet<A>, HashSet<B>>).Apply(
+                default(MEitherAsync<L, Func<HashSet<A>, HashSet<B>>>).ReturnAsync(
+                    Task.FromResult<Func<HashSet<A>, HashSet<B>>>((HashSet<A> a) => 
+                        default(ApplHashSet< A, B>).Apply(
+                            default(MHashSet< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, HashSet&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherAsync<L, HashSet<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, HashSet<A>> fa, EitherAsync<L, HashSet<B>> fb) =>
+            default(ApplEitherAsync<L, HashSet<A>, HashSet<B>, HashSet<C>>).Apply(
+                default(MEitherAsync<L, Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>((HashSet<A> a) =>
+                        (HashSet<B> b) =>
+                            default(ApplHashSet< A, B, C>).Apply(
+                                default(MHashSet< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `Task&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -1617,10 +2135,9 @@ namespace LanguageExt
             this Task<HashSet<A>> ma,
             Func<A, Task<HashSet<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>).SelectManyAsync<MTask<HashSet<B>>, Task<HashSet<B>>, MHashSet<B>, HashSet<B>, B, MTask<HashSet<C>>, Task<HashSet<C>>, MHashSet<C>, HashSet<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MHashSet<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -1631,11 +2148,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;HashSet&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<HashSet<A>> Where< A>(this Task<HashSet<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>).Bind<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MHashSet<A>).Return(a)
-                    : default(MHashSet<A>).Zero());
+        public static Task<HashSet<A>> Where< A>(this Task<HashSet<A>> ma, Func<A, bool> f)
+        {
+            Task<HashSet<A>> Do(HashSet<A> a) => default(MTask<HashSet<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1648,8 +2165,7 @@ namespace LanguageExt
         /// <returns>`Task&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<HashSet<B>> Select< A, B>(this Task<HashSet<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
-                .Map<MTask<HashSet<B>>, Task<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.BindT(a => default(MTask<HashSet<B>>).ReturnAsync(_ => default(MHashSet<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;HashSet&lt;A&gt;&gt;`
@@ -1684,19 +2200,6 @@ namespace LanguageExt
         public static Task<HashSet<B>> BindT< A, B>(this Task<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             default(TransAsyncSync<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
                 .Bind<MTask<HashSet<B>>, Task<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Task&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`Task&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Task<HashSet<B>> BindT< A, B>(this Task<HashSet<A>> ma, Func<A, Task<HashSet<B>>> f) =>
-            default(TransAsyncSync<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
-                .BindAsync<MTask<HashSet<B>>, Task<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1790,12 +2293,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;HashSet&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<HashSet<A>> FilterT< A>(this Task<HashSet<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
-                .Bind<MTask<HashSet<A>>, Task<HashSet<A>>, MHashSet<A>, HashSet<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MHashSet<A>).Return(a)
-                        : default(MHashSet<A>).Zero());
+        public static Task<HashSet<A>> FilterT< A>(this Task<HashSet<A>> ma, Func<A, bool> f)
+        {
+            Task<HashSet<A>> Do(HashSet<A> a) => default(MTask<HashSet<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -1932,10 +2434,9 @@ namespace LanguageExt
             this TryAsync<HashSet<A>> ma,
             Func<A, TryAsync<HashSet<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>).SelectManyAsync<MTryAsync<HashSet<B>>, TryAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B, MTryAsync<HashSet<C>>, TryAsync<HashSet<C>>, MHashSet<C>, HashSet<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MHashSet<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -1946,11 +2447,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;HashSet&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<HashSet<A>> Where< A>(this TryAsync<HashSet<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>).Bind<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MHashSet<A>).Return(a)
-                    : default(MHashSet<A>).Zero());
+        public static TryAsync<HashSet<A>> Where< A>(this TryAsync<HashSet<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<HashSet<A>> Do(HashSet<A> a) => default(MTryAsync<HashSet<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1963,8 +2464,7 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<HashSet<B>> Select< A, B>(this TryAsync<HashSet<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
-                .Map<MTryAsync<HashSet<B>>, TryAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.BindT(a => default(MTryAsync<HashSet<B>>).ReturnAsync(_ => default(MHashSet<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;HashSet&lt;A&gt;&gt;`
@@ -1999,19 +2499,6 @@ namespace LanguageExt
         public static TryAsync<HashSet<B>> BindT< A, B>(this TryAsync<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             default(TransAsyncSync<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
                 .Bind<MTryAsync<HashSet<B>>, TryAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryAsync&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryAsync<HashSet<B>> BindT< A, B>(this TryAsync<HashSet<A>> ma, Func<A, TryAsync<HashSet<B>>> f) =>
-            default(TransAsyncSync<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
-                .BindAsync<MTryAsync<HashSet<B>>, TryAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2105,12 +2592,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;HashSet&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<HashSet<A>> FilterT< A>(this TryAsync<HashSet<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
-                .Bind<MTryAsync<HashSet<A>>, TryAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MHashSet<A>).Return(a)
-                        : default(MHashSet<A>).Zero());
+        public static TryAsync<HashSet<A>> FilterT< A>(this TryAsync<HashSet<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<HashSet<A>> Do(HashSet<A> a) => default(MTryAsync<HashSet<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -2247,10 +2733,9 @@ namespace LanguageExt
             this TryOptionAsync<HashSet<A>> ma,
             Func<A, TryOptionAsync<HashSet<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>).SelectManyAsync<MTryOptionAsync<HashSet<B>>, TryOptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B, MTryOptionAsync<HashSet<C>>, TryOptionAsync<HashSet<C>>, MHashSet<C>, HashSet<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MHashSet<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -2261,11 +2746,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;HashSet&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<HashSet<A>> Where< A>(this TryOptionAsync<HashSet<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>).Bind<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MHashSet<A>).Return(a)
-                    : default(MHashSet<A>).Zero());
+        public static TryOptionAsync<HashSet<A>> Where< A>(this TryOptionAsync<HashSet<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<HashSet<A>> Do(HashSet<A> a) => default(MTryOptionAsync<HashSet<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2278,8 +2763,7 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<HashSet<B>> Select< A, B>(this TryOptionAsync<HashSet<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
-                .Map<MTryOptionAsync<HashSet<B>>, TryOptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.BindT(a => default(MTryOptionAsync<HashSet<B>>).ReturnAsync(_ => default(MHashSet<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;HashSet&lt;A&gt;&gt;`
@@ -2314,19 +2798,6 @@ namespace LanguageExt
         public static TryOptionAsync<HashSet<B>> BindT< A, B>(this TryOptionAsync<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
             default(TransAsyncSync<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
                 .Bind<MTryOptionAsync<HashSet<B>>, TryOptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryOptionAsync&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOptionAsync<HashSet<B>> BindT< A, B>(this TryOptionAsync<HashSet<A>> ma, Func<A, TryOptionAsync<HashSet<B>>> f) =>
-            default(TransAsyncSync<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
-                .BindAsync<MTryOptionAsync<HashSet<B>>, TryOptionAsync<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2420,12 +2891,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;HashSet&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<HashSet<A>> FilterT< A>(this TryOptionAsync<HashSet<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
-                .Bind<MTryOptionAsync<HashSet<A>>, TryOptionAsync<HashSet<A>>, MHashSet<A>, HashSet<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MHashSet<A>).Return(a)
-                        : default(MHashSet<A>).Zero());
+        public static TryOptionAsync<HashSet<A>> FilterT< A>(this TryOptionAsync<HashSet<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<HashSet<A>> Do(HashSet<A> a) => default(MTryOptionAsync<HashSet<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -2570,10 +3040,9 @@ namespace LanguageExt
             this OptionAsync<Lst<A>> ma,
             Func<A, OptionAsync<Lst<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>).SelectManyAsync<MOptionAsync<Lst<B>>, OptionAsync<Lst<B>>, MLst<B>, Lst<B>, B, MOptionAsync<Lst<C>>, OptionAsync<Lst<C>>, MLst<C>, Lst<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MLst<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -2584,11 +3053,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Lst&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Lst<A>> Where< A>(this OptionAsync<Lst<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>).Bind<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MLst<A>).Return(a)
-                    : default(MLst<A>).Zero());
+        public static OptionAsync<Lst<A>> Where< A>(this OptionAsync<Lst<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Lst<A>> Do(Lst<A> a) => default(MOptionAsync<Lst<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2601,8 +3070,7 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Lst<B>> Select< A, B>(this OptionAsync<Lst<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
-                .Map<MOptionAsync<Lst<B>>, OptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.BindT(a => default(MOptionAsync<Lst<B>>).ReturnAsync(_ => default(MLst<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;Lst&lt;A&gt;&gt;`
@@ -2637,19 +3105,6 @@ namespace LanguageExt
         public static OptionAsync<Lst<B>> BindT< A, B>(this OptionAsync<Lst<A>> ma, Func<A, Lst<B>> f) =>
             default(TransAsyncSync<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
                 .Bind<MOptionAsync<Lst<B>>, OptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OptionAsync&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`OptionAsync&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static OptionAsync<Lst<B>> BindT< A, B>(this OptionAsync<Lst<A>> ma, Func<A, OptionAsync<Lst<B>>> f) =>
-            default(TransAsyncSync<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
-                .BindAsync<MOptionAsync<Lst<B>>, OptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2743,12 +3198,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Lst&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Lst<A>> FilterT< A>(this OptionAsync<Lst<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
-                .Bind<MOptionAsync<Lst<A>>, OptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MLst<A>).Return(a)
-                        : default(MLst<A>).Zero());
+        public static OptionAsync<Lst<A>> FilterT< A>(this OptionAsync<Lst<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Lst<A>> Do(Lst<A> a) => default(MOptionAsync<Lst<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -2876,6 +3330,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`EitherAsync&lt;L, Lst&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static EitherAsync<L, Lst<C>> SelectMany<L, A, B, C>(
+            this EitherAsync<L, Lst<A>> ma,
+            Func<A, EitherAsync<L, Lst<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MLst<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Lst&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Lst<A>> Where<L, A>(this EitherAsync<L, Lst<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Lst<A>> Do(Lst<A> a) => default(MEitherAsync<L, Lst<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Lst<B>> Select<L, A, B>(this EitherAsync<L, Lst<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MEitherAsync<L, Lst<B>>).ReturnAsync(_ => default(MLst<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, Lst&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Lst&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, Lst&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, Lst<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MEitherAsync<L, Lst<A>>, EitherAsync<L, Lst<A>>, MLst<A>, Lst<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherAsync&lt;L, Lst&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Lst&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherAsync&lt;L, Lst&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, A>(this EitherAsync<L, Lst<A>> ma) =>
+            default(TransAsyncSync<MEitherAsync<L, Lst<A>>, EitherAsync<L, Lst<A>>, MLst<A>, Lst<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Lst<B>> BindT<L, A, B>(this EitherAsync<L, Lst<A>> ma, Func<A, Lst<B>> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Lst<A>>, EitherAsync<L, Lst<A>>, MLst<A>, Lst<A>, A>)
+                .Bind<MEitherAsync<L, Lst<B>>, EitherAsync<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Lst<B>> MapT<L, A, B>(this EitherAsync<L, Lst<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Lst<A>>, EitherAsync<L, Lst<A>>, MLst<A>, Lst<A>, A>)
+                .Map<MEitherAsync<L, Lst<B>>, EitherAsync<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, Lst<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Lst<A>>, EitherAsync<L, Lst<A>>, MLst<A>, Lst<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, Lst<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Lst<A>>, EitherAsync<L, Lst<A>>, MLst<A>, Lst<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, A>(this EitherAsync<L, Lst<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Lst<A>>, EitherAsync<L, Lst<A>>, MLst<A>, Lst<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, A>(this EitherAsync<L, Lst<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Lst<A>>, EitherAsync<L, Lst<A>>, MLst<A>, Lst<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, Lst&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, A>(this EitherAsync<L, Lst<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Lst<A>>, EitherAsync<L, Lst<A>>, MLst<A>, Lst<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Lst&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Lst<A>> FilterT<L, A>(this EitherAsync<L, Lst<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Lst<A>> Do(Lst<A> a) => default(MEitherAsync<L, Lst<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherAsync<L, Lst<A>> PlusT<NUM, L, A>(this EitherAsync<L, Lst<A>> x, EitherAsync<L, Lst<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherAsync<L, Lst<A>> SubtractT<NUM, L, A>(this EitherAsync<L, Lst<A>> x, EitherAsync<L, Lst<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherAsync<L, Lst<A>> ProductT<NUM, L, A>(this EitherAsync<L, Lst<A>> x, EitherAsync<L, Lst<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherAsync<L, Lst<A>> DivideT<NUM, L, A>(this EitherAsync<L, Lst<A>> x, EitherAsync<L, Lst<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherAsync<L, Lst<A>> AppendT<SEMI, L, A>(this EitherAsync<L, Lst<A>> x, EitherAsync<L, Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, Lst<A>> x, EitherAsync<L, Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, Lst<A>> x, EitherAsync<L, Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Lst&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Lst&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherAsync<L, Lst<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, Lst<A>> fa) =>
+            default(ApplEitherAsync<L, Lst<A>, Lst<B>>).Apply(
+                default(MEitherAsync<L, Func<Lst<A>, Lst<B>>>).ReturnAsync(
+                    Task.FromResult<Func<Lst<A>, Lst<B>>>((Lst<A> a) => 
+                        default(ApplLst< A, B>).Apply(
+                            default(MLst< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Lst&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `EitherAsync&lt;L, Lst&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Lst&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherAsync<L, Lst<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, Lst<A>> fa, EitherAsync<L, Lst<B>> fb) =>
+            default(ApplEitherAsync<L, Lst<A>, Lst<B>, Lst<C>>).Apply(
+                default(MEitherAsync<L, Func<Lst<A>, Func<Lst<B>, Lst<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Lst<A>, Func<Lst<B>, Lst<C>>>>((Lst<A> a) =>
+                        (Lst<B> b) =>
+                            default(ApplLst< A, B, C>).Apply(
+                                default(MLst< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `Task&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -2885,10 +3638,9 @@ namespace LanguageExt
             this Task<Lst<A>> ma,
             Func<A, Task<Lst<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>).SelectManyAsync<MTask<Lst<B>>, Task<Lst<B>>, MLst<B>, Lst<B>, B, MTask<Lst<C>>, Task<Lst<C>>, MLst<C>, Lst<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MLst<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -2899,11 +3651,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Lst&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Lst<A>> Where< A>(this Task<Lst<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>).Bind<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MLst<A>).Return(a)
-                    : default(MLst<A>).Zero());
+        public static Task<Lst<A>> Where< A>(this Task<Lst<A>> ma, Func<A, bool> f)
+        {
+            Task<Lst<A>> Do(Lst<A> a) => default(MTask<Lst<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2916,8 +3668,7 @@ namespace LanguageExt
         /// <returns>`Task&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Lst<B>> Select< A, B>(this Task<Lst<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>)
-                .Map<MTask<Lst<B>>, Task<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.BindT(a => default(MTask<Lst<B>>).ReturnAsync(_ => default(MLst<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;Lst&lt;A&gt;&gt;`
@@ -2952,19 +3703,6 @@ namespace LanguageExt
         public static Task<Lst<B>> BindT< A, B>(this Task<Lst<A>> ma, Func<A, Lst<B>> f) =>
             default(TransAsyncSync<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>)
                 .Bind<MTask<Lst<B>>, Task<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Task&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`Task&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Task<Lst<B>> BindT< A, B>(this Task<Lst<A>> ma, Func<A, Task<Lst<B>>> f) =>
-            default(TransAsyncSync<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>)
-                .BindAsync<MTask<Lst<B>>, Task<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3058,12 +3796,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Lst&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Lst<A>> FilterT< A>(this Task<Lst<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>)
-                .Bind<MTask<Lst<A>>, Task<Lst<A>>, MLst<A>, Lst<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MLst<A>).Return(a)
-                        : default(MLst<A>).Zero());
+        public static Task<Lst<A>> FilterT< A>(this Task<Lst<A>> ma, Func<A, bool> f)
+        {
+            Task<Lst<A>> Do(Lst<A> a) => default(MTask<Lst<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -3200,10 +3937,9 @@ namespace LanguageExt
             this TryAsync<Lst<A>> ma,
             Func<A, TryAsync<Lst<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>).SelectManyAsync<MTryAsync<Lst<B>>, TryAsync<Lst<B>>, MLst<B>, Lst<B>, B, MTryAsync<Lst<C>>, TryAsync<Lst<C>>, MLst<C>, Lst<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MLst<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -3214,11 +3950,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Lst&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Lst<A>> Where< A>(this TryAsync<Lst<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>).Bind<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MLst<A>).Return(a)
-                    : default(MLst<A>).Zero());
+        public static TryAsync<Lst<A>> Where< A>(this TryAsync<Lst<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Lst<A>> Do(Lst<A> a) => default(MTryAsync<Lst<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3231,8 +3967,7 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Lst<B>> Select< A, B>(this TryAsync<Lst<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
-                .Map<MTryAsync<Lst<B>>, TryAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.BindT(a => default(MTryAsync<Lst<B>>).ReturnAsync(_ => default(MLst<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;Lst&lt;A&gt;&gt;`
@@ -3267,19 +4002,6 @@ namespace LanguageExt
         public static TryAsync<Lst<B>> BindT< A, B>(this TryAsync<Lst<A>> ma, Func<A, Lst<B>> f) =>
             default(TransAsyncSync<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
                 .Bind<MTryAsync<Lst<B>>, TryAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryAsync&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryAsync<Lst<B>> BindT< A, B>(this TryAsync<Lst<A>> ma, Func<A, TryAsync<Lst<B>>> f) =>
-            default(TransAsyncSync<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
-                .BindAsync<MTryAsync<Lst<B>>, TryAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3373,12 +4095,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Lst&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Lst<A>> FilterT< A>(this TryAsync<Lst<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
-                .Bind<MTryAsync<Lst<A>>, TryAsync<Lst<A>>, MLst<A>, Lst<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MLst<A>).Return(a)
-                        : default(MLst<A>).Zero());
+        public static TryAsync<Lst<A>> FilterT< A>(this TryAsync<Lst<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Lst<A>> Do(Lst<A> a) => default(MTryAsync<Lst<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -3515,10 +4236,9 @@ namespace LanguageExt
             this TryOptionAsync<Lst<A>> ma,
             Func<A, TryOptionAsync<Lst<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>).SelectManyAsync<MTryOptionAsync<Lst<B>>, TryOptionAsync<Lst<B>>, MLst<B>, Lst<B>, B, MTryOptionAsync<Lst<C>>, TryOptionAsync<Lst<C>>, MLst<C>, Lst<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MLst<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -3529,11 +4249,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Lst&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Lst<A>> Where< A>(this TryOptionAsync<Lst<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>).Bind<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MLst<A>).Return(a)
-                    : default(MLst<A>).Zero());
+        public static TryOptionAsync<Lst<A>> Where< A>(this TryOptionAsync<Lst<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Lst<A>> Do(Lst<A> a) => default(MTryOptionAsync<Lst<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3546,8 +4266,7 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Lst<B>> Select< A, B>(this TryOptionAsync<Lst<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
-                .Map<MTryOptionAsync<Lst<B>>, TryOptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.BindT(a => default(MTryOptionAsync<Lst<B>>).ReturnAsync(_ => default(MLst<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;Lst&lt;A&gt;&gt;`
@@ -3582,19 +4301,6 @@ namespace LanguageExt
         public static TryOptionAsync<Lst<B>> BindT< A, B>(this TryOptionAsync<Lst<A>> ma, Func<A, Lst<B>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
                 .Bind<MTryOptionAsync<Lst<B>>, TryOptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOptionAsync<Lst<B>> BindT< A, B>(this TryOptionAsync<Lst<A>> ma, Func<A, TryOptionAsync<Lst<B>>> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
-                .BindAsync<MTryOptionAsync<Lst<B>>, TryOptionAsync<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3688,12 +4394,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Lst&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Lst<A>> FilterT< A>(this TryOptionAsync<Lst<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>)
-                .Bind<MTryOptionAsync<Lst<A>>, TryOptionAsync<Lst<A>>, MLst<A>, Lst<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MLst<A>).Return(a)
-                        : default(MLst<A>).Zero());
+        public static TryOptionAsync<Lst<A>> FilterT< A>(this TryOptionAsync<Lst<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Lst<A>> Do(Lst<A> a) => default(MTryOptionAsync<Lst<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -3838,10 +4543,9 @@ namespace LanguageExt
             this OptionAsync<Option<A>> ma,
             Func<A, OptionAsync<Option<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>).SelectManyAsync<MOptionAsync<Option<B>>, OptionAsync<Option<B>>, MOption<B>, Option<B>, B, MOptionAsync<Option<C>>, OptionAsync<Option<C>>, MOption<C>, Option<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MOption<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -3852,11 +4556,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Option&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Option<A>> Where< A>(this OptionAsync<Option<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>).Bind<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MOption<A>).Return(a)
-                    : default(MOption<A>).Zero());
+        public static OptionAsync<Option<A>> Where< A>(this OptionAsync<Option<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Option<A>> Do(Option<A> a) => default(MOptionAsync<Option<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3869,8 +4573,7 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Option<B>> Select< A, B>(this OptionAsync<Option<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>)
-                .Map<MOptionAsync<Option<B>>, OptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.BindT(a => default(MOptionAsync<Option<B>>).ReturnAsync(_ => default(MOption<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;Option&lt;A&gt;&gt;`
@@ -3905,19 +4608,6 @@ namespace LanguageExt
         public static OptionAsync<Option<B>> BindT< A, B>(this OptionAsync<Option<A>> ma, Func<A, Option<B>> f) =>
             default(TransAsyncSync<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>)
                 .Bind<MOptionAsync<Option<B>>, OptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OptionAsync&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`OptionAsync&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static OptionAsync<Option<B>> BindT< A, B>(this OptionAsync<Option<A>> ma, Func<A, OptionAsync<Option<B>>> f) =>
-            default(TransAsyncSync<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>)
-                .BindAsync<MOptionAsync<Option<B>>, OptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4011,12 +4701,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Option&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Option<A>> FilterT< A>(this OptionAsync<Option<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>)
-                .Bind<MOptionAsync<Option<A>>, OptionAsync<Option<A>>, MOption<A>, Option<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MOption<A>).Return(a)
-                        : default(MOption<A>).Zero());
+        public static OptionAsync<Option<A>> FilterT< A>(this OptionAsync<Option<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Option<A>> Do(Option<A> a) => default(MOptionAsync<Option<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -4144,6 +4833,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`EitherAsync&lt;L, Option&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static EitherAsync<L, Option<C>> SelectMany<L, A, B, C>(
+            this EitherAsync<L, Option<A>> ma,
+            Func<A, EitherAsync<L, Option<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MOption<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Option&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Option<A>> Where<L, A>(this EitherAsync<L, Option<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Option<A>> Do(Option<A> a) => default(MEitherAsync<L, Option<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Option<B>> Select<L, A, B>(this EitherAsync<L, Option<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MEitherAsync<L, Option<B>>).ReturnAsync(_ => default(MOption<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, Option&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Option&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, Option&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, Option<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MEitherAsync<L, Option<A>>, EitherAsync<L, Option<A>>, MOption<A>, Option<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherAsync&lt;L, Option&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Option&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherAsync&lt;L, Option&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, A>(this EitherAsync<L, Option<A>> ma) =>
+            default(TransAsyncSync<MEitherAsync<L, Option<A>>, EitherAsync<L, Option<A>>, MOption<A>, Option<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Option<B>> BindT<L, A, B>(this EitherAsync<L, Option<A>> ma, Func<A, Option<B>> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Option<A>>, EitherAsync<L, Option<A>>, MOption<A>, Option<A>, A>)
+                .Bind<MEitherAsync<L, Option<B>>, EitherAsync<L, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Option<B>> MapT<L, A, B>(this EitherAsync<L, Option<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Option<A>>, EitherAsync<L, Option<A>>, MOption<A>, Option<A>, A>)
+                .Map<MEitherAsync<L, Option<B>>, EitherAsync<L, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, Option<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Option<A>>, EitherAsync<L, Option<A>>, MOption<A>, Option<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, Option<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Option<A>>, EitherAsync<L, Option<A>>, MOption<A>, Option<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, A>(this EitherAsync<L, Option<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Option<A>>, EitherAsync<L, Option<A>>, MOption<A>, Option<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, A>(this EitherAsync<L, Option<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Option<A>>, EitherAsync<L, Option<A>>, MOption<A>, Option<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, Option&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, A>(this EitherAsync<L, Option<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Option<A>>, EitherAsync<L, Option<A>>, MOption<A>, Option<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Option&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Option<A>> FilterT<L, A>(this EitherAsync<L, Option<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Option<A>> Do(Option<A> a) => default(MEitherAsync<L, Option<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherAsync<L, Option<A>> PlusT<NUM, L, A>(this EitherAsync<L, Option<A>> x, EitherAsync<L, Option<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherAsync<L, Option<A>> SubtractT<NUM, L, A>(this EitherAsync<L, Option<A>> x, EitherAsync<L, Option<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherAsync<L, Option<A>> ProductT<NUM, L, A>(this EitherAsync<L, Option<A>> x, EitherAsync<L, Option<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherAsync<L, Option<A>> DivideT<NUM, L, A>(this EitherAsync<L, Option<A>> x, EitherAsync<L, Option<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherAsync<L, Option<A>> AppendT<SEMI, L, A>(this EitherAsync<L, Option<A>> x, EitherAsync<L, Option<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, Option<A>> x, EitherAsync<L, Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, Option<A>> x, EitherAsync<L, Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Option&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Option&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherAsync<L, Option<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, Option<A>> fa) =>
+            default(ApplEitherAsync<L, Option<A>, Option<B>>).Apply(
+                default(MEitherAsync<L, Func<Option<A>, Option<B>>>).ReturnAsync(
+                    Task.FromResult<Func<Option<A>, Option<B>>>((Option<A> a) => 
+                        default(ApplOption< A, B>).Apply(
+                            default(MOption< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Option&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `EitherAsync&lt;L, Option&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Option&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherAsync<L, Option<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, Option<A>> fa, EitherAsync<L, Option<B>> fb) =>
+            default(ApplEitherAsync<L, Option<A>, Option<B>, Option<C>>).Apply(
+                default(MEitherAsync<L, Func<Option<A>, Func<Option<B>, Option<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Option<A>, Func<Option<B>, Option<C>>>>((Option<A> a) =>
+                        (Option<B> b) =>
+                            default(ApplOption< A, B, C>).Apply(
+                                default(MOption< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `Task&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -4153,10 +5141,9 @@ namespace LanguageExt
             this Task<Option<A>> ma,
             Func<A, Task<Option<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>).SelectManyAsync<MTask<Option<B>>, Task<Option<B>>, MOption<B>, Option<B>, B, MTask<Option<C>>, Task<Option<C>>, MOption<C>, Option<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MOption<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -4167,11 +5154,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Option&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Option<A>> Where< A>(this Task<Option<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>).Bind<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MOption<A>).Return(a)
-                    : default(MOption<A>).Zero());
+        public static Task<Option<A>> Where< A>(this Task<Option<A>> ma, Func<A, bool> f)
+        {
+            Task<Option<A>> Do(Option<A> a) => default(MTask<Option<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4184,8 +5171,7 @@ namespace LanguageExt
         /// <returns>`Task&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Option<B>> Select< A, B>(this Task<Option<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>)
-                .Map<MTask<Option<B>>, Task<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.BindT(a => default(MTask<Option<B>>).ReturnAsync(_ => default(MOption<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;Option&lt;A&gt;&gt;`
@@ -4220,19 +5206,6 @@ namespace LanguageExt
         public static Task<Option<B>> BindT< A, B>(this Task<Option<A>> ma, Func<A, Option<B>> f) =>
             default(TransAsyncSync<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>)
                 .Bind<MTask<Option<B>>, Task<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Task&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`Task&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Task<Option<B>> BindT< A, B>(this Task<Option<A>> ma, Func<A, Task<Option<B>>> f) =>
-            default(TransAsyncSync<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>)
-                .BindAsync<MTask<Option<B>>, Task<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4326,12 +5299,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Option&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Option<A>> FilterT< A>(this Task<Option<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>)
-                .Bind<MTask<Option<A>>, Task<Option<A>>, MOption<A>, Option<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MOption<A>).Return(a)
-                        : default(MOption<A>).Zero());
+        public static Task<Option<A>> FilterT< A>(this Task<Option<A>> ma, Func<A, bool> f)
+        {
+            Task<Option<A>> Do(Option<A> a) => default(MTask<Option<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -4468,10 +5440,9 @@ namespace LanguageExt
             this TryAsync<Option<A>> ma,
             Func<A, TryAsync<Option<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>).SelectManyAsync<MTryAsync<Option<B>>, TryAsync<Option<B>>, MOption<B>, Option<B>, B, MTryAsync<Option<C>>, TryAsync<Option<C>>, MOption<C>, Option<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MOption<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -4482,11 +5453,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Option&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Option<A>> Where< A>(this TryAsync<Option<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>).Bind<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MOption<A>).Return(a)
-                    : default(MOption<A>).Zero());
+        public static TryAsync<Option<A>> Where< A>(this TryAsync<Option<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Option<A>> Do(Option<A> a) => default(MTryAsync<Option<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4499,8 +5470,7 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Option<B>> Select< A, B>(this TryAsync<Option<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>)
-                .Map<MTryAsync<Option<B>>, TryAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.BindT(a => default(MTryAsync<Option<B>>).ReturnAsync(_ => default(MOption<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;Option&lt;A&gt;&gt;`
@@ -4535,19 +5505,6 @@ namespace LanguageExt
         public static TryAsync<Option<B>> BindT< A, B>(this TryAsync<Option<A>> ma, Func<A, Option<B>> f) =>
             default(TransAsyncSync<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>)
                 .Bind<MTryAsync<Option<B>>, TryAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryAsync&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryAsync<Option<B>> BindT< A, B>(this TryAsync<Option<A>> ma, Func<A, TryAsync<Option<B>>> f) =>
-            default(TransAsyncSync<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>)
-                .BindAsync<MTryAsync<Option<B>>, TryAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4641,12 +5598,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Option&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Option<A>> FilterT< A>(this TryAsync<Option<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>)
-                .Bind<MTryAsync<Option<A>>, TryAsync<Option<A>>, MOption<A>, Option<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MOption<A>).Return(a)
-                        : default(MOption<A>).Zero());
+        public static TryAsync<Option<A>> FilterT< A>(this TryAsync<Option<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Option<A>> Do(Option<A> a) => default(MTryAsync<Option<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -4783,10 +5739,9 @@ namespace LanguageExt
             this TryOptionAsync<Option<A>> ma,
             Func<A, TryOptionAsync<Option<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>).SelectManyAsync<MTryOptionAsync<Option<B>>, TryOptionAsync<Option<B>>, MOption<B>, Option<B>, B, MTryOptionAsync<Option<C>>, TryOptionAsync<Option<C>>, MOption<C>, Option<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MOption<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -4797,11 +5752,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Option&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Option<A>> Where< A>(this TryOptionAsync<Option<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>).Bind<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MOption<A>).Return(a)
-                    : default(MOption<A>).Zero());
+        public static TryOptionAsync<Option<A>> Where< A>(this TryOptionAsync<Option<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Option<A>> Do(Option<A> a) => default(MTryOptionAsync<Option<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4814,8 +5769,7 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Option<B>> Select< A, B>(this TryOptionAsync<Option<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>)
-                .Map<MTryOptionAsync<Option<B>>, TryOptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.BindT(a => default(MTryOptionAsync<Option<B>>).ReturnAsync(_ => default(MOption<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;Option&lt;A&gt;&gt;`
@@ -4850,19 +5804,6 @@ namespace LanguageExt
         public static TryOptionAsync<Option<B>> BindT< A, B>(this TryOptionAsync<Option<A>> ma, Func<A, Option<B>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>)
                 .Bind<MTryOptionAsync<Option<B>>, TryOptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOptionAsync<Option<B>> BindT< A, B>(this TryOptionAsync<Option<A>> ma, Func<A, TryOptionAsync<Option<B>>> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>)
-                .BindAsync<MTryOptionAsync<Option<B>>, TryOptionAsync<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4956,12 +5897,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Option&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Option<A>> FilterT< A>(this TryOptionAsync<Option<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>)
-                .Bind<MTryOptionAsync<Option<A>>, TryOptionAsync<Option<A>>, MOption<A>, Option<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MOption<A>).Return(a)
-                        : default(MOption<A>).Zero());
+        public static TryOptionAsync<Option<A>> FilterT< A>(this TryOptionAsync<Option<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Option<A>> Do(Option<A> a) => default(MTryOptionAsync<Option<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -5106,10 +6046,9 @@ namespace LanguageExt
             this OptionAsync<OptionUnsafe<A>> ma,
             Func<A, OptionAsync<OptionUnsafe<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>).SelectManyAsync<MOptionAsync<OptionUnsafe<B>>, OptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B, MOptionAsync<OptionUnsafe<C>>, OptionAsync<OptionUnsafe<C>>, MOptionUnsafe<C>, OptionUnsafe<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MOptionUnsafe<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -5120,11 +6059,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<OptionUnsafe<A>> Where< A>(this OptionAsync<OptionUnsafe<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>).Bind<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MOptionUnsafe<A>).Return(a)
-                    : default(MOptionUnsafe<A>).Zero());
+        public static OptionAsync<OptionUnsafe<A>> Where< A>(this OptionAsync<OptionUnsafe<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<OptionUnsafe<A>> Do(OptionUnsafe<A> a) => default(MOptionAsync<OptionUnsafe<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5137,8 +6076,7 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<OptionUnsafe<B>> Select< A, B>(this OptionAsync<OptionUnsafe<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
-                .Map<MOptionAsync<OptionUnsafe<B>>, OptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.BindT(a => default(MOptionAsync<OptionUnsafe<B>>).ReturnAsync(_ => default(MOptionUnsafe<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;`
@@ -5173,19 +6111,6 @@ namespace LanguageExt
         public static OptionAsync<OptionUnsafe<B>> BindT< A, B>(this OptionAsync<OptionUnsafe<A>> ma, Func<A, OptionUnsafe<B>> f) =>
             default(TransAsyncSync<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
                 .Bind<MOptionAsync<OptionUnsafe<B>>, OptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`OptionAsync&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static OptionAsync<OptionUnsafe<B>> BindT< A, B>(this OptionAsync<OptionUnsafe<A>> ma, Func<A, OptionAsync<OptionUnsafe<B>>> f) =>
-            default(TransAsyncSync<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
-                .BindAsync<MOptionAsync<OptionUnsafe<B>>, OptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5279,12 +6204,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<OptionUnsafe<A>> FilterT< A>(this OptionAsync<OptionUnsafe<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
-                .Bind<MOptionAsync<OptionUnsafe<A>>, OptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MOptionUnsafe<A>).Return(a)
-                        : default(MOptionUnsafe<A>).Zero());
+        public static OptionAsync<OptionUnsafe<A>> FilterT< A>(this OptionAsync<OptionUnsafe<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<OptionUnsafe<A>> Do(OptionUnsafe<A> a) => default(MOptionAsync<OptionUnsafe<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -5412,6 +6336,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static EitherAsync<L, OptionUnsafe<C>> SelectMany<L, A, B, C>(
+            this EitherAsync<L, OptionUnsafe<A>> ma,
+            Func<A, EitherAsync<L, OptionUnsafe<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MOptionUnsafe<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, OptionUnsafe<A>> Where<L, A>(this EitherAsync<L, OptionUnsafe<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, OptionUnsafe<A>> Do(OptionUnsafe<A> a) => default(MEitherAsync<L, OptionUnsafe<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, OptionUnsafe<B>> Select<L, A, B>(this EitherAsync<L, OptionUnsafe<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MEitherAsync<L, OptionUnsafe<B>>).ReturnAsync(_ => default(MOptionUnsafe<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, OptionUnsafe<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MEitherAsync<L, OptionUnsafe<A>>, EitherAsync<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, A>(this EitherAsync<L, OptionUnsafe<A>> ma) =>
+            default(TransAsyncSync<MEitherAsync<L, OptionUnsafe<A>>, EitherAsync<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, OptionUnsafe<B>> BindT<L, A, B>(this EitherAsync<L, OptionUnsafe<A>> ma, Func<A, OptionUnsafe<B>> f) =>
+            default(TransAsyncSync<MEitherAsync<L, OptionUnsafe<A>>, EitherAsync<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .Bind<MEitherAsync<L, OptionUnsafe<B>>, EitherAsync<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, OptionUnsafe<B>> MapT<L, A, B>(this EitherAsync<L, OptionUnsafe<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MEitherAsync<L, OptionUnsafe<A>>, EitherAsync<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .Map<MEitherAsync<L, OptionUnsafe<B>>, EitherAsync<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, OptionUnsafe<A>>, EitherAsync<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, OptionUnsafe<A>>, EitherAsync<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, A>(this EitherAsync<L, OptionUnsafe<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, OptionUnsafe<A>>, EitherAsync<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, A>(this EitherAsync<L, OptionUnsafe<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, OptionUnsafe<A>>, EitherAsync<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, A>(this EitherAsync<L, OptionUnsafe<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MEitherAsync<L, OptionUnsafe<A>>, EitherAsync<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, OptionUnsafe<A>> FilterT<L, A>(this EitherAsync<L, OptionUnsafe<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, OptionUnsafe<A>> Do(OptionUnsafe<A> a) => default(MEitherAsync<L, OptionUnsafe<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherAsync<L, OptionUnsafe<A>> PlusT<NUM, L, A>(this EitherAsync<L, OptionUnsafe<A>> x, EitherAsync<L, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherAsync<L, OptionUnsafe<A>> SubtractT<NUM, L, A>(this EitherAsync<L, OptionUnsafe<A>> x, EitherAsync<L, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherAsync<L, OptionUnsafe<A>> ProductT<NUM, L, A>(this EitherAsync<L, OptionUnsafe<A>> x, EitherAsync<L, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherAsync<L, OptionUnsafe<A>> DivideT<NUM, L, A>(this EitherAsync<L, OptionUnsafe<A>> x, EitherAsync<L, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherAsync<L, OptionUnsafe<A>> AppendT<SEMI, L, A>(this EitherAsync<L, OptionUnsafe<A>> x, EitherAsync<L, OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, OptionUnsafe<A>> x, EitherAsync<L, OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, OptionUnsafe<A>> x, EitherAsync<L, OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherAsync<L, OptionUnsafe<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, OptionUnsafe<A>> fa) =>
+            default(ApplEitherAsync<L, OptionUnsafe<A>, OptionUnsafe<B>>).Apply(
+                default(MEitherAsync<L, Func<OptionUnsafe<A>, OptionUnsafe<B>>>).ReturnAsync(
+                    Task.FromResult<Func<OptionUnsafe<A>, OptionUnsafe<B>>>((OptionUnsafe<A> a) => 
+                        default(ApplOptionUnsafe< A, B>).Apply(
+                            default(MOptionUnsafe< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherAsync<L, OptionUnsafe<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, OptionUnsafe<A>> fa, EitherAsync<L, OptionUnsafe<B>> fb) =>
+            default(ApplEitherAsync<L, OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>).Apply(
+                default(MEitherAsync<L, Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>((OptionUnsafe<A> a) =>
+                        (OptionUnsafe<B> b) =>
+                            default(ApplOptionUnsafe< A, B, C>).Apply(
+                                default(MOptionUnsafe< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `Task&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -5421,10 +6644,9 @@ namespace LanguageExt
             this Task<OptionUnsafe<A>> ma,
             Func<A, Task<OptionUnsafe<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>).SelectManyAsync<MTask<OptionUnsafe<B>>, Task<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B, MTask<OptionUnsafe<C>>, Task<OptionUnsafe<C>>, MOptionUnsafe<C>, OptionUnsafe<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MOptionUnsafe<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -5435,11 +6657,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;OptionUnsafe&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<OptionUnsafe<A>> Where< A>(this Task<OptionUnsafe<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>).Bind<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MOptionUnsafe<A>).Return(a)
-                    : default(MOptionUnsafe<A>).Zero());
+        public static Task<OptionUnsafe<A>> Where< A>(this Task<OptionUnsafe<A>> ma, Func<A, bool> f)
+        {
+            Task<OptionUnsafe<A>> Do(OptionUnsafe<A> a) => default(MTask<OptionUnsafe<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5452,8 +6674,7 @@ namespace LanguageExt
         /// <returns>`Task&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<OptionUnsafe<B>> Select< A, B>(this Task<OptionUnsafe<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
-                .Map<MTask<OptionUnsafe<B>>, Task<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.BindT(a => default(MTask<OptionUnsafe<B>>).ReturnAsync(_ => default(MOptionUnsafe<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;OptionUnsafe&lt;A&gt;&gt;`
@@ -5488,19 +6709,6 @@ namespace LanguageExt
         public static Task<OptionUnsafe<B>> BindT< A, B>(this Task<OptionUnsafe<A>> ma, Func<A, OptionUnsafe<B>> f) =>
             default(TransAsyncSync<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
                 .Bind<MTask<OptionUnsafe<B>>, Task<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Task&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`Task&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Task<OptionUnsafe<B>> BindT< A, B>(this Task<OptionUnsafe<A>> ma, Func<A, Task<OptionUnsafe<B>>> f) =>
-            default(TransAsyncSync<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
-                .BindAsync<MTask<OptionUnsafe<B>>, Task<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5594,12 +6802,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;OptionUnsafe&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<OptionUnsafe<A>> FilterT< A>(this Task<OptionUnsafe<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
-                .Bind<MTask<OptionUnsafe<A>>, Task<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MOptionUnsafe<A>).Return(a)
-                        : default(MOptionUnsafe<A>).Zero());
+        public static Task<OptionUnsafe<A>> FilterT< A>(this Task<OptionUnsafe<A>> ma, Func<A, bool> f)
+        {
+            Task<OptionUnsafe<A>> Do(OptionUnsafe<A> a) => default(MTask<OptionUnsafe<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -5736,10 +6943,9 @@ namespace LanguageExt
             this TryAsync<OptionUnsafe<A>> ma,
             Func<A, TryAsync<OptionUnsafe<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>).SelectManyAsync<MTryAsync<OptionUnsafe<B>>, TryAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B, MTryAsync<OptionUnsafe<C>>, TryAsync<OptionUnsafe<C>>, MOptionUnsafe<C>, OptionUnsafe<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MOptionUnsafe<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -5750,11 +6956,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;OptionUnsafe&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<OptionUnsafe<A>> Where< A>(this TryAsync<OptionUnsafe<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>).Bind<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MOptionUnsafe<A>).Return(a)
-                    : default(MOptionUnsafe<A>).Zero());
+        public static TryAsync<OptionUnsafe<A>> Where< A>(this TryAsync<OptionUnsafe<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<OptionUnsafe<A>> Do(OptionUnsafe<A> a) => default(MTryAsync<OptionUnsafe<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5767,8 +6973,7 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<OptionUnsafe<B>> Select< A, B>(this TryAsync<OptionUnsafe<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
-                .Map<MTryAsync<OptionUnsafe<B>>, TryAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.BindT(a => default(MTryAsync<OptionUnsafe<B>>).ReturnAsync(_ => default(MOptionUnsafe<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;OptionUnsafe&lt;A&gt;&gt;`
@@ -5803,19 +7008,6 @@ namespace LanguageExt
         public static TryAsync<OptionUnsafe<B>> BindT< A, B>(this TryAsync<OptionUnsafe<A>> ma, Func<A, OptionUnsafe<B>> f) =>
             default(TransAsyncSync<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
                 .Bind<MTryAsync<OptionUnsafe<B>>, TryAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryAsync&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryAsync<OptionUnsafe<B>> BindT< A, B>(this TryAsync<OptionUnsafe<A>> ma, Func<A, TryAsync<OptionUnsafe<B>>> f) =>
-            default(TransAsyncSync<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
-                .BindAsync<MTryAsync<OptionUnsafe<B>>, TryAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5909,12 +7101,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;OptionUnsafe&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<OptionUnsafe<A>> FilterT< A>(this TryAsync<OptionUnsafe<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
-                .Bind<MTryAsync<OptionUnsafe<A>>, TryAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MOptionUnsafe<A>).Return(a)
-                        : default(MOptionUnsafe<A>).Zero());
+        public static TryAsync<OptionUnsafe<A>> FilterT< A>(this TryAsync<OptionUnsafe<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<OptionUnsafe<A>> Do(OptionUnsafe<A> a) => default(MTryAsync<OptionUnsafe<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -6051,10 +7242,9 @@ namespace LanguageExt
             this TryOptionAsync<OptionUnsafe<A>> ma,
             Func<A, TryOptionAsync<OptionUnsafe<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>).SelectManyAsync<MTryOptionAsync<OptionUnsafe<B>>, TryOptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B, MTryOptionAsync<OptionUnsafe<C>>, TryOptionAsync<OptionUnsafe<C>>, MOptionUnsafe<C>, OptionUnsafe<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MOptionUnsafe<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -6065,11 +7255,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<OptionUnsafe<A>> Where< A>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>).Bind<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MOptionUnsafe<A>).Return(a)
-                    : default(MOptionUnsafe<A>).Zero());
+        public static TryOptionAsync<OptionUnsafe<A>> Where< A>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<OptionUnsafe<A>> Do(OptionUnsafe<A> a) => default(MTryOptionAsync<OptionUnsafe<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6082,8 +7272,7 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<OptionUnsafe<B>> Select< A, B>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
-                .Map<MTryOptionAsync<OptionUnsafe<B>>, TryOptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.BindT(a => default(MTryOptionAsync<OptionUnsafe<B>>).ReturnAsync(_ => default(MOptionUnsafe<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;`
@@ -6118,19 +7307,6 @@ namespace LanguageExt
         public static TryOptionAsync<OptionUnsafe<B>> BindT< A, B>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, OptionUnsafe<B>> f) =>
             default(TransAsyncSync<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
                 .Bind<MTryOptionAsync<OptionUnsafe<B>>, TryOptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryOptionAsync&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOptionAsync<OptionUnsafe<B>> BindT< A, B>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, TryOptionAsync<OptionUnsafe<B>>> f) =>
-            default(TransAsyncSync<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
-                .BindAsync<MTryOptionAsync<OptionUnsafe<B>>, TryOptionAsync<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6224,12 +7400,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<OptionUnsafe<A>> FilterT< A>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
-                .Bind<MTryOptionAsync<OptionUnsafe<A>>, TryOptionAsync<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MOptionUnsafe<A>).Return(a)
-                        : default(MOptionUnsafe<A>).Zero());
+        public static TryOptionAsync<OptionUnsafe<A>> FilterT< A>(this TryOptionAsync<OptionUnsafe<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<OptionUnsafe<A>> Do(OptionUnsafe<A> a) => default(MTryOptionAsync<OptionUnsafe<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -6374,10 +7549,9 @@ namespace LanguageExt
             this OptionAsync<Either<L, A>> ma,
             Func<A, OptionAsync<Either<L, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>).SelectManyAsync<MOptionAsync<Either<L, B>>, OptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B, MOptionAsync<Either<L, C>>, OptionAsync<Either<L, C>>, MEither<L, C>, Either<L, C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MEither<L, C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -6388,11 +7562,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Either&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Either<L, A>> Where<L, A>(this OptionAsync<Either<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>).Bind<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>(ma, 
-                a => pred(a)
-                    ? default(MEither<L, A>).Return(a)
-                    : default(MEither<L, A>).Zero());
+        public static OptionAsync<Either<L, A>> Where<L, A>(this OptionAsync<Either<L, A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Either<L, A>> Do(Either<L, A> a) => default(MOptionAsync<Either<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6405,8 +7579,7 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Either<L, B>> Select<L, A, B>(this OptionAsync<Either<L, A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
-                .Map<MOptionAsync<Either<L, B>>, OptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.BindT(a => default(MOptionAsync<Either<L, B>>).ReturnAsync(_ => default(MEither<L, B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;Either&lt;L, A&gt;&gt;`
@@ -6441,19 +7614,6 @@ namespace LanguageExt
         public static OptionAsync<Either<L, B>> BindT<L, A, B>(this OptionAsync<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             default(TransAsyncSync<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
                 .Bind<MOptionAsync<Either<L, B>>, OptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OptionAsync&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`OptionAsync&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static OptionAsync<Either<L, B>> BindT<L, A, B>(this OptionAsync<Either<L, A>> ma, Func<A, OptionAsync<Either<L, B>>> f) =>
-            default(TransAsyncSync<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
-                .BindAsync<MOptionAsync<Either<L, B>>, OptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6547,12 +7707,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Either&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Either<L, A>> FilterT<L, A>(this OptionAsync<Either<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
-                .Bind<MOptionAsync<Either<L, A>>, OptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MEither<L, A>).Return(a)
-                        : default(MEither<L, A>).Zero());
+        public static OptionAsync<Either<L, A>> FilterT<L, A>(this OptionAsync<Either<L, A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Either<L, A>> Do(Either<L, A> a) => default(MOptionAsync<Either<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -6680,6 +7839,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`EitherAsync&lt;L, Either&lt;L, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static EitherAsync<L, Either<L, C>> SelectMany<L, A, B, C>(
+            this EitherAsync<L, Either<L, A>> ma,
+            Func<A, EitherAsync<L, Either<L, B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MEither<L, C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Either<L, A>> Where<L, A>(this EitherAsync<L, Either<L, A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Either<L, A>> Do(Either<L, A> a) => default(MEitherAsync<L, Either<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Either<L, B>> Select<L, A, B>(this EitherAsync<L, Either<L, A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MEitherAsync<L, Either<L, B>>).ReturnAsync(_ => default(MEither<L, B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, Either<L, A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MEitherAsync<L, Either<L, A>>, EitherAsync<L, Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, A>(this EitherAsync<L, Either<L, A>> ma) =>
+            default(TransAsyncSync<MEitherAsync<L, Either<L, A>>, EitherAsync<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Either<L, B>> BindT<L, A, B>(this EitherAsync<L, Either<L, A>> ma, Func<A, Either<L, B>> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Either<L, A>>, EitherAsync<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .Bind<MEitherAsync<L, Either<L, B>>, EitherAsync<L, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Either<L, B>> MapT<L, A, B>(this EitherAsync<L, Either<L, A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Either<L, A>>, EitherAsync<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .Map<MEitherAsync<L, Either<L, B>>, EitherAsync<L, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Either<L, A>>, EitherAsync<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Either<L, A>>, EitherAsync<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, A>(this EitherAsync<L, Either<L, A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Either<L, A>>, EitherAsync<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, A>(this EitherAsync<L, Either<L, A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Either<L, A>>, EitherAsync<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, A>(this EitherAsync<L, Either<L, A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Either<L, A>>, EitherAsync<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Either<L, A>> FilterT<L, A>(this EitherAsync<L, Either<L, A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Either<L, A>> Do(Either<L, A> a) => default(MEitherAsync<L, Either<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherAsync<L, Either<L, A>> PlusT<NUM, L, A>(this EitherAsync<L, Either<L, A>> x, EitherAsync<L, Either<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherAsync<L, Either<L, A>> SubtractT<NUM, L, A>(this EitherAsync<L, Either<L, A>> x, EitherAsync<L, Either<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherAsync<L, Either<L, A>> ProductT<NUM, L, A>(this EitherAsync<L, Either<L, A>> x, EitherAsync<L, Either<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherAsync<L, Either<L, A>> DivideT<NUM, L, A>(this EitherAsync<L, Either<L, A>> x, EitherAsync<L, Either<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherAsync<L, Either<L, A>> AppendT<SEMI, L, A>(this EitherAsync<L, Either<L, A>> x, EitherAsync<L, Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, Either<L, A>> x, EitherAsync<L, Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, Either<L, A>> x, EitherAsync<L, Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Either&lt;L, B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherAsync<L, Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, Either<L, A>> fa) =>
+            default(ApplEitherAsync<L, Either<L, A>, Either<L, B>>).Apply(
+                default(MEitherAsync<L, Func<Either<L, A>, Either<L, B>>>).ReturnAsync(
+                    Task.FromResult<Func<Either<L, A>, Either<L, B>>>((Either<L, A> a) => 
+                        default(ApplEither<L, A, B>).Apply(
+                            default(MEither<L, Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Either&lt;L, B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherAsync<L, Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, Either<L, A>> fa, EitherAsync<L, Either<L, B>> fb) =>
+            default(ApplEitherAsync<L, Either<L, A>, Either<L, B>, Either<L, C>>).Apply(
+                default(MEitherAsync<L, Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>((Either<L, A> a) =>
+                        (Either<L, B> b) =>
+                            default(ApplEither<L, A, B, C>).Apply(
+                                default(MEither<L, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `Task&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -6689,10 +8147,9 @@ namespace LanguageExt
             this Task<Either<L, A>> ma,
             Func<A, Task<Either<L, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>).SelectManyAsync<MTask<Either<L, B>>, Task<Either<L, B>>, MEither<L, B>, Either<L, B>, B, MTask<Either<L, C>>, Task<Either<L, C>>, MEither<L, C>, Either<L, C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MEither<L, C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -6703,11 +8160,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Either&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Either<L, A>> Where<L, A>(this Task<Either<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>).Bind<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>(ma, 
-                a => pred(a)
-                    ? default(MEither<L, A>).Return(a)
-                    : default(MEither<L, A>).Zero());
+        public static Task<Either<L, A>> Where<L, A>(this Task<Either<L, A>> ma, Func<A, bool> f)
+        {
+            Task<Either<L, A>> Do(Either<L, A> a) => default(MTask<Either<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6720,8 +8177,7 @@ namespace LanguageExt
         /// <returns>`Task&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Either<L, B>> Select<L, A, B>(this Task<Either<L, A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
-                .Map<MTask<Either<L, B>>, Task<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.BindT(a => default(MTask<Either<L, B>>).ReturnAsync(_ => default(MEither<L, B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;Either&lt;L, A&gt;&gt;`
@@ -6756,19 +8212,6 @@ namespace LanguageExt
         public static Task<Either<L, B>> BindT<L, A, B>(this Task<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             default(TransAsyncSync<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
                 .Bind<MTask<Either<L, B>>, Task<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Task&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`Task&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Task<Either<L, B>> BindT<L, A, B>(this Task<Either<L, A>> ma, Func<A, Task<Either<L, B>>> f) =>
-            default(TransAsyncSync<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
-                .BindAsync<MTask<Either<L, B>>, Task<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6862,12 +8305,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Either&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Either<L, A>> FilterT<L, A>(this Task<Either<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
-                .Bind<MTask<Either<L, A>>, Task<Either<L, A>>, MEither<L, A>, Either<L, A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MEither<L, A>).Return(a)
-                        : default(MEither<L, A>).Zero());
+        public static Task<Either<L, A>> FilterT<L, A>(this Task<Either<L, A>> ma, Func<A, bool> f)
+        {
+            Task<Either<L, A>> Do(Either<L, A> a) => default(MTask<Either<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -7004,10 +8446,9 @@ namespace LanguageExt
             this TryAsync<Either<L, A>> ma,
             Func<A, TryAsync<Either<L, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>).SelectManyAsync<MTryAsync<Either<L, B>>, TryAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B, MTryAsync<Either<L, C>>, TryAsync<Either<L, C>>, MEither<L, C>, Either<L, C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MEither<L, C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -7018,11 +8459,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Either&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Either<L, A>> Where<L, A>(this TryAsync<Either<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>).Bind<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>(ma, 
-                a => pred(a)
-                    ? default(MEither<L, A>).Return(a)
-                    : default(MEither<L, A>).Zero());
+        public static TryAsync<Either<L, A>> Where<L, A>(this TryAsync<Either<L, A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Either<L, A>> Do(Either<L, A> a) => default(MTryAsync<Either<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7035,8 +8476,7 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Either<L, B>> Select<L, A, B>(this TryAsync<Either<L, A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
-                .Map<MTryAsync<Either<L, B>>, TryAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.BindT(a => default(MTryAsync<Either<L, B>>).ReturnAsync(_ => default(MEither<L, B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;Either&lt;L, A&gt;&gt;`
@@ -7071,19 +8511,6 @@ namespace LanguageExt
         public static TryAsync<Either<L, B>> BindT<L, A, B>(this TryAsync<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             default(TransAsyncSync<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
                 .Bind<MTryAsync<Either<L, B>>, TryAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryAsync&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryAsync<Either<L, B>> BindT<L, A, B>(this TryAsync<Either<L, A>> ma, Func<A, TryAsync<Either<L, B>>> f) =>
-            default(TransAsyncSync<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
-                .BindAsync<MTryAsync<Either<L, B>>, TryAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7177,12 +8604,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Either&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Either<L, A>> FilterT<L, A>(this TryAsync<Either<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
-                .Bind<MTryAsync<Either<L, A>>, TryAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MEither<L, A>).Return(a)
-                        : default(MEither<L, A>).Zero());
+        public static TryAsync<Either<L, A>> FilterT<L, A>(this TryAsync<Either<L, A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Either<L, A>> Do(Either<L, A> a) => default(MTryAsync<Either<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -7319,10 +8745,9 @@ namespace LanguageExt
             this TryOptionAsync<Either<L, A>> ma,
             Func<A, TryOptionAsync<Either<L, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>).SelectManyAsync<MTryOptionAsync<Either<L, B>>, TryOptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B, MTryOptionAsync<Either<L, C>>, TryOptionAsync<Either<L, C>>, MEither<L, C>, Either<L, C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MEither<L, C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -7333,11 +8758,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Either&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Either<L, A>> Where<L, A>(this TryOptionAsync<Either<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>).Bind<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>(ma, 
-                a => pred(a)
-                    ? default(MEither<L, A>).Return(a)
-                    : default(MEither<L, A>).Zero());
+        public static TryOptionAsync<Either<L, A>> Where<L, A>(this TryOptionAsync<Either<L, A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Either<L, A>> Do(Either<L, A> a) => default(MTryOptionAsync<Either<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7350,8 +8775,7 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Either<L, B>> Select<L, A, B>(this TryOptionAsync<Either<L, A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
-                .Map<MTryOptionAsync<Either<L, B>>, TryOptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.BindT(a => default(MTryOptionAsync<Either<L, B>>).ReturnAsync(_ => default(MEither<L, B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;Either&lt;L, A&gt;&gt;`
@@ -7386,19 +8810,6 @@ namespace LanguageExt
         public static TryOptionAsync<Either<L, B>> BindT<L, A, B>(this TryOptionAsync<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
                 .Bind<MTryOptionAsync<Either<L, B>>, TryOptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOptionAsync<Either<L, B>> BindT<L, A, B>(this TryOptionAsync<Either<L, A>> ma, Func<A, TryOptionAsync<Either<L, B>>> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
-                .BindAsync<MTryOptionAsync<Either<L, B>>, TryOptionAsync<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7492,12 +8903,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Either&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Either<L, A>> FilterT<L, A>(this TryOptionAsync<Either<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
-                .Bind<MTryOptionAsync<Either<L, A>>, TryOptionAsync<Either<L, A>>, MEither<L, A>, Either<L, A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MEither<L, A>).Return(a)
-                        : default(MEither<L, A>).Zero());
+        public static TryOptionAsync<Either<L, A>> FilterT<L, A>(this TryOptionAsync<Either<L, A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Either<L, A>> Do(Either<L, A> a) => default(MTryOptionAsync<Either<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -7642,10 +9052,9 @@ namespace LanguageExt
             this OptionAsync<EitherUnsafe<L, A>> ma,
             Func<A, OptionAsync<EitherUnsafe<L, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>).SelectManyAsync<MOptionAsync<EitherUnsafe<L, B>>, OptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B, MOptionAsync<EitherUnsafe<L, C>>, OptionAsync<EitherUnsafe<L, C>>, MEitherUnsafe<L, C>, EitherUnsafe<L, C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MEitherUnsafe<L, C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -7656,11 +9065,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<EitherUnsafe<L, A>> Where<L, A>(this OptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>).Bind<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>(ma, 
-                a => pred(a)
-                    ? default(MEitherUnsafe<L, A>).Return(a)
-                    : default(MEitherUnsafe<L, A>).Zero());
+        public static OptionAsync<EitherUnsafe<L, A>> Where<L, A>(this OptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<EitherUnsafe<L, A>> Do(EitherUnsafe<L, A> a) => default(MOptionAsync<EitherUnsafe<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7673,8 +9082,7 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<EitherUnsafe<L, B>> Select<L, A, B>(this OptionAsync<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
-                .Map<MOptionAsync<EitherUnsafe<L, B>>, OptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.BindT(a => default(MOptionAsync<EitherUnsafe<L, B>>).ReturnAsync(_ => default(MEitherUnsafe<L, B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;`
@@ -7709,19 +9117,6 @@ namespace LanguageExt
         public static OptionAsync<EitherUnsafe<L, B>> BindT<L, A, B>(this OptionAsync<EitherUnsafe<L, A>> ma, Func<A, EitherUnsafe<L, B>> f) =>
             default(TransAsyncSync<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
                 .Bind<MOptionAsync<EitherUnsafe<L, B>>, OptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`OptionAsync&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static OptionAsync<EitherUnsafe<L, B>> BindT<L, A, B>(this OptionAsync<EitherUnsafe<L, A>> ma, Func<A, OptionAsync<EitherUnsafe<L, B>>> f) =>
-            default(TransAsyncSync<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
-                .BindAsync<MOptionAsync<EitherUnsafe<L, B>>, OptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7815,12 +9210,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<EitherUnsafe<L, A>> FilterT<L, A>(this OptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
-                .Bind<MOptionAsync<EitherUnsafe<L, A>>, OptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MEitherUnsafe<L, A>).Return(a)
-                        : default(MEitherUnsafe<L, A>).Zero());
+        public static OptionAsync<EitherUnsafe<L, A>> FilterT<L, A>(this OptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<EitherUnsafe<L, A>> Do(EitherUnsafe<L, A> a) => default(MOptionAsync<EitherUnsafe<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -7948,6 +9342,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static EitherAsync<L, EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
+            this EitherAsync<L, EitherUnsafe<L, A>> ma,
+            Func<A, EitherAsync<L, EitherUnsafe<L, B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MEitherUnsafe<L, C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, EitherUnsafe<L, A>> Where<L, A>(this EitherAsync<L, EitherUnsafe<L, A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, EitherUnsafe<L, A>> Do(EitherUnsafe<L, A> a) => default(MEitherAsync<L, EitherUnsafe<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, EitherUnsafe<L, B>> Select<L, A, B>(this EitherAsync<L, EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MEitherAsync<L, EitherUnsafe<L, B>>).ReturnAsync(_ => default(MEitherUnsafe<L, B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, EitherUnsafe<L, A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MEitherAsync<L, EitherUnsafe<L, A>>, EitherAsync<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, A>(this EitherAsync<L, EitherUnsafe<L, A>> ma) =>
+            default(TransAsyncSync<MEitherAsync<L, EitherUnsafe<L, A>>, EitherAsync<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, EitherUnsafe<L, B>> BindT<L, A, B>(this EitherAsync<L, EitherUnsafe<L, A>> ma, Func<A, EitherUnsafe<L, B>> f) =>
+            default(TransAsyncSync<MEitherAsync<L, EitherUnsafe<L, A>>, EitherAsync<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .Bind<MEitherAsync<L, EitherUnsafe<L, B>>, EitherAsync<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, EitherUnsafe<L, B>> MapT<L, A, B>(this EitherAsync<L, EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MEitherAsync<L, EitherUnsafe<L, A>>, EitherAsync<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .Map<MEitherAsync<L, EitherUnsafe<L, B>>, EitherAsync<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, EitherUnsafe<L, A>>, EitherAsync<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, EitherUnsafe<L, A>>, EitherAsync<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, A>(this EitherAsync<L, EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, EitherUnsafe<L, A>>, EitherAsync<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, A>(this EitherAsync<L, EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, EitherUnsafe<L, A>>, EitherAsync<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, A>(this EitherAsync<L, EitherUnsafe<L, A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MEitherAsync<L, EitherUnsafe<L, A>>, EitherAsync<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, EitherUnsafe<L, A>> FilterT<L, A>(this EitherAsync<L, EitherUnsafe<L, A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, EitherUnsafe<L, A>> Do(EitherUnsafe<L, A> a) => default(MEitherAsync<L, EitherUnsafe<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherAsync<L, EitherUnsafe<L, A>> PlusT<NUM, L, A>(this EitherAsync<L, EitherUnsafe<L, A>> x, EitherAsync<L, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherAsync<L, EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this EitherAsync<L, EitherUnsafe<L, A>> x, EitherAsync<L, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherAsync<L, EitherUnsafe<L, A>> ProductT<NUM, L, A>(this EitherAsync<L, EitherUnsafe<L, A>> x, EitherAsync<L, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherAsync<L, EitherUnsafe<L, A>> DivideT<NUM, L, A>(this EitherAsync<L, EitherUnsafe<L, A>> x, EitherAsync<L, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherAsync<L, EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this EitherAsync<L, EitherUnsafe<L, A>> x, EitherAsync<L, EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, EitherUnsafe<L, A>> x, EitherAsync<L, EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, EitherUnsafe<L, A>> x, EitherAsync<L, EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherAsync<L, EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, EitherUnsafe<L, A>> fa) =>
+            default(ApplEitherAsync<L, EitherUnsafe<L, A>, EitherUnsafe<L, B>>).Apply(
+                default(MEitherAsync<L, Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>).ReturnAsync(
+                    Task.FromResult<Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>((EitherUnsafe<L, A> a) => 
+                        default(ApplEitherUnsafe<L, A, B>).Apply(
+                            default(MEitherUnsafe<L, Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherAsync<L, EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, EitherUnsafe<L, A>> fa, EitherAsync<L, EitherUnsafe<L, B>> fb) =>
+            default(ApplEitherAsync<L, EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>).Apply(
+                default(MEitherAsync<L, Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>).ReturnAsync(
+                    Task.FromResult<Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>((EitherUnsafe<L, A> a) =>
+                        (EitherUnsafe<L, B> b) =>
+                            default(ApplEitherUnsafe<L, A, B, C>).Apply(
+                                default(MEitherUnsafe<L, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `Task&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -7957,10 +9650,9 @@ namespace LanguageExt
             this Task<EitherUnsafe<L, A>> ma,
             Func<A, Task<EitherUnsafe<L, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>).SelectManyAsync<MTask<EitherUnsafe<L, B>>, Task<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B, MTask<EitherUnsafe<L, C>>, Task<EitherUnsafe<L, C>>, MEitherUnsafe<L, C>, EitherUnsafe<L, C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MEitherUnsafe<L, C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -7971,11 +9663,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;EitherUnsafe&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<EitherUnsafe<L, A>> Where<L, A>(this Task<EitherUnsafe<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>).Bind<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>(ma, 
-                a => pred(a)
-                    ? default(MEitherUnsafe<L, A>).Return(a)
-                    : default(MEitherUnsafe<L, A>).Zero());
+        public static Task<EitherUnsafe<L, A>> Where<L, A>(this Task<EitherUnsafe<L, A>> ma, Func<A, bool> f)
+        {
+            Task<EitherUnsafe<L, A>> Do(EitherUnsafe<L, A> a) => default(MTask<EitherUnsafe<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7988,8 +9680,7 @@ namespace LanguageExt
         /// <returns>`Task&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<EitherUnsafe<L, B>> Select<L, A, B>(this Task<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
-                .Map<MTask<EitherUnsafe<L, B>>, Task<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.BindT(a => default(MTask<EitherUnsafe<L, B>>).ReturnAsync(_ => default(MEitherUnsafe<L, B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;EitherUnsafe&lt;L, A&gt;&gt;`
@@ -8024,19 +9715,6 @@ namespace LanguageExt
         public static Task<EitherUnsafe<L, B>> BindT<L, A, B>(this Task<EitherUnsafe<L, A>> ma, Func<A, EitherUnsafe<L, B>> f) =>
             default(TransAsyncSync<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
                 .Bind<MTask<EitherUnsafe<L, B>>, Task<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Task&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`Task&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Task<EitherUnsafe<L, B>> BindT<L, A, B>(this Task<EitherUnsafe<L, A>> ma, Func<A, Task<EitherUnsafe<L, B>>> f) =>
-            default(TransAsyncSync<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
-                .BindAsync<MTask<EitherUnsafe<L, B>>, Task<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8130,12 +9808,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;EitherUnsafe&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<EitherUnsafe<L, A>> FilterT<L, A>(this Task<EitherUnsafe<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
-                .Bind<MTask<EitherUnsafe<L, A>>, Task<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MEitherUnsafe<L, A>).Return(a)
-                        : default(MEitherUnsafe<L, A>).Zero());
+        public static Task<EitherUnsafe<L, A>> FilterT<L, A>(this Task<EitherUnsafe<L, A>> ma, Func<A, bool> f)
+        {
+            Task<EitherUnsafe<L, A>> Do(EitherUnsafe<L, A> a) => default(MTask<EitherUnsafe<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -8272,10 +9949,9 @@ namespace LanguageExt
             this TryAsync<EitherUnsafe<L, A>> ma,
             Func<A, TryAsync<EitherUnsafe<L, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>).SelectManyAsync<MTryAsync<EitherUnsafe<L, B>>, TryAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B, MTryAsync<EitherUnsafe<L, C>>, TryAsync<EitherUnsafe<L, C>>, MEitherUnsafe<L, C>, EitherUnsafe<L, C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MEitherUnsafe<L, C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -8286,11 +9962,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<EitherUnsafe<L, A>> Where<L, A>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>).Bind<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>(ma, 
-                a => pred(a)
-                    ? default(MEitherUnsafe<L, A>).Return(a)
-                    : default(MEitherUnsafe<L, A>).Zero());
+        public static TryAsync<EitherUnsafe<L, A>> Where<L, A>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f)
+        {
+            TryAsync<EitherUnsafe<L, A>> Do(EitherUnsafe<L, A> a) => default(MTryAsync<EitherUnsafe<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8303,8 +9979,7 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<EitherUnsafe<L, B>> Select<L, A, B>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
-                .Map<MTryAsync<EitherUnsafe<L, B>>, TryAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.BindT(a => default(MTryAsync<EitherUnsafe<L, B>>).ReturnAsync(_ => default(MEitherUnsafe<L, B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;`
@@ -8339,19 +10014,6 @@ namespace LanguageExt
         public static TryAsync<EitherUnsafe<L, B>> BindT<L, A, B>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, EitherUnsafe<L, B>> f) =>
             default(TransAsyncSync<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
                 .Bind<MTryAsync<EitherUnsafe<L, B>>, TryAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryAsync&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryAsync<EitherUnsafe<L, B>> BindT<L, A, B>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, TryAsync<EitherUnsafe<L, B>>> f) =>
-            default(TransAsyncSync<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
-                .BindAsync<MTryAsync<EitherUnsafe<L, B>>, TryAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8445,12 +10107,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<EitherUnsafe<L, A>> FilterT<L, A>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
-                .Bind<MTryAsync<EitherUnsafe<L, A>>, TryAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MEitherUnsafe<L, A>).Return(a)
-                        : default(MEitherUnsafe<L, A>).Zero());
+        public static TryAsync<EitherUnsafe<L, A>> FilterT<L, A>(this TryAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f)
+        {
+            TryAsync<EitherUnsafe<L, A>> Do(EitherUnsafe<L, A> a) => default(MTryAsync<EitherUnsafe<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -8587,10 +10248,9 @@ namespace LanguageExt
             this TryOptionAsync<EitherUnsafe<L, A>> ma,
             Func<A, TryOptionAsync<EitherUnsafe<L, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>).SelectManyAsync<MTryOptionAsync<EitherUnsafe<L, B>>, TryOptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B, MTryOptionAsync<EitherUnsafe<L, C>>, TryOptionAsync<EitherUnsafe<L, C>>, MEitherUnsafe<L, C>, EitherUnsafe<L, C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MEitherUnsafe<L, C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -8601,11 +10261,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<EitherUnsafe<L, A>> Where<L, A>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>).Bind<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>(ma, 
-                a => pred(a)
-                    ? default(MEitherUnsafe<L, A>).Return(a)
-                    : default(MEitherUnsafe<L, A>).Zero());
+        public static TryOptionAsync<EitherUnsafe<L, A>> Where<L, A>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<EitherUnsafe<L, A>> Do(EitherUnsafe<L, A> a) => default(MTryOptionAsync<EitherUnsafe<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8618,8 +10278,7 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<EitherUnsafe<L, B>> Select<L, A, B>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
-                .Map<MTryOptionAsync<EitherUnsafe<L, B>>, TryOptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.BindT(a => default(MTryOptionAsync<EitherUnsafe<L, B>>).ReturnAsync(_ => default(MEitherUnsafe<L, B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;`
@@ -8654,19 +10313,6 @@ namespace LanguageExt
         public static TryOptionAsync<EitherUnsafe<L, B>> BindT<L, A, B>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, EitherUnsafe<L, B>> f) =>
             default(TransAsyncSync<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
                 .Bind<MTryOptionAsync<EitherUnsafe<L, B>>, TryOptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryOptionAsync&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOptionAsync<EitherUnsafe<L, B>> BindT<L, A, B>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, TryOptionAsync<EitherUnsafe<L, B>>> f) =>
-            default(TransAsyncSync<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
-                .BindAsync<MTryOptionAsync<EitherUnsafe<L, B>>, TryOptionAsync<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8760,12 +10406,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<EitherUnsafe<L, A>> FilterT<L, A>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
-                .Bind<MTryOptionAsync<EitherUnsafe<L, A>>, TryOptionAsync<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MEitherUnsafe<L, A>).Return(a)
-                        : default(MEitherUnsafe<L, A>).Zero());
+        public static TryOptionAsync<EitherUnsafe<L, A>> FilterT<L, A>(this TryOptionAsync<EitherUnsafe<L, A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<EitherUnsafe<L, A>> Do(EitherUnsafe<L, A> a) => default(MTryOptionAsync<EitherUnsafe<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -8910,10 +10555,9 @@ namespace LanguageExt
             this OptionAsync<Try<A>> ma,
             Func<A, OptionAsync<Try<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>).SelectManyAsync<MOptionAsync<Try<B>>, OptionAsync<Try<B>>, MTry<B>, Try<B>, B, MOptionAsync<Try<C>>, OptionAsync<Try<C>>, MTry<C>, Try<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MTry<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -8924,11 +10568,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Try&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Try<A>> Where< A>(this OptionAsync<Try<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>).Bind<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MTry<A>).Return(a)
-                    : default(MTry<A>).Zero());
+        public static OptionAsync<Try<A>> Where< A>(this OptionAsync<Try<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Try<A>> Do(Try<A> a) => default(MOptionAsync<Try<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8941,8 +10585,7 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Try<B>> Select< A, B>(this OptionAsync<Try<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>)
-                .Map<MOptionAsync<Try<B>>, OptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.BindT(a => default(MOptionAsync<Try<B>>).ReturnAsync(_ => default(MTry<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;Try&lt;A&gt;&gt;`
@@ -8977,19 +10620,6 @@ namespace LanguageExt
         public static OptionAsync<Try<B>> BindT< A, B>(this OptionAsync<Try<A>> ma, Func<A, Try<B>> f) =>
             default(TransAsyncSync<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>)
                 .Bind<MOptionAsync<Try<B>>, OptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OptionAsync&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`OptionAsync&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static OptionAsync<Try<B>> BindT< A, B>(this OptionAsync<Try<A>> ma, Func<A, OptionAsync<Try<B>>> f) =>
-            default(TransAsyncSync<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>)
-                .BindAsync<MOptionAsync<Try<B>>, OptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9083,12 +10713,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Try&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Try<A>> FilterT< A>(this OptionAsync<Try<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>)
-                .Bind<MOptionAsync<Try<A>>, OptionAsync<Try<A>>, MTry<A>, Try<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MTry<A>).Return(a)
-                        : default(MTry<A>).Zero());
+        public static OptionAsync<Try<A>> FilterT< A>(this OptionAsync<Try<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Try<A>> Do(Try<A> a) => default(MOptionAsync<Try<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -9216,6 +10845,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`EitherAsync&lt;L, Try&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static EitherAsync<L, Try<C>> SelectMany<L, A, B, C>(
+            this EitherAsync<L, Try<A>> ma,
+            Func<A, EitherAsync<L, Try<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MTry<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Try&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Try<A>> Where<L, A>(this EitherAsync<L, Try<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Try<A>> Do(Try<A> a) => default(MEitherAsync<L, Try<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Try<B>> Select<L, A, B>(this EitherAsync<L, Try<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MEitherAsync<L, Try<B>>).ReturnAsync(_ => default(MTry<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, Try&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Try&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, Try&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, Try<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MEitherAsync<L, Try<A>>, EitherAsync<L, Try<A>>, MTry<A>, Try<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherAsync&lt;L, Try&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Try&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherAsync&lt;L, Try&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, A>(this EitherAsync<L, Try<A>> ma) =>
+            default(TransAsyncSync<MEitherAsync<L, Try<A>>, EitherAsync<L, Try<A>>, MTry<A>, Try<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Try<B>> BindT<L, A, B>(this EitherAsync<L, Try<A>> ma, Func<A, Try<B>> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Try<A>>, EitherAsync<L, Try<A>>, MTry<A>, Try<A>, A>)
+                .Bind<MEitherAsync<L, Try<B>>, EitherAsync<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Try<B>> MapT<L, A, B>(this EitherAsync<L, Try<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Try<A>>, EitherAsync<L, Try<A>>, MTry<A>, Try<A>, A>)
+                .Map<MEitherAsync<L, Try<B>>, EitherAsync<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, Try<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Try<A>>, EitherAsync<L, Try<A>>, MTry<A>, Try<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, Try<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Try<A>>, EitherAsync<L, Try<A>>, MTry<A>, Try<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, A>(this EitherAsync<L, Try<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Try<A>>, EitherAsync<L, Try<A>>, MTry<A>, Try<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, A>(this EitherAsync<L, Try<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Try<A>>, EitherAsync<L, Try<A>>, MTry<A>, Try<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, Try&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, A>(this EitherAsync<L, Try<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Try<A>>, EitherAsync<L, Try<A>>, MTry<A>, Try<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Try&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Try<A>> FilterT<L, A>(this EitherAsync<L, Try<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Try<A>> Do(Try<A> a) => default(MEitherAsync<L, Try<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherAsync<L, Try<A>> PlusT<NUM, L, A>(this EitherAsync<L, Try<A>> x, EitherAsync<L, Try<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherAsync<L, Try<A>> SubtractT<NUM, L, A>(this EitherAsync<L, Try<A>> x, EitherAsync<L, Try<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherAsync<L, Try<A>> ProductT<NUM, L, A>(this EitherAsync<L, Try<A>> x, EitherAsync<L, Try<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherAsync<L, Try<A>> DivideT<NUM, L, A>(this EitherAsync<L, Try<A>> x, EitherAsync<L, Try<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherAsync<L, Try<A>> AppendT<SEMI, L, A>(this EitherAsync<L, Try<A>> x, EitherAsync<L, Try<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, Try<A>> x, EitherAsync<L, Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, Try<A>> x, EitherAsync<L, Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Try&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Try&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherAsync<L, Try<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, Try<A>> fa) =>
+            default(ApplEitherAsync<L, Try<A>, Try<B>>).Apply(
+                default(MEitherAsync<L, Func<Try<A>, Try<B>>>).ReturnAsync(
+                    Task.FromResult<Func<Try<A>, Try<B>>>((Try<A> a) => 
+                        default(ApplTry< A, B>).Apply(
+                            default(MTry< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Try&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `EitherAsync&lt;L, Try&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Try&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherAsync<L, Try<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, Try<A>> fa, EitherAsync<L, Try<B>> fb) =>
+            default(ApplEitherAsync<L, Try<A>, Try<B>, Try<C>>).Apply(
+                default(MEitherAsync<L, Func<Try<A>, Func<Try<B>, Try<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Try<A>, Func<Try<B>, Try<C>>>>((Try<A> a) =>
+                        (Try<B> b) =>
+                            default(ApplTry< A, B, C>).Apply(
+                                default(MTry< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `Task&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -9225,10 +11153,9 @@ namespace LanguageExt
             this Task<Try<A>> ma,
             Func<A, Task<Try<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>).SelectManyAsync<MTask<Try<B>>, Task<Try<B>>, MTry<B>, Try<B>, B, MTask<Try<C>>, Task<Try<C>>, MTry<C>, Try<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MTry<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -9239,11 +11166,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Try&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Try<A>> Where< A>(this Task<Try<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>).Bind<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MTry<A>).Return(a)
-                    : default(MTry<A>).Zero());
+        public static Task<Try<A>> Where< A>(this Task<Try<A>> ma, Func<A, bool> f)
+        {
+            Task<Try<A>> Do(Try<A> a) => default(MTask<Try<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9256,8 +11183,7 @@ namespace LanguageExt
         /// <returns>`Task&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Try<B>> Select< A, B>(this Task<Try<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>)
-                .Map<MTask<Try<B>>, Task<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.BindT(a => default(MTask<Try<B>>).ReturnAsync(_ => default(MTry<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;Try&lt;A&gt;&gt;`
@@ -9292,19 +11218,6 @@ namespace LanguageExt
         public static Task<Try<B>> BindT< A, B>(this Task<Try<A>> ma, Func<A, Try<B>> f) =>
             default(TransAsyncSync<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>)
                 .Bind<MTask<Try<B>>, Task<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Task&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`Task&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Task<Try<B>> BindT< A, B>(this Task<Try<A>> ma, Func<A, Task<Try<B>>> f) =>
-            default(TransAsyncSync<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>)
-                .BindAsync<MTask<Try<B>>, Task<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9398,12 +11311,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Try&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Try<A>> FilterT< A>(this Task<Try<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>)
-                .Bind<MTask<Try<A>>, Task<Try<A>>, MTry<A>, Try<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MTry<A>).Return(a)
-                        : default(MTry<A>).Zero());
+        public static Task<Try<A>> FilterT< A>(this Task<Try<A>> ma, Func<A, bool> f)
+        {
+            Task<Try<A>> Do(Try<A> a) => default(MTask<Try<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -9540,10 +11452,9 @@ namespace LanguageExt
             this TryAsync<Try<A>> ma,
             Func<A, TryAsync<Try<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>).SelectManyAsync<MTryAsync<Try<B>>, TryAsync<Try<B>>, MTry<B>, Try<B>, B, MTryAsync<Try<C>>, TryAsync<Try<C>>, MTry<C>, Try<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MTry<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -9554,11 +11465,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Try&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Try<A>> Where< A>(this TryAsync<Try<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>).Bind<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MTry<A>).Return(a)
-                    : default(MTry<A>).Zero());
+        public static TryAsync<Try<A>> Where< A>(this TryAsync<Try<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Try<A>> Do(Try<A> a) => default(MTryAsync<Try<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9571,8 +11482,7 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Try<B>> Select< A, B>(this TryAsync<Try<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>)
-                .Map<MTryAsync<Try<B>>, TryAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.BindT(a => default(MTryAsync<Try<B>>).ReturnAsync(_ => default(MTry<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;Try&lt;A&gt;&gt;`
@@ -9607,19 +11517,6 @@ namespace LanguageExt
         public static TryAsync<Try<B>> BindT< A, B>(this TryAsync<Try<A>> ma, Func<A, Try<B>> f) =>
             default(TransAsyncSync<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>)
                 .Bind<MTryAsync<Try<B>>, TryAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryAsync&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryAsync<Try<B>> BindT< A, B>(this TryAsync<Try<A>> ma, Func<A, TryAsync<Try<B>>> f) =>
-            default(TransAsyncSync<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>)
-                .BindAsync<MTryAsync<Try<B>>, TryAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9713,12 +11610,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Try&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Try<A>> FilterT< A>(this TryAsync<Try<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>)
-                .Bind<MTryAsync<Try<A>>, TryAsync<Try<A>>, MTry<A>, Try<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MTry<A>).Return(a)
-                        : default(MTry<A>).Zero());
+        public static TryAsync<Try<A>> FilterT< A>(this TryAsync<Try<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Try<A>> Do(Try<A> a) => default(MTryAsync<Try<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -9855,10 +11751,9 @@ namespace LanguageExt
             this TryOptionAsync<Try<A>> ma,
             Func<A, TryOptionAsync<Try<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>).SelectManyAsync<MTryOptionAsync<Try<B>>, TryOptionAsync<Try<B>>, MTry<B>, Try<B>, B, MTryOptionAsync<Try<C>>, TryOptionAsync<Try<C>>, MTry<C>, Try<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MTry<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -9869,11 +11764,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Try&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Try<A>> Where< A>(this TryOptionAsync<Try<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>).Bind<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MTry<A>).Return(a)
-                    : default(MTry<A>).Zero());
+        public static TryOptionAsync<Try<A>> Where< A>(this TryOptionAsync<Try<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Try<A>> Do(Try<A> a) => default(MTryOptionAsync<Try<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9886,8 +11781,7 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Try<B>> Select< A, B>(this TryOptionAsync<Try<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>)
-                .Map<MTryOptionAsync<Try<B>>, TryOptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.BindT(a => default(MTryOptionAsync<Try<B>>).ReturnAsync(_ => default(MTry<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;Try&lt;A&gt;&gt;`
@@ -9922,19 +11816,6 @@ namespace LanguageExt
         public static TryOptionAsync<Try<B>> BindT< A, B>(this TryOptionAsync<Try<A>> ma, Func<A, Try<B>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>)
                 .Bind<MTryOptionAsync<Try<B>>, TryOptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOptionAsync<Try<B>> BindT< A, B>(this TryOptionAsync<Try<A>> ma, Func<A, TryOptionAsync<Try<B>>> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>)
-                .BindAsync<MTryOptionAsync<Try<B>>, TryOptionAsync<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10028,12 +11909,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Try&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Try<A>> FilterT< A>(this TryOptionAsync<Try<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>)
-                .Bind<MTryOptionAsync<Try<A>>, TryOptionAsync<Try<A>>, MTry<A>, Try<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MTry<A>).Return(a)
-                        : default(MTry<A>).Zero());
+        public static TryOptionAsync<Try<A>> FilterT< A>(this TryOptionAsync<Try<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Try<A>> Do(Try<A> a) => default(MTryOptionAsync<Try<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -10178,10 +12058,9 @@ namespace LanguageExt
             this OptionAsync<TryOption<A>> ma,
             Func<A, OptionAsync<TryOption<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>).SelectManyAsync<MOptionAsync<TryOption<B>>, OptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B, MOptionAsync<TryOption<C>>, OptionAsync<TryOption<C>>, MTryOption<C>, TryOption<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MTryOption<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -10192,11 +12071,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;TryOption&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<TryOption<A>> Where< A>(this OptionAsync<TryOption<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>).Bind<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MTryOption<A>).Return(a)
-                    : default(MTryOption<A>).Zero());
+        public static OptionAsync<TryOption<A>> Where< A>(this OptionAsync<TryOption<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<TryOption<A>> Do(TryOption<A> a) => default(MOptionAsync<TryOption<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10209,8 +12088,7 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<TryOption<B>> Select< A, B>(this OptionAsync<TryOption<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
-                .Map<MOptionAsync<TryOption<B>>, OptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.BindT(a => default(MOptionAsync<TryOption<B>>).ReturnAsync(_ => default(MTryOption<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;TryOption&lt;A&gt;&gt;`
@@ -10245,19 +12123,6 @@ namespace LanguageExt
         public static OptionAsync<TryOption<B>> BindT< A, B>(this OptionAsync<TryOption<A>> ma, Func<A, TryOption<B>> f) =>
             default(TransAsyncSync<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
                 .Bind<MOptionAsync<TryOption<B>>, OptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OptionAsync&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`OptionAsync&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static OptionAsync<TryOption<B>> BindT< A, B>(this OptionAsync<TryOption<A>> ma, Func<A, OptionAsync<TryOption<B>>> f) =>
-            default(TransAsyncSync<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
-                .BindAsync<MOptionAsync<TryOption<B>>, OptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10351,12 +12216,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;TryOption&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<TryOption<A>> FilterT< A>(this OptionAsync<TryOption<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
-                .Bind<MOptionAsync<TryOption<A>>, OptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MTryOption<A>).Return(a)
-                        : default(MTryOption<A>).Zero());
+        public static OptionAsync<TryOption<A>> FilterT< A>(this OptionAsync<TryOption<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<TryOption<A>> Do(TryOption<A> a) => default(MOptionAsync<TryOption<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -10484,6 +12348,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`EitherAsync&lt;L, TryOption&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static EitherAsync<L, TryOption<C>> SelectMany<L, A, B, C>(
+            this EitherAsync<L, TryOption<A>> ma,
+            Func<A, EitherAsync<L, TryOption<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MTryOption<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, TryOption<A>> Where<L, A>(this EitherAsync<L, TryOption<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, TryOption<A>> Do(TryOption<A> a) => default(MEitherAsync<L, TryOption<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, TryOption<B>> Select<L, A, B>(this EitherAsync<L, TryOption<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MEitherAsync<L, TryOption<B>>).ReturnAsync(_ => default(MTryOption<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, TryOption<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MEitherAsync<L, TryOption<A>>, EitherAsync<L, TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, A>(this EitherAsync<L, TryOption<A>> ma) =>
+            default(TransAsyncSync<MEitherAsync<L, TryOption<A>>, EitherAsync<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherAsync&lt;L, TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, TryOption<B>> BindT<L, A, B>(this EitherAsync<L, TryOption<A>> ma, Func<A, TryOption<B>> f) =>
+            default(TransAsyncSync<MEitherAsync<L, TryOption<A>>, EitherAsync<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .Bind<MEitherAsync<L, TryOption<B>>, EitherAsync<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, TryOption<B>> MapT<L, A, B>(this EitherAsync<L, TryOption<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MEitherAsync<L, TryOption<A>>, EitherAsync<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .Map<MEitherAsync<L, TryOption<B>>, EitherAsync<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, TryOption<A>>, EitherAsync<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, TryOption<A>>, EitherAsync<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, A>(this EitherAsync<L, TryOption<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, TryOption<A>>, EitherAsync<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, A>(this EitherAsync<L, TryOption<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, TryOption<A>>, EitherAsync<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, A>(this EitherAsync<L, TryOption<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MEitherAsync<L, TryOption<A>>, EitherAsync<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, TryOption<A>> FilterT<L, A>(this EitherAsync<L, TryOption<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, TryOption<A>> Do(TryOption<A> a) => default(MEitherAsync<L, TryOption<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherAsync<L, TryOption<A>> PlusT<NUM, L, A>(this EitherAsync<L, TryOption<A>> x, EitherAsync<L, TryOption<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherAsync<L, TryOption<A>> SubtractT<NUM, L, A>(this EitherAsync<L, TryOption<A>> x, EitherAsync<L, TryOption<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherAsync<L, TryOption<A>> ProductT<NUM, L, A>(this EitherAsync<L, TryOption<A>> x, EitherAsync<L, TryOption<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherAsync<L, TryOption<A>> DivideT<NUM, L, A>(this EitherAsync<L, TryOption<A>> x, EitherAsync<L, TryOption<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherAsync<L, TryOption<A>> AppendT<SEMI, L, A>(this EitherAsync<L, TryOption<A>> x, EitherAsync<L, TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, TryOption<A>> x, EitherAsync<L, TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, TryOption<A>> x, EitherAsync<L, TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, TryOption&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherAsync<L, TryOption<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, TryOption<A>> fa) =>
+            default(ApplEitherAsync<L, TryOption<A>, TryOption<B>>).Apply(
+                default(MEitherAsync<L, Func<TryOption<A>, TryOption<B>>>).ReturnAsync(
+                    Task.FromResult<Func<TryOption<A>, TryOption<B>>>((TryOption<A> a) => 
+                        default(ApplTryOption< A, B>).Apply(
+                            default(MTryOption< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, TryOption&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherAsync<L, TryOption<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, TryOption<A>> fa, EitherAsync<L, TryOption<B>> fb) =>
+            default(ApplEitherAsync<L, TryOption<A>, TryOption<B>, TryOption<C>>).Apply(
+                default(MEitherAsync<L, Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>((TryOption<A> a) =>
+                        (TryOption<B> b) =>
+                            default(ApplTryOption< A, B, C>).Apply(
+                                default(MTryOption< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `Task&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -10493,10 +12656,9 @@ namespace LanguageExt
             this Task<TryOption<A>> ma,
             Func<A, Task<TryOption<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>).SelectManyAsync<MTask<TryOption<B>>, Task<TryOption<B>>, MTryOption<B>, TryOption<B>, B, MTask<TryOption<C>>, Task<TryOption<C>>, MTryOption<C>, TryOption<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MTryOption<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -10507,11 +12669,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;TryOption&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<TryOption<A>> Where< A>(this Task<TryOption<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>).Bind<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MTryOption<A>).Return(a)
-                    : default(MTryOption<A>).Zero());
+        public static Task<TryOption<A>> Where< A>(this Task<TryOption<A>> ma, Func<A, bool> f)
+        {
+            Task<TryOption<A>> Do(TryOption<A> a) => default(MTask<TryOption<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10524,8 +12686,7 @@ namespace LanguageExt
         /// <returns>`Task&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<TryOption<B>> Select< A, B>(this Task<TryOption<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
-                .Map<MTask<TryOption<B>>, Task<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.BindT(a => default(MTask<TryOption<B>>).ReturnAsync(_ => default(MTryOption<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;TryOption&lt;A&gt;&gt;`
@@ -10560,19 +12721,6 @@ namespace LanguageExt
         public static Task<TryOption<B>> BindT< A, B>(this Task<TryOption<A>> ma, Func<A, TryOption<B>> f) =>
             default(TransAsyncSync<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
                 .Bind<MTask<TryOption<B>>, Task<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Task&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`Task&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Task<TryOption<B>> BindT< A, B>(this Task<TryOption<A>> ma, Func<A, Task<TryOption<B>>> f) =>
-            default(TransAsyncSync<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
-                .BindAsync<MTask<TryOption<B>>, Task<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10666,12 +12814,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;TryOption&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<TryOption<A>> FilterT< A>(this Task<TryOption<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
-                .Bind<MTask<TryOption<A>>, Task<TryOption<A>>, MTryOption<A>, TryOption<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MTryOption<A>).Return(a)
-                        : default(MTryOption<A>).Zero());
+        public static Task<TryOption<A>> FilterT< A>(this Task<TryOption<A>> ma, Func<A, bool> f)
+        {
+            Task<TryOption<A>> Do(TryOption<A> a) => default(MTask<TryOption<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -10808,10 +12955,9 @@ namespace LanguageExt
             this TryAsync<TryOption<A>> ma,
             Func<A, TryAsync<TryOption<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>).SelectManyAsync<MTryAsync<TryOption<B>>, TryAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B, MTryAsync<TryOption<C>>, TryAsync<TryOption<C>>, MTryOption<C>, TryOption<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MTryOption<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -10822,11 +12968,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;TryOption&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<TryOption<A>> Where< A>(this TryAsync<TryOption<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>).Bind<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MTryOption<A>).Return(a)
-                    : default(MTryOption<A>).Zero());
+        public static TryAsync<TryOption<A>> Where< A>(this TryAsync<TryOption<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<TryOption<A>> Do(TryOption<A> a) => default(MTryAsync<TryOption<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10839,8 +12985,7 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<TryOption<B>> Select< A, B>(this TryAsync<TryOption<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
-                .Map<MTryAsync<TryOption<B>>, TryAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.BindT(a => default(MTryAsync<TryOption<B>>).ReturnAsync(_ => default(MTryOption<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;TryOption&lt;A&gt;&gt;`
@@ -10875,19 +13020,6 @@ namespace LanguageExt
         public static TryAsync<TryOption<B>> BindT< A, B>(this TryAsync<TryOption<A>> ma, Func<A, TryOption<B>> f) =>
             default(TransAsyncSync<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
                 .Bind<MTryAsync<TryOption<B>>, TryAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryAsync&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryAsync<TryOption<B>> BindT< A, B>(this TryAsync<TryOption<A>> ma, Func<A, TryAsync<TryOption<B>>> f) =>
-            default(TransAsyncSync<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
-                .BindAsync<MTryAsync<TryOption<B>>, TryAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10981,12 +13113,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;TryOption&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<TryOption<A>> FilterT< A>(this TryAsync<TryOption<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
-                .Bind<MTryAsync<TryOption<A>>, TryAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MTryOption<A>).Return(a)
-                        : default(MTryOption<A>).Zero());
+        public static TryAsync<TryOption<A>> FilterT< A>(this TryAsync<TryOption<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<TryOption<A>> Do(TryOption<A> a) => default(MTryAsync<TryOption<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -11123,10 +13254,9 @@ namespace LanguageExt
             this TryOptionAsync<TryOption<A>> ma,
             Func<A, TryOptionAsync<TryOption<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>).SelectManyAsync<MTryOptionAsync<TryOption<B>>, TryOptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B, MTryOptionAsync<TryOption<C>>, TryOptionAsync<TryOption<C>>, MTryOption<C>, TryOption<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MTryOption<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -11137,11 +13267,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;TryOption&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<TryOption<A>> Where< A>(this TryOptionAsync<TryOption<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>).Bind<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MTryOption<A>).Return(a)
-                    : default(MTryOption<A>).Zero());
+        public static TryOptionAsync<TryOption<A>> Where< A>(this TryOptionAsync<TryOption<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<TryOption<A>> Do(TryOption<A> a) => default(MTryOptionAsync<TryOption<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -11154,8 +13284,7 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<TryOption<B>> Select< A, B>(this TryOptionAsync<TryOption<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
-                .Map<MTryOptionAsync<TryOption<B>>, TryOptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.BindT(a => default(MTryOptionAsync<TryOption<B>>).ReturnAsync(_ => default(MTryOption<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;TryOption&lt;A&gt;&gt;`
@@ -11190,19 +13319,6 @@ namespace LanguageExt
         public static TryOptionAsync<TryOption<B>> BindT< A, B>(this TryOptionAsync<TryOption<A>> ma, Func<A, TryOption<B>> f) =>
             default(TransAsyncSync<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
                 .Bind<MTryOptionAsync<TryOption<B>>, TryOptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryOptionAsync&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOptionAsync<TryOption<B>> BindT< A, B>(this TryOptionAsync<TryOption<A>> ma, Func<A, TryOptionAsync<TryOption<B>>> f) =>
-            default(TransAsyncSync<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
-                .BindAsync<MTryOptionAsync<TryOption<B>>, TryOptionAsync<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -11296,12 +13412,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;TryOption&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<TryOption<A>> FilterT< A>(this TryOptionAsync<TryOption<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
-                .Bind<MTryOptionAsync<TryOption<A>>, TryOptionAsync<TryOption<A>>, MTryOption<A>, TryOption<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MTryOption<A>).Return(a)
-                        : default(MTryOption<A>).Zero());
+        public static TryOptionAsync<TryOption<A>> FilterT< A>(this TryOptionAsync<TryOption<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<TryOption<A>> Do(TryOption<A> a) => default(MTryOptionAsync<TryOption<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -11466,19 +13581,6 @@ namespace LanguageExt
                 .Bind<MOptionAsync<IEnumerable<B>>, OptionAsync<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
 
         /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OptionAsync&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`OptionAsync&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static OptionAsync<IEnumerable<B>> BindT< A, B>(this OptionAsync<IEnumerable<A>> ma, Func<A, OptionAsync<IEnumerable<B>>> f) =>
-            default(TransAsyncSync<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
-                .BindAsync<MOptionAsync<IEnumerable<B>>, OptionAsync<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-
-        /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
         /// using the provided function `f`.
         /// </summary>
@@ -11570,12 +13672,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;IEnumerable&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<IEnumerable<A>> FilterT< A>(this OptionAsync<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
-                .Bind<MOptionAsync<IEnumerable<A>>, OptionAsync<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MEnumerable<A>).Return(a)
-                        : default(MEnumerable<A>).Zero());
+        public static OptionAsync<IEnumerable<A>> FilterT< A>(this OptionAsync<IEnumerable<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<IEnumerable<A>> Do(IEnumerable<A> a) => default(MOptionAsync<IEnumerable<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -11698,6 +13799,258 @@ namespace LanguageExt
                                 default(MEnumerable< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
 
         /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, IEnumerable<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MEitherAsync<L, IEnumerable<A>>, EitherAsync<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, A>(this EitherAsync<L, IEnumerable<A>> ma) =>
+            default(TransAsyncSync<MEitherAsync<L, IEnumerable<A>>, EitherAsync<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherAsync&lt;L, IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, IEnumerable<B>> BindT<L, A, B>(this EitherAsync<L, IEnumerable<A>> ma, Func<A, IEnumerable<B>> f) =>
+            default(TransAsyncSync<MEitherAsync<L, IEnumerable<A>>, EitherAsync<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .Bind<MEitherAsync<L, IEnumerable<B>>, EitherAsync<L, IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, IEnumerable<B>> MapT<L, A, B>(this EitherAsync<L, IEnumerable<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MEitherAsync<L, IEnumerable<A>>, EitherAsync<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .Map<MEitherAsync<L, IEnumerable<B>>, EitherAsync<L, IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, IEnumerable<A>>, EitherAsync<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, IEnumerable<A>>, EitherAsync<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, A>(this EitherAsync<L, IEnumerable<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, IEnumerable<A>>, EitherAsync<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, A>(this EitherAsync<L, IEnumerable<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, IEnumerable<A>>, EitherAsync<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, A>(this EitherAsync<L, IEnumerable<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MEitherAsync<L, IEnumerable<A>>, EitherAsync<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, IEnumerable<A>> FilterT<L, A>(this EitherAsync<L, IEnumerable<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, IEnumerable<A>> Do(IEnumerable<A> a) => default(MEitherAsync<L, IEnumerable<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherAsync<L, IEnumerable<A>> PlusT<NUM, L, A>(this EitherAsync<L, IEnumerable<A>> x, EitherAsync<L, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherAsync<L, IEnumerable<A>> SubtractT<NUM, L, A>(this EitherAsync<L, IEnumerable<A>> x, EitherAsync<L, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherAsync<L, IEnumerable<A>> ProductT<NUM, L, A>(this EitherAsync<L, IEnumerable<A>> x, EitherAsync<L, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherAsync<L, IEnumerable<A>> DivideT<NUM, L, A>(this EitherAsync<L, IEnumerable<A>> x, EitherAsync<L, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherAsync<L, IEnumerable<A>> AppendT<SEMI, L, A>(this EitherAsync<L, IEnumerable<A>> x, EitherAsync<L, IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, IEnumerable<A>> x, EitherAsync<L, IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, IEnumerable<A>> x, EitherAsync<L, IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, IEnumerable&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherAsync<L, IEnumerable<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, IEnumerable<A>> fa) =>
+            default(ApplEitherAsync<L, IEnumerable<A>, IEnumerable<B>>).Apply(
+                default(MEitherAsync<L, Func<IEnumerable<A>, IEnumerable<B>>>).ReturnAsync(
+                    Task.FromResult<Func<IEnumerable<A>, IEnumerable<B>>>((IEnumerable<A> a) => 
+                        default(ApplEnumerable< A, B>).Apply(
+                            default(MEnumerable< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `EitherAsync&lt;L, IEnumerable&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, IEnumerable&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherAsync<L, IEnumerable<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, IEnumerable<A>> fa, EitherAsync<L, IEnumerable<B>> fb) =>
+            default(ApplEitherAsync<L, IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>).Apply(
+                default(MEitherAsync<L, Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>((IEnumerable<A> a) =>
+                        (IEnumerable<B> b) =>
+                            default(ApplEnumerable< A, B, C>).Apply(
+                                default(MEnumerable< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;IEnumerable&lt;A&gt;&gt;`
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -11730,19 +14083,6 @@ namespace LanguageExt
         public static Task<IEnumerable<B>> BindT< A, B>(this Task<IEnumerable<A>> ma, Func<A, IEnumerable<B>> f) =>
             default(TransAsyncSync<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
                 .Bind<MTask<IEnumerable<B>>, Task<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Task&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`Task&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Task<IEnumerable<B>> BindT< A, B>(this Task<IEnumerable<A>> ma, Func<A, Task<IEnumerable<B>>> f) =>
-            default(TransAsyncSync<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
-                .BindAsync<MTask<IEnumerable<B>>, Task<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -11836,12 +14176,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;IEnumerable&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<IEnumerable<A>> FilterT< A>(this Task<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
-                .Bind<MTask<IEnumerable<A>>, Task<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MEnumerable<A>).Return(a)
-                        : default(MEnumerable<A>).Zero());
+        public static Task<IEnumerable<A>> FilterT< A>(this Task<IEnumerable<A>> ma, Func<A, bool> f)
+        {
+            Task<IEnumerable<A>> Do(IEnumerable<A> a) => default(MTask<IEnumerable<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -11998,19 +14337,6 @@ namespace LanguageExt
                 .Bind<MTryAsync<IEnumerable<B>>, TryAsync<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
 
         /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryAsync&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryAsync<IEnumerable<B>> BindT< A, B>(this TryAsync<IEnumerable<A>> ma, Func<A, TryAsync<IEnumerable<B>>> f) =>
-            default(TransAsyncSync<MTryAsync<IEnumerable<A>>, TryAsync<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
-                .BindAsync<MTryAsync<IEnumerable<B>>, TryAsync<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-
-        /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
         /// using the provided function `f`.
         /// </summary>
@@ -12102,12 +14428,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;IEnumerable&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<IEnumerable<A>> FilterT< A>(this TryAsync<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<IEnumerable<A>>, TryAsync<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
-                .Bind<MTryAsync<IEnumerable<A>>, TryAsync<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MEnumerable<A>).Return(a)
-                        : default(MEnumerable<A>).Zero());
+        public static TryAsync<IEnumerable<A>> FilterT< A>(this TryAsync<IEnumerable<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<IEnumerable<A>> Do(IEnumerable<A> a) => default(MTryAsync<IEnumerable<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -12264,19 +14589,6 @@ namespace LanguageExt
                 .Bind<MTryOptionAsync<IEnumerable<B>>, TryOptionAsync<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
 
         /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryOptionAsync&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOptionAsync<IEnumerable<B>> BindT< A, B>(this TryOptionAsync<IEnumerable<A>> ma, Func<A, TryOptionAsync<IEnumerable<B>>> f) =>
-            default(TransAsyncSync<MTryOptionAsync<IEnumerable<A>>, TryOptionAsync<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
-                .BindAsync<MTryOptionAsync<IEnumerable<B>>, TryOptionAsync<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-
-        /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
         /// using the provided function `f`.
         /// </summary>
@@ -12368,12 +14680,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;IEnumerable&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<IEnumerable<A>> FilterT< A>(this TryOptionAsync<IEnumerable<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<IEnumerable<A>>, TryOptionAsync<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
-                .Bind<MTryOptionAsync<IEnumerable<A>>, TryOptionAsync<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MEnumerable<A>).Return(a)
-                        : default(MEnumerable<A>).Zero());
+        public static TryOptionAsync<IEnumerable<A>> FilterT< A>(this TryOptionAsync<IEnumerable<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<IEnumerable<A>> Do(IEnumerable<A> a) => default(MTryOptionAsync<IEnumerable<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -12518,10 +14829,9 @@ namespace LanguageExt
             this OptionAsync<Seq<A>> ma,
             Func<A, OptionAsync<Seq<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MOptionAsync<Seq<A>>, OptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>).SelectManyAsync<MOptionAsync<Seq<B>>, OptionAsync<Seq<B>>, MSeq<B>, Seq<B>, B, MOptionAsync<Seq<C>>, OptionAsync<Seq<C>>, MSeq<C>, Seq<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MSeq<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -12532,11 +14842,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Seq&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Seq<A>> Where< A>(this OptionAsync<Seq<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Seq<A>>, OptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>).Bind<MOptionAsync<Seq<A>>, OptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MSeq<A>).Return(a)
-                    : default(MSeq<A>).Zero());
+        public static OptionAsync<Seq<A>> Where< A>(this OptionAsync<Seq<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Seq<A>> Do(Seq<A> a) => default(MOptionAsync<Seq<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -12549,8 +14859,7 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Seq<B>> Select< A, B>(this OptionAsync<Seq<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MOptionAsync<Seq<A>>, OptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
-                .Map<MOptionAsync<Seq<B>>, OptionAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.BindT(a => default(MOptionAsync<Seq<B>>).ReturnAsync(_ => default(MSeq<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;Seq&lt;A&gt;&gt;`
@@ -12585,19 +14894,6 @@ namespace LanguageExt
         public static OptionAsync<Seq<B>> BindT< A, B>(this OptionAsync<Seq<A>> ma, Func<A, Seq<B>> f) =>
             default(TransAsyncSync<MOptionAsync<Seq<A>>, OptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
                 .Bind<MOptionAsync<Seq<B>>, OptionAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OptionAsync&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`OptionAsync&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static OptionAsync<Seq<B>> BindT< A, B>(this OptionAsync<Seq<A>> ma, Func<A, OptionAsync<Seq<B>>> f) =>
-            default(TransAsyncSync<MOptionAsync<Seq<A>>, OptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
-                .BindAsync<MOptionAsync<Seq<B>>, OptionAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -12691,12 +14987,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Seq&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Seq<A>> FilterT< A>(this OptionAsync<Seq<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Seq<A>>, OptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
-                .Bind<MOptionAsync<Seq<A>>, OptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
+        public static OptionAsync<Seq<A>> FilterT< A>(this OptionAsync<Seq<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Seq<A>> Do(Seq<A> a) => default(MOptionAsync<Seq<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -12824,6 +15119,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`EitherAsync&lt;L, Seq&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static EitherAsync<L, Seq<C>> SelectMany<L, A, B, C>(
+            this EitherAsync<L, Seq<A>> ma,
+            Func<A, EitherAsync<L, Seq<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MSeq<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Seq&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Seq<A>> Where<L, A>(this EitherAsync<L, Seq<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Seq<A>> Do(Seq<A> a) => default(MEitherAsync<L, Seq<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Seq<B>> Select<L, A, B>(this EitherAsync<L, Seq<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MEitherAsync<L, Seq<B>>).ReturnAsync(_ => default(MSeq<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, Seq&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Seq&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, Seq&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, Seq<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MEitherAsync<L, Seq<A>>, EitherAsync<L, Seq<A>>, MSeq<A>, Seq<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherAsync&lt;L, Seq&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Seq&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherAsync&lt;L, Seq&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, A>(this EitherAsync<L, Seq<A>> ma) =>
+            default(TransAsyncSync<MEitherAsync<L, Seq<A>>, EitherAsync<L, Seq<A>>, MSeq<A>, Seq<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Seq<B>> BindT<L, A, B>(this EitherAsync<L, Seq<A>> ma, Func<A, Seq<B>> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Seq<A>>, EitherAsync<L, Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .Bind<MEitherAsync<L, Seq<B>>, EitherAsync<L, Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Seq<B>> MapT<L, A, B>(this EitherAsync<L, Seq<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Seq<A>>, EitherAsync<L, Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .Map<MEitherAsync<L, Seq<B>>, EitherAsync<L, Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, Seq<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Seq<A>>, EitherAsync<L, Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, Seq<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Seq<A>>, EitherAsync<L, Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, A>(this EitherAsync<L, Seq<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Seq<A>>, EitherAsync<L, Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, A>(this EitherAsync<L, Seq<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Seq<A>>, EitherAsync<L, Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, Seq&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, A>(this EitherAsync<L, Seq<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Seq<A>>, EitherAsync<L, Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Seq&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Seq<A>> FilterT<L, A>(this EitherAsync<L, Seq<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Seq<A>> Do(Seq<A> a) => default(MEitherAsync<L, Seq<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherAsync<L, Seq<A>> PlusT<NUM, L, A>(this EitherAsync<L, Seq<A>> x, EitherAsync<L, Seq<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherAsync<L, Seq<A>> SubtractT<NUM, L, A>(this EitherAsync<L, Seq<A>> x, EitherAsync<L, Seq<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherAsync<L, Seq<A>> ProductT<NUM, L, A>(this EitherAsync<L, Seq<A>> x, EitherAsync<L, Seq<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherAsync<L, Seq<A>> DivideT<NUM, L, A>(this EitherAsync<L, Seq<A>> x, EitherAsync<L, Seq<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherAsync<L, Seq<A>> AppendT<SEMI, L, A>(this EitherAsync<L, Seq<A>> x, EitherAsync<L, Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, Seq<A>> x, EitherAsync<L, Seq<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, Seq<A>> x, EitherAsync<L, Seq<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Seq&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Seq&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherAsync<L, Seq<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, Seq<A>> fa) =>
+            default(ApplEitherAsync<L, Seq<A>, Seq<B>>).Apply(
+                default(MEitherAsync<L, Func<Seq<A>, Seq<B>>>).ReturnAsync(
+                    Task.FromResult<Func<Seq<A>, Seq<B>>>((Seq<A> a) => 
+                        default(ApplSeq< A, B>).Apply(
+                            default(MSeq< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Seq&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `EitherAsync&lt;L, Seq&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Seq&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherAsync<L, Seq<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, Seq<A>> fa, EitherAsync<L, Seq<B>> fb) =>
+            default(ApplEitherAsync<L, Seq<A>, Seq<B>, Seq<C>>).Apply(
+                default(MEitherAsync<L, Func<Seq<A>, Func<Seq<B>, Seq<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Seq<A>, Func<Seq<B>, Seq<C>>>>((Seq<A> a) =>
+                        (Seq<B> b) =>
+                            default(ApplSeq< A, B, C>).Apply(
+                                default(MSeq< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `Task&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -12833,10 +15427,9 @@ namespace LanguageExt
             this Task<Seq<A>> ma,
             Func<A, Task<Seq<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTask<Seq<A>>, Task<Seq<A>>, MSeq<A>, Seq<A>, A>).SelectManyAsync<MTask<Seq<B>>, Task<Seq<B>>, MSeq<B>, Seq<B>, B, MTask<Seq<C>>, Task<Seq<C>>, MSeq<C>, Seq<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MSeq<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -12847,11 +15440,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Seq&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Seq<A>> Where< A>(this Task<Seq<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Seq<A>>, Task<Seq<A>>, MSeq<A>, Seq<A>, A>).Bind<MTask<Seq<A>>, Task<Seq<A>>, MSeq<A>, Seq<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MSeq<A>).Return(a)
-                    : default(MSeq<A>).Zero());
+        public static Task<Seq<A>> Where< A>(this Task<Seq<A>> ma, Func<A, bool> f)
+        {
+            Task<Seq<A>> Do(Seq<A> a) => default(MTask<Seq<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -12864,8 +15457,7 @@ namespace LanguageExt
         /// <returns>`Task&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Seq<B>> Select< A, B>(this Task<Seq<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTask<Seq<A>>, Task<Seq<A>>, MSeq<A>, Seq<A>, A>)
-                .Map<MTask<Seq<B>>, Task<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.BindT(a => default(MTask<Seq<B>>).ReturnAsync(_ => default(MSeq<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;Seq&lt;A&gt;&gt;`
@@ -12900,19 +15492,6 @@ namespace LanguageExt
         public static Task<Seq<B>> BindT< A, B>(this Task<Seq<A>> ma, Func<A, Seq<B>> f) =>
             default(TransAsyncSync<MTask<Seq<A>>, Task<Seq<A>>, MSeq<A>, Seq<A>, A>)
                 .Bind<MTask<Seq<B>>, Task<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Task&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`Task&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Task<Seq<B>> BindT< A, B>(this Task<Seq<A>> ma, Func<A, Task<Seq<B>>> f) =>
-            default(TransAsyncSync<MTask<Seq<A>>, Task<Seq<A>>, MSeq<A>, Seq<A>, A>)
-                .BindAsync<MTask<Seq<B>>, Task<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -13006,12 +15585,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Seq&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Seq<A>> FilterT< A>(this Task<Seq<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Seq<A>>, Task<Seq<A>>, MSeq<A>, Seq<A>, A>)
-                .Bind<MTask<Seq<A>>, Task<Seq<A>>, MSeq<A>, Seq<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
+        public static Task<Seq<A>> FilterT< A>(this Task<Seq<A>> ma, Func<A, bool> f)
+        {
+            Task<Seq<A>> Do(Seq<A> a) => default(MTask<Seq<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -13148,10 +15726,9 @@ namespace LanguageExt
             this TryAsync<Seq<A>> ma,
             Func<A, TryAsync<Seq<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryAsync<Seq<A>>, TryAsync<Seq<A>>, MSeq<A>, Seq<A>, A>).SelectManyAsync<MTryAsync<Seq<B>>, TryAsync<Seq<B>>, MSeq<B>, Seq<B>, B, MTryAsync<Seq<C>>, TryAsync<Seq<C>>, MSeq<C>, Seq<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MSeq<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -13162,11 +15739,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Seq&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Seq<A>> Where< A>(this TryAsync<Seq<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Seq<A>>, TryAsync<Seq<A>>, MSeq<A>, Seq<A>, A>).Bind<MTryAsync<Seq<A>>, TryAsync<Seq<A>>, MSeq<A>, Seq<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MSeq<A>).Return(a)
-                    : default(MSeq<A>).Zero());
+        public static TryAsync<Seq<A>> Where< A>(this TryAsync<Seq<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Seq<A>> Do(Seq<A> a) => default(MTryAsync<Seq<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -13179,8 +15756,7 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Seq<B>> Select< A, B>(this TryAsync<Seq<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryAsync<Seq<A>>, TryAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
-                .Map<MTryAsync<Seq<B>>, TryAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.BindT(a => default(MTryAsync<Seq<B>>).ReturnAsync(_ => default(MSeq<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;Seq&lt;A&gt;&gt;`
@@ -13215,19 +15791,6 @@ namespace LanguageExt
         public static TryAsync<Seq<B>> BindT< A, B>(this TryAsync<Seq<A>> ma, Func<A, Seq<B>> f) =>
             default(TransAsyncSync<MTryAsync<Seq<A>>, TryAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
                 .Bind<MTryAsync<Seq<B>>, TryAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryAsync&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryAsync<Seq<B>> BindT< A, B>(this TryAsync<Seq<A>> ma, Func<A, TryAsync<Seq<B>>> f) =>
-            default(TransAsyncSync<MTryAsync<Seq<A>>, TryAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
-                .BindAsync<MTryAsync<Seq<B>>, TryAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -13321,12 +15884,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Seq&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Seq<A>> FilterT< A>(this TryAsync<Seq<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Seq<A>>, TryAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
-                .Bind<MTryAsync<Seq<A>>, TryAsync<Seq<A>>, MSeq<A>, Seq<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
+        public static TryAsync<Seq<A>> FilterT< A>(this TryAsync<Seq<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Seq<A>> Do(Seq<A> a) => default(MTryAsync<Seq<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -13463,10 +16025,9 @@ namespace LanguageExt
             this TryOptionAsync<Seq<A>> ma,
             Func<A, TryOptionAsync<Seq<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryOptionAsync<Seq<A>>, TryOptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>).SelectManyAsync<MTryOptionAsync<Seq<B>>, TryOptionAsync<Seq<B>>, MSeq<B>, Seq<B>, B, MTryOptionAsync<Seq<C>>, TryOptionAsync<Seq<C>>, MSeq<C>, Seq<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MSeq<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -13477,11 +16038,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Seq&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Seq<A>> Where< A>(this TryOptionAsync<Seq<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Seq<A>>, TryOptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>).Bind<MTryOptionAsync<Seq<A>>, TryOptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MSeq<A>).Return(a)
-                    : default(MSeq<A>).Zero());
+        public static TryOptionAsync<Seq<A>> Where< A>(this TryOptionAsync<Seq<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Seq<A>> Do(Seq<A> a) => default(MTryOptionAsync<Seq<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -13494,8 +16055,7 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Seq<B>> Select< A, B>(this TryOptionAsync<Seq<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Seq<A>>, TryOptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
-                .Map<MTryOptionAsync<Seq<B>>, TryOptionAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.BindT(a => default(MTryOptionAsync<Seq<B>>).ReturnAsync(_ => default(MSeq<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;Seq&lt;A&gt;&gt;`
@@ -13530,19 +16090,6 @@ namespace LanguageExt
         public static TryOptionAsync<Seq<B>> BindT< A, B>(this TryOptionAsync<Seq<A>> ma, Func<A, Seq<B>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Seq<A>>, TryOptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
                 .Bind<MTryOptionAsync<Seq<B>>, TryOptionAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOptionAsync<Seq<B>> BindT< A, B>(this TryOptionAsync<Seq<A>> ma, Func<A, TryOptionAsync<Seq<B>>> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Seq<A>>, TryOptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
-                .BindAsync<MTryOptionAsync<Seq<B>>, TryOptionAsync<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -13636,12 +16183,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Seq&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Seq<A>> FilterT< A>(this TryOptionAsync<Seq<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Seq<A>>, TryOptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>)
-                .Bind<MTryOptionAsync<Seq<A>>, TryOptionAsync<Seq<A>>, MSeq<A>, Seq<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSeq<A>).Return(a)
-                        : default(MSeq<A>).Zero());
+        public static TryOptionAsync<Seq<A>> FilterT< A>(this TryOptionAsync<Seq<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Seq<A>> Do(Seq<A> a) => default(MTryOptionAsync<Seq<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -13786,10 +16332,9 @@ namespace LanguageExt
             this OptionAsync<Set<A>> ma,
             Func<A, OptionAsync<Set<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>).SelectManyAsync<MOptionAsync<Set<B>>, OptionAsync<Set<B>>, MSet<B>, Set<B>, B, MOptionAsync<Set<C>>, OptionAsync<Set<C>>, MSet<C>, Set<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MSet<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -13800,11 +16345,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Set&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Set<A>> Where< A>(this OptionAsync<Set<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>).Bind<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MSet<A>).Return(a)
-                    : default(MSet<A>).Zero());
+        public static OptionAsync<Set<A>> Where< A>(this OptionAsync<Set<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Set<A>> Do(Set<A> a) => default(MOptionAsync<Set<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -13817,8 +16362,7 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Set<B>> Select< A, B>(this OptionAsync<Set<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>)
-                .Map<MOptionAsync<Set<B>>, OptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.BindT(a => default(MOptionAsync<Set<B>>).ReturnAsync(_ => default(MSet<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;Set&lt;A&gt;&gt;`
@@ -13853,19 +16397,6 @@ namespace LanguageExt
         public static OptionAsync<Set<B>> BindT< A, B>(this OptionAsync<Set<A>> ma, Func<A, Set<B>> f) =>
             default(TransAsyncSync<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>)
                 .Bind<MOptionAsync<Set<B>>, OptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OptionAsync&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`OptionAsync&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static OptionAsync<Set<B>> BindT< A, B>(this OptionAsync<Set<A>> ma, Func<A, OptionAsync<Set<B>>> f) =>
-            default(TransAsyncSync<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>)
-                .BindAsync<MOptionAsync<Set<B>>, OptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -13959,12 +16490,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Set&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Set<A>> FilterT< A>(this OptionAsync<Set<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>)
-                .Bind<MOptionAsync<Set<A>>, OptionAsync<Set<A>>, MSet<A>, Set<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSet<A>).Return(a)
-                        : default(MSet<A>).Zero());
+        public static OptionAsync<Set<A>> FilterT< A>(this OptionAsync<Set<A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Set<A>> Do(Set<A> a) => default(MOptionAsync<Set<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -14092,6 +16622,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`EitherAsync&lt;L, Set&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static EitherAsync<L, Set<C>> SelectMany<L, A, B, C>(
+            this EitherAsync<L, Set<A>> ma,
+            Func<A, EitherAsync<L, Set<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MSet<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Set&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Set<A>> Where<L, A>(this EitherAsync<L, Set<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Set<A>> Do(Set<A> a) => default(MEitherAsync<L, Set<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Set<B>> Select<L, A, B>(this EitherAsync<L, Set<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MEitherAsync<L, Set<B>>).ReturnAsync(_ => default(MSet<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, Set&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Set&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, Set&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, Set<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MEitherAsync<L, Set<A>>, EitherAsync<L, Set<A>>, MSet<A>, Set<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherAsync&lt;L, Set&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Set&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherAsync&lt;L, Set&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, A>(this EitherAsync<L, Set<A>> ma) =>
+            default(TransAsyncSync<MEitherAsync<L, Set<A>>, EitherAsync<L, Set<A>>, MSet<A>, Set<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Set<B>> BindT<L, A, B>(this EitherAsync<L, Set<A>> ma, Func<A, Set<B>> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Set<A>>, EitherAsync<L, Set<A>>, MSet<A>, Set<A>, A>)
+                .Bind<MEitherAsync<L, Set<B>>, EitherAsync<L, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Set<B>> MapT<L, A, B>(this EitherAsync<L, Set<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Set<A>>, EitherAsync<L, Set<A>>, MSet<A>, Set<A>, A>)
+                .Map<MEitherAsync<L, Set<B>>, EitherAsync<L, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, A>(this EitherAsync<L, Set<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Set<A>>, EitherAsync<L, Set<A>>, MSet<A>, Set<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, A>(this EitherAsync<L, Set<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Set<A>>, EitherAsync<L, Set<A>>, MSet<A>, Set<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, A>(this EitherAsync<L, Set<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Set<A>>, EitherAsync<L, Set<A>>, MSet<A>, Set<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, A>(this EitherAsync<L, Set<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Set<A>>, EitherAsync<L, Set<A>>, MSet<A>, Set<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, Set&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, A>(this EitherAsync<L, Set<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Set<A>>, EitherAsync<L, Set<A>>, MSet<A>, Set<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Set&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Set<A>> FilterT<L, A>(this EitherAsync<L, Set<A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Set<A>> Do(Set<A> a) => default(MEitherAsync<L, Set<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherAsync<L, Set<A>> PlusT<NUM, L, A>(this EitherAsync<L, Set<A>> x, EitherAsync<L, Set<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherAsync<L, Set<A>> SubtractT<NUM, L, A>(this EitherAsync<L, Set<A>> x, EitherAsync<L, Set<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherAsync<L, Set<A>> ProductT<NUM, L, A>(this EitherAsync<L, Set<A>> x, EitherAsync<L, Set<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherAsync<L, Set<A>> DivideT<NUM, L, A>(this EitherAsync<L, Set<A>> x, EitherAsync<L, Set<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherAsync<L, Set<A>> AppendT<SEMI, L, A>(this EitherAsync<L, Set<A>> x, EitherAsync<L, Set<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, Set<A>> x, EitherAsync<L, Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, Set<A>> x, EitherAsync<L, Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Set&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Set&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherAsync<L, Set<B>> ApplyT<L, A, B>(this Func<A, B> fab, EitherAsync<L, Set<A>> fa) =>
+            default(ApplEitherAsync<L, Set<A>, Set<B>>).Apply(
+                default(MEitherAsync<L, Func<Set<A>, Set<B>>>).ReturnAsync(
+                    Task.FromResult<Func<Set<A>, Set<B>>>((Set<A> a) => 
+                        default(ApplSet< A, B>).Apply(
+                            default(MSet< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Set&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `EitherAsync&lt;L, Set&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Set&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherAsync<L, Set<C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, Set<A>> fa, EitherAsync<L, Set<B>> fb) =>
+            default(ApplEitherAsync<L, Set<A>, Set<B>, Set<C>>).Apply(
+                default(MEitherAsync<L, Func<Set<A>, Func<Set<B>, Set<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Set<A>, Func<Set<B>, Set<C>>>>((Set<A> a) =>
+                        (Set<B> b) =>
+                            default(ApplSet< A, B, C>).Apply(
+                                default(MSet< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `Task&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -14101,10 +16930,9 @@ namespace LanguageExt
             this Task<Set<A>> ma,
             Func<A, Task<Set<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>).SelectManyAsync<MTask<Set<B>>, Task<Set<B>>, MSet<B>, Set<B>, B, MTask<Set<C>>, Task<Set<C>>, MSet<C>, Set<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MSet<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -14115,11 +16943,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Set&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Set<A>> Where< A>(this Task<Set<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>).Bind<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MSet<A>).Return(a)
-                    : default(MSet<A>).Zero());
+        public static Task<Set<A>> Where< A>(this Task<Set<A>> ma, Func<A, bool> f)
+        {
+            Task<Set<A>> Do(Set<A> a) => default(MTask<Set<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -14132,8 +16960,7 @@ namespace LanguageExt
         /// <returns>`Task&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Set<B>> Select< A, B>(this Task<Set<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>)
-                .Map<MTask<Set<B>>, Task<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.BindT(a => default(MTask<Set<B>>).ReturnAsync(_ => default(MSet<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;Set&lt;A&gt;&gt;`
@@ -14168,19 +16995,6 @@ namespace LanguageExt
         public static Task<Set<B>> BindT< A, B>(this Task<Set<A>> ma, Func<A, Set<B>> f) =>
             default(TransAsyncSync<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>)
                 .Bind<MTask<Set<B>>, Task<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Task&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`Task&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Task<Set<B>> BindT< A, B>(this Task<Set<A>> ma, Func<A, Task<Set<B>>> f) =>
-            default(TransAsyncSync<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>)
-                .BindAsync<MTask<Set<B>>, Task<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -14274,12 +17088,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Set&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Set<A>> FilterT< A>(this Task<Set<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>)
-                .Bind<MTask<Set<A>>, Task<Set<A>>, MSet<A>, Set<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSet<A>).Return(a)
-                        : default(MSet<A>).Zero());
+        public static Task<Set<A>> FilterT< A>(this Task<Set<A>> ma, Func<A, bool> f)
+        {
+            Task<Set<A>> Do(Set<A> a) => default(MTask<Set<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -14416,10 +17229,9 @@ namespace LanguageExt
             this TryAsync<Set<A>> ma,
             Func<A, TryAsync<Set<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>).SelectManyAsync<MTryAsync<Set<B>>, TryAsync<Set<B>>, MSet<B>, Set<B>, B, MTryAsync<Set<C>>, TryAsync<Set<C>>, MSet<C>, Set<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MSet<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -14430,11 +17242,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Set&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Set<A>> Where< A>(this TryAsync<Set<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>).Bind<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MSet<A>).Return(a)
-                    : default(MSet<A>).Zero());
+        public static TryAsync<Set<A>> Where< A>(this TryAsync<Set<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Set<A>> Do(Set<A> a) => default(MTryAsync<Set<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -14447,8 +17259,7 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Set<B>> Select< A, B>(this TryAsync<Set<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>)
-                .Map<MTryAsync<Set<B>>, TryAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.BindT(a => default(MTryAsync<Set<B>>).ReturnAsync(_ => default(MSet<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;Set&lt;A&gt;&gt;`
@@ -14483,19 +17294,6 @@ namespace LanguageExt
         public static TryAsync<Set<B>> BindT< A, B>(this TryAsync<Set<A>> ma, Func<A, Set<B>> f) =>
             default(TransAsyncSync<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>)
                 .Bind<MTryAsync<Set<B>>, TryAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryAsync&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryAsync<Set<B>> BindT< A, B>(this TryAsync<Set<A>> ma, Func<A, TryAsync<Set<B>>> f) =>
-            default(TransAsyncSync<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>)
-                .BindAsync<MTryAsync<Set<B>>, TryAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -14589,12 +17387,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Set&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Set<A>> FilterT< A>(this TryAsync<Set<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>)
-                .Bind<MTryAsync<Set<A>>, TryAsync<Set<A>>, MSet<A>, Set<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSet<A>).Return(a)
-                        : default(MSet<A>).Zero());
+        public static TryAsync<Set<A>> FilterT< A>(this TryAsync<Set<A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Set<A>> Do(Set<A> a) => default(MTryAsync<Set<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -14731,10 +17528,9 @@ namespace LanguageExt
             this TryOptionAsync<Set<A>> ma,
             Func<A, TryOptionAsync<Set<B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>).SelectManyAsync<MTryOptionAsync<Set<B>>, TryOptionAsync<Set<B>>, MSet<B>, Set<B>, B, MTryOptionAsync<Set<C>>, TryOptionAsync<Set<C>>, MSet<C>, Set<C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MSet<C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -14745,11 +17541,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Set&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Set<A>> Where< A>(this TryOptionAsync<Set<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>).Bind<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>(ma, 
-                a => pred(a)
-                    ? default(MSet<A>).Return(a)
-                    : default(MSet<A>).Zero());
+        public static TryOptionAsync<Set<A>> Where< A>(this TryOptionAsync<Set<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Set<A>> Do(Set<A> a) => default(MTryOptionAsync<Set<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -14762,8 +17558,7 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Set<B>> Select< A, B>(this TryOptionAsync<Set<A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>)
-                .Map<MTryOptionAsync<Set<B>>, TryOptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.BindT(a => default(MTryOptionAsync<Set<B>>).ReturnAsync(_ => default(MSet<B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;Set&lt;A&gt;&gt;`
@@ -14798,19 +17593,6 @@ namespace LanguageExt
         public static TryOptionAsync<Set<B>> BindT< A, B>(this TryOptionAsync<Set<A>> ma, Func<A, Set<B>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>)
                 .Bind<MTryOptionAsync<Set<B>>, TryOptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOptionAsync<Set<B>> BindT< A, B>(this TryOptionAsync<Set<A>> ma, Func<A, TryOptionAsync<Set<B>>> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>)
-                .BindAsync<MTryOptionAsync<Set<B>>, TryOptionAsync<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -14904,12 +17686,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Set&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Set<A>> FilterT< A>(this TryOptionAsync<Set<A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>)
-                .Bind<MTryOptionAsync<Set<A>>, TryOptionAsync<Set<A>>, MSet<A>, Set<A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MSet<A>).Return(a)
-                        : default(MSet<A>).Zero());
+        public static TryOptionAsync<Set<A>> FilterT< A>(this TryOptionAsync<Set<A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Set<A>> Do(Set<A> a) => default(MTryOptionAsync<Set<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -15054,10 +17835,9 @@ namespace LanguageExt
             this OptionAsync<Validation<FAIL, A>> ma,
             Func<A, OptionAsync<Validation<FAIL, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MOptionAsync<Validation<FAIL, A>>, OptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>).SelectManyAsync<MOptionAsync<Validation<FAIL, B>>, OptionAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B, MOptionAsync<Validation<FAIL, C>>, OptionAsync<Validation<FAIL, C>>, MValidation<FAIL, C>, Validation<FAIL, C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MValidation<FAIL, C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -15068,11 +17848,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Validation<FAIL, A>> Where<FAIL, A>(this OptionAsync<Validation<FAIL, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Validation<FAIL, A>>, OptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>).Bind<MOptionAsync<Validation<FAIL, A>>, OptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>(ma, 
-                a => pred(a)
-                    ? default(MValidation<FAIL, A>).Return(a)
-                    : default(MValidation<FAIL, A>).Zero());
+        public static OptionAsync<Validation<FAIL, A>> Where<FAIL, A>(this OptionAsync<Validation<FAIL, A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Validation<FAIL, A>> Do(Validation<FAIL, A> a) => default(MOptionAsync<Validation<FAIL, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -15085,8 +17865,7 @@ namespace LanguageExt
         /// <returns>`OptionAsync&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static OptionAsync<Validation<FAIL, B>> Select<FAIL, A, B>(this OptionAsync<Validation<FAIL, A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MOptionAsync<Validation<FAIL, A>>, OptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
-                .Map<MOptionAsync<Validation<FAIL, B>>, OptionAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.BindT(a => default(MOptionAsync<Validation<FAIL, B>>).ReturnAsync(_ => default(MValidation<FAIL, B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `OptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;`
@@ -15121,19 +17900,6 @@ namespace LanguageExt
         public static OptionAsync<Validation<FAIL, B>> BindT<FAIL, A, B>(this OptionAsync<Validation<FAIL, A>> ma, Func<A, Validation<FAIL, B>> f) =>
             default(TransAsyncSync<MOptionAsync<Validation<FAIL, A>>, OptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
                 .Bind<MOptionAsync<Validation<FAIL, B>>, OptionAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`OptionAsync&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static OptionAsync<Validation<FAIL, B>> BindT<FAIL, A, B>(this OptionAsync<Validation<FAIL, A>> ma, Func<A, OptionAsync<Validation<FAIL, B>>> f) =>
-            default(TransAsyncSync<MOptionAsync<Validation<FAIL, A>>, OptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
-                .BindAsync<MOptionAsync<Validation<FAIL, B>>, OptionAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -15227,12 +17993,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`OptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OptionAsync<Validation<FAIL, A>> FilterT<FAIL, A>(this OptionAsync<Validation<FAIL, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MOptionAsync<Validation<FAIL, A>>, OptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
-                .Bind<MOptionAsync<Validation<FAIL, A>>, OptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MValidation<FAIL, A>).Return(a)
-                        : default(MValidation<FAIL, A>).Zero());
+        public static OptionAsync<Validation<FAIL, A>> FilterT<FAIL, A>(this OptionAsync<Validation<FAIL, A>> ma, Func<A, bool> f)
+        {
+            OptionAsync<Validation<FAIL, A>> Do(Validation<FAIL, A> a) => default(MOptionAsync<Validation<FAIL, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -15360,6 +18125,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static EitherAsync<L, Validation<FAIL, C>> SelectMany<L, FAIL, A, B, C>(
+            this EitherAsync<L, Validation<FAIL, A>> ma,
+            Func<A, EitherAsync<L, Validation<FAIL, B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MValidation<FAIL, C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Validation<FAIL, A>> Where<L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Validation<FAIL, A>> Do(Validation<FAIL, A> a) => default(MEitherAsync<L, Validation<FAIL, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Validation<FAIL, B>> Select<L, FAIL, A, B>(this EitherAsync<L, Validation<FAIL, A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MEitherAsync<L, Validation<FAIL, B>>).ReturnAsync(_ => default(MValidation<FAIL, B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MEitherAsync<L, Validation<FAIL, A>>, EitherAsync<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> ma) =>
+            default(TransAsyncSync<MEitherAsync<L, Validation<FAIL, A>>, EitherAsync<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Validation<FAIL, B>> BindT<L, FAIL, A, B>(this EitherAsync<L, Validation<FAIL, A>> ma, Func<A, Validation<FAIL, B>> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Validation<FAIL, A>>, EitherAsync<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .Bind<MEitherAsync<L, Validation<FAIL, B>>, EitherAsync<L, Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherAsync<L, Validation<FAIL, B>> MapT<L, FAIL, A, B>(this EitherAsync<L, Validation<FAIL, A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Validation<FAIL, A>>, EitherAsync<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .Map<MEitherAsync<L, Validation<FAIL, B>>, EitherAsync<L, Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Validation<FAIL, A>>, EitherAsync<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Validation<FAIL, A>>, EitherAsync<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Validation<FAIL, A>>, EitherAsync<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Validation<FAIL, A>>, EitherAsync<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MEitherAsync<L, Validation<FAIL, A>>, EitherAsync<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherAsync<L, Validation<FAIL, A>> FilterT<L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> ma, Func<A, bool> f)
+        {
+            EitherAsync<L, Validation<FAIL, A>> Do(Validation<FAIL, A> a) => default(MEitherAsync<L, Validation<FAIL, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherAsync<L, Validation<FAIL, A>> PlusT<NUM, L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> x, EitherAsync<L, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherAsync<L, Validation<FAIL, A>> SubtractT<NUM, L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> x, EitherAsync<L, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherAsync<L, Validation<FAIL, A>> ProductT<NUM, L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> x, EitherAsync<L, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherAsync<L, Validation<FAIL, A>> DivideT<NUM, L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> x, EitherAsync<L, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherAsync<L, Validation<FAIL, A>> AppendT<SEMI, L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> x, EitherAsync<L, Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> x, EitherAsync<L, Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, FAIL, A>(this EitherAsync<L, Validation<FAIL, A>> x, EitherAsync<L, Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherAsync<L, Validation<FAIL, B>> ApplyT<L, FAIL, A, B>(this Func<A, B> fab, EitherAsync<L, Validation<FAIL, A>> fa) =>
+            default(ApplEitherAsync<L, Validation<FAIL, A>, Validation<FAIL, B>>).Apply(
+                default(MEitherAsync<L, Func<Validation<FAIL, A>, Validation<FAIL, B>>>).ReturnAsync(
+                    Task.FromResult<Func<Validation<FAIL, A>, Validation<FAIL, B>>>((Validation<FAIL, A> a) => 
+                        default(ApplValidation<FAIL, A, B>).Apply(
+                            default(MValidation<FAIL, Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;`</param>
+        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherAsync<L, Validation<FAIL, C>> ApplyT<L, FAIL, A, B, C>(this Func<A, B, C> fabc, EitherAsync<L, Validation<FAIL, A>> fa, EitherAsync<L, Validation<FAIL, B>> fb) =>
+            default(ApplEitherAsync<L, Validation<FAIL, A>, Validation<FAIL, B>, Validation<FAIL, C>>).Apply(
+                default(MEitherAsync<L, Func<Validation<FAIL, A>, Func<Validation<FAIL, B>, Validation<FAIL, C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Validation<FAIL, A>, Func<Validation<FAIL, B>, Validation<FAIL, C>>>>((Validation<FAIL, A> a) =>
+                        (Validation<FAIL, B> b) =>
+                            default(ApplValidation<FAIL, A, B, C>).Apply(
+                                default(MValidation<FAIL, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `Task&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -15369,10 +18433,9 @@ namespace LanguageExt
             this Task<Validation<FAIL, A>> ma,
             Func<A, Task<Validation<FAIL, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTask<Validation<FAIL, A>>, Task<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>).SelectManyAsync<MTask<Validation<FAIL, B>>, Task<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B, MTask<Validation<FAIL, C>>, Task<Validation<FAIL, C>>, MValidation<FAIL, C>, Validation<FAIL, C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MValidation<FAIL, C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -15383,11 +18446,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Validation&lt;FAIL, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Validation<FAIL, A>> Where<FAIL, A>(this Task<Validation<FAIL, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Validation<FAIL, A>>, Task<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>).Bind<MTask<Validation<FAIL, A>>, Task<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>(ma, 
-                a => pred(a)
-                    ? default(MValidation<FAIL, A>).Return(a)
-                    : default(MValidation<FAIL, A>).Zero());
+        public static Task<Validation<FAIL, A>> Where<FAIL, A>(this Task<Validation<FAIL, A>> ma, Func<A, bool> f)
+        {
+            Task<Validation<FAIL, A>> Do(Validation<FAIL, A> a) => default(MTask<Validation<FAIL, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -15400,8 +18463,7 @@ namespace LanguageExt
         /// <returns>`Task&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static Task<Validation<FAIL, B>> Select<FAIL, A, B>(this Task<Validation<FAIL, A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTask<Validation<FAIL, A>>, Task<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
-                .Map<MTask<Validation<FAIL, B>>, Task<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.BindT(a => default(MTask<Validation<FAIL, B>>).ReturnAsync(_ => default(MValidation<FAIL, B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `Task&lt;Validation&lt;FAIL, A&gt;&gt;`
@@ -15436,19 +18498,6 @@ namespace LanguageExt
         public static Task<Validation<FAIL, B>> BindT<FAIL, A, B>(this Task<Validation<FAIL, A>> ma, Func<A, Validation<FAIL, B>> f) =>
             default(TransAsyncSync<MTask<Validation<FAIL, A>>, Task<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
                 .Bind<MTask<Validation<FAIL, B>>, Task<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `Task&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`Task&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static Task<Validation<FAIL, B>> BindT<FAIL, A, B>(this Task<Validation<FAIL, A>> ma, Func<A, Task<Validation<FAIL, B>>> f) =>
-            default(TransAsyncSync<MTask<Validation<FAIL, A>>, Task<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
-                .BindAsync<MTask<Validation<FAIL, B>>, Task<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -15542,12 +18591,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`Task&lt;Validation&lt;FAIL, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static Task<Validation<FAIL, A>> FilterT<FAIL, A>(this Task<Validation<FAIL, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTask<Validation<FAIL, A>>, Task<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
-                .Bind<MTask<Validation<FAIL, A>>, Task<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MValidation<FAIL, A>).Return(a)
-                        : default(MValidation<FAIL, A>).Zero());
+        public static Task<Validation<FAIL, A>> FilterT<FAIL, A>(this Task<Validation<FAIL, A>> ma, Func<A, bool> f)
+        {
+            Task<Validation<FAIL, A>> Do(Validation<FAIL, A> a) => default(MTask<Validation<FAIL, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -15684,10 +18732,9 @@ namespace LanguageExt
             this TryAsync<Validation<FAIL, A>> ma,
             Func<A, TryAsync<Validation<FAIL, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryAsync<Validation<FAIL, A>>, TryAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>).SelectManyAsync<MTryAsync<Validation<FAIL, B>>, TryAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B, MTryAsync<Validation<FAIL, C>>, TryAsync<Validation<FAIL, C>>, MValidation<FAIL, C>, Validation<FAIL, C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MValidation<FAIL, C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -15698,11 +18745,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Validation&lt;FAIL, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Validation<FAIL, A>> Where<FAIL, A>(this TryAsync<Validation<FAIL, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Validation<FAIL, A>>, TryAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>).Bind<MTryAsync<Validation<FAIL, A>>, TryAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>(ma, 
-                a => pred(a)
-                    ? default(MValidation<FAIL, A>).Return(a)
-                    : default(MValidation<FAIL, A>).Zero());
+        public static TryAsync<Validation<FAIL, A>> Where<FAIL, A>(this TryAsync<Validation<FAIL, A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Validation<FAIL, A>> Do(Validation<FAIL, A> a) => default(MTryAsync<Validation<FAIL, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -15715,8 +18762,7 @@ namespace LanguageExt
         /// <returns>`TryAsync&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryAsync<Validation<FAIL, B>> Select<FAIL, A, B>(this TryAsync<Validation<FAIL, A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryAsync<Validation<FAIL, A>>, TryAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
-                .Map<MTryAsync<Validation<FAIL, B>>, TryAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.BindT(a => default(MTryAsync<Validation<FAIL, B>>).ReturnAsync(_ => default(MValidation<FAIL, B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryAsync&lt;Validation&lt;FAIL, A&gt;&gt;`
@@ -15751,19 +18797,6 @@ namespace LanguageExt
         public static TryAsync<Validation<FAIL, B>> BindT<FAIL, A, B>(this TryAsync<Validation<FAIL, A>> ma, Func<A, Validation<FAIL, B>> f) =>
             default(TransAsyncSync<MTryAsync<Validation<FAIL, A>>, TryAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
                 .Bind<MTryAsync<Validation<FAIL, B>>, TryAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryAsync&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryAsync&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryAsync<Validation<FAIL, B>> BindT<FAIL, A, B>(this TryAsync<Validation<FAIL, A>> ma, Func<A, TryAsync<Validation<FAIL, B>>> f) =>
-            default(TransAsyncSync<MTryAsync<Validation<FAIL, A>>, TryAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
-                .BindAsync<MTryAsync<Validation<FAIL, B>>, TryAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -15857,12 +18890,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryAsync&lt;Validation&lt;FAIL, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryAsync<Validation<FAIL, A>> FilterT<FAIL, A>(this TryAsync<Validation<FAIL, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryAsync<Validation<FAIL, A>>, TryAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
-                .Bind<MTryAsync<Validation<FAIL, A>>, TryAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MValidation<FAIL, A>).Return(a)
-                        : default(MValidation<FAIL, A>).Zero());
+        public static TryAsync<Validation<FAIL, A>> FilterT<FAIL, A>(this TryAsync<Validation<FAIL, A>> ma, Func<A, bool> f)
+        {
+            TryAsync<Validation<FAIL, A>> Do(Validation<FAIL, A> a) => default(MTryAsync<Validation<FAIL, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together
@@ -15999,10 +19031,9 @@ namespace LanguageExt
             this TryOptionAsync<Validation<FAIL, A>> ma,
             Func<A, TryOptionAsync<Validation<FAIL, B>>> bind,
             Func<A, B, C> project) =>
-            default(TransAsyncSync<MTryOptionAsync<Validation<FAIL, A>>, TryOptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>).SelectManyAsync<MTryOptionAsync<Validation<FAIL, B>>, TryOptionAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B, MTryOptionAsync<Validation<FAIL, C>>, TryOptionAsync<Validation<FAIL, C>>, MValidation<FAIL, C>, Validation<FAIL, C>, C>(
-                ma, 
-                bind, 
-                project);
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MValidation<FAIL, C>).Return(project(a, b))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -16013,11 +19044,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Validation<FAIL, A>> Where<FAIL, A>(this TryOptionAsync<Validation<FAIL, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Validation<FAIL, A>>, TryOptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>).Bind<MTryOptionAsync<Validation<FAIL, A>>, TryOptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>(ma, 
-                a => pred(a)
-                    ? default(MValidation<FAIL, A>).Return(a)
-                    : default(MValidation<FAIL, A>).Zero());
+        public static TryOptionAsync<Validation<FAIL, A>> Where<FAIL, A>(this TryOptionAsync<Validation<FAIL, A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Validation<FAIL, A>> Do(Validation<FAIL, A> a) => default(MTryOptionAsync<Validation<FAIL, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -16030,8 +19061,7 @@ namespace LanguageExt
         /// <returns>`TryOptionAsync&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
         [Pure]
         public static TryOptionAsync<Validation<FAIL, B>> Select<FAIL, A, B>(this TryOptionAsync<Validation<FAIL, A>> ma, Func<A, B> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Validation<FAIL, A>>, TryOptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
-                .Map<MTryOptionAsync<Validation<FAIL, B>>, TryOptionAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.BindT(a => default(MTryOptionAsync<Validation<FAIL, B>>).ReturnAsync(_ => default(MValidation<FAIL, B>).Return(f(a)).AsTask()));
 
         /// <summary>
         /// Finds total of all the `Num<A>`s in `TryOptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;`
@@ -16066,19 +19096,6 @@ namespace LanguageExt
         public static TryOptionAsync<Validation<FAIL, B>> BindT<FAIL, A, B>(this TryOptionAsync<Validation<FAIL, A>> ma, Func<A, Validation<FAIL, B>> f) =>
             default(TransAsyncSync<MTryOptionAsync<Validation<FAIL, A>>, TryOptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
                 .Bind<MTryOptionAsync<Validation<FAIL, B>>, TryOptionAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `TryOptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The bind function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
-        [Pure]
-        public static TryOptionAsync<Validation<FAIL, B>> BindT<FAIL, A, B>(this TryOptionAsync<Validation<FAIL, A>> ma, Func<A, TryOptionAsync<Validation<FAIL, B>>> f) =>
-            default(TransAsyncSync<MTryOptionAsync<Validation<FAIL, A>>, TryOptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
-                .BindAsync<MTryOptionAsync<Validation<FAIL, B>>, TryOptionAsync<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -16172,12 +19189,11 @@ namespace LanguageExt
         /// <param name="f">The predicate function</param>
         /// <returns>`TryOptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static TryOptionAsync<Validation<FAIL, A>> FilterT<FAIL, A>(this TryOptionAsync<Validation<FAIL, A>> ma, Func<A, bool> pred) =>
-            default(TransAsyncSync<MTryOptionAsync<Validation<FAIL, A>>, TryOptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
-                .Bind<MTryOptionAsync<Validation<FAIL, A>>, TryOptionAsync<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>(ma, 
-                    a => pred(a)
-                        ? default(MValidation<FAIL, A>).Return(a)
-                        : default(MValidation<FAIL, A>).Zero());
+        public static TryOptionAsync<Validation<FAIL, A>> FilterT<FAIL, A>(this TryOptionAsync<Validation<FAIL, A>> ma, Func<A, bool> f)
+        {
+            TryOptionAsync<Validation<FAIL, A>> Do(Validation<FAIL, A> a) => default(MTryOptionAsync<Validation<FAIL, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
 
         /// <summary>
         /// Adds the two inner `Num<A>` types together

@@ -13,6 +13,7 @@ using static LanguageExt.Seq;
 using Xunit;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using System.Threading;
 
 namespace LanguageExt.Tests
 {
@@ -278,6 +279,22 @@ namespace NickCuthbertOnGitter_RecordsTests
             var resu = list.Sequence();
 
         }
+    }
+
+    public class Issue242
+    {
+
+        [Fact]
+        public async Task Issue242_ExpectNoException()
+        {
+            var failableTask = fun((Either<string, int> value) =>
+                value.AsTask());
+
+            var result = await from a in failableTask("This will NOT cause a Bottom Exception")
+                               from b in failableTask(3)
+                               select a + b;
+        }
+
     }
 
     public class Issue263

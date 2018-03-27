@@ -106,5 +106,15 @@ namespace LanguageExtTests
 
             // execution terminates by reaching here
         }
+
+        [Fact]
+        public async Task TaskOptionBindT_InitialOptionInNoneState_NoExceptionThrown()
+        {
+            Option<Unit> x = None;
+            var none = x.AsTask();
+            var task = none.BindT(_ => none);
+
+            await task;
+        }
     }
 }

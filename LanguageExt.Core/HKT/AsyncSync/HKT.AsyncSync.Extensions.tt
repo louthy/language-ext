@@ -10,6 +10,7 @@
 
     var asyncTypes = new [] {
         T("TransAsyncSync", "OptionAsync"),
+        T("TransAsyncSync", "EitherAsync", "L"),
         T("TransAsyncSync", "Task"),
         T("TransAsyncSync", "TryAsync"),
         T("TransAsyncSync", "TryOptionAsync")
