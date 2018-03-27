@@ -19,7 +19,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb) = await f(ia).Map(b => (true, b)).IfNone(() => (false, Arr<B>.Empty));
+                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Arr<B>.Empty));
                         if (!success) return OptionAsync<Arr<B>>.None;
                         foreach (var ib in imb)
                         {
@@ -52,7 +52,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb, left) = await f(ia).Map(b => (true, b, default(L))).IfLeft(l => (false, Arr<B>.Empty, l));
+                        var (success, imb, left) = await f(ia).Map(b => (succ: true, fail: b, left: default(L))).IfLeft(l => (false, Arr<B>.Empty, l));
                         if (!success) return EitherAsync<L, Arr<B>>.Left(left);
                         foreach (var ib in imb)
                         {
@@ -112,7 +112,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb) = await f(ia).Map(b => (true, b)).IfNone(() => (false, HashSet<B>.Empty));
+                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, HashSet<B>.Empty));
                         if (!success) return OptionAsync<HashSet<B>>.None;
                         foreach (var ib in imb)
                         {
@@ -145,7 +145,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb, left) = await f(ia).Map(b => (true, b, default(L))).IfLeft(l => (false, HashSet<B>.Empty, l));
+                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left:default(L))).IfLeft(l => (false, HashSet<B>.Empty, l));
                         if (!success) return EitherAsync<L, HashSet<B>>.Left(left);
                         foreach (var ib in imb)
                         {
@@ -204,7 +204,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb) = await f(ia).Map(b => (true, b)).IfNone(() => (false, Lst<B>.Empty));
+                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Lst<B>.Empty));
                         if (!success) return OptionAsync<Lst<B>>.None;
                         foreach (var ib in imb)
                         {
@@ -237,7 +237,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb, left) = await f(ia).Map(b => (true, b, default(L))).IfLeft(l => (false, Lst<B>.Empty, l));
+                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left: default(L))).IfLeft(l => (false, Lst<B>.Empty, l));
                         if (!success) return EitherAsync<L, Lst<B>>.Left(left);
                         foreach (var ib in imb)
                         {
@@ -503,7 +503,7 @@ namespace LanguageExt
                     var results = Enumerable.Empty<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb) = await f(ia).Map(b => (true, b)).IfNone(() => (false, Enumerable.Empty<B>()));
+                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Enumerable.Empty<B>()));
                         if (!success) return OptionAsync<IEnumerable<B>>.None;
                         results = Enumerable.Concat(results, imb);
                     }
@@ -530,7 +530,7 @@ namespace LanguageExt
                     var results = Enumerable.Empty<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb, left) = await f(ia).Map(b => (true, b, default(L))).IfLeft(l => (false, Enumerable.Empty<B>(), l));
+                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left: default(L))).IfLeft(l => (false, Enumerable.Empty<B>(), l));
                         if (!success) return EitherAsync<L, IEnumerable<B>>.Left(left);
                         results = Enumerable.Concat(results, imb);
                     }
@@ -581,7 +581,7 @@ namespace LanguageExt
                     var results = Enumerable.Empty<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb) = await f(ia).Map(b => (true, b)).IfNone(() => (false, Seq<B>()));
+                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Seq<B>()));
                         if (!success) return OptionAsync<Seq<B>>.None;
                         results = Enumerable.Concat(results, imb);
                     }
@@ -608,7 +608,7 @@ namespace LanguageExt
                     var results = Enumerable.Empty<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb, left) = await f(ia).Map(b => (true, b, default(L))).IfLeft(l => (false, Seq<B>(), l));
+                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left: default(L))).IfLeft(l => (false, Seq<B>(), l));
                         if (!success) return EitherAsync<L, Seq<B>>.Left(left);
                         results = Enumerable.Concat(results, imb);
                     }
@@ -622,8 +622,8 @@ namespace LanguageExt
                     var results = Enumerable.Empty<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb, e) = await f(ia).Match(Succ: b => (true, b, default(Exception)),
-                                                                  Fail: ex => (false, Enumerable.Empty<B>(), ex));
+                        var (success, imb, e) = await f(ia).Match(Succ: b => (succ: true, res: b, left: default(Exception)),
+                                                                  Fail: ex => (succ: false, res: Enumerable.Empty<B>(), left: ex));
 
                         if (!success) return TryAsync<Seq<B>>(e);
                         results = Enumerable.Concat(results, imb);
@@ -658,7 +658,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb) = await f(ia).Map(b => (true, b)).IfNone(() => (false, Set<B>.Empty));
+                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Set<B>.Empty));
                         if (!success) return OptionAsync<Set<B>>.None;
                         foreach (var ib in imb)
                         {
@@ -691,7 +691,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb, left) = await f(ia).Map(b => (true, b, default(L))).IfLeft(l => (false, Set<B>.Empty, l));
+                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left: default(L))).IfLeft(l => (false, Set<B>.Empty, l));
                         if (!success) return EitherAsync<L, Set<B>>.Left(left);
                         foreach (var ib in imb)
                         {

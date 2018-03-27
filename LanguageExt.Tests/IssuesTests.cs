@@ -178,7 +178,7 @@ namespace Core.Tests
     }
 
 }
-namespace NickCuthbertOnGitter_RecordsTests
+namespace Issues
 {
     public class CollectorId : NewType<CollectorId, int> { public CollectorId(int value) : base(value) { } };
     public class TenantId : NewType<TenantId, int> { public TenantId(int value) : base(value) { } };
@@ -367,6 +367,64 @@ namespace NickCuthbertOnGitter_RecordsTests
 
             Assert.True(r.Value == 300);
             Assert.True(r.Output == Seq("Hello", "World", "the result is 300") );
+        }
+    }
+
+    public class Issue376
+    {
+        public static EitherAsync<string, int> Op1() =>
+            RightAsync<string, int>(1.AsTask());
+
+        public static EitherAsync<string, int> Op2() =>
+            RightAsync<string, int>(2.AsTask());
+
+        public static EitherAsync<string, int> Op3() =>
+            LeftAsync<string, int>("error".AsTask());
+
+        public static EitherAsync<string, int> Calculate(int x, int y, int z) =>
+            RightAsync<string, int>((x + y + z).AsTask());
+
+        public static async Task Test()
+        {
+            var res = await (from x in Op1()
+                             from y in Op2()
+                             from z in Op3()
+                             from w in Calculate(x, y, z)
+                             select w)
+                            .IfLeft(0);
+        }
+    }
+
+    public class Issue376_2
+    {
+        public static async Task<Either<string, int>> Op1()
+        {
+            return await Task.FromResult(1);
+        }
+
+        public static async Task<Either<string, int>> Op2()
+        {
+            return await Task.FromResult(2);
+        }
+
+        public static async Task<Either<string, int>> Op3()
+        {
+            return await Task.FromResult("error");
+        }
+
+        public static async Task<Either<string, int>> Calculate(int x, int y, int z)
+        {
+            return await Task.FromResult(x + y + z);
+        }
+
+        public static async Task Test()
+        {
+            var res = await (from x in Op1().ToAsync()
+                             from y in Op2().ToAsync()
+                             from z in Op3().ToAsync()
+                             from w in Calculate(x, y, z).ToAsync()
+                             select w)
+                            .IfLeft(0);
         }
     }
 }
