@@ -34,7 +34,7 @@ namespace LanguageExt.ClassInstances
                 Types = typeof(ClassInstancesAssembly).GetTypeInfo().Assembly.DefinedTypes.Freeze();
 #else
 
-                var current = Assembly.GetExecutingAssembly() ?? Assembly.GetCallingAssembly() ?? Assembly.GetExecutingAssembly();
+                var current = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly() ?? Assembly.GetExecutingAssembly();
 
                 Types = (from nam in current.GetReferencedAssemblies()
                          where nam != null && nam.Name != "mscorlib" && !nam.Name.StartsWith("System.")

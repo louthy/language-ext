@@ -133,7 +133,7 @@ namespace LanguageExt
         /// state, in which case the hash-code will be 0</returns>
         [Pure]
         public override int GetHashCode() =>
-            GetHashCodeAsync().Result;
+            throw new NotImplementedException("Call GetHashCodeAsync instead");
 
         /// <summary>
         /// Calculate the hash-code from the bound value, unless the Option is in a None
@@ -151,7 +151,7 @@ namespace LanguageExt
         /// <returns>String representation of the Option</returns>
         [Pure]
         public override string ToString() =>
-            ToStringAsync().Result;
+            "OptionAsync";
 
         /// <summary>
         /// Get a string representation of the Option

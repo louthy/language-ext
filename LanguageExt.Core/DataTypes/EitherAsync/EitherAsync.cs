@@ -578,7 +578,7 @@ namespace LanguageExt
         /// <returns>String representation of the Either</returns>
         [Pure]
         public override string ToString() =>
-            ToStringAsync().Result;
+            "EitherAsync";
 
         /// <summary>
         /// Return a string representation of the Either
@@ -597,7 +597,7 @@ namespace LanguageExt
         /// <returns>Hash code</returns>
         [Pure]
         public override int GetHashCode() =>
-            GetHashCodeAsync().Result;
+            throw new NotImplementedException("Call GetHashCodeAsync instead");
 
         /// <summary>
         /// Returns a hash code of the wrapped value of the Either

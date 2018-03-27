@@ -23,6 +23,10 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public bool Equals(OA x, OA y)
         {
+            if (x.IsNull()) return y.IsNull();
+            if (y.IsNull()) return false;
+            if (ReferenceEquals(x, y)) return true;
+
             var xIsSome = default(OPTION).IsSome(x);
             var yIsSome = default(OPTION).IsSome(y);
             var xIsNone = !xIsSome;
