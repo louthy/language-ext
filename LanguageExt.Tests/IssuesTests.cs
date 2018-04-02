@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-
 using LanguageExt;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
-using static LanguageExt.WriterT;
-using static LanguageExt.Seq;
 using Xunit;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
-using System.Threading;
 
 namespace LanguageExt.Tests
 {
@@ -372,17 +366,20 @@ namespace Issues
 
     public class Issue376
     {
+        static Task<int> Number(int n) => n.AsTask();
+        static Task<string> Error(string err) => err.AsTask();
+
         public static EitherAsync<string, int> Op1() =>
-            RightAsync<string, int>(1.AsTask());
+            Number(1);
 
         public static EitherAsync<string, int> Op2() =>
-            RightAsync<string, int>(2.AsTask());
+            RightAsync<string, int>(Task.FromResult(2));
 
         public static EitherAsync<string, int> Op3() =>
-            LeftAsync<string, int>("error".AsTask());
+            Error("error");
 
         public static EitherAsync<string, int> Calculate(int x, int y, int z) =>
-            RightAsync<string, int>((x + y + z).AsTask());
+            (x + y + z);
 
         public static async Task Test()
         {
@@ -419,10 +416,53 @@ namespace Issues
 
         public static async Task Test()
         {
-            var res = await (from x in Op1().ToAsync()
-                             from y in Op2().ToAsync()
-                             from z in Op3().ToAsync()
-                             from w in Calculate(x, y, z).ToAsync()
+            var res = await (from x in Op1()
+                             from y in Op2()
+                             from z in Op3()
+                             from w in Calculate(x, y, z)
+                             select w);
+        }
+    }
+
+    public static class TestExt
+    {
+        public static Task<Either<L, C>> SelectMany<L, A, B, C>(
+            this Task<Either<L, A>> ma,
+            Func<A, Task<Either<L, B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MEither<L, C>).Return(project(a, b))));
+    }
+
+    public class Issue376_3
+    {
+        public static async Task<Option<int>> Op1()
+        {
+            return await Task.FromResult(1);
+        }
+
+        public static async Task<Option<int>> Op2()
+        {
+            return await Task.FromResult(2);
+        }
+
+        public static async Task<Option<int>> Op3()
+        {
+            return await Task.FromResult(Option<int>.None);
+        }
+
+        public static async Task<Option<int>> Calculate(int x, int y, int z)
+        {
+            return await Task.FromResult(x + y + z);
+        }
+
+        public static async Task Test()
+        {
+            var res = await (from x in Op1()
+                             from y in Op2()
+                             from z in Op3()
+                             from w in Calculate(x, y, z)
                              select w)
                             .IfLeft(0);
         }

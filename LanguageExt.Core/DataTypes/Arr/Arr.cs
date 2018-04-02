@@ -477,5 +477,20 @@ namespace LanguageExt
         [Pure]
         public static bool operator !=(Arr<A> lhs, Arr<A> rhs) =>
             !(lhs == rhs);
+
+        [Pure]
+        public Arr<B> Bind<B>(Func<A, Arr<B>> f)
+        {
+            var res = new List<B>();
+
+            foreach (var t in this)
+            {
+                foreach (var u in f(t))
+                {
+                    res.Add(u);
+                }
+            }
+            return res.ToArr();
+        }
     }
 }

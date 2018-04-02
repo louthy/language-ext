@@ -8,7 +8,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class BindExtensions
+    public static partial class BindExtensions
     {
         // Async : Arr
 

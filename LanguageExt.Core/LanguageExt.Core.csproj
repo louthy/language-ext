@@ -68,7 +68,7 @@
     <None Remove="ClassInstances\Ord\OrdResult.cs" />
     <None Remove="DataTypes\Either\Task.Either.Extensions.cs" />
     <None Remove="DataTypes\Task\Task.Prelude.cs" />
-    <None Remove="HKT\Extensions\BindExtensions.cs" />
+    <None Remove="HKT\Extensions\BindExtensions.Outer.AsyncSync.cs" />
     <None Remove="HKT\ExtraPrelude.cs" />
     <None Remove="TypeClasses\ChoiceUnsafeAsync\ChoiceUnsafeAsync.cs" />
     <None Remove="TypeClasses\ChoiceUnsafeAsync\ChoiceUnsafeAsync.Prelude.cs" />

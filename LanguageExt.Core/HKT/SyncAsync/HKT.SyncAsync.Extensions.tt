@@ -9,6 +9,7 @@
     var noArgs = new string[0];
 
     var asyncTypes = new [] {
+        T("TransSyncAsync", "EitherAsync", "L"),
         T("TransSyncAsync", "OptionAsync"),
         T("TransSyncAsync", "Task"),
         T("TransSyncAsync", "TryAsync"),
@@ -21,7 +22,7 @@
         T("Trans", "Lst"),
         T("Trans", "Option"),
         T("Trans", "OptionUnsafe"),
-        T("TransSyncAsynTrans", "Either", "L"),
+        T("Trans", "Either", "L"),
         T("Trans", "EitherUnsafe", "L"),
         T("Trans", "Try"),
         T("Trans", "TryOption"), 

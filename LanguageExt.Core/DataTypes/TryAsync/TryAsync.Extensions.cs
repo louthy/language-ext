@@ -475,7 +475,7 @@ public static class TryAsyncExtensions
     /// <returns>Mapped Try computation</returns>
     [Pure]
     public static TryAsync<B> Select<A, B>(this TryAsync<A> self, Func<A, Task<B>> select) =>
-        Map(self, select);
+        MapAsync(self, select);
 
 
     /// <summary>
@@ -519,8 +519,8 @@ public static class TryAsyncExtensions
     /// <returns>True if the predicate holds for the bound value, or if the Try computation
     /// fails.  False otherwise.</returns>
     [Pure]
-    public static Task<bool> ForAll<A>(this TryAsync<A> self, Func<A, Task<bool>> pred) =>
-        Map(self, pred).IfFail(true);
+    public static Task<bool> ForAllAsync<A>(this TryAsync<A> self, Func<A, Task<bool>> pred) =>
+        MapAsync(self, pred).IfFail(true);
 
     /// <summary>
     /// Folds Try value into an S.
@@ -543,8 +543,8 @@ public static class TryAsyncExtensions
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public static Task<S> Fold<A, S>(this TryAsync<A> self, S state, Func<S, A, Task<S>> folder) =>
-        Map(self, v => folder(state, v)).IfFail(state);
+    public static Task<S> FoldAsync<A, S>(this TryAsync<A> self, S state, Func<S, A, Task<S>> folder) =>
+        MapAsync(self, v => folder(state, v)).IfFail(state);
 
     /// <summary>
     /// Folds Try value into an S.
@@ -626,8 +626,8 @@ public static class TryAsyncExtensions
     /// <param name="pred">Predicate to test the bound value against</param>
     /// <returns>True if the predicate holds for the bound value.  False otherwise.</returns>
     [Pure]
-    public static Task<bool> Exists<A>(this TryAsync<A> self, Func<A, Task<bool>> pred) =>
-        self.Map(pred).IfFail(false);
+    public static Task<bool> ExistsAsync<A>(this TryAsync<A> self, Func<A, Task<bool>> pred) =>
+        self.MapAsync(pred).IfFail(false);
 
     /// <summary>
     /// Maps the bound value
@@ -650,7 +650,7 @@ public static class TryAsyncExtensions
     /// <param name="mapper">Delegate to map the bound value</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static TryAsync<B> Map<A, B>(this TryAsync<A> self, Func<A, Task<B>> f)  =>
+    public static TryAsync<B> MapAsync<A, B>(this TryAsync<A> self, Func<A, Task<B>> f)  =>
         Memo(async () => await (await self.Try()).MapAsync(f));
 
     /// <summary>

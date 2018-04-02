@@ -121,7 +121,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Func<Unit, Task<S>> FoldAsync<S>(TryOptionAsync<A> ma, S state, Func<S, A, Task<S>> f) => _ =>
-            ma.Map(a => f(state, a)).IfNoneOrFail(state);
+            ma.MapAsync(a => f(state, a)).IfNoneOrFail(state);
 
         [Pure]
         public Func<Unit, Task<S>> FoldBack<S>(TryOptionAsync<A> ma, S state, Func<S, A, S> f) => _ =>
@@ -129,7 +129,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Func<Unit, Task<S>> FoldBackAsync<S>(TryOptionAsync<A> ma, S state, Func<S, A, Task<S>> f) => _ =>
-            ma.Map(a => f(state, a)).IfNoneOrFail(state);
+            ma.MapAsync(a => f(state, a)).IfNoneOrFail(state);
 
         [Pure]
         public Func<Unit, Task<int>> Count(TryOptionAsync<A> ma) => _ =>
