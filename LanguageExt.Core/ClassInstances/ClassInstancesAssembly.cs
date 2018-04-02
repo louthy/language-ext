@@ -3,6 +3,7 @@ using System.Linq;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System;
+using System.Collections.Generic;
 
 namespace LanguageExt.ClassInstances
 {
@@ -25,6 +26,33 @@ namespace LanguageExt.ClassInstances
             }
         }
 
+        static IEnumerable<AssemblyName> GetAssemblies()
+        {
+            var asmNames = Enumerable.Concat(
+                               Assembly.GetEntryAssembly()?.GetReferencedAssemblies() ?? new AssemblyName[0],
+                                   Enumerable.Concat(
+                                        Assembly.GetCallingAssembly()?.GetReferencedAssemblies() ?? new AssemblyName[0],
+                                        Assembly.GetExecutingAssembly()?.GetReferencedAssemblies() ?? new AssemblyName[0]))
+                                    .Distinct();
+
+            var init = new[] {
+                Assembly.GetEntryAssembly()?.GetName(),
+                Assembly.GetCallingAssembly()?.GetName(),
+                Assembly.GetExecutingAssembly()?.GetName() }
+                .Filter(n => n != null);
+
+            var set = Set<OrdString, string>();
+
+            foreach (var asm in init.Append(asmNames))
+            {
+                if (!set.Contains(asm.FullName))
+                {
+                    set = set.Add(asm.FullName);
+                    yield return asm;
+                }
+            }
+        }
+
         static ClassInstancesAssembly()
         {
             try
@@ -34,16 +62,13 @@ namespace LanguageExt.ClassInstances
                 Types = typeof(ClassInstancesAssembly).GetTypeInfo().Assembly.DefinedTypes.Freeze();
 #else
 
-                var current = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly() ?? Assembly.GetExecutingAssembly();
-
-                Types = (from nam in current.GetReferencedAssemblies()
+                Types = (from nam in GetAssemblies().Freeze()
                          where nam != null && nam.Name != "mscorlib" && !nam.Name.StartsWith("System.")
                          let asm = SafeLoadAsm(nam)
                          where asm != null
                          from typ in asm.GetTypes()
                          where typ != null
                          select typ.GetTypeInfo())
-                        .Append(current?.GetTypes()?.Map(t => t.GetTypeInfo()) ?? new TypeInfo[0])
                         .Freeze();
 
 #endif

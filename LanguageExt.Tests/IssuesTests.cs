@@ -457,14 +457,14 @@ namespace Issues
             return await Task.FromResult(x + y + z);
         }
 
-        public static async Task Test()
-        {
-            var res = await (from x in Op1()
-                             from y in Op2()
-                             from z in Op3()
-                             from w in Calculate(x, y, z)
-                             select w)
-                            .IfLeft(0);
-        }
+        //public static async Task Test()
+        //{
+        //    var res = await (from x in Op1()
+        //                     from y in Op2()
+        //                     from z in Op3()
+        //                     from w in Calculate(x, y, z)
+        //                     select w)
+        //                    .IfLeft(0);
+        //}
     }
 }
