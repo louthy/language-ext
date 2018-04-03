@@ -109,7 +109,7 @@ namespace LanguageExt
 
         public override Seq<A> Take(int takeCount)
         {
-            if (takeCount <= 0) return this;
+            if (takeCount <= 0) return Empty;
             if (takeCount >= count) return this;
             return new SeqList<A>(list, index, takeCount);
         }
