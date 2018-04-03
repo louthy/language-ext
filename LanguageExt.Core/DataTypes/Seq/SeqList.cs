@@ -22,9 +22,7 @@ namespace LanguageExt
         {
             this.list = list;
             this.index = index;
-            this.count = count == -1
-                ? list.Count - index
-                : count;
+            this.count = count;
         }
 
         public override int Count =>
@@ -39,7 +37,9 @@ namespace LanguageExt
         public static Seq<A> New(IList<A> list, int index = 0, int count = -1) =>
             list.Count == 0
                 ? Empty
-                : new SeqList<A>(list, index, count);
+                : new SeqList<A>(list, index, count == -1
+                  ? list.Count - index
+                  : count);
 
         /// <summary>
         /// Stream as an enumerable
