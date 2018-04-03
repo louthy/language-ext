@@ -107,10 +107,12 @@ namespace LanguageExt
             return true;
         }
 
-        public override Seq<A> Take(int takeCount) =>
-            takeCount > 0 && takeCount < count
-                ? new SeqList<A>(list, index, takeCount)
-                : this;
+        public override Seq<A> Take(int takeCount)
+        {
+            if (takeCount <= 0) return this;
+            if (takeCount >= count) return this;
+            return new SeqList<A>(list, index, takeCount);
+        }
 
         public override Seq<A> TakeWhile(Func<A, bool> pred)
         {
