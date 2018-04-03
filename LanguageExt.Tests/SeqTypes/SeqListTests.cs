@@ -22,5 +22,13 @@ namespace LanguageExt.Tests.SeqTypes
             Assert.Equal(actual, SeqEmpty.Default);
         }
 
+        [Fact]
+        public void Skip_NegativeFromNonempty_Unchanged()
+        {
+            var expected = Seq(new List<int> { 0 });
+            var actual = expected.Skip(-1);
+            Assert.Equal(actual, expected);
+        }
+
     }
 }
