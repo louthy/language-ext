@@ -66,7 +66,7 @@ namespace LanguageExt
         /// </summary>
         public override Seq<A> Skip(int skipCount)
         {
-            if (skipCount == 0) return this;
+            if (skipCount <= 0) return this;
             if (skipCount >= count) return Empty;
             return new SeqList<A>(list, index + skipCount, count - skipCount);
         }
