@@ -5,6 +5,12 @@ namespace LanguageExt
 {
     internal class SeqList<A> : Seq<A>
     {
+        /*
+         * These fields satisfy
+         * 0 <= index <  list.Count
+         * 0 <  count <= list.Count
+         * 0 < index + count <= list.Count
+         */
         readonly IList<A> list;
         readonly int index;
         readonly int count;
