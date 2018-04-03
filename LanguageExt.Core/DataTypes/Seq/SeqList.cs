@@ -34,12 +34,10 @@ namespace LanguageExt
         public override bool IsEmpty =>
             false;
 
-        public static Seq<A> New(IList<A> list, int index = 0, int count = -1) =>
+        public static Seq<A> New(IList<A> list) =>
             list.Count == 0
                 ? Empty
-                : new SeqList<A>(list, index, count == -1
-                  ? list.Count - index
-                  : count);
+                : new SeqList<A>(list, 0, list.Count);
 
         /// <summary>
         /// Stream as an enumerable
