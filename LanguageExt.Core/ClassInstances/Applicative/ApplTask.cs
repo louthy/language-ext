@@ -131,10 +131,6 @@ namespace LanguageExt.ClassInstances
         public async Task<A> Apply(Task<Func<A, A>> fab, Task<A> fa)
         {
             await Task.WhenAll(fab, fa);
-
-            if (fab.IsFaulted) throw fab.Exception;
-            if (fa.IsFaulted) throw fa.Exception;
-
             return (await fab)(await fa);
         }
 
