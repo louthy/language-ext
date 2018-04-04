@@ -150,7 +150,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Option<A> Some(A x) =>
             x.IsNull()
-                ? throw new ArgumentNullException("Option doesn't support null values.  Use OptionUnsafe if this is desired behaviour")
+                ? throw new ArgumentNullException(nameof(x), "Option doesn't support null values.  Use OptionUnsafe if this is desired behaviour")
                 : new Option<A>(OptionData.Some(x));
 
         [Pure]
