@@ -8,34 +8,38 @@ namespace LanguageExt
         /// <summary>
         /// Use with Try monad in LINQ expressions to auto-clean up disposable items
         /// </summary>
-        public static Try<U> use<T, U>(Try<T> computation, Func<T, U> map) where T : class, IDisposable =>
+        public static Try<B> use<A, B>(Try<A> computation, Func<A, B> map)
+            where A : class, IDisposable =>
             computation.Use(map);
 
         /// <summary>
         /// Use with Try monad in LINQ expressions to auto-clean up disposable items
         /// </summary>
-        public static Try<U> use<T, U>(Try<T> computation, Func<T, Try<U>> bind) where T : class, IDisposable =>
+        public static Try<B> use<A, B>(Try<A> computation, Func<A, Try<B>> bind)
+            where A : class, IDisposable =>
             computation.Use(bind);
 
         /// <summary>
         /// Use with Task in LINQ expressions to auto-clean up disposable items
         /// </summary>
-        public static Task<U> use<T, U>(Task<T> computation, Func<T, U> map) where T : class, IDisposable =>
+        public static Task<B> use<A, B>(Task<A> computation, Func<A, B> map)
+            where A : class, IDisposable =>
             computation.Map(d => use(d, map));
 
         /// <summary>
         /// Use with Task in LINQ expressions to auto-clean up disposable items
         /// </summary>
-        public static async Task<U> use<T, U>(Task<T> computation, Func<T, Task<U>> bind) where T : class, IDisposable
+        public static async Task<B> use<A, B>(Task<A> computation, Func<A, Task<B>> bind)
+            where A : class, IDisposable
         {
-            var t = await computation;
+            var a = await computation;
             try
             {
-                return await bind(t);
+                return await bind(a);
             }
             finally
             {
-                t?.Dispose();
+                a?.Dispose();
             }
         }
 
@@ -45,8 +49,8 @@ namespace LanguageExt
         /// <param name="generator">Disposable to use</param>
         /// <param name="f">Inner map function that uses the disposable value</param>
         /// <returns>Result of f(disposable)</returns>
-        public static R use<T, R>(Func<T> generator, Func<T, R> f)
-            where T : class, IDisposable =>
+        public static B use<A, B>(Func<A> generator, Func<A, B> f)
+            where A : class, IDisposable =>
             generator().Apply(d => use(d, f));
 
         /// <summary>
@@ -55,8 +59,8 @@ namespace LanguageExt
         /// <param name="disposable">Disposable to use</param>
         /// <param name="f">Inner map function that uses the disposable value</param>
         /// <returns>Result of f(disposable)</returns>
-        public static R use<T, R>(T disposable, Func<T, R> f)
-            where T : IDisposable
+        public static B use<A, B>(A disposable, Func<A, B> f)
+            where A : IDisposable
         {
             try
             {
@@ -74,8 +78,8 @@ namespace LanguageExt
         /// <param name="disposable">Disposable to use</param>
         /// <param name="f">Inner map function that uses the disposable value</param>
         /// <returns>Result of f(disposable)</returns>
-        public static Try<R> tryuse<T, R>(Func<T> disposable, Func<T, R> f)
-            where T : IDisposable =>
+        public static Try<B> tryuse<A, B>(Func<A> disposable, Func<A, B> f)
+            where A : IDisposable =>
             Try(disposable)
                 .Map(d => use(d, f));
 
@@ -85,8 +89,8 @@ namespace LanguageExt
         /// <param name="disposable">Disposable to use</param>
         /// <param name="f">Inner map function that uses the disposable value</param>
         /// <returns>Result of f(disposable)</returns>
-        public static Try<R> tryuse<T, R>(T disposable, Func<T, R> f)
-            where T : IDisposable => () =>
+        public static Try<B> tryuse<A, B>(A disposable, Func<A, B> f)
+            where A : IDisposable => () =>
             use(disposable, f);
     }
 }
