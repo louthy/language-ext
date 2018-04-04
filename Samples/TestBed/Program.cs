@@ -78,7 +78,7 @@ class Program
     }
 
     public static Task<Option<Gender>> GetGenderByIdAsync(Guid id) =>
-        Task.FromResult(Some(new Gender(1)));
+        Some(new Gender(1)).AsTask();
 
     public static async Task<Result<Gender>> MonadicGetGenderByIdAsync(Guid id)
     {

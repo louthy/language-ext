@@ -307,7 +307,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryAsync<A> Some(A value) =>
-            new TryAsync<A>(() => Task.FromResult(new Result<A>(value)));
+            new TryAsync<A>(() => new Result<A>(value).AsTask());
 
         [Pure]
         public TryAsync<A> SomeAsync(Task<A> value) =>
@@ -315,7 +315,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryAsync<A> Optional(A value) =>
-            new TryAsync<A>(() => Task.FromResult(new Result<A>(value)));
+            new TryAsync<A>(() => new Result<A>(value).AsTask());
 
         [Pure]
         public TryAsync<A> OptionalAsync(Task<A> value) =>

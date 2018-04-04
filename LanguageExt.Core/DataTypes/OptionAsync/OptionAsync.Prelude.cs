@@ -77,7 +77,7 @@ namespace LanguageExt
         public static OptionAsync<T> SomeAsync<T>(T value) =>
             isnull(value)
                 ? raise<OptionAsync<T>>(new ValueIsNullException())
-                : default(MOptionAsync<T>).ReturnAsync(_ => Task.FromResult(value));
+                : default(MOptionAsync<T>).ReturnAsync(_ => value.AsTask());
 
         /// <summary>
         /// Create a lazy Some of T (OptionAsync<T>)
@@ -100,7 +100,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<T> SomeAsync<T>(T? value) where T : struct =>
             value.HasValue
-                ? default(MOptionAsync<T>).ReturnAsync(_ => Task.FromResult(value.Value))
+                ? default(MOptionAsync<T>).ReturnAsync(_ => value.Value.AsTask())
                 : raise<OptionAsync<T>>(new ValueIsNullException());
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<T> OptionalAsync<T>(T? value) where T : struct =>
             value.HasValue
-                ? default(MOptionAsync<T>).ReturnAsync(_ => Task.FromResult(value.Value))
+                ? default(MOptionAsync<T>).ReturnAsync(_ => value.Value.AsTask())
                 : OptionAsync<T>.None;
 
         /// <summary>

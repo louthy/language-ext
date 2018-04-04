@@ -22,7 +22,7 @@ public static class TryAsyncExtensions
     public static TryAsync<A> Memo<A>(this TryAsync<A> ma)
     {
         bool run = false;
-        var result = Task.FromResult(Result<A>.Bottom);
+        var result = Result<A>.Bottom.AsTask();
         return new TryAsync<A>(() =>
         {
             if (run) return result;

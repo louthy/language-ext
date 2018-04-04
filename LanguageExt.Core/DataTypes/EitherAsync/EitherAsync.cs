@@ -35,7 +35,7 @@ namespace LanguageExt
         internal readonly Task<EitherData<L, R>> data;
 
         internal EitherAsync(Task<EitherData<L, R>> data) =>
-            this.data = data ?? Task.FromResult(EitherData<L, R>.Bottom);
+            this.data = data ?? EitherData<L, R>.Bottom.AsTask();
 
         /// <summary>
         /// State of the Either

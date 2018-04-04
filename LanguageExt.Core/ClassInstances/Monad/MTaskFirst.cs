@@ -74,7 +74,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Task<bool> IsNone(Task<A> ma) =>
-            Task.FromResult(ma.IsFaulted);
+            ma.IsFaulted.AsTask();
 
         [Pure]
         public Task<bool> IsSome(Task<A> ma) =>
@@ -101,11 +101,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Task<A> Some(A value) =>
-            Task.FromResult(value);
+            value.AsTask();
 
         [Pure]
         public Task<A> Optional(A value) =>
-            Task.FromResult(value);
+            value.AsTask();
 
         [Pure]
         public Task<A> BindReturn(Unit _, Task<A> mb) =>
