@@ -20,29 +20,17 @@ namespace LanguageExt
         /// <summary>
         /// Use with Task in LINQ expressions to auto-clean up disposable items
         /// </summary>
-        public static async Task<U> use<T, U>(Task<T> computation, Func<T, U> map) where T : class, IDisposable
-        {
-            T t = null;
-            try
-            {
-                t = await computation;
-                return map(t);
-            }
-            finally
-            {
-                t?.Dispose();
-            }
-        }
+        public static Task<U> use<T, U>(Task<T> computation, Func<T, U> map) where T : class, IDisposable =>
+            computation.Map(d => use(d, map));
 
         /// <summary>
         /// Use with Task in LINQ expressions to auto-clean up disposable items
         /// </summary>
         public static async Task<U> use<T, U>(Task<T> computation, Func<T, Task<U>> bind) where T : class, IDisposable
         {
-            T t = null;
+            var t = await computation;
             try
             {
-                t = await computation;
                 return await bind(t);
             }
             finally
@@ -58,18 +46,8 @@ namespace LanguageExt
         /// <param name="f">Inner map function that uses the disposable value</param>
         /// <returns>Result of f(disposable)</returns>
         public static R use<T, R>(Func<T> generator, Func<T, R> f)
-            where T : class, IDisposable
-        {
-            var value = generator();
-            try
-            {
-                return f(value);
-            }
-            finally
-            {
-                value.Dispose();
-            }
-        }
+            where T : class, IDisposable =>
+            generator().Apply(d => use(d, f));
 
         /// <summary>
         /// Functional implementation of the using(...) { } pattern
@@ -86,7 +64,7 @@ namespace LanguageExt
             }
             finally
             {
-                disposable.Dispose();
+                disposable?.Dispose();
             }
         }
 
@@ -99,17 +77,7 @@ namespace LanguageExt
         public static Try<R> tryuse<T, R>(Func<T> disposable, Func<T, R> f)
             where T : IDisposable =>
             Try(disposable)
-                .Map(v =>
-                {
-                    try
-                    {
-                        return f(v);
-                    }
-                    finally
-                    {
-                        v.Dispose();
-                    }
-                });
+                .Map(d => use(d, f));
 
         /// <summary>
         /// Functional implementation of the using(...) { } pattern
@@ -119,15 +87,6 @@ namespace LanguageExt
         /// <returns>Result of f(disposable)</returns>
         public static Try<R> tryuse<T, R>(T disposable, Func<T, R> f)
             where T : IDisposable => () =>
-        {
-            try
-            {
-                return f(disposable);
-            }
-            finally
-            {
-                disposable.Dispose();
-            }
-        };
+            use(disposable, f);
     }
 }

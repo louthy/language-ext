@@ -538,33 +538,12 @@ public static class TryExtensions
     [Pure]
     public static Try<U> Use<T, U>(this Try<T> self, Func<T, U> select)
         where T : IDisposable => () =>
-            {
-                var t = default(T);
-                try
-                {
-                    return select(self().Value);
-                }
-                finally
-                {
-                    t?.Dispose();
-                }
-            };
+            self().Value.Apply(d => use(d, select));
 
     [Pure]
     public static Try<U> Use<T, U>(this Try<T> self, Func<T, Try<U>> select)
         where T : IDisposable => () =>
-        {
-            var t = default(T);
-            try
-            {
-                t = self().Value;
-                return select(t)().Value;
-            }
-            finally
-            {
-                t?.Dispose();
-            }
-        };
+        self().Value.Apply(d => use(d, select))().Value;
 
     [Pure]
     public static int Sum(this Try<int> self) =>
