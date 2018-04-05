@@ -149,7 +149,7 @@ namespace LanguageExt.ClassInstances
         public async Task<A> Apply(Func<A, A, A> f, Task<A> fa, Task<A> fb) 
         {
             await Task.WhenAll(fa, fb);
-            f(fa.Result, fb.Result);
+            return f(fa.Result, fb.Result);
         }
 
         public async Task<B> MatchAsync<B>(Task<A> ma, Func<A, Task<B>> SomeAsync, Func<B> None)

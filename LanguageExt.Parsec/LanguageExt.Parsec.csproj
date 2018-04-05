@@ -7,7 +7,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
-    <PackageVersion>2.2.24-beta</PackageVersion>
+    <PackageVersion>2.2.25-beta</PackageVersion>
     <PackageId>LanguageExt.Parsec</PackageId>
     <Title>LanguageExt.Parsec</Title>
     <Authors>Paul Louth</Authors>
