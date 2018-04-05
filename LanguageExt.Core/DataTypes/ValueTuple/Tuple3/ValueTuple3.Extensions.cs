@@ -83,7 +83,7 @@ public static class ValueTuple3Extensions
     [Pure]
     public static A Sum<NUM, A>(this ValueTuple<A, A, A> self)
         where NUM : struct, Num<A> =>
-        default(NUM).Plus(self.Item1, default(NUM).Product(self.Item2, self.Item3));
+        default(NUM).Plus(self.Item1, default(NUM).Plus(self.Item2, self.Item3));
 
     /// <summary>
     /// Product of the items
