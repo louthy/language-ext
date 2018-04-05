@@ -22,7 +22,7 @@ public static class TryOptionAsyncExtensions
     public static TryOptionAsync<A> Memo<A>(this TryOptionAsync<A> ma)
     {
         bool run = false;
-        var result = Task.FromResult(OptionalResult<A>.Bottom);
+        var result = OptionalResult<A>.Bottom.AsTask();
         return new TryOptionAsync<A>(() =>
         {
             if (run) return result;

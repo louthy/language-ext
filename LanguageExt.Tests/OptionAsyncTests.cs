@@ -57,7 +57,7 @@ namespace LanguageExt.Tests
         [Fact]
         public async void InitialTests3()
         {
-            var mc = Task.FromResult(Some(10)).MatchAsync(
+            var mc = Some(10).AsTask().MatchAsync(
                 Some: x => Task.FromResult(x * 10),
                 None: () => 0
             );

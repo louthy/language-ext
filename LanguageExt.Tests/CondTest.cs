@@ -58,9 +58,9 @@ namespace LanguageExtTests
         }
 
         static Task<A> T<A>(A value) => 
-            Task.FromResult(value);
+            value.AsTask();
 
-        Task<int> GetIntegerValue(int x) => Task.FromResult(x);
+        Task<int> GetIntegerValue(int x) => x.AsTask();
 
         [Fact]
         public async Task AsyncTest2()

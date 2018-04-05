@@ -74,7 +74,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Task<bool> IsNone(Task<A> ma) =>
-            Task.FromResult(ma.IsFaulted);
+            ma.IsFaulted.AsTask();
 
         [Pure]
         public Task<bool> IsSome(Task<A> ma) =>
@@ -101,11 +101,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Task<A> Some(A value) =>
-            Task.FromResult(value);
+            value.AsTask();
 
         [Pure]
         public Task<A> Optional(A value) =>
-            Task.FromResult(value);
+            value.AsTask();
 
         [Pure]
         public Task<A> BindReturn(Unit _, Task<A> mb) =>
@@ -149,10 +149,7 @@ namespace LanguageExt.ClassInstances
         public async Task<A> Apply(Func<A, A, A> f, Task<A> fa, Task<A> fb) 
         {
             await Task.WhenAll(fa, fb);
-            return fa.IsFaulted && fb.IsFaulted ? throw new AggregateException(fa.Exception, fb.Exception)
-                 : fa.IsFaulted                 ? throw new InnerException(fa.Exception)
-                 : fb.IsFaulted                 ? throw new InnerException(fb.Exception)
-                 : f(fa.Result, fb.Result);
+            f(fa.Result, fb.Result);
         }
 
         public async Task<B> MatchAsync<B>(Task<A> ma, Func<A, Task<B>> SomeAsync, Func<B> None)

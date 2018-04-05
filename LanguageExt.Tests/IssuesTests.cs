@@ -53,8 +53,8 @@ namespace LanguageExt.Tests
         [Fact]
         public void Issue208()
         {
-            var r = from a in Task.FromResult(Left<Exception, int>(new Exception("error 1")))
-                    from b in Task.FromResult(Right<Exception, int>(1))
+            var r = from a in Left<Exception, int>(new Exception("error 1")).AsTask()
+                    from b in Right<Exception, int>(1).AsTask()
                     select a + b;
         }
 
@@ -373,7 +373,7 @@ namespace Issues
             Number(1);
 
         public static EitherAsync<string, int> Op2() =>
-            RightAsync<string, int>(Task.FromResult(2));
+            RightAsync<string, int>(2.AsTask());
 
         public static EitherAsync<string, int> Op3() =>
             Error("error");
@@ -396,17 +396,17 @@ namespace Issues
     {
         public static async Task<Either<string, int>> Op1()
         {
-            return await Task.FromResult(1);
+            return await 1.AsTask();
         }
 
         public static async Task<Either<string, int>> Op2()
         {
-            return await Task.FromResult(2);
+            return await 2.AsTask();
         }
 
         public static async Task<Either<string, int>> Op3()
         {
-            return await Task.FromResult("error");
+            return await "error".AsTask();
         }
 
         public static async Task<Either<string, int>> Calculate(int x, int y, int z)
@@ -439,17 +439,17 @@ namespace Issues
     {
         public static async Task<Option<int>> Op1()
         {
-            return await Task.FromResult(1);
+            return await 1.AsTask();
         }
 
         public static async Task<Option<int>> Op2()
         {
-            return await Task.FromResult(2);
+            return await 2.AsTask();
         }
 
         public static async Task<Option<int>> Op3()
         {
-            return await Task.FromResult(Option<int>.None);
+            return await Option<int>.None.AsTask();
         }
 
         public static async Task<Option<int>> Calculate(int x, int y, int z)
