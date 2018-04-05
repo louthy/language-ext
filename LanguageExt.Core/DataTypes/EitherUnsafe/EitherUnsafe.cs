@@ -177,7 +177,7 @@ namespace LanguageExt
         /// <param name="value">Value, must not be null.</param>
         [Pure]
         public static implicit operator EitherUnsafe<L, R>(R value) =>
-            EitherUnsafe<L, R>.Right(value);
+            Right(value);
 
         /// <summary>
         /// Implicit conversion operator from L to EitherUnsafe R L
@@ -185,7 +185,45 @@ namespace LanguageExt
         /// <param name="value">Value, must not be null.</param>
         [Pure]
         public static implicit operator EitherUnsafe<L, R>(L value) =>
-            EitherUnsafe<L, R>.Left(value);
+            Left(value);
+
+        /// <summary>
+        /// Implicit conversion operator from EitherRight to Either
+        /// </summary>
+        /// <param name="a">None value</param>
+        [Pure]
+        public static implicit operator EitherUnsafe<L, R>(EitherRight<R> right) =>
+            Right(right.Value);
+
+        /// <summary>
+        /// Implicit conversion operator from EitherRight to Either
+        /// </summary>
+        /// <param name="a">None value</param>
+        [Pure]
+        public static implicit operator EitherUnsafe<L, R>(EitherLeft<L> left) =>
+            Left(left.Value);
+
+        /// <summary>
+        /// Explicit conversion operator from `EitherUnsafe` to `R`
+        /// </summary>
+        /// <param name="value">Value, must not be null.</param>
+        /// <exception cref="ValueIsNullException">Value is null</exception>
+        [Pure]
+        public static explicit operator R(EitherUnsafe<L, R> ma) =>
+            ma.IsRight
+                ? ma.right
+                : throw new InvalidCastException("EitherUnsafe is not in a Right state");
+
+        /// <summary>
+        /// Explicit conversion operator from `EitherUnsafe` to `L`
+        /// </summary>
+        /// <param name="value">Value, must not be null.</param>
+        /// <exception cref="ValueIsNullException">Value is null</exception>
+        [Pure]
+        public static explicit operator L(EitherUnsafe<L, R> ma) =>
+            ma.IsLeft
+                ? ma.left
+                : throw new InvalidCastException("EitherUnsafe is not in a Left state");
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the EitherUnsafe

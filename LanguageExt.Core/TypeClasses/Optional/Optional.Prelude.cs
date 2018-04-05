@@ -67,6 +67,21 @@ namespace LanguageExt
                 None: () => None());
 
         /// <summary>
+        /// Match operation with an untyped value for Some. This can be
+        /// useful for serialisation and dealing with the IOptional interface
+        /// </summary>
+        /// <typeparam name="R">The return type</typeparam>
+        /// <param name="Some">Operation to perform if the option is in a Some state</param>
+        /// <param name="None">Operation to perform if the option is in a None state</param>
+        /// <returns>The result of the match operation</returns>
+        [Pure]
+        public static R matchUntypedUnsafe<OPT, OA, A, R>(OA ma, Func<object, R> Some, Func<R> None)
+            where OPT : struct, OptionalUnsafe<OA, A> =>
+            default(OPT).MatchUnsafe(ma,
+                Some: x => Some(x),
+                None: () => None());
+
+        /// <summary>
         /// Convert the Option to an enumerable of zero or one items
         /// </summary>
         /// <param name="ma">Option</param>

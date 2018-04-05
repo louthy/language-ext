@@ -205,6 +205,17 @@ namespace LanguageExt
             EitherUnsafe<L, R>.Right(value);
 
         /// <summary>
+        /// Constructs an EitherRight which can be implicitly cast to an 
+        /// EitherUnsafe<_, R>
+        /// </summary>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="value">Right value</param>
+        /// <returns>A new EitherRight instance</returns>
+        [Pure]
+        public static EitherRight<R> RightUnsafe<R>(R value) =>
+            new EitherRight<R>(value);
+
+        /// <summary>
         /// Either constructor
         /// Constructs an Either in a Left state
         /// </summary>
@@ -215,6 +226,19 @@ namespace LanguageExt
         [Pure]
         public static EitherUnsafe<L, R> LeftUnsafe<L, R>(L value) =>
             EitherUnsafe<L, R>.Left(value);
+
+        /// <summary>
+        /// Constructs an EitherLeft which can be implicitly cast to an 
+        /// EitherUnsafe<L, _>
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <param name="value">Right value</param>
+        /// <returns>A new EitherLeft instance</returns>
+        [Pure]
+        public static EitherLeft<L> LeftUnsafe<L>(L value) =>
+            isnull(value)
+                ? raise<EitherLeft<L>>(new ArgumentNullException(nameof(value)))
+                : new EitherLeft<L>(value);
 
         /// <summary>
         /// Executes the Left function if the Either is in a Left state.

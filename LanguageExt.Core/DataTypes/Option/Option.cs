@@ -129,6 +129,16 @@ namespace LanguageExt
             compare<OrdDefault<A>, A>(this, other);
 
         /// <summary>
+        /// Implicit conversion operator from `Option<A>` to `A1
+        /// </summary>
+        /// <param name="a">None value</param>
+        [Pure]
+        public static explicit operator A(Option<A> ma) =>
+            ma.IsSome
+                ? ma.Value
+                : throw new InvalidCastException("Option is not in a Some state");
+
+        /// <summary>
         /// Implicit conversion operator from A to Option<A>
         /// </summary>
         /// <param name="a">Unit value</param>
@@ -136,6 +146,7 @@ namespace LanguageExt
         public static implicit operator Option<A>(A a) =>
             Optional(a);
 
+        /// <summary>
         /// Implicit conversion operator from None to Option<A>
         /// </summary>
         /// <param name="a">None value</param>
@@ -361,6 +372,18 @@ namespace LanguageExt
         [Pure]
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
             matchUntyped<MOption<A>, Option<A>, A, R>(this, Some, None);
+
+        /// <summary>
+        /// Match operation with an untyped value for Some. This can be
+        /// useful for serialisation and dealing with the IOptional interface
+        /// </summary>
+        /// <typeparam name="R">The return type</typeparam>
+        /// <param name="Some">Operation to perform if the option is in a Some state</param>
+        /// <param name="None">Operation to perform if the option is in a None state</param>
+        /// <returns>The result of the match operation</returns>
+        [Pure]
+        public R MatchUntypedUnsafe<R>(Func<object, R> Some, Func<R> None) =>
+            matchUntypedUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A, R>(ToOptionUnsafe(), Some, None);
 
         /// <summary>
         /// Get the Type of the bound value

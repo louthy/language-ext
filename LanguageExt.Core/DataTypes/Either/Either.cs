@@ -101,6 +101,22 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Implicit conversion operator from EitherRight to Either
+        /// </summary>
+        /// <param name="a">None value</param>
+        [Pure]
+        public static implicit operator Either<L, R>(EitherRight<R> right) =>
+            Right<L, R>(right.Value);
+
+        /// <summary>
+        /// Implicit conversion operator from EitherRight to Either
+        /// </summary>
+        /// <param name="a">None value</param>
+        [Pure]
+        public static implicit operator Either<L, R>(EitherLeft<L> left) =>
+            Left<L, R>(left.Value);
+
+        /// <summary>
         /// Ctor that facilitates serialisation
         /// </summary>
         /// <param name="option">None or Some A.</param>
@@ -177,6 +193,28 @@ namespace LanguageExt
         [Pure]
         public bool IsBottom =>
             State == EitherStatus.IsBottom;
+
+        /// <summary>
+        /// Explicit conversion operator from `Either` to `R`
+        /// </summary>
+        /// <param name="value">Value, must not be null.</param>
+        /// <exception cref="ValueIsNullException">Value is null</exception>
+        [Pure]
+        public static explicit operator R(Either<L, R> ma) =>
+            ma.IsRight
+                ? ma.right
+                : throw new InvalidCastException("Either is not in a Right state");
+
+        /// <summary>
+        /// Explicit conversion operator from `Either` to `L`
+        /// </summary>
+        /// <param name="value">Value, must not be null.</param>
+        /// <exception cref="ValueIsNullException">Value is null</exception>
+        [Pure]
+        public static explicit operator L(Either<L, R> ma) =>
+            ma.IsLeft
+                ? ma.left
+                : throw new InvalidCastException("Either is not in a Left state");
 
         /// <summary>
         /// Implicit conversion operator from R to Either R L

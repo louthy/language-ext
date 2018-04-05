@@ -371,6 +371,18 @@ namespace LanguageExt
             matchUntypedUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A, R>(this, Some, None);
 
         /// <summary>
+        /// Match operation with an untyped value for Some. This can be
+        /// useful for serialisation and dealing with the IOptional interface
+        /// </summary>
+        /// <typeparam name="R">The return type</typeparam>
+        /// <param name="Some">Operation to perform if the option is in a Some state</param>
+        /// <param name="None">Operation to perform if the option is in a None state</param>
+        /// <returns>The result of the match operation</returns>
+        [Pure]
+        public R MatchUntypedUnsafe<R>(Func<object, R> Some, Func<R> None) =>
+            matchUntypedUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A, R>(this, Some, None);
+
+        /// <summary>
         /// Get the Type of the bound value
         /// </summary>
         /// <returns>Type of the bound value</returns>

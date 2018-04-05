@@ -12,7 +12,7 @@
     <DefineConstants>COREFX13</DefineConstants>
   </PropertyGroup>-->
   <PropertyGroup>
-    <PackageVersion>2.2.19-beta</PackageVersion>
+    <PackageVersion>2.2.21-beta</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -66,6 +66,9 @@
     <None Remove="ClassInstances\Ord\OrdOptionalUnsafe.cs" />
     <None Remove="ClassInstances\Ord\OrdOptionUnsafe.cs" />
     <None Remove="ClassInstances\Ord\OrdResult.cs" />
+    <None Remove="DataTypes\Either-Shared\EitherLeft.cs" />
+    <None Remove="DataTypes\Either-Shared\EitherRight.cs" />
+    <None Remove="DataTypes\Either-Shared\EitherRightAndLeft.Extensions.cs" />
     <None Remove="DataTypes\Either\Task.Either.Extensions.cs" />
     <None Remove="DataTypes\Task\Task.Prelude.cs" />
     <None Remove="HKT\Extensions\BindExtensions.Outer.AsyncSync.cs" />

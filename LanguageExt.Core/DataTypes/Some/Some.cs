@@ -125,6 +125,12 @@ namespace LanguageExt
         [Pure]
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
             IsSome
+                ? Check.NullReturn(Some(value))
+                : Check.NullReturn(None());
+
+        [Pure]
+        public R MatchUntypedUnsafe<R>(Func<object, R> Some, Func<R> None) =>
+            IsSome
                 ? Some(value)
                 : None();
 
