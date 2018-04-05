@@ -83,6 +83,10 @@ namespace LanguageExt
         [Pure]
         public int CompareTo(OptionNone other) =>
             0;
+
+        [Pure]
+        public Option<A> Bind<A>() =>
+            Option<A>.None;
     }
 }
 

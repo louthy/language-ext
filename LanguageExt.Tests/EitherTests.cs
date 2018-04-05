@@ -139,9 +139,9 @@ namespace LanguageExtTests
         public void EitherLinqTest1()
         {
             (from x in Right(2)
-             from y in Left("error")
+             from y in Left("error").Bind<int>()
              from z in Right(5)
-             select x + z)
+             select x + y + z)
             .Match(
               Right: r => Assert.True(false, "Shouldn't get here"),
               Left: l => Assert.True(true)

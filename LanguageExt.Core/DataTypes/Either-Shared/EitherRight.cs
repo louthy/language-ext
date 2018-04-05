@@ -216,6 +216,10 @@ namespace LanguageExt
             f(Value);
 
         [Pure]
+        public Either<L, R> Bind<L>() =>
+            Either<L, R>.Right(Value);
+
+        [Pure]
         public Either<L, R> Bind<L>(Func<R, EitherLeft<L>> f) =>
             Either<L, R>.Left(f(Value).Value);
 
