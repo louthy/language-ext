@@ -72,7 +72,12 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public static Seq<A> Cons<A>(this A head, IEnumerable<A> tail) =>
-            SeqEnumerable<A>.New(head, tail);
+            tail is A[] array     ? Cons(head, array)
+          : tail is Arr<A> arr    ? Cons(head, arr)
+          : tail is IList<A> list ? Cons(head, list)
+          : tail is Lst<A> lst    ? Seq(head.Cons(lst))
+          : tail is Seq<A> seq    ? Cons(head, seq)
+          : SeqEnumerable<A>.New(head, tail);
 
         /// <summary>
         /// Construct a list from head and tail
@@ -752,11 +757,13 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(IEnumerable<A> value) =>
-            value == null
-                ? Empty
-                : value is Seq<A> seq
-                    ? seq
-                    : SeqEnumerable<A>.New(value);
+            value == null          ? Empty
+          : value is Seq<A> seq    ? seq
+          : value is A[] array     ? Seq(array)
+          : value is Arr<A> arr    ? Seq(arr)
+          : value is IList<A> list ? Seq(list)
+          : value is Lst<A> lst    ? Seq(lst)
+          : SeqEnumerable<A>.New(value);
 
         /// <summary>
         /// Construct a sequence from an array
