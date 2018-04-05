@@ -757,10 +757,10 @@ public static class TryOptionExtensions
         {
             var res = trySelf.Result.Try();
             return res.IsFaulted
-                ? Task.FromResult(Fail(res.Exception))
+                ? Fail(res.Exception).AsTask()
                 : res.Value.IsSome
                     ? Some(res.Value.Value)
-                    : Task.FromResult(None());
+                    : None().AsTask();
         })
         from t in tt
         select t);
@@ -770,7 +770,7 @@ public static class TryOptionExtensions
         {
             var res = trySelf.Result.Try();
             return res.IsFaulted || res.Value.IsNone
-                ? Task.FromResult(Fail())
+                ? Fail().AsTask()
                 : Some(res.Value.Value);
         })
         from t in tt
@@ -806,7 +806,7 @@ public static class TryOptionExtensions
             var res = trySelf.Result.Try();
             return res.IsFaulted || res.Value.IsNone
                 ? Fail()
-                : Task.FromResult(Some(res.Value.Value));
+                : Some(res.Value.Value).AsTask();
         })
         from t in tt
         select t);
@@ -818,7 +818,7 @@ public static class TryOptionExtensions
             return res.IsFaulted
                 ? Fail(res.Exception)
                 : res.Value.IsSome
-                    ? Task.FromResult(Some(res.Value.Value))
+                    ? Some(res.Value.Value).AsTask()
                     : None();
         })
         from t in tt

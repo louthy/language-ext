@@ -38,7 +38,7 @@ namespace LanguageExt
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryAsync<A> TryAsync<A>(A v) => () =>
-            Task.FromResult(new Result<A>(v));
+            new Result<A>(v).AsTask();
 
         /// <summary>
         /// TryOptionAsync constructor function
@@ -48,7 +48,7 @@ namespace LanguageExt
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryAsync<A> TryAsync<A>(Exception ex) => () =>
-            Task.FromResult(new Result<A>(ex));
+            new Result<A>(ex).AsTask();
 
         /// <summary>
         /// Append the bound value of TryAsync(x) to TryAsync(y).  If either of the

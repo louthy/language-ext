@@ -200,7 +200,7 @@ namespace LanguageExt
                 from x in self(input)
                 from y in x.Match(
                     Some: b  => Tasks.Exists(predicates.Map(p => p(b)), identity),
-                    None: () => Task.FromResult(false))
+                    None: () => false.AsTask())
                 select y
                     ? x
                     : None;
@@ -221,7 +221,7 @@ namespace LanguageExt
                 from x in self(input)
                 from y in x.Match(
                     Some: b => Tasks.ForAll(predicates.Map(p => p(b)), identity),
-                    None: () => Task.FromResult(false))
+                    None: () => false.AsTask())
                 select y
                     ? x
                     : None;
@@ -558,7 +558,7 @@ namespace LanguageExt
                 from b in self(input)
                 from c in b.Match(
                     Some: b2 => map(b2).ContinueWith(b3 => Optional(b3.Result)),
-                    None: () => Task.FromResult(Option<C>.None))
+                    None: () => Option<C>.None.AsTask())
                 select c;
 
         /// <summary>
@@ -730,7 +730,7 @@ namespace LanguageExt
                 from x in self.ToAsync()(input)
                 from y in x.Match(
                     Some: b => Tasks.Exists(predicates.Map(p => p(b)), identity),
-                    None: () => Task.FromResult(false))
+                    None: () => false.AsTask())
                 select y
                     ? x
                     : None;
@@ -751,7 +751,7 @@ namespace LanguageExt
                 from x in self.ToAsync()(input)
                 from y in x.Match(
                     Some: b => Tasks.ForAll(predicates.Map(p => p(b)), identity),
-                    None: () => Task.FromResult(false))
+                    None: () => false.AsTask())
                 select y
                     ? x
                     : None;
@@ -919,7 +919,7 @@ namespace LanguageExt
                 from b in self.ToAsync()(input)
                 from c in b.Match(
                     Some: b2 => map(b2).ContinueWith(b3 => Optional(b3.Result)),
-                    None: () => Task.FromResult(Option<C>.None))
+                    None: () => Option<C>.None.AsTask())
                 select c;
 
         /// <summary>

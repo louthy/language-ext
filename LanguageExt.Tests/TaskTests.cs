@@ -62,13 +62,13 @@ namespace LanguageExtTests
             new Uri(uri).AsTask();
 
         Task<HttpClient> getClient() =>
-            Task.FromResult(new HttpClient());
+            new HttpClient().AsTask();
 
         Task<string> getContent(Uri uri, HttpClient client) =>
             client.GetStringAsync(uri);
 
         Task<Lst<string>> getLines(string text) =>
-            Task.FromResult(text.Split('\n').Freeze());
+            text.Split('\n').Freeze().AsTask();
 
         Task<Lst<string>> getURLContent(string uri) =>
             from address in parseUri(uri)

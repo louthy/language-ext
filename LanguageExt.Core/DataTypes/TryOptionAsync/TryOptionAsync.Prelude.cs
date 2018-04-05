@@ -58,7 +58,7 @@ namespace LanguageExt
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryOptionAsync<A> TryOptionAsync<A>(A v) => () =>
-            Task.FromResult(new OptionalResult<A>(v));
+            new OptionalResult<A>(v).AsTask();
 
         /// <summary>
         /// TryOptionAsync constructor function
@@ -68,7 +68,7 @@ namespace LanguageExt
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryOptionAsync<A> TryOptionAsync<A>(Option<A> v) => () =>
-            Task.FromResult(new OptionalResult<A>(v));
+            new OptionalResult<A>(v).AsTask();
 
         /// <summary>
         /// TryOptionAsync constructor function
@@ -78,7 +78,7 @@ namespace LanguageExt
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryOptionAsync<A> TryOptionAsync<A>(Exception ex) => () =>
-            Task.FromResult(new OptionalResult<A>(ex));
+            new OptionalResult<A>(ex).AsTask();
 
         /// <summary>
         /// Append the bound value of TryOptionAsync(x) to TryOptionAsync(y).  If either of the

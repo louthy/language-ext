@@ -967,7 +967,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Task<Seq<T>> Seq<T>(TryAsync<T> value) =>
-            value?.AsEnumerable() ?? Task.FromResult(LanguageExt.Seq<T>.Empty);
+            value?.AsEnumerable() ?? LanguageExt.Seq<T>.Empty.AsTask();
 
         /// <summary>
         /// Construct a sequence from a TryOption
@@ -978,7 +978,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Task<Seq<T>> Seq<T>(TryOptionAsync<T> value) =>
-            value?.AsEnumerable() ?? Task.FromResult(LanguageExt.Seq<T>.Empty);
+            value?.AsEnumerable() ?? LanguageExt.Seq<T>.Empty.AsTask();
 
         /// <summary>
         /// Construct a sequence from a tuple

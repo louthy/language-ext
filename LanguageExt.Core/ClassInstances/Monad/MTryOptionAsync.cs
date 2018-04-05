@@ -15,7 +15,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly MTryOptionAsync<A> Inst = default(MTryOptionAsync<A>);
 
-        static TryOptionAsync<A> none = new TryOptionAsync<A>(() => Task.FromResult(OptionalResult<A>.None));
+        static TryOptionAsync<A> none = new TryOptionAsync<A>(() => OptionalResult<A>.None.AsTask());
 
         [Pure]
         public TryOptionAsync<A> None => none;
