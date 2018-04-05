@@ -524,7 +524,7 @@ public static class TryExtensions
         {
             if (self == null)
             {
-                throw new ArgumentNullException("this is null");
+                throw new ArgumentNullException(nameof(self));
             }
             return self();
         }

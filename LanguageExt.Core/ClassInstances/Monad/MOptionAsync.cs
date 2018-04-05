@@ -204,7 +204,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionAsync<A> SomeAsync(A x) =>
             x.IsNull()
-                ? throw new ArgumentNullException("Option doesn't support null values.  Use OptionUnsafe if this is desired behaviour")
+                ? throw new ArgumentNullException(nameof(x), "Option doesn't support null values.  Use OptionUnsafe if this is desired behaviour")
                 : new OptionAsync<A>(OptionDataAsync.Some(x));
 
         [Pure]
