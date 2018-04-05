@@ -60,7 +60,7 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public static Seq<A> Cons<A>(this A head, Arr<A> tail) =>
-            SeqCons<A>.New(head, SeqArr<A>.New(tail));
+            SeqCons<A>.New(head, SeqArray<A>.New(tail.Value));
 
         /// <summary>
         /// Construct a list from head and tail; head becomes the first item in 
@@ -786,7 +786,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(Arr<A> value) =>
-            SeqArr<A>.New(value);
+            SeqArray<A>.New(value.Value);
 
         /// <summary>
         /// Construct a sequence from a list
