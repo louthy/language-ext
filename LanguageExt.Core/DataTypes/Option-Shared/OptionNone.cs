@@ -20,9 +20,8 @@ namespace LanguageExt
     {
         public static OptionNone Default = new OptionNone();
 
-        public bool IsSome => throw new NotImplementedException();
-
-        public bool IsNone => throw new NotImplementedException();
+        public bool IsSome => false;
+        public bool IsNone => true;
 
         [Pure]
         public OptionNone Select(Func<Unit, Unit> f) =>
