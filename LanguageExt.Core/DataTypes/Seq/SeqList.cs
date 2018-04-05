@@ -73,9 +73,9 @@ namespace LanguageExt
 
         public override S Fold<S>(S state, Func<S, A, S> f)
         {
-            for (int i = index; i < index + count; i++)
+            foreach(var item in AsEnumerable())
             {
-                state = f(state, list[i]);
+                state = f(state, item);
             }
             return state;
         }
@@ -91,18 +91,18 @@ namespace LanguageExt
 
         public override bool Exists(Func<A, bool> f)
         {
-            for (int i = index; i < index + count; i++)
+            foreach (var item in AsEnumerable())
             {
-                if (f(list[i])) return true;
+                if (f(item)) return true;
             }
             return false;
         }
 
         public override bool ForAll(Func<A, bool> f)
         {
-            for (int i = index; i < index + count; i++)
+            foreach (var item in AsEnumerable())
             {
-                if (!f(list[i])) return false;
+                if (!f(item)) return false;
             }
             return true;
         }
