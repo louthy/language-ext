@@ -1473,7 +1473,7 @@ public static class TryOptionAsyncExtensions
         {
             if (self == null)
             {
-                throw new ArgumentNullException(nameof(slef));
+                throw new ArgumentNullException(nameof(self));
             }
             try
             {
