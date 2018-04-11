@@ -168,9 +168,16 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void EitherInfer()
+        public void EitherInfer1()
         {
             AddEithers(Right(10), Left("error"));
+        }
+
+        void EitherInfer2(bool v)
+        {
+            var x = v
+                ? Right(10)
+                : Left("error").Bind<int>();
         }
 
         public Either<string, int> AddEithers(Either<string, int> x, Either<string, int> y) =>

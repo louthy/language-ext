@@ -101,6 +101,10 @@ namespace LanguageExt
             LeftUnsafe<L, R>(Value);
 
         [Pure]
+        public static implicit operator L(EitherLeft<L> ma) =>
+            ma.Value;
+
+        [Pure]
         public static bool operator <(EitherLeft<L> lhs, EitherLeft<L> rhs) =>
             lhs.CompareTo(rhs) < 0;
 
