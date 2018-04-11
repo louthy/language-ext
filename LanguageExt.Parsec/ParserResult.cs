@@ -58,9 +58,9 @@ namespace LanguageExt.Parsec
             new ParserResult<U>(Tag, Reply.Project(s, project));
 
         public override string ToString() =>
-            Reply.Error == null
-                ? "success"
-                : Reply.Error.ToString();
+            IsFaulted
+                ? Reply?.Error?.ToString() ?? "error"
+                : "success";
 
         public bool IsFaulted =>
             Reply.Tag == ReplyTag.Error;
@@ -142,5 +142,20 @@ namespace LanguageExt.Parsec
 
         public ParserResult<U> Select<U>(Func<T,U> map) =>
             new ParserResult<U>(Tag, Reply.Select(map));
+
+        public Either<string, T> ToEither() =>
+            IsFaulted
+                ? Left<string, T>(ToString())
+                : Right(Reply.Result);
+
+        public Either<ERROR, T> ToEither<ERROR>(Func<string, ERROR> f) =>
+            IsFaulted
+                ? Left<ERROR, T>(f(ToString()))
+                : Right(Reply.Result);
+
+        public Option<T> ToOption() =>
+            IsFaulted
+                ? None
+                : Some(Reply.Result);
     }
 }

@@ -8,6 +8,12 @@ using static LanguageExt.TypeClass;
 using Xunit;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using static System.Console;
+using LanguageExt.Parsec;
+using static LanguageExt.Parsec.Prim;
+using static LanguageExt.Parsec.Char;
+
+
 
 namespace LanguageExt.Tests
 {
@@ -236,7 +242,7 @@ namespace Issues
         public static TryOptionAsync<A> AsTryOptionAsync<A>(this Either<Error, Option<A>> ma) =>
             ma.Match(
                 Right: r => TryOptionAsync(r),
-                Left:  e => TryOptionAsync<A>(new ErrorException(e)));
+                Left: e => TryOptionAsync<A>(new ErrorException(e)));
 
         public static TryOption<A> AsTryOption<A>(this Either<Error, Option<A>> ma) =>
             ma.Match(
@@ -360,7 +366,7 @@ namespace Issues
             var r = mc();
 
             Assert.True(r.Value == 300);
-            Assert.True(r.Output == Seq("Hello", "World", "the result is 300") );
+            Assert.True(r.Output == Seq("Hello", "World", "the result is 300"));
         }
     }
 
