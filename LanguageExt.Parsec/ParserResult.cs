@@ -59,8 +59,8 @@ namespace LanguageExt.Parsec
 
         public override string ToString() =>
             IsFaulted
-                ? Reply?.Error?.ToString() ?? "error"
-                : "success";
+                ? Reply?.Error?.ToString() ?? "Error"
+                : $"Success({Reply.Result})";
 
         public bool IsFaulted =>
             Reply.Tag == ReplyTag.Error;
