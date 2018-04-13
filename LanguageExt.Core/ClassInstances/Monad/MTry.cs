@@ -50,7 +50,10 @@ namespace LanguageExt.ClassInstances
         {
             var res = ma.Try();
             if (!res.IsFaulted) return res.Value;
-            return mb().Value;
+            var res2 = mb.Try();
+            return res2.IsFaulted
+                ? new Result<A>(new AggregateException(res.Exception, res2.Exception))
+                : res2;
         };
 
         /// <summary>

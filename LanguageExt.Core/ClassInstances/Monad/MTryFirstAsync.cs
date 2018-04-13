@@ -87,7 +87,7 @@ namespace LanguageExt.ClassInstances
             }
             if (!resA.IsFaulted) return resA.Result;
             if (!resB.IsFaulted) return resB.Result;
-            throw new BottomException();
+            return new Result<A>(new AggregateException(resA.Exception, resB.Exception));
         };
 
         /// <summary>

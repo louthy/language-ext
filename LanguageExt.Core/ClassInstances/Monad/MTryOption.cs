@@ -47,9 +47,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public TryOption<A> Plus(TryOption<A> ma, TryOption<A> mb) => () =>
         {
-            var res = ma.Try();
-            if (!res.IsFaulted && res.Value.IsSome) return res.Value;
-            return mb();
+            var a = ma.Try();
+            if (!a.IsFaulted && a.Value.IsSome) return a.Value;
+            var b =  mb.Try();
+            return b.IsFaulted && a.IsFaulted
+                ? new OptionalResult<A>(new AggregateException(a.Exception, b.Exception))
+                : b;
         };
 
         /// <summary>

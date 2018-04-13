@@ -37,7 +37,10 @@ namespace LanguageExt.ClassInstances
         {
             var a = await ma.Try();
             if (!a.IsFaultedOrNone) return a;
-            return await mb.Try();
+            var b = await mb.Try();
+            return b.IsFaulted && a.IsFaulted
+                ? new OptionalResult<A>(new AggregateException(a.Exception, b.Exception))
+                : b;
         };
 
         /// <summary>
