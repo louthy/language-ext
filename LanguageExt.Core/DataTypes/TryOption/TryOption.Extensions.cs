@@ -699,7 +699,7 @@ public static class TryOptionExtensions
         {
             if (self == null)
             {
-                throw new ArgumentNullException("this is null");
+                throw new ArgumentNullException(nameof(self));
             }
             return self();
         }

@@ -1028,10 +1028,9 @@ public void TreeTests()
     Assert.True(treeA != treeC);
 }
 ```
-
-> No reflection is used to achieve this result, the `Record` type builds the IL directly, and so it's as efficient as writing the code by hand.
-
 There are some [unit tests](https://github.com/louthy/language-ext/blob/master/LanguageExt.Tests/RecordTypesTest.cs) to see this in action.
+
+> Inheritance is not supported in `Record` derived types.  So, if you derive a type from a type that derives from `Record` then you won't magically inherit any equality, ordering, hash-code, etc. behaviours.  This feature is explicitly here to implement record-like functionality, which - in other functional languages - do not support inheritance.  Equality of origin is explicitly checked for also.
 
 ## `RecordType<A>`
 
@@ -1338,7 +1337,7 @@ This is a slightly more complex example:
 ```
 The `OrdArray` which is an `Ord<A[]>`, does itself also take an `ORD` generic argument, which allows the contents of the array to be compared:
 ```c#
-    int x = OrdArray<TInt, int>.Inst.Compare(Array(1,2), Array(1,2)); // 0
+    int x = OrdArray<TInt, int>.Inst.Compare(new [] {1,2}, new [] {1,2}); // 0
 ```
 
 #### `Semigroup<A>`

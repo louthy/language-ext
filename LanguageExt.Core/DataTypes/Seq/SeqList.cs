@@ -5,6 +5,12 @@ namespace LanguageExt
 {
     internal class SeqList<A> : Seq<A>
     {
+        /*
+         * These fields satisfy
+         * 0 <= index <  list.Count
+         * 0 <  count <= list.Count
+         * 0 < index + count <= list.Count
+         */
         readonly IList<A> list;
         readonly int index;
         readonly int count;
@@ -16,9 +22,7 @@ namespace LanguageExt
         {
             this.list = list;
             this.index = index;
-            this.count = count == -1
-                ? list.Count - index
-                : count;
+            this.count = count;
         }
 
         public override int Count =>
@@ -30,10 +34,10 @@ namespace LanguageExt
         public override bool IsEmpty =>
             false;
 
-        public static Seq<A> New(IList<A> seq, int index = 0, int count = -1) =>
-            seq.Count == 0
+        public static Seq<A> New(IList<A> list) =>
+            list.Count == 0
                 ? Empty
-                : new SeqList<A>(seq, index, count);
+                : new SeqList<A>(list, 0, list.Count);
 
         /// <summary>
         /// Stream as an enumerable
@@ -66,7 +70,7 @@ namespace LanguageExt
         /// </summary>
         public override Seq<A> Skip(int skipCount)
         {
-            if (skipCount == 0) return this;
+            if (skipCount <= 0) return this;
             if (skipCount >= count) return Empty;
             return new SeqList<A>(list, index + skipCount, count - skipCount);
         }
@@ -89,10 +93,12 @@ namespace LanguageExt
         public override bool ForAll(Func<A, bool> f)=>
             AsEnumerable().ForAll(f);
 
-        public override Seq<A> Take(int takeCount) =>
-            takeCount > 0 && takeCount < count
-                ? new SeqList<A>(list, index, takeCount)
-                : this;
+        public override Seq<A> Take(int takeCount)
+        {
+            if (takeCount <= 0) return Empty;
+            if (takeCount >= count) return this;
+            return new SeqList<A>(list, index, takeCount);
+        }
 
         public override Seq<A> TakeWhile(Func<A, bool> pred)
         {

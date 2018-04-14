@@ -68,7 +68,7 @@ public static class TryAsyncExtensions
     /// <param name="Succ">Delegate to invoke if successful</param>
     public static async Task<Unit> IfSucc<A>(this TryAsync<A> self, Action<A> Succ)
     {
-        if (isnull(self)) throw new ArgumentNullException("this");
+        if (isnull(self)) throw new ArgumentNullException(nameof(self));
         if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
 
         try
@@ -95,7 +95,7 @@ public static class TryAsyncExtensions
     [Pure]
     public static async Task<A> IfFail<A>(this TryAsync<A> self, A failValue)
     {
-        if (isnull(self)) throw new ArgumentNullException("this");
+        if (isnull(self)) throw new ArgumentNullException(nameof(self));
         if (isnull(failValue)) throw new ArgumentNullException(nameof(failValue));
 
         try
@@ -121,7 +121,7 @@ public static class TryAsyncExtensions
     [Pure]
     public static async Task<A> IfFail<A>(this TryAsync<A> self, Func<Task<A>> Fail)
     {
-        if (isnull(self)) throw new ArgumentNullException("this");
+        if (isnull(self)) throw new ArgumentNullException(nameof(self));
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
         try
@@ -147,7 +147,7 @@ public static class TryAsyncExtensions
     [Pure]
     public static async Task<A> IfFail<A>(this TryAsync<A> self, Func<A> Fail)
     {
-        if (isnull(self)) throw new ArgumentNullException("this");
+        if (isnull(self)) throw new ArgumentNullException(nameof(self));
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
         try
@@ -171,7 +171,7 @@ public static class TryAsyncExtensions
     [Pure]
     public static async Task<A> IfFail<A>(this TryAsync<A> self, Func<Exception, Task<A>> Fail)
     {
-        if (isnull(self)) throw new ArgumentNullException("this");
+        if (isnull(self)) throw new ArgumentNullException(nameof(self));
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
         try
@@ -195,7 +195,7 @@ public static class TryAsyncExtensions
     [Pure]
     public static async Task<A> IfFail<A>(this TryAsync<A> self, Func<Exception, A> Fail)
     {
-        if (isnull(self)) throw new ArgumentNullException("this");
+        if (isnull(self)) throw new ArgumentNullException(nameof(self));
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
         try
@@ -948,7 +948,7 @@ public static class TryAsyncExtensions
         {
             if (self == null)
             {
-                throw new ArgumentNullException("this");
+                throw new ArgumentNullException(nameof(self));
             }
             try
             {
