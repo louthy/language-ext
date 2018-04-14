@@ -4,6 +4,7 @@ using static LanguageExt.TypeClass;
 using System;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace LanguageExt
 {
@@ -508,5 +509,47 @@ namespace LanguageExt
         [Pure]
         public static Try<T> tryfun<T>(Func<Try<T>> tryDel) => () => 
             tryDel()().Value;
+
+        /// <summary>
+        /// Partitions a list of 'Try' into two lists.
+        /// All the 'Fail' elements are extracted, in order, to the first
+        /// component of the output.  Similarly the 'Succ' elements are extracted
+        /// to the second component of the output.
+        /// </summary>
+        /// <typeparam name="A">Succ</typeparam>
+        /// <param name="self">Try list</param>
+        /// <returns>A tuple containing the an enumerable of Exception and an enumerable of A</returns>
+        [Pure]
+        public static (IEnumerable<Exception> Fails, IEnumerable<A> Succs) partition<A>(IEnumerable<Try<A>> self) =>
+            Choice.partition<MTry<A>, Try<A>, Exception, A>(self);
+
+        /// <summary>
+        /// Partitions a list of 'Try' into two lists.
+        /// All the 'Fail' elements are extracted, in order, to the first
+        /// component of the output.  Similarly the 'Succ' elements are extracted
+        /// to the second component of the output.
+        /// </summary>
+        /// <typeparam name="A">Succ</typeparam>
+        /// <param name="self">Try list</param>
+        /// <returns>A tuple containing the an enumerable of Exception and an enumerable of A</returns>
+        [Pure]
+        public static (Seq<Exception> Fails, Seq<A> Succs) partition<A>(Seq<Try<A>> self) =>
+            Choice.partition<MTry<A>, Try<A>, Exception, A>(self);
+
+        [Pure]
+        public static Seq<Exception> fails<A>(Seq<Try<A>> self) =>
+            Choice.lefts<MTry<A>, Try<A>, Exception, A>(self);
+
+        [Pure]
+        public static Seq<A> succs<A>(Seq<Try<A>> self) =>
+            Choice.rights<MTry<A>, Try<A>, Exception, A>(self);
+
+        [Pure]
+        public static IEnumerable<Exception> fails<A>(IEnumerable<Try<A>> self) =>
+            Choice.lefts<MTry<A>, Try<A>, Exception, A>(self);
+
+        [Pure]
+        public static IEnumerable<A> succs<A>(IEnumerable<Try<A>> self) =>
+            Choice.rights<MTry<A>, Try<A>, Exception, A>(self);
     }
 }

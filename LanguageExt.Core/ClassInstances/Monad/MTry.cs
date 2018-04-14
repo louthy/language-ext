@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -12,6 +9,7 @@ namespace LanguageExt.ClassInstances
         Alternative<Try<A>, Unit, A>,
         Optional<Try<A>, A>,
         OptionalUnsafe<Try<A>, A>,
+        Choice<Try<A>, Exception, A>,
         Monad<Try<A>, A>,
         BiFoldable<Try<A>, A, Unit>,
         AsyncPair<Try<A>, TryAsync<A>>
@@ -206,5 +204,29 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public TryAsync<A> ToAsync(Try<A> sa) =>
             sa.ToAsync();
+
+        [Pure]
+        public bool IsLeft(Try<A> choice) =>
+            choice.IsFail();
+
+        [Pure]
+        public bool IsRight(Try<A> choice) =>
+            choice.IsSucc();
+
+        [Pure]
+        public bool IsBottom(Try<A> choice) =>
+            false;
+
+        [Pure]
+        public C Match<C>(Try<A> choice, Func<Exception, C> Left, Func<A, C> Right, Func<C> Bottom = null) =>
+            choice.Match(
+                Succ: Right,
+                Fail: Left);
+
+        [Pure]
+        public Unit Match(Try<A> choice, Action<Exception> Left, Action<A> Right, Action Bottom = null) =>
+            choice.Match(
+                Succ: Right,
+                Fail: Left);
     }
 }
