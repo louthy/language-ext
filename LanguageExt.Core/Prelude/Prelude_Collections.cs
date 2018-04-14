@@ -800,7 +800,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(IList<A> value) =>
-            SeqList<A>.New(value);
+            SeqList<A>.New(value, 0, value.Count);
 
         /// <summary>
         /// Construct a sequence from a list
