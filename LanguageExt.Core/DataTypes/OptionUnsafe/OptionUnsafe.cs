@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
 using static LanguageExt.TypeClass;
+using static LanguageExt.OptionalUnsafe;
 using static LanguageExt.Prelude;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Collections;
@@ -368,7 +368,19 @@ namespace LanguageExt
         /// <returns>The result of the match operation</returns>
         [Pure]
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
-            matchUntyped<MOptionUnsafe<A>, OptionUnsafe<A>, A, R>(this, Some, None);
+            matchUntypedUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A, R>(this, Some, None);
+
+        /// <summary>
+        /// Match operation with an untyped value for Some. This can be
+        /// useful for serialisation and dealing with the IOptional interface
+        /// </summary>
+        /// <typeparam name="R">The return type</typeparam>
+        /// <param name="Some">Operation to perform if the option is in a Some state</param>
+        /// <param name="None">Operation to perform if the option is in a None state</param>
+        /// <returns>The result of the match operation</returns>
+        [Pure]
+        public R MatchUntypedUnsafe<R>(Func<object, R> Some, Func<R> None) =>
+            matchUntypedUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A, R>(this, Some, None);
 
         /// <summary>
         /// Get the Type of the bound value
@@ -417,31 +429,12 @@ namespace LanguageExt
                 : Fail<FAIL, A>(defaultFailureValue);
 
         /// <summary>
-        /// Convert the structure to an Either
-        /// </summary>
-        /// <param name="defaultLeftValue">Default value if the structure is in a None state</param>
-        /// <returns>An Either representation of the structure</returns>
-        [Pure]
-        public Either<L, A> ToEither<L>(L defaultLeftValue) =>
-            toEither<MOptionUnsafe<A>, OptionUnsafe<A>, L, A>(this, defaultLeftValue);
-
-        /// <summary>
-        /// Convert the structure to an Either
-        /// </summary>
-        /// <param name="defaultLeftValue">Function to invoke to get a default value if the 
-        /// structure is in a None state</param>
-        /// <returns>An Either representation of the structure</returns>
-        [Pure]
-        public Either<L, A> ToEither<L>(Func<L> Left) =>
-            toEither<MOptionUnsafe<A>, OptionUnsafe<A>, L, A>(this, Left);
-
-        /// <summary>
         /// Convert the structure to an EitherUnsafe
         /// </summary>
         /// <param name="defaultLeftValue">Default value if the structure is in a None state</param>
-        /// <returns>An EitherUnsafe representation of the structure</returns>
+        /// <returns>An Either representation of the structure</returns>
         [Pure]
-        public EitherUnsafe<L, A> ToEitherUnsafe<L>(L defaultLeftValue) =>
+        public EitherUnsafe<L, A> ToEither<L>(L defaultLeftValue) =>
             toEitherUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, L, A>(this, defaultLeftValue);
 
         /// <summary>
@@ -449,26 +442,18 @@ namespace LanguageExt
         /// </summary>
         /// <param name="defaultLeftValue">Function to invoke to get a default value if the 
         /// structure is in a None state</param>
-        /// <returns>An EitherUnsafe representation of the structure</returns>
+        /// <returns>An Either representation of the structure</returns>
         [Pure]
-        public EitherUnsafe<L, A> ToEitherUnsafe<L>(Func<L> Left) =>
+        public EitherUnsafe<L, A> ToEither<L>(Func<L> Left) =>
             toEitherUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, L, A>(this, Left);
 
         /// <summary>
-        /// Convert the structure to a Option
+        /// Convert the structure to a OptionUnsafe
         /// </summary>
         /// <returns>An OptionUnsafe representation of the structure</returns>
         [Pure]
-        public Option<A> ToOption() =>
-            toOption<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this);
-
-        /// <summary>
-        /// Convert the structure to a TryOption
-        /// </summary>
-        /// <returns>A TryOption representation of the structure</returns>
-        [Pure]
-        public TryOption<A> ToTryOption() =>
-            toTryOption<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this);
+        public OptionUnsafe<A> ToOption() =>
+            toOptionUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this);
 
         /// <summary>
         /// Fluent pattern matching.  Provide a Some handler and then follow
@@ -478,8 +463,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">The Some(x) match operation</param>
         [Pure]
-        public SomeUnitContext<MOptionUnsafe<A>, OptionUnsafe<A>, A> Some(Action<A> f) =>
-            new SomeUnitContext<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, f, false);
+        public SomeUnsafeUnitContext<MOptionUnsafe<A>, OptionUnsafe<A>, A> Some(Action<A> f) =>
+            new SomeUnsafeUnitContext<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, f);
 
         /// <summary>
         /// Fluent pattern matching.  Provide a Some handler and then follow
@@ -491,8 +476,8 @@ namespace LanguageExt
         /// <param name="f">The Some(x) match operation</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public SomeContext<MOptionUnsafe<A>, OptionUnsafe<A>, A, B> Some<B>(Func<A, B> f) =>
-            new SomeContext<MOptionUnsafe<A>, OptionUnsafe<A>, A, B>(this, f, false);
+        public SomeUnsafeContext<MOptionUnsafe<A>, OptionUnsafe<A>, A, B> Some<B>(Func<A, B> f) =>
+            new SomeUnsafeContext<MOptionUnsafe<A>, OptionUnsafe<A>, A, B>(this, f);
 
         /// <summary>
         /// Match the two states of the OptionUnsafe and return a B, which can be null.
@@ -518,7 +503,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Action to invoke if OptionUnsafe is in the Some state</param>
         public Unit IfSomeUnsafe(Action<A> f) =>
-            ifSome<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, f);
+            ifSomeUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, f);
 
         /// <summary>
         /// Invokes the f function if OptionUnsafe is in the Some state, otherwise nothing
@@ -526,7 +511,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Function to invoke if OptionUnsafe is in the Some state</param>
         public Unit IfSomeUnsafe(Func<A, Unit> f) =>
-            ifSome<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, f);
+            ifSomeUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, f);
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 
@@ -538,7 +523,7 @@ namespace LanguageExt
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         public A IfNoneUnsafe(Func<A> None) =>
-            ifNone<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, None);
+            ifNoneUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, None);
 
         /// <summary>
         /// Returns the noneValue if the optional is in a None state, otherwise
@@ -550,7 +535,7 @@ namespace LanguageExt
         /// the bound Some(x) value is returned</returns>
         [Pure]
         public A IfNoneUnsafe(A noneValue) =>
-            ifNone<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, noneValue);
+            ifNoneUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, noneValue);
 
         /// <summary>
         /// <para>

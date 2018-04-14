@@ -38,6 +38,12 @@ namespace LanguageExt
             Trans<OuterMonad, OuterType, MOption<A>, Option<A>, A>
                 .Inst.Bind<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(ma, f);
 
+        public NewOuterType BindAsync<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, NewOuterType> f)
+            where NewOuterMonad : struct, MonadAsync<NewOuterType, NewInnerType>
+            where NewInnerMonad : struct, Monad<NewInnerType, B> =>
+            Trans<OuterMonad, OuterType, MOption<A>, Option<A>, A>
+                .Inst.BindAsync<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(ma, f);
+
         public S Fold<S>(OuterType ma, S state, Func<S, A, S> f) =>
             Trans<OuterMonad, OuterType, MOption<A>, Option<A>, A>.Inst.Fold(ma, state, f);
 

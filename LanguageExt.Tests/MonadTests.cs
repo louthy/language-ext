@@ -33,6 +33,24 @@ namespace LanguageExtTests
             Assert.True(head(tail(tail(res.Output))) == "Gonna multiply these two");
         }
 
+        static Writer<MSeq<string>, Seq<string>, int> writer(int value, Seq<string> output) => () =>
+            (value, output, false);
+
+        static Writer<MSeq<string>, Seq<string>, Seq<int>> multWithLog(Seq<int> input) =>
+            from _ in writer(0, Seq1("Start"))
+            let c = input.Map(i => writer(i * 10, Seq1($"Number: {i}")))
+            from r in c.Sequence()
+            select r;
+
+        [Fact]
+        public void WriterSequenceTest()
+        {
+            var res = multWithLog(Seq(1, 2, 3)).Run();
+
+            Assert.True(res.Value.IfNoneOrFail(Seq<int>()) == Seq(10, 20, 30));
+            Assert.True(res.Output == Seq("Start", "Number: 1", "Number: 2", "Number: 3"));
+        }
+
         private class Bindings
         {
             public readonly Map<string, int> Map;

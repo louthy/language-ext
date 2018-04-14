@@ -12,7 +12,7 @@
     <DefineConstants>COREFX13</DefineConstants>
   </PropertyGroup>-->
   <PropertyGroup>
-    <PackageVersion>2.1.31</PackageVersion>
+    <PackageVersion>2.2.29-beta</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -29,6 +29,12 @@
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>2.0.0.0</FileVersion>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />
     <EmbeddedResource Include="**\*.resx" />
@@ -39,9 +45,49 @@
     <None Remove="obj\**" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="ClassInstances\Applicative\ApplOptionalUnsafe.cs" />
+    <None Remove="ClassInstances\Eq\EqChoiceUnsafe.cs" />
+    <None Remove="ClassInstances\Eq\EqMap.cs" />
+    <None Remove="ClassInstances\Eq\EqOption.cs" />
+    <None Remove="ClassInstances\Eq\EqOptionalAsync.cs" />
+    <None Remove="ClassInstances\Eq\EqOptionalUnsafe.cs" />
+    <None Remove="ClassInstances\Eq\EqOptionAsync.cs" />
+    <None Remove="ClassInstances\Eq\EqOptionUnsafe.cs" />
+    <None Remove="ClassInstances\Eq\EqResult.cs" />
+    <None Remove="ClassInstances\Eq\EqTaskAsync.cs" />
+    <None Remove="ClassInstances\Eq\EqTryAsync.cs" />
+    <None Remove="ClassInstances\Eq\EqTryOptionAsync.cs" />
+    <None Remove="ClassInstances\Functor\FOptionalUnsafe.cs" />
+    <None Remove="ClassInstances\Monad\MTaskFirst.cs" />
+    <None Remove="ClassInstances\Monad\MTryFirstAsync.cs" />
+    <None Remove="ClassInstances\Monad\MTryOptionFirstAsync.cs" />
+    <None Remove="ClassInstances\Ord\OrdChoiceUnsafe.cs" />
+    <None Remove="ClassInstances\Ord\OrdOption.cs" />
+    <None Remove="ClassInstances\Ord\OrdOptionalUnsafe.cs" />
+    <None Remove="ClassInstances\Ord\OrdOptionUnsafe.cs" />
+    <None Remove="ClassInstances\Ord\OrdResult.cs" />
+    <None Remove="DataTypes\Either-Shared\EitherLeft.cs" />
+    <None Remove="DataTypes\Either-Shared\EitherRight.cs" />
+    <None Remove="DataTypes\Either-Shared\EitherRightAndLeft.Extensions.cs" />
+    <None Remove="DataTypes\Either\Task.Either.Extensions.cs" />
+    <None Remove="DataTypes\Task\Task.Prelude.cs" />
+    <None Remove="HKT\Extensions\BindExtensions.Outer.AsyncSync.cs" />
+    <None Remove="HKT\ExtraPrelude.cs" />
+    <None Remove="TypeClasses\ChoiceUnsafeAsync\ChoiceUnsafeAsync.cs" />
+    <None Remove="TypeClasses\ChoiceUnsafeAsync\ChoiceUnsafeAsync.Prelude.cs" />
+    <None Remove="TypeClasses\ChoiceUnsafe\ChoiceUnsafe.cs" />
+    <None Remove="TypeClasses\ChoiceUnsafe\ChoiceUnsafe.Prelude.cs" />
+    <None Remove="TypeClasses\EqAsync\EqAsync.cs" />
+    <None Remove="TypeClasses\EqAsync\EqAsync.Prelude.cs" />
+    <None Remove="TypeClasses\OptionalUnsafeAsync\OptionalUnsafeAsync.cs" />
+    <None Remove="TypeClasses\OptionalUnsafeAsync\OptionalUnsafeAsync.Prelude.cs" />
+    <None Remove="TypeClasses\OptionalUnsafe\OptionalUnsafe.cs" />
+    <None Remove="TypeClasses\OptionalUnsafe\OptionalUnsafe.Prelude.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="System.Reactive" Version="3.1.1" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.3.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
   </ItemGroup>
   <!--<ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
@@ -67,38 +113,81 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="HKT\HKT.Extensions.cs">
+    <Compile Update="HKT\Async\HKT.Async.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.Async.Extensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="HKT\AsyncSync\HKT.AsyncSync.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.AsyncSync.Extensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="HKT\Sync\HKT.Extensions.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>HKT.Extensions.tt</DependentUpon>
     </Compile>
-    <Compile Update="HKT\HKT.Prelude.cs">
+    <Compile Update="HKT\Sync\HKT.Prelude.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>HKT.Prelude.tt</DependentUpon>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="HKT\HKT.Extensions.cs">
+    <None Update="HKT\AsyncSync\HKT.AsyncSync.Extensions.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>HKT.Extensions.tt</DependentUpon>
+      <DependentUpon>HKT.AsyncSync.Extensions.tt</DependentUpon>
     </None>
-    <None Update="HKT\HKT.Extensions.tt">
+    <None Update="HKT\Async\HKT.Async.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.Async.Extensions.tt</DependentUpon>
+    </None>
+    <None Update="HKT\SyncAsync\HKT.Async.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </None>
+    <None Update="HKT\SyncAsync\HKT.Async.Extensions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>HKT.Extensions.cs</LastGenOutput>
+      <LastGenOutput>HKT.Async.Extensions.cs</LastGenOutput>
     </None>
-    <None Update="HKT\HKT.Prelude.cs">
+    <None Update="HKT\SyncAsync\HKT.SyncAsync.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.SyncAsync.Extensions.tt</DependentUpon>
+    </None>
+    <None Update="HKT\SyncAsync\HKT.SyncAsync.Extensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.SyncAsync.Extensions.cs</LastGenOutput>
+    </None>
+    <None Update="HKT\Sync\HKT.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.Extensions.tt</DependentUpon>
+    </None>
+    <None Update="HKT\Sync\HKT.Prelude.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>HKT.Prelude.tt</DependentUpon>
     </None>
-    <None Update="HKT\HKT.Prelude.tt">
+    <None Update="HKT\Sync\HKT.Prelude.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>HKT.Prelude.cs</LastGenOutput>
     </None>
+    <None Update="HKT\Sync\HKT.Extensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.Extensions.cs</LastGenOutput>
+    </None>
+    <None Update="HKT\Async\HKT.Async.Extensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.Async.Extensions.cs</LastGenOutput>
+    </None>
+    <None Update="HKT\AsyncSync\HKT.AsyncSync.Extensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.AsyncSync.Extensions.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 </Project>

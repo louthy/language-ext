@@ -1,0 +1,251 @@
+﻿        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OUTER_A`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OUTER_A`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, GENS, A>(this OUTER_A ma)
+            where NumA : struct, Num<A> =>
+                default(ASYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OUTER_A`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OUTER_A`</returns>
+        [Pure]
+        public static Task<int> CountT<GENS, A>(this OUTER_A ma) =>
+            default(ASYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OUTER_B` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OUTER_B BindT<GENS, A, B>(this OUTER_A ma, Func<A, INNER_B> f) =>
+            default(ASYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
+                .Bind<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OUTER_B` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OUTER_B MapT<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
+            default(ASYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
+                .Map<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, GENS, A>(this OUTER_A ma, S state, Func<S, A, S> f) =>
+            default(ASYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, GENS, A>(this OUTER_A ma, S state, Func<S, A, S> f) =>
+            default(ASYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<GENS, A>(this OUTER_A ma, Func<A, bool> f) =>
+            default(ASYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<GENS, A>(this OUTER_A ma, Func<A, bool> f) =>
+            default(ASYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OUTER_A`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<GENS, A>(this OUTER_A ma, Action<A> f) =>
+            default(ASYNC_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OUTER_A` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OUTER_A FilterT<GENS, A>(this OUTER_A ma, Func<A, bool> f)
+        {
+            OUTER_A Do(INNER_A a) => default(M_OUTER_A).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OUTER_A` which is the result of performing x + y</returns>
+        [Pure]
+        public static OUTER_A PlusT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OUTER_A` which is the result of performing x - y</returns>
+        [Pure]
+        public static OUTER_A SubtractT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OUTER_A` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OUTER_A ProductT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OUTER_A` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OUTER_A DivideT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OUTER_A` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OUTER_A AppendT<SEMI, GENS, A>(this OUTER_A x, OUTER_A y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, GENS, A>(this OUTER_A x, OUTER_A y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OUTER_A` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, GENS, A>(this OUTER_A x, OUTER_A y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OUTER_A`</param>
+        /// <returns>`OUTER_B` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OUTER_B ApplyT<GENS, A, B>(this Func<A, B> fab, OUTER_A fa) =>
+            default(APPL_INNER_AB).Apply(
+                default(M_INNER_FUNC_AB).ReturnAsync(
+                    Task.FromResult<Func<INNER_A, INNER_B>>((INNER_A a) => 
+                        default(APPL_AB).Apply(
+                            default(M_FUNC_AB).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OUTER_A`</param>
+        /// <param name="fb">Monad of `OUTER_A`</param>
+        /// <returns>`OUTER_B` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OUTER_C ApplyT<GENS, A, B, C>(this Func<A, B, C> fabc, OUTER_A fa, OUTER_B fb) =>
+            default(APPL_INNER_ABC).Apply(
+                default(M_INNER_FUNC_ABC).ReturnAsync(
+                    Task.FromResult<Func<INNER_A, Func<INNER_B, INNER_C>>>((INNER_A a) =>
+                        (INNER_B b) =>
+                            default(APPL_ABC).Apply(
+                                default(M_FUNC_ABC).Return(curry(fabc)), a, b))), fa, fb);

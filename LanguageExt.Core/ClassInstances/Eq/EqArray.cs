@@ -8,9 +8,9 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Array equality
     /// </summary>
-    public struct EqArray<EQ, A> : Eq<A[]> where EQ : struct, Eq<A>
+    public struct EqArray<EqA, A> : Eq<A[]> where EqA : struct, Eq<A>
     {
-        public static readonly EqArray<EQ, A> Inst = default(EqArray<EQ, A>);
+        public static readonly EqArray<EqA, A> Inst = default(EqArray<EqA, A>);
 
         /// <summary>
         /// Equality test
@@ -27,7 +27,7 @@ namespace LanguageExt.ClassInstances
 
             for (var i = 0; i < x.Length; i++)
             {
-                if (!equals<EQ, A>(x[i], y[i])) return false;
+                if (!equals<EqA, A>(x[i], y[i])) return false;
             }
             return true;
         }
@@ -40,5 +40,32 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(A[] x) =>
             hash(x);
+    }
+
+    /// <summary>
+    /// Array equality
+    /// </summary>
+    public struct EqArray<A> : Eq<A[]>
+    {
+        public static readonly EqArray<A> Inst = default(EqArray<A>);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public bool Equals(A[] x, A[] y) =>
+            default(EqArray<EqDefault<A>, A>).Equals(x, y);
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        public int GetHashCode(A[] x) =>
+            default(EqArray<EqDefault<A>, A>).GetHashCode(x);
     }
 }

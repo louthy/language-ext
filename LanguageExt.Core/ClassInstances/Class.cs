@@ -30,7 +30,7 @@ namespace LanguageExt.ClassInstances
                                         .Find(typeof(A).GetTypeInfo())
                                         .IfNone(Set.empty<OrdTypeInfo, TypeInfo>());
 
-            if(All.Count == 1)
+            if (All.Count == 1)
             {
                 Default = (A)Activator.CreateInstance(All.Head().AsType());
                 return;
@@ -42,7 +42,7 @@ namespace LanguageExt.ClassInstances
             //    if (Default != null) return;
             //}
 
-            Name = typeof(A).GetTypeInfo().Name.Split('`').Head();
+            Name = typeof(A).GetTypeInfo().Name.Split('`').Head();    // Build a friendly name (i.e. Eq<string> becomes EqString)
             Name += String.Join("", genParams);
 
             var defaultTypes = All.Where(t => t.Name == Name).ToList();

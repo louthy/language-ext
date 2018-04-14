@@ -7,21 +7,45 @@ using System.Threading.Tasks;
 namespace LanguageExt.ClassInstances
 {
     public struct FTryAsync<A, B> : 
-        Functor<TryAsync<A>, TryAsync<B>, A, B>,
-        BiFunctor<TryAsync<A>, TryAsync<B>, A, Unit, B>
+        FunctorAsync<TryAsync<A>, TryAsync<B>, A, B>,
+        BiFunctorAsync<TryAsync<A>, TryAsync<B>, A, Unit, B>
     {
         public static readonly FTryAsync<A, B> Inst = default(FTryAsync<A, B>);
 
         [Pure]
-        public TryAsync<B> BiMap(TryAsync<A> ma, Func<A, B> fa, Func<Unit, B> fb) => () =>
-            ma.Match(
-                Succ: x => new Result<B>(fa(x)),
-                Fail: _ => new Result<B>(fb(unit)));
+        public TryAsync<B> BiMapAsync(TryAsync<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
+            new TryAsync<B>(() => 
+                default(MTryAsync<A>).Match(ma,
+                    Some: a  => new Result<B>(fa(a)),
+                    None: () => new Result<B>(fb(unit))));
 
         [Pure]
-        public TryAsync<B> Map(TryAsync<A> ma, Func<A, B> f) => () =>
-            ma.Match(
-                Succ: x => new Result<B>(f(x)),
-                Fail: e => new Result<B>(e));
+        public TryAsync<B> BiMapAsync(TryAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, B> fb) =>
+            new TryAsync<B>(async () =>
+                await default(MTryAsync<A>).MatchAsync(ma,
+                    SomeAsync: async a => new Result<B>(await fa(a)),
+                    None: ()      => new Result<B>(fb(unit))));
+
+        [Pure]
+        public TryAsync<B> BiMapAsync(TryAsync<A> ma, Func<A, B> fa, Func<Unit, Task<B>> fb) =>
+            new TryAsync<B>(async () =>
+                await default(MTryAsync<A>).MatchAsync(ma,
+                    Some: a        => new Result<B>(fa(a)),
+                    NoneAsync: async () => new Result<B>(await fb(unit))));
+
+        [Pure]
+        public TryAsync<B> BiMapAsync(TryAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, Task<B>> fb) =>
+            new TryAsync<B>(async () =>
+                await default(MTryAsync<A>).MatchAsync(ma,
+                    SomeAsync: async a  => new Result<B>(await fa(a)),
+                    NoneAsync: async () => new Result<B>(await fb(unit))));
+
+        [Pure]
+        public TryAsync<B> Map(TryAsync<A> ma, Func<A, B> f) =>
+            default(MTryAsync<A>).Bind<MTryAsync<B>, TryAsync<B>, B>(ma, a => Prelude.TryAsync(f(a)));
+
+        [Pure]
+        public TryAsync<B> MapAsync(TryAsync<A> ma, Func<A, Task<B>> f) =>
+            default(MTryAsync<A>).BindAsync<MTryAsync<B>, TryAsync<B>, B>(ma, async a => Prelude.TryAsync(await f(a)));
     }
 }

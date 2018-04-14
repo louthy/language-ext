@@ -72,10 +72,6 @@ namespace LanguageExt.ClassInstances
             choice.IsSuccess;
 
         [Pure]
-        public bool IsUnsafe(Validation<FAIL, SUCCESS> choice) =>
-            false;
-
-        [Pure]
         public C Match<C>(Validation<FAIL, SUCCESS> choice, Func<Seq<FAIL>, C> Left, Func<SUCCESS, C> Right, Func<C> Bottom = null) =>
             choice.Match(Right, Left);
 
@@ -94,15 +90,14 @@ namespace LanguageExt.ClassInstances
                 Fail: e => default(MONADB).Fail(e));
 
         [Pure]
-        public Validation<FAIL, SUCCESS> BindReturn(Unit outputma, Validation<FAIL, SUCCESS> mb) =>
-            mb;
+        public MB BindAsync<MONADB, MB, B>(Validation<FAIL, SUCCESS> ma, Func<SUCCESS, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            ma.Match(
+                Succ: s => f(s),
+                Fail: e => default(MONADB).Fail(e));
 
         [Pure]
-        public Func<Unit, Task<int>> CountAsync(Validation<FAIL, SUCCESS> fa) => _ =>
-            Task.FromResult(
-                fa.IsSuccess
-                    ? 1
-                    : 0);
+        public Validation<FAIL, SUCCESS> BindReturn(Unit outputma, Validation<FAIL, SUCCESS> mb) =>
+            mb;
 
         [Pure]
         public Validation<FAIL, SUCCESS> Fail(Seq<FAIL> err) =>
@@ -113,37 +108,12 @@ namespace LanguageExt.ClassInstances
             err is Seq<FAIL> 
                 ? Validation<FAIL, SUCCESS>.Fail((Seq<FAIL>)err)
                 : err is FAIL 
-                    ? Validation < FAIL, SUCCESS>.Fail(SeqOne((FAIL)err))
+                    ? Validation < FAIL, SUCCESS>.Fail(Seq1((FAIL)err))
                     : Validation<FAIL, SUCCESS>.Fail(Seq<FAIL>.Empty);
 
-
         [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Validation<FAIL, SUCCESS> fa, S state, Func<S, SUCCESS, S> f) => _ =>
-            Task.FromResult(fa.Fold(state, f));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Validation<FAIL, SUCCESS> fa, S state, Func<S, SUCCESS, Task<S>> f) => _ =>
-            fa.Match(
-                Succ: x => f(state, x),
-                Fail: e => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Validation<FAIL, SUCCESS> fa, S state, Func<S, SUCCESS, S> f) => _ =>
-            Task.FromResult(fa.Fold(state, f));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Validation<FAIL, SUCCESS> fa, S state, Func<S, SUCCESS, Task<S>> f) => _ =>
-            fa.Match(
-                Succ: x => f(state, x),
-                Fail: e => Task.FromResult(state));
-
-        [Pure]
-        public Validation<FAIL, SUCCESS> Id(Func<Unit, Validation<FAIL, SUCCESS>> ma) =>
+        public Validation<FAIL, SUCCESS> Run(Func<Unit, Validation<FAIL, SUCCESS>> ma) =>
             ma(unit);
-
-        [Pure]
-        public Validation<FAIL, SUCCESS> IdAsync(Func<Unit, Task<Validation<FAIL, SUCCESS>>> ma) =>
-            ma(unit).Result;
 
         [Pure]
         public Validation<FAIL, SUCCESS> Plus(Validation<FAIL, SUCCESS> a, Validation<FAIL, SUCCESS> b) =>

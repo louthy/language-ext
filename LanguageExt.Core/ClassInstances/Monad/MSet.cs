@@ -1,12 +1,9 @@
-﻿using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+﻿using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -28,6 +25,10 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public MB Bind<MONADB, MB, B>(Set<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             traverse<MSet<A>, MONADB, Set<A>, MB, A, B>(ma, f);
+
+        [Pure]
+        public MB BindAsync<MONADB, MB, B>(Set<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            traverseSyncAsync<MSet<A>, MONADB, Set<A>, MB, A, B>(ma, f);
 
         [Pure]
         public Func<Unit, int> Count(Set<A> fa) => _ =>
@@ -78,54 +79,12 @@ namespace LanguageExt.ClassInstances
             Set(x);
 
         [Pure]
-        public Set<A> Id(Func<Unit, Set<A>> ma) =>
+        public Set<A> Run(Func<Unit, Set<A>> ma) =>
             ma(unit);
 
         [Pure]
         public Set<A> BindReturn(Unit _, Set<A> mb) =>
             mb;
-
-        [Pure]
-        public Set<A> IdAsync(Func<Unit, Task<Set<A>>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Set<A> fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Set<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-        {
-            Task<S> s = Task.FromResult(state);
-            foreach (var item in fa)
-            {
-                s = from x in s
-                    from y in f(x, item)
-                    select y;
-            }
-            return s;
-        };
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Set<A> fa, S state, Func<S, A, S> f) => _ =>
-             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Set<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-        {
-            Task<S> s = Task.FromResult(state);
-            foreach (var item in fa.Reverse())
-            {
-                s = from x in s
-                    from y in f(x, item)
-                    select y;
-            }
-            return s;
-        };
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(Set<A> fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
 
         [Pure]
         public Set<A> Apply(Func<A, A, A> f, Set<A> fa, Set<A> fb) =>

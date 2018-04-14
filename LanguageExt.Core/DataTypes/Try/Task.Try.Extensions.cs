@@ -291,8 +291,8 @@ public static class TaskTryExtensions
     /// <returns>True if the predicate holds for the bound value, or if the Try computation
     /// fails.  False otherwise.</returns>
     [Pure]
-    public static Task<bool> ForAll<A>(this Task<Try<A>> self, Func<A, Task<bool>> pred) =>
-        self.ToAsync().ForAll(pred);
+    public static Task<bool> ForAllAsync<A>(this Task<Try<A>> self, Func<A, Task<bool>> pred) =>
+        self.ToAsync().ForAllAsync(pred);
 
     /// <summary>
     /// Folds Try value into an S.
@@ -315,8 +315,8 @@ public static class TaskTryExtensions
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public static Task<S> Fold<A, S>(this Task<Try<A>> self, S state, Func<S, A, Task<S>> folder) =>
-        self.ToAsync().Fold(state, folder);
+    public static Task<S> FoldAsync<A, S>(this Task<Try<A>> self, S state, Func<S, A, Task<S>> folder) =>
+        self.ToAsync().FoldAsync(state, folder);
 
     /// <summary>
     /// Folds Try value into an S.
@@ -389,8 +389,8 @@ public static class TaskTryExtensions
     /// <param name="pred">Predicate to test the bound value against</param>
     /// <returns>True if the predicate holds for the bound value.  False otherwise.</returns>
     [Pure]
-    public static Task<bool> Exists<A>(this Task<Try<A>> self, Func<A, Task<bool>> pred) =>
-        self.ToAsync().Exists(pred);
+    public static Task<bool> ExistsAsync<A>(this Task<Try<A>> self, Func<A, Task<bool>> pred) =>
+        self.ToAsync().ExistsAsync(pred);
 
     /// <summary>
     /// Maps the bound value

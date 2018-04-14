@@ -37,4 +37,26 @@ namespace LanguageExt.ClassInstances
             return res.IsFaulted || res.Value.IsNone || res.Value.Value.IsNull() ? 0 : res.Value.GetHashCode();
         }
     }
+
+    /// <summary>
+    /// Compare the equality of any type in the TryOption type-class
+    /// </summary>
+    public struct EqTryOpt<A> : Eq<TryOption<A>>
+    {
+        public static readonly EqTryOpt<A> Inst = default(EqTryOpt<A>);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        /// <param name="lhs">The left hand side of the equality operation</param>
+        /// <param name="rhs">The right hand side of the equality operation</param>
+        /// <returns>True if lhs and rhs are equal</returns>
+        [Pure]
+        public bool Equals(TryOption<A> lhs, TryOption<A> rhs) =>
+            default(EqTryOpt<EqDefault<A>, A>).Equals(lhs, rhs);
+
+        [Pure]
+        public int GetHashCode(TryOption<A> x) =>
+            default(EqTryOpt<EqDefault<A>, A>).GetHashCode(x);
+    }
 }

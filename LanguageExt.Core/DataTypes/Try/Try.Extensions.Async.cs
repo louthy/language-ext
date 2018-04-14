@@ -207,7 +207,7 @@ public static class TryExtensionsAsync
     /// fails.  False otherwise.</returns>
     [Pure]
     public static Task<bool> ForAllAsync<A>(this Try<A> self, Func<A, Task<bool>> pred) =>
-        self.ToAsync().ForAll(pred);
+        self.ToAsync().ForAllAsync(pred);
 
     /// <summary>
     /// Folds Try value into an S.
@@ -231,7 +231,7 @@ public static class TryExtensionsAsync
     /// <returns>Folded state</returns>
     [Pure]
     public static Task<S> FoldAsync<A, S>(this Try<A> self, S state, Func<S, A, Task<S>> folder) =>
-        self.ToAsync().Fold(state, folder);
+        self.ToAsync().FoldAsync(state, folder);
 
     /// <summary>
     /// Folds Try value into an S.
@@ -305,7 +305,7 @@ public static class TryExtensionsAsync
     /// <returns>True if the predicate holds for the bound value.  False otherwise.</returns>
     [Pure]
     public static Task<bool> ExistsAsync<A>(this Try<A> self, Func<A, Task<bool>> pred) =>
-        self.ToAsync().Exists(pred);
+        self.ToAsync().ExistsAsync(pred);
 
     /// <summary>
     /// Maps the bound value
@@ -329,7 +329,7 @@ public static class TryExtensionsAsync
     /// <returns>Mapped Try computation</returns>
     [Pure]
     public static TryAsync<R> MapAsync<A, R>(this Try<A> self, Func<A, Task<R>> mapper) =>
-        self.ToAsync().Map(mapper);
+        self.ToAsync().MapAsync(mapper);
 
     /// <summary>
     /// Maps the bound value

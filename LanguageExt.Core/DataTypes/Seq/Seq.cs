@@ -1,4 +1,5 @@
 ﻿using LanguageExt.ClassInstances;
+using LanguageExt.TypeClasses;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -46,17 +47,6 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Number of items in the sequence</returns>
         public abstract int Count { get; }
-
-        ///// <summary>
-        ///// Returns the number of items in the sequence
-        ///// </summary>
-        ///// <returns>Number of items in the sequence</returns>
-        //public int Count =>
-        //    count == -1
-        //        ? count = Tail.count == -1
-        //            ? WalkAndCount()
-        //            : Tail.count + 1
-        //        : count;
 
         /// <summary>
         /// Get an enumerator for the sequence
@@ -306,6 +296,30 @@ namespace LanguageExt
                     (s, x) => s ^ (x.IsNull() ? 0 : x.GetHashCode()));
 
         /// <summary>
+        /// Ordering operator
+        /// </summary>
+        public static bool operator >(Seq<A> x, Seq<A> y) =>
+            default(OrdSeq<OrdDefault<A>, A>).Compare(x, y) > 0;
+
+        /// <summary>
+        /// Ordering operator
+        /// </summary>
+        public static bool operator >=(Seq<A> x, Seq<A> y) =>
+            default(OrdSeq<OrdDefault<A>, A>).Compare(x, y) >= 0;
+
+        /// <summary>
+        /// Ordering  operator
+        /// </summary>
+        public static bool operator <(Seq<A> x, Seq<A> y) =>
+            default(OrdSeq<OrdDefault<A>, A>).Compare(x, y) < 0;
+
+        /// <summary>
+        /// Ordering  operator
+        /// </summary>
+        public static bool operator <=(Seq<A> x, Seq<A> y) =>
+            default(OrdSeq<OrdDefault<A>, A>).Compare(x, y) <= 0;
+
+        /// <summary>
         /// Equality operator
         /// </summary>
         public static bool operator ==(Seq<A> x, Seq<A> y) =>
@@ -357,7 +371,6 @@ namespace LanguageExt
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
         public abstract Seq<A> TakeWhile(Func<A, int, bool> pred);
-
 
         /// <summary>
         /// Compare to another sequence

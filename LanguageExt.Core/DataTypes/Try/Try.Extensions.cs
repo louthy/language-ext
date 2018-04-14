@@ -33,6 +33,36 @@ public static class TryExtensions
     }
 
     /// <summary>
+    /// Forces evaluation of the lazy try
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>The Try with the computation executed</returns>
+    public static Try<A> Strict<A>(this Try<A> ma)
+    {
+        var res = ma.Try();
+        return () => res;
+    }
+
+    /// <summary>
+    /// Test if the Try is in a success state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation has succeeded</returns>
+    public static bool IsSucc<A>(this Try<A> ma) =>
+        ma.Try().IsSuccess;
+
+    /// <summary>
+    /// Test if the Try is in a faulted state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation is faulted</returns>
+    public static bool IsFail<A>(this Try<A> ma) =>
+        ma.Try().IsFaulted;
+
+    /// <summary>
     /// Invoke a delegate if the Try returns a value successfully
     /// </summary>
     /// <param name="Succ">Delegate to invoke if successful</param>
@@ -821,4 +851,50 @@ public static class TryExtensions
             ? (A?)null
             : x.Value;
     }
+
+    [Pure]
+    public static Try<A> Plus<A>(this Try<A> ma, Try<A> mb) =>
+        default(MTry<A>).Plus(ma, mb);
+
+    /// <summary>
+    /// Partitions a list of 'Try' into two lists.
+    /// All the 'Fail' elements are extracted, in order, to the first
+    /// component of the output.  Similarly the 'Succ' elements are extracted
+    /// to the second component of the output.
+    /// </summary>
+    /// <typeparam name="A">Succ</typeparam>
+    /// <param name="self">Try list</param>
+    /// <returns>A tuple containing the an enumerable of Exception and an enumerable of A</returns>
+    [Pure]
+    public static (IEnumerable<Exception> Fails, IEnumerable<A> Succs) Partition<A>(this IEnumerable<Try<A>> self) =>
+        Choice.partition<MTry<A>, Try<A>, Exception, A>(self);
+
+    /// <summary>
+    /// Partitions a list of 'Try' into two lists.
+    /// All the 'Fail' elements are extracted, in order, to the first
+    /// component of the output.  Similarly the 'Succ' elements are extracted
+    /// to the second component of the output.
+    /// </summary>
+    /// <typeparam name="A">Succ</typeparam>
+    /// <param name="self">Try list</param>
+    /// <returns>A tuple containing the an enumerable of Exception and an enumerable of A</returns>
+    [Pure]
+    public static (Seq<Exception> Fails, Seq<A> Succs) Partition<A>(this Seq<Try<A>> self) =>
+        Choice.partition<MTry<A>, Try<A>, Exception, A>(self);
+
+    [Pure]
+    public static Seq<Exception> Fails<A>(this Seq<Try<A>> self) =>
+        Choice.lefts<MTry<A>, Try<A>, Exception, A>(self);
+
+    [Pure]
+    public static Seq<A> Succs<A>(this Seq<Try<A>> self) =>
+        Choice.rights<MTry<A>, Try<A>, Exception, A>(self);
+
+    [Pure]
+    public static IEnumerable<Exception> Fails<A>(this IEnumerable<Try<A>> self) =>
+        Choice.lefts<MTry<A>, Try<A>, Exception, A>(self);
+
+    [Pure]
+    public static IEnumerable<A> Succs<A>(this IEnumerable<Try<A>> self) =>
+        Choice.rights<MTry<A>, Try<A>, Exception, A>(self);
 }

@@ -592,8 +592,8 @@ public static class ListExtensions
     /// <param name="zipper">Join function</param>
     /// <returns>Joined enumerable</returns>
     [Pure]
-    public static IEnumerable<Tuple<T, U>> Zip<T, U>(this IEnumerable<T> list, IEnumerable<U> other) =>
-        list.Zip(other, (t, u) => Tuple(t, u));
+    public static IEnumerable<(T, U)> Zip<T, U>(this IEnumerable<T> list, IEnumerable<U> other) =>
+        list.Zip(other, (t, u) => (t, u));
 
     /// <summary>
     /// Returns Some(x) for the first item in the list that matches the predicate 

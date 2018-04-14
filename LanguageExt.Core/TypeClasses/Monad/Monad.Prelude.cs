@@ -74,8 +74,7 @@ namespace LanguageExt
         /// <returns>Mapped monad</returns>
         [Pure]
         public static MB liftM<MONAD, FUNCTOR, MA, MB, A, B>(MA ma, Func<A, B> f)
-            where FUNCTOR : struct, Functor<MA, MB, A, B>
-            where MONAD   : struct, Monad<MA, A> =>
+            where FUNCTOR : struct, Functor<MA, MB, A, B> =>
             default(FUNCTOR).Map(ma, f);
 
         /// <summary>

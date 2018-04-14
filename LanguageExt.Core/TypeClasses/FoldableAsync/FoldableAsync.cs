@@ -28,7 +28,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="f">Folder function, applied for each item in fa</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        Func<Env, Task<S>> FoldAsync<S>(FA fa, S state, Func<S, A, S> f);
+        Func<Env, Task<S>> Fold<S>(FA fa, S state, Func<S, A, S> f);
 
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary
@@ -61,7 +61,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="f">Folder function, applied for each item in fa</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        Func<Env, Task<S>> FoldBackAsync<S>(FA fa, S state, Func<S, A, S> f);
+        Func<Env, Task<S>> FoldBack<S>(FA fa, S state, Func<S, A, S> f);
 
         /// <summary>
         /// In the case of lists, 'FoldBack', when applied to a binary
@@ -84,6 +84,6 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <returns>Total number of items </returns>
         [Pure]
-        Func<Env, Task<int>> CountAsync(FA fa);
+        Func<Env, Task<int>> Count(FA fa);
     }
 }

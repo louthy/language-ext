@@ -22,7 +22,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<B> Apply(OptionUnsafe<Func<A, B>> fab, OptionUnsafe<A> fa) =>
-            ApplOptional<
+            ApplOptionalUnsafe<
                 MOptionUnsafe<Func<A, B>>, MOptionUnsafe<A>, MOptionUnsafe<B>, 
                 OptionUnsafe<Func<A, B>>, OptionUnsafe<A>, OptionUnsafe<B>, 
                 A, B>                
@@ -30,7 +30,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<A> Pure(A x) =>
-            ApplOptional<
+            ApplOptionalUnsafe<
                 MOptionUnsafe<Func<A, B>>, MOptionUnsafe<A>, MOptionUnsafe<B>, 
                 OptionUnsafe<Func<A, B>>, OptionUnsafe<A>, OptionUnsafe<B>, 
                 A, B>
@@ -38,7 +38,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<B> Action(OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
-            ApplOptional<
+            ApplOptionalUnsafe<
                 MOptionUnsafe<Func<A, B>>, MOptionUnsafe<A>, MOptionUnsafe<B>, 
                 OptionUnsafe<Func<A, B>>, OptionUnsafe<A>, OptionUnsafe<B>, 
                 A, B>
@@ -52,7 +52,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<Func<B, C>> Apply(OptionUnsafe<Func<A, Func<B, C>>> fab, OptionUnsafe<A> fa) =>
-            ApplOptional<
+            ApplOptionalUnsafe<
                 MOptionUnsafe<Func<A, Func<B, C>>>, MOptionUnsafe<Func<B, C>>, MOptionUnsafe<A>, MOptionUnsafe<B>, MOptionUnsafe<C>,
                 OptionUnsafe<Func<A, Func<B, C>>>, OptionUnsafe<Func<B, C>>, OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>,
                 A, B, C>
@@ -60,7 +60,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<C> Apply(OptionUnsafe<Func<A, Func<B, C>>> fab, OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
-            ApplOptional<
+            ApplOptionalUnsafe<
                 MOptionUnsafe<Func<A, Func<B, C>>>, MOptionUnsafe<Func<B, C>>, MOptionUnsafe<A>, MOptionUnsafe<B>, MOptionUnsafe<C>,
                 OptionUnsafe<Func<A, Func<B, C>>>, OptionUnsafe<Func<B, C>>, OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>,
                 A, B, C>
@@ -68,7 +68,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<A> Pure(A x) =>
-            ApplOptional<
+            ApplOptionalUnsafe<
                 MOptionUnsafe<Func<A, Func<B, C>>>, MOptionUnsafe<Func<B, C>>, MOptionUnsafe<A>, MOptionUnsafe<B>, MOptionUnsafe<C>,
                 OptionUnsafe<Func<A, Func<B, C>>>, OptionUnsafe<Func<B, C>>, OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>,
                 A, B, C>

@@ -194,7 +194,7 @@ public static class TryOptionExtensionsAsync
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     public static Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, Task<R>> Some, Func<R> None, Func<Exception, R> Fail) =>
-        self.ToAsync().Match(Some, None, Fail);
+        self.ToAsync().MatchAsync(Some, None, Fail);
 
     /// <summary>
     /// Pattern matches the three possible states of the computation computation
@@ -204,7 +204,7 @@ public static class TryOptionExtensionsAsync
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     public static Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, Task<R>> Succ, Func<Task<R>> Fail) =>
-        self.ToAsync().Match(Succ, Fail);
+        self.ToAsync().MatchAsync(Succ, Fail);
 
     /// <summary>
     /// Pattern matches the three possible states of the computation
@@ -215,7 +215,7 @@ public static class TryOptionExtensionsAsync
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Some, None, or Fail delegate</returns>
     public static Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, Task<R>> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
-        self.ToAsync().Match(Some, None, Fail);
+        self.ToAsync().MatchAsync(Some, None, Fail);
 
     /// <summary>
     /// Pattern matches the three possible states of the computation computation
@@ -225,7 +225,7 @@ public static class TryOptionExtensionsAsync
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, Fail delegate</returns>
     public static Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, R> Succ, Func<Task<R>> Fail) =>
-        self.ToAsync().Match(Succ, Fail);
+        self.ToAsync().MatchAsync(Succ, Fail);
 
     /// <summary>
     /// Pattern matches the three possible states of the computation
@@ -236,7 +236,7 @@ public static class TryOptionExtensionsAsync
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Some, None, or Fail delegate</returns>
     public static Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, R> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
-        self.ToAsync().Match(Some, None, Fail);
+        self.ToAsync().MatchAsync(Some, None, Fail);
 
     [Pure]
     public static Task<Option<A>> ToOptionAsync<A>(this TryOption<A> self) =>
@@ -304,7 +304,7 @@ public static class TryOptionExtensionsAsync
     /// fails.  False otherwise.</returns>
     [Pure]
     public static Task<bool> ForAllAsync<A>(this TryOption<A> self, Func<A, Task<bool>> pred) =>
-        self.ToAsync().ForAll(pred);
+        self.ToAsync().ForAllAsync(pred);
 
     /// <summary>
     /// Folds Try value into an S.
@@ -328,7 +328,7 @@ public static class TryOptionExtensionsAsync
     /// <returns>Folded state</returns>
     [Pure]
     public static Task<S> FoldAsync<A, S>(this TryOption<A> self, S state, Func<S, A, Task<S>> folder) =>
-        self.ToAsync().Fold(state, folder);
+        self.ToAsync().FoldAsync(state, folder);
 
     /// <summary>
     /// Folds Try value into an S.
@@ -500,7 +500,7 @@ public static class TryOptionExtensionsAsync
     /// <returns>True if the predicate holds for the bound value.  False otherwise.</returns>
     [Pure]
     public static Task<bool> ExistsAsync<A>(this TryOption<A> self, Func<A, Task<bool>> pred) =>
-        self.ToAsync().Exists(pred);
+        self.ToAsync().ExistsAsync(pred);
 
     /// <summary>
     /// Maps the bound value
@@ -524,7 +524,7 @@ public static class TryOptionExtensionsAsync
     /// <returns>Mapped Try computation</returns>
     [Pure]
     public static TryOptionAsync<R> MapAsync<A, R>(this TryOption<A> self, Func<A, Task<R>> mapper) =>
-        self.ToAsync().Map(mapper);
+        self.ToAsync().MapAsync(mapper);
 
     /// <summary>
     /// Maps the bound value

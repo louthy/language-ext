@@ -8,12 +8,12 @@ namespace LanguageExt
 {
     class Reflect
     {
-        public static IEnumerable<FieldInfo> GetPublicInstanceFields<A>(params Type[] excludeAttrs)
+        public static IEnumerable<FieldInfo> GetPublicInstanceFields<A>(bool includeBase, params Type[] excludeAttrs)
         {
             var excludeAttrsSet = toSet(excludeAttrs.Map(a => a.Name));
             var publicFields = typeof(A)
                 .GetTypeInfo()
-                .GetAllFields()
+                .GetAllFields(includeBase)
 #if !COREFX13
                 .OrderBy(f => f.MetadataToken)
 #endif
@@ -26,7 +26,7 @@ namespace LanguageExt
 
             var publicPropNames = typeof(A)
                                     .GetTypeInfo()
-                                    .GetAllProperties()
+                                    .GetAllProperties(includeBase)
 #if !COREFX13
                                     .OrderBy(p => p.MetadataToken)
 #endif
@@ -36,7 +36,7 @@ namespace LanguageExt
 
             var backingFields = typeof(A)
                                     .GetTypeInfo()
-                                    .GetAllFields()
+                                    .GetAllFields(includeBase)
 #if !COREFX13
                                     .OrderBy(p => p.MetadataToken)
 #endif
@@ -135,10 +135,10 @@ namespace LanguageExt
                 })
                 .FirstOrDefault();
 
-        public static Option<MethodInfo> GetPublicInstanceMethod<TYPE>(string name) =>
+        public static Option<MethodInfo> GetPublicInstanceMethod<TYPE>(string name, bool includeBase) =>
             typeof(TYPE)
                 .GetTypeInfo()
-                .GetAllMethods()
+                .GetAllMethods(includeBase)
                 .Where(x =>
                 {
                     if (x.IsStatic) return false;
@@ -148,10 +148,10 @@ namespace LanguageExt
                 })
                 .FirstOrDefault();
 
-        public static Option<MethodInfo> GetPublicInstanceMethod<TYPE, A>(string name) =>
+        public static Option<MethodInfo> GetPublicInstanceMethod<TYPE, A>(string name, bool includeBase) =>
             typeof(TYPE)
                 .GetTypeInfo()
-                .GetAllMethods()
+                .GetAllMethods(includeBase)
                 .Where(x =>
                 {
                     if (x.IsStatic) return false;
@@ -164,10 +164,10 @@ namespace LanguageExt
                 .FirstOrDefault();
 
 
-        public static Option<MethodInfo> GetPublicInstanceMethod<TYPE, A, B>(string name) =>
+        public static Option<MethodInfo> GetPublicInstanceMethod<TYPE, A, B>(string name, bool includeBase) =>
             typeof(TYPE)
                 .GetTypeInfo()
-                .GetAllMethods()
+                .GetAllMethods(includeBase)
                 .Where(x =>
                 {
                     if (x.IsStatic) return false;
@@ -180,9 +180,9 @@ namespace LanguageExt
                 })
                 .FirstOrDefault();
 
-        public static Option<MethodInfo> GetPublicInstanceMethod(Type type, string name) =>
+        public static Option<MethodInfo> GetPublicInstanceMethod(Type type, string name, bool includeBase) =>
             type.GetTypeInfo()
-                .GetAllMethods()
+                .GetAllMethods(includeBase)
                 .Where(x =>
                 {
                     if (x.IsStatic) return false;
@@ -192,10 +192,10 @@ namespace LanguageExt
                 })
                 .FirstOrDefault();
 
-        public static Option<MethodInfo> GetPublicInstanceMethod<TYPE>(string name, Type arg1, Type arg2) =>
+        public static Option<MethodInfo> GetPublicInstanceMethod<TYPE>(string name, Type arg1, Type arg2, bool includeBase) =>
             typeof(TYPE)
                 .GetTypeInfo()
-                .GetAllMethods()
+                .GetAllMethods(includeBase)
                 .Where(x =>
                 {
                     if (x.IsStatic) return false;

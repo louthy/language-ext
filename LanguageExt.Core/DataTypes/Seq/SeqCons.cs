@@ -119,36 +119,42 @@ namespace LanguageExt
         public override Seq<A> Take(int count)
         {
             int taken = 0;
+            var list = new List<A>();
             foreach(var item in AsEnumerable())
             {
                 taken++;
+                list.Add(item);
                 if (taken == count) break;
             }
-            return new SeqTake<A>(this, taken);
+            return SeqList<A>.New(list, 0, taken);
         }
 
         public override Seq<A> TakeWhile(Func<A, bool> pred)
         {
             int taken = 0;
+            var list = new List<A>();
             foreach (var item in AsEnumerable())
             {
                 if (!pred(item)) break;
                 taken++;
+                list.Add(item);
                 if (taken == count) break;
             }
-            return new SeqTake<A>(this, taken);
+            return SeqList<A>.New(list, 0, taken);
         }
 
         public override Seq<A> TakeWhile(Func<A, int, bool> pred)
         {
             int taken = 0;
+            var list = new List<A>();
             foreach (var item in AsEnumerable())
             {
                 if (!pred(item, taken)) break;
                 taken++;
+                list.Add(item);
                 if (taken == count) break;
             }
-            return new SeqTake<A>(this, taken);
+            return SeqList<A>.New(list, 0, taken);
         }
 
         internal override bool IsTerminator => false;

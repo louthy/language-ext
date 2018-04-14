@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2015
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountingDSL", "AccountingDSL\AccountingDSL.csproj", "{F69289E9-5820-412F-BC2F-F46D3D9CED89}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F69289E9-5820-412F-BC2F-F46D3D9CED89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F69289E9-5820-412F-BC2F-F46D3D9CED89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F69289E9-5820-412F-BC2F-F46D3D9CED89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F69289E9-5820-412F-BC2F-F46D3D9CED89}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0B69E513-48EB-41EA-835E-5B6E7D843985}
+	EndGlobalSection
+EndGlobal

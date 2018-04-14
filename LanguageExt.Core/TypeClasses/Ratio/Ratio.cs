@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -12,7 +8,7 @@ namespace LanguageExt
     /// <remarks>
     /// This is used in the definition of Fractional.
     /// </remarks>
-    public struct Ratio<A>
+    public struct Ratio<A> : Typeclass
     {
         /// <summary>
         /// The numerator of the ratio, in non-reduced form.

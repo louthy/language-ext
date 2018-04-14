@@ -16,6 +16,10 @@ namespace LanguageExt.TypeClasses
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
             where NewInnerMonad : struct, Monad<NewInnerType, B>;
 
+        NewOuterType BindAsync<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, NewOuterType> f)
+            where NewOuterMonad : struct, MonadAsync<NewOuterType, NewInnerType>
+            where NewInnerMonad : struct, Monad<NewInnerType, B>;
+
         NewOuterType Map<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, B> f)
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
             where NewInnerMonad : struct, Monad<NewInnerType, B>;

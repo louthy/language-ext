@@ -10,7 +10,7 @@ using System.Reactive.Linq;
 
 namespace LanguageExt
 {
-    public static partial class TypeClass
+    public static partial class Choice
     {
         /// <summary>
         /// Match operation with an untyped value for Some. This can be
@@ -114,20 +114,6 @@ namespace LanguageExt
                     Left: _ => Option<B>.None,
                     Right:      Option<B>.Some,
                     Bottom: () => Option<B>.None);
-
-        [Pure]
-        public static Task<R> matchAsync<CHOICE, CH, A, B, R>(CH ma, Func<A, R> Left, Func<B, Task<R>> Right)
-            where CHOICE : struct, Choice<CH, A, B> =>
-            default(CHOICE).Match(ma,
-                Left: a => Task.FromResult(Left(a)),
-                Right: b => Right(b));
-
-        [Pure]
-        public static Task<R> matchAsync<CHOICE, CH, A, B, R>(CH ma, Func<A, Task<R>> Left, Func<B, Task<R>> Right)
-            where CHOICE : struct, Choice<CH, A, B> =>
-            default(CHOICE).Match(ma, 
-                Left: a => Left(a),
-                Right: b => Right(b));
 
         [Pure]
         public static IObservable<R> matchObservable<CHOICE, CH, A, B, R>(CH ma, Func<A, R> Left, Func<B, IObservable<R>> Right)

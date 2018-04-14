@@ -10,10 +10,10 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Equality and ordering
     /// </summary>
-    public struct OrdEnumerable<ORD, A> : Ord<IEnumerable<A>>
-        where ORD : struct, Ord<A>
+    public struct OrdEnumerable<OrdA, A> : Ord<IEnumerable<A>>
+        where OrdA : struct, Ord<A>
     {
-        public static readonly OrdEnumerable<ORD, A> Inst = default(OrdEnumerable<ORD, A>);
+        public static readonly OrdEnumerable<OrdA, A> Inst = default(OrdEnumerable<OrdA, A>);
 
         /// <summary>
         /// Equality test
@@ -23,7 +23,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>True if x and y are equal</returns>
         [Pure]
         public bool Equals(IEnumerable<A> x, IEnumerable<A> y) =>
-            default(EqEnumerable<ORD, A>).Equals(x, y);
+            default(EqEnumerable<OrdA, A>).Equals(x, y);
 
         /// <summary>
         /// Compare two values
@@ -53,7 +53,7 @@ namespace LanguageExt.ClassInstances
                 if (!r1) return -1;
                 if (!r2) return 1;
 
-                var cmp = default(ORD).Compare(enumx.Current, enumy.Current);
+                var cmp = default(OrdA).Compare(enumx.Current, enumy.Current);
                 if (cmp != 0) return cmp;
             }
         }
@@ -66,4 +66,45 @@ namespace LanguageExt.ClassInstances
         public int GetHashCode(IEnumerable<A> x) =>
             hash(x);
     }
+
+    /// <summary>
+    /// Equality and ordering
+    /// </summary>
+    public struct OrdEnumerable<A> : Ord<IEnumerable<A>>
+    {
+        public static readonly OrdEnumerable<A> Inst = default(OrdEnumerable<A>);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public bool Equals(IEnumerable<A> x, IEnumerable<A> y) =>
+            default(OrdEnumerable<OrdDefault<A>, A>).Equals(x, y);
+
+        /// <summary>
+        /// Compare two values
+        /// </summary>
+        /// <param name="x">Left hand side of the compare operation</param>
+        /// <param name="y">Right hand side of the compare operation</param>
+        /// <returns>
+        /// if x greater than y : 1
+        /// if x less than y    : -1
+        /// if x equals y       : 0
+        /// </returns>
+        [Pure]
+        public int Compare(IEnumerable<A> x, IEnumerable<A> y) =>
+            default(OrdEnumerable<OrdDefault<A>, A>).Compare(x, y);
+
+        /// <summary>
+        /// Get the hash-code of the provided value
+        /// </summary>
+        /// <returns>Hash code of x</returns>
+        [Pure]
+        public int GetHashCode(IEnumerable<A> x) =>
+            default(OrdEnumerable<OrdDefault<A>, A>).GetHashCode(x);
+    }
+
 }

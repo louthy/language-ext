@@ -75,14 +75,8 @@ namespace LanguageExt
             return new SeqList<A>(list, index + skipCount, count - skipCount);
         }
 
-        public override S Fold<S>(S state, Func<S, A, S> f)
-        {
-            for (int i = index; i < index + count; i++)
-            {
-                state = f(state, list[i]);
-            }
-            return state;
-        }
+        public override S Fold<S>(S state, Func<S, A, S> f) =>
+            AsEnumerable().Fold(state, f);
 
         public override S FoldBack<S>(S state, Func<S, A, S> f)
         {
@@ -93,23 +87,11 @@ namespace LanguageExt
             return state;
         }
 
-        public override bool Exists(Func<A, bool> f)
-        {
-            for (int i = index; i < index + count; i++)
-            {
-                if (f(list[i])) return true;
-            }
-            return false;
-        }
+        public override bool Exists(Func<A, bool> f) =>
+            AsEnumerable().Exists(f);
 
-        public override bool ForAll(Func<A, bool> f)
-        {
-            for (int i = index; i < index + count; i++)
-            {
-                if (!f(list[i])) return false;
-            }
-            return true;
-        }
+        public override bool ForAll(Func<A, bool> f)=>
+            AsEnumerable().ForAll(f);
 
         public override Seq<A> Take(int takeCount)
         {

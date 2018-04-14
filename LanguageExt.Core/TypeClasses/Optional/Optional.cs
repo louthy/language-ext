@@ -8,12 +8,6 @@ namespace LanguageExt.TypeClasses
     public interface Optional<OA, A> : Typeclass
     {
         /// <summary>
-        /// True if the optional type allows nulls
-        /// </summary>
-        [Pure]
-        bool IsUnsafe(OA opt);
-
-        /// <summary>
         /// Is the option in a Some state
         /// </summary>
         [Pure]
@@ -32,10 +26,10 @@ namespace LanguageExt.TypeClasses
         B Match<B>(OA opt, Func<A, B> Some, Func<B> None);
 
         /// <summary>
-        /// Match the two states of the Option and return a B, which can be null.
+        /// Match the two states of the Option and return a non-null B.
         /// </summary>
         [Pure]
-        B MatchUnsafe<B>(OA opt, Func<A, B> Some, Func<B> None);
+        B Match<B>(OA opt, Func<A, B> Some, B None);
 
         /// <summary>
         /// Match the two states of the Option A

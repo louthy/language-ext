@@ -7,7 +7,7 @@ namespace LanguageExt.TypeClasses
     /// </summary>
     /// <typeparam name="TYPE"></typeparam>
     [Typeclass]
-    public interface Const<TYPE> 
+    public interface Const<TYPE> : Typeclass
     {
         TYPE Value { get; }
     }

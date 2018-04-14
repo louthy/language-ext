@@ -13,12 +13,22 @@ namespace LanguageExt.ClassInstances
     {
         [Pure]
         public MB Bind<MONADB, MB, B>(State<S, A> ma, Func<A, MB> f) where MONADB : struct, Monad<S, (S State, bool IsFaulted), MB, B> =>
-            default(MONADB).Id(state =>
+            default(MONADB).Run(state =>
             {
                 var (a, sa, faulted) = ma(state);
                 return faulted
                     ? default(MONADB).Fail(default(MState<S, A>).Fail())
                     : default(MONADB).BindReturn((sa, faulted), f(a));
+            });
+
+        [Pure]
+        public MB BindAsync<MONADB, MB, B>(State<S, A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<S, (S State, bool IsFaulted), MB, B> =>
+            default(MONADB).RunAsync(state =>
+            {
+                var (a, sa, faulted) = ma(state);
+                return faulted
+                    ? default(MONADB).Fail(default(MState<S, A>).Fail()).AsTask()
+                    : default(MONADB).BindReturn((sa, faulted), f(a)).AsTask();
             });
 
         [Pure]
@@ -73,61 +83,12 @@ namespace LanguageExt.ClassInstances
             Fold(fa, 0, (_, __) => 1);
 
         [Pure]
-        public State<S, A> Id(Func<S, State<S, A>> ma) => 
+        public State<S, A> Run(Func<S, State<S, A>> ma) => 
             state => ma(state)(state);
 
         [Pure]
         public State<S, A> State(Func<S, A> f) => state =>
             (f(state), state, false);
-
-        [Pure]
-        public State<S, A> IdAsync(Func<S, Task<State<S, A>>> ma) => state =>
-            ma(state).Result(state);
-
-        [Pure]
-        public Func<S, Task<FoldState>> FoldAsync<FoldState>(State<S, A> fa, FoldState state, Func<FoldState, A, FoldState> f) => env =>
-        {
-            var mr = from a in fa
-                     select f(state, a);
-
-            return Task.FromResult(mr(env).Value);
-        };
-
-        [Pure]
-        public Func<S, Task<FoldState>> FoldAsync<FoldState>(State<S, A> fa, FoldState state, Func<FoldState, A, Task<FoldState>> f) => env =>
-        {
-            var mr = from a in fa
-                     select f(state, a);
-
-            return mr(env).Value;
-        };
-
-        [Pure]
-        public Func<S, Task<FoldState>> FoldBackAsync<FoldState>(State<S, A> fa, FoldState state, Func<FoldState, A, FoldState> f) => env =>
-        {
-            var mr = from a in fa
-                     select f(state, a);
-
-            return Task.FromResult(mr(env).Value);
-        };
-
-        [Pure]
-        public Func<S, Task<FoldState>> FoldBackAsync<FoldState>(State<S, A> fa, FoldState state, Func<FoldState, A, Task<FoldState>> f) => env =>
-        {
-            var mr = from a in fa
-                     select f(state, a);
-
-            return mr(env).Value;
-        };
-
-        [Pure]
-        public Func<S, Task<int>> CountAsync(State<S, A> fa) => env =>
-        {
-            var mr = from a in fa
-                     select 1;
-
-            return Task.FromResult(mr(env).Value);
-        };
 
         [Pure]
         public State<S, A> Apply(Func<A, A, A> f, State<S, A> fa, State<S, A> fb) =>
