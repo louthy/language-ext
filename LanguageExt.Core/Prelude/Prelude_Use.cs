@@ -67,7 +67,7 @@ namespace LanguageExt
             }
             finally
             {
-                value.Dispose();
+                value?.Dispose();
             }
         }
 
@@ -86,7 +86,7 @@ namespace LanguageExt
             }
             finally
             {
-                disposable.Dispose();
+                disposable?.Dispose();
             }
         }
 
@@ -107,7 +107,7 @@ namespace LanguageExt
                     }
                     finally
                     {
-                        v.Dispose();
+                        v?.Dispose();
                     }
                 });
 
@@ -126,7 +126,7 @@ namespace LanguageExt
             }
             finally
             {
-                disposable.Dispose();
+                disposable?.Dispose();
             }
         };
     }
