@@ -1,7 +1,7 @@
 ﻿using AccountingDSL.Data;
 using LanguageExt;
 
-namespace AccountingDSL.DSL
+namespace AccountingDSL.Interpreter
 {
     public static class ScriptFunctions
     {
