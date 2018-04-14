@@ -5,6 +5,7 @@ using AccountingDSL.Data;
 using static LanguageExt.Prelude;
 using static AccountingDSL.ExpressionCompiler.Compiler;
 using AccountingDSL.ScriptParsing;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace AccountingDSL.DSL
 {
@@ -61,7 +62,7 @@ namespace AccountingDSL.DSL
         public static Transform<Unit> Print(PrintOperation op)
         {
             var messages = op.Messages
-                             .Map(x => $"\"{x}\"")
+                             .Map(DecorateWithQuotes)
                              .Map(Parse)
                              .Map(msg => from e in msg
                                          from r in Compile<string>(e)
@@ -71,6 +72,9 @@ namespace AccountingDSL.DSL
                    from compute in new Transform<Unit>.Print(op, msgs, Return)
                    select compute;
         }
+
+        static string DecorateWithQuotes(string x) =>
+            SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(x)).ToString();
 
         static Transform<Seq<AccountingRow>> FilterRowsBy(ScriptExpr expr) =>
             expr is IdentifierExpr ident
