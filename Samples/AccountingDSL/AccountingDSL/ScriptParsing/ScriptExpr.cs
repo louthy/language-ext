@@ -3,6 +3,10 @@ using LanguageExt;
 
 namespace AccountingDSL.ScriptParsing
 {
+    /// <summary>
+    /// Type that represents the root expression type for all expressions parsed by ScriptParser
+    /// The static functions represent the full set of expressions that can be instantiated.
+    /// </summary>
     public class ScriptExpr
     {
         public static ScriptExpr Args(ScriptExpr left, ScriptExpr right) => new TupleExpr(left, right);
