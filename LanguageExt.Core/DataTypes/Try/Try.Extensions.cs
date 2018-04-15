@@ -309,9 +309,9 @@ public static class TryExtensions
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped Try</returns>
     [Pure]
-    public static Try<B> Select<A, B>(this Try<A> self, Func<A, B> f) => 
+    public static Try<B> Select<A, B>(this Try<A> self, Func<A, B> f) =>
         Map(self, f);
-    
+
     /// <summary>
     /// Apply Try values to a Try function of arity 2
     /// </summary>
@@ -508,7 +508,7 @@ public static class TryExtensions
         toArray(self.AsEnumerable());
 
     [Pure]
-    public static TrySuccContext<A, R> Succ<A,R>(this Try<A> self, Func<A, R> succHandler) =>
+    public static TrySuccContext<A, R> Succ<A, R>(this Try<A> self, Func<A, R> succHandler) =>
         new TrySuccContext<A, R>(self, succHandler);
 
     [Pure]
@@ -528,13 +528,13 @@ public static class TryExtensions
         this Try<A> self,
         Func<A, Try<B>> bind,
         Func<A, B, C> project) =>
-            MTry<A>.Inst.Bind<MTry<C>, Try<C>, C>(self,    a =>
-            MTry<B>.Inst.Bind<MTry<C>, Try<C>, C>(bind(a), b =>
-            MTry<C>.Inst.Return(project(a, b))));
+            MTry<A>.Inst.Bind<MTry<C>, Try<C>, C>(self, a =>
+         MTry<B>.Inst.Bind<MTry<C>, Try<C>, C>(bind(a), b =>
+         MTry<C>.Inst.Return(project(a, b))));
 
     [Pure]
     public static Try<V> Join<A, U, K, V>(
-        this Try<A> self, 
+        this Try<A> self,
         Try<U> inner,
         Func<A, K> outerKeyMap,
         Func<U, K> innerKeyMap,
@@ -759,7 +759,7 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs ++ rhs</returns>
     [Pure]
-    public static Try<A> Append<SEMI, A>(this Try<A> lhs, Try<A> rhs) where SEMI : struct, Semigroup<A> => 
+    public static Try<A> Append<SEMI, A>(this Try<A> lhs, Try<A> rhs) where SEMI : struct, Semigroup<A> =>
         from x in lhs
         from y in rhs
         select append<SEMI, A>(x, y);
@@ -798,7 +798,7 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Try<A> Product<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> => 
+    public static Try<A> Product<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
         from x in lhs
         from y in rhs
         select product<NUM, A>(x, y);
