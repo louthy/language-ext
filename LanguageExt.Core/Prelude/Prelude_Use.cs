@@ -22,9 +22,9 @@ namespace LanguageExt
         /// <summary>
         /// Use with Task in LINQ expressions to auto-clean up disposable items
         /// </summary>
-        public static Task<B> use<A, B>(Task<A> computation, Func<A, B> map)
+        public async static Task<B> use<A, B>(Task<A> computation, Func<A, B> map)
             where A : IDisposable =>
-            computation.Map(d => use(d, map));
+            use(await computation.ConfigureAwait(false), map);
 
         /// <summary>
         /// Use with Task in LINQ expressions to auto-clean up disposable items
@@ -50,18 +50,8 @@ namespace LanguageExt
         /// <param name="f">Inner map function that uses the disposable value</param>
         /// <returns>Result of f(disposable)</returns>
         public static B use<A, B>(Func<A> generator, Func<A, B> f)
-            where A : IDisposable
-        {
-            var value = generator();
-            try
-            {
-                return f(value);
-            }
-            finally
-            {
-                value?.Dispose();
-            }
-        }
+            where A : IDisposable =>
+            use(generator(), f);
 
         /// <summary>
         /// Functional implementation of the using(...) { } pattern
@@ -90,8 +80,7 @@ namespace LanguageExt
         /// <returns>Result of f(disposable)</returns>
         public static Try<B> tryuse<A, B>(Func<A> disposable, Func<A, B> f)
             where A : IDisposable =>
-            Try(disposable)
-                .Map(d => use(d, f));
+            Try(disposable).Use(f);
 
         /// <summary>
         /// Functional implementation of the using(...) { } pattern

@@ -568,12 +568,12 @@ public static class TryExtensions
     [Pure]
     public static Try<U> Use<T, U>(this Try<T> self, Func<T, U> select)
         where T : IDisposable => () =>
-            self().Value.Apply(d => use(d, select));
+        use(self().Value, select);
 
     [Pure]
     public static Try<U> Use<T, U>(this Try<T> self, Func<T, Try<U>> select)
         where T : IDisposable => () =>
-        self().Value.Apply(d => use(d, select))().Value;
+        use(self().Value, select)().Value;
 
     [Pure]
     public static int Sum(this Try<int> self) =>
