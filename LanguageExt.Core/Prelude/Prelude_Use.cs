@@ -9,28 +9,28 @@ namespace LanguageExt
         /// Use with Try monad in LINQ expressions to auto-clean up disposable items
         /// </summary>
         public static Try<B> use<A, B>(Try<A> computation, Func<A, B> map)
-            where A : class, IDisposable =>
+            where A : IDisposable =>
             computation.Use(map);
 
         /// <summary>
         /// Use with Try monad in LINQ expressions to auto-clean up disposable items
         /// </summary>
         public static Try<B> use<A, B>(Try<A> computation, Func<A, Try<B>> bind)
-            where A : class, IDisposable =>
+            where A : IDisposable =>
             computation.Use(bind);
 
         /// <summary>
         /// Use with Task in LINQ expressions to auto-clean up disposable items
         /// </summary>
         public static Task<B> use<A, B>(Task<A> computation, Func<A, B> map)
-            where A : class, IDisposable =>
+            where A : IDisposable =>
             computation.Map(d => use(d, map));
 
         /// <summary>
         /// Use with Task in LINQ expressions to auto-clean up disposable items
         /// </summary>
         public static async Task<B> use<A, B>(Task<A> computation, Func<A, Task<B>> bind)
-            where A : class, IDisposable
+            where A : IDisposable
         {
             var a = await computation;
             try
@@ -50,7 +50,7 @@ namespace LanguageExt
         /// <param name="f">Inner map function that uses the disposable value</param>
         /// <returns>Result of f(disposable)</returns>
         public static B use<A, B>(Func<A> generator, Func<A, B> f)
-            where A : class, IDisposable
+            where A : IDisposable
         {
             var value = generator();
             try
