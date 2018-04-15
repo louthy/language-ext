@@ -39,16 +39,6 @@ namespace LanguageExtTests
         [Fact]
         public void MixedLinq()
         {
-            //var oa = Some(1);
-            //var lb = List(2);
-            //var oc = Some(3);
-
-            //var r2 =
-            //   from a in oa
-            //   from b in lb
-            //   from c in oc
-            //   select a + b + c;
-
             var oa = Some(1);
             var lb = List(2, 3, 4, 5);
 
@@ -306,5 +296,24 @@ namespace LanguageExtTests
                       select x + y;
         }
 
+
+        [Fact]
+        public void OptionNoneTest1()
+        {
+            var res1 = from x in None
+                       from y in Some(123)
+                       from z in Some(456)
+                       select y + z;
+
+            var res2 = from y in Some(123)
+                       from x in None
+                       from z in Some(456)
+                       select y + z;
+
+            var res3 = from y in Some(123)
+                       from x in None
+                       from z in Some(456)
+                       select y + z;
+        }
     }
 }

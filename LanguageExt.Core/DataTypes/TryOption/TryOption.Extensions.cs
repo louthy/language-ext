@@ -22,7 +22,7 @@ public static class TryOptionExtensions
     public static TryOption<A> Memo<A>(this TryOption<A> ma)
     {
         bool run = false;
-        OptionalResult<A> result = new OptionalResult<A>();
+        var result = OptionalResult<A>.Bottom;
         return (() =>
         {
             if (run) return result;
@@ -31,6 +31,54 @@ public static class TryOptionExtensions
             return result;
         });
     }
+
+    /// <summary>
+    /// Forces evaluation of the lazy TryOption
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>The TryOption with the computation executed</returns>
+    public static TryOption<A> Strict<A>(this TryOption<A> ma)
+    {
+        var res = ma.Try();
+        return () => res;
+    }
+
+    /// <summary>
+    /// Test if the TryOption is in a success state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation has succeeded</returns>
+    public static bool IsSome<A>(this TryOption<A> ma) =>
+        ma.Try().IsSome;
+
+    /// <summary>
+    /// Test if the TryOption is in a Fail state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation is faulted</returns>
+    public static bool IsFail<A>(this TryOption<A> ma) =>
+        ma.Try().IsFaulted;
+
+    /// <summary>
+    /// Test if the TryOption is in a None or Fail state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation is faulted</returns>
+    public static bool IsNoneOrFail<A>(this TryOption<A> ma) =>
+        ma.Try().IsFaultedOrNone;
+
+    /// <summary>
+    /// Test if the TryOption is in a None state
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Computation to evaluate</param>
+    /// <returns>True if computation is faulted</returns>
+    public static bool IsNone<A>(this TryOption<A> ma) =>
+        ma.Try().IsNone;
 
     /// <summary>
     /// Invoke a delegate if the Try returns a value successfully
@@ -216,60 +264,6 @@ public static class TryOptionExtensions
             Some(res.Value.Value);
 
         return Unit.Default;
-    }
-
-    public static async Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, Task<R>> Some, Func<R> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return await (res.IsFaulted || res.Value.IsNone
-            ? Task.FromResult(Fail())
-            : Some(res.Value.Value));
-    }
-
-    public static async Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, Task<R>> Some, Func<R> None, Func<Exception, R> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return await (res.IsFaulted
-            ? Task.FromResult(Fail(res.Exception))
-            : res.Value.IsSome
-                ? Some(res.Value.Value)
-                : Task.FromResult(None()));
-    }
-
-    public static async Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, Task<R>> Some, Func<Task<R>> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return await (res.IsFaulted || res.Value.IsNone
-            ? Fail()
-            : Some(res.Value.Value));
-    }
-
-    public static async Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, Task<R>> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return await (res.IsFaulted
-            ? Fail(res.Exception)
-            : res.Value.IsSome
-                ? Some(res.Value.Value)
-                : None());
-    }
-
-    public static async Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, R> Some, Func<Task<R>> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return await (res.IsFaulted || res.Value.IsNone
-            ? Fail()
-            : Task.FromResult(Some(res.Value.Value)));
-    }
-
-    public static async Task<R> MatchAsync<A, R>(this TryOption<A> self, Func<A, R> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return await (res.IsFaulted
-            ? Fail(res.Exception)
-            : res.Value.IsSome
-                ? Task.FromResult(Some(res.Value.Value))
-                : None());
     }
 
     public static IObservable<R> MatchObservable<A, R>(this TryOption<A> self, Func<A, IObservable<R>> Some, Func<R> Fail)
@@ -763,10 +757,10 @@ public static class TryOptionExtensions
         {
             var res = trySelf.Result.Try();
             return res.IsFaulted
-                ? Task.FromResult(Fail(res.Exception))
+                ? Fail(res.Exception).AsTask()
                 : res.Value.IsSome
                     ? Some(res.Value.Value)
-                    : Task.FromResult(None());
+                    : None().AsTask();
         })
         from t in tt
         select t);
@@ -776,7 +770,7 @@ public static class TryOptionExtensions
         {
             var res = trySelf.Result.Try();
             return res.IsFaulted || res.Value.IsNone
-                ? Task.FromResult(Fail())
+                ? Fail().AsTask()
                 : Some(res.Value.Value);
         })
         from t in tt
@@ -812,7 +806,7 @@ public static class TryOptionExtensions
             var res = trySelf.Result.Try();
             return res.IsFaulted || res.Value.IsNone
                 ? Fail()
-                : Task.FromResult(Some(res.Value.Value));
+                : Some(res.Value.Value).AsTask();
         })
         from t in tt
         select t);
@@ -824,7 +818,7 @@ public static class TryOptionExtensions
             return res.IsFaulted
                 ? Fail(res.Exception)
                 : res.Value.IsSome
-                    ? Task.FromResult(Some(res.Value.Value))
+                    ? Some(res.Value.Value).AsTask()
                     : None();
         })
         from t in tt
@@ -1091,4 +1085,8 @@ public static class TryOptionExtensions
             ? (A?)null
             : x.Value.Value;
     }
+
+    [Pure]
+    public static TryOption<A> Plus<A>(this TryOption<A> ma, TryOption<A> mb) =>
+        default(MTryOption<A>).Plus(ma, mb);
 }

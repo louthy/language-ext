@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-
 using LanguageExt;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
@@ -11,6 +8,12 @@ using static LanguageExt.TypeClass;
 using Xunit;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using static System.Console;
+using LanguageExt.Parsec;
+using static LanguageExt.Parsec.Prim;
+using static LanguageExt.Parsec.Char;
+
+
 
 namespace LanguageExt.Tests
 {
@@ -56,16 +59,27 @@ namespace LanguageExt.Tests
         [Fact]
         public void Issue208()
         {
-            var r = from a in Task.FromResult(Left<Exception, int>(new Exception("error 1")))
-                    from b in Task.FromResult(Right<Exception, int>(1))
+            var r = from a in Left<Exception, int>(new Exception("error 1")).AsTask()
+                    from b in Right<Exception, int>(1).AsTask()
                     select a + b;
+        }
 
+        [Fact]
+        public void Issue346()
+        {
+            var list = 1.Cons().ToList();
         }
 
         static void EqPar()
         {
             var eq = par<string, string, bool>(equals<EqStringOrdinalIgnoreCase, string>, "abc");
         }
+
+        static Writer<MSeq<string>, Seq<string>, Seq<int>> multWithLog(Seq<int> input) =>
+            from _ in Writer(0, Seq1("Start"))
+            let c = input.Map(i => Writer(i * 10, Seq1($"Number: {i}")))
+            from r in c.Sequence()
+            select r;
     }
 
     public class ADUser : NewType<ADUser, string> { public ADUser(string u) : base(u) { } }
@@ -113,13 +127,10 @@ namespace Core.Tests
     public class ExternalOptionsAndEithersTests
     {
         [Fact]
-        public async Task what_i_desire()
+        public async Task what_i_desire_EitherAsync()
         {
-            Task<Either<Error, Pixel>> GetPixelE(PixelId id) =>
-                GetPixel(id).MatchAsync(
-                    Some: p => Right<Error, Pixel>(p),
-                    None: () => Error.New("pixel not found")
-                );
+            EitherAsync<Error, Pixel> GetPixelE(PixelId id) =>
+                GetPixel(id).ToEither(Error.New("pixel not found"));
 
             var program =
                 from pixel in GetPixelE(PixelId.New("wkrp"))
@@ -127,55 +138,11 @@ namespace Core.Tests
                 from resource in ScrapeUrl("http://google.com")
                 select resource;
 
-            (await program).Match(
+            await program.Match(
                 Right: r => Assert.True(false, "this should not pass"),
                 Left: e => Assert.Equal("pixel not found", e.Value)
             );
         }
-
-        [Fact]
-        public async Task what_im_forced_to_do()
-        {
-            var program =
-                from pixel in GetPixel(PixelId.New("wkrp")).AsTry("pixel not found")
-                from id in GenerateLinkId(pixel.Value).AsTry()
-                from resource in ScrapeUrl("http://google.com").AsTry()
-                select resource;
-
-            (await program.Try()).Match(
-                Succ: r =>
-                {
-                    Assert.True(false, "this should not pass");
-                    return unit;
-                },
-                Fail: e =>
-                {
-                    Assert.Equal("pixel not found", e.Message);
-                    return unit;
-                }
-            );
-        }
-    }
-
-    static class Ext
-    {
-        public static Try<T> AsTry<TL, T>(this Either<TL, T> either) where TL : NewType<TL, string> =>
-            Try(either.Match(
-                    Left: e => throw new Exception(e.Value),
-                    Right: identity
-                ));
-
-        public static Try<T> AsTry<T>(this Option<T> option, string error) =>
-            Try(option.Match(
-                    None: () => throw new Exception(error),
-                    Some: identity
-                ));
-
-        public static TryAsync<T> AsTry<TL, T>(this Task<Either<TL, T>> task) where TL : NewType<TL, string> =>
-            task.Map(AsTry).ToAsync();
-
-        public static TryAsync<T> AsTry<T>(this Task<Option<T>> task, string error) =>
-            task.Map(o => o.AsTry(error)).ToAsync();
     }
 
     static class ExternalSystem
@@ -185,14 +152,14 @@ namespace Core.Tests
             public Error(string value) : base(value) { }
         }
 
-        public static Task<Option<Pixel>> GetPixel(PixelId id) =>
-            Task.FromResult(Option<Pixel>.None);
+        public static OptionAsync<Pixel> GetPixel(PixelId id) =>
+            Option<Pixel>.None.ToAsync();
 
-        public static Task<Either<Error, string>> GenerateLinkId(PixelId pixelId) =>
-            Task.FromResult(Right<Error, string>($"{pixelId}-1234"));
+        public static EitherAsync<Error, string> GenerateLinkId(PixelId pixelId) =>
+            Right<Error, string>($"{pixelId}-1234").ToAsync();
 
-        public static Task<Either<Error, WebResource>> ScrapeUrl(string url) =>
-            Task.FromResult(Right<Error, WebResource>(new WebResource(200)));
+        public static EitherAsync<Error, WebResource> ScrapeUrl(string url) =>
+            Right<Error, WebResource>(new WebResource(200)).ToAsync();
 
         public class WebResource : NewType<WebResource, int>
         {
@@ -211,7 +178,7 @@ namespace Core.Tests
     }
 
 }
-namespace NickCuthbertOnGitter_RecordsTests
+namespace Issues
 {
     public class CollectorId : NewType<CollectorId, int> { public CollectorId(int value) : base(value) { } };
     public class TenantId : NewType<TenantId, int> { public TenantId(int value) : base(value) { } };
@@ -275,7 +242,7 @@ namespace NickCuthbertOnGitter_RecordsTests
         public static TryOptionAsync<A> AsTryOptionAsync<A>(this Either<Error, Option<A>> ma) =>
             ma.Match(
                 Right: r => TryOptionAsync(r),
-                Left:  e => TryOptionAsync<A>(new ErrorException(e)));
+                Left: e => TryOptionAsync<A>(new ErrorException(e)));
 
         public static TryOption<A> AsTryOption<A>(this Either<Error, Option<A>> ma) =>
             ma.Match(
@@ -314,6 +281,22 @@ namespace NickCuthbertOnGitter_RecordsTests
         }
     }
 
+    public class Issue242
+    {
+
+        [Fact]
+        public async Task Issue242_ExpectNoException()
+        {
+            var failableTask = fun((Either<string, int> value) =>
+                value.AsTask());
+
+            var result = await from a in failableTask("This will NOT cause a Bottom Exception")
+                               from b in failableTask(3)
+                               select a + b;
+        }
+
+    }
+
     public class Issue263
     {
         public readonly Func<long, Unit> fire = i =>
@@ -330,20 +313,164 @@ namespace NickCuthbertOnGitter_RecordsTests
     public class Issue261
     {
         [Fact]
-        public void Test()
+        public void Test1()
         {
-            var computation = from x in Writer<MSeq<string>, Seq<string>, int>(100)
-                              from y in Writer<MSeq<string>, Seq<string>, int>(200)
-                              from _1 in tell<MSeq<string>, Seq<string>>(SeqOne("Hello"))
-                              from _2 in tell<MSeq<string>, Seq<string>>(SeqOne("World"))
-                              from _3 in tell<MSeq<string>, Seq<string>>(SeqOne($"the result is {x + y}"))
-                              select x + y;
+            var ma = Writer<MSeq<string>, Seq<string>, int>(100);
+            var mb = Writer<MSeq<string>, Seq<string>, int>(200);
 
-            var result = computation();
+            var mc = from x in ma
+                     from y in mb
+                     from _1 in tell<MSeq<string>, Seq<string>>(Seq1("Hello"))
+                     from _2 in tell<MSeq<string>, Seq<string>>(Seq1("World"))
+                     from _3 in tell<MSeq<string>, Seq<string>>(Seq1($"the result is {x + y}"))
+                     select x + y;
 
-            Assert.True(result.Value == 300);
-            Assert.True(result.Output.Count == 3);
-            Assert.True(String.Join(" ", result.Output) == "Hello World the result is 300");
+            var r = mc();
+
+            Assert.True(r.Value == 300);
+            Assert.True(r.Output == Seq("Hello", "World", "the result is 300"));
         }
+
+        [Fact]
+        public void Test2()
+        {
+            var ma = Writer<string, int>(100);
+            var mb = Writer<string, int>(200);
+
+            var mc = from x in ma
+                     from y in mb
+                     from _1 in tell("Hello")
+                     from _2 in tell("World")
+                     from _3 in tell($"the result is {x + y}")
+                     select x + y;
+
+            var r = mc();
+
+            Assert.True(r.Value == 300);
+            Assert.True(r.Output == Seq("Hello", "World", "the result is 300"));
+        }
+
+        [Fact]
+        public void Test3()
+        {
+            var ma = (100, Seq<string>());
+            var mb = (200, Seq<string>());
+
+            var mc = from x in ma.ToWriter()
+                     from y in mb.ToWriter()
+                     from _1 in tell("Hello")
+                     from _2 in tell("World")
+                     from _3 in tell($"the result is {x + y}")
+                     select x + y;
+
+            var r = mc();
+
+            Assert.True(r.Value == 300);
+            Assert.True(r.Output == Seq("Hello", "World", "the result is 300"));
+        }
+    }
+
+    public class Issue376
+    {
+        static Task<int> Number(int n) => n.AsTask();
+        static Task<string> Error(string err) => err.AsTask();
+
+        public static EitherAsync<string, int> Op1() =>
+            Number(1);
+
+        public static EitherAsync<string, int> Op2() =>
+            RightAsync<string, int>(2.AsTask());
+
+        public static EitherAsync<string, int> Op3() =>
+            Error("error");
+
+        public static EitherAsync<string, int> Calculate(int x, int y, int z) =>
+            (x + y + z);
+
+        public static async Task Test()
+        {
+            var res = await (from x in Op1()
+                             from y in Op2()
+                             from z in Op3()
+                             from w in Calculate(x, y, z)
+                             select w)
+                            .IfLeft(0);
+        }
+    }
+
+    public class Issue376_2
+    {
+        public static async Task<Either<string, int>> Op1()
+        {
+            return await 1.AsTask();
+        }
+
+        public static async Task<Either<string, int>> Op2()
+        {
+            return await 2.AsTask();
+        }
+
+        public static async Task<Either<string, int>> Op3()
+        {
+            return await "error".AsTask();
+        }
+
+        public static async Task<Either<string, int>> Calculate(int x, int y, int z)
+        {
+            return await Task.FromResult(x + y + z);
+        }
+
+        public static async Task Test()
+        {
+            var res = await (from x in Op1()
+                             from y in Op2()
+                             from z in Op3()
+                             from w in Calculate(x, y, z)
+                             select w);
+        }
+    }
+
+    public static class TestExt
+    {
+        public static Task<Either<L, C>> SelectMany<L, A, B, C>(
+            this Task<Either<L, A>> ma,
+            Func<A, Task<Either<L, B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MEither<L, C>).Return(project(a, b))));
+    }
+
+    public class Issue376_3
+    {
+        public static async Task<Option<int>> Op1()
+        {
+            return await 1.AsTask();
+        }
+
+        public static async Task<Option<int>> Op2()
+        {
+            return await 2.AsTask();
+        }
+
+        public static async Task<Option<int>> Op3()
+        {
+            return await Option<int>.None.AsTask();
+        }
+
+        public static async Task<Option<int>> Calculate(int x, int y, int z)
+        {
+            return await Task.FromResult(x + y + z);
+        }
+
+        //public static async Task Test()
+        //{
+        //    var res = await (from x in Op1()
+        //                     from y in Op2()
+        //                     from z in Op3()
+        //                     from w in Calculate(x, y, z)
+        //                     select w)
+        //                    .IfLeft(0);
+        //}
     }
 }

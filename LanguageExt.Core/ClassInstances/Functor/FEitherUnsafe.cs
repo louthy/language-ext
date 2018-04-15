@@ -12,14 +12,14 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public EitherUnsafe<L, R2> BiMap(EitherUnsafe<L, R> ma, Func<L, R2> fa, Func<R, R2> fb) =>
-            default(MEitherUnsafe<L, R>).Match(ma,
+            default(MEitherUnsafe<L, R>).MatchUnsafe(ma,
                 Left: a => EitherUnsafe<L, R2>.Right(Check.NullReturn(fa(a))),
                 Right: b => EitherUnsafe<L, R2>.Right(Check.NullReturn(fb(b))),
                 Bottom: () => EitherUnsafe<L, R2>.Bottom);
 
         [Pure]
         public EitherUnsafe<L, R2> Map(EitherUnsafe<L, R> ma, Func<R, R2> f) =>
-            default(MEitherUnsafe<L, R>).Match(ma,
+            default(MEitherUnsafe<L, R>).MatchUnsafe(ma,
                 Left: EitherUnsafe<L, R2>.Left,
                 Right: b => EitherUnsafe<L, R2>.Right(f(b)),
                 Bottom: () => EitherUnsafe<L, R2>.Bottom);
@@ -32,7 +32,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public EitherUnsafe<L2, R2> BiMap(EitherUnsafe<L, R> ma, Func<L, L2> fa, Func<R, R2> fb) =>
-            default(MEitherUnsafe<L, R>).Match(ma,
+            default(MEitherUnsafe<L, R>).MatchUnsafe(ma,
                 Left: a => EitherUnsafe<L2, R2>.Left(Check.NullReturn(fa(a))),
                 Right: b => EitherUnsafe<L2, R2>.Right(Check.NullReturn(fb(b))),
                 Bottom: () => EitherUnsafe<L2, R2>.Bottom);

@@ -60,7 +60,7 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public static Seq<A> Cons<A>(this A head, Arr<A> tail) =>
-            SeqCons<A>.New(head, SeqArr<A>.New(tail));
+            SeqCons<A>.New(head, SeqArray<A>.New(tail.Value));
 
         /// <summary>
         /// Construct a list from head and tail; head becomes the first item in 
@@ -72,7 +72,12 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public static Seq<A> Cons<A>(this A head, IEnumerable<A> tail) =>
-            SeqEnumerable<A>.New(head, tail);
+            tail is A[] array     ? Cons(head, array)
+          : tail is Arr<A> arr    ? Cons(head, arr)
+          : tail is IList<A> list ? Cons(head, list)
+          : tail is Lst<A> lst    ? Seq(head.Cons(lst))
+          : tail is Seq<A> seq    ? Cons(head, seq)
+          : SeqEnumerable<A>.New(head, tail);
 
         /// <summary>
         /// Construct a list from head and tail
@@ -716,7 +721,17 @@ namespace LanguageExt
         ///     null  : []
         /// </summary>
         [Pure]
+        [Obsolete("SeqOne has been deprecated for the more concise Seq1")]
         public static Seq<A> SeqOne<A>(A value) =>
+            value.IsNull() ? Empty : SeqCons<A>.New(value, Empty);
+
+        /// <summary>
+        /// Construct a sequence from any value
+        ///     T     : [x]
+        ///     null  : []
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq1<A>(A value) =>
             value.IsNull() ? Empty : SeqCons<A>.New(value, Empty);
 
         /// <summary>
@@ -742,11 +757,13 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(IEnumerable<A> value) =>
-            value == null
-                ? Empty
-                : value is Seq<A> seq
-                    ? seq
-                    : SeqEnumerable<A>.New(value);
+            value == null          ? Empty
+          : value is Seq<A> seq    ? seq
+          : value is A[] array     ? Seq(array)
+          : value is Arr<A> arr    ? Seq(arr)
+          : value is IList<A> list ? Seq(list)
+          : value is Lst<A> lst    ? Seq(lst)
+          : SeqEnumerable<A>.New(value);
 
         /// <summary>
         /// Construct a sequence from an array
@@ -768,22 +785,22 @@ namespace LanguageExt
         /// Construct a sequence from an array
         /// </summary>
         [Pure]
-        public static Seq<A> Seq<A>(A a, A b, params A[] cs) =>
-            SeqCons<A>.New(a, SeqCons<A>.New(b, SeqArray<A>.New(cs)));
+        public static Seq<A> Seq<A>(A a, A b, A c, params A[] ds) =>
+            SeqCons<A>.New(a, SeqCons<A>.New(b, SeqCons<A>.New(c, SeqArray<A>.New(ds))));
 
         /// <summary>
         /// Construct a sequence from an immutable array
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(Arr<A> value) =>
-            SeqArr<A>.New(value);
+            SeqArray<A>.New(value.Value);
 
         /// <summary>
         /// Construct a sequence from a list
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(IList<A> value) =>
-            SeqList<A>.New(value);
+            SeqList<A>.New(value, 0, value.Count);
 
         /// <summary>
         /// Construct a sequence from a list
@@ -957,7 +974,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Task<Seq<T>> Seq<T>(TryAsync<T> value) =>
-            value?.AsEnumerable() ?? Task.FromResult(LanguageExt.Seq<T>.Empty);
+            value?.AsEnumerable() ?? LanguageExt.Seq<T>.Empty.AsTask();
 
         /// <summary>
         /// Construct a sequence from a TryOption
@@ -968,7 +985,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Task<Seq<T>> Seq<T>(TryOptionAsync<T> value) =>
-            value?.AsEnumerable() ?? Task.FromResult(LanguageExt.Seq<T>.Empty);
+            value?.AsEnumerable() ?? LanguageExt.Seq<T>.Empty.AsTask();
 
         /// <summary>
         /// Construct a sequence from a tuple

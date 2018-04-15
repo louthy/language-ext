@@ -18,8 +18,8 @@ namespace LanguageExt.Tests
         [Fact]
         public async void InitialTests()
         {
-            var ma = SomeAsync(_ => 10);
-            var mb = SomeAsync(_ => 20);
+            var ma = SomeAsync(10);
+            var mb = SomeAsync(20);
 
             var mr = from a in ma
                      from b in mb
@@ -28,7 +28,7 @@ namespace LanguageExt.Tests
             Assert.True(await mr.IfNone(0) == 30);
 
 
-            var mc = Some(10).ToAsync().Match(
+            var mc = Some(10).ToAsync().MatchAsync(
                 Some: x => Task.FromResult(x * 10),
                 None: () => 0
             );
@@ -57,7 +57,7 @@ namespace LanguageExt.Tests
         [Fact]
         public async void InitialTests3()
         {
-            var mc = Task.FromResult(Some(10)).MatchAsync(
+            var mc = Some(10).AsTask().MatchAsync(
                 Some: x => Task.FromResult(x * 10),
                 None: () => 0
             );
@@ -102,18 +102,17 @@ namespace LanguageExt.Tests
             Assert.True(tasks[1].Status == TaskStatus.RanToCompletion);
         }
 
-        [Fact]
-        public async void SequenceFlip()
-        {
-            Task<Option<int>> taskOpt = Task.Run(() => Some(10));
+        // Not valuable any more 
+        //[Fact]
+        //public async void SequenceFlip()
+        //{
+        //    Task<Option<int>> taskOpt = Task.Run(() => Some(10));
 
-            Option<Task<int>> optTask = taskOpt.Sequence();
+        //    Option<Task<int>> optTask = taskOpt.Sequence();
+        //    var res = await optTask.IfNone(0.AsTask());
+        //    Assert.True(res == 10);
 
-            var res = await optTask.IfNone(0.AsTask());
-
-            Assert.True(res == 10);
-
-            taskOpt = optTask.Sequence();
-        }
+        //    taskOpt = optTask.Sequence();
+        //}
     }
 }

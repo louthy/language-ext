@@ -56,6 +56,48 @@ namespace LanguageExt.ClassInstances
     /// Compare the equality and ordering of any type in the NewType
     /// type-class
     /// </summary>
+    public struct OrdNewType<NEWTYPE, A> : Ord<NewType<NEWTYPE, A>>
+        where NEWTYPE : NewType<NEWTYPE, A>
+    {
+        public static readonly OrdNewType<NEWTYPE, A> Inst = default(OrdNewType<NEWTYPE, A>);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public bool Equals(NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) =>
+            default(OrdNewType<NEWTYPE, OrdDefault<A>, A>).Equals(x, y);
+
+        /// <summary>
+        /// Compare two values
+        /// </summary>
+        /// <param name="x">Left hand side of the compare operation</param>
+        /// <param name="y">Right hand side of the compare operation</param>
+        /// <returns>
+        /// if x greater than y : 1
+        /// if x less than y    : -1
+        /// if x equals y       : 0
+        /// </returns>
+        [Pure]
+        public int Compare(NewType<NEWTYPE, A> mx, NewType<NEWTYPE, A> my) =>
+            default(OrdNewType<NEWTYPE, OrdDefault<A>, A>).Compare(mx, my);
+
+        /// <summary>
+        /// Get the hash-code of the provided value
+        /// </summary>
+        /// <returns>Hash code of x</returns>
+        [Pure]
+        public int GetHashCode(NewType<NEWTYPE, A> x) =>
+            default(OrdNewType<NEWTYPE, OrdDefault<A>, A>).GetHashCode(x);
+    }
+
+    /// <summary>
+    /// Compare the equality and ordering of any type in the NewType
+    /// type-class
+    /// </summary>
     public struct OrdNewType<NEWTYPE, ORD, A, PRED> : Ord<NewType<NEWTYPE, A, PRED>>
         where ORD     : struct, Ord<A>
         where PRED    : struct, Pred<A>

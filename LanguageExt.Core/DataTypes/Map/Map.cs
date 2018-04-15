@@ -553,6 +553,10 @@ namespace LanguageExt
             Value.Equals(y.Value);
 
         [Pure]
+        public bool Equals<EqK>(Map<K, V> y) where EqK : struct, Eq<K> =>
+            Value.Equals<EqK>(y.Value);
+
+        [Pure]
         public static implicit operator Map<K, V>(ValueTuple<(K, V)> items) =>
             new Map<K, V>(new [] { items.Item1 });
 
@@ -1055,6 +1059,6 @@ namespace LanguageExt
 
         [Pure]
         public int CompareTo<OrdK>(Map<K, V> other) where OrdK : struct, Ord<K> =>
-            Value.CompareTo(other.Value);
+            Value.CompareTo<OrdK>(other.Value);
     }
 }

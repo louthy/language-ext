@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
+using static LanguageExt.Choice;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
@@ -38,7 +39,9 @@ namespace LanguageExt
         IEither,
         IComparable<Either<L, R>>,
         IComparable<R>,
+        IComparable<EitherRight<R>>,
         IEquatable<Either<L, R>>,
+        IEquatable<EitherRight<R>>,
         IEquatable<R>, 
         ISerializable
     {
@@ -98,6 +101,22 @@ namespace LanguageExt
             if (IsRight) info.AddValue("Right", right);
             if (IsLeft) info.AddValue("Left", left);
         }
+
+        /// <summary>
+        /// Implicit conversion operator from EitherRight to Either
+        /// </summary>
+        /// <param name="a">None value</param>
+        [Pure]
+        public static implicit operator Either<L, R>(EitherRight<R> right) =>
+            Right<L, R>(right.Value);
+
+        /// <summary>
+        /// Implicit conversion operator from EitherRight to Either
+        /// </summary>
+        /// <param name="a">None value</param>
+        [Pure]
+        public static implicit operator Either<L, R>(EitherLeft<L> left) =>
+            Left<L, R>(left.Value);
 
         /// <summary>
         /// Ctor that facilitates serialisation
@@ -176,6 +195,28 @@ namespace LanguageExt
         [Pure]
         public bool IsBottom =>
             State == EitherStatus.IsBottom;
+
+        /// <summary>
+        /// Explicit conversion operator from `Either` to `R`
+        /// </summary>
+        /// <param name="value">Value, must not be null.</param>
+        /// <exception cref="ValueIsNullException">Value is null</exception>
+        [Pure]
+        public static explicit operator R(Either<L, R> ma) =>
+            ma.IsRight
+                ? ma.right
+                : throw new InvalidCastException("Either is not in a Right state");
+
+        /// <summary>
+        /// Explicit conversion operator from `Either` to `L`
+        /// </summary>
+        /// <param name="value">Value, must not be null.</param>
+        /// <exception cref="ValueIsNullException">Value is null</exception>
+        [Pure]
+        public static explicit operator L(Either<L, R> ma) =>
+            ma.IsLeft
+                ? ma.left
+                : throw new InvalidCastException("Either is not in a Left state");
 
         /// <summary>
         /// Implicit conversion operator from R to Either R L
@@ -265,15 +306,22 @@ namespace LanguageExt
         /// Match the two states of the Either and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
-        public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> Right, Func<L, R2> Left) =>
-            matchAsync<MEither<L, R>, Either<L, R>, L, R, R2>(this, Left, Right);
+        public Task<R2> MatchAsync<R2>(Func<R, R2> Right, Func<L, Task<R2>> LeftAsync) =>
+            matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), LeftAsync, Right);
 
         /// <summary>
         /// Match the two states of the Either and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
-        public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> Right, Func<L, Task<R2>> Left) =>
-            matchAsync<MEither<L, R>, Either<L, R>, L, R, R2>(this, Left, Right);
+        public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> RightAsync, Func<L, R2> Left) =>
+            matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), Left, RightAsync);
+
+        /// <summary>
+        /// Match the two states of the Either and return a promise for a non-null R2.
+        /// </summary>
+        /// <returns>A promise to return a non-null R2</returns>
+        public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> RightAsync, Func<L, Task<R2>> LeftAsync) =>
+            matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), LeftAsync, RightAsync);
 
         /// <summary>
         /// Match the two states of the Either and return an observable stream of non-null R2s.
@@ -522,6 +570,13 @@ namespace LanguageExt
             toOption<MEither<L, R>, Either<L, R>, L, R>(this);
 
         /// <summary>
+        /// Convert the Either to an EitherAsync
+        /// </summary>
+        [Pure]
+        public EitherAsync<L, R> ToAsync() =>
+            new EitherAsync<L, R>(this.Head().AsTask());
+
+        /// <summary>
         /// Convert the Either to an EitherUnsafe
         /// </summary>
         /// <returns>EitherUnsafe</returns>
@@ -536,6 +591,174 @@ namespace LanguageExt
         [Pure]
         public TryOption<R> ToTryOption() =>
             toTryOption<MEither<L, R>, Either<L, R>, L, R>(this);
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <(Either<L, R> lhs, EitherLeft<L> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) < 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <=(Either<L, R> lhs, EitherLeft<L> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) <= 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator >(Either<L, R> lhs, EitherLeft<L> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) > 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator >=(Either<L, R> lhs, EitherLeft<L> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) >= 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <(Either<L, R> lhs, EitherRight<R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) < 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <=(Either<L, R> lhs, EitherRight<R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) <= 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator >(Either<L, R> lhs, EitherRight<R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) > 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator >=(Either<L, R> lhs, EitherRight<R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) >= 0;
+
+
+
+
+
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <(EitherLeft<L> lhs, Either<L, R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) < 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <=(EitherLeft<L>  lhs, Either<L, R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) <= 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator >(EitherLeft<L> lhs, Either<L, R>rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) > 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator >=(EitherLeft<L> lhs, Either<L, R>  rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) >= 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <(EitherRight<R> lhs, Either<L, R>  rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) < 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <=(EitherRight<R> lhs, Either<L, R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) <= 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator >(EitherRight<R> lhs, Either<L, R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) > 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator >=(EitherRight<R> lhs, Either<L, R> rhs) =>
+            compare<OrdDefault<L>, OrdDefault<R>, L, R>(lhs, rhs) >= 0;
+
+
+
 
         /// <summary>
         /// Comparison operator
@@ -581,8 +804,65 @@ namespace LanguageExt
         /// Equality operator override
         /// </summary>
         [Pure]
+        public static bool operator ==(Either<L, R> lhs, EitherLeft<L> rhs) =>
+            lhs.Equals(rhs);
+
+        /// <summary>
+        /// Equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator ==(Either<L, R> lhs, EitherRight<R> rhs) =>
+            lhs.Equals(rhs);
+
+        /// <summary>
+        /// Equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator ==(EitherLeft<L>  lhs, Either<L, R> rhs) =>
+            lhs.Equals(rhs);
+
+        /// <summary>
+        /// Equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator ==(EitherRight<R> lhs, Either<L, R>  rhs) =>
+            lhs.Equals(rhs);
+
+        /// <summary>
+        /// Equality operator override
+        /// </summary>
+        [Pure]
         public static bool operator ==(Either<L, R> lhs, Either<L, R> rhs) =>
             lhs.Equals(rhs);
+        
+        /// <summary>
+        /// Non-equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator !=(Either<L, R> lhs, EitherLeft<L> rhs) =>
+            !(lhs == rhs);
+
+        /// <summary>
+        /// Non-equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator !=(Either<L, R> lhs, EitherRight<R> rhs) =>
+            !(lhs == rhs);
+
+
+        /// <summary>
+        /// Non-equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator !=(EitherLeft<L> lhs, Either<L, R> rhs) =>
+            !(lhs == rhs);
+
+        /// <summary>
+        /// Non-equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator !=(EitherRight<R> lhs, Either<L, R> rhs) =>
+            !(lhs == rhs);
 
         /// <summary>
         /// Non-equality operator override
@@ -597,6 +877,20 @@ namespace LanguageExt
         [Pure]
         public static Either<L, R> operator |(Either<L, R> lhs, Either<L, R> rhs) =>
             MEither<L,R>.Inst.Plus(lhs,rhs);
+
+        /// <summary>
+        /// Override of the Or operator to be a Left coalescing operator
+        /// </summary>
+        [Pure]
+        public static Either<L, R> operator |(Either<L, R> lhs, EitherRight<R> rhs) =>
+            MEither<L, R>.Inst.Plus(lhs, rhs);
+
+        /// <summary>
+        /// Override of the Or operator to be a Left coalescing operator
+        /// </summary>
+        [Pure]
+        public static Either<L, R> operator |(Either<L, R> lhs, EitherLeft<L> rhs) =>
+            MEither<L, R>.Inst.Plus(lhs, rhs);
 
         /// <summary>
         /// Override of the True operator to return True if the Either is Right
@@ -621,6 +915,20 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public int CompareTo(Either<L, R> other) =>
+            OrdChoice<OrdDefault<L>, OrdDefault<R>, MEither<L, R>, Either<L, R>, L, R>.Inst.Compare(this, other);
+
+        /// <summary>
+        /// CompareTo override
+        /// </summary>
+        [Pure]
+        public int CompareTo(EitherLeft<L> other) =>
+            OrdChoice<OrdDefault<L>, OrdDefault<R>, MEither<L, R>, Either<L, R>, L, R>.Inst.Compare(this, other);
+
+        /// <summary>
+        /// CompareTo override
+        /// </summary>
+        [Pure]
+        public int CompareTo(EitherRight<R> other) =>
             OrdChoice<OrdDefault<L>, OrdDefault<R>, MEither<L, R>, Either<L, R>, L, R>.Inst.Compare(this, other);
 
         /// <summary>
@@ -656,6 +964,20 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool Equals(Either<L, R> other) =>
+            EqChoice<EqDefault<L>, EqDefault<R>, MEither<L, R>, Either<L, R>, L, R>.Inst.Equals(this, other);
+
+        /// <summary>
+        /// Equality override
+        /// </summary>
+        [Pure]
+        public bool Equals(EitherLeft<L> other) =>
+            EqChoice<EqDefault<L>, EqDefault<R>, MEither<L, R>, Either<L, R>, L, R>.Inst.Equals(this, other);
+
+        /// <summary>
+        /// Equality override
+        /// </summary>
+        [Pure]
+        public bool Equals(EitherRight<R> other) =>
             EqChoice<EqDefault<L>, EqDefault<R>, MEither<L, R>, Either<L, R>, L, R>.Inst.Equals(this, other);
 
         /// <summary>
@@ -703,7 +1025,7 @@ namespace LanguageExt
 
         [Pure]
         public R1 MatchUntyped<R1>(Func<object, R1> Some, Func<R1> None) =>
-            matchUntyped<MEither<L, R>, Either<L, R>, R, R1>(this, Some, None);
+            matchUntyped<MEither<L, R>, Either<L, R>, L, R, R1>(this, Some, _ => None());
 
         [Pure]
         public Type GetUnderlyingType() => 
@@ -854,7 +1176,7 @@ namespace LanguageExt
             FEitherBi<L, R, Ret, R>.Inst.BiMap(this, mapper, identity);
 
         /// <summary>
-        /// Bi-maps the value in the Either if it's in a Right state
+        /// Bi-maps the value in the Either into a Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
@@ -865,7 +1187,7 @@ namespace LanguageExt
         /// <param name="Left">Left map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public Either<L, Ret> BiMap<LRet, Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
+        public Either<L, Ret> BiMap<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             FEither<L, R, Ret>.Inst.BiMap(this, Left, Right);
 
         /// <summary>

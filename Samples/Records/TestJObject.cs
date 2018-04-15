@@ -35,34 +35,34 @@ namespace Records
             var m = i < j;
 
         }
+    }
 
-        public class TestEqJObject : Record<TestEqJObject>
-        {
-            public readonly JObject Value;
+    public class TestEqJObject : Record<TestEqJObject>
+    {
+        public readonly JObject Value;
 
-            public TestEqJObject(JObject value) =>
-                Value = value;
-        }
+        public TestEqJObject(JObject value) =>
+            Value = value;
+    }
 
-        public struct EqJObject : Eq<JObject>
-        {
-            public bool Equals(JObject x, JObject y) =>
-                JObject.DeepEquals(x, y);
+    public struct EqJObject : Eq<JObject>
+    {
+        public bool Equals(JObject x, JObject y) =>
+            JObject.DeepEquals(x, y);
 
-            public int GetHashCode(JObject x) =>
-                x.GetHashCode();
-        }
+        public int GetHashCode(JObject x) =>
+            x.GetHashCode();
+    }
 
-        public struct OrdJObject : Ord<JObject>
-        {
-            public int Compare(JObject x, JObject y) =>
-                x.GetHashCode().CompareTo(y.GetHashCode());
+    public struct OrdJObject : Ord<JObject>
+    {
+        public int Compare(JObject x, JObject y) =>
+            x.GetHashCode().CompareTo(y.GetHashCode());
 
-            public bool Equals(JObject x, JObject y) =>
-                JObject.DeepEquals(x, y);
+        public bool Equals(JObject x, JObject y) =>
+            JObject.DeepEquals(x, y);
 
-            public int GetHashCode(JObject x) =>
-                x.GetHashCode();
-        }
+        public int GetHashCode(JObject x) =>
+            x.GetHashCode();
     }
 }

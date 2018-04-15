@@ -7,6 +7,12 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
+    public enum ResultState : byte
+    {
+        Faulted,
+        Success
+    }
+
     /// <summary>
     /// Represents the result of an operation:
     /// 
@@ -14,12 +20,11 @@ namespace LanguageExt
     /// 
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
-    public struct Result<A> : IEquatable<Result<A>>
+    public struct Result<A> : IEquatable<Result<A>>, IComparable<Result<A>>
     {
-        public static readonly Result<A> None = new Result<A>();
+        public readonly static Result<A> Bottom = default(Result<A>);
 
-        readonly bool IsValid;
-        readonly bool IsSuccess;
+        internal readonly ResultState State;
         internal readonly A Value;
         internal Exception Exception;
 
@@ -30,8 +35,7 @@ namespace LanguageExt
         [Pure]
         public Result(A value)
         {
-            IsValid = true;
-            IsSuccess = true;
+            State = ResultState.Success;
             Value = value;
             Exception = null;
         }
@@ -43,8 +47,7 @@ namespace LanguageExt
         [Pure]
         public Result(Exception e)
         {
-            IsValid = true;
-            IsSuccess = false;
+            State = ResultState.Faulted;
             Exception = e;
             Value = default(A);
         }
@@ -61,13 +64,22 @@ namespace LanguageExt
         /// True if the result is faulted
         /// </summary>
         [Pure]
-        public bool IsFaulted => !IsSuccess;
+        public bool IsFaulted => 
+            State == ResultState.Faulted;
 
         /// <summary>
         /// True if the struct is in an invalid state
         /// </summary>
         [Pure]
-        public bool IsBottom => !IsValid;
+        public bool IsBottom => 
+            State == ResultState.Faulted && (Exception == null || Exception is BottomException);
+
+        /// <summary>
+        /// True if the struct is in an success
+        /// </summary>
+        [Pure]
+        public bool IsSuccess => 
+            State == ResultState.Success;
 
         /// <summary>
         /// Convert the value to a showable string
@@ -75,47 +87,37 @@ namespace LanguageExt
         [Pure]
         public override string ToString() =>
             IsFaulted
-                ? Exception.ToString()
-                : Value.ToString();
+                ? Exception?.ToString() ?? "(Bottom)"
+                : Value?.ToString() ?? "(null)";
 
         /// <summary>
         /// Equality check
         /// </summary>
         [Pure]
         public bool Equals(Result<A> other) =>
-            IsBottom == other.IsBottom &&
-            IsFaulted
-                ? Exception == other.Exception
-                : EqDefault<A>.Inst.Equals(Value, other.Value);
+            default(EqResult<A>).Equals(this, other);
 
         /// <summary>
         /// Equality check
         /// </summary>
         [Pure]
         public override bool Equals(object obj) =>
-            obj is Result<A> && Equals((Result<A>)obj);
+            obj is Result<A> rhs && Equals(rhs);
 
         /// <summary>
         /// Get hash code for bound value
         /// </summary>
         [Pure]
-        public override int GetHashCode()
-        {
-            if (IsBottom) return -1;
-            if (IsFaulted) return -2;
-            return Value?.GetHashCode() ?? 0;
-        }
+        public override int GetHashCode() =>
+            default(EqResult<A>).GetHashCode(this);
 
         [Pure]
         public static bool operator==(Result<A> a, Result<A> b) =>
-            EqDefault<A>.Equals(a, b);
+            default(EqResult<A>).Equals(a, b);
 
         [Pure]
         public static bool operator !=(Result<A> a, Result<A> b) =>
             !(a==b);
-
-        public readonly static Result<A> Bottom =
-            new Result<A>(BottomException.Default);
 
         [Pure]
         public A IfFail(A defaultValue) =>
@@ -126,43 +128,69 @@ namespace LanguageExt
         [Pure]
         public A IfFail(Func<Exception, A> f) =>
             IsFaulted
-                ? f(Exception)
+                ? f(Exception ?? BottomException.Default)
                 : Value;
 
         public Unit IfFail(Action<Exception> f)
         {
-            if (IsFaulted) f(Exception);
+            if (IsFaulted) f(Exception ?? BottomException.Default);
             return unit;
         }
 
         public Unit IfSucc(Action<A> f)
         {
-            if (!IsFaulted) f(Value);
+            if (IsSuccess) f(Value);
             return unit;
         }
 
         [Pure]
         public R Match<R>(Func<A, R> Succ, Func<Exception, R> Fail) =>
-            IsFaulted
-                ? Fail(Exception)
-                : Succ(Value);
+            IsBottom
+                ? Fail(BottomException.Default)
+                : IsFaulted
+                    ? Fail(Exception)
+                    : Succ(Value);
 
         [Pure]
         internal OptionalResult<A> ToOptional() =>
             IsFaulted
                 ? new OptionalResult<A>(Exception)
-                : new OptionalResult<A>(Value);
+                : new OptionalResult<A>(Optional(Value));
 
         [Pure]
         public Result<B> Map<B>(Func<A, B> f) =>
-            IsFaulted
-                ? new Result<B>(Exception)
-                : new Result<B>(f(Value));
+            IsBottom
+                ? Result<B>.Bottom
+                : IsFaulted 
+                    ? new Result<B>(Exception)
+                    : new Result<B>(f(Value));
 
         [Pure]
         public async Task<Result<B>> MapAsync<B>(Func<A, Task<B>> f) =>
-            IsFaulted
-                ? new Result<B>(Exception)
-                : new Result<B>(await f(Value));
+            IsBottom
+                ? Result<B>.Bottom
+                : IsFaulted
+                    ? new Result<B>(Exception)
+                    : new Result<B>(await f(Value));
+
+        [Pure]
+        public int CompareTo(Result<A> other) =>
+            default(OrdResult<A>).Compare(this, other);
+
+        [Pure]
+        public static bool operator <(Result<A> a, Result<A> b) =>
+            a.CompareTo(b) < 0;
+
+        [Pure]
+        public static bool operator <=(Result<A> a, Result<A> b) =>
+            a.CompareTo(b) <= 0;
+
+        [Pure]
+        public static bool operator >(Result<A> a, Result<A> b) =>
+            a.CompareTo(b) > 0;
+
+        [Pure]
+        public static bool operator >=(Result<A> a, Result<A> b) =>
+            a.CompareTo(b) >= 0;
     }
 }

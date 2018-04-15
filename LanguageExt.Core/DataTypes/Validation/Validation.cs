@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
-using System.ComponentModel;
+using static LanguageExt.Choice;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
@@ -189,6 +188,17 @@ namespace LanguageExt
         /// <param name="Fail">Function to invoke if in a `Fail` state</param>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
+        public Ret Match<Ret>(Ret Succ, Func<FAIL, Ret> Fail) =>
+            Check.NullReturn(MatchUnsafe(_ => Succ, Fail));
+
+        /// <summary>
+        /// Invokes the `Succ` or `Fail` function depending on the state of the `Validation`
+        /// </summary>
+        /// <typeparam name="Ret">Return type</typeparam>
+        /// <param name="Succ">Function to invoke if in a `Success` state</param>
+        /// <param name="Fail">Function to invoke if in a `Fail` state</param>
+        /// <returns>The return value of the invoked function</returns>
+        [Pure]
         public Ret MatchUnsafe<Ret>(Func<SUCCESS, Ret> Succ, Func<FAIL, Ret> Fail) =>
             IsFail
                 ? Fail == null
@@ -221,15 +231,15 @@ namespace LanguageExt
         /// Match the two states of the Validation and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
-        public Task<R2> MatchAsync<R2>(Func<SUCCESS, Task<R2>> Succ, Func<FAIL, R2> Fail) =>
-            matchAsync<FoldValidation<MonoidFail, FAIL, SUCCESS>, Validation<MonoidFail, FAIL, SUCCESS>, FAIL, SUCCESS, R2>(this, Fail, Succ);
+        public async Task<R2> MatchAsync<R2>(Func<SUCCESS, Task<R2>> SuccAsync, Func<FAIL, R2> Fail) =>
+            await Match(SuccAsync, f => Fail(f).AsTask());
 
         /// <summary>
         /// Match the two states of the Validation and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
-        public Task<R2> MatchAsync<R2>(Func<SUCCESS, Task<R2>> Succ, Func<FAIL, Task<R2>> Fail) =>
-            matchAsync<FoldValidation<MonoidFail, FAIL, SUCCESS>, Validation<MonoidFail, FAIL, SUCCESS>, FAIL, SUCCESS, R2>(this, Fail, Succ);
+        public async Task<R2> MatchAsync<R2>(Func<SUCCESS, Task<R2>> SuccAsync, Func<FAIL, Task<R2>> FailAsync) =>
+            await Match(SuccAsync, FailAsync);
 
         /// <summary>
         /// Match the two states of the Validation and return an observable stream of non-null R2s.

@@ -21,12 +21,21 @@ namespace LanguageExt.ClassInstances
             (env, default(MonoidW).Empty(), state, false);
 
         public MB Bind<MONADB, MB, B>(RWS<MonoidW, R, W, S, A> ma, Func<A, MB> f) where MONADB : struct, Monad<(R Env, S State), (W, S, bool), MB, B> =>
-            default(MONADB).Id(initial =>
+            default(MONADB).Run(initial =>
             {
                 var next = ma(initial.Env, initial.State);
                 return next.IsFaulted
                     ? default(MONADB).Fail(default(MRWS<MonoidW,R,W,S,A>).Fail())
                     : default(MONADB).BindReturn((next.Output,next.State,next.IsFaulted), f(next.Value));
+            });
+
+        public MB BindAsync<MONADB, MB, B>(RWS<MonoidW, R, W, S, A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<(R Env, S State), (W, S, bool), MB, B> =>
+            default(MONADB).RunAsync(initial =>
+            {
+                var next = ma(initial.Env, initial.State);
+                return next.IsFaulted
+                    ? default(MONADB).Fail(default(MRWS<MonoidW, R, W, S, A>).Fail()).AsTask()
+                    : default(MONADB).BindReturn((next.Output, next.State, next.IsFaulted), f(next.Value)).AsTask();
             });
 
         public RWS<MonoidW, R, W, S, A> BindReturn((W Output, S State, bool IsFaulted) previous, RWS<MonoidW, R, W, S, A> mb) => (env, state) =>
@@ -41,14 +50,6 @@ namespace LanguageExt.ClassInstances
             Fold(fa, 0, (_, __) => 1);
 
 
-        public Func<(R Env, S State), Task<int>> CountAsync(RWS<MonoidW, R, W, S, A> fa) => input =>
-        {
-            var computation = from a in fa
-                              select 1;
-            return Task.FromResult(computation(input.Item1, input.Item2).Value);
-        };
-
-
         public RWS<MonoidW, R, W, S, A> Fail(object err = null) =>
             (env, state) => (default(A), default(MonoidW).Empty(), state, true);
 
@@ -60,34 +61,11 @@ namespace LanguageExt.ClassInstances
                 : f(initialValue, a);
         };
 
-        public Func<(R Env, S State), Task<S1>> FoldAsync<S1>(RWS<MonoidW, R, W, S, A> fa, S1 state, Func<S1, A, S1> f) => input =>
-        {
-            var mr = from a in fa
-                     select f(state, a);
-            return Task.FromResult(mr(input.Env, input.State).Value);
-        };
-
-        public Func<(R Env, S State), Task<S1>> FoldAsync<S1>(RWS<MonoidW, R, W, S, A> fa, S1 state, Func<S1, A, Task<S1>> f) => input =>
-        {
-            var mr = from a in fa
-                     select f(state, a);
-            return mr(input.Env, input.State).Value;
-        };
-
         public Func<(R Env, S State), S1> FoldBack<S1>(RWS<MonoidW, R, W, S, A> fa, S1 state, Func<S1, A, S1> f) =>
             Fold(fa, state, f);
 
-        public Func<(R Env, S State), Task<S1>> FoldBackAsync<S1>(RWS<MonoidW, R, W, S, A> fa, S1 state, Func<S1, A, S1> f) =>
-            FoldAsync(fa, state, f);
-
-        public Func<(R Env, S State), Task<S1>> FoldBackAsync<S1>(RWS<MonoidW, R, W, S, A> fa, S1 state, Func<S1, A, Task<S1>> f) =>
-            FoldAsync(fa, state, f);
-
-        public RWS<MonoidW, R, W, S, A> Id(Func<(R Env, S State), RWS<MonoidW, R, W, S, A>> ma) =>
+        public RWS<MonoidW, R, W, S, A> Run(Func<(R Env, S State), RWS<MonoidW, R, W, S, A>> ma) =>
             (env, state) => ma((env, state))(env, state);
-
-        public RWS<MonoidW, R, W, S, A> IdAsync(Func<(R Env, S State), Task<RWS<MonoidW, R, W, S, A>>> ma) => (env, state) =>
-            ma((env, state)).Result(env, state);
 
         public RWS<MonoidW, R, W, S, A> Local(RWS<MonoidW, R, W, S, A> ma, Func<R, R> f) => (env, state) =>
             ma(f(env), state);

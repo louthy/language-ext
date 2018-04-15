@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using static LanguageExt.Optional;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
@@ -37,7 +38,7 @@ namespace LanguageExt
         IComparable<Option<A>>,
         ISerializable
     {
-        readonly OptionData<A> data;
+        internal readonly OptionData<A> data;
 
         /// <summary>
         /// None
@@ -128,6 +129,16 @@ namespace LanguageExt
             compare<OrdDefault<A>, A>(this, other);
 
         /// <summary>
+        /// Implicit conversion operator from `Option<A>` to `A1
+        /// </summary>
+        /// <param name="a">None value</param>
+        [Pure]
+        public static explicit operator A(Option<A> ma) =>
+            ma.IsSome
+                ? ma.Value
+                : throw new InvalidCastException("Option is not in a Some state");
+
+        /// <summary>
         /// Implicit conversion operator from A to Option<A>
         /// </summary>
         /// <param name="a">Unit value</param>
@@ -135,6 +146,7 @@ namespace LanguageExt
         public static implicit operator Option<A>(A a) =>
             Optional(a);
 
+        /// <summary>
         /// Implicit conversion operator from None to Option<A>
         /// </summary>
         /// <param name="a">None value</param>
@@ -267,9 +279,7 @@ namespace LanguageExt
         /// state, in which case the hash-code will be 0</returns>
         [Pure]
         public override int GetHashCode() =>
-            IsSome
-                ? Value.GetHashCode()
-                : 0;
+            data.GetHashCode();
 
         /// <summary>
         /// Get a string representation of the Option
@@ -277,9 +287,7 @@ namespace LanguageExt
         /// <returns>String representation of the Option</returns>
         [Pure]
         public override string ToString() =>
-            IsSome
-                ? $"Some({Value})"
-                : "None";
+            data.ToString();
 
         /// <summary>
         /// True if this instance evaluates lazily
@@ -364,6 +372,18 @@ namespace LanguageExt
         [Pure]
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
             matchUntyped<MOption<A>, Option<A>, A, R>(this, Some, None);
+
+        /// <summary>
+        /// Match operation with an untyped value for Some. This can be
+        /// useful for serialisation and dealing with the IOptional interface
+        /// </summary>
+        /// <typeparam name="R">The return type</typeparam>
+        /// <param name="Some">Operation to perform if the option is in a Some state</param>
+        /// <param name="None">Operation to perform if the option is in a None state</param>
+        /// <returns>The result of the match operation</returns>
+        [Pure]
+        public R MatchUntypedUnsafe<R>(Func<object, R> Some, Func<R> None) =>
+            matchUntypedUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A, R>(ToOptionUnsafe(), Some, None);
 
         /// <summary>
         /// Get the Type of the bound value
@@ -474,7 +494,7 @@ namespace LanguageExt
         /// <param name="f">The Some(x) match operation</param>
         [Pure]
         public SomeUnitContext<MOption<A>, Option<A>, A> Some(Action<A> f) =>
-            new SomeUnitContext<MOption<A>, Option<A>, A>(this, f, false);
+            new SomeUnitContext<MOption<A>, Option<A>, A>(this, f);
 
         /// <summary>
         /// Fluent pattern matching.  Provide a Some handler and then follow
@@ -487,7 +507,7 @@ namespace LanguageExt
         /// <returns>The result of the match operation</returns>
         [Pure]
         public SomeContext<MOption<A>, Option<A>, A, B> Some<B>(Func<A, B> f) =>
-            new SomeContext<MOption<A>, Option<A>, A, B>(this, f, false);
+            new SomeContext<MOption<A>, Option<A>, A, B>(this, f);
 
         /// <summary>
         /// Match the two states of the Option and return a non-null R.
@@ -568,7 +588,7 @@ namespace LanguageExt
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         public A IfNoneUnsafe(Func<A> None) =>
-            ifNoneUnsafe<MOption<A>, Option<A>, A>(this, None);
+            OptionalUnsafe.ifNoneUnsafe<MOption<A>, Option<A>, A>(this, None);
 
         /// <summary>
         /// Returns the noneValue if the optional is in a None state, otherwise
@@ -580,7 +600,7 @@ namespace LanguageExt
         /// the bound Some(x) value is returned</returns>
         [Pure]
         public A IfNoneUnsafe(A noneValue) =>
-            ifNoneUnsafe<MOption<A>, Option<A>, A>(this, noneValue);
+            OptionalUnsafe.ifNoneUnsafe<MOption<A>, Option<A>, A>(this, noneValue);
 
         /// <summary>
         /// <para>

@@ -41,4 +41,29 @@ namespace LanguageExt.ClassInstances
         public int GetHashCode(Stck<A> x) =>
             x.GetHashCode();
     }
+
+    /// <summary>
+    /// Equality test
+    /// </summary>
+    /// <param name="x">The left hand side of the equality operation</param>
+    /// <param name="y">The right hand side of the equality operation</param>
+    /// <returns>True if x and y are equal</returns>
+    public struct EqStck<A> : Eq<Stck<A>>
+    {
+        public static readonly EqStck<A> Inst = default(EqStck<A>);
+
+        [Pure]
+        public bool Equals(Stck<A> x, Stck<A> y) =>
+            default(EqStck<EqDefault<A>, A>).Equals(x, y);
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        public int GetHashCode(Stck<A> x) =>
+            default(EqStck<EqDefault<A>, A>).GetHashCode(x);
+    }
+
 }

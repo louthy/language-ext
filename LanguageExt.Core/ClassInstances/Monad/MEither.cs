@@ -1,24 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
     public struct MEither<L, R> :
         Choice<Either<L, R>, L, R>,
+        ChoiceUnsafe<Either<L, R>, L, R>,
         Alternative<Either<L, R>, L, R>,
         Monad<Either<L, R>, R>,
         Optional<Either<L, R>, R>,
-        BiFoldable<Either<L, R>, L, R>
+        OptionalUnsafe<Either<L, R>, R>,
+        BiFoldable<Either<L, R>, L, R>,
+        AsyncPair<Either<L, R>, EitherAsync<L, R>>
     {
         public static readonly MEither<L, R> Inst = default(MEither<L, R>);
 
         [Pure]
         public MB Bind<MONADB, MB, B>(Either<L, R> ma, Func<R, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
+            ma.Match(
+                Left: l => default(MONADB).Fail(l),
+                Right: r => f(r),
+                Bottom: () => default(MONADB).Fail(BottomException.Default));
+
+        [Pure]
+        public MB BindAsync<MONADB, MB, B>(Either<L, R> ma, Func<R, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
             ma.Match(
                 Left: l => default(MONADB).Fail(l),
                 Right: r => f(r),
@@ -58,6 +65,18 @@ namespace LanguageExt.ClassInstances
             opt.IsRight
                 ? Check.NullReturn(Some(opt.RightValue))
                 : Check.NullReturn(None());
+
+        [Pure]
+        public R2 MatchUnsafe<R2>(Either<L, R> opt, Func<R, R2> Some, R2 None) =>
+            opt.IsRight
+                ? Some(opt.RightValue)
+                : None;
+
+        [Pure]
+        public R2 Match<R2>(Either<L, R> opt, Func<R, R2> Some, R2 None) =>
+            opt.IsRight
+                ? Check.NullReturn(Some(opt.RightValue))
+                : Check.NullReturn(None);
 
         public Unit Match(Either<L, R> opt, Action<R> Some, Action None)
         {
@@ -133,7 +152,7 @@ namespace LanguageExt.ClassInstances
             value;
 
         [Pure]
-        public Either<L, R> Id(Func<Unit, Either<L, R>> ma) =>
+        public Either<L, R> Run(Func<Unit, Either<L, R>> ma) =>
             ma(unit);
 
         [Pure]
@@ -145,46 +164,12 @@ namespace LanguageExt.ClassInstances
             Return(_ => x);
 
         [Pure]
-        public Either<L, R> IdAsync(Func<Unit, Task<Either<L, R>>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
         public Either<L, R> Empty() =>
             Either<L, R>.Bottom;
 
         [Pure]
         public Either<L, R> Append(Either<L, R> x, Either<L, R> y) =>
             Plus(x, y);
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Either<L, R> fa, S state, Func<S, R, S> f) => _ =>
-            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Either<L, R> fa, S state, Func<S, R, Task<S>> f) => _ =>
-            fa.Match(
-                Right: r => f(state, r),
-                Left: l => Task.FromResult(state),
-                Bottom: () => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Either<L, R> fa, S state, Func<S, R, S> f) => _ =>
-             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Either<L, R> fa, S state, Func<S, R, Task<S>> f) => _ =>
-            fa.Match(
-                Right: r => f(state, r),
-                Left: l => Task.FromResult(state),
-                Bottom: () => Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(Either<L, R> fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
-
-        [Pure]
-        public bool IsUnsafe(Either<L, R> choice) =>
-            false;
 
         [Pure]
         public bool IsLeft(Either<L, R> choice) =>
@@ -212,22 +197,10 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Unit Match(Either<L, R> choice, Action<L> Left, Action<R> Right, Action Bottom = null)
         {
-            if (choice.State == EitherStatus.IsRight && Right != null)
-            {
-                Right(choice.right);
-            }
-            else if (choice.State == EitherStatus.IsLeft && Left != null)
-            {
-                Left(choice.left);
-            }
-            else if (choice.State == EitherStatus.IsBottom && Bottom != null)
-            {
-                Bottom();
-            }
-            else if (choice.State == EitherStatus.IsBottom && Bottom == null)
-            {
-                throw new BottomException();
-            }
+            if (choice.State == EitherStatus.IsRight) Right(choice.right);
+            if (choice.State == EitherStatus.IsLeft) Left(choice.left);
+            if (Bottom == null) throw new BottomException();
+            Bottom();
             return unit;
         }
 
@@ -246,5 +219,9 @@ namespace LanguageExt.ClassInstances
             from a in fa
             from b in fb
             select f(a, b);
+
+        [Pure]
+        public EitherAsync<L, R> ToAsync(Either<L, R> sa) =>
+            sa.ToAsync();
     }
 }

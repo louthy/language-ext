@@ -5,6 +5,7 @@ using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 using LanguageExt;
 using System.Net.Http;
+using Nito.AsyncEx;
 
 namespace LanguageExtTests
 {
@@ -61,13 +62,13 @@ namespace LanguageExtTests
             new Uri(uri).AsTask();
 
         Task<HttpClient> getClient() =>
-            Task.FromResult(new HttpClient());
+            new HttpClient().AsTask();
 
         Task<string> getContent(Uri uri, HttpClient client) =>
             client.GetStringAsync(uri);
 
         Task<Lst<string>> getLines(string text) =>
-            Task.FromResult(text.Split('\n').Freeze());
+            text.Split('\n').Freeze().AsTask();
 
         Task<Lst<string>> getURLContent(string uri) =>
             from address in parseUri(uri)
@@ -79,18 +80,41 @@ namespace LanguageExtTests
             select result;
 
         [Fact]
-        public void UrlTest()
+        public async Task UrlTest()
         {
             // Iterates all lines of content
-            getURLContent("http://www.google.com").IterT(x => Console.WriteLine(x));
+            await getURLContent("http://www.google.com").IterT(x => Console.WriteLine(x));
 
             // Counts the number of lines
-            int numberOfLines = getURLContent("http://www.google.com").CountT();
+            int numberOfLines = await getURLContent("http://www.google.com").CountT();
 
             // Maps the lines to line-lengths, then sums them
-            int totalSize = getURLContent("http://www.google.com")
+            int totalSize = await getURLContent("http://www.google.com")
                                 .MapT(x => x.Length)
                                 .SumT<TInt, int>();
+        }
+
+        [Fact]
+        private static async Task MTaskFold_WithTaskWaitingForActivation_DoesNotHalt()
+        {
+            var intTask = TimeSpan
+              .FromMilliseconds(100)
+              .Apply(Task.Delay)
+              .ContinueWith(_ => 0);
+
+            var actual = await default(MTask<int>).Fold(intTask, 0, (x, y) => 0)(unit);
+
+            // execution terminates by reaching here
+        }
+
+        [Fact]
+        public async Task TaskOptionBindT_InitialOptionInNoneState_NoExceptionThrown()
+        {
+            Option<Unit> x = None;
+            var none = x.AsTask();
+            var task = none.BindT(_ => none);
+
+            await task;
         }
     }
 }

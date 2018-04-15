@@ -50,8 +50,18 @@ namespace LanguageExt
         /// <param name="f">Inner map function that uses the disposable value</param>
         /// <returns>Result of f(disposable)</returns>
         public static B use<A, B>(Func<A> generator, Func<A, B> f)
-            where A : class, IDisposable =>
-            generator().Apply(d => use(d, f));
+            where A : class, IDisposable
+        {
+            var value = generator();
+            try
+            {
+                return f(value);
+            }
+            finally
+            {
+                value?.Dispose();
+            }
+        }
 
         /// <summary>
         /// Functional implementation of the using(...) { } pattern

@@ -15,11 +15,20 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public MB Bind<MONADB, MB, B>(Reader<Env, A> ma, Func<A, MB> f) where MONADB : struct, Monad<Env, Unit, MB, B> =>
-            default(MONADB).Id(env =>
+            default(MONADB).Run(env =>
             {
                 var (a, faulted) = ma(env);
                 if (faulted) return default(MONADB).Fail();
                 return f(a);
+            });
+
+        [Pure]
+        public MB BindAsync<MONADB, MB, B>(Reader<Env, A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Env, Unit, MB, B> =>
+            default(MONADB).RunAsync(env =>
+            {
+                var (a, faulted) = ma(env);
+                if (faulted) return default(MONADB).Fail().AsTask();
+                return f(a).AsTask();
             });
 
         [Pure]
@@ -43,7 +52,7 @@ namespace LanguageExt.ClassInstances
             (f(env), false);
 
         [Pure]
-        public Reader<Env, A> Id(Func<Env, Reader<Env, A>> f) => env =>
+        public Reader<Env, A> Run(Func<Env, Reader<Env, A>> f) => env =>
             f(env)(env);
 
         [Pure]
@@ -79,54 +88,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Reader<Env, A> BindReturn(Unit _, Reader<Env, A> mb) => env =>
             mb(env);
-
-        [Pure]
-        public Reader<Env, A> IdAsync(Func<Env, Task<Reader<Env, A>>> ma) => env =>
-            ma(env).Result(env);
-
-        [Pure]
-        public Func<Env, Task<S>> FoldAsync<S>(Reader<Env, A> fa, S state, Func<S, A, S> f) => env =>
-        {
-            var rdr = from a in fa
-                      select f(state, a);
-
-            return Task.FromResult(rdr(env).Value);
-        };
-
-        [Pure]
-        public Func<Env, Task<S>> FoldAsync<S>(Reader<Env, A> fa, S state, Func<S, A, Task<S>> f) => env =>
-        {
-            var rdr = from a in fa
-                      select f(state, a);
-
-            return rdr(env).Value;
-        };
-
-        [Pure]
-        public Func<Env, Task<S>> FoldBackAsync<S>(Reader<Env, A> fa, S state, Func<S, A, S> f) => env =>
-        {
-            var rdr = from a in fa
-                      select f(state, a);
-
-            return Task.FromResult(rdr(env).Value);
-        };
-
-        [Pure]
-        public Func<Env, Task<S>> FoldBackAsync<S>(Reader<Env, A> fa, S state, Func<S, A, Task<S>> f) => env =>
-        {
-            var rdr = from a in fa
-                      select f(state, a);
-
-            return rdr(env).Value;
-        };
-
-        [Pure]
-        public Func<Env, Task<int>> CountAsync(Reader<Env, A> fa) => env =>
-        {
-            var rdr = from a in fa
-                      select 1;
-            return Task.FromResult(rdr(env).Value);
-        };
 
         [Pure]
         public Reader<Env, A> Apply(Func<A, A, A> f, Reader<Env, A> fa, Reader<Env, A> fb) =>

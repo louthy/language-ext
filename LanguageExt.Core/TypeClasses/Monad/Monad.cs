@@ -14,7 +14,6 @@ namespace LanguageExt.TypeClasses
     public interface Monad<MA, A> : 
         Monad<Unit, Unit, MA, A>, 
         Foldable<MA, A>,
-        FoldableAsync<MA, A>,
         Typeclass
     {
         /// <summary>
@@ -36,7 +35,6 @@ namespace LanguageExt.TypeClasses
     [Typeclass]
     public interface Monad<Env, Out, MA, A> : 
         Foldable<Env, MA, A>,
-        FoldableAsync<Env, MA, A>,
         Typeclass
     {
         /// <summary>
@@ -51,6 +49,10 @@ namespace LanguageExt.TypeClasses
         [Pure]
         MB Bind<MONADB, MB, B>(MA ma, Func<A, MB> f) 
             where MONADB : struct, Monad<Env, Out, MB, B>;
+
+        [Pure]
+        MB BindAsync<MonadB, MB, B>(MA ma, Func<A, MB> f) 
+            where MonadB : struct, MonadAsync<Env, Out, MB, B>;
 
         /// <summary>
         /// Lazy monad constructor function.  Provide the bound value `A` to construct 
@@ -93,7 +95,7 @@ namespace LanguageExt.TypeClasses
         /// 
         ///     Monad<Unit, (W, bool), MB, B>
         /// 
-        /// So the Writer's `Bind` function calls `BindReturn` which double dispatches the job to the 
+        /// So, the Writer's `Bind` function calls `BindReturn` which double dispatches the job to the 
         /// `BindReturn` function on `MONADB`.  This is very much like the Visitor pattern in OO land. 
         /// 
         ///     public MB Bind<MONADB, MB, B>(Writer<MonoidW, W, A> ma, Func<A, MB> f) 
@@ -101,9 +103,9 @@ namespace LanguageExt.TypeClasses
         ///             default(MONADB).Id(_ =>
         ///             {
         ///                 var(a, output1, faulted) = ma();
-        ///                     return faulted
-        ///                         ? default(MONADB).Fail()
-        ///                     :    default(MONADB).BindReturn((output1, faulted), f(a));
+        ///                 return faulted
+        ///                     ? default(MONADB).Fail()
+        ///                     : default(MONADB).BindReturn((output1, faulted), f(a));
         ///             });
         /// 
         /// Usually `MONADB` would be another `Writer` instance, because you would normally bind a `Writer`
@@ -135,7 +137,7 @@ namespace LanguageExt.TypeClasses
         ///                 : default(MONADB).Fail();
         /// 
         /// So why implement it?  If someone tries to return an `Option` from a `Bind` call with the
-        /// source monad of another type, it may call `BindReturn`.  And the `Option` respose would be
+        /// source monad of another type, it may call `BindReturn`.  And the `Option` response would be
         /// to just return itself.
         /// 
         /// So `Bind` and `BindReturn` should be seen as two halves of the same function.  They're there
@@ -148,7 +150,7 @@ namespace LanguageExt.TypeClasses
         MA BindReturn(Out outputma, MA mb);
 
         /// <summary>
-        /// The `Id` function allows the `Bind` function to construct a monad from a function rather
+        /// The `Run` function allows the `Bind` function to construct a monad from a function rather
         /// than `MA`.  It's a form of double-dispatch like the `BindReturn` function.  It hands context
         /// to the type that knows how to construct.  This facilitates the unification of Monads that 
         /// take arguments (like `Reader`, `State`, etc.) with ones that don't (`Option`, `Try`, `Writer`, `Lst`, 
@@ -156,14 +158,14 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <remarks>
         /// For monads that don't take arguments, they will have an input type of `Unit`.  And so
-        /// implementing `Id` is as simple as (for `Option<A>`):
+        /// implementing `Run` is as simple as (for `Option<A>`):
         /// 
-        ///     public Option<A> Id(Func<Unit, Option<A>> ma) =>
+        ///     public Option<A> Run(Func<Unit, Option<A>> ma) =>
         ///         ma(unit);
         /// 
         /// The most complex example is the `State` monad.  It takes a type `S` which is the input state:
         /// 
-        ///     public State<S, A> Id(Func<S, State<S, A>> ma) => 
+        ///     public State<S, A> Run(Func<S, State<S, A>> ma) => 
         ///         state => ma(state)(state);
         /// 
         /// That appears to be ignoring the return state of `ma(state)`, but if you look at the `Bind` and
@@ -171,7 +173,7 @@ namespace LanguageExt.TypeClasses
         /// 
         ///     public MB Bind<MONADB, MB, B>(State<S, A> ma, Func<A, MB> f) 
         ///         where MONADB : struct, Monad<S, (S State, bool IsFaulted), MB, B> =>
-        ///             default(MONADB).Id(state =>
+        ///             default(MONADB).Run(state =>
         ///             {
         ///                 var (a, sa, faulted) = ma(state);
         ///                 return faulted
@@ -182,7 +184,7 @@ namespace LanguageExt.TypeClasses
         ///     public State<S, A> BindReturn((S State, bool IsFaulted) output, State<S, A> mb) =>
         ///         _ => mb(output.State);
         ///  
-        /// It should be clear that `Id` accepts the state (the first `state` in `ma(state)(state)`), and
+        /// It should be clear that `Run` accepts the state (the first `state` in `ma(state)(state)`), and
         /// it's result is the return value of `BindReturn` which ignores its incoming state so that it
         /// can bind the output of the call to `ma(state)` in the `Bind` function.
         /// 
@@ -194,42 +196,10 @@ namespace LanguageExt.TypeClasses
         ///                 ? f(ma.Value)
         ///                 : default(MONADB).Fail();
         /// 
-        /// The `Id` function would allow two monads of different types to be bound as long as their input
+        /// The `Run` function would allow two monads of different types to be bound as long as their input
         /// and output types are the same.
         /// </remarks>
-        MA Id(Func<Env, MA> ma);
-
-        /// <summary>
-        /// The `IdAsync` function allows the `Bind` function to asynchronously construct a monad from a function 
-        /// that returns a `Task<MA>` rather than `MA`.  It's a form of double-dispatch like the `BindReturn` 
-        /// function.  It hands context to the type that knows how to construct.  This facilitates the 
-        /// unification of Monads that are asynchronous in nature (like `TryAsync`, `TryOptionAsync`, `Task`)
-        /// with ones that aren't (`State`, `Reader`, `Writer`, `Option`, `Try`, `Lst`, `Either`, etc.)
-        /// </summary>
-        /// <remarks>
-        /// This is the async version of `Id(ma)`.  It allows the asynchronous type to return without waiting
-        /// for a result.  For example, `TryAsync`:
-        /// 
-        ///     public TryAsync<A> IdAsync(Func<Unit, Task<TryAsync<A>>> ma) =>
-        ///         new TryAsync<A>(() =>
-        ///             from a in ma(unit)
-        ///             let b = a()
-        ///             from c in b
-        ///             select c);
-        /// 
-        /// The LINQ expression is using the `Task<A>` `Select` and `SelectMany` overloads.  So the result is 
-        /// asynchronous.
-        /// 
-        /// If you look at `IdAsync` for `Option`, which is not an asynchronous type, you'll see it waits
-        /// for the Result:
-        /// 
-        ///     public Option<A> IdAsync(Func<Unit, Task<Option<A>>> ma) =>
-        ///         ma(unit).Result;
-        /// 
-        /// That means you can bind asynchronous and synchronous monads together, but the result will
-        /// be synchronous.
-        /// </remarks>
-        MA IdAsync(Func<Env, Task<MA>> ma);
+        MA Run(Func<Env, MA> ma);
 
         /// <summary>
         /// Produce a monad of `MA` in it's failed state
@@ -241,7 +211,7 @@ namespace LanguageExt.TypeClasses
         /// Associative binary operation
         /// </summary>
         [Pure]
-        MA Plus(MA a, MA b);
+        MA Plus(MA ma, MA mb);
 
         /// <summary>
         /// Neutral element (`None` in `Option` for example)
@@ -254,6 +224,6 @@ namespace LanguageExt.TypeClasses
         /// NOTE: Don't rely on this, it may not be a permanent addition to the project
         /// </summary>
         [Pure]
-        MA Apply(Func<A, A, A> faac, MA fa, MA fb);
+        MA Apply(Func<A, A, A> f, MA ma, MA mb);
     }
 }

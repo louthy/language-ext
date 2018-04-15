@@ -23,4 +23,21 @@ namespace LanguageExt
         Type GetUnderlyingRightType();
         Type GetUnderlyingLeftType();
     }
+
+    public interface IEitherAsync
+    {
+        Task<bool> IsRight
+        {
+            get;
+        }
+
+        Task<bool> IsLeft
+        {
+            get;
+        }
+
+        Type GetUnderlyingRightType();
+        Type GetUnderlyingLeftType();
+    }
+
 }

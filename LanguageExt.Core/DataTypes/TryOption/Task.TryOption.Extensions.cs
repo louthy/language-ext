@@ -218,8 +218,8 @@ public static class TaskTryOptionExtensions
     /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
-    public static Task<R> Match<A, R>(this Task<TryOption<A>> self, Func<A, Task<R>> Some, Func<R> None, Func<Exception, R> Fail) =>
-        self.ToAsync().Match(Some, None, Fail);
+    public static Task<R> MatchAsync<A, R>(this Task<TryOption<A>> self, Func<A, Task<R>> Some, Func<R> None, Func<Exception, R> Fail) =>
+        self.ToAsync().MatchAsync(Some, None, Fail);
 
     /// <summary>
     /// Pattern matches the three possible states of the computation computation
@@ -228,8 +228,8 @@ public static class TaskTryOptionExtensions
     /// <param name="Succ">Delegate to invoke if the computation completes successfully</param>
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
-    public static Task<R> Match<A, R>(this Task<TryOption<A>> self, Func<A, Task<R>> Succ, Func<Task<R>> Fail) =>
-        self.ToAsync().Match(Succ, Fail);
+    public static Task<R> MatchAsync<A, R>(this Task<TryOption<A>> self, Func<A, Task<R>> Succ, Func<Task<R>> Fail) =>
+        self.ToAsync().MatchAsync(Succ, Fail);
 
     /// <summary>
     /// Pattern matches the three possible states of the computation
@@ -239,8 +239,8 @@ public static class TaskTryOptionExtensions
     /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Some, None, or Fail delegate</returns>
-    public static Task<R> Match<A, R>(this Task<TryOption<A>> self, Func<A, Task<R>> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
-        self.ToAsync().Match(Some, None, Fail);
+    public static Task<R> MatchAsync<A, R>(this Task<TryOption<A>> self, Func<A, Task<R>> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
+        self.ToAsync().MatchAsync(Some, None, Fail);
 
     /// <summary>
     /// Pattern matches the three possible states of the computation computation
@@ -249,8 +249,8 @@ public static class TaskTryOptionExtensions
     /// <param name="Succ">Delegate to invoke if the computation completes successfully</param>
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, Fail delegate</returns>
-    public static Task<R> Match<A, R>(this Task<TryOption<A>> self, Func<A, R> Succ, Func<Task<R>> Fail) =>
-        self.ToAsync().Match(Succ, Fail);
+    public static Task<R> MatchAsync<A, R>(this Task<TryOption<A>> self, Func<A, R> Succ, Func<Task<R>> Fail) =>
+        self.ToAsync().MatchAsync(Succ, Fail);
 
     /// <summary>
     /// Pattern matches the three possible states of the computation
@@ -260,8 +260,8 @@ public static class TaskTryOptionExtensions
     /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
     /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Some, None, or Fail delegate</returns>
-    public static Task<R> Match<A, R>(this Task<TryOption<A>> self, Func<A, R> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
-        self.ToAsync().Match(Some, None, Fail);
+    public static Task<R> MatchAsync<A, R>(this Task<TryOption<A>> self, Func<A, R> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
+        self.ToAsync().MatchAsync(Some, None, Fail);
 
     [Pure]
     public static Task<Option<A>> ToOption<A>(this Task<TryOption<A>> self) =>
@@ -312,8 +312,8 @@ public static class TaskTryOptionExtensions
     /// <returns>True if the predicate holds for the bound value, or if the Try computation
     /// fails.  False otherwise.</returns>
     [Pure]
-    public static Task<bool> ForAll<A>(this Task<TryOption<A>> self, Func<A, Task<bool>> pred) =>
-        self.ToAsync().ForAll(pred);
+    public static Task<bool> ForAllAsync<A>(this Task<TryOption<A>> self, Func<A, Task<bool>> pred) =>
+        self.ToAsync().ForAllAsync(pred);
 
     /// <summary>
     /// Folds Try value into an S.
@@ -336,8 +336,8 @@ public static class TaskTryOptionExtensions
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public static Task<S> Fold<A, S>(this Task<TryOption<A>> self, S state, Func<S, A, Task<S>> folder) =>
-        self.ToAsync().Fold(state, folder);
+    public static Task<S> FoldAsync<A, S>(this Task<TryOption<A>> self, S state, Func<S, A, Task<S>> folder) =>
+        self.ToAsync().FoldAsync(state, folder);
 
     /// <summary>
     /// Folds Try value into an S.
@@ -508,8 +508,8 @@ public static class TaskTryOptionExtensions
     /// <param name="pred">Predicate to test the bound value against</param>
     /// <returns>True if the predicate holds for the bound value.  False otherwise.</returns>
     [Pure]
-    public static Task<bool> Exists<A>(this Task<TryOption<A>> self, Func<A, Task<bool>> pred) =>
-        self.ToAsync().Exists(pred);
+    public static Task<bool> ExistsAsync<A>(this Task<TryOption<A>> self, Func<A, Task<bool>> pred) =>
+        self.ToAsync().ExistsAsync(pred);
 
     /// <summary>
     /// Maps the bound value
@@ -532,8 +532,8 @@ public static class TaskTryOptionExtensions
     /// <param name="mapper">Delegate to map the bound value</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static TryOptionAsync<R> Map<A, R>(this Task<TryOption<A>> self, Func<A, Task<R>> mapper) =>
-        self.ToAsync().Map(mapper);
+    public static TryOptionAsync<R> MapAsync<A, R>(this Task<TryOption<A>> self, Func<A, Task<R>> mapper) =>
+        self.ToAsync().MapAsync(mapper);
 
     /// <summary>
     /// Maps the bound value

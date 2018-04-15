@@ -8,6 +8,12 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
+    internal enum OptionalResultState : byte
+    {
+        Faulted,
+        Success
+    }
+
     /// <summary>
     /// Represents the result of an operation:
     /// 
@@ -15,11 +21,12 @@ namespace LanguageExt
     /// 
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
-    public struct OptionalResult<A> : IEquatable<OptionalResult<A>>
+    public struct OptionalResult<A> : IEquatable<OptionalResult<A>>, IComparable<OptionalResult<A>>
     {
-        public static readonly OptionalResult<A> None = new OptionalResult<A>();
+        internal static readonly OptionalResult<A> None = new OptionalResult<A>(Prelude.None);
+        internal static readonly OptionalResult<A> Bottom = default(OptionalResult<A>);
 
-        readonly bool IsValid;
+        internal readonly OptionalResultState State;
         internal readonly Option<A> Value;
         internal Exception Exception;
 
@@ -30,7 +37,7 @@ namespace LanguageExt
         [Pure]
         public OptionalResult(Option<A> value)
         {
-            IsValid = true;
+            State = OptionalResultState.Success;
             Value = value;
             Exception = null;
         }
@@ -42,7 +49,7 @@ namespace LanguageExt
         [Pure]
         public OptionalResult(Exception e)
         {
-            IsValid = true;
+            State = OptionalResultState.Faulted;
             Exception = e;
             Value = Option<A>.None;
         }
@@ -72,22 +79,40 @@ namespace LanguageExt
             new OptionalResult<A>(value);
 
         /// <summary>
-        /// True if the result is faulted
+        /// True if the result is in a bottom state
         /// </summary>
         [Pure]
-        public bool IsFaulted => Exception != null || IsBottom;
+        public bool IsBottom =>
+            State == OptionalResultState.Faulted && (Exception == null || Exception is BottomException);
 
         /// <summary>
         /// True if the result is faulted
         /// </summary>
         [Pure]
-        public bool IsFaultedOrNone => Exception != null || IsBottom || Value.IsNone;
+        public bool IsFaulted => 
+            State == OptionalResultState.Faulted;
 
         /// <summary>
-        /// True if the struct is in an invalid state
+        /// True if the result is valid, but None
         /// </summary>
         [Pure]
-        public bool IsBottom => !IsValid;
+        public bool IsNone =>
+            State == OptionalResultState.Success && Value.IsNone;
+
+        /// <summary>
+        /// True if the result is valid and Some
+        /// </summary>
+        [Pure]
+        public bool IsSome =>
+            State == OptionalResultState.Success && Value.IsSome;
+
+        /// <summary>
+        /// True if the result is faulted
+        /// </summary>
+        [Pure]
+        public bool IsFaultedOrNone => 
+            State == OptionalResultState.Faulted ||
+            Value.IsNone;
 
         /// <summary>
         /// Convert the value to a showable string
@@ -95,7 +120,7 @@ namespace LanguageExt
         [Pure]
         public override string ToString() =>
             IsFaulted
-                ? Exception.ToString()
+                ? Exception?.ToString() ?? "(Bottom)"
                 : Value.ToString();
 
         /// <summary>
@@ -103,42 +128,32 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool Equals(OptionalResult<A> other) =>
-            IsBottom == other.IsBottom &&
-            IsFaulted
-                ? Exception == other.Exception
-                : equals<EqDefault<A>, A>(Value, other.Value);
+            default(EqOptionalResult<A>).Equals(this, other);
 
         /// <summary>
         /// Equality check
         /// </summary>
         [Pure]
         public override bool Equals(object obj) =>
-            obj is OptionalResult<A> && Equals((OptionalResult<A>)obj);
+            obj is OptionalResult<A> rhs && Equals(rhs);
 
         /// <summary>
         /// Get hash code for bound value
         /// </summary>
         [Pure]
-        public override int GetHashCode()
-        {
-            if (IsBottom) return -1;
-            if (IsFaulted) return -2;
-            return Value.GetHashCode();
-        }
+        public override int GetHashCode() =>
+            default(EqOptionalResult<A>).GetHashCode(this);
 
         [Pure]
         public static bool operator==(OptionalResult<A> a, OptionalResult<A> b) =>
-            a.Equals(b);
+            default(EqOptionalResult<A>).Equals(a, b);
 
         [Pure]
         public static bool operator !=(OptionalResult<A> a, OptionalResult<A> b) =>
             !(a==b);
 
-        public readonly static OptionalResult<A> Bottom =
-            new OptionalResult<A>(BottomException.Default);
-
         [Pure]
-        public A IfFail(A defaultValue) =>
+        public A IfFailOrNone(A defaultValue) =>
             IsFaulted || Value.IsNone
                 ? defaultValue
                 : Value.Value;
@@ -146,10 +161,10 @@ namespace LanguageExt
         [Pure]
         public Option<A> IfFail(Func<Exception, A> f) =>
             IsFaulted
-                ? f(Exception)
+                ? f(Exception ?? BottomException.Default)
                 : Value;
 
-        public Unit IfFail(Action f)
+        public Unit IfFailOrNone(Action f)
         {
             if (IsFaulted || Value.IsNone) f();
             return unit;
@@ -157,7 +172,7 @@ namespace LanguageExt
 
         public Unit IfFail(Action<Exception> f)
         {
-            if (IsFaulted) f(Exception);
+            if (IsFaulted) f(Exception ?? BottomException.Default);
             return unit;
         }
 
@@ -170,26 +185,54 @@ namespace LanguageExt
         [Pure]
         public R Match<R>(Func<A, R> Some, Func<R> None, Func<Exception, R> Fail) =>
             IsFaulted
-                ? Fail(Exception)
+                ? Fail(Exception ?? BottomException.Default)
                 : Value.Match(Some, None);
 
         internal Result<A> ToResult() =>
             IsFaulted
-                ? new Result<A>(Exception)
+                ? new Result<A>(Exception ?? BottomException.Default)
                 : Value.IsSome
                     ? new Result<A>(Value.Value)
                     : new Result<A>(default(A));
 
         [Pure]
         public OptionalResult<B> Map<B>(Func<A, B> f) =>
-            IsFaulted || Value.IsNone
-                ? new OptionalResult<B>(Exception)
-                : new OptionalResult<B>(f(Value.Value));
+            IsBottom
+                ? OptionalResult<B>.Bottom
+                : IsFaulted
+                    ? new OptionalResult<B>(Exception)
+                    : Value.IsNone
+                        ? new OptionalResult<B>(Option<B>.None)
+                        : new OptionalResult<B>(f(Value.Value));
 
         [Pure]
         public async Task<OptionalResult<B>> MapAsync<B>(Func<A, Task<B>> f) =>
-            IsFaulted || Value.IsNone
-                ? new OptionalResult<B>(Exception)
-                : new OptionalResult<B>(await f(Value.Value));
+            IsBottom
+                ? OptionalResult<B>.Bottom
+                : IsFaulted
+                    ? new OptionalResult<B>(Exception)
+                    : Value.IsNone
+                        ? new OptionalResult<B>(Option<B>.None)
+                        : new OptionalResult<B>(await f(Value.Value));
+
+        [Pure]
+        public int CompareTo(OptionalResult<A> other) =>
+            default(OrdOptionalResult<A>).Compare(this, other);
+
+        [Pure]
+        public static bool operator <(OptionalResult<A> a, OptionalResult<A> b) =>
+            a.CompareTo(b) < 0;
+
+        [Pure]
+        public static bool operator <=(OptionalResult<A> a, OptionalResult<A> b) =>
+            a.CompareTo(b) <= 0;
+
+        [Pure]
+        public static bool operator >(OptionalResult<A> a, OptionalResult<A> b) =>
+            a.CompareTo(b) > 0;
+
+        [Pure]
+        public static bool operator >=(OptionalResult<A> a, OptionalResult<A> b) =>
+            a.CompareTo(b) >= 0;
     }
 }

@@ -935,7 +935,26 @@ namespace LanguageExt
                 iterA.MoveNext();
                 iterB.MoveNext();
                 if (!default(OrdK).Equals(iterA.Current.Key, iterB.Current.Key)) return false;
-                if (!EqualityComparer<V>.Default.Equals(iterA.Current.Value, iterB.Current.Value)) return false;
+            }
+            return true;
+        }
+
+        [Pure]
+        public bool Equals<EqAlt>(MapInternal<OrdK, K, V> rhs) where EqAlt : struct, Eq<K>
+        {
+            if (ReferenceEquals(this, rhs)) return true;
+            if (Count != rhs.Count) return false;
+            if (hashCode != 0 && rhs.hashCode != 0 && hashCode != rhs.hashCode) return false;
+
+            var iterA = GetEnumerator();
+            var iterB = rhs.GetEnumerator();
+            var count = Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                iterA.MoveNext();
+                iterB.MoveNext();
+                if (!default(EqAlt).Equals(iterA.Current.Key, iterB.Current.Key)) return false;
             }
             return true;
         }

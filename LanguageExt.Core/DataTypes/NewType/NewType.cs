@@ -22,7 +22,7 @@ namespace LanguageExt
     /// </summary>
     [Serializable]
     public abstract class NewType<NEWTYPE, A> : NewType<NEWTYPE, A, True<A>>
-        where NEWTYPE : NewType<NEWTYPE, A, True<A>>
+        where NEWTYPE : NewType<NEWTYPE, A>
     {
         /// <summary>
         /// Constructor

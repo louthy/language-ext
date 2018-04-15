@@ -8,7 +8,7 @@ namespace LanguageExt.TypeClasses
     /// RWS monad type class
     /// </summary>
     [Typeclass]
-    public interface MonadRWS<MonoidW, R, W, S, A>
+    public interface MonadRWS<MonoidW, R, W, S, A> : Typeclass
         where MonoidW : struct, Monoid<W>
     {
         /// <summary>

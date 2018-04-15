@@ -1,18 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
     public struct MTry<A> :
         Alternative<Try<A>, Unit, A>,
         Optional<Try<A>, A>,
+        OptionalUnsafe<Try<A>, A>,
+        Choice<Try<A>, Exception, A>,
         Monad<Try<A>, A>,
-        BiFoldable<Try<A>, A, Unit>
+        BiFoldable<Try<A>, A, Unit>,
+        AsyncPair<Try<A>, TryAsync<A>>
     {
         public static readonly MTry<A> Inst = default(MTry<A>);
 
@@ -30,6 +30,14 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
+        public MB BindAsync<MONADB, MB, B>(Try<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B>
+        {
+            var mr = ma.Try();
+            if (mr.IsFaulted) return default(MONADB).Fail(mr.Exception);
+            return f(mr.Value);
+        }
+
+        [Pure]
         public Try<A> Fail(object err = null) =>
             err != null && err is Exception
                 ? Try<A>((Exception)err)
@@ -40,7 +48,10 @@ namespace LanguageExt.ClassInstances
         {
             var res = ma.Try();
             if (!res.IsFaulted) return res.Value;
-            return mb().Value;
+            var res2 = mb.Try();
+            return res2.IsFaulted
+                ? new Result<A>(new AggregateException(res.Exception, res2.Exception))
+                : res2;
         };
 
         /// <summary>
@@ -70,17 +81,21 @@ namespace LanguageExt.ClassInstances
                 Fail: ex => false);
 
         [Pure]
-        public bool IsUnsafe(Try<A> opt) =>
-            false;
-
-        [Pure]
         public B Match<B>(Try<A> opt, Func<A, B> Some, Func<B> None)
         {
             var res = opt.Try();
-            if (res.IsFaulted)
-                return None();
-            else
-                return Some(res.Value);
+            return Check.NullReturn(res.IsFaulted
+                ? None()
+                : Some(res.Value));
+        }
+
+        [Pure]
+        public B Match<B>(Try<A> opt, Func<A, B> Some, B None)
+        {
+            var res = opt.Try();
+            return Check.NullReturn(res.IsFaulted
+                ? None
+                : Some(res.Value));
         }
 
         public Unit Match(Try<A> opt, Action<A> Some, Action None)
@@ -96,6 +111,16 @@ namespace LanguageExt.ClassInstances
             var res = opt.Try();
             if (res.IsFaulted)
                 return None();
+            else
+                return Some(res.Value);
+        }
+
+        [Pure]
+        public B MatchUnsafe<B>(Try<A> opt, Func<A, B> Some, B None)
+        {
+            var res = opt.Try();
+            if (res.IsFaulted)
+                return None;
             else
                 return Some(res.Value);
         }
@@ -151,7 +176,7 @@ namespace LanguageExt.ClassInstances
             Return(value);
 
         [Pure]
-        public Try<A> Id(Func<Unit, Try<A>> ma) =>
+        public Try<A> Run(Func<Unit, Try<A>> ma) =>
             ma(unit);
 
         [Pure]
@@ -161,30 +186,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Try<A> Return(A x) =>
             () => x;
-
-        [Pure]
-        public Try<A> IdAsync(Func<Unit, Task<Try<A>>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Try<A> fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(fa.Map(a => f(state, a)).IfFail(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Try<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-            fa.Map(a => f(state, a)).IfFail(Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Try<A> fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(fa.Map(a => f(state, a)).IfFail(state));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Try<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-            fa.Map(a => f(state, a)).IfFail(Task.FromResult(state));
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(Try<A> fa) => _ =>
-            Task.FromResult(fa.Map(a => 1).IfFail(0));
 
         [Pure]
         public Try<A> Empty() =>
@@ -199,5 +200,33 @@ namespace LanguageExt.ClassInstances
             from a in fa
             from b in fb
             select f(a, b);
+
+        [Pure]
+        public TryAsync<A> ToAsync(Try<A> sa) =>
+            sa.ToAsync();
+
+        [Pure]
+        public bool IsLeft(Try<A> choice) =>
+            choice.IsFail();
+
+        [Pure]
+        public bool IsRight(Try<A> choice) =>
+            choice.IsSucc();
+
+        [Pure]
+        public bool IsBottom(Try<A> choice) =>
+            false;
+
+        [Pure]
+        public C Match<C>(Try<A> choice, Func<Exception, C> Left, Func<A, C> Right, Func<C> Bottom = null) =>
+            choice.Match(
+                Succ: Right,
+                Fail: Left);
+
+        [Pure]
+        public Unit Match(Try<A> choice, Action<Exception> Left, Action<A> Right, Action Bottom = null) =>
+            choice.Match(
+                Succ: Right,
+                Fail: Left);
     }
 }

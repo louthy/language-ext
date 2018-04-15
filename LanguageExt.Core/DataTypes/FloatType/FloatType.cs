@@ -27,8 +27,8 @@ namespace LanguageExt
     /// <typeparam name="A">Bound value type</typeparam>
     [Serializable]
     public abstract class FloatType<SELF, FLOATING, A> : FloatType<SELF, FLOATING, A, True<A>>
-        where FLOATING     : struct, Floating<A>
-        where SELF : FloatType<SELF, FLOATING, A, True<A>>
+        where FLOATING : struct, Floating<A>
+        where SELF     : FloatType<SELF, FLOATING, A>
     {
         /// <summary>
         /// Constructor

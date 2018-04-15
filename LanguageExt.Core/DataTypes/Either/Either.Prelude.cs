@@ -4,10 +4,9 @@ using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
-using System.Reactive.Linq;
+using static LanguageExt.Choice;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 
@@ -206,6 +205,19 @@ namespace LanguageExt
             Either<L, R>.Right(value);
 
         /// <summary>
+        /// Constructs an EitherRight which can be implicitly cast to an 
+        /// Either<_, R>
+        /// </summary>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="value">Right value</param>
+        /// <returns>A new EitherRight instance</returns>
+        [Pure]
+        public static EitherRight<R> Right<R>(R value) =>
+            isnull(value)
+                ? raise<EitherRight<R>>(new ArgumentNullException(nameof(value)))
+                : new EitherRight<R>(value);
+
+        /// <summary>
         /// Either constructor
         /// Constructs an Either in a Left state
         /// </summary>
@@ -216,6 +228,19 @@ namespace LanguageExt
         [Pure]
         public static Either<L, R> Left<L, R>(L value) =>
             Either<L, R>.Left(value);
+
+        /// <summary>
+        /// Constructs an EitherLeft which can be implicitly cast to an 
+        /// Either<L, _>
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <param name="value">Right value</param>
+        /// <returns>A new EitherLeft instance</returns>
+        [Pure]
+        public static EitherLeft<L> Left<L>(L value) =>
+            isnull(value)
+                ? raise<EitherLeft<L>>(new ArgumentNullException(nameof(value)))
+                : new EitherLeft<L>(value);
 
         /// <summary>
         /// Either constructor from Nullable

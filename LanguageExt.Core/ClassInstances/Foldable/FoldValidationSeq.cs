@@ -57,16 +57,10 @@ namespace LanguageExt.ClassInstances
         public bool IsRight(Validation<FAIL, SUCCESS> choice) =>
             choice.IsSuccess;
 
-        public bool IsUnsafe(Validation<FAIL, SUCCESS> choice) =>
-            false;
-
         public C Match<C>(Validation<FAIL, SUCCESS> choice, Func<Seq<FAIL>, C> Left, Func<SUCCESS, C> Right, Func<C> Bottom = null) =>
             choice.Match(Right, Left);
 
         public Unit Match(Validation<FAIL, SUCCESS> choice, Action<Seq<FAIL>> Left, Action<SUCCESS> Right, Action Bottom = null) =>
             choice.Match(Right, Left);
-
-        public C MatchUnsafe<C>(Validation<FAIL, SUCCESS> choice, Func<Seq<FAIL>, C> Left, Func<SUCCESS, C> Right, Func<C> Bottom = null) =>
-            choice.MatchUnsafe(Right, Left);
     }
 }

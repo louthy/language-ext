@@ -30,6 +30,9 @@ namespace LanguageExt.ClassInstances
         public MB Bind<MONADB, MB, B>(Que<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
             ma.Fold(default(MONADB).Zero(), (s, a) => default(MONADB).Plus(s, f(a)));
 
+        [Pure]
+        public MB BindAsync<MONADB, MB, B>(Que<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            ma.Fold(default(MONADB).Zero(), (s, a) => default(MONADB).Plus(s, f(a)));
 
         [Pure]
         public Func<Unit, int> Count(Que<A> fa) => _ =>
@@ -76,7 +79,7 @@ namespace LanguageExt.ClassInstances
             x.GetHashCode();
 
         [Pure]
-        public Que<A> Id(Func<Unit, Que<A>> ma) =>
+        public Que<A> Run(Func<Unit, Que<A>> ma) =>
             ma(unit);
 
         [Pure]
@@ -85,49 +88,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Que<A> Return(A x) =>
-            Return(_ => x);
-
-        [Pure]
-        public Que<A> IdAsync(Func<Unit, Task<Que<A>>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Que<A> fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Que<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-        {
-            Task<S> s = Task.FromResult(state);
-            foreach (var item in fa)
-            {
-                s = from x in s
-                    from y in f(x, item)
-                    select y;
-            }
-            return s;
-        };
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Que<A> fa, S state, Func<S, A, S> f) => _ =>
-             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Que<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-        {
-            Task<S> s = Task.FromResult(state);
-            foreach (var item in fa.Reverse())
-            {
-                s = from x in s
-                    from y in f(x, item)
-                    select y;
-            }
-            return s;
-        };
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(Que<A> fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
+            Queue(x);
 
         [Pure]
         public Que<A> Apply(Func<A, A, A> f, Que<A> fa, Que<A> fb) =>

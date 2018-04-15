@@ -66,5 +66,27 @@ namespace LanguageExtTests
             Assert.False(greaterOrEq<TString, string>("aaa", "bbb"));
             Assert.True(greaterOrEq<TString, string>("aaa", "aaa"));
         }
+
+        [Fact]
+        public void MinMax()
+        {
+            Assert.True(min<OrdInt, int>(1, 2) == 1);
+            Assert.True(max<OrdInt, int>(1, 2) == 2);
+            Assert.True(min<OrdInt, int>(2, 1) == 1);
+            Assert.True(max<OrdInt, int>(2, 1) == 2);
+            Assert.True(min<OrdInt, int>(1, 1) == 1);
+            Assert.True(max<OrdInt, int>(1, 1) == 1);
+        }
+
+        [Fact]
+        public void MinMax2()
+        {
+            Assert.True(min<OrdInt, int>(1, 2, 3, 4) == 1);
+            Assert.True(max<OrdInt, int>(1, 2, 3, 4) == 4);
+            Assert.True(min<OrdInt, int>(4, 3, 2, 1) == 1);
+            Assert.True(max<OrdInt, int>(4, 3, 2, 1) == 4);
+            Assert.True(min<OrdInt, int>(1, 1, 1, 1) == 1);
+            Assert.True(max<OrdInt, int>(1, 1, 1, 1) == 1);
+        }
     }
 }

@@ -30,6 +30,10 @@ namespace LanguageExt.ClassInstances
             traverse<MStck<A>, MONADB, Stck<A>, MB, A, B>(ma, f);
 
         [Pure]
+        public MB BindAsync<MONADB, MB, B>(Stck<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            traverseSyncAsync<MStck<A>, MONADB, Stck<A>, MB, A, B>(ma, f);
+
+        [Pure]
         public Func<Unit, int> Count(Stck<A> fa) => _ => 
             fa.Count();
 
@@ -74,7 +78,7 @@ namespace LanguageExt.ClassInstances
             x.GetHashCode();
 
         [Pure]
-        public Stck<A> Id(Func<Unit, Stck<A>> ma) =>
+        public Stck<A> Run(Func<Unit, Stck<A>> ma) =>
             ma(unit);
 
         [Pure]
@@ -83,49 +87,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Stck<A> Return(A x) =>
-            Return(_ => x);
-
-        [Pure]
-        public Stck<A> IdAsync(Func<Unit, Task<Stck<A>>> ma) =>
-            ma(unit).Result;
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Stck<A> fa, S state, Func<S, A, S> f) => _ =>
-            Task.FromResult(Inst.Fold<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldAsync<S>(Stck<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-        {
-            Task<S> s = Task.FromResult(state);
-            foreach (var item in fa)
-            {
-                s = from x in s
-                    from y in f(x, item)
-                    select y;
-            }
-            return s;
-        };
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Stck<A> fa, S state, Func<S, A, S> f) => _ =>
-             Task.FromResult(Inst.FoldBack<S>(fa, state, f)(_));
-
-        [Pure]
-        public Func<Unit, Task<S>> FoldBackAsync<S>(Stck<A> fa, S state, Func<S, A, Task<S>> f) => _ =>
-        {
-            Task<S> s = Task.FromResult(state);
-            foreach (var item in fa.Reverse())
-            {
-                s = from x in s
-                    from y in f(x, item)
-                    select y;
-            }
-            return s;
-        };
-
-        [Pure]
-        public Func<Unit, Task<int>> CountAsync(Stck<A> fa) => _ =>
-            Task.FromResult(Inst.Count(fa)(_));
+            Stack(x);
 
         [Pure]
         public Stck<A> Apply(Func<A, A, A> f, Stck<A> fa, Stck<A> fb) =>

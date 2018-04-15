@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using static LanguageExt.OptionalAsync;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
@@ -11,13 +11,7 @@ using LanguageExt.TypeClasses;
 public static class TaskOptionAsyncExtensions
 {
     public static OptionAsync<A> ToAsync<A>(this Task<Option<A>> ma) =>
-        new OptionAsync<A>(OptionDataAsync.Lazy(async () =>
-        {
-            var a = await ma;
-            return a.IsSome
-                ? new Result<A>(a.Value)
-                : Result<A>.None;
-        }));
+        new OptionAsync<A>(ma.Map(a => a.data));
 
     /// <summary>
     /// Projection from one value to another 
@@ -27,21 +21,45 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> MapAsync<A, B>(this Task<Option<A>> self, Func<A, B> f) =>
-        FOptionAsync<A, B>.Inst.Map(self.ToAsync(), f);
+        default(FOptionAsync<A, B>).Map(self.ToAsync(), f);
+
+    /// <summary>
+    /// Projection from one value to another 
+    /// </summary>
+    /// <typeparam name="B">Resulting functor value type</typeparam>
+    /// <param name="f">Projection function</param>
+    /// <returns>Mapped functor</returns>
+    [Pure]
+    public static OptionAsync<B> MapAsync<A, B>(this Task<Option<A>> self, Func<A, Task<B>> f) =>
+        default(FOptionAsync<A, B>).MapAsync(self.ToAsync(), f);
 
     /// <summary>
     /// Monad bind operation
     /// </summary>
     [Pure]
     public static OptionAsync<B> BindAsync<A, B>(this Task<Option<A>> self, Func<A, Option<B>> f) =>
-        MOptionAsync<A>.Inst.Bind<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), a => f(a).ToAsync());
+        default(MOptionAsync<A>).Bind<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), a => f(a).ToAsync());
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    [Pure]
+    public static OptionAsync<B> BindAsync<A, B>(this Task<Option<A>> self, Func<A, Task<Option<B>>> f) =>
+        default(MOptionAsync<A>).BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), async a => (await f(a)).ToAsync());
 
     /// <summary>
     /// Monad bind operation
     /// </summary>
     [Pure]
     public static OptionAsync<B> BindAsync<A, B>(this Task<Option<A>> self, Func<A, OptionAsync<B>> f) =>
-        MOptionAsync<A>.Inst.Bind<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), f);
+        default(MOptionAsync<A>).Bind<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), f);
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    [Pure]
+    public static OptionAsync<B> BindAsync<A, B>(this Task<Option<A>> self, Func<A, Task<OptionAsync<B>>> f) =>
+        default(MOptionAsync<A>).BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), f);
 
     /// <summary>
     /// Match operation with an untyped value for Some. This can be
@@ -129,7 +147,7 @@ public static class TaskOptionAsyncExtensions
     /// <param name="defaultLeftValue">Default value if the structure is in a None state</param>
     /// <returns>An Either representation of the structure</returns>
     [Pure]
-    public static Task<Either<L, A>> ToEitherAsync<L, A>(this Task<Option<A>> self, L defaultLeftValue) =>
+    public static EitherAsync<L, A> ToEitherAsync<L, A>(this Task<Option<A>> self, L defaultLeftValue) =>
         toEitherAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(self.ToAsync(), defaultLeftValue);
 
     /// <summary>
@@ -139,8 +157,8 @@ public static class TaskOptionAsyncExtensions
     /// structure is in a None state</param>
     /// <returns>An Either representation of the structure</returns>
     [Pure]
-    public static Task<Either<L, A>> ToEitherAsync<L, A>(this Task<Option<A>> self, Func<L> Left) =>
-        toEitherAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(self.ToAsync(), Left);
+    public static EitherAsync<L, A> ToEitherAsync<L, A>(this Task<Option<A>> self, Func<L> Left) =>
+        toEitherAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(new OptionAsync<A>(self.Map(x => x.data)), Left);
 
     /// <summary>
     /// Convert the structure to an EitherUnsafe
@@ -149,7 +167,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>An EitherUnsafe representation of the structure</returns>
     [Pure]
     public static Task<EitherUnsafe<L, A>> ToEitherUnsafeAsync<L, A>(this Task<Option<A>> self, L defaultLeftValue) =>
-        toEitherUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(self.ToAsync(), defaultLeftValue);
+        toEitherUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(new OptionAsync<A>(self.Map(x => x.data)), defaultLeftValue);
 
     /// <summary>
     /// Convert the structure to an EitherUnsafe
@@ -193,8 +211,8 @@ public static class TaskOptionAsyncExtensions
     /// <param name="None">None match operation. Must not return null.</param>
     /// <returns>A non-null B</returns>
     [Pure]
-    public static Task<B> MatchAsync<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<B> None) =>
-        MOptionAsync<A>.Inst.MatchAsync(self.ToAsync(), Some, None);
+    public static Task<B> Match<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<B> None) =>
+        MOptionAsync<A>.Inst.Match(self.ToAsync(), Some, None);
 
     /// <summary>
     /// Match the two states of the Option and return a non-null R.
@@ -237,8 +255,8 @@ public static class TaskOptionAsyncExtensions
     /// <param name="None">None match operation. May return null.</param>
     /// <returns>B, or null</returns>
     [Pure]
-    public static Task<B> MatchUnsafeAsync<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<B> None) =>
-        MOptionAsync<A>.Inst.MatchUnsafeAsync(self.ToAsync(), Some, None);
+    public static Task<B> MatchUnsafe<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<B> None) =>
+        MOptionAsync<A>.Inst.MatchUnsafe(self.ToAsync(), Some, None);
 
     /// <summary>
     /// Match the two states of the Option and return a B, which can be null.
@@ -278,8 +296,8 @@ public static class TaskOptionAsyncExtensions
     /// </summary>
     /// <param name="Some">Some match operation</param>
     /// <param name="None">None match operation</param>
-    public static Task<Unit> MatchAsync<A>(this Task<Option<A>> self, Action<A> Some, Action None) =>
-        MOptionAsync<A>.Inst.MatchAsync(self.ToAsync(), Some, None);
+    public static Task<Unit> Match<A>(this Task<Option<A>> self, Action<A> Some, Action None) =>
+        MOptionAsync<A>.Inst.Match(self.ToAsync(), Some, None);
 
     /// <summary>
     /// Invokes the action if Option is in the Some state, otherwise nothing happens.
@@ -358,7 +376,7 @@ public static class TaskOptionAsyncExtensions
     /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
     [Pure]
     public static Task<A> IfNoneUnsafeAsync<A>(this Task<Option<A>> self, Func<A> None) =>
-        ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), None);
+        OptionalUnsafeAsync.ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), None);
 
     /// <summary>
     /// Returns the result of invoking the None() operation if the optional 
@@ -370,7 +388,7 @@ public static class TaskOptionAsyncExtensions
     /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
     [Pure]
     public static Task<A> IfNoneUnsafeAsync<A>(this Task<Option<A>> self, Func<Task<A>> None) =>
-        ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), None);
+        OptionalUnsafeAsync.ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), None);
 
     /// <summary>
     /// Returns the noneValue if the optional is in a None state, otherwise
@@ -382,7 +400,7 @@ public static class TaskOptionAsyncExtensions
     /// the bound Some(x) value is returned</returns>
     [Pure]
     public static Task<A> IfNoneUnsafeAsync<A>(this Task<Option<A>> self, A noneValue) =>
-        ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), noneValue);
+        OptionalUnsafeAsync.ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), noneValue);
 
     /// <summary>
     /// <para>
@@ -406,7 +424,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>The aggregate state</returns>
     [Pure]
     public static Task<S> FoldAsync<S, A>(this Task<Option<A>> self, S state, Func<S, A, S> folder) =>
-        MOptionAsync<A>.Inst.FoldAsync(self.ToAsync(), state, folder)(unit);
+        MOptionAsync<A>.Inst.Fold(self.ToAsync(), state, folder)(unit);
 
     /// <summary>
     /// <para>
@@ -454,7 +472,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>The aggregate state</returns>
     [Pure]
     public static Task<S> FoldBackAsync<S, A>(this Task<Option<A>> self, S state, Func<S, A, S> folder) =>
-        MOptionAsync<A>.Inst.FoldBackAsync(self.ToAsync(), state, folder)(unit);
+        MOptionAsync<A>.Inst.FoldBack(self.ToAsync(), state, folder)(unit);
 
     /// <summary>
     /// <para>
@@ -503,7 +521,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>The aggregate state</returns>
     [Pure]
     public static Task<S> BiFoldAsync<S, A>(this Task<Option<A>> self, S state, Func<S, A, S> Some, Func<S, Unit, S> None) =>
-        MOptionAsync<A>.Inst.BiFoldAsync(self.ToAsync(), state, Some, None);
+        MOptionAsync<A>.Inst.BiFold(self.ToAsync(), state, Some, None);
 
     /// <summary>
     /// <para>
@@ -603,7 +621,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>The aggregate state</returns>
     [Pure]
     public static Task<S> BiFoldAsync<S, A>(this Task<Option<A>> self, S state, Func<S, A, S> Some, Func<S, S> None) =>
-        MOptionAsync<A>.Inst.BiFoldAsync(self.ToAsync(), state, Some, (s, _) => None(s));
+        MOptionAsync<A>.Inst.BiFold(self.ToAsync(), state, Some, (s, _) => None(s));
 
     /// <summary>
     /// <para>
@@ -689,7 +707,40 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<Unit, B> None) =>
-        FOptionAsync<A, B>.Inst.BiMap(self.ToAsync(), Some, None);
+        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, None);
+
+    /// <summary>
+    /// Projection from one value to another
+    /// </summary>
+    /// <typeparam name="B">Resulting functor value type</typeparam>
+    /// <param name="Some">Projection function</param>
+    /// <param name="None">Projection function</param>
+    /// <returns>Mapped functor</returns>
+    [Pure]
+    public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, Task<B>> Some, Func<Unit, B> None) =>
+        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, None);
+
+    /// <summary>
+    /// Projection from one value to another
+    /// </summary>
+    /// <typeparam name="B">Resulting functor value type</typeparam>
+    /// <param name="Some">Projection function</param>
+    /// <param name="None">Projection function</param>
+    /// <returns>Mapped functor</returns>
+    [Pure]
+    public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, Task<B>> Some, Func<Unit, Task<B>> None) =>
+        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, None);
+
+    /// <summary>
+    /// Projection from one value to another
+    /// </summary>
+    /// <typeparam name="B">Resulting functor value type</typeparam>
+    /// <param name="Some">Projection function</param>
+    /// <param name="None">Projection function</param>
+    /// <returns>Mapped functor</returns>
+    [Pure]
+    public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<Unit, Task<B>> None) =>
+        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, None);
 
     /// <summary>
     /// Projection from one value to another
@@ -700,7 +751,40 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<B> None) =>
-        FOptionAsync<A, B>.Inst.BiMap(self.ToAsync(), Some, _ => None());
+        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, _ => None());
+
+    /// <summary>
+    /// Projection from one value to another
+    /// </summary>
+    /// <typeparam name="B">Resulting functor value type</typeparam>
+    /// <param name="Some">Projection function</param>
+    /// <param name="None">Projection function</param>
+    /// <returns>Mapped functor</returns>
+    [Pure]
+    public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, Task<B>> Some, Func<B> None) =>
+        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, _ => None());
+
+    /// <summary>
+    /// Projection from one value to another
+    /// </summary>
+    /// <typeparam name="B">Resulting functor value type</typeparam>
+    /// <param name="Some">Projection function</param>
+    /// <param name="None">Projection function</param>
+    /// <returns>Mapped functor</returns>
+    [Pure]
+    public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, Task<B>> Some, Func<Task<B>> None) =>
+        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, async _ => await None());
+
+    /// <summary>
+    /// Projection from one value to another
+    /// </summary>
+    /// <typeparam name="B">Resulting functor value type</typeparam>
+    /// <param name="Some">Projection function</param>
+    /// <param name="None">Projection function</param>
+    /// <returns>Mapped functor</returns>
+    [Pure]
+    public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<Task<B>> None) =>
+        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, async _ => await None());
 
     /// <summary>
     /// <para>
@@ -716,7 +800,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns></returns>
     [Pure]
     public static Task<int> CountAsync<A>(this Task<Option<A>> self) =>
-        MOptionAsync<A>.Inst.CountAsync(self.ToAsync())(unit);
+        MOptionAsync<A>.Inst.Count(self.ToAsync())(unit);
 
     /// <summary>
     /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -844,7 +928,17 @@ public static class TaskOptionAsyncExtensions
     /// returns True.  None otherwise.</returns>
     [Pure]
     public static OptionAsync<A> FilterAsync<A>(this Task<Option<A>> self, Func<A, bool> pred) =>
-        filter<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), pred);
+        filterAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), pred);
+
+    /// <summary>
+    /// Apply a predicate to the bound value (if in a Some state)
+    /// </summary>
+    /// <param name="pred">Predicate to apply</param>
+    /// <returns>Some(x) if the Option is in a Some state and the predicate
+    /// returns True.  None otherwise.</returns>
+    [Pure]
+    public static OptionAsync<A> FilterAsync<A>(this Task<Option<A>> self, Func<A, Task<bool>> pred) =>
+        filterAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), pred);
 
     /// <summary>
     /// Add the bound values of x and y, uses an Add type-class to provide the add
