@@ -1098,5 +1098,72 @@ namespace LanguageExt
         [Pure]
         public static Seq<A> Seq<A>(ValueTuple<A, A, A, A, A, A, A> tup) =>
             SeqArray<A>.New(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 });
+
+        /// <summary>
+        /// Compute the difference between two documents, using the Wagner-Fischer algorithm. 
+        /// O(mn) time and space.
+        /// 
+        ///     apply(diff(d,e), d) == e
+        ///     
+        ///     diff(d, d) == Patch.empty
+        ///     
+        ///     apply(diff(d, e), d) == apply(inverse(diff(e, d)), d)
+        ///     
+        ///     apply(append(diff(a, b), diff(b, c), a) == apply(diff(a, c), a)
+        ///     
+        ///     applicable(diff(a, b) a)
+        /// 
+        /// </summary>
+        public static Patch<EqA, A> Diff<EqA, A>(this IEnumerable<A> va, IEnumerable<A> vb) where EqA : struct, Eq<A> =>
+            Patch.diff<EqA, A>(va, vb);
+
+        /// <summary>
+        /// Apply the supplied patch to this collection
+        /// </summary>
+        public static IEnumerable<A> Apply<EqA, A>(this IEnumerable<A> va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+            Patch.apply(patch, va);
+
+        /// <summary>
+        /// Apply the supplied patch to this collection
+        /// </summary>
+        public static Lst<A> Apply<EqA, A>(this Lst<A> va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+            Patch.apply(patch, va);
+
+        /// <summary>
+        /// Apply the supplied patch to this collection
+        /// </summary>
+        public static Seq<A> Apply<EqA, A>(this Seq<A> va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+            Patch.apply(patch, va);
+
+        /// <summary>
+        /// Apply the supplied patch to this collection
+        /// </summary>
+        public static SpanArray<A> Apply<EqA, A>(this SpanArray<A> va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+            Patch.apply(patch, va);
+
+        /// <summary>
+        /// Apply the supplied patch to this collection
+        /// </summary>
+        public static A[] Apply<EqA, A>(this A[] va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+            Patch.apply(patch, va);
+
+        /// <summary>
+        /// Apply the supplied patch to this collection
+        /// </summary>
+        public static Arr<A> Apply<EqA, A>(this Arr<A> va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+            Patch.apply(patch, va);
+
+        /// <summary>
+        /// Apply the supplied patch to this collection
+        /// </summary>
+        public static List<A> Apply<EqA, A>(this List<A> va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+            Patch.apply(patch, va);
+
+        /// <summary>
+        /// Returns true if a patch can be safely applied to a document, that is,
+        /// `applicable(p, d)` holds when `d` is a valid source document for the patch `p`.
+        /// </summary>
+        public static bool Applicable<EqA, A>(this IEnumerable<A> va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+            Patch.applicable(patch, va);
     }
 }
