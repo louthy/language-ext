@@ -11,7 +11,7 @@ namespace LanguageExt
         public static (A, Seq<C>) mapAccumR<A, B, C>(Func<A, B, (A, C)> f, A state, Seq<B> t)
         {
             if (t.IsEmpty) return (state, Seq<C>());
-            var (a1, c1) = mapAccumL(f, state, t.Tail);
+            var (a1, c1) = mapAccumR(f, state, t.Tail);
             var (a, c) = f(a1, t.Head);
             return (a, c.Cons(c1));
         }
