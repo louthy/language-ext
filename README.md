@@ -1156,6 +1156,8 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
 * `bool.TryParse` becomes `parseBool`
 * `Guid.TryParse` becomes `parseGuid`
 * `DateTime.TryParse` becomes `parseDateTime`
+* `DateTimeOffset.TryParse` becomes `parseDateTimeOffset`
+* `Enum.TryParse` becomes `parseEnum`
 
 _any others you think should be included, please get in touch_
 
