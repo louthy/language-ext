@@ -1146,6 +1146,7 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
 * `long.TryParse` becomes `parseLong`
 * `short.TryParse` becomes `parseShort`
 * `char.TryParse` becomes `parseChar`
+* `sbyte.TryParse` becomes `parseSByte`
 * `byte.TryParse` becomes `parseByte`
 * `ulong.TryParse` becomes `parseULong`
 * `uint.TryParse` becomes `parseUInt`
