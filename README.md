@@ -1142,14 +1142,14 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
 `out` method variants
 * `IDictionary<K, V>.TryGetValue`
 * `IReadOnlyDictionary<K, V>.TryGetValue`
-* `Int32.TryParse` becomes `parseInt`
-* `Int64.TryParse` becomes `parseLong`
-* `Int16.TryParse` becomes `parseShort`
-* `Char.TryParse` becomes `parseChar`
-* `Byte.TryParse` becomes `parseByte`
-* `UInt64.TryParse` becomes `parseULong`
-* `UInt32.TryParse` becomes `parseUInt`
-* `UInt16.TryParse` becomes `parseUShort`
+* `int.TryParse` becomes `parseInt`
+* `long.TryParse` becomes `parseLong`
+* `short.TryParse` becomes `parseShort`
+* `char.TryParse` becomes `parseChar`
+* `byte.TryParse` becomes `parseByte`
+* `ulong.TryParse` becomes `parseULong`
+* `uint.TryParse` becomes `parseUInt`
+* `ushort.TryParse` becomes `parseUShort`
 * `float.TryParse` becomes `parseFloat`
 * `double.TryParse` becomes `parseDouble`
 * `decimal.TryParse` becomes `parseDecimal`
