@@ -54,6 +54,10 @@ namespace LanguageExt
             Parse<char>(char.TryParse, value);
 
         [Pure]
+        public static Option<sbyte> parseSByte(string value) =>
+            Parse<sbyte>(sbyte.TryParse, value);
+
+        [Pure]
         public static Option<byte> parseByte(string value) =>
             Parse<byte>(byte.TryParse, value);
 
