@@ -15,19 +15,17 @@ namespace LanguageExt
         public static readonly SeqEmpty Empty = new SeqEmpty();
 
         /// <summary>
-        /// Construct a list from head and tail head becomes the first item in 
-        /// the list.  
+        /// Construct a sequence from any value
         /// </summary>
         /// <typeparam name="A">Type of the items in the sequence</typeparam>
         /// <param name="head">Head item in the sequence</param>
-        /// <param name="tail">Tail of the sequence</param>
         /// <returns></returns>
         [Pure]
         public static Seq<A> Cons<A>(this A head) =>
             SeqCons<A>.New(head, SeqEmpty<A>.Default);
 
         /// <summary>
-        /// Construct a list from head and tail head becomes the first item in 
+        /// Construct a list from head and tail; head becomes the first item in 
         /// the list.  
         /// </summary>
         /// <typeparam name="A">Type of the items in the sequence</typeparam>
@@ -39,7 +37,7 @@ namespace LanguageExt
             SeqCons<A>.New(head, tail);
 
         /// <summary>
-        /// Construct a list from head and tail head becomes the first item in 
+        /// Construct a list from head and tail; head becomes the first item in 
         /// the list.  
         /// </summary>
         /// <typeparam name="A">Type of the items in the sequence</typeparam>
@@ -51,7 +49,7 @@ namespace LanguageExt
             SeqCons<A>.New(head, SeqArray<A>.New(tail));
 
         /// <summary>
-        /// Construct a list from head and tail head becomes the first item in 
+        /// Construct a list from head and tail; head becomes the first item in 
         /// the list.  
         /// </summary>
         /// <typeparam name="A">Type of the items in the sequence</typeparam>
@@ -80,10 +78,15 @@ namespace LanguageExt
           : SeqEnumerable<A>.New(head, tail);
 
         /// <summary>
-        /// Construct a list from head and tail
+        /// Construct a list from head and tail; head becomes the first item in 
+        /// the list.  
         /// </summary>
+        /// <typeparam name="A">Type of the items in the sequence</typeparam>
+        /// <param name="head">Head item in the sequence</param>
+        /// <param name="tail">Tail of the sequence</param>
+        /// <returns></returns>
         [Pure]
-        public static Lst<T> Cons<T>(this T head, Lst<T> tail) =>
+        public static Lst<A> Cons<A>(this A head, Lst<A> tail) =>
             tail.Insert(0, head);
 
         /// <summary>
