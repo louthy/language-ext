@@ -15,6 +15,29 @@ namespace LanguageExt.Tests
     public class ValidationTests
     {
         [Fact]
+        public void DisjunctionTest()
+        {
+            var resPos = NonZeroNumber(1);
+            Assert.True(resPos.IsSuccess);
+
+            var resNeg = NonZeroNumber(-1);
+            Assert.True(resNeg.IsSuccess);
+
+            var resZero = NonZeroNumber(0);
+            Assert.True(resZero.IsFail);
+            resZero.Match(
+                Succ: _ => Assert.True(false, "should never get here"),
+                Fail: errors =>
+                {
+                    Assert.Equal(2, errors.Count);
+                    Assert.Equal("must be positive", errors.Head.Value);
+                    Assert.Equal("must be negative", errors.Tail.Head.Value);
+                });
+        }
+
+        public Validation<Error, int> NonZeroNumber(int i) => PositiveNumber(i) | NegativeNumber(i);
+
+        [Fact]
         public void ValidCreditCardTest()
         {
             // Valid test
@@ -112,6 +135,15 @@ namespace LanguageExt.Tests
             value > 0
                 ? Success<Error, int>(value)
                 : Fail<Error, int>(Error.New($"must be positive"));
+        
+        /// <summary>
+        /// Validates that the value passed is a negative number
+        /// </summary>
+        public static Validation<Error, int> NegativeNumber(int value) =>
+            value < 0
+                ? Success<Error, int>(value)
+                : Fail<Error, int>(Error.New($"must be negative"));
+
 
         /// <summary>
         /// Takes todays date and builds a delegate that can take a month and year
@@ -125,22 +157,23 @@ namespace LanguageExt.Tests
 
         /// <summary>
         /// Validate that the card holder is ASCII and has a maximum of 30 characters
-        /// This uses the | operator as a disjunction computation.  If any items are
+        /// This uses the & operator as a conjunction computation.  If any items are
         /// Failed then the errors are collected and returned.  If they all pass then
         /// the Success value from the first item is propagated.  This only works when
         /// all the operands are of the same type and you only care about the first
         /// success value.  Which in this case is cardHolder for both.
         /// </summary>
         public static Validation<Error, string> ValidateCardHolder(string cardHolder) =>
-            AsciiOnly(cardHolder) | MaxStrLength(30)(cardHolder);
+            AsciiOnly(cardHolder) & MaxStrLength(30)(cardHolder);
 
+ 
         /// <summary>
         /// This is the main validation function for validating a credit card
         /// </summary>
         public static Validation<Error, CreditCard> ValidateCreditCard(string cardHolder, string number, string expMonth, string expYear)
         {
             var cardHolderV = ValidateCardHolder(cardHolder);
-            var numberV = DigitsOnly(number) | MaxStrLength(16)(number);
+            var numberV = DigitsOnly(number) & MaxStrLength(16)(number);
             var validToday = ValidExpiration(DateTime.Now.Month, DateTime.Now.Year);
 
             // This falls back to monadic behaviour because validToday needs both

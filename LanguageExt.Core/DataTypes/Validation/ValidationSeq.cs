@@ -533,11 +533,28 @@ namespace LanguageExt
             !(lhs == rhs);
 
         /// <summary>
-        /// Coalescing operator
+        /// Disjunction / Coalescing operator
         /// </summary>
         [Pure]
         public static Validation<FAIL, SUCCESS> operator |(Validation<FAIL, SUCCESS> lhs, Validation<FAIL, SUCCESS> rhs) =>
-            default(FoldValidation<FAIL, SUCCESS>).Append(lhs, rhs);
+            lhs.Match(
+                Succ: xs => lhs,
+                Fail: xf => rhs.Match(
+                    Succ: ys => rhs,
+                    Fail: yf => Validation<FAIL, SUCCESS>.Fail(default(MSeq<FAIL>).Append(xf, yf))));
+
+        /// <summary>
+        /// Conjunction operator
+        /// </summary>
+        [Pure]
+        public static Validation<FAIL, SUCCESS> operator &(Validation<FAIL, SUCCESS> lhs, Validation<FAIL, SUCCESS> rhs) =>
+            lhs.Match(
+                Succ: xs => rhs.Match(
+                    Succ: ys => lhs,
+                    Fail: yf => rhs),
+                Fail: xf => rhs.Match(
+                    Succ: ys => lhs,
+                    Fail: yf => Validation<FAIL, SUCCESS>.Fail(default(MSeq<FAIL>).Append(xf, yf))));
 
         /// <summary>
         /// Override of the True operator to return True if the Validation is Success
