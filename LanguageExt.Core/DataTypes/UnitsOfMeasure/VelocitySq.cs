@@ -13,10 +13,8 @@ namespace LanguageExt.UnitsOfMeasure
     {
         readonly double Value;
 
-        internal VelocitySq(double value)
-        {
+        internal VelocitySq(double value) =>
             Value = value;
-        }
 
         public override string ToString() =>
             Value + " m/s²";

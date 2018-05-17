@@ -18,10 +18,8 @@ namespace LanguageExt.UnitsOfMeasure
     {
         readonly double Value;
 
-        internal Area(double value)
-        {
+        internal Area(double value) =>
             Value = value;
-        }
 
         public override string ToString() =>
             Value + " m²";

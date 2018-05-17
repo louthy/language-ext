@@ -18,10 +18,8 @@ namespace LanguageExt.UnitsOfMeasure
     {
         readonly double Value;
 
-        internal Time(double value)
-        {
+        internal Time(double value) =>
             Value = value;
-        }
 
         public override string ToString() =>
             Value + " s";

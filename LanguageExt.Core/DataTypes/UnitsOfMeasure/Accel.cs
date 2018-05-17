@@ -18,10 +18,8 @@ namespace LanguageExt.UnitsOfMeasure
     {
         readonly double Value;
 
-        internal Accel(double value)
-        {
+        internal Accel(double value) =>
             Value = value;
-        }
 
         public override string ToString() =>
             Value + " m/s²";
