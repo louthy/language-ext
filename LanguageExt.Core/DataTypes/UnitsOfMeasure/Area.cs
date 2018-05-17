@@ -35,8 +35,8 @@ namespace LanguageExt.UnitsOfMeasure
         public override bool Equals(object obj) =>
             obj == null
                 ? false
-                : obj is Length
-                    ? Equals((Length)obj)
+                : obj is Area
+                    ? Equals((Area)obj)
                     : false;
 
         public override int GetHashCode() =>
