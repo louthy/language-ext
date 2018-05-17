@@ -18,9 +18,9 @@ namespace LanguageExt.UnitsOfMeasure
     {
         readonly double Value;
 
-        internal Area(double length)
+        internal Area(double value)
         {
-            Value = length;
+            Value = value;
         }
 
         public override string ToString() =>

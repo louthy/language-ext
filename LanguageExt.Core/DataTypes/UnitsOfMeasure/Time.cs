@@ -18,9 +18,9 @@ namespace LanguageExt.UnitsOfMeasure
     {
         readonly double Value;
 
-        internal Time(double length)
+        internal Time(double value)
         {
-            Value = length;
+            Value = value;
         }
 
         public override string ToString() =>

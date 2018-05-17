@@ -18,9 +18,9 @@ namespace LanguageExt.UnitsOfMeasure
     {
         readonly double Value;
 
-        internal Velocity(double length)
+        internal Velocity(double value)
         {
-            Value = length;
+            Value = value;
         }
 
         public override string ToString() =>

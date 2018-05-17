@@ -12,9 +12,9 @@ namespace LanguageExt.UnitsOfMeasure
     {
         readonly double Value;
 
-        internal TimeSq(double length)
+        internal TimeSq(double value)
         {
-            Value = length;
+            Value = value;
         }
 
         public override string ToString() =>
