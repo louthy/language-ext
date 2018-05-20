@@ -777,7 +777,7 @@ namespace LanguageExt
         /// <example>
         ///     Pressure x = 7*hectopascals;
         /// </example>
-        public static readonly Pressure hectopascals = 1.Pascal();
+        public static readonly Pressure hectopascals = 1.Hectopascals();
 
         /// <summary>
         /// Hectopascals
@@ -785,7 +785,7 @@ namespace LanguageExt
         /// <example>
         ///     Pressure x = 7*hectopascal;
         /// </example>
-        public static readonly Pressure hectopascal = 1.Pascal();
+        public static readonly Pressure hectopascal = 1.Hectopascals();
 
         /// <summary>
         /// Hectopascals
@@ -793,7 +793,7 @@ namespace LanguageExt
         /// <example>
         ///     Pressure x = 7*hPa;
         /// </example>
-        public static readonly Pressure hPa = 1.Pascal();
+        public static readonly Pressure hPa = 1.Hectopascals();
 
         /// <summary>
         /// Newtons per square meter
@@ -914,5 +914,29 @@ namespace LanguageExt
         ///     Pressure x = 7*atm;
         /// </example>
         public static readonly Pressure atm = 1.Atmospheres();
+
+        /// <summary>
+        /// Kelvins
+        /// </summary>
+        /// <example>
+        ///     Temperature x = 7*kelvins;
+        /// </example>
+        public static readonly Temperature kelvins = 1.Kelvin();
+
+        /// <summary>
+        /// Kelvins
+        /// </summary>
+        /// <example>
+        ///     Temperature x = 7*kelvin;
+        /// </example>
+        public static readonly Temperature kelvin = 1.Kelvin();
+
+        /// <summary>
+        /// Kelvins
+        /// </summary>
+        /// <example>
+        ///     Temperature x = 7*K;
+        /// </example>
+        public static readonly Temperature K = 1.Kelvin();
     }
 }

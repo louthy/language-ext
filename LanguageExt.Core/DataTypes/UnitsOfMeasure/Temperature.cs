@@ -17,8 +17,11 @@ namespace LanguageExt.UnitsOfMeasure
     {
         readonly double Value;
 
-        internal Temperature(double temperature) =>
+        internal Temperature(double temperature)
+        {
+            if (temperature < 0.0) throw new ArgumentOutOfRangeException(nameof(temperature));
             Value = temperature;
+        }
 
         public override string ToString() =>
             Value + " K";
@@ -97,9 +100,6 @@ namespace LanguageExt.UnitsOfMeasure
         public Temperature Sqrt() =>
             new Temperature(Math.Sqrt(Value));
 
-        public Temperature Abs() =>
-            new Temperature(Math.Abs(Value));
-
         public Temperature Min(Temperature rhs) =>
             new Temperature(Math.Min(Value, rhs.Value));
 
@@ -125,21 +125,21 @@ namespace LanguageExt.UnitsOfMeasure
             new Temperature(self);
 
         public static Temperature Celsius(this int self) =>
-            new Temperature(self + 273.15);
+            new Temperature(273.15 + self);
 
         public static Temperature Celsius(this float self) =>
-            new Temperature(self + 273.15);
+            new Temperature(273.15 + self);
 
         public static Temperature Celsius(this double self) =>
-            new Temperature(self + 273.15);
+            new Temperature(273.15 + self);
 
         public static Temperature Fahrenheit(this int self) =>
-            new Temperature(5 * (self - 32) / 9);
+            new Temperature(273.15 + 5 * (self - 32) / 9);
 
         public static Temperature Fahrenheit(this float self) =>
-            new Temperature(5 * (self - 32) / 9);
+            new Temperature(273.15 + 5 * (self - 32) / 9);
 
         public static Temperature Fahrenheit(this double self) =>
-            new Temperature(5 * (self - 32) / 9);
+            new Temperature(273.15 + 5 * (self - 32) / 9);
     }
 }

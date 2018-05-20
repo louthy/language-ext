@@ -178,5 +178,86 @@ namespace LanguageExtTests
             Assert.True(vel.MetresPerSecond == 49.0);
             Assert.True(len.Metres == 245.0);
         }
+
+        [Fact]
+        public void ForceTests()
+        {
+            Assert.Equal(1*N, 1.Newtons());
+
+            var oneLbfInNewtons = 4.448222;
+            Assert.Equal(1.Lbf().Newtons, oneLbfInNewtons);
+        }
+
+        [Fact]
+        public void ForceArithmeticTests()
+        {
+            var oneNewton = 1*N;
+
+            var oneSQM = 1.SqMetres();
+            object onePascal = oneNewton / oneSQM;
+            Assert.True(onePascal is Pressure p && p == 1.Pascal());
+
+            var oneMS2 = 1.MetresPerSecond2();
+            object oneKg = oneNewton / oneMS2;
+            Assert.True(oneKg is Mass);
+        }
+
+        [Fact]
+        public void MassTests()
+        {
+            var oneKg = 1.Kilograms();
+
+            Assert.Equal(oneKg, 1000*grams);
+            Assert.Equal(oneKg, 1000000*milligrams);
+            Assert.Equal(oneKg, 1000000000*micrograms);
+            Assert.Equal(oneKg, 0.001*tonnes);
+            Assert.Equal(oneKg, 0.000001*kilotonnes);
+            Assert.Equal(oneKg, 0.000000001*megatonnes);
+
+            Assert.Equal(oneKg.Ounces, oneKg.Pounds * 16, 5);
+        }
+
+        [Fact]
+        public void MassArithmeticTests()
+        {
+            var oneKg = 1.Kilograms();
+            var oneMS2 = 1.MetresPerSecond2();
+            object oneNewton = oneKg * oneMS2;
+            Assert.True(oneNewton is Force f && f == 1.Newtons());
+        }
+
+        [Fact]
+        public void PressureTests()
+        {
+            var onePa = 1.Pascal();
+
+            Assert.Equal(onePa, 0.01*hPa);
+            Assert.Equal(onePa, 1*newtonPerMetre2);
+            Assert.Equal(onePa, 0.00001*bar);
+            Assert.Equal(onePa, 0.01*millibars);
+            Assert.Equal(onePa, 0.001*centibars);
+
+            Assert.Equal(1*atm, 1013.25*mb);
+            Assert.Equal((1*atm).Pascal, (14.696*psi).Pascal, 0);
+        }
+
+        [Fact]
+        public void PressureArithmeticTests()
+        {
+            var onePa = 1.Pascal();
+            var oneM2 = 1.SqMetres();
+            object oneNewton = onePa * oneM2;
+            Assert.True(oneNewton is Force f && f == 1.Newtons());
+        }
+
+        [Fact]
+        public void TemperatureTests()
+        {
+            var oneHundredCelsiusInKelvin = 373.15.Kelvin();
+
+            Assert.Equal(oneHundredCelsiusInKelvin, 100.Celsius());
+
+            Assert.Equal(100.Celsius(), 212.Fahrenheit());
+        }
     }
 }
