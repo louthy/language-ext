@@ -490,5 +490,429 @@ namespace LanguageExt
         /// Metres per-second squared
         /// </summary>
         public static readonly Accel ms2 = m/s/s;
+
+        /// <summary>
+        /// Newton
+        /// </summary>
+        /// <example>
+        ///     Force x = 7*newtons;
+        /// </example>
+        public static readonly Force newtons = 1.Newtons();
+
+        /// <summary>
+        /// Newton
+        /// </summary>
+        /// <example>
+        ///     Force x = 7*newton;
+        /// </example>
+        public static readonly Force newton = 1.Newtons();
+
+        /// <summary>
+        /// Newton
+        /// </summary>
+        /// <example>
+        ///     Force x = 7*N;
+        /// </example>
+        public static readonly Force N = 1.Newtons();
+
+        /// <summary>
+        /// Pound-force
+        /// </summary>
+        /// <example>
+        ///     Force x = 7*lbfs;
+        /// </example>
+        public static readonly Force lbfs = 1.Lbf();
+
+        /// <summary>
+        /// Pound-force
+        /// </summary>
+        /// <example>
+        ///     Force x = 7*lbf;
+        /// </example>
+        public static readonly Force lbf = 1.Lbf();
+
+        /// <summary>
+        /// Kilogram
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*kilograms;
+        /// </example>
+        public static readonly Mass kilograms = 1.Kilograms();
+
+        /// <summary>
+        /// Kilogram
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*kilogram;
+        /// </example>
+        public static readonly Mass kilogram = 1.Kilograms();
+
+        /// <summary>
+        /// Kilogram
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*kg;
+        /// </example>
+        public static readonly Mass kg = 1.Kilograms();
+
+        /// <summary>
+        /// Gram
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*grams;
+        /// </example>
+        public static readonly Mass grams = 1.Grams();
+
+        /// <summary>
+        /// Gram
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*gram;
+        /// </example>
+        public static readonly Mass gram = 1.Grams();
+
+        /// <summary>
+        /// Gram
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*g;
+        /// </example>
+        public static readonly Mass g = 1.Grams();
+
+        /// <summary>
+        /// Miligram
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*milligrams;
+        /// </example>
+        public static readonly Mass milligrams = 1.Milligrams();
+
+        /// <summary>
+        /// Miligram
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*milligram;
+        /// </example>
+        public static readonly Mass milligram = 1.Milligrams();
+
+        /// <summary>
+        /// Miligram
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*mg;
+        /// </example>
+        public static readonly Mass mg = 1.Milligrams();
+
+        /// <summary>
+        /// Microgram
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*micrograms;
+        /// </example>
+        public static readonly Mass micrograms = 1.Micrograms();
+
+        /// <summary>
+        /// Microgram
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*microgram;
+        /// </example>
+        public static readonly Mass microgram = 1.Micrograms();
+
+        /// <summary>
+        /// Microgram
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*µg;
+        /// </example>
+        public static readonly Mass ug = 1.Micrograms();
+
+        /// <summary>
+        /// Tonne
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*tonnes;
+        /// </example>
+        public static readonly Mass tonnes = 1.Tonnes();
+
+        /// <summary>
+        /// Tonne
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*tonne;
+        /// </example>
+        public static readonly Mass tonne = 1.Tonnes();
+
+        /// <summary>
+        /// Tonne
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*t;
+        /// </example>
+        public static readonly Mass t = 1.Tonnes();
+
+        /// <summary>
+        /// Kilotonne
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*kilotonnes;
+        /// </example>
+        public static readonly Mass kilotonnes = 1.Kilotonnes();
+
+        /// <summary>
+        /// Kilotonne
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*kilotonne;
+        /// </example>
+        public static readonly Mass kilotonne = 1.Kilotonnes();
+
+        /// <summary>
+        /// Kilotonne
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*kt;
+        /// </example>
+        public static readonly Mass kt = 1.Kilotonnes();
+
+        /// <summary>
+        /// Megatonne
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*megatonnes;
+        /// </example>
+        public static readonly Mass megatonnes = 1.Megatonnes();
+
+        /// <summary>
+        /// Megatonne
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*megatonne;
+        /// </example>
+        public static readonly Mass megatonne = 1.Megatonnes();
+
+        /// <summary>
+        /// Megatonne
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*Mt;
+        /// </example>
+        public static readonly Mass Mt = 1.Megatonnes();
+
+        /// <summary>
+        /// Ounces
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*ounces;
+        /// </example>
+        public static readonly Mass ounces = 1.Ounces();
+
+        /// <summary>
+        /// Ounces
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*ounce;
+        /// </example>
+        public static readonly Mass ounce = 1.Ounces();
+
+        /// <summary>
+        /// Ounces
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*oz;
+        /// </example>
+        public static readonly Mass oz = 1.Ounces();
+
+        /// <summary>
+        /// Pounds
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*pounds;
+        /// </example>
+        public static readonly Mass pounds = 1.Pounds();
+
+        /// <summary>
+        /// Pounds
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*pound;
+        /// </example>
+        public static readonly Mass pound = 1.Pounds();
+
+        /// <summary>
+        /// Pounds
+        /// </summary>
+        /// <example>
+        ///     Mass x = 7*lb;
+        /// </example>
+        public static readonly Mass lb = 1.Pounds();
+
+        /// <summary>
+        /// Pascals
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*pascals;
+        /// </example>
+        public static readonly Pressure pascals = 1.Pascal();
+
+        /// <summary>
+        /// Pascals
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*pascal;
+        /// </example>
+        public static readonly Pressure pascal = 1.Pascal();
+
+        /// <summary>
+        /// Pascals
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*Pa;
+        /// </example>
+        public static readonly Pressure Pa = 1.Pascal();
+
+        /// <summary>
+        /// Hectopascals
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*hectopascals;
+        /// </example>
+        public static readonly Pressure hectopascals = 1.Pascal();
+
+        /// <summary>
+        /// Hectopascals
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*hectopascal;
+        /// </example>
+        public static readonly Pressure hectopascal = 1.Pascal();
+
+        /// <summary>
+        /// Hectopascals
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*hPa;
+        /// </example>
+        public static readonly Pressure hPa = 1.Pascal();
+
+        /// <summary>
+        /// Newtons per square meter
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*newtonsPerMetre2;
+        /// </example>
+        public static readonly Pressure newtonsPerMetre2 = 1.NewtonsPerMetre2();
+
+        /// <summary>
+        /// Newtons per square meter
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*newtonPerMetre2;
+        /// </example>
+        public static readonly Pressure newtonPerMetre2 = 1.NewtonsPerMetre2();
+
+        /// <summary>
+        /// Newtons per square meter
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*Nm2;
+        /// </example>
+        public static readonly Pressure Nm2 = 1.NewtonsPerMetre2();
+
+        /// <summary>
+        /// Bar
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*bars;
+        /// </example>
+        public static readonly Pressure bars = 1.Bar();
+
+        /// <summary>
+        /// Bar
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*bar;
+        /// </example>
+        public static readonly Pressure bar = 1.Bar();
+
+        /// <summary>
+        /// Millibars
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*millibars;
+        /// </example>
+        public static readonly Pressure millibars = 1.Millibars();
+
+        /// <summary>
+        /// Millibars
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*millibar;
+        /// </example>
+        public static readonly Pressure millibar = 1.Millibars();
+
+        /// <summary>
+        /// Millibars
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*mb;
+        /// </example>
+        public static readonly Pressure mb = 1.Millibars();
+
+        /// <summary>
+        /// Centibars
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*centibars;
+        /// </example>
+        public static readonly Pressure centibars = 1.Centibars();
+
+        /// <summary>
+        /// Centibars
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*centibar;
+        /// </example>
+        public static readonly Pressure centibar = 1.Centibars();
+
+        /// <summary>
+        /// Centibars
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*cbar;
+        /// </example>
+        public static readonly Pressure cbar = 1.Centibars();
+
+        /// <summary>
+        /// Pounds per square inch
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*psi;
+        /// </example>
+        public static readonly Pressure psi = 1.Psi();
+
+        /// <summary>
+        /// Atmospheres
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*atmospheres;
+        /// </example>
+        public static readonly Pressure atmospheres = 1.Atmospheres();
+
+        /// <summary>
+        /// Atmospheres
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*atmosphere;
+        /// </example>
+        public static readonly Pressure atmosphere = 1.Atmospheres();
+
+        /// <summary>
+        /// Atmospheres
+        /// </summary>
+        /// <example>
+        ///     Pressure x = 7*atm;
+        /// </example>
+        public static readonly Pressure atm = 1.Atmospheres();
     }
 }
