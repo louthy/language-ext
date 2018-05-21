@@ -32,8 +32,8 @@ namespace LanguageExt.TypeClasses
         /// <summary>
         /// In the case of lists, 'FoldBack', when applied to a binary
         /// operator, a starting value(typically the left-identity of the operator),
-        /// and a list, reduces the list using the binary operator, from left to
-        /// right.
+        /// and a list, reduces the list using the binary operator, from right to
+        /// left.
         /// 
         /// Note that to produce the outermost application of the operator the
         /// entire input list must be traversed. 
