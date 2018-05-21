@@ -144,13 +144,13 @@ namespace LanguageExt.UnitsOfMeasure
 
     public static class UnitsScaleTempExtensions
     {
-        internal const double MptIceInF = 32.0;
+        internal const double MptIceInDegF = 32.0;
 
         internal static double DegCToDegF(this double degC) =>
-            9.0 * degC / 5.0 + MptIceInF;
+            9.0 * degC / 5.0 + MptIceInDegF;
 
         internal static double DegFToDegC(this double degF) =>
-            (degF - MptIceInF) * 5.0 / 9.0;
+            (degF - MptIceInDegF) * 5.0 / 9.0;
 
         public static ScaleTemp Celsius(this int self) =>
             new ScaleTemp(self);

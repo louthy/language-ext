@@ -943,7 +943,7 @@ namespace LanguageExt
         /// Celsius
         /// </summary>
         /// <example>
-        ///     Scaletemp x = 7*degC;
+        ///     Scaletemp x = 7*celsius;
         /// </example>
         public static readonly ScaleTemp celsius = 1.Celsius();
 
