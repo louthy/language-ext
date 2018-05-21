@@ -30,18 +30,8 @@ namespace LanguageExt
         /// Use with Task in LINQ expressions to auto-clean up disposable items
         /// </summary>
         public static async Task<B> use<A, B>(Task<A> computation, Func<A, Task<B>> bind)
-            where A : IDisposable
-        {
-            var a = await computation;
-            try
-            {
-                return await bind(a);
-            }
-            finally
-            {
-                a?.Dispose();
-            }
-        }
+            where A : IDisposable =>
+            await use(await computation.ConfigureAwait(false), bind).ConfigureAwait(false);
         
         public static Task<B> use<A, B>(Func<A> generator, Func<A, Task<B>> asyncMap)
             where A : IDisposable =>
