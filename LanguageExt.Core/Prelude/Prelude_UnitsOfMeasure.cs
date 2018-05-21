@@ -921,7 +921,7 @@ namespace LanguageExt
         /// <example>
         ///     Temperature x = 7*kelvins;
         /// </example>
-        public static readonly Temperature kelvins = 1.Kelvin();
+        public static readonly AbsTemp kelvins = 1.Kelvin();
 
         /// <summary>
         /// Kelvins
@@ -929,7 +929,7 @@ namespace LanguageExt
         /// <example>
         ///     Temperature x = 7*kelvin;
         /// </example>
-        public static readonly Temperature kelvin = 1.Kelvin();
+        public static readonly AbsTemp kelvin = 1.Kelvin();
 
         /// <summary>
         /// Kelvins
@@ -937,6 +937,22 @@ namespace LanguageExt
         /// <example>
         ///     Temperature x = 7*K;
         /// </example>
-        public static readonly Temperature K = 1.Kelvin();
+        public static readonly AbsTemp K = 1.Kelvin();
+
+        /// <summary>
+        /// Celsius
+        /// </summary>
+        /// <example>
+        ///     Scaletemp x = 7*degC;
+        /// </example>
+        public static readonly ScaleTemp celsius = 1.Celsius();
+
+        /// <summary>
+        /// Celsius
+        /// </summary>
+        /// <example>
+        ///     Scaletemp x = 7*degC;
+        /// </example>
+        public static readonly ScaleTemp degC = 1.Celsius();
     }
 }

@@ -255,9 +255,13 @@ namespace LanguageExtTests
         {
             var oneHundredCelsiusInKelvin = 373.15.Kelvin();
 
-            Assert.Equal(oneHundredCelsiusInKelvin, 100.Celsius());
+            Assert.Equal(oneHundredCelsiusInKelvin.Kelvin, 100.Celsius().Kelvin);
 
             Assert.Equal(100.Celsius(), 212.Fahrenheit());
+
+            Assert.True(373.15*K == 100*degC);
+
+            Assert.True(100.Celsius() > 100.Kelvin());
         }
     }
 }
