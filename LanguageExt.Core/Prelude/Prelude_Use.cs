@@ -42,6 +42,23 @@ namespace LanguageExt
                 a?.Dispose();
             }
         }
+        
+        public static Task<B> use<A, B>(Func<A> generator, Func<A, Task<B>> asyncMap)
+            where A : IDisposable =>
+            use(generator(), asyncMap);
+        
+        public static async Task<B> use<A, B>(A disposable, Func<A, Task<B>> asyncMap)
+            where A : IDisposable
+        {
+            try
+            {
+                return await asyncMap(disposable).ConfigureAwait(false);
+            }
+            finally
+            {
+                disposable?.Dispose();
+            }
+        }
 
         /// <summary>
         /// Functional implementation of the using(...) { } pattern
