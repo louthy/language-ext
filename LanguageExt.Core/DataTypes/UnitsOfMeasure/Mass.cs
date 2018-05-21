@@ -22,7 +22,7 @@ namespace LanguageExt.UnitsOfMeasure
             => Value = mass;
 
         public override string ToString() =>
-            Value + " m";
+            Value + " kg";
 
         public bool Equals(Mass other) =>
             Value.Equals(other.Value);
@@ -52,9 +52,6 @@ namespace LanguageExt.UnitsOfMeasure
 
         public Mass Divide(double rhs) =>
             new Mass(Value / rhs);
-
-        public static Area operator *(Mass lhs, Mass rhs) =>
-            new Area(lhs.Value * rhs.Value);
 
         public static Mass operator *(Mass lhs, double rhs) =>
             lhs.Multiply(rhs);

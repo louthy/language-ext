@@ -60,9 +60,6 @@ namespace LanguageExt.UnitsOfMeasure
         public ScaleTemp Divide(double rhs) =>
             new ScaleTemp(Value / rhs);
 
-        public static Area operator *(ScaleTemp lhs, ScaleTemp rhs) =>
-            new Area(lhs.Value * rhs.Value);
-
         public static ScaleTemp operator *(ScaleTemp lhs, double rhs) =>
             lhs.Multiply(rhs);
 
