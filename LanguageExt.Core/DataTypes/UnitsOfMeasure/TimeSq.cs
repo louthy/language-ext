@@ -12,10 +12,8 @@ namespace LanguageExt.UnitsOfMeasure
     {
         readonly double Value;
 
-        internal TimeSq(double length)
-        {
-            Value = length;
-        }
+        internal TimeSq(double value) =>
+            Value = value;
 
         public override string ToString() =>
             Value + " s²";
@@ -29,8 +27,8 @@ namespace LanguageExt.UnitsOfMeasure
         public override bool Equals(object obj) =>
             obj == null
                 ? false
-                : obj is Length
-                    ? Equals((Length)obj)
+                : obj is TimeSq
+                    ? Equals((TimeSq)obj)
                     : false;
 
         public override int GetHashCode() =>

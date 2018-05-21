@@ -18,10 +18,8 @@ namespace LanguageExt.UnitsOfMeasure
     {
         readonly double Value;
 
-        internal Accel(double length)
-        {
-            Value = length;
-        }
+        internal Accel(double value) =>
+            Value = value;
 
         public override string ToString() =>
             Value + " m/s²";
@@ -35,8 +33,8 @@ namespace LanguageExt.UnitsOfMeasure
         public override bool Equals(object obj) =>
             obj == null
                 ? false
-                : obj is Length
-                    ? Equals((Length)obj)
+                : obj is Accel
+                    ? Equals((Accel)obj)
                     : false;
 
         public override int GetHashCode() =>

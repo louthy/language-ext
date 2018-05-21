@@ -178,5 +178,41 @@ namespace LanguageExtTests
             Assert.True(vel.MetresPerSecond == 49.0);
             Assert.True(len.Metres == 245.0);
         }
+
+        [Fact]
+        public void AccelObjectEquals_Both0_True() =>
+            AssertTypeObjectEquals<Accel>(0 * m / s / s);
+
+        [Fact]
+        public void AreaObjectEquals_Both0_True() =>
+            AssertTypeObjectEquals<Area>(0 * m * m);
+
+        [Fact]
+        public void LengthObjectEquals_Both0_True() =>
+            AssertTypeObjectEquals<Length>(0 * m);
+
+        [Fact]
+        public void TimeObjectEquals_Both0_True() =>
+            AssertTypeObjectEquals<Time>(0 * s);
+
+        [Fact]
+        public void TimeSqObjectEquals_Both0_True() =>
+            AssertTypeObjectEquals<TimeSq>(0 * s * s);
+
+        [Fact]
+        public void VelocityObjectEquals_Both0_True() =>
+            AssertTypeObjectEquals<Velocity>(0 * m / s);
+
+        [Fact]
+        public void VelocitySqObjectEquals_Both0_True() =>
+            AssertTypeObjectEquals<VelocitySq>((0 * m / s) * (0 * m / s));
+
+        private void AssertTypeObjectEquals<T>(T t)
+        {
+            object o1 = t;
+            object o2 = t;
+            Assert.True(o1.Equals(o2));
+        }
+
     }
 }

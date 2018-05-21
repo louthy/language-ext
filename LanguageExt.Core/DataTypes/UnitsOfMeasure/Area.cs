@@ -18,10 +18,8 @@ namespace LanguageExt.UnitsOfMeasure
     {
         readonly double Value;
 
-        internal Area(double length)
-        {
-            Value = length;
-        }
+        internal Area(double value) =>
+            Value = value;
 
         public override string ToString() =>
             Value + " m²";
@@ -35,8 +33,8 @@ namespace LanguageExt.UnitsOfMeasure
         public override bool Equals(object obj) =>
             obj == null
                 ? false
-                : obj is Length
-                    ? Equals((Length)obj)
+                : obj is Area
+                    ? Equals((Area)obj)
                     : false;
 
         public override int GetHashCode() =>

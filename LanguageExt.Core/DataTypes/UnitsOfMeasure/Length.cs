@@ -18,10 +18,8 @@ namespace LanguageExt.UnitsOfMeasure
     {
         readonly double Value;
 
-        internal Length(double length)
-        {
-            Value = length;
-        }
+        internal Length(double value) =>
+            Value = value;
 
         public override string ToString() =>
             Value + " m";
