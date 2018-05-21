@@ -89,14 +89,14 @@ namespace LanguageExtTests
             var mbStart = GC.GetTotalMemory(false) / 1048576L;
 
             Func<int, string> fn = x => x.ToString();
-            var m = fn.memo();
+            var m = fn.Memo();
 
-            range(0, Int32.MaxValue).Iter(i => m(i));
+            Range(0, Int32.MaxValue).Iter(i => m(i));
 
             var mbFinish = GC.GetTotalMemory(false) / 1048576L;
 
             Assert.True(mbFinish - mbStart < 30);
         }
-            */
+        */
     }
 }
