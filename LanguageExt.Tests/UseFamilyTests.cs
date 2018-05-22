@@ -239,6 +239,36 @@ namespace LanguageExt.Tests
         }
         #endregion
 
+        #region Disposable not Disposed too Early Tests
+        [Fact]
+        public async Task useDisposableMapToTask_CheckForEarlyDisposeCall_DisposeNotCalled()
+        {
+            var d = new FakeDisposable();
+            Func<FakeDisposable, Task<bool>> f = async fd => {
+                await Task.Yield();
+                return fd.DisposedCalled;
+            };
+
+            var disposeAlreadyCalled = await use(d, f);
+
+            Assert.False(disposeAlreadyCalled);
+        }
+
+        [Fact]
+        public async Task useFuncMapToTask_CheckForEarlyDisposeCall_DisposeNotCalled()
+        {
+            Func<FakeDisposable> m = () => new FakeDisposable();
+            Func<FakeDisposable, Task<bool>> f = async fd => {
+                await Task.Yield();
+                return fd.DisposedCalled;
+            };
+
+            var disposeAlreadyCalled = await use(m, f);
+
+            Assert.False(disposeAlreadyCalled);
+        }
+        #endregion
+
         private class FakeDisposable : IDisposable
         {
             public bool DisposedCalled { get; private set; }

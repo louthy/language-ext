@@ -30,16 +30,35 @@ namespace LanguageExt
         /// Use with Task in LINQ expressions to auto-clean up disposable items
         /// </summary>
         public static async Task<B> use<A, B>(Task<A> computation, Func<A, Task<B>> bind)
+            where A : IDisposable =>
+            await use(await computation.ConfigureAwait(false), bind).ConfigureAwait(false);
+
+        /// <summary>
+        /// Functional implementation of the using(...) { } pattern
+        /// </summary>
+        /// <param name="generator">Generator of disposable to use</param>
+        /// <param name="asyncMap">Inner map function that uses the disposable value</param>
+        /// <returns>Result of await asyncMap(generator())</returns>
+        public static Task<B> use<A, B>(Func<A> generator, Func<A, Task<B>> asyncMap)
+            where A : IDisposable =>
+            use(generator(), asyncMap);
+
+        /// <summary>
+        /// Functional implementation of the using(...) { } pattern
+        /// </summary>
+        /// <param name="disposable">Disposable to use</param>
+        /// <param name="asyncMap">Inner map function that uses the disposable value</param>
+        /// <returns>Result of await asyncMap(disposable)</returns>
+        public static async Task<B> use<A, B>(A disposable, Func<A, Task<B>> asyncMap)
             where A : IDisposable
         {
-            var a = await computation;
             try
             {
-                return await bind(a);
+                return await asyncMap(disposable).ConfigureAwait(false);
             }
             finally
             {
-                a?.Dispose();
+                disposable?.Dispose();
             }
         }
 
@@ -48,7 +67,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="generator">Disposable to use</param>
         /// <param name="f">Inner map function that uses the disposable value</param>
-        /// <returns>Result of f(disposable)</returns>
+        /// <returns>Result of f(generator())</returns>
         public static B use<A, B>(Func<A> generator, Func<A, B> f)
             where A : IDisposable =>
             use(generator(), f);
