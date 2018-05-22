@@ -110,19 +110,31 @@ namespace LanguageExt
         /// Lazily generate integers from any number of provided ranges
         /// </summary>
         [Pure]
-        public static IEnumerable<int> Range(params IEnumerable<int>[] ranges) =>
-            from range in ranges
-            from i in range
-            select i;
+        public static IEnumerable<int> Range(params IEnumerable<int>[] ranges)
+        {
+            foreach(var range in ranges)
+            {
+                foreach(var i in range)
+                {
+                    yield return i;
+                }
+            }
+        }
 
         /// <summary>
         /// Lazily generate chars from any number of provided ranges
         /// </summary>
         [Pure]
-        public static IEnumerable<char> Range(params IEnumerable<char>[] ranges) =>
-            from range in ranges
-            from c in range
-            select c;
+        public static IEnumerable<char> Range(params IEnumerable<char>[] ranges)
+        {
+            foreach(var range in ranges)
+            {
+                foreach(var c in range)
+                {
+                    yield return c;
+                }
+            }
+        }
 
         /// <summary>
         /// Create an immutable map
