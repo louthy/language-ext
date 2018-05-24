@@ -15,7 +15,7 @@ public static partial class TaskEitherAsyncExtensions
         new EitherAsync<L, R>(
             ma.Map(a => 
                 a.Match(r => new EitherData<L, R>(EitherStatus.IsRight, r,default(L)), 
-                        l => new EitherData<L, R>(EitherStatus.IsRight, default(R),l),
+                        l => new EitherData<L, R>(EitherStatus.IsLeft, default(R),l),
                         () => new EitherData<L, R>(EitherStatus.IsBottom, default(R), default(L)))));
 
     /// <summary>
