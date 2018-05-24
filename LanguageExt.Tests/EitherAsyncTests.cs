@@ -15,10 +15,7 @@ namespace LanguageExt.Tests
         {
             var eitherAsync = Left<Exception, Unit>(new Exception()).AsTask().ToAsync();
 
-            await eitherAsync.Match(
-                v => Assert.True(false), // should never happen
-                e => Assert.True(true)
-            );
+            Assert.True(await eitherAsync.IsLeft);
         }
     }
 }
