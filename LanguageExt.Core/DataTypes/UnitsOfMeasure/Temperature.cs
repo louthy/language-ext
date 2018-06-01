@@ -234,7 +234,7 @@ namespace LanguageExt.UnitsOfMeasure
     public struct UnitKelvin
     {
         readonly double Value;
-        public UnitKelvin(double value) => Value = value;
+        internal UnitKelvin(double value) => Value = value;
         public static Temperature operator *(double x, UnitKelvin u) => new UnitKelvin(x * u.Value);
         public static Temperature operator *(float x, UnitKelvin u) => new UnitKelvin(x * u.Value);
         public static Temperature operator *(int x, UnitKelvin u) => new UnitKelvin(x * u.Value);
@@ -244,7 +244,7 @@ namespace LanguageExt.UnitsOfMeasure
     public struct UnitFahrenheit
     {
         readonly double Value;
-        public UnitFahrenheit(double value) => Value = value;
+        internal UnitFahrenheit(double value) => Value = value;
         public static Temperature operator *(double x, UnitFahrenheit u) => new UnitFahrenheit(x * u.Value);
         public static Temperature operator *(float x, UnitFahrenheit u) => new UnitFahrenheit(x * u.Value);
         public static Temperature operator *(int x, UnitFahrenheit u) => new UnitFahrenheit(x * u.Value);
@@ -254,7 +254,7 @@ namespace LanguageExt.UnitsOfMeasure
     public struct UnitCelcius
     {
         readonly double Value;
-        public UnitCelcius(double value) => Value = value;
+        internal UnitCelcius(double value) => Value = value;
         public static Temperature operator *(double x, UnitCelcius u) => new UnitCelcius(x * u.Value);
         public static Temperature operator *(float x, UnitCelcius u) => new UnitCelcius(x * u.Value);
         public static Temperature operator *(int x, UnitCelcius u) => new UnitCelcius(x * u.Value);
