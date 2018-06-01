@@ -43,7 +43,7 @@ namespace LanguageExt.UnitsOfMeasure
         public int CompareTo(Time other) =>
             Value.CompareTo(other.Value);
 
-        public Time Append(Time rhs) =>
+        public Time Add(Time rhs) =>
             new Time(Value + rhs.Value);
 
         public Time Subtract(Time rhs) =>
@@ -73,7 +73,7 @@ namespace LanguageExt.UnitsOfMeasure
             lhs.Divide(rhs);
 
         public static Time operator +(Time lhs, Time rhs) =>
-            lhs.Append(rhs);
+            lhs.Add(rhs);
 
         public static DateTime operator +(DateTime lhs, Time rhs) =>
             lhs.AddSeconds(rhs.Seconds);

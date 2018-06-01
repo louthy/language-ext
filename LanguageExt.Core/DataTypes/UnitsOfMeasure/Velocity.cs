@@ -22,7 +22,7 @@ namespace LanguageExt.UnitsOfMeasure
             Value = value;
 
         public override string ToString() =>
-            Value + " m/s";
+             $"{Value} m/s";
 
         public bool Equals(Velocity other) =>
             Value.Equals(other.Value);
@@ -43,7 +43,7 @@ namespace LanguageExt.UnitsOfMeasure
         public int CompareTo(Velocity other) =>
             Value.CompareTo(other.Value);
 
-        public Velocity Append(Velocity rhs) =>
+        public Velocity Add(Velocity rhs) =>
             new Velocity(Value + rhs.Value);
 
         public Velocity Subtract(Velocity rhs) =>
@@ -76,7 +76,7 @@ namespace LanguageExt.UnitsOfMeasure
                 : raise<VelocitySq>(new NotSupportedException("Velocity can only be raised to the power of 2"));
 
         public static Velocity operator +(Velocity lhs, Velocity rhs) =>
-            lhs.Append(rhs);
+            lhs.Add(rhs);
 
         public static Velocity operator -(Velocity lhs, Velocity rhs) =>
             lhs.Subtract(rhs);

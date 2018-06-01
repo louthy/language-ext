@@ -37,7 +37,7 @@ namespace LanguageExt.UnitsOfMeasure
         public int CompareTo(TimeSq other) =>
             Value.CompareTo(other.Value);
 
-        public TimeSq Append(TimeSq rhs) =>
+        public TimeSq Add(TimeSq rhs) =>
             new TimeSq(Value + rhs.Value);
 
         public TimeSq Subtract(TimeSq rhs) =>
@@ -59,7 +59,7 @@ namespace LanguageExt.UnitsOfMeasure
             lhs.Divide(rhs);
 
         public static TimeSq operator +(TimeSq lhs, TimeSq rhs) =>
-            lhs.Append(rhs);
+            lhs.Add(rhs);
 
         public static TimeSq operator -(TimeSq lhs, TimeSq rhs) =>
             lhs.Subtract(rhs);

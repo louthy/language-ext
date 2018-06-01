@@ -43,7 +43,7 @@ namespace LanguageExt.UnitsOfMeasure
         public int CompareTo(Length other) =>
             Value.CompareTo(other.Value);
 
-        public Length Append(Length rhs) =>
+        public Length Add(Length rhs) =>
             new Length(Value + rhs.Value);
 
         public Length Subtract(Length rhs) =>
@@ -65,7 +65,7 @@ namespace LanguageExt.UnitsOfMeasure
             rhs.Multiply(lhs);
 
         public static Length operator +(Length lhs, Length rhs) =>
-            lhs.Append(rhs);
+            lhs.Add(rhs);
 
         public static Length operator -(Length lhs, Length rhs) =>
             lhs.Subtract(rhs);

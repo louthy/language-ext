@@ -490,5 +490,20 @@ namespace LanguageExt
         /// Metres per-second squared
         /// </summary>
         public static readonly Accel ms2 = m/s/s;
+
+        /// <summary>
+        /// Degrees Celcius
+        /// </summary>
+        public static readonly UnitCelcius degC = new UnitCelcius(1);
+
+        /// <summary>
+        /// Degrees Fahrenheit
+        /// </summary>
+        public static readonly UnitFahrenheit degF = new UnitFahrenheit(1);
+
+        /// <summary>
+        /// kelvin
+        /// </summary>
+        public static readonly UnitKelvin K = new UnitKelvin(1);
     }
 }

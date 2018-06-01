@@ -12,7 +12,7 @@
     <DefineConstants>COREFX13</DefineConstants>
   </PropertyGroup>-->
   <PropertyGroup>
-    <PackageVersion>3.0.2</PackageVersion>
+    <PackageVersion>3.0.3</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -30,10 +30,10 @@
     <FileVersion>3.0.0.0</FileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <LangVersion>7.1</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-    <LangVersion>7.1</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />
@@ -87,6 +87,7 @@
     <None Remove="DataTypes\Patch\PatchParams.cs" />
     <None Remove="DataTypes\SpanArray\SpanArray.cs" />
     <None Remove="DataTypes\Task\Task.Prelude.cs" />
+    <None Remove="DataTypes\UnitsOfMeasure\Temperature.cs" />
     <None Remove="HKT\Extensions\BindExtensions.Outer.AsyncSync.cs" />
     <None Remove="HKT\ExtraPrelude.cs" />
     <None Remove="TypeClasses\ChoiceUnsafeAsync\ChoiceUnsafeAsync.cs" />

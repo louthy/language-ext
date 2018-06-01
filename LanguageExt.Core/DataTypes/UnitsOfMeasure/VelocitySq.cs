@@ -38,7 +38,7 @@ namespace LanguageExt.UnitsOfMeasure
         public int CompareTo(VelocitySq other) =>
             Value.CompareTo(other.Value);
 
-        public VelocitySq Append(VelocitySq rhs) =>
+        public VelocitySq Add(VelocitySq rhs) =>
             new VelocitySq(Value + rhs.Value);
 
         public VelocitySq Subtract(VelocitySq rhs) =>
@@ -57,7 +57,7 @@ namespace LanguageExt.UnitsOfMeasure
             rhs.Multiply(lhs);
 
         public static VelocitySq operator +(VelocitySq lhs, VelocitySq rhs) =>
-            lhs.Append(rhs);
+            lhs.Add(rhs);
 
         public static VelocitySq operator -(VelocitySq lhs, VelocitySq rhs) =>
             lhs.Subtract(rhs);

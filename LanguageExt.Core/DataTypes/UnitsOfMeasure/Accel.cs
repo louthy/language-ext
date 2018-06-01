@@ -43,7 +43,7 @@ namespace LanguageExt.UnitsOfMeasure
         public int CompareTo(Accel other) =>
             Value.CompareTo(other.Value);
 
-        public Accel Append(Accel rhs) =>
+        public Accel Add(Accel rhs) =>
             new Accel(Value + rhs.Value);
 
         public Accel Subtract(Accel rhs) =>
@@ -80,7 +80,7 @@ namespace LanguageExt.UnitsOfMeasure
             new Length(rhs.Value * lhs.Seconds2);
 
         public static Accel operator +(Accel lhs, Accel rhs) =>
-            lhs.Append(rhs);
+            lhs.Add(rhs);
 
         public static Accel operator -(Accel lhs, Accel rhs) =>
             lhs.Subtract(rhs);

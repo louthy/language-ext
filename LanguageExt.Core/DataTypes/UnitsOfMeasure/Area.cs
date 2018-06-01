@@ -43,7 +43,7 @@ namespace LanguageExt.UnitsOfMeasure
         public int CompareTo(Area other) =>
             Value.CompareTo(other.Value);
 
-        public Area Append(Area rhs) =>
+        public Area Add(Area rhs) =>
             new Area(Value + rhs.Value);
 
         public Area Subtract(Area rhs) =>
@@ -65,7 +65,7 @@ namespace LanguageExt.UnitsOfMeasure
             lhs.Divide(rhs);
 
         public static Area operator +(Area lhs, Area rhs) =>
-            lhs.Append(rhs);
+            lhs.Add(rhs);
 
         public static Area operator -(Area lhs, Area rhs) =>
             lhs.Subtract(rhs);
