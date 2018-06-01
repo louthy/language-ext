@@ -494,16 +494,16 @@ namespace LanguageExt
         /// <summary>
         /// Degrees Celcius
         /// </summary>
-        public static readonly UnitCelcius degC = new UnitCelcius(1);
+        public static readonly Temperature degC = new Temperature(Temperature.UnitType.C, 1);
 
         /// <summary>
         /// Degrees Fahrenheit
         /// </summary>
-        public static readonly UnitFahrenheit degF = new UnitFahrenheit(1);
+        public static readonly Temperature degF = new Temperature(Temperature.UnitType.F, 1);
 
         /// <summary>
         /// kelvin
         /// </summary>
-        public static readonly UnitKelvin K = new UnitKelvin(1);
+        public static readonly Temperature K = new Temperature(Temperature.UnitType.K, 1);
     }
 }

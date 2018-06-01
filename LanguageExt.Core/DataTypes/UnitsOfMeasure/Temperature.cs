@@ -231,36 +231,6 @@ namespace LanguageExt.UnitsOfMeasure
           : throw new NotSupportedException(Type.ToString());
     }
 
-    public struct UnitKelvin
-    {
-        readonly double Value;
-        internal UnitKelvin(double value) => Value = value;
-        public static Temperature operator *(double x, UnitKelvin u) => new UnitKelvin(x * u.Value);
-        public static Temperature operator *(float x, UnitKelvin u) => new UnitKelvin(x * u.Value);
-        public static Temperature operator *(int x, UnitKelvin u) => new UnitKelvin(x * u.Value);
-        public static implicit operator Temperature(UnitKelvin k) => new Temperature(Temperature.UnitType.K, k.Value);
-    }
-
-    public struct UnitFahrenheit
-    {
-        readonly double Value;
-        internal UnitFahrenheit(double value) => Value = value;
-        public static Temperature operator *(double x, UnitFahrenheit u) => new UnitFahrenheit(x * u.Value);
-        public static Temperature operator *(float x, UnitFahrenheit u) => new UnitFahrenheit(x * u.Value);
-        public static Temperature operator *(int x, UnitFahrenheit u) => new UnitFahrenheit(x * u.Value);
-        public static implicit operator Temperature(UnitFahrenheit f) => new Temperature(Temperature.UnitType.F, f.Value);
-    }
-
-    public struct UnitCelcius
-    {
-        readonly double Value;
-        internal UnitCelcius(double value) => Value = value;
-        public static Temperature operator *(double x, UnitCelcius u) => new UnitCelcius(x * u.Value);
-        public static Temperature operator *(float x, UnitCelcius u) => new UnitCelcius(x * u.Value);
-        public static Temperature operator *(int x, UnitCelcius u) => new UnitCelcius(x * u.Value);
-        public static implicit operator Temperature(UnitCelcius c) => new Temperature(Temperature.UnitType.C, c.Value);
-    }
-
     public static class UnitsTemperatureExtensions
     {
         public static Temperature Celcius(this int self) =>
