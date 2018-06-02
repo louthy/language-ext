@@ -116,17 +116,17 @@ namespace LanguageExt.UnitsOfMeasure
         public Temperature Add(Temperature rhs) =>
             Type == UnitType.K ?
                 rhs.Type == UnitType.K ? new Temperature(UnitType.K, Value + rhs.Value)
-              : rhs.Type == UnitType.C ? new Temperature(UnitType.K, Value + rhs.Value)
-              : rhs.Type == UnitType.F ? new Temperature(UnitType.K, Value + (rhs.Value * 5.0 / 9.0))
+              : rhs.Type == UnitType.C ? new Temperature(UnitType.K, Value + CtoK(rhs.Value))
+              : rhs.Type == UnitType.F ? new Temperature(UnitType.K, Value + FtoK(rhs.Value))
               : throw new NotSupportedException(Type.ToString())
           : Type == UnitType.C ?
-                rhs.Type == UnitType.K ? new Temperature(UnitType.C, Value + rhs.Value)
+                rhs.Type == UnitType.K ? new Temperature(UnitType.C, Value + KtoC(rhs.Value))
               : rhs.Type == UnitType.C ? new Temperature(UnitType.C, Value + rhs.Value)
-              : rhs.Type == UnitType.F ? new Temperature(UnitType.C, Value + (rhs.Value * 5.0 / 9.0))
+              : rhs.Type == UnitType.F ? new Temperature(UnitType.C, Value + FtoC(rhs.Value))
               : throw new NotSupportedException(Type.ToString())
           : Type == UnitType.F ?
-                rhs.Type == UnitType.K ? new Temperature(UnitType.F, Value + (rhs.Value * 1.8))
-              : rhs.Type == UnitType.C ? new Temperature(UnitType.F, Value + (rhs.Value * 1.8))
+                rhs.Type == UnitType.K ? new Temperature(UnitType.F, Value + KtoF(rhs.Value))
+              : rhs.Type == UnitType.C ? new Temperature(UnitType.F, Value + CtoF(rhs.Value))
               : rhs.Type == UnitType.F ? new Temperature(UnitType.F, Value + rhs.Value)
               : throw new NotSupportedException(Type.ToString())
           : throw new NotSupportedException(Type.ToString()); 
@@ -134,17 +134,17 @@ namespace LanguageExt.UnitsOfMeasure
         public Temperature Subtract(Temperature rhs) =>
             Type == UnitType.K ?
                 rhs.Type == UnitType.K ? new Temperature(UnitType.K, Value - rhs.Value)
-              : rhs.Type == UnitType.C ? new Temperature(UnitType.K, Value - rhs.Value)
-              : rhs.Type == UnitType.F ? new Temperature(UnitType.K, Value - (rhs.Value * 5.0 / 9.0))
+              : rhs.Type == UnitType.C ? new Temperature(UnitType.K, Value - CtoK(rhs.Value))
+              : rhs.Type == UnitType.F ? new Temperature(UnitType.K, Value - FtoK(rhs.Value))
               : throw new NotSupportedException(Type.ToString())
           : Type == UnitType.C ?
-                rhs.Type == UnitType.K ? new Temperature(UnitType.C, Value - rhs.Value)
+                rhs.Type == UnitType.K ? new Temperature(UnitType.C, Value - KtoC(rhs.Value))
               : rhs.Type == UnitType.C ? new Temperature(UnitType.C, Value - rhs.Value)
-              : rhs.Type == UnitType.F ? new Temperature(UnitType.C, Value - (rhs.Value * 5.0 / 9.0))
+              : rhs.Type == UnitType.F ? new Temperature(UnitType.C, Value - FtoC(rhs.Value))
               : throw new NotSupportedException(Type.ToString())
           : Type == UnitType.F ?
-                rhs.Type == UnitType.K ? new Temperature(UnitType.F, Value - (rhs.Value * 1.8))
-              : rhs.Type == UnitType.C ? new Temperature(UnitType.F, Value - (rhs.Value * 1.8))
+                rhs.Type == UnitType.K ? new Temperature(UnitType.F, Value - KtoF(rhs.Value))
+              : rhs.Type == UnitType.C ? new Temperature(UnitType.F, Value - CtoF(rhs.Value))
               : rhs.Type == UnitType.F ? new Temperature(UnitType.F, Value - rhs.Value)
               : throw new NotSupportedException(Type.ToString())
           : throw new NotSupportedException(Type.ToString());
