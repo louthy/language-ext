@@ -7,7 +7,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
-        <PackageVersion>3.0.6</PackageVersion>
+        <PackageVersion>3.0.7</PackageVersion>
         <PackageId>LanguageExt.Rx</PackageId>
         <Title>LanguageExt.Rx</Title>
         <Authors>Paul Louth</Authors>
@@ -59,7 +59,7 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-        <PackageReference Include="System.Reactive" Version="*" />
+        <PackageReference Include="System.Reactive" Version="4.0.0" allowedVersions="[2,10]" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
