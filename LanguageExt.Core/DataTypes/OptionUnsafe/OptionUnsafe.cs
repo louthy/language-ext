@@ -147,6 +147,17 @@ namespace LanguageExt
         public static implicit operator OptionUnsafe<A>(OptionNone a) =>
             None;
 
+
+        /// <summary>
+        /// Implicit conversion operator from `Option<A>` to `A1
+        /// </summary>
+        /// <param name="a">None value</param>
+        [Pure]
+        public static explicit operator A(OptionUnsafe<A> ma) =>
+            ma.IsSome
+                ? ma.Value
+                : throw new InvalidCastException("OptionNone is not in a Some state");
+
         /// <summary>
         /// Comparison operator
         /// </summary>

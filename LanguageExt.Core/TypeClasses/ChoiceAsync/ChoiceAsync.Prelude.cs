@@ -6,7 +6,6 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Threading.Tasks;
-using System.Reactive.Linq;
 using LanguageExt.DataTypes.Serialisation;
 
 namespace LanguageExt

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
 using System.Threading.Tasks;
-using System.Reactive.Linq;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
 
@@ -59,32 +58,6 @@ namespace LanguageExt
             self.HasValue
                 ? await Some(self.Value)
                 : await None();
-
-        /// <summary>
-        /// Match the two states of the Nullable and return an observable stream of Rs.
-        /// </summary>
-        /// <typeparam name="R">Return type</typeparam>
-        /// <param name="Some">Some handler</param>
-        /// <param name="None">None handler</param>
-        /// <returns>A stream of Rs</returns>
-        [Pure]
-        public static IObservable<R> matchObservable<T, R>(T? self, Func<T, IObservable<R>> Some, Func<R> None) where T : struct =>
-            self.HasValue
-                ? Some(self.Value)
-                : Observable.Return(None());
-
-        /// <summary>
-        /// Match the two states of the Nullable and return an observable stream of Rs.
-        /// </summary>
-        /// <typeparam name="R">Return type</typeparam>
-        /// <param name="Some">Some handler</param>
-        /// <param name="None">None handler</param>
-        /// <returns>A stream of Rs</returns>
-        [Pure]
-        public static IObservable<R> matchObservable<T, R>(T? self, Func<T, IObservable<R>> Some, Func<IObservable<R>> None) where T : struct =>
-            self.HasValue
-                ? Some(self.Value)
-                : None();
 
         /// <summary>
         /// Match the two states of the Nullable T
@@ -442,15 +415,5 @@ namespace LanguageExt
         [Pure]
         public static int sum(int? self) =>
             self ?? 0;
-
-        /// <summary>
-        /// Match the two states of the IObservable&lt;Nullable&lt;T&gt;&gt; and return a stream of non-null Rs.
-        /// </summary>
-        /// <typeparam name="R">Return type</typeparam>
-        /// <param name="Some">Some handler</param>
-        /// <param name="None">None handler</param>
-        /// <returns>A stream of Rs</returns>
-        public static IObservable<R> matchObservable<T, R>(IObservable<T?> self, Func<T, R> Some, Func<R> None) where T : struct =>
-            self.Select(nullable => nullable.Match(Some, None));
     }
 }

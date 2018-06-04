@@ -324,20 +324,6 @@ namespace LanguageExt
             matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), LeftAsync, RightAsync);
 
         /// <summary>
-        /// Match the two states of the Either and return an observable stream of non-null R2s.
-        /// </summary>
-        [Pure]
-        public IObservable<R2> MatchObservable<R2>(Func<R, IObservable<R2>> Right, Func<L, R2> Left) =>
-            matchObservable<MEither<L, R>, Either<L, R>, L, R, R2>(this, Left, Right);
-
-        /// <summary>
-        /// Match the two states of the Either and return an observable stream of non-null R2s.
-        /// </summary>
-        [Pure]
-        public IObservable<R2> MatchObservable<R2>(Func<R, IObservable<R2>> Right, Func<L, IObservable<R2>> Left) =>
-            matchObservable<MEither<L, R>, Either<L, R>, L, R, R2>(this, Left, Right);
-
-        /// <summary>
         /// Executes the Left function if the Either is in a Left state.
         /// Returns the Right value if the Either is in a Right state.
         /// </summary>

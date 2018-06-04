@@ -235,21 +235,6 @@ namespace LanguageExt
             await Match(SuccAsync, FailAsync);
 
         /// <summary>
-        /// Match the two states of the Validation and return an observable stream of non-null R2s.
-        /// </summary>
-        [Pure]
-        public IObservable<R2> MatchObservable<R2>(Func<SUCCESS, IObservable<R2>> Succ, Func<Seq<FAIL>, R2> Fail) =>
-            matchObservable<FoldValidation<FAIL, SUCCESS>, Validation<FAIL, SUCCESS>, Seq<FAIL>, SUCCESS, R2>(this, Fail, Succ);
-
-        /// <summary>
-        /// Match the two states of the Validation and return an observable stream of non-null R2s.
-        /// </summary>
-        [Pure]
-        public IObservable<R2> MatchObservable<R2>(Func<SUCCESS, IObservable<R2>> Succ, Func<Seq<FAIL>, IObservable<R2>> Fail) =>
-            matchObservable<FoldValidation<FAIL, SUCCESS>, Validation<FAIL, SUCCESS>, Seq<FAIL>, SUCCESS, R2>(this, Fail, Succ);
-
-
-        /// <summary>
         /// Executes the Fail function if the Validation is in a Fail state.
         /// Returns the Success value if the Validation is in a Success state.
         /// </summary>

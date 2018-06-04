@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+    <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
+        <DefineConstants>TRACE;DEBUG</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Label="Configuration">
+        <NoWarn>1701;1702;1705;IDE1006</NoWarn>
+    </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
+        <PackageVersion>3.0.5</PackageVersion>
+        <PackageId>LanguageExt.Rx</PackageId>
+        <Title>LanguageExt.Rx</Title>
+        <Authors>Paul Louth</Authors>
+        <Summary>Functional language extensions for C#</Summary>
+        <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
+        <Description>Support for Reactive Extensions overloads for various types in the LanguageExt.Core</Description>
+        <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
+        <PackageIconUrl>https://camo.githubusercontent.com/08525ae465a9061150679d871731e77b399c2a94/687474703a2f2f7777772e34666f75722e6f72672f696d616765732f6c616e672d6578742d6c6f676f2e706e67</PackageIconUrl>
+        <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <OutputType>library</OutputType>
+        <AssemblyVersion>3.0.0.0</AssemblyVersion>
+        <FileVersion>3.0.0.0</FileVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+        <LangVersion>7.1</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+        <LangVersion>7.1</LangVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="**\*.cs" />
+        <EmbeddedResource Include="**\*.resx" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Remove="obj\**" />
+        <EmbeddedResource Remove="obj\**" />
+        <None Remove="obj\**" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="EitherUnsafe.Extensions.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Remove="Cast.cs" />
+      <None Remove="Check.cs" />
+      <None Remove="Either.Extensions.cs" />
+      <None Remove="Nullable.Extensions.cs" />
+      <None Remove="Option.Extensions.cs" />
+      <None Remove="OptionUnsafe.Extensions.cs" />
+      <None Remove="PreludeRx.cs" />
+      <None Remove="Task.Try.Extensions.cs" />
+      <None Remove="Try.Extensions.cs" />
+      <None Remove="TryAsync.Extensions.cs" />
+      <None Remove="TryOption.Extensions.cs" />
+      <None Remove="TryOptionAsync.Extensions.cs" />
+      <None Remove="Validation.Extensions.cs" />
+      <None Remove="ValidationSeq.Extensions.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+        <PackageReference Include="System.Reactive" Version="*" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
+    </ItemGroup>
+</Project>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reactive.Linq;
 using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -275,32 +274,6 @@ public static class OptionUnsafeExtensions
         ma.IsSome
             ? await Some(ma.Value)
             : await None();
-
-    /// <summary>
-    /// Match the two states of the OptionUnsafe and return an observable stream of non-null Rs.
-    /// </summary>
-    /// <typeparam name="B">Return type</typeparam>
-    /// <param name="Some">Some handler.  Must not return null.</param>
-    /// <param name="None">None handler.  Must not return null.</param>
-    /// <returns>A stream of non-null Rs</returns>
-    [Pure]
-    public static IObservable<B> MatchObservable<A, B>(this OptionUnsafe<A> ma, Func<A, IObservable<B>> Some, Func<B> None) =>
-        ma.IsSome
-            ? Some(ma.Value)
-            : Observable.Return(None());
-
-    /// <summary>
-    /// Match the two states of the OptionUnsafe and return an observable stream of non-null Rs.
-    /// </summary>
-    /// <typeparam name="B">Return type</typeparam>
-    /// <param name="Some">Some handler.  Must not return null.</param>
-    /// <param name="None">None handler.  Must not return null.</param>
-    /// <returns>A stream of non-null Rs</returns>
-    [Pure]
-    public static IObservable<B> MatchObservable<A, B>(this OptionUnsafe<A> ma, Func<A, IObservable<B>> Some, Func<IObservable<B>> None) =>
-        ma.IsSome
-            ? Some(ma.Value)
-            : None();
 
     /// <summary>
     /// Sum the bound value

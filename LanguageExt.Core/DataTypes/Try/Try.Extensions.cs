@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Reactive.Linq;
 using LanguageExt;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
@@ -185,45 +184,6 @@ public static class TryExtensions
 
         return Unit.Default;
     }
-
-    /// <summary>
-    /// Turns the computation into an observable stream
-    /// </summary>
-    /// <typeparam name="A">Bound type</typeparam>
-    /// <typeparam name="R">Returned observable bound type</typeparam>
-    /// <param name="self">This</param>
-    /// <param name="Succ">Function to call when the operation succeeds</param>
-    /// <param name="Fail">Function to call when the operation fails</param>
-    /// <returns>An observable that represents the result of Succ or Fail</returns>
-    [Pure]
-    public static IObservable<R> MatchObservable<A, R>(this Try<A> self, Func<A, IObservable<R>> Succ, Func<Exception, R> Fail) =>
-        self.ToAsync().MatchObservable(Succ, Fail);
-
-    /// <summary>
-    /// Turns the computation into an observable stream
-    /// </summary>
-    /// <typeparam name="A">Bound type</typeparam>
-    /// <typeparam name="R">Returned observable bound type</typeparam>
-    /// <param name="self">This</param>
-    /// <param name="Succ">Function to call when the operation succeeds</param>
-    /// <param name="Fail">Function to call when the operation fails</param>
-    /// <returns>An observable that represents the result of Succ or Fail</returns>
-    [Pure]
-    public static IObservable<R> MatchObservable<A, R>(this Try<A> self, Func<A, IObservable<R>> Succ, Func<Exception, IObservable<R>> Fail) =>
-        self.ToAsync().MatchObservable(Succ, Fail);
-
-    /// <summary>
-    /// Turns the computation into an observable stream
-    /// </summary>
-    /// <typeparam name="A">Bound type</typeparam>
-    /// <typeparam name="R">Returned observable bound type</typeparam>
-    /// <param name="self">This</param>
-    /// <param name="Succ">Function to call when the operation succeeds</param>
-    /// <param name="Fail">Function to call when the operation fails</param>
-    /// <returns>An observable that represents the result of Succ or Fail</returns>
-    [Pure]
-    public static IObservable<R> MatchObservable<A, R>(this Try<A> self, Func<A, R> Succ, Func<Exception, IObservable<R>> Fail) =>
-        self.ToAsync().MatchObservable(Succ, Fail);
 
     [Pure]
     public static Option<A> ToOption<A>(this Try<A> self)
@@ -576,48 +536,6 @@ public static class TryExtensions
     [Pure]
     public static int Sum(this Try<int> self) =>
         self.Try().Value;
-
-    public static IObservable<R> MatchObservable<T, R>(this IObservable<Try<T>> self, Func<T, R> Succ, Func<Exception, R> Fail) =>
-        self.Select(trySelf =>
-        {
-            var res = trySelf.Try();
-            return res.IsFaulted
-                ? Fail(res.Exception)
-                : Succ(res.Value);
-        });
-
-    public static IObservable<R> MatchObservable<T, R>(this IObservable<Try<T>> self, Func<T, IObservable<R>> Succ, Func<Exception, R> Fail) =>
-        from tt in self.Select(trySelf =>
-        {
-            var res = trySelf.Try();
-            return res.IsFaulted
-                ? Observable.Return(Fail(res.Exception))
-                : Succ(res.Value);
-        })
-        from t in tt
-        select t;
-
-    public static IObservable<R> MatchObservable<T, R>(this IObservable<Try<T>> self, Func<T, IObservable<R>> Succ, Func<Exception, IObservable<R>> Fail) =>
-        from tt in self.Select(trySelf =>
-        {
-            var res = trySelf.Try();
-            return res.IsFaulted
-                ? Fail(res.Exception)
-                : Succ(res.Value);
-        })
-        from t in tt
-        select t;
-
-    public static IObservable<R> MatchObservable<T, R>(this IObservable<Try<T>> self, Func<T, R> Succ, Func<Exception, IObservable<R>> Fail) =>
-        from tt in self.Select(trySelf =>
-        {
-            var res = trySelf.Try();
-            return res.IsFaulted
-                ? Fail(res.Exception)
-                : Observable.Return(Succ(res.Value));
-        })
-        from t in tt
-        select t;
 
     [Pure]
     public static Try<T> Flatten<T>(this Try<Try<T>> self) =>

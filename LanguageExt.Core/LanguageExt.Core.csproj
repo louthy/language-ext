@@ -12,7 +12,7 @@
     <DefineConstants>COREFX13</DefineConstants>
   </PropertyGroup>-->
   <PropertyGroup>
-    <PackageVersion>3.0.3</PackageVersion>
+    <PackageVersion>3.0.5</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -45,64 +45,6 @@
     <None Remove="obj\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="ClassInstances\Applicative\ApplOptionalUnsafe.cs" />
-    <None Remove="ClassInstances\Eq\EqChoiceUnsafe.cs" />
-    <None Remove="ClassInstances\Eq\EqCompositions.cs" />
-    <None Remove="ClassInstances\Eq\EqEdit.cs" />
-    <None Remove="ClassInstances\Eq\EqMap.cs" />
-    <None Remove="ClassInstances\Eq\EqOption.cs" />
-    <None Remove="ClassInstances\Eq\EqOptionalAsync.cs" />
-    <None Remove="ClassInstances\Eq\EqOptionalUnsafe.cs" />
-    <None Remove="ClassInstances\Eq\EqOptionAsync.cs" />
-    <None Remove="ClassInstances\Eq\EqOptionUnsafe.cs" />
-    <None Remove="ClassInstances\Eq\EqPatch.cs" />
-    <None Remove="ClassInstances\Eq\EqResult.cs" />
-    <None Remove="ClassInstances\Eq\EqTaskAsync.cs" />
-    <None Remove="ClassInstances\Eq\EqTryAsync.cs" />
-    <None Remove="ClassInstances\Eq\EqTryOptionAsync.cs" />
-    <None Remove="ClassInstances\Foldable\FoldCompositions.cs" />
-    <None Remove="ClassInstances\Functor\FOptionalUnsafe.cs" />
-    <None Remove="ClassInstances\Monad\MTaskFirst.cs" />
-    <None Remove="ClassInstances\Monad\MTryFirstAsync.cs" />
-    <None Remove="ClassInstances\Monad\MTryOptionFirstAsync.cs" />
-    <None Remove="ClassInstances\Monoid\MCompositions.cs" />
-    <None Remove="ClassInstances\Monoid\MPatch.cs" />
-    <None Remove="ClassInstances\Ord\OrdChoiceUnsafe.cs" />
-    <None Remove="ClassInstances\Ord\OrdOption.cs" />
-    <None Remove="ClassInstances\Ord\OrdOptionalUnsafe.cs" />
-    <None Remove="ClassInstances\Ord\OrdOptionUnsafe.cs" />
-    <None Remove="ClassInstances\Ord\OrdResult.cs" />
-    <None Remove="ClassInstances\Ord\OrdTupleFirst.cs" />
-    <None Remove="DataTypes\Compositions\Compositions.cs" />
-    <None Remove="DataTypes\Compositions\Compositions.Extensions.cs" />
-    <None Remove="DataTypes\Compositions\Compositions.Module.cs" />
-    <None Remove="DataTypes\Either-Shared\EitherLeft.cs" />
-    <None Remove="DataTypes\Either-Shared\EitherRight.cs" />
-    <None Remove="DataTypes\Either-Shared\EitherRightAndLeft.Extensions.cs" />
-    <None Remove="DataTypes\Either\Task.Either.Extensions.cs" />
-    <None Remove="DataTypes\Patch\Edit.cs" />
-    <None Remove="DataTypes\Patch\Patch.cs" />
-    <None Remove="DataTypes\Patch\Patch.Internal.cs" />
-    <None Remove="DataTypes\Patch\Patch.Module.cs" />
-    <None Remove="DataTypes\Patch\PatchParams.cs" />
-    <None Remove="DataTypes\SpanArray\SpanArray.cs" />
-    <None Remove="DataTypes\Task\Task.Prelude.cs" />
-    <None Remove="DataTypes\UnitsOfMeasure\Temperature.cs" />
-    <None Remove="HKT\Extensions\BindExtensions.Outer.AsyncSync.cs" />
-    <None Remove="HKT\ExtraPrelude.cs" />
-    <None Remove="TypeClasses\ChoiceUnsafeAsync\ChoiceUnsafeAsync.cs" />
-    <None Remove="TypeClasses\ChoiceUnsafeAsync\ChoiceUnsafeAsync.Prelude.cs" />
-    <None Remove="TypeClasses\ChoiceUnsafe\ChoiceUnsafe.cs" />
-    <None Remove="TypeClasses\ChoiceUnsafe\ChoiceUnsafe.Prelude.cs" />
-    <None Remove="TypeClasses\EqAsync\EqAsync.cs" />
-    <None Remove="TypeClasses\EqAsync\EqAsync.Prelude.cs" />
-    <None Remove="TypeClasses\OptionalUnsafeAsync\OptionalUnsafeAsync.cs" />
-    <None Remove="TypeClasses\OptionalUnsafeAsync\OptionalUnsafeAsync.Prelude.cs" />
-    <None Remove="TypeClasses\OptionalUnsafe\OptionalUnsafe.cs" />
-    <None Remove="TypeClasses\OptionalUnsafe\OptionalUnsafe.Prelude.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Reactive" Version="3.1.1" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
   </ItemGroup>

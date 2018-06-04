@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reactive.Linq;
 using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -252,32 +251,6 @@ public static class OptionExtensions
         match(list, Some, () => None);
 
     /// <summary>
-    /// Match the two states of the Option and return an observable stream of non-null Rs.
-    /// </summary>
-    /// <typeparam name="B">Return type</typeparam>
-    /// <param name="Some">Some handler.  Must not return null.</param>
-    /// <param name="None">None handler.  Must not return null.</param>
-    /// <returns>A stream of non-null Rs</returns>
-    [Pure]
-    public static IObservable<B> MatchObservable<A, B>(this Option<A> ma, Func<A, IObservable<B>> Some, Func<B> None) =>
-        ma.IsSome
-            ? Some(ma.Value).Select(CheckNullSomeReturn)
-            : Observable.Return(CheckNullNoneReturn(None()));
-
-    /// <summary>
-    /// Match the two states of the Option and return an observable stream of non-null Rs.
-    /// </summary>
-    /// <typeparam name="B">Return type</typeparam>
-    /// <param name="Some">Some handler.  Must not return null.</param>
-    /// <param name="None">None handler.  Must not return null.</param>
-    /// <returns>A stream of non-null Rs</returns>
-    [Pure]
-    public static IObservable<B> MatchObservable<A, B>(this Option<A> ma, Func<A, IObservable<B>> Some, Func<IObservable<B>> None) =>
-        ma.IsSome
-            ? Some(ma.Value).Select(CheckNullSomeReturn)
-            : None().Select(CheckNullNoneReturn);
-
-    /// <summary>
     /// Sum the bound value
     /// </summary>
     /// <remarks>This is a legacy method for backwards compatibility</remarks>
@@ -299,7 +272,7 @@ public static class OptionExtensions
     [Pure]
     internal static U CheckNullReturn<U>(U value, string location) =>
         isnull(value)
-            ? raise<U>(new ResultIsNullException($"'{location}' result is null.  Not allowed."))
+            ? throw new ResultIsNullException($"'{location}' result is null.  Not allowed.")
             : value;
 
     [Pure]

@@ -1,7 +1,8 @@
 ﻿using LanguageExt;
 using static LanguageExt.Prelude;
+using static LanguageExt.PreludeRx;
+using System.Reactive;
 using System;
-using System.Reactive.Linq;
 using System.Threading;
 
 using Xunit;

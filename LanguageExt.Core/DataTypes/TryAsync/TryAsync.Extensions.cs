@@ -5,8 +5,6 @@ using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
-using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
@@ -355,51 +353,6 @@ public static class TryAsyncExtensions
 
         return unit;
     }
-
-    /// <summary>
-    /// Turns the computation into an observable stream
-    /// </summary>
-    /// <typeparam name="A">Bound type</typeparam>
-    /// <typeparam name="B">Returned observable bound type</typeparam>
-    /// <param name="self">This</param>
-    /// <param name="Succ">Function to call when the operation succeeds</param>
-    /// <param name="Fail">Function to call when the operation fails</param>
-    /// <returns>An observable that represents the result of Succ or Fail</returns>
-    public static IObservable<B> MatchObservable<A, B>(this TryAsync<A> self, Func<A, IObservable<B>> Succ, Func<Exception, B> Fail) =>
-        self.Try().ToObservable().SelectMany(
-            a => a.IsFaulted
-                ? Observable.Return(Fail(a.Exception))
-                : Succ(a.Value));
-
-    /// <summary>
-    /// Turns the computation into an observable stream
-    /// </summary>
-    /// <typeparam name="A">Bound type</typeparam>
-    /// <typeparam name="R">Returned observable bound type</typeparam>
-    /// <param name="self">This</param>
-    /// <param name="Succ">Function to call when the operation succeeds</param>
-    /// <param name="Fail">Function to call when the operation fails</param>
-    /// <returns>An observable that represents the result of Succ or Fail</returns>
-    public static IObservable<R> MatchObservable<A, R>(this TryAsync<A> self, Func<A, IObservable<R>> Succ, Func<Exception, IObservable<R>> Fail) =>
-        self.Try().ToObservable().SelectMany(
-            a => a.IsFaulted
-                ? Fail(a.Exception)
-                : Succ(a.Value));
-
-    /// <summary>
-    /// Turns the computation into an observable stream
-    /// </summary>
-    /// <typeparam name="A">Bound type</typeparam>
-    /// <typeparam name="R">Returned observable bound type</typeparam>
-    /// <param name="self">This</param>
-    /// <param name="Succ">Function to call when the operation succeeds</param>
-    /// <param name="Fail">Function to call when the operation fails</param>
-    /// <returns>An observable that represents the result of Succ or Fail</returns>
-    public static IObservable<R> MatchObservable<A, R>(this TryAsync<A> self, Func<A, R> Succ, Func<Exception, IObservable<R>> Fail) =>
-        self.Try().ToObservable().SelectMany(
-            a => a.IsFaulted
-                ? Fail(a.Exception)
-                : Observable.Return(Succ(a.Value)));
 
 
     [Pure]

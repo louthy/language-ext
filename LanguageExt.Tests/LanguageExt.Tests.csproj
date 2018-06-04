@@ -15,7 +15,8 @@
     <None Remove="LanguageExt.Tests.project.lock.json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+      <PackageReference Include="System.Reactive" Version="*" />
+      <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Nito.AsyncEx.Core" Version="1.0.0-rc2-001" />
     <PackageReference Include="System.Net.Http" Version="4.3.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.0-preview-20171211-02" />
@@ -29,6 +30,7 @@
     <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
     <ProjectReference Include="..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
     <ProjectReference Include="..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />
+    <ProjectReference Include="..\LanguageExt.Rx\LanguageExt.Rx.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />

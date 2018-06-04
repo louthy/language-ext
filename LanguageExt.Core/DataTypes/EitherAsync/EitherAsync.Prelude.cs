@@ -4,7 +4,6 @@ using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
-using System.Reactive.Linq;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;

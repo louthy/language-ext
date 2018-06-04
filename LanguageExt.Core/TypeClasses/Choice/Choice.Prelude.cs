@@ -6,7 +6,6 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Threading.Tasks;
-using System.Reactive.Linq;
 
 namespace LanguageExt
 {
@@ -114,20 +113,6 @@ namespace LanguageExt
                     Left: _ => Option<B>.None,
                     Right:      Option<B>.Some,
                     Bottom: () => Option<B>.None);
-
-        [Pure]
-        public static IObservable<R> matchObservable<CHOICE, CH, A, B, R>(CH ma, Func<A, R> Left, Func<B, IObservable<R>> Right)
-            where CHOICE : struct, Choice<CH, A, B> =>
-            default(CHOICE).Match(ma,
-                Left: a => Observable.Return(Left(a)),
-                Right: b => Right(b));
-
-        [Pure]
-        public static IObservable<R> matchObservable<CHOICE, CH, A, B, R>(CH ma, Func<A, IObservable<R>> Left, Func<B, IObservable<R>> Right)
-            where CHOICE : struct, Choice<CH, A, B> =>
-            default(CHOICE).Match(ma,
-                Left: a => Left(a),
-                Right: b => Right(b));
 
         [Pure]
         public static B ifLeft<CHOICE, CH, A, B>(CH ma, Func<B> Left)

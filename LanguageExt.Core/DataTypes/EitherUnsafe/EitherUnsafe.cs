@@ -5,7 +5,6 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using static LanguageExt.ChoiceUnsafe;
-using System.Reactive.Linq;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
@@ -246,20 +245,6 @@ namespace LanguageExt
         /// <exception cref="BottomException">Thrown if matching on an EitherUnsafe in a bottom state</exception>
         public Unit MatchUnsafe(Action<R> Right, Action<L> Left, Action Bottom = null) =>
             MEitherUnsafe<L, R>.Inst.Match(this, Left, Right, Bottom);
-
-        /// <summary>
-        /// Match the two states of the EitherUnsafe and return an observable stream of non-null R2s.
-        /// </summary>
-        [Pure]
-        public IObservable<R2> MatchObservableUnsafe<R2>(Func<R, IObservable<R2>> Right, Func<L, R2> Left) =>
-            matchObservableUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(this, Left, Right);
-
-        /// <summary>
-        /// Match the two states of the EitherUnsafe and return an observable stream of non-null R2s.
-        /// </summary>
-        [Pure]
-        public IObservable<R2> MatchObservableUnsafe<R2>(Func<R, IObservable<R2>> Right, Func<L, IObservable<R2>> Left) =>
-            matchObservableUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(this, Left, Right);
 
         /// <summary>
         /// Executes the Left function if the EitherUnsafe is in a Left state.

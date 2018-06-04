@@ -5,7 +5,6 @@ using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
-using System.Reactive.Linq;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using System.ComponentModel;
@@ -264,60 +263,6 @@ public static class TryOptionExtensions
             Some(res.Value.Value);
 
         return Unit.Default;
-    }
-
-    public static IObservable<R> MatchObservable<A, R>(this TryOption<A> self, Func<A, IObservable<R>> Some, Func<R> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return res.IsFaulted || res.Value.IsNone
-            ? Observable.Return(Fail())
-            : Some(res.Value.Value);
-    }
-
-    public static IObservable<R> MatchObservable<A, R>(this TryOption<A> self, Func<A, IObservable<R>> Some, Func<R> None, Func<Exception, R> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return res.IsFaulted
-            ? Observable.Return(Fail(res.Exception))
-            : res.Value.IsSome
-                ? Some(res.Value.Value)
-                : Observable.Return(None());
-    }
-
-    public static IObservable<R> MatchObservable<A, R>(this TryOption<A> self, Func<A, IObservable<R>> Some, Func<IObservable<R>> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return res.IsFaulted || res.Value.IsNone
-            ? Fail()
-            : Some(res.Value.Value);
-    }
-
-    public static IObservable<R> MatchObservable<A, R>(this TryOption<A> self, Func<A, IObservable<R>> Some, Func<IObservable<R>> None, Func<Exception, IObservable<R>> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return res.IsFaulted
-            ? Fail(res.Exception)
-            : res.Value.IsSome
-                ? Some(res.Value.Value)
-                : None();
-    }
-
-    public static IObservable<R> MatchObservable<A, R>(this TryOption<A> self, Func<A, R> Some, Func<IObservable<R>> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return res.IsFaulted || res.Value.IsNone
-            ? Fail()
-            : Observable.Return(Some(res.Value.Value));
-    }
-
-    public static IObservable<R> MatchObservable<A, R>(this TryOption<A> self, Func<A, R> Some, Func<IObservable<R>> None, Func<Exception, IObservable<R>> Fail)
-    {
-        var res = TryOptionExtensions.Try(self);
-        return res.IsFaulted
-            ? Fail(res.Exception)
-            : res.Value.IsSome
-                ? Observable.Return(Some(res.Value.Value))
-                : None();
     }
 
     [Pure]
@@ -823,98 +768,6 @@ public static class TryOptionExtensions
         })
         from t in tt
         select t);
-
-    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, R> Some, Func<R> Fail) =>
-        self.Select(trySelf =>
-        {
-            var res = trySelf.Try();
-            return res.IsFaulted || res.Value.IsNone
-                ? Fail()
-                : Some(res.Value.Value);
-        });
-
-    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, IObservable<R>> Some, Func<R> Fail) =>
-        from tt in self.Select(trySelf =>
-        {
-            var res = trySelf.Try();
-            return res.IsFaulted || res.Value.IsNone
-                ? Observable.Return(Fail())
-                : Some(res.Value.Value);
-        })
-        from t in tt
-        select t;
-
-    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, IObservable<R>> Some, Func<IObservable<R>> Fail) =>
-        from tt in self.Select(trySelf =>
-        {
-            var res = trySelf.Try();
-            return res.IsFaulted || res.Value.IsNone
-                ? Fail()
-                : Some(res.Value.Value);
-        })
-        from t in tt
-        select t;
-
-    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, R> Some, Func<IObservable<R>> Fail) =>
-        from tt in self.Select(trySelf =>
-        {
-            var res = trySelf.Try();
-            return res.IsFaulted || res.Value.IsNone
-                ? Fail()
-                : Observable.Return(Some(res.Value.Value));
-        })
-        from t in tt
-        select t;
-
-    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, R> Some, Func<R> None, Func<Exception, R> Fail) =>
-        self.Select(trySelf =>
-        {
-            var res = trySelf.Try();
-            return res.IsFaulted
-                ? Fail(res.Exception)
-                : res.Value.IsSome 
-                    ? Some(res.Value.Value)
-                    : None();
-        });
-
-    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, IObservable<R>> Some, Func<R> None, Func<Exception, R> Fail) =>
-        from tt in self.Select(trySelf =>
-        {
-            var res = trySelf.Try();
-            return res.IsFaulted
-                ? Observable.Return(Fail(res.Exception))
-                : res.Value.IsSome 
-                    ? Some(res.Value.Value)
-                    : Observable.Return(None());
-        })
-        from t in tt
-        select t;
-
-    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, IObservable<R>> Some, Func<IObservable<R>> None, Func<Exception, IObservable<R>> Fail) =>
-        from tt in self.Select(trySelf =>
-        {
-            var res = trySelf.Try();
-            return res.IsFaulted
-                ? Fail(res.Exception)
-                : res.Value.IsSome 
-                    ? Some(res.Value.Value)
-                    : None();
-        })
-        from t in tt
-        select t;
-
-    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, R> Some, Func<IObservable<R>> None, Func<Exception, IObservable<R>> Fail) =>
-        from tt in self.Select(trySelf =>
-        {
-            var res = trySelf.Try();
-            return res.IsFaulted
-                ? Fail(res.Exception)
-                : res.Value.IsSome 
-                    ? Observable.Return(Some(res.Value.Value))
-                    : None();
-        })
-        from t in tt
-        select t;
 
     [Pure]
     public static TryOption<T> Flatten<T>(this TryOption<TryOption<T>> self) =>

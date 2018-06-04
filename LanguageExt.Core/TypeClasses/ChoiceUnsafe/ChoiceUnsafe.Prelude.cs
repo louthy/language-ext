@@ -6,7 +6,6 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Threading.Tasks;
-using System.Reactive.Linq;
 
 namespace LanguageExt
 {
@@ -82,20 +81,6 @@ namespace LanguageExt
                 Left: _ => OptionUnsafe<B>.None,
                 Right:      OptionUnsafe<B>.Some,
                 Bottom: () => OptionUnsafe<B>.None);
-
-        [Pure]
-        public static IObservable<R> matchObservableUnsafe<CHOICE, CH, A, B, R>(CH ma, Func<A, R> Left, Func<B, IObservable<R>> Right)
-            where CHOICE : struct, ChoiceUnsafe<CH, A, B> =>
-            default(CHOICE).MatchUnsafe(ma,
-                Left: a => Observable.Return(Left(a)),
-                Right: b => Right(b));
-
-        [Pure]
-        public static IObservable<R> matchObservableUnsafe<CHOICE, CH, A, B, R>(CH ma, Func<A, IObservable<R>> Left, Func<B, IObservable<R>> Right)
-            where CHOICE : struct, ChoiceUnsafe<CH, A, B> =>
-            default(CHOICE).MatchUnsafe(ma,
-                Left: a => Left(a),
-                Right: b => Right(b));
 
         [Pure]
         public static B ifLeftUnsafe<CHOICE, CH, A, B>(CH ma, Func<B> Left)
