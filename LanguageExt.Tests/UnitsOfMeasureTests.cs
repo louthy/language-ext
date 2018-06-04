@@ -354,7 +354,7 @@ namespace LanguageExtTests
         {
             var x = 10 * K;
             var y = 20 * degC;
-            var z = 30 * K;
+            var z = (10 * K) + (20 * degC).Kelvin;
 
             Assert.True(x + y == z);
         }
@@ -364,7 +364,7 @@ namespace LanguageExtTests
         {
             var x = 10 * K;
             var y = 20 * degF;
-            var z = 21.11111111111111111111111111111111 * K;
+            var z = (10 * K) + (20 * degF).Kelvin;
 
             Assert.True(x + y == z);
         }
