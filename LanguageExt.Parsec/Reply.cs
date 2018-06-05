@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Diagnostics;
 
@@ -15,7 +10,7 @@ namespace LanguageExt.Parsec
         Error
     }
 
-    public static class Reply
+    public static partial class Reply
     {
         public static Reply<T> OK<T>(T result, PString remaining, ParserError error = null) =>
             new Reply<T>(result, remaining, error);

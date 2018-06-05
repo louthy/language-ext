@@ -12,19 +12,19 @@ namespace LanguageExt.Parsec
             new ParserResult<I, O>(ResultTag.Empty, reply);
 
         public static ParserResult<I, O> EmptyOK<I, O>(O value, PString<I> input, ParserError error = null) =>
-            new ParserResult<I, O>(ResultTag.Empty, ReplyIO.OK(value, input, error));
+            new ParserResult<I, O>(ResultTag.Empty, Reply.OK(value, input, error));
 
         public static ParserResult<I, O> EmptyError<I, O>(ParserError error) =>
-            new ParserResult<I, O>(ResultTag.Empty, ReplyIO.Error<I, O>(error));
+            new ParserResult<I, O>(ResultTag.Empty, Reply.Error<I, O>(error));
 
         public static ParserResult<I, O> ConsumedOK<I, O>(O value, PString<I> input) =>
-            new ParserResult<I, O>(ResultTag.Consumed, ReplyIO.OK(value, input));
+            new ParserResult<I, O>(ResultTag.Consumed, Reply.OK(value, input));
 
         public static ParserResult<I, O> ConsumedOK<I, O>(O value, PString<I> input, ParserError error) =>
-            new ParserResult<I, O>(ResultTag.Consumed, ReplyIO.OK(value, input, error));
+            new ParserResult<I, O>(ResultTag.Consumed, Reply.OK(value, input, error));
 
         public static ParserResult<I, O> ConsumedError<I, O>(ParserError error) =>
-            new ParserResult<I, O>(ResultTag.Consumed, ReplyIO.Error<I, O>(error));
+            new ParserResult<I, O>(ResultTag.Consumed, Reply.Error<I, O>(error));
 
     }
 

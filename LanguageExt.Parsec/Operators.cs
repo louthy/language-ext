@@ -18,19 +18,19 @@ namespace LanguageExt.Parsec
         Postfix
     }
 
-    public static class Operator
+    public static partial class Operator
     {
-        public static Operator<T> Infix<T>(Assoc assoc, Parser<Func<T, T, T>> p) =>
-            new InfixOp<T>(assoc, p);
+        public static Operator<A> Infix<A>(Assoc assoc, Parser<Func<A, A, A>> p) =>
+            new InfixOp<A>(assoc, p);
 
-        public static Operator<T> Prefix<T>(Parser<Func<T, T>> p) =>
-            new PrefixOp<T>(p);
+        public static Operator<A> Prefix<A>(Parser<Func<A, A>> p) =>
+            new PrefixOp<A>(p);
 
-        public static Operator<T> Postfix<T>(Parser<Func<T, T>> p) =>
-            new PostfixOp<T>(p);
+        public static Operator<A> Postfix<A>(Parser<Func<A, A>> p) =>
+            new PostfixOp<A>(p);
     }
 
-    public abstract class Operator<T>
+    public abstract class Operator<A>
     {
         public readonly OperatorTag Tag;
 
@@ -39,16 +39,16 @@ namespace LanguageExt.Parsec
             Tag = tag;
         }
 
-        public abstract (Seq<Parser<Func<T,T,T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) SplitOp(
-            (Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) state);
+        public abstract (Seq<Parser<Func<A,A,A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A>>>, Seq<Parser<Func<A, A>>>) SplitOp(
+            (Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A>>>, Seq<Parser<Func<A, A>>>) state);
     }
 
-    public class InfixOp<T> : Operator<T>
+    public class InfixOp<A> : Operator<A>
     {
         public readonly Assoc Assoc;
-        public readonly Parser<Func<T, T, T>> Op;
+        public readonly Parser<Func<A, A, A>> Op;
 
-        internal InfixOp(Assoc assoc, Parser<Func<T, T, T>> p)
+        internal InfixOp(Assoc assoc, Parser<Func<A, A, A>> p)
             :
             base(OperatorTag.Infix)
         {
@@ -56,8 +56,8 @@ namespace LanguageExt.Parsec
             Op = p;
         }
 
-        public override (Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) SplitOp(
-            (Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) state) =>
+        public override (Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A>>>, Seq<Parser<Func<A, A>>>) SplitOp(
+            (Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A>>>, Seq<Parser<Func<A, A>>>) state) =>
             state.Map(
                 (rassoc, lassoc, nassoc, prefix, postfix) =>
                     Assoc == Assoc.None ? (rassoc, lassoc, Op.Cons(nassoc), prefix, postfix)
@@ -66,38 +66,38 @@ namespace LanguageExt.Parsec
 
     }
 
-    public class PrefixOp<T> : Operator<T>
+    public class PrefixOp<A> : Operator<A>
     {
-        public readonly Parser<Func<T, T>> Op;
+        public readonly Parser<Func<A, A>> Op;
 
-        internal PrefixOp(Parser<Func<T, T>> p)
+        internal PrefixOp(Parser<Func<A, A>> p)
             :
             base(OperatorTag.Prefix)
         {
             Op = p;
         }
 
-        public override (Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) SplitOp(
-            (Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) state) =>
+        public override (Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A>>>, Seq<Parser<Func<A, A>>>) SplitOp(
+            (Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A>>>, Seq<Parser<Func<A, A>>>) state) =>
             state.Map(
                 (rassoc, lassoc, nassoc, prefix, postfix) =>
                     (rassoc, lassoc, nassoc, Op.Cons(prefix), postfix));
 
     }
 
-    public class PostfixOp<T> : Operator<T>
+    public class PostfixOp<A> : Operator<A>
     {
-        public readonly Parser<Func<T, T>> Op;
+        public readonly Parser<Func<A, A>> Op;
 
-        internal PostfixOp(Parser<Func<T, T>> p)
+        internal PostfixOp(Parser<Func<A, A>> p)
             :
             base(OperatorTag.Postfix)
         {
             Op = p;
         }
 
-        public override (Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) SplitOp(
-            (Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) state) =>
+        public override (Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A>>>, Seq<Parser<Func<A, A>>>) SplitOp(
+            (Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A, A>>>, Seq<Parser<Func<A, A>>>, Seq<Parser<Func<A, A>>>) state) =>
             state.Map(
                 (rassoc, lassoc, nassoc, prefix, postfix) =>
                     (rassoc, lassoc, nassoc, prefix, Op.Cons(postfix)));

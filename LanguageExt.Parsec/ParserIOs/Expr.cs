@@ -55,14 +55,14 @@ namespace LanguageExt.Parsec
         ///    var res = parse(expr, "(50 + 20) / 2");
         /// </example>
         public static Parser<I, O> buildExpressionParser<I, O>(
-            OperatorIO<I, O>[][] operators,
+            Operator<I, O>[][] operators,
             Parser<I, O> simpleExpr) =>
                 operators.FoldBack(
                     simpleExpr, 
                     (term, ops) => makeParser(ops, term));
 
         static Parser<I, O> makeParser<I, O>(
-            OperatorIO<I, O>[] ops,
+            Operator<I, O>[] ops,
             Parser<I, O> term)
         {
             var e3 = Seq.empty<Parser<I, Func<O,O,O>>>();
