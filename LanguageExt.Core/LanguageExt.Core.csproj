@@ -8,11 +8,8 @@
   <PropertyGroup Label="Configuration" Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>COREFX20</DefineConstants>
   </PropertyGroup>
-  <!--<PropertyGroup Label="Configuration" Condition="'$(TargetFramework)' == 'netstandard1.3'">
-    <DefineConstants>COREFX13</DefineConstants>
-  </PropertyGroup>-->
   <PropertyGroup>
-    <PackageVersion>3.0.8</PackageVersion>
+    <PackageVersion>3.0.10</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -23,7 +20,7 @@
     <PackageIconUrl>https://camo.githubusercontent.com/08525ae465a9061150679d871731e77b399c2a94/687474703a2f2f7777772e34666f75722e6f72672f696d616765732f6c616e672d6578742d6c6f676f2e706e67</PackageIconUrl>
     <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
-    <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <OutputType>library</OutputType>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
