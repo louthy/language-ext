@@ -25,8 +25,8 @@ namespace LanguageExt.Parsec
             Tag = tag;
         }
 
-        public abstract Tuple<Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O>>>, Lst<Parser<I, Func<O, O>>>> SplitOp(
-            Tuple<Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O>>>, Lst<Parser<I, Func<O, O>>>> state);
+        public abstract (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) SplitOp(
+            (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) state);
     }
 
     public class InfixOpIO<I, O> : OperatorIO<I, O>
@@ -42,13 +42,13 @@ namespace LanguageExt.Parsec
             Op = p;
         }
 
-        public override Tuple<Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O>>>, Lst<Parser<I, Func<O, O>>>> SplitOp(
-            Tuple<Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O>>>, Lst<Parser<I, Func<O, O>>>> state) =>
+        public override (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) SplitOp(
+            (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) state) =>
             state.Map(
                 (rassoc, lassoc, nassoc, prefix, postfix) =>
-                    Assoc == Assoc.None ? Tuple(rassoc, lassoc, Op.Cons(nassoc), prefix, postfix)
-                  : Assoc == Assoc.Left ? Tuple(rassoc, Op.Cons(lassoc), nassoc, prefix, postfix)
-                  : Tuple(Op.Cons(rassoc), lassoc, nassoc, prefix, postfix));
+                    Assoc == Assoc.None ? (rassoc, lassoc, Op.Cons(nassoc), prefix, postfix)
+                  : Assoc == Assoc.Left ? (rassoc, Op.Cons(lassoc), nassoc, prefix, postfix)
+                  : (Op.Cons(rassoc), lassoc, nassoc, prefix, postfix));
     }
 
     public class PrefixOpIO<I, O> : OperatorIO<I, O>
@@ -62,11 +62,11 @@ namespace LanguageExt.Parsec
             Op = p;
         }
 
-        public override Tuple<Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O>>>, Lst<Parser<I, Func<O, O>>>> SplitOp(
-            Tuple<Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O>>>, Lst<Parser<I, Func<O, O>>>> state) =>
+        public override (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) SplitOp(
+            (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) state) =>
             state.Map(
                 (rassoc, lassoc, nassoc, prefix, postfix) =>
-                    Tuple(rassoc, lassoc, nassoc, Op.Cons(prefix), postfix));
+                    (rassoc, lassoc, nassoc, Op.Cons(prefix), postfix));
 
     }
 
@@ -81,10 +81,10 @@ namespace LanguageExt.Parsec
             Op = p;
         }
 
-        public override Tuple<Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O>>>, Lst<Parser<I, Func<O, O>>>> SplitOp(
-            Tuple<Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O, O>>>, Lst<Parser<I, Func<O, O>>>, Lst<Parser<I, Func<O, O>>>> state) =>
+        public override (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) SplitOp(
+            (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) state) =>
             state.Map(
                 (rassoc, lassoc, nassoc, prefix, postfix) =>
-                    Tuple(rassoc, lassoc, nassoc, prefix, Op.Cons(postfix)));
+                    (rassoc, lassoc, nassoc, prefix, Op.Cons(postfix)));
     }
 }

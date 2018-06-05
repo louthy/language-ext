@@ -5,7 +5,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.Parsec.Common;
 using static LanguageExt.Parsec.InternalIO;
-using static LanguageExt.Parsec.ItemT;
+using static LanguageExt.Parsec.ItemIO;
 using static LanguageExt.Parsec.ParserResultIO;
 
 namespace LanguageExt.Parsec
@@ -24,7 +24,7 @@ namespace LanguageExt.Parsec
         /// <summary>
         /// Run the parser p with the input provided
         /// </summary>
-        public static ParserResult<I, O> parse<I, O>(Parser<I, O> p, IEnumerable<I> input) =>
+        public static ParserResult<I, O> parse<I, O>(Parser<I, O> p, Seq<I> input) =>
             p.Parse(input);
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace LanguageExt.Parsec
         /// The value of the succeeding parser.
         /// </returns>
         public static Parser<I, O> choice<I, O>(params Parser<I, O>[] ps) =>
-            choicei(ps);
+            choicei(Seq(ps));
 
         /// <summary>
         /// choice(ps) tries to apply the parsers in the list ps in order, until one 
@@ -175,8 +175,8 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// The value of the succeeding parser.
         /// </returns>
-        public static Parser<I, O> choice<I, O>(IEnumerable<Parser<I, O>> ps) =>
-            choicei(ps.ToArray());
+        public static Parser<I, O> choice<I, O>(Seq<Parser<I, O>> ps) =>
+            choicei(ps);
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -186,7 +186,7 @@ namespace LanguageExt.Parsec
         /// The result of each parser as an enumerable.
         /// </returns>
         public static Parser<I, Seq<O>> chain<I, O>(params Parser<I, O>[] ps) =>
-            chaini(ps);
+            chaini(Seq(ps));
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -195,8 +195,8 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// The result of each parser as an enumerable.
         /// </returns>
-        public static Parser<I, Seq<O>> chain<I, O>(IEnumerable<Parser<I, O>> ps) =>
-            chaini(ps.ToArray());
+        public static Parser<I, Seq<O>> chain<I, O>(Seq<Parser<I, O>> ps) =>
+            chaini(ps);
 
         /// <summary>
         /// The parser attempt(p) behaves like parser p, except that it
@@ -582,7 +582,7 @@ namespace LanguageExt.Parsec
         /// primitive parser but it is defined using 'notFollowedBy'.
         /// </summary>
         public static Parser<I, Unit> eof<I>() =>
-            notFollowedBy<I, I>(anyItem<I>()).label("end of input");
+            notFollowedBy(anyItem<I>()).label("end of input");
 
         /// <summary>
         /// notFollowedBy(p) only succeeds when parser p fails. This parser
@@ -634,8 +634,20 @@ namespace LanguageExt.Parsec
         /// <summary>
         /// Parse a char list and convert into an integer
         /// </summary>
+        public static Parser<I, Option<int>> asInteger<I>(Parser<I, string> p) =>
+            p.Select(parseInt);
+
+        /// <summary>
+        /// Parse a char list and convert into an integer
+        /// </summary>
         public static Parser<I, Option<int>> asInteger<I>(Parser<I, Seq<char>> p, int fromBase) =>
             p.Select(x => parseInt(new string(x.ToArray()), fromBase));
+
+        /// <summary>
+        /// Parse a char list and convert into an integer
+        /// </summary>
+        public static Parser<I, Option<int>> asInteger<I>(Parser<I, string> p, int fromBase) =>
+            p.Select(x => parseInt(x, fromBase));
 
         /// <summary>
         /// Parse a char list and convert into an double precision floating point value
@@ -646,8 +658,20 @@ namespace LanguageExt.Parsec
         /// <summary>
         /// Parse a char list and convert into an double precision floating point value
         /// </summary>
+        public static Parser<I, Option<double>> asDouble<I>(Parser<I, string> p) =>
+            p.Select(parseDouble);
+
+        /// <summary>
+        /// Parse a char list and convert into an double precision floating point value
+        /// </summary>
         public static Parser<I, Option<float>> asFloat<I>(Parser<I, Seq<char>> p) =>
             p.Select(x => parseFloat(new string(x.ToArray())));
+
+        /// <summary>
+        /// Parse a char list and convert into an double precision floating point value
+        /// </summary>
+        public static Parser<I, Option<float>> asFloat<I>(Parser<I, string> p) =>
+            p.Select(parseFloat);
 
         public static Parser<I, Seq<O>> manyUntil<I, O, U>(Parser<I, O> p, Parser<I, U> end)
         {

@@ -166,7 +166,7 @@ namespace LanguageExt.Parsec
         /// The value of the succeeding parser.
         /// </returns>
         public static Parser<T> choice<T>(params Parser<T>[] ps) =>
-            choicei(ps);
+            choicei(Seq(ps));
 
         /// <summary>
         /// choice(ps) tries to apply the parsers in the list ps in order, until one 
@@ -175,8 +175,8 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// The value of the succeeding parser.
         /// </returns>
-        public static Parser<T> choice<T>(IEnumerable<Parser<T>> ps) =>
-            choicei(ps.ToArray());
+        public static Parser<T> choice<T>(Seq<Parser<T>> ps) =>
+            choicei(ps);
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -186,7 +186,7 @@ namespace LanguageExt.Parsec
         /// The result of each parser as an enumerable.
         /// </returns>
         public static Parser<Seq<T>> chain<T>(params Parser<T>[] ps) =>
-            chaini(ps);
+            chaini(Seq(ps));
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -195,8 +195,8 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// The result of each parser as an enumerable.
         /// </returns>
-        public static Parser<Seq<T>> chain<T>(IEnumerable<Parser<T>> ps) =>
-            chaini(ps.ToArray());
+        public static Parser<Seq<T>> chain<T>(Seq<Parser<T>> ps) =>
+            chaini(ps);
 
         /// <summary>
         /// The parser attempt(p) behaves like parser p, except that it
@@ -289,7 +289,7 @@ namespace LanguageExt.Parsec
             inp =>
             {
                 var current = inp;
-                List<T> results = new List<T>();
+                var results = new List<T>();
                 ParserError error = null;
 
                 while(true)
@@ -319,7 +319,7 @@ namespace LanguageExt.Parsec
                     }
 
                     // eerr
-                    return EmptyOK<Seq<T>>(Seq(results), current, mergeError(error, t.Reply.Error));
+                    return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
                 }
             };
 

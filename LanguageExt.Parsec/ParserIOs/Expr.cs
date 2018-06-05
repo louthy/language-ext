@@ -5,7 +5,7 @@ using static LanguageExt.Parsec.PrimT;
 
 namespace LanguageExt.Parsec
 {
-    public static class ExprT
+    public static class ExprIO
     {
         /// <summary>
         ///  Convert an OperatorTable and basic term parser into a fully fledged 
@@ -56,24 +56,19 @@ namespace LanguageExt.Parsec
         /// </example>
         public static Parser<I, O> buildExpressionParser<I, O>(
             OperatorIO<I, O>[][] operators,
-            Parser<I, O> simpleExpr
-            )
-        {
-            return operators.FoldBack(
-                simpleExpr, 
-                (term, ops) => makeParser(ops, term)
-                );
-        }
+            Parser<I, O> simpleExpr) =>
+                operators.FoldBack(
+                    simpleExpr, 
+                    (term, ops) => makeParser(ops, term));
 
         static Parser<I, O> makeParser<I, O>(
             OperatorIO<I, O>[] ops,
-            Parser<I, O> term
-            )
+            Parser<I, O> term)
         {
-            var e3 = List.empty<Parser<I, Func<O,O,O>>>();
-            var e2 = List.empty<Parser<I, Func<O,O>>>();
+            var e3 = Seq.empty<Parser<I, Func<O,O,O>>>();
+            var e2 = Seq.empty<Parser<I, Func<O,O>>>();
 
-            return ops.Fold(Tuple(e3, e3, e3, e2, e2), (state, op) => op.SplitOp(state))
+            return ops.Fold((e3, e3, e3, e2, e2), (state, op) => op.SplitOp(state))
                .Map((rassoc, lassoc, nassoc, prefix, postfix) =>
                {
                    var rassocOp = choice(rassoc);

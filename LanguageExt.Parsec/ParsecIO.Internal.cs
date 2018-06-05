@@ -36,8 +36,8 @@ namespace LanguageExt.Parsec
         ///     either(ps[index], choicei(ps, index + 1))
         /// 
         /// </summary>
-        public static Parser<I,O> choicei<I, O>(Parser<I, O>[] ps) =>
-            ps.Length == 0
+        public static Parser<I,O> choicei<I, O>(Seq<Parser<I, O>> ps) =>
+            ps.IsEmpty
                 ? unexpected<I, O>("choice parser with no choices")
                 : inp =>
             {
@@ -81,21 +81,21 @@ namespace LanguageExt.Parsec
         ///     select x.Cons(y);
         /// 
         /// </summary>
-        public static Parser<I, Seq<O>> chaini<I, O>(Parser<I, O>[] ps) =>
-            ps.Length == 0
+        public static Parser<I, Seq<O>> chaini<I, O>(Seq<Parser<I, O>> ps) =>
+            ps.IsEmpty
                 ? unexpected<I, Seq<O>>("chain parser with 0 items")
                 : inp =>
             {
-                if( ps.Length == 1)
+                if( ps.Count == 1)
                 {
-                    return ps[0].Map(x => x.Cons())(inp);
+                    return ps.Head.Map(x => x.Cons())(inp);
                 }
 
                 var current = inp;
                 var results = new List<O>();
                 ParserError error = null;
                 ParserResult<I,O> last = null;
-                int count = ps.Length;
+                int count = ps.Count;
 
                 foreach (var p in ps)
                 {

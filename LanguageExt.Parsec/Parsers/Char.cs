@@ -230,7 +230,6 @@ namespace LanguageExt.Parsec
         /// Parse a string
         /// </summary>
         public static Parser<string> str(string s) =>
-            asString(chain(s.Map(c => ch(c)))).label($"'{s}'");
-
+            asString(chain(Seq(s.Map(ch)))).label($"'{s}'");
     }
 }

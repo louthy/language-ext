@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
     <FileVersion>3.0.0.0</FileVersion>
@@ -15,7 +15,7 @@
     <None Remove="LanguageExt.Tests.project.lock.json" />
   </ItemGroup>
   <ItemGroup>
-      <PackageReference Include="System.Reactive" Version="*" />
+      <PackageReference Include="System.Reactive" Version="[3,5]" />
       <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Nito.AsyncEx.Core" Version="1.0.0-rc2-001" />
     <PackageReference Include="System.Net.Http" Version="4.3.3" />

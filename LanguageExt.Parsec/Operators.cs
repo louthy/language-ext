@@ -39,8 +39,8 @@ namespace LanguageExt.Parsec
             Tag = tag;
         }
 
-        public abstract Tuple<Lst<Parser<Func<T,T,T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T>>>, Lst<Parser<Func<T, T>>>> SplitOp(
-            Tuple<Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T>>>, Lst<Parser<Func<T, T>>>> state);
+        public abstract (Seq<Parser<Func<T,T,T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) SplitOp(
+            (Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) state);
     }
 
     public class InfixOp<T> : Operator<T>
@@ -56,13 +56,13 @@ namespace LanguageExt.Parsec
             Op = p;
         }
 
-        public override Tuple<Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T>>>, Lst<Parser<Func<T, T>>>> SplitOp(
-            Tuple<Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T>>>, Lst<Parser<Func<T, T>>>> state) =>
+        public override (Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) SplitOp(
+            (Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) state) =>
             state.Map(
                 (rassoc, lassoc, nassoc, prefix, postfix) =>
-                    Assoc == Assoc.None ? Tuple(rassoc, lassoc, Op.Cons(nassoc), prefix, postfix)
-                  : Assoc == Assoc.Left ? Tuple(rassoc, Op.Cons(lassoc), nassoc, prefix, postfix)
-                  : Tuple(Op.Cons(rassoc), lassoc, nassoc, prefix, postfix));
+                    Assoc == Assoc.None ? (rassoc, lassoc, Op.Cons(nassoc), prefix, postfix)
+                  : Assoc == Assoc.Left ? (rassoc, Op.Cons(lassoc), nassoc, prefix, postfix)
+                  : (Op.Cons(rassoc), lassoc, nassoc, prefix, postfix));
 
     }
 
@@ -77,11 +77,11 @@ namespace LanguageExt.Parsec
             Op = p;
         }
 
-        public override Tuple<Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T>>>, Lst<Parser<Func<T, T>>>> SplitOp(
-            Tuple<Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T>>>, Lst<Parser<Func<T, T>>>> state) =>
+        public override (Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) SplitOp(
+            (Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) state) =>
             state.Map(
                 (rassoc, lassoc, nassoc, prefix, postfix) =>
-                    Tuple(rassoc, lassoc, nassoc, Op.Cons(prefix), postfix));
+                    (rassoc, lassoc, nassoc, Op.Cons(prefix), postfix));
 
     }
 
@@ -96,10 +96,10 @@ namespace LanguageExt.Parsec
             Op = p;
         }
 
-        public override Tuple<Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T>>>, Lst<Parser<Func<T, T>>>> SplitOp(
-            Tuple<Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T, T>>>, Lst<Parser<Func<T, T>>>, Lst<Parser<Func<T, T>>>> state) =>
+        public override (Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) SplitOp(
+            (Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T, T>>>, Seq<Parser<Func<T, T>>>, Seq<Parser<Func<T, T>>>) state) =>
             state.Map(
                 (rassoc, lassoc, nassoc, prefix, postfix) =>
-                    Tuple(rassoc, lassoc, nassoc, prefix, Op.Cons(postfix)));
+                    (rassoc, lassoc, nassoc, prefix, Op.Cons(postfix)));
     }
 }
