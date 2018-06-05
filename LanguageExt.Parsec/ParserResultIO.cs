@@ -136,5 +136,21 @@ namespace LanguageExt.Parsec
 
         public ParserResult<I, U> Select<U>(Func<O, U> map) =>
             new ParserResult<I, U>(Tag, Reply.Select(map));
+
+        public Either<string, O> ToEither() =>
+            IsFaulted
+                ? Left<string, O>(ToString())
+                : Right(Reply.Result);
+
+        public Either<ERROR, O> ToEither<ERROR>(Func<string, ERROR> f) =>
+            IsFaulted
+                ? Left<ERROR, O>(f(ToString()))
+                : Right(Reply.Result);
+
+        public Option<O> ToOption() =>
+            IsFaulted
+                ? None
+                : Some(Reply.Result);
+
     }
 }

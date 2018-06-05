@@ -319,7 +319,7 @@ namespace LanguageExt.Parsec
                     }
 
                     // eerr
-                    return EmptyOK<I, Seq<O>>(Seq(results), current, mergeError(error, t.Reply.Error));
+                    return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
                 }
             };
 

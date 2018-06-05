@@ -18,8 +18,8 @@ namespace LanguageExt.Parsec
         /// item(c) parses a single I
         /// </summary>
         /// <returns>The parsed character</returns>
-        public static Parser<T, T> item<T>(T c) =>
-            satisfy<T>(x => EqualityComparer<T>.Default.Equals(x,c)).label($"'{c}'");
+        public static Parser<A, A> item<A>(A c) =>
+            satisfy<A>(x => EqualityComparer<A>.Default.Equals(x,c)).label($"'{c}'");
 
         /// <summary>
         /// The parser satisfy(pred) succeeds for any character for which the
@@ -27,12 +27,12 @@ namespace LanguageExt.Parsec
         /// </summary>
         /// <returns>
         /// The character that is actually parsed.</returns>
-        public static Parser<T, T> satisfy<T>(Func<T, bool> pred) =>
+        public static Parser<A, A> satisfy<A>(Func<A, bool> pred) =>
             inp =>
             {
                 if (inp.Index >= inp.EndIndex)
                 {
-                    return EmptyError<T, T>(ParserError.SysUnexpect(inp.Pos, "end of stream"));
+                    return EmptyError<A, A>(ParserError.SysUnexpect(inp.Pos, "end of stream"));
                 }
                 else
                 {
@@ -46,12 +46,12 @@ namespace LanguageExt.Parsec
                         }
                         else
                         {
-                            return EmptyError<T, T>(ParserError.SysUnexpect(inp.Pos, $"\"{ns.Reply.Result}\""));
+                            return EmptyError<A, A>(ParserError.SysUnexpect(inp.Pos, $"\"{ns.Reply.Result}\""));
                         }
                     }
                     else
                     {
-                        return EmptyError<T, T>(ParserError.SysUnexpect(inp.Pos, "end of stream"));
+                        return EmptyError<A, A>(ParserError.SysUnexpect(inp.Pos, "end of stream"));
                     }
                 }
             };
@@ -60,8 +60,8 @@ namespace LanguageExt.Parsec
         /// oneOf(str) succeeds if the current character is in the supplied list of 
         /// characters str. Returns the parsed character. See also satisfy
         /// </summary>
-        public static Parser<T, T> oneOf<T>(T[] str) =>
-            satisfy<T>(c => str.Contains(c));
+        public static Parser<A, A> oneOf<A>(A[] str) =>
+            satisfy<A>(c => str.Contains(c));
 
         /// <summary>
         /// As the dual of 'oneOf', noneOf(str) succeeds if the current
@@ -71,19 +71,19 @@ namespace LanguageExt.Parsec
         /// </summary>
         /// <returns>
         /// The parsed character.</returns>
-        public static Parser<T, T> noneOf<T>(T[] str) =>
-            satisfy<T>(c => !str.Contains(c));
+        public static Parser<A, A> noneOf<A>(A[] str) =>
+            satisfy<A>(c => !str.Contains(c));
 
         /// <summary>
         /// The parser anyChar accepts any kind of character.
         /// </summary>
-        public static Parser<T, T> anyItem<T>() =>
-            satisfy<T>(_ => true);
+        public static Parser<A, A> anyItem<A>() =>
+            satisfy<A>(_ => true);
 
         /// <summary>
         /// Parse a string
         /// </summary>
-        public static Parser<T, T[]> str<T>(T[] s) =>
+        public static Parser<A, A[]> str<A>(A[] s) =>
             chain(s.Map(c => item(c))).Map(x => x.ToArray());
     }
 }

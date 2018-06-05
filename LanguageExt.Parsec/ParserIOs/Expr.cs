@@ -54,9 +54,9 @@ namespace LanguageExt.Parsec
         ///    
         ///    var res = parse(expr, "(50 + 20) / 2");
         /// </example>
-        public static Parser<char, T> buildExpressionParser<T>(
-            OperatorIO<T>[][] operators,
-            Parser<char, T> simpleExpr
+        public static Parser<I, O> buildExpressionParser<I, O>(
+            OperatorIO<I, O>[][] operators,
+            Parser<I, O> simpleExpr
             )
         {
             return operators.FoldBack(
@@ -65,13 +65,13 @@ namespace LanguageExt.Parsec
                 );
         }
 
-        static Parser<char, T> makeParser<T>(
-            OperatorIO<T>[] ops,
-            Parser<char, T> term
+        static Parser<I, O> makeParser<I, O>(
+            OperatorIO<I, O>[] ops,
+            Parser<I, O> term
             )
         {
-            var e3 = List.empty<Parser<char, Func<T,T,T>>>();
-            var e2 = List.empty<Parser<char, Func<T,T>>>();
+            var e3 = List.empty<Parser<I, Func<O,O,O>>>();
+            var e2 = List.empty<Parser<I, Func<O,O>>>();
 
             return ops.Fold(Tuple(e3, e3, e3, e2, e2), (state, op) => op.SplitOp(state))
                .Map((rassoc, lassoc, nassoc, prefix, postfix) =>
@@ -82,31 +82,31 @@ namespace LanguageExt.Parsec
                    var prefixOp = choice(prefix).label("");
                    var postfixOp = choice(postfix).label("");
 
-                   var ambigious = fun((string assoc, Parser<char, Func<T, T, T>> op) =>
+                   var ambigious = fun((string assoc, Parser<I, Func<O, O, O>> op) =>
                         attempt(
                             from x in op
-                            from y in failure<char, T>($"ambiguous use of a {assoc} associative operator")
+                            from y in failure<I, O>($"ambiguous use of a {assoc} associative operator")
                             select y));
 
                    var ambigiousRight = ambigious("right", rassocOp);
                    var ambigiousLeft = ambigious("left", lassocOp);
                    var ambigiousNon = ambigious("non", nassocOp);
 
-                   var postfixP = either(postfixOp, result<char, Func<T, T>>(x => x));
+                   var postfixP = either(postfixOp, result<I, Func<O, O>>(x => x));
 
-                   var prefixP = either(prefixOp, result<char, Func<T,T>>(x => x));
+                   var prefixP = either(prefixOp, result<I, Func<O,O>>(x => x));
 
                    var termP = from pre in prefixP
                                from x in term
                                from post in postfixP
                                select post(pre(x));
 
-                   Func<T, Parser<char, T>> rassocP = null;
-                   Func<T, Parser<char, T>> rassocP1 = null;
+                   Func<O, Parser<I, O>> rassocP = null;
+                   Func<O, Parser<I, O>> rassocP1 = null;
 
-                   rassocP1 = fun((T x) => either(rassocP(x), result<char, T>(x)));
+                   rassocP1 = fun((O x) => either(rassocP(x), result<I, O>(x)));
 
-                   rassocP = fun((T x) =>
+                   rassocP = fun((O x) =>
                        choice(
                            from f in rassocOp
                            from y in (from z in termP
@@ -116,12 +116,12 @@ namespace LanguageExt.Parsec
                            ambigiousLeft,
                            ambigiousNon));
 
-                   Func<T, Parser<char, T>> lassocP = null;
-                   Func<T, Parser<char, T>> lassocP1 = null;
+                   Func<O, Parser<I, O>> lassocP = null;
+                   Func<O, Parser<I, O>> lassocP1 = null;
 
-                   lassocP1 = fun((T x) => either(lassocP(x), result<char, T>(x)));
+                   lassocP1 = fun((O x) => either(lassocP(x), result<I, O>(x)));
 
-                   lassocP = fun((T x) =>
+                   lassocP = fun((O x) =>
                        choice(
                            from f in lassocOp
                            from y in termP
@@ -130,14 +130,14 @@ namespace LanguageExt.Parsec
                            ambigiousRight,
                            ambigiousNon));
 
-                   var nassocP = fun((T x) =>
+                   var nassocP = fun((O x) =>
                         from f in nassocOp
                         from y in termP
-                        from r in choice(ambigiousRight, ambigiousLeft, ambigiousNon, result<char,T>(f(x, y)))
+                        from r in choice(ambigiousRight, ambigiousLeft, ambigiousNon, result<I, O>(f(x, y)))
                         select r);
 
                    return from x in termP
-                          from r in choice(rassocP(x), lassocP(x), nassocP(x), result<char, T>(x)).label("operator")
+                          from r in choice(rassocP(x), lassocP(x), nassocP(x), result<I, O>(x)).label("operator")
                           select r;
                });
         }
