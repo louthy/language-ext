@@ -1,7 +1,7 @@
 ﻿using System;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using static LanguageExt.Parsec.PrimT;
+using static LanguageExt.Parsec.PrimIO;
 
 namespace LanguageExt.Parsec
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using static LanguageExt.Parsec.ParserResultIO;
 using static LanguageExt.Parsec.InternalIO;
-using static LanguageExt.Parsec.PrimT;
+using static LanguageExt.Parsec.PrimIO;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 

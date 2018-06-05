@@ -13,7 +13,7 @@ namespace LanguageExt.Parsec
     /// <summary>
     /// The primitive parser combinators
     /// </summary>
-    public static class PrimT
+    public static class PrimIO
     {
         /// <summary>
         /// Run the parser p with the input provided
