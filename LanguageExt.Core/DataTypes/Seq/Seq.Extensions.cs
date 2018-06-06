@@ -291,7 +291,7 @@ public static class SeqExtensions
         LanguageExt.Seq.foldBackUntil(list, state, folder, predstate: predstate);
 
     /// <summary>
-    /// Applies a function to each element of the sequence (from last element to first), threading 
+    /// Applies a function to each element of the sequence, threading 
     /// an accumulator argument through the computation. This function first applies the function 
     /// to the first two elements of the sequence. Then, it passes this result into the function along 
     /// with the third element and so on. Finally, it returns the final result.
@@ -302,12 +302,12 @@ public static class SeqExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static T Reduce<T>(this Seq<T> list, Func<T, T, T> reducer) =>
-        LanguageExt.Seq.reduceBack(list, reducer);
+        LanguageExt.Seq.reduce(list, reducer);
 
     /// <summary>
-    /// Applies a function to each element of the sequence, threading an accumulator argument 
-    /// through the computation. This function first applies the function to the first two 
-    /// elements of the sequence. Then, it passes this result into the function along with the third 
+    /// Applies a function to each element of the sequence (from last element to first), threading an accumulator argument 
+    /// through the computation. This function first applies the function to the last two 
+    /// elements of the sequence. Then, it passes this result into the function along with the previous
     /// element and so on. Finally, it returns the final result.
     /// </summary>
     /// <typeparam name="T">sequence item type</typeparam>
