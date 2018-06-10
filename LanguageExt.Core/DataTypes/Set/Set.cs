@@ -56,9 +56,10 @@ namespace LanguageExt
         /// Ctor that takes an initial (distinct) set of items
         /// </summary>
         /// <param name="items"></param>
-        internal Set(IEnumerable<A> items, bool checkUniqueness)
+        /// <param name="tryAdd">true = ignore duplicates, false = check for distinct items</param>
+        internal Set(IEnumerable<A> items, bool tryAdd)
         {
-            value = new SetInternal<OrdDefault<A>, A>(items, checkUniqueness);
+            value = new SetInternal<OrdDefault<A>, A>(items, tryAdd);
         }
 
         static Set<A> Wrap(SetInternal<OrdDefault<A>, A> set) =>
@@ -506,7 +507,7 @@ namespace LanguageExt
                     }
                 }
             }
-            return new Set<B>(Yield(), true);
+            return new Set<B>(Yield(), false);
         }
 
         [Pure]
@@ -524,7 +525,7 @@ namespace LanguageExt
                     }
                 }
             }
-            return new Set<C>(Yield(), true);
+            return new Set<C>(Yield(), false);
         }
 
         [Pure]
