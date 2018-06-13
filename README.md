@@ -1,12 +1,13 @@
-![lang-ext](http://www.4four.org/images/lang-ext-logo.png)
+![lang-ext](https://github.com/louthy/language-ext/blob/master/backers-images/banner1.png?raw=true)
 
 C# Functional Language Extensions
 =================================
 
 [![Join the chat at https://gitter.im/louthy/language-ext](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/louthy/language-ext?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
-This library uses and abuses the features of C# 6+ to provide a functional 'Base class library', that, if you squint, can look like 
-extensions to the language itself.
+This library uses and abuses the features of C# to provide a functional-programming 'Base class library', that, if you squint, can look like 
+extensions to the language itself.  The desire here is to make programming in C# much more reliable and to make the engineer's inertia flow 
+in the direction of declarative and functional code rather than imperative.
 
 ## Reference
 
