@@ -1,7 +1,7 @@
 ![lang-ext](https://github.com/louthy/language-ext/blob/master/backers-images/banner.png?raw=true)
 
-C# Functional Language Extensions
-=================================
+C# Functional Programmimg Language Extensions
+=============================================
 
 [![Join the chat at https://gitter.im/louthy/language-ext](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/louthy/language-ext?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
