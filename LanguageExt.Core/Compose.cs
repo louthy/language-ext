@@ -10,7 +10,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>v => g(f(v))</returns>
         [Pure]
-        public static Func<T1, T3> BackCompose<T1, T2, T3>(this Func<T2, T3> g, Func<T1, T2> f) =>
+        public static Func<A, C> BackCompose<A, B, C>(this Func<B, C> g, Func<A, B> f) =>
             v => g(f(v));
 
         /// <summary>
@@ -18,7 +18,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>() => g(f())</returns>
         [Pure]
-        public static Func<T2> BackCompose<T1, T2>(this Func<T1, T2> g, Func<T1> f) =>
+        public static Func<B> BackCompose<A, B>(this Func<A, B> g, Func<A> f) =>
             () => g(f());
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>v => g(f(v))</returns>
         [Pure]
-        public static Action<T1> BackCompose<T1, T2>(this Action<T2> g, Func<T1, T2> f)
+        public static Action<A> BackCompose<A, B>(this Action<B> g, Func<A, B> f)
             => v => g(f(v));
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>() => g(f())</returns>
         [Pure]
-        public static Action BackCompose<T>(this Action<T> g, Func<T> f)
+        public static Action BackCompose<A>(this Action<A> g, Func<A> f)
             => () => g(f());
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>v => g(f(v))</returns>
         [Pure]
-        public static Func<T1, T3> Compose<T1, T2, T3>(this Func<T1, T2> f, Func<T2, T3> g) =>
+        public static Func<A, C> Compose<A, B, C>(this Func<A, B> f, Func<B, C> g) =>
             v => g(f(v));
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>() => g(f())</returns>
         [Pure]
-        public static Func<T2> Compose<T1, T2>(this Func<T1> f, Func<T1, T2> g) =>
+        public static Func<B> Compose<A, B>(this Func<A> f, Func<A, B> g) =>
             () => g(f());
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>v => g(f(v))</returns>
         [Pure]
-        public static Action<T1> Compose<T1, T2>(this Func<T1, T2> f, Action<T2> g)
+        public static Action<A> Compose<A, B>(this Func<A, B> f, Action<B> g)
             => v => g(f(v));
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>() => g(f())</returns>
         [Pure]
-        public static Action Compose<T>(this Func<T> f, Action<T> g)
+        public static Action Compose<A>(this Func<A> f, Action<A> g)
             => () => g(f());
     }
 }
