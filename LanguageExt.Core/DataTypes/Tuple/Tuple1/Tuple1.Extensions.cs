@@ -19,7 +19,7 @@ public static class Tuple1Extensions
     /// Semigroup append
     /// </summary>
     [Pure]
-    public static Tuple<A> Append<SemiA, SemiB, A, B>(this Tuple<A> a, Tuple<A> b)
+    public static Tuple<A> Append<SemiA, A>(this Tuple<A> a, Tuple<A> b)
         where SemiA : struct, Semigroup<A> =>
         Tuple(default(SemiA).Append(a.Item1, b.Item1));
 
@@ -27,7 +27,7 @@ public static class Tuple1Extensions
     /// Monoid concat
     /// </summary>
     [Pure]
-    public static Tuple<A> Concat<MonoidA, A, B>(this Tuple<A> a, Tuple<A> b)
+    public static Tuple<A> Concat<MonoidA, A>(this Tuple<A> a, Tuple<A> b)
         where MonoidA : struct, Monoid<A> =>
         Tuple(mconcat<MonoidA, A>(a.Item1, b.Item1));
 
