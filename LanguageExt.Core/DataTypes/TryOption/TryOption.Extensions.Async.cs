@@ -23,7 +23,11 @@ public static class TryOptionExtensionsAsync
     /// <returns>Asynchronous TryOption</returns>
     [Pure]
     public static TryOptionAsync<A> ToAsync<A>(this TryOption<A> self) => () =>
-        Task.Run(() => self.Try());
+        self.Match(
+            Some: x => new OptionalResult<A>(Some(x)),
+            None: () => OptionalResult<A>.None,
+            Fail: e => new OptionalResult<A>(e))
+       .AsTask();
 
     /// <summary>
     /// Invoke a delegate if the Try returns a value successfully

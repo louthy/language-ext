@@ -669,8 +669,7 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public static CondAsync<A, B> ToAsync<A, B>(this Cond<A, B> self) =>
-            input =>
-                Task.Run(() => self(input));
+            input => Task.FromResult(self(input));
 
         /// <summary>
         /// Provide the behaviour to run if the condition of the Cond computation

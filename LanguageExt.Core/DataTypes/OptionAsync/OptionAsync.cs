@@ -1061,6 +1061,14 @@ namespace LanguageExt
             iterAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, Some);
 
         /// <summary>
+        /// Invoke an action for the bound value (if in a Some state)
+        /// </summary>
+        /// <param name="Some">Action to invoke</param>
+        [Pure]
+        public Task<Unit> Iter(Func<A, Task<Unit>> Some) =>
+            iterAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, Some);
+
+        /// <summary>
         /// Invoke an action depending on the state of the Option
         /// </summary>
         /// <param name="Some">Action to invoke if in a Some state</param>

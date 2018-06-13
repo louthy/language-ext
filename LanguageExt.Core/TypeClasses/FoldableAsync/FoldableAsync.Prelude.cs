@@ -87,7 +87,18 @@ namespace LanguageExt
         /// <param name="self">Foldable to perform the operation on</param>
         public static async Task<Unit> iterAsync<FOLD, F, A>(F fa, Action<A> action) where FOLD : FoldableAsync<F, A>
         {
-            await Task.WhenAll((await toSeqAsync<FOLD, F, A>(fa)).Map(a => Task.Run(() => action(a))));
+            await Task.WhenAll((await toSeqAsync<FOLD, F, A>(fa)).Map(a => { action(a); return unit.AsTask(); }));
+            return unit;
+        }
+
+        /// <summary>
+        /// Iterate the values in the foldable
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="self">Foldable to perform the operation on</param>
+        public static async Task<Unit> iterAsync<FOLD, F, A>(F fa, Func<A, Task<Unit>> action) where FOLD : FoldableAsync<F, A>
+        {
+            await Task.WhenAll((await toSeqAsync<FOLD, F, A>(fa)).Map(action));
             return unit;
         }
 

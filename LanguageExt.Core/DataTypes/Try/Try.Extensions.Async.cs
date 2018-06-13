@@ -23,7 +23,10 @@ public static class TryExtensionsAsync
     /// <returns>Asynchronous Try</returns>
     [Pure]
     public static TryAsync<A> ToAsync<A>(this Try<A> self) => () =>
-        Task.Run(() => self.Try());
+        self.Match(
+            Succ: x => new Result<A>(x),
+            Fail: e => new Result<A>(e))
+       .AsTask();
 
     /// <summary>
     /// Runs the Try asynchronously.  Invoke a delegate if the Try returns a 
