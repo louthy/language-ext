@@ -1431,7 +1431,7 @@ This is where some of the difficulties come in.  How do we return an `MB` if we 
 ```c#
     public interface Monad<MA, A>
     {
-        MB Bind<MB, B>(MA ma, Func<B, MB> bind);
+        MB Bind<MB, B>(MA ma, Func<A, MB> bind);
         MA Return(A a);
         MA Fail(Exception e = null);
     }
@@ -1447,7 +1447,7 @@ The key is to use constraints.  But it also requires an extra generic paramter f
 ```c#
     public interface Monad<MA, A>
     {
-        MB Bind<MonadB, MB, B>(MA ma, Func<B, MB> bind) 
+        MB Bind<MonadB, MB, B>(MA ma, Func<A, MB> bind) 
             where MonadB : struct, Monad<MB, B>;
 
         MA Return(A a);
