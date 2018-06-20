@@ -36,6 +36,18 @@ namespace LanguageExt
         public static readonly Func<A, NEWTYPE> New = IL.Ctor<A, NEWTYPE>();
 
         /// <summary>
+        /// Try new
+        /// </summary>
+        public static Try<NEWTYPE> NewTry(A value) =>
+            Try(() => New(value));
+
+        /// <summary>
+        /// Optional new
+        /// </summary>
+        public static Option<NEWTYPE> NewOption(A value) =>
+            NewTry(value).ToOption();
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="value">Value to bind</param>
