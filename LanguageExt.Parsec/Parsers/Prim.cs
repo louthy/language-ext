@@ -509,7 +509,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<Seq<T>> count<S, T>(int n, Parser<T> p) =>
+        public static Parser<Seq<T>> count<T>(int n, Parser<T> p) =>
             counti(n, p);
 
         /// <summary>
