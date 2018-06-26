@@ -29,16 +29,30 @@ namespace LanguageExt
             this.value = value;
         }
 
-        public HashMap(IEnumerable<(K Key, V Value)> items)
+
+        public HashMap(IEnumerable<(K Key, V Value)> items) 
+            : this(items, true)
+        { }
+
+        public HashMap(IEnumerable<(K Key, V Value)> items, bool tryAdd)
         {
             var map = HashMap<K, V>.Empty;
-            foreach (var item in items)
+            if (tryAdd)
             {
-                map = map.Add(item.Key, item.Value);
+                foreach (var item in items)
+                {
+                    map = map.TryAdd(item.Key, item.Value);
+                }
+            }
+            else
+            {
+                foreach (var item in items)
+                {
+                    map = map.AddOrUpdate(item.Key, item.Value);
+                }
             }
             this.value = map.value;
         }
-
 
         HashMap<K, V> Wrap(HashMapInternal<EqDefault<K>, K, V> value) =>
             new HashMap<K, V>(value);

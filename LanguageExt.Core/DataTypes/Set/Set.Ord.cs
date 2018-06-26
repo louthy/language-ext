@@ -29,9 +29,8 @@ namespace LanguageExt
         /// <summary>
         /// Ctor from an enumerable 
         /// </summary>
-        public Set(IEnumerable<A> items)
+        public Set(IEnumerable<A> items) : this(items, true)
         {
-            value = new SetInternal<OrdA, A>(items, true);
         }
 
         /// <summary>
@@ -51,10 +50,8 @@ namespace LanguageExt
         /// Ctor that takes an initial (distinct) set of items
         /// </summary>
         /// <param name="items"></param>
-        internal Set(IEnumerable<A> items, bool tryAdd)
-        {
+        public Set(IEnumerable<A> items, bool tryAdd) =>
             value = new SetInternal<OrdA, A>(items, tryAdd);
-        }
 
         static Set<OrdA, A> Wrap(SetInternal<OrdA, A> set) =>
             new Set<OrdA, A>(set);

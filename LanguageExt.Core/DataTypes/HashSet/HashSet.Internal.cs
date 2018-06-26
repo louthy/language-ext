@@ -94,7 +94,7 @@ namespace LanguageExt
             {
                 foreach(var item in bucket.Value)
                 {
-                    set = set.Add(map(item));
+                    set = set.AddOrUpdate(map(item));
                 }
             }
             return set;

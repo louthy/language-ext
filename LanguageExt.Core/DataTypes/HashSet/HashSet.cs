@@ -35,10 +35,15 @@ namespace LanguageExt
         /// Ctor that takes an initial (distinct) set of items
         /// </summary>
         /// <param name="items"></param>
-        internal HashSet(IEnumerable<A> items, bool checkUniqueness = false)
+        internal HashSet(IEnumerable<A> items) : this(items, true)
         {
-            value = new HashSetInternal<OrdDefault<A>, A>(items, checkUniqueness);
         }
+
+        /// <summary>
+        /// Ctor that takes an initial (distinct) set of items
+        /// </summary>
+        internal HashSet(IEnumerable<A> items, bool tryAdd) =>
+            value = new HashSetInternal<OrdDefault<A>, A>(items, tryAdd);
 
         /// <summary>
         /// 'this' accessor

@@ -42,7 +42,14 @@ namespace LanguageExt
         /// Ctor that takes an initial (distinct) set of items
         /// </summary>
         /// <param name="items"></param>
-        internal HashSet(IEnumerable<A> items, bool tryAdd = false)
+        public HashSet(IEnumerable<A> items) : this(items, true)
+        { }
+
+        /// <summary>
+        /// Ctor that takes an initial (distinct) set of items
+        /// </summary>
+        /// <param name="items"></param>
+        public HashSet(IEnumerable<A> items, bool tryAdd)
         {
             value = new HashSetInternal<EqA, A>(items, tryAdd);
         }

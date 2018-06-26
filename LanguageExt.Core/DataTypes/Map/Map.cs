@@ -33,12 +33,25 @@ namespace LanguageExt
         internal static Map<K, V> Wrap(MapInternal<OrdDefault<K>, K, V> map) =>
             new Map<K, V>(map);
 
-        public Map(IEnumerable<(K Key, V Value)> items)
+        public Map(IEnumerable<(K Key, V Value)> items) : this(items, true)
+        { }
+
+        public Map(IEnumerable<(K Key, V Value)> items, bool tryAdd)
         {
             var map = Map<K, V>.Empty;
-            foreach (var item in items)
+            if (tryAdd)
             {
-                map = map.Add(item.Key, item.Value);
+                foreach (var item in items)
+                {
+                    map = map.TryAdd(item.Key, item.Value);
+                }
+            }
+            else
+            {
+                foreach (var item in items)
+                {
+                    map = map.Add(item.Key, item.Value);
+                }
             }
             this.value = map.value;
         }
