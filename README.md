@@ -1183,8 +1183,8 @@ So for example, this is how to create a number type-class:
 ```c#
     public interface Num<A>
     {
-        A Add(A x, A b);
-        A Subtract(A x, A b);
+        A Add(A x, A y);
+        A Subtract(A x, A y);
         ...
     }
 ```
@@ -1192,8 +1192,8 @@ Notice how there are two arguments to `Add` and `Subtract`.  Normally if I was g
 ```c#
     public struct TInt : Num<int>
     {
-        public int Add(int x, int b) => x + y;
-        public int Subtract(int x, int b) => x + y;
+        public int Add(int x, int y) => x + y;
+        public int Subtract(int x, int y) => x - y;
         ...
     }
 ```
@@ -1207,8 +1207,8 @@ If we now implement `TFloat`:
 ```c#
     public struct TFloat : Num<float>
     {
-        public float Add(float x, float b) => x + y;
-        public float Subtract(float x, float b) => x + y;
+        public float Add(float x, float y) => x + y;
+        public float Subtract(float x, float y) => x - y;
         ...
     }
 ```
