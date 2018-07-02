@@ -230,9 +230,9 @@ namespace LanguageExt.ClassInstances
         /// <summary>
         /// Bitwise bi-conditional. 
         /// </summary>
-        /// <returns>`XOr(Not(a), Not(b))`</returns>
+        /// <returns>`Not(XOr(a, b))`</returns>
         [Pure]
         public bigint BiCondition(bigint a, bigint b) =>
-            XOr(Not(a), Not(b));
+            Not(XOr(a, b));
     }
 }
