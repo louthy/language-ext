@@ -356,10 +356,10 @@ public static class TryAsyncExtensions
 
 
     [Pure]
-    public static Task<Validation<Exception, A>> ToValidation<A>(this TryAsync<A> self) =>
+    public static Task<Validation<FAIL, A>> ToValidation<A, FAIL>(this TryAsync<A> self, Func<Exception, FAIL> Fail) =>
         self.Match(
-            Succ: v => Success<Exception, A>(v),
-            Fail: e => Fail<Exception, A>(e));
+            Succ: v => Success<FAIL, A>(v),
+            Fail: e => Fail<FAIL, A>(Fail(e)));
 
     [Pure]
     public static Task<Option<A>> ToOption<A>(this TryAsync<A> self) =>
@@ -384,10 +384,22 @@ public static class TryAsyncExtensions
               Fail: x => EitherUnsafe<Exception, A>.Left(x));
 
     [Pure]
+    public static Task<EitherUnsafe<L, A>> ToEitherUnsafe<A, L>(this TryAsync<A> self, Func<Exception, L> Fail) =>
+        self.Match(
+              Succ: v => EitherUnsafe<L, A>.Right(v),
+              Fail: x => EitherUnsafe<L, A>.Left(Fail(x)));
+
+    [Pure]
     public static Task<Either<Exception, A>> ToEither<A>(this TryAsync<A> self) =>
         self.Match(
               Succ: v => Either<Exception, A>.Right(v),
               Fail: x => Either<Exception, A>.Left(x));
+
+    [Pure]
+    public static Task<Either<L, A>> ToEither<A, L>(this TryAsync<A> self, Func<Exception, L> Fail) =>
+        self.Match(
+              Succ: v => Either<L, A>.Right(v),
+              Fail: x => Either<L, A>.Left(Fail(x)));
 
     [Pure]
     public static async Task<A> IfFailThrow<A>(this TryAsync<A> self)

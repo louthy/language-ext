@@ -224,6 +224,15 @@ public static class TryExtensions
     }
 
     [Pure]
+    public static Validation<FAIL, A> ToValidation<A, FAIL>(this Try<A> self, Func<Exception, FAIL> Fail)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail<FAIL, A>(Fail(res.Exception))
+            : Success<FAIL, A>(res.Value);
+    }
+
+    [Pure]
     public static Either<Exception, A> ToEither<A>(this Try<A> self)
     {
         var res = self.Try();
@@ -233,12 +242,30 @@ public static class TryExtensions
     }
 
     [Pure]
+    public static Either<L, A> ToEither<A, L>(this Try<A> self, Func<Exception, L> Fail)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Either<L, A>.Left(Fail(res.Exception))
+            : Either<L, A>.Right(res.Value);
+    }
+
+    [Pure]
     public static EitherUnsafe<Exception, A> ToEitherUnsafe<A>(this Try<A> self)
     {
         var res = self.Try();
         return res.IsFaulted
             ? EitherUnsafe<Exception, A>.Left(res.Exception)
             : EitherUnsafe<Exception, A>.Right(res.Value);
+    }
+
+    [Pure]
+    public static EitherUnsafe<L, A> ToEitherUnsafe<A, L>(this Try<A> self, Func<Exception, L> Fail)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? EitherUnsafe<L, A>.Left(Fail(res.Exception))
+            : EitherUnsafe<L, A>.Right(res.Value);
     }
 
     [Pure]

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
+using LanguageExt.DataTypes.Serialisation;
 
 /// <summary>
 /// Extension methods for the TryOptionAsync monad
@@ -1084,11 +1085,25 @@ public static class TryOptionAsyncExtensions
             Fail: ex => Either<Exception, Option<A>>.Left(ex));
 
     [Pure]
+    public static Task<Either<L, Option<A>>> ToEither<A, L>(this TryOptionAsync<A> self, Func<Exception, L> Fail) =>
+        self.Match(
+            Some: v => Either<L, Option<A>>.Right(v),
+            None: () => Either<L, Option<A>>.Right(None),
+            Fail: ex => Either<L, Option<A>>.Left(Fail(ex)));
+
+    [Pure]
     public static Task<EitherUnsafe<Exception, Option<A>>> ToEitherUnsafe<A>(this TryOptionAsync<A> self) =>
         self.Match(
             Some: v  => EitherUnsafe<Exception,Option<A>>.Right(v),
             None: () => EitherUnsafe<Exception,Option<A>>.Right(None),
             Fail: ex => EitherUnsafe<Exception, Option<A>>.Left(ex));
+
+    [Pure]
+    public static Task<EitherUnsafe<L, Option<A>>> ToEitherUnsafe<A, L>(this TryOptionAsync<A> self, Func<Exception, L> Fail) =>
+        self.Match(
+            Some: v => EitherUnsafe<L, Option<A>>.Right(v),
+            None: () => EitherUnsafe<L, Option<A>>.Right(None),
+            Fail: ex => EitherUnsafe<L, Option<A>>.Left(Fail(ex)));
 
     [Pure]
     public static TryAsync<A> ToTry<A>(this TryOptionAsync<A> self) =>

@@ -1570,6 +1570,54 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Bind left.  Binds the left path of the monad only
+        /// </summary>
+        public EitherAsync<B, R> BindLeft<B>(Func<L, EitherAsync<B, R>> Left)
+        {
+            async Task<EitherData<B, R>> Do(EitherAsync<L, R> self)
+            {
+                if (await self.IsRight)
+                {
+                    return new EitherData<B, R>(EitherStatus.IsRight, await self.RightValue(), default(B));
+                }
+                if (await self.IsLeft)
+                {
+                    var mb = Left(await self.LeftValue());
+                    return await mb.data;
+                }
+                else
+                {
+                    return EitherData<B, R>.Bottom;
+                }
+            }
+            return new EitherAsync<B, R>(Do(this));
+        }
+
+        /// <summary>
+        /// Bind left.  Binds the left path of the monad only
+        /// </summary>
+        public EitherAsync<B, R> BindLeftAsync<B>(Func<L, Task<EitherAsync<B, R>>> LeftAsync)
+        {
+            async Task<EitherData<B, R>> Do(EitherAsync<L, R> self)
+            {
+                if (await self.IsRight)
+                {
+                    return new EitherData<B, R>(EitherStatus.IsRight, await self.RightValue(), default(B));
+                }
+                if (await self.IsLeft)
+                {
+                    var mb = await LeftAsync(await self.LeftValue());
+                    return await mb.data;
+                }
+                else
+                {
+                    return EitherData<B, R>.Bottom;
+                }
+            }
+            return new EitherAsync<B, R>(Do(this));
+        }
+
+        /// <summary>
         /// Filter the Either
         /// </summary>
         /// <remarks>

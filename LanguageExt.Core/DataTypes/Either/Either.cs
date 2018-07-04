@@ -1196,22 +1196,31 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
-        /// <typeparam name="Ret"></typeparam>
+        /// <typeparam name="B"></typeparam>
         /// <param name="self"></param>
-        /// <param name="binder"></param>
+        /// <param name="f"></param>
         /// <returns>Bound Either</returns>
         [Pure]
-        public Either<L, Ret> Bind<Ret>(Func<R, Either<L, Ret>> binder) =>
-            MEither<L, R>.Inst.Bind<MEither<L, Ret>, Either<L, Ret>, Ret>(this, binder);
+        public Either<L, B> Bind<B>(Func<R, Either<L, B>> f) =>
+            MEither<L, R>.Inst.Bind<MEither<L, B>, Either<L, B>, B>(this, f);
 
         /// <summary>
         /// Bi-bind.  Allows mapping of both monad states
         /// </summary>
         [Pure]
         public Either<L, B> BiBind<B>(Func<R, Either<L, B>> Right, Func<L, Either<L, B>> Left) =>
-            IsRight
-                ? Right(RightValue)
-                : Left(LeftValue);
+            IsRight ? Right(RightValue)
+          : IsLeft  ? Left(LeftValue)
+          : Either<L, B>.Bottom;
+
+        /// <summary>
+        /// Bind left.  Binds the left path of the monad only
+        /// </summary>
+        [Pure]
+        public Either<B, R> BindLeft<B>(Func<L, Either<B, R>> f) =>
+            IsLeft  ? f(LeftValue)
+          : IsRight ? Right<B, R>(RightValue)
+          : Either<B, R>.Bottom;
 
         /// <summary>
         /// Filter the Either

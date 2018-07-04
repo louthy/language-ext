@@ -858,9 +858,18 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public EitherUnsafe<L, B> BiBind<B>(Func<R, EitherUnsafe<L, B>> Right, Func<L, EitherUnsafe<L, B>> Left) =>
-            IsRight
-                ? Right(RightValue)
-                : Left(LeftValue);
+            IsRight ? Right(RightValue)
+          : IsLeft  ? Left(LeftValue)
+          : EitherUnsafe<L, B>.Bottom;
+
+        /// <summary>
+        /// Bind left.  Binds the left path of the monad only
+        /// </summary>
+        [Pure]
+        public EitherUnsafe<B, R> BindLeft<B>(Func<L, EitherUnsafe<B, R>> f) =>
+            IsLeft  ? f(LeftValue)
+          : IsRight ? RightUnsafe<B, R>(RightValue)
+          : EitherUnsafe<B, R>.Bottom;
 
         /// <summary>
         /// Filter the EitherUnsafe

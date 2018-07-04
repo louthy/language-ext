@@ -3,6 +3,18 @@ using System;
 
 namespace LanguageExt.DataTypes.Serialisation
 {
+    public static class EitherData
+    {
+        public static EitherData<L, R> Right<L, R>(R rightValue) => 
+            new EitherData<L, R>(EitherStatus.IsRight, rightValue, default(L));
+
+        public static EitherData<L, R> Left<L, R>(L leftValue) =>
+            new EitherData<L, R>(EitherStatus.IsRight, default(R), leftValue);
+
+        public static EitherData<L, R> Bottom<L, R>() =>
+            EitherData<L, R>.Bottom;
+    }
+
     public class EitherData<L, R> : IEquatable<EitherData<L, R>>
     {
         public static EitherData<L, R> Bottom = new EitherData<L, R>(EitherStatus.IsBottom, default(R), default(L));

@@ -311,6 +311,33 @@ public static class TryOptionExtensions
     }
 
     [Pure]
+    public static Validation<FAIL, Option<A>> ToValidation<A, FAIL>(this TryOption<A> self, Func<Exception, FAIL> Fail)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail<FAIL, Option<A>>(Fail(res.Exception))
+            : Success<FAIL, Option<A>>(res.Value);
+    }
+
+    [Pure]
+    public static Either<L, Option<A>> ToEither<A, L>(this TryOption<A> self, Func<Exception, L> Fail)
+    {
+        var res = TryOptionExtensions.Try(self);
+        return res.IsFaulted
+            ? Left<L, Option<A>>(Fail(res.Exception))
+            : Right<L, Option<A>>(res.Value);
+    }
+
+    [Pure]
+    public static EitherUnsafe<L, Option<A>> ToEitherUnsafe<A, L>(this TryOption<A> self, Func<Exception, L> Fail)
+    {
+        var res = TryOptionExtensions.Try(self);
+        return res.IsFaulted
+            ? LeftUnsafe<L, Option<A>>(Fail(res.Exception))
+            : RightUnsafe<L, Option<A>>(res.Value);
+    }
+
+    [Pure]
     public static Try<A> ToTry<A>(this TryOption<A> self) => () => 
         self.IfFailThrow();
 
