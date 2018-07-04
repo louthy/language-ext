@@ -227,6 +227,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>`XOr(Not(a), Not(b))`</returns>
         [Pure]
         public long BiCondition(long a, long b) =>
-            XOr(Not(a), Not(b));
+            Not(XOr(a, b));
     }
 }
