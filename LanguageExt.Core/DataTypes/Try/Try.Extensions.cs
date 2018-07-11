@@ -549,16 +549,16 @@ public static class TryExtensions
             return new Result<T>(e);
         }
     }
-
+    
     [Pure]
     public static Try<U> Use<T, U>(this Try<T> self, Func<T, U> select)
-        where T : IDisposable => () =>
-        use(self().Value, select);
+        where T : IDisposable => 
+        self.Map(x => use(x, select));
 
     [Pure]
     public static Try<U> Use<T, U>(this Try<T> self, Func<T, Try<U>> select)
-        where T : IDisposable => () =>
-        use(self().Value, select)().Value;
+        where T : IDisposable =>
+        self.Bind(x => use(x, select));
 
     [Pure]
     public static int Sum(this Try<int> self) =>
