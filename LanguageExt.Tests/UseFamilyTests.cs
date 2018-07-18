@@ -118,6 +118,145 @@ namespace LanguageExt.Tests
             Assert.False(actual.IsFaulted);
         }
         #endregion
+            
+        #region Disposable Constructor Exception Tests
+        [Fact]
+        public void tryuseFuncMap_TryException_IsFaulted()
+        {
+            Func<IDisposable> m = () => throw new Exception();
+            Func<IDisposable, Unit> f = _ => unit;
+
+            var actual = tryuse(m, f)();
+
+            Assert.True(actual.IsFaulted);
+        }
+
+        [Fact]
+        public void useTryMap_TryException_IsFaulted()
+        {
+            var m = Try<IDisposable>(() => throw new Exception());
+            Func<IDisposable, Unit> f = _ => unit;
+
+            var actual = use(m, f)();
+
+            Assert.True(actual.IsFaulted);
+        }
+
+        [Fact]
+        public void useTryBind_TryException_IsFaulted()
+        {
+            var m = Try<IDisposable>(() => throw new Exception());
+            Func<IDisposable, Try<Unit>> f = _ => Try(unit);
+
+            var actual = use(m, f)();
+
+            Assert.True(actual.IsFaulted);
+        }
+
+        [Fact]
+        public void UseTryMap_TryException_IsFaulted()
+        {
+            var m = Try<IDisposable>(() => throw new Exception());
+            Func<IDisposable, Unit> f = _ => unit;
+
+            var actual = m.Use(f)();
+
+            Assert.True(actual.IsFaulted);
+        }
+
+        [Fact]
+        public void UseTryBind_TryException_IsFaulted()
+        {
+            var m = Try<IDisposable>(() => throw new Exception());
+            Func<IDisposable, Try<Unit>> f = _ => Try(unit);
+
+            var actual = m.Use(f)();
+
+            Assert.True(actual.IsFaulted);
+        }
+
+        [Fact]
+        public void tryuseFuncMap_TryException_SelectNotInvoked()
+        {
+            Func<IDisposable> m =() => throw new Exception();
+            var selectInvoked = false;
+            Func<IDisposable, Unit> f = _ =>
+            {
+                selectInvoked = true;
+                return unit;
+            };
+
+            tryuse(m, f)();
+
+            Assert.False(selectInvoked);
+        }
+
+        [Fact]
+        public void useTryMap_TryException_SelectNotInvoked()
+        {
+            var m = Try<IDisposable>(() => throw new Exception());
+            var selectInvoked = false;
+            Func<IDisposable, Unit> f = _ =>
+            {
+                selectInvoked = true;
+                return unit;
+            };
+
+            use(m, f)();
+
+            Assert.False(selectInvoked);
+        }
+
+        [Fact]
+        public void useTryBind_TryException_SelectNotInvoked()
+        {
+            var m = Try<IDisposable>(() => throw new Exception());
+            var selectInvoked = false;
+            Func<IDisposable, Try<Unit>> f = _ =>
+            {
+                selectInvoked = true;
+                return Try(unit);
+            };
+
+            use(m, f)();
+
+            Assert.False(selectInvoked);
+        }
+
+        [Fact]
+        public void UseTryMap_TryException_SelectNotInvoked()
+        {
+            var m = Try<IDisposable>(() => throw new Exception());
+
+            var selectInvoked = false;
+            Func<IDisposable, Unit> f = _ =>
+            {
+                selectInvoked = true;
+                return unit;
+            };
+
+            m.Use(f)();
+
+            Assert.False(selectInvoked);
+        }
+
+        [Fact]
+        public void UseTryBind_TryException_SelectNotInvoked()
+        {
+            var m = Try<IDisposable>(() => throw new Exception());
+
+            var selectInvoked = false;
+            Func<IDisposable, Try<Unit>> f = _ =>
+            {
+                selectInvoked = true;
+                return Try(unit);
+            };
+
+            m.Use(f)();
+
+            Assert.False(selectInvoked);
+        }
+        #endregion
 
         #region Disposable Disposed Tests
         [Fact]
