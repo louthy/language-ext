@@ -7,7 +7,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
-        <PackageVersion>3.0.18</PackageVersion>
+        <PackageVersion>3.0.19</PackageVersion>
         <PackageId>LanguageExt.Rx</PackageId>
         <Title>LanguageExt.Rx</Title>
         <Authors>Paul Louth</Authors>
@@ -58,7 +58,7 @@
       <None Remove="ValidationSeq.Extensions.cs" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+        <PackageReference Include="System.ValueTuple" Version="4.5.0" />
         <PackageReference Include="System.Reactive" Version="[3.0.0,5.0]" />
     </ItemGroup>
     <ItemGroup>

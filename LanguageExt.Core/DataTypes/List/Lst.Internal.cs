@@ -3,11 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics.Contracts;
-using System.ComponentModel;
 using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
-using LanguageExt.ClassInstances.Pred;
 using LanguageExt.ClassInstances;
 
 namespace LanguageExt
@@ -29,39 +27,44 @@ namespace LanguageExt
         public static readonly LstInternal<A> Empty = new LstInternal<A>();
 
         internal ListItem<A> root;
-        internal bool Rev;
         internal int hashCode;
 
         /// <summary>
         /// Ctor
         /// </summary>
-        internal LstInternal(IEnumerable<A> initial, Pred<A> pred)
+        internal LstInternal(IEnumerable<A> items, Pred<A> pred)
         {
             hashCode = 0;
-            this.root = ListItem<A>.Empty;
-            if (initial is Lst<A>)
+            root = ListItem<A>.Empty;
+            if (items is Lst<A>)
             {
-                var lst = (Lst<A>)initial;
-                this.root = lst.Value.Root;
-                Rev = lst.Value.Rev;
+                var lst = (Lst<A>)items;
+                root = lst.Value.Root;
             }
             else
             {
-                var lst = new List<A>(initial);
-                foreach(var item in lst)
-                {
-                    if (!pred.True(item)) throw new ArgumentOutOfRangeException("item in list");
-                }
-                this.root = ListModule.FromList(lst, 0, lst.Count());
-                Rev = false;
+                root = ListModuleM.InsertMany(root, items, 0, pred);
             }
         }
 
-        internal static LstInternal<A> Wrap(ListItem<A> list, bool rev) =>
-            new LstInternal<A>(list, rev);
+        internal LstInternal(IEnumerable<A> items)
+        {
+            hashCode = 0;
+            root = ListItem<A>.Empty;
+            if (items is Lst<A>)
+            {
+                var lst = (Lst<A>)items;
+                root = lst.Value.Root;
+            }
+            else
+            {
+                root = ListModuleM.InsertMany(root, items, 0);
+            }
+        }
 
-        internal LstInternal<A> Wrap(ListItem<A> list) =>
-            new LstInternal<A>(list, Rev);
+
+        internal static LstInternal<A> Wrap(ListItem<A> list) =>
+            new LstInternal<A>(list);
 
         /// <summary>
         /// Ctor
@@ -70,17 +73,15 @@ namespace LanguageExt
         {
             hashCode = 0;
             this.root = ListItem<A>.Empty;
-            Rev = false;
         }
 
         /// <summary>
         /// Ctor
         /// </summary>
-        internal LstInternal(ListItem<A> root, bool rev)
+        internal LstInternal(ListItem<A> root)
         {
             hashCode = 0;
             this.root = root;
-            Rev = rev;
         }
 
         internal ListItem<A> Root =>
@@ -95,7 +96,7 @@ namespace LanguageExt
             get
             {
                 if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-                return ListModule.GetItem(Root, Rev ? Count - index - 1 : index);
+                return ListModule.GetItem(Root, index);
             }
         }
 
@@ -116,7 +117,7 @@ namespace LanguageExt
             get
             {
                 if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-                return ListModule.GetItem(Root, Rev ? Count - index - 1 : index);
+                return ListModule.GetItem(Root, index);
             }
         }
 
@@ -125,7 +126,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public LstInternal<A> Add(A value) =>
-            Wrap(ListModule.Insert(Root, value, Rev ? 0 : Root.Count), Rev);
+            Wrap(ListModule.Insert(Root, value, Root.Count));
 
         /// <summary>
         /// Add a range of items to the end of the list
@@ -134,9 +135,8 @@ namespace LanguageExt
         public LstInternal<A> AddRange(IEnumerable<A> items)
         {
             if (items == null) return this;
-            var lst = new List<A>(Rev ? items.Reverse() : items);
-            var tree = ListModule.FromList(lst, 0, lst.Count);
-            return Wrap(ListModule.Insert(Root, tree, Rev ? 0 : Root.Count), Rev);
+            if (Count == 0) return new LstInternal<A>(items);
+            return Wrap(ListModuleM.InsertMany(Root, items, Count));
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public IEnumerator<A> GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root,Rev,0);
+            new ListModule.ListEnumerator<A>(Root, false, 0);
 
         /// <summary>
         /// Find the index of an item
@@ -188,7 +188,18 @@ namespace LanguageExt
         public LstInternal<A> Insert(int index, A value)
         {
             if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
-            return Wrap(ListModule.Insert(Root, value, Rev ? Count - index - 1 : index), Rev);
+            return Wrap(ListModule.Insert(Root, value, index));
+        }
+
+        /// <summary>
+        /// Insert range of values at specified index
+        /// </summary>
+        [Pure]
+        public LstInternal<A> InsertRange(int index, IEnumerable<A> items)
+        {
+            if (items == null) return this;
+            if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
+            return Wrap(ListModuleM.InsertMany(Root, items, index));
         }
 
         /// <summary>
@@ -199,14 +210,7 @@ namespace LanguageExt
         {
             if (items == null) return this;
             if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
-
-            var lst = new List<A>(Rev ? items.Reverse() : items);
-            foreach(var item in items)
-            {
-                if (!pred.True(item)) throw new ArgumentOutOfRangeException(nameof(items));
-            }
-            var tree = ListModule.FromList(lst, 0, lst.Count);
-            return Wrap(ListModule.Insert(Root, tree, Rev ? Count - index - 1 : index), Rev);
+            return Wrap(ListModuleM.InsertMany(Root, items, index, pred));
         }
 
         /// <summary>
@@ -246,7 +250,7 @@ namespace LanguageExt
         public LstInternal<A> RemoveAt(int index)
         {
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-            return Wrap(ListModule.Remove(Root, Rev ? Count - index - 1 : index), Rev);
+            return Wrap(ListModule.Remove(Root, index));
         }
 
         /// <summary>
@@ -274,21 +278,21 @@ namespace LanguageExt
         {
             if (isnull(value)) throw new ArgumentNullException(nameof(value));
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-            return new LstInternal<A>(ListModule.SetItem(Root,value,index),Rev);
+            return new LstInternal<A>(ListModule.SetItem(Root, value, index));
         }
 
         [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, Rev, 0);
+            new ListModule.ListEnumerator<A>(Root, false, 0);
 
         [Pure]
         IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, Rev, 0);
+            new ListModule.ListEnumerator<A>(Root, false, 0);
 
         [Pure]
         public IEnumerable<A> Skip(int amount)
         {
-            var iter = new ListModule.ListEnumerator<A>(Root, Rev, amount);
+            var iter = new ListModule.ListEnumerator<A>(Root, false, amount);
             while (iter.MoveNext())
             {
                 yield return iter.Current;
@@ -299,12 +303,8 @@ namespace LanguageExt
         /// Reverse the order of the items in the list
         /// </summary>
         [Pure]
-        public LstInternal<A> Reverse()
-        {
-            // This is currenty buggy, so going the safe (and less efficient) route for now
-            // return new Lst<T>(Root, !Rev);
-            return new LstInternal<A>(this.AsEnumerable().Reverse(), default(True<A>));
-        }
+        public LstInternal<A> Reverse() =>
+            new LstInternal<A>(this.AsEnumerable().Reverse());
 
         /// <summary>
         /// Fold
@@ -324,14 +324,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public LstInternal<U> Map<U>(Func<A, U> map) =>
-            new LstInternal<U>(ListModule.Map(Root, map), Rev);
+            new LstInternal<U>(ListModule.Map(Root, map));
 
         [Pure]
         public IEnumerable<A> FindRange(int index, int count)
         {
             if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             if (count < 0) throw new ArgumentOutOfRangeException(nameof(index));
-            var iter = new ListModule.ListEnumerator<A>(Root, Rev, index, count);
+            var iter = new ListModule.ListEnumerator<A>(Root, false, index, count);
             while (iter.MoveNext())
             {
                 yield return iter.Current;
@@ -344,16 +344,17 @@ namespace LanguageExt
         [Pure]
         public LstInternal<A> Filter(Func<A, bool> pred)
         {
-            var filtered = new List<A>();
-            foreach (var item in this)
+            IEnumerable<A> Yield()
             {
-                if (pred(item))
+                foreach (var item in this)
                 {
-                    filtered.Add(item);
+                    if (pred(item))
+                    {
+                        yield return item;
+                    }
                 }
             }
-            var root = ListModule.FromList(filtered, 0, filtered.Count);
-            return Wrap(root, Rev);
+            return new LstInternal<A>(Yield());
         }
 
         [Pure]
@@ -362,7 +363,7 @@ namespace LanguageExt
 
         [Pure]
         public static LstInternal<A> operator +(A rhs, LstInternal<A> lhs) =>
-            new LstInternal<A>(rhs.Cons(lhs), default(True<A>));
+            new LstInternal<A>(rhs.Cons(lhs));
 
         [Pure]
         public static LstInternal<A> operator +(LstInternal<A> lhs, LstInternal<A> rhs) =>
@@ -459,10 +460,10 @@ namespace LanguageExt
         public static readonly ListItem<T> Empty = new ListItem<T>(0, 0, null, default(T), null);
 
         public bool IsEmpty => Count == 0;
-        public readonly int Count;
-        public readonly byte Height;
-        public readonly ListItem<T> Left;
-        public readonly ListItem<T> Right;
+        public int Count;
+        public byte Height;
+        public ListItem<T> Left;
+        public ListItem<T> Right;
 
         /// <summary>
         /// Ctor
@@ -479,12 +480,12 @@ namespace LanguageExt
         internal int BalanceFactor =>
             Count == 0
                 ? 0
-                : ((int)Left.Height) - ((int)Right.Height);
+                : ((int)Right.Height) - ((int)Left.Height);
 
         public T Key
         {
             get;
-            private set;
+            internal set;
         }
 
         public bool IsBalanced =>
@@ -494,6 +495,130 @@ namespace LanguageExt
             IsEmpty
                 ? "(empty)"
                 : Key.ToString();
+    }
+
+    internal static class ListModuleM
+    {
+        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index, Pred<A> pred)
+        {
+            var root = ListItem<A>.Empty;
+
+            var subIndex = 0;
+            foreach (var item in items)
+            {
+                if (!pred.True(item)) throw new ArgumentOutOfRangeException("item in items");
+                root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
+                subIndex++;
+            }
+            return Insert(node, root, index);
+        }
+
+        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index)
+        {
+            var root = ListItem<A>.Empty;
+
+            var subIndex = 0;
+            foreach (var item in items)
+            {
+                root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
+                subIndex++;
+            }
+            return Insert(node, root, index);
+        }
+
+        public static ListItem<A> Insert<A>(ListItem<A> node, ListItem<A> insertNode, int index)
+        {
+            if (node.IsEmpty)
+            {
+                return insertNode;
+            }
+            else if (index == node.Left.Count)
+            {
+                insertNode.Left = node.Left;
+                insertNode = Balance(insertNode);
+
+                //var insertedLeft = Balance(Make(insertNode.Key, node.Left, ListItem<A>.Empty));
+
+                node.Left = insertNode;
+                node = Balance(node);
+
+                //var newThis = Balance(Make(node.Key, insertedLeft, node.Right)); 
+
+                return node;
+            }
+            else if (index < node.Left.Count)
+            {
+                node.Left = Insert(node.Left, insertNode, index);
+                return Balance(node);
+            }
+            else
+            {
+                node.Right = Insert(node.Right, insertNode, index - node.Left.Count - 1);
+                return Balance(node);
+            }
+        }
+
+        public static ListItem<T> Balance<T>(ListItem<T> node)
+        {
+            node.Height = (byte)(1 + Math.Max(node.Left.Height, node.Right.Height));
+            node.Count = 1 + node.Left.Count + node.Right.Count;
+
+            return node.BalanceFactor >= 2
+                ? node.Right.BalanceFactor < 0
+                    ? DblRotLeft(node)
+                    : RotLeft(node)
+                : node.BalanceFactor <= -2
+                    ? node.Left.BalanceFactor > 0
+                        ? DblRotRight(node)
+                        : RotRight(node)
+                    : node;
+        }
+
+        public static ListItem<T> DblRotRight<T>(ListItem<T> node)
+        {
+            node.Left = RotLeft(node.Left);
+            return RotRight(node);
+        }
+
+        public static ListItem<T> DblRotLeft<T>(ListItem<T> node)
+        {
+            node.Right = RotRight(node.Right);
+            return RotLeft(node);
+        }
+
+        public static ListItem<A> RotRight<A>(ListItem<A> node)
+        {
+            if (node.IsEmpty || node.Left.IsEmpty) return node;
+
+            var y = node;
+            var x = y.Left;
+            var t2 = x.Right;
+            x.Right = y;
+            y.Left = t2;
+            y.Height = (byte)(1 + Math.Max(y.Left.Height, y.Right.Height));
+            x.Height = (byte)(1 + Math.Max(x.Left.Height, x.Right.Height));
+            y.Count = 1 + y.Left.Count + y.Right.Count;
+            x.Count = 1 + x.Left.Count + x.Right.Count;
+
+            return x;
+        }
+
+        public static ListItem<A> RotLeft<A>(ListItem<A> node)
+        {
+            if (node.IsEmpty || node.Right.IsEmpty) return node;
+
+            var x = node;
+            var y = x.Right;
+            var t2 = y.Left;
+            y.Left = x;
+            x.Right = t2;
+            x.Height = (byte)(1 + Math.Max(x.Left.Height, x.Right.Height));
+            y.Height = (byte)(1 + Math.Max(y.Left.Height, y.Right.Height));
+            x.Count = 1 + x.Left.Count + x.Right.Count;
+            y.Count = 1 + y.Left.Count + y.Right.Count;
+
+            return y;
+        }
     }
 
     static class ListModule
@@ -572,19 +697,6 @@ namespace LanguageExt
             {
                 return Balance(Make(node.Key, node.Left, Insert(node.Right, insertNode, index - node.Left.Count - 1)));
             }
-        }
-
-        public static ListItem<T> FromList<T>(IList<T> items, int start, int length)
-        {
-            if (length == 0)
-            {
-                return ListItem<T>.Empty;
-            }
-            int rightCount = (length - 1) / 2;
-            int leftCount = (length - 1) - rightCount;
-            var left = FromList(items, start, leftCount);
-            var right = FromList(items, start + leftCount + 1, rightCount);
-            return Make(items[start + leftCount], left, right);
         }
 
         public static ListItem<T> SetItem<T>(ListItem<T> node, T key, int index)
@@ -858,13 +970,13 @@ namespace LanguageExt
 
         public static ListItem<T> Balance<T>(ListItem<T> node) =>
             node.BalanceFactor >= 2
-                ? node.Left.BalanceFactor >= 1
-                    ? RotRight(node)
-                    : DblRotRight(node)
+                ? node.Right.BalanceFactor < 0
+                    ? DblRotLeft(node)
+                    : RotLeft(node)
                 : node.BalanceFactor <= -2
-                    ? node.Left.BalanceFactor <= -1
-                        ? RotLeft(node)
-                        : DblRotLeft(node)
+                    ? node.Left.BalanceFactor > 0
+                        ? DblRotRight(node)
+                        : RotRight(node)
                     : node;
 
         public static ListItem<T> RotRight<T>(ListItem<T> node) =>

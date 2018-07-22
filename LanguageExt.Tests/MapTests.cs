@@ -1,5 +1,4 @@
 ﻿using LanguageExt;
-//using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using static LanguageExt.Map;
 using Xunit;
@@ -310,15 +309,33 @@ namespace LanguageExtTests
         [Fact]
         public void EqualsTest()
         {
-            Assert.True(Map<int, int>().Equals(Map<int, int>()));
-            Assert.False(Map<int, int>((1, 2)).Equals(Map<int, int>()));
-            Assert.False(Map<int, int>().Equals(Map<int, int>((1, 2))));
-            Assert.True(Map<int, int>((1, 2)).Equals(Map<int, int>((1, 2))));
-            Assert.False(Map<int, int>((1, 2), (3, 4)).Equals(Map<int, int>((1, 2))));
-            Assert.False(Map<int, int>((1, 2)).Equals(Map<int, int>((1, 2), (3, 4))));
-            Assert.True(Map<int, int>((1, 2), (3, 4)).Equals(Map<int, int>((1, 2), (3, 4))));
-            Assert.True(Map<int, int>((3, 4), (1, 2)).Equals(Map<int, int>((1, 2), (3, 4))));
-            Assert.True(Map<int, int>((3, 4), (1, 2)).Equals(Map<int, int>((3, 4), (1, 2))));
+            var emp = Map<int, int>();
+
+            Assert.True(emp.Equals(emp));
+            Assert.False(Map((1, 2)).Equals(emp));
+            Assert.False(emp.Equals(Map((1, 2))));
+            Assert.True(Map((1, 2)).Equals(Map((1, 2))));
+            Assert.False(Map((1, 2), (3, 4)).Equals(Map((1, 2))));
+            Assert.False(Map((1, 2)).Equals(Map((1, 2), (3, 4))));
+            Assert.True(Map((1, 2), (3, 4)).Equals(Map((1, 2), (3, 4))));
+            Assert.True(Map((3, 4), (1, 2)).Equals(Map((1, 2), (3, 4))));
+            Assert.True(Map((3, 4), (1, 2)).Equals(Map((3, 4), (1, 2))));
         }
+
+        // Exponential test - takes too long to run
+        //[Fact]
+        //public void Issue_454()
+        //{
+        //    var tmp = "".PadLeft(30000, 'x'); // something big enough (one Referral object = 20-40kb)
+        //    var map = Map<int, string>();
+
+        //    for (int i = 0; i < 30000; i++) // for our real system it is only 3000 items, but with string it needs more
+        //    {
+        //        map = map.AddOrUpdate(i, tmp);
+        //        map = map.Filter(_ => true);
+        //    }
+
+        //    map.Filter(_ => false);
+        //}
     }
 }

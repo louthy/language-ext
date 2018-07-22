@@ -56,7 +56,11 @@ namespace LanguageExt
         /// </summary>
         /// <param name="items"></param>
         public Set(IEnumerable<A> items, bool tryAdd) =>
-            value = new SetInternal<OrdDefault<A>, A>(items, tryAdd);
+            value = new SetInternal<OrdDefault<A>, A>(
+                items, 
+                tryAdd
+                    ? SetModuleM.AddOpt.TryAdd
+                    : SetModuleM.AddOpt.ThrowOnDuplicate);
 
         static Set<A> Wrap(SetInternal<OrdDefault<A>, A> set) =>
             new Set<A>(set);

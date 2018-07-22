@@ -46,7 +46,7 @@ namespace LanguageExt
         /// <summary>
         /// Ctor from an enumerable 
         /// </summary>
-        public SetInternal(IEnumerable<A> items) : this(items, true)
+        public SetInternal(IEnumerable<A> items) : this(items, SetModuleM.AddOpt.TryAdd)
         {
         }
 
@@ -82,23 +82,13 @@ namespace LanguageExt
         /// Ctor that takes an initial (distinct) set of items
         /// </summary>
         /// <param name="items"></param>
-        internal SetInternal(IEnumerable<A> items, bool tryAdd)
+        internal SetInternal(IEnumerable<A> items, SetModuleM.AddOpt option)
         {
             set = SetItem<A>.Empty;
 
-            if (tryAdd)
+            foreach (var item in items)
             {
-                foreach (var item in items)
-                {
-                    set = SetModule.TryAdd<OrdA, A>(set, item);
-                }
-            }
-            else
-            {
-                foreach (var item in items)
-                {
-                    set = SetModule.Add<OrdA, A>(set, item);
-                }
+                set = SetModuleM.Add<OrdA, A>(set, item, option);
             }
         }
 
@@ -143,6 +133,16 @@ namespace LanguageExt
         [Pure]
         public SetInternal<OrdA, A> AddRange(IEnumerable<A> xs)
         {
+            if(xs == null)
+            {
+                return this;
+            }
+
+            if(Count == 0)
+            {
+                return new SetInternal<OrdA, A>(xs, SetModuleM.AddOpt.ThrowOnDuplicate);
+            }
+
             var set = this;
             foreach(var x in xs)
             {
@@ -154,6 +154,16 @@ namespace LanguageExt
         [Pure]
         public SetInternal<OrdA, A> TryAddRange(IEnumerable<A> xs)
         {
+            if (xs == null)
+            {
+                return this;
+            }
+
+            if (Count == 0)
+            {
+                return new SetInternal<OrdA, A>(xs, SetModuleM.AddOpt.TryAdd);
+            }
+
             var set = this;
             foreach (var x in xs)
             {
@@ -165,6 +175,16 @@ namespace LanguageExt
         [Pure]
         public SetInternal<OrdA, A> AddOrUpdateRange(IEnumerable<A> xs)
         {
+            if (xs == null)
+            {
+                return this;
+            }
+
+            if (Count == 0)
+            {
+                return new SetInternal<OrdA, A>(xs, SetModuleM.AddOpt.TryUpdate);
+            }
+
             var set = this;
             foreach (var x in xs)
             {
@@ -196,13 +216,15 @@ namespace LanguageExt
         [Pure]
         public SetInternal<OrdA, A> Intersect(IEnumerable<A> other)
         {
-            var res = new List<A>();
+            var root = SetItem<A>.Empty;
             foreach (var item in other)
             {
                 if (Contains(item))
-                    res.Add(item);
+                {
+                    root = SetModuleM.Add<OrdA, A>(root, item, SetModuleM.AddOpt.TryAdd);
+                }
             }
-            return new SetInternal<OrdA, A>(res);
+            return new SetInternal<OrdA, A>(root);
         }
 
         /// <summary>
@@ -212,15 +234,15 @@ namespace LanguageExt
         [Pure]
         public SetInternal<OrdA, A> Except(IEnumerable<A> other)
         {
-            var self = this;
-            foreach (var item in other)
+            var root = SetItem<A>.Empty;
+            foreach (var item in this)
             {
-                if (self.Contains(item))
+                if (!other.Contains(item))
                 {
-                    self = self.Remove(item);
+                    root = SetModuleM.Add<OrdA, A>(root, item, SetModuleM.AddOpt.TryAdd);
                 }
             }
-            return self;
+            return new SetInternal<OrdA, A>(root);
         }
 
         /// <summary>
@@ -228,29 +250,36 @@ namespace LanguageExt
         /// If an item is in both, it is dropped.
         /// </summary>
         [Pure]
-        public SetInternal<OrdA, A> SymmetricExcept(IEnumerable<A> other)
+        public SetInternal<OrdA, A> SymmetricExcept(SetInternal<OrdA, A> rhs)
         {
-            var rhs = new SetInternal<OrdA, A>(other);
-            var res = new List<A>();
+            var root = SetItem<A>.Empty;
 
             foreach (var item in this)
             {
                 if (!rhs.Contains(item))
                 {
-                    res.Add(item);
+                    root = SetModuleM.Add<OrdA, A>(root, item, SetModuleM.AddOpt.TryAdd);
                 }
             }
 
-            foreach (var item in other)
+            foreach (var item in rhs)
             {
                 if (!Contains(item))
                 {
-                    res.Add(item);
+                    root = SetModuleM.Add<OrdA, A>(root, item, SetModuleM.AddOpt.TryAdd);
                 }
             }
 
-            return new SetInternal<OrdA, A>(res);
+            return new SetInternal<OrdA, A>(root);
         }
+
+        /// <summary>
+        /// Only items that are in one set or the other will be returned.
+        /// If an item is in both, it is dropped.
+        /// </summary>
+        [Pure]
+        public SetInternal<OrdA, A> SymmetricExcept(IEnumerable<A> other) =>
+            SymmetricExcept(new SetInternal<OrdA, A>(other));
 
         /// <summary>
         /// Finds the union of two sets and produces a new set with 
@@ -261,12 +290,21 @@ namespace LanguageExt
         [Pure]
         public SetInternal<OrdA, A> Union(IEnumerable<A> other)
         {
-            var self = this;
+            if(other == null || !other.Any()) return this;
+
+            var root = SetItem<A>.Empty;
+
+            foreach(var item in this)
+            {
+                root = SetModuleM.Add<OrdA, A>(root, item, SetModuleM.AddOpt.TryAdd);
+            }
+
             foreach (var item in other)
             {
-                self = self.TryAdd(item);
+                root = SetModuleM.Add<OrdA, A>(root, item, SetModuleM.AddOpt.TryAdd);
             }
-            return self;
+
+            return new SetInternal<OrdA, A>(root);
         }
 
         /// <summary>
@@ -329,22 +367,22 @@ namespace LanguageExt
         /// mapper function to tranform the source values.
         /// </summary>
         /// <typeparam name="R">Mapped element type</typeparam>
-        /// <param name="mapper">Mapping function</param>
+        /// <param name="f">Mapping function</param>
         /// <returns>Mapped Set</returns>
         [Pure]
-        public SetInternal<OrdB, B> Map<OrdB, B>(Func<A, B> map) where OrdB : struct, Ord<B> =>
-            new SetInternal<OrdB, B>(this.AsEnumerable().Select(map), true);
+        public SetInternal<OrdB, B> Map<OrdB, B>(Func<A, B> f) where OrdB : struct, Ord<B> =>
+            new SetInternal<OrdB, B>(SetModule.Map(set, f));
 
         /// <summary>
         /// Maps the values of this set into a new set of values using the
         /// mapper function to tranform the source values.
         /// </summary>
         /// <typeparam name="R">Mapped element type</typeparam>
-        /// <param name="mapper">Mapping function</param>
+        /// <param name="f">Mapping function</param>
         /// <returns>Mapped Set</returns>
         [Pure]
-        public SetInternal<OrdA, A> Map(Func<A, A> map) =>
-            new SetInternal<OrdA, A>(this.AsEnumerable().Select(map), true);
+        public SetInternal<OrdA, A> Map(Func<A, A> f) =>
+            new SetInternal<OrdA, A>(SetModule.Map(set, f));
 
         /// <summary>
         /// Filters items from the set using the predicate.  If the predicate
@@ -355,7 +393,7 @@ namespace LanguageExt
         /// <returns>Filtered enumerable</returns>
         [Pure]
         public SetInternal<OrdA, A> Filter(Func<A, bool> pred) =>
-            new SetInternal<OrdA, A>(SetModule.Filter(set, pred));
+            new SetInternal<OrdA, A>(AsEnumerable().Filter(pred), SetModuleM.AddOpt.TryAdd);
 
         /// <summary>
         /// Check the existence of an item in the set using a 
@@ -490,7 +528,7 @@ namespace LanguageExt
                 return true;
             }
 
-            var otherSet = new Set<A>(other);
+            var otherSet = new SetInternal<OrdA, A>(other);
             int matches = 0;
             foreach (A item in otherSet)
             {
@@ -615,12 +653,30 @@ namespace LanguageExt
         [Pure]
         public SetInternal<OrdA, A> Subtract(SetInternal<OrdA, A> rhs)
         {
-            var self = this;
-            foreach (var item in rhs)
+            if (Count == 0) return Empty;
+            if (rhs.Count == 0) return this;
+
+            if (rhs.Count < Count)
             {
-                self = self.Remove(item);
+                var self = this;
+                foreach (var item in rhs)
+                {
+                    self = self.Remove(item);
+                }
+                return self;
             }
-            return self;
+            else
+            {
+                var root = SetItem<A>.Empty;
+                foreach (var item in this)
+                {
+                    if (!rhs.Contains(item))
+                    {
+                        root = SetModuleM.Add<OrdA, A>(root, item, SetModuleM.AddOpt.TryAdd);
+                    }
+                }
+                return new SetInternal<OrdA, A>(root);
+            }
         }
 
         /// <summary>
@@ -668,10 +724,10 @@ namespace LanguageExt
         public static readonly SetItem<K> Empty = new SetItem<K>(0, 0, default(K), null, null);
 
         public bool IsEmpty => Count == 0;
-        public readonly int Count;
-        public readonly byte Height;
-        public readonly SetItem<K> Left;
-        public readonly SetItem<K> Right;
+        public int Count;
+        public byte Height;
+        public SetItem<K> Left;
+        public SetItem<K> Right;
 
         /// <summary>
         /// Ctor
@@ -689,13 +745,120 @@ namespace LanguageExt
         internal int BalanceFactor =>
             Count == 0
                 ? 0
-                : ((int)Left.Height) - ((int)Right.Height);
+                : ((int)Right.Height) - ((int)Left.Height);
 
         [Pure]
         public K Key
         {
             get;
-            private set;
+            internal set;
+        }
+    }
+
+    internal static class SetModuleM
+    {
+        public enum AddOpt
+        {
+            ThrowOnDuplicate,
+            TryAdd,
+            TryUpdate
+        }
+
+        public static SetItem<K> Add<OrdK, K>(SetItem<K> node, K key, AddOpt option)
+            where OrdK : struct, Ord<K>
+        {
+            if (node.IsEmpty)
+            {
+                return new SetItem<K>(1, 1, key, SetItem<K>.Empty, SetItem<K>.Empty);
+            }
+            var cmp = default(OrdK).Compare(key, node.Key);
+            if (cmp < 0)
+            {
+                node.Left = Add<OrdK, K>(node.Left, key, option);
+                return Balance(node);
+            }
+            else if (cmp > 0)
+            {
+                node.Right = Add<OrdK, K>(node.Right, key, option);
+                return Balance(node);
+            }
+            else if (option == AddOpt.TryAdd)
+            {
+                // Already exists, but we don't care
+                return node;
+            }
+            else if (option == AddOpt.TryUpdate)
+            {
+                // Already exists, and we want to update the content
+                node.Key = key;
+                return node;
+            }
+            else
+            {
+                throw new ArgumentException("An element with the same key already exists in the Map");
+            }
+        }
+
+        public static SetItem<K> Balance<K>(SetItem<K> node)
+        {
+            node.Height = (byte)(1 + Math.Max(node.Left.Height, node.Right.Height));
+            node.Count = 1 + node.Left.Count + node.Right.Count;
+
+            return node.BalanceFactor >= 2
+                ? node.Right.BalanceFactor < 0
+                    ? DblRotLeft(node)
+                    : RotLeft(node)
+                : node.BalanceFactor <= -2
+                    ? node.Left.BalanceFactor > 0
+                        ? DblRotRight(node)
+                        : RotRight(node)
+                    : node;
+        }
+
+        public static SetItem<K> DblRotRight<K>(SetItem<K> node)
+        {
+            node.Left = RotLeft(node.Left);
+            return RotRight(node);
+        }
+
+        public static SetItem<K> DblRotLeft<K>(SetItem<K> node)
+        {
+            node.Right = RotRight(node.Right);
+            return RotLeft(node);
+        }
+
+        public static SetItem<K> RotRight<K>(SetItem<K> node)
+        {
+            if (node.IsEmpty || node.Left.IsEmpty) return node;
+
+            var y = node;
+            var x = y.Left;
+            var t2 = x.Right;
+            x.Right = y;
+            y.Left = t2;
+            y.Height = (byte)(1 + Math.Max(y.Left.Height, y.Right.Height));
+            x.Height = (byte)(1 + Math.Max(x.Left.Height, x.Right.Height));
+            y.Count = 1 + y.Left.Count + y.Right.Count;
+            x.Count = 1 + x.Left.Count + x.Right.Count;
+
+            return x;
+        }
+
+        public static SetItem<K> RotLeft<K>(SetItem<K> node)
+        {
+            if (node.IsEmpty || node.Right.IsEmpty) return node;
+
+            var x = node;
+            var y = x.Right;
+            var t2 = y.Left;
+            y.Left = x;
+            x.Right = t2;
+            x.Height = (byte)(1 + Math.Max(x.Left.Height, x.Right.Height));
+            y.Height = (byte)(1 + Math.Max(y.Left.Height, y.Right.Height));
+            x.Count = 1 + x.Left.Count + x.Right.Count;
+            y.Count = 1 + y.Left.Count + y.Right.Count;
+
+            return y;
         }
     }
 
@@ -742,14 +905,6 @@ namespace LanguageExt
                 : pred(node.Key)
                     ? true
                     : Exists(node.Left, pred) || Exists(node.Right, pred);
-
-        [Pure]
-        public static SetItem<K> Filter<K>(SetItem<K> node, Func<K, bool> pred) =>
-            node.IsEmpty
-                ? node
-                : pred(node.Key)
-                    ? Balance(Make(node.Key, Filter(node.Left, pred), Filter(node.Right, pred)))
-                    : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
 
         [Pure]
         public static SetItem<K> Add<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
@@ -993,13 +1148,13 @@ namespace LanguageExt
         [Pure]
         public static SetItem<K> Balance<K>(SetItem<K> node) =>
             node.BalanceFactor >= 2
-                ? node.Left.BalanceFactor >= 1
-                    ? RotRight(node)
-                    : DblRotRight(node)
+                ? node.Right.BalanceFactor < 0
+                    ? DblRotLeft(node)
+                    : RotLeft(node)
                 : node.BalanceFactor <= -2
-                    ? node.Left.BalanceFactor <= -1
-                        ? RotLeft(node)
-                        : DblRotLeft(node)
+                    ? node.Left.BalanceFactor > 0
+                        ? DblRotRight(node)
+                        : RotRight(node)
                     : node;
 
         [Pure]
@@ -1025,6 +1180,12 @@ namespace LanguageExt
             node.IsEmpty
                 ? node
                 : RotLeft(Make(node.Key, node.Left, RotRight(node.Right)));
+
+        [Pure]
+        public static SetItem<B> Map<A, B>(SetItem<A> node, Func<A, B> f) =>
+            node.IsEmpty
+                ? SetItem<B>.Empty
+                : new SetItem<B>(node.Height, node.Count, f(node.Key), Map(node.Left, f), Map(node.Right, f));
 
         public class SetEnumerator<K> : IEnumerator<K>
         {

@@ -36,35 +36,16 @@ namespace LanguageExt
         public Map(IEnumerable<(K Key, V Value)> items) : this(items, true)
         { }
 
-        public Map(IEnumerable<(K Key, V Value)> items, bool tryAdd)
-        {
-            var map = Map<K, V>.Empty;
-            if (tryAdd)
-            {
-                foreach (var item in items)
-                {
-                    map = map.TryAdd(item.Key, item.Value);
-                }
-            }
-            else
-            {
-                foreach (var item in items)
-                {
-                    map = map.Add(item.Key, item.Value);
-                }
-            }
-            this.value = map.value;
-        }
-
-        internal Map(MapInternal<OrdDefault<K>, K, V> value)
-        {
+        public Map(IEnumerable<(K Key, V Value)> items, bool tryAdd) =>
+            this.value = new MapInternal<OrdDefault<K>, K, V>(items, tryAdd 
+                ? MapModuleM.AddOpt.TryAdd 
+                : MapModuleM.AddOpt.ThrowOnDuplicate);
+        
+        internal Map(MapInternal<OrdDefault<K>, K, V> value) =>
             this.value = value;
-        }
 
-        internal Map(MapItem<K, V> root, bool rev)
-        {
+        internal Map(MapItem<K, V> root, bool rev) =>
             this.value = new MapInternal<OrdDefault<K>, K, V>(root, rev);
-        }
 
         internal MapInternal<OrdDefault<K>, K, V> Value =>
             value ?? MapInternal<OrdDefault<K>, K, V>.Empty;
@@ -507,8 +488,8 @@ namespace LanguageExt
         /// Map the map the a dictionary
         /// </summary>
         [Pure]
-        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K Key, V Value), KR> keySelector, Func<(K Key, V Value), VR> valueSelector)
-            => Value.ToDictionary(keySelector, valueSelector);
+        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K Key, V Value), KR> keySelector, Func<(K Key, V Value), VR> valueSelector) => 
+            Value.ToDictionary(keySelector, valueSelector);
 
         /// <summary>
         /// Get a IReadOnlyDictionary for this map.  No mapping is required, so this is very fast.
@@ -692,11 +673,29 @@ namespace LanguageExt
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
         /// </summary>
-        /// <param name="pred">Predicate</param>
+        /// <param name="valuePred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
-        public Map<K, V> Where(Func<V, bool> pred) =>
-            new Map<K, V>(MapModule.Filter(Value.Root, pred), Value.Rev);
+        public Map<K, V> Where(Func<V, bool> valuePred) =>
+            new Map<K, V>(Value.Filter(valuePred));
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="keyValuePred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        [Pure]
+        public Map<K, V> Where(Func<K, V, bool> keyValuePred) =>
+            new Map<K, V>(Value.Filter(keyValuePred));
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="valuePred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        [Pure]
+        public Map<K, V> Filter(Func<V, bool> valuePred) =>
+            new Map<K, V>(Value.Filter(valuePred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -704,26 +703,8 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
-        public Map<K, V> Where(Func<K, V, bool> pred) =>
-            SetRoot(MapModule.Filter(Value.Root, pred));
-
-        /// <summary>
-        /// Atomically filter out items that return false when a predicate is applied
-        /// </summary>
-        /// <param name="pred">Predicate</param>
-        /// <returns>New map with items filtered</returns>
-        [Pure]
-        public Map<K, V> Filter(Func<V, bool> pred) =>
-            SetRoot(MapModule.Filter(Value.Root, pred));
-
-        /// <summary>
-        /// Atomically filter out items that return false when a predicate is applied
-        /// </summary>
-        /// <param name="pred">Predicate</param>
-        /// <returns>New map with items filtered</returns>
-        [Pure]
-        public Map<K, V> Filter(Func<K, V, bool> pred) =>
-            SetRoot(MapModule.Filter(Value.Root, pred));
+        public Map<K, V> Filter(Func<K, V, bool> keyValuePred) =>
+            new Map<K, V>(Value.Filter(keyValuePred));
 
         /// <summary>
         /// Return true if all items in the map return true when the predicate is applied
@@ -899,7 +880,7 @@ namespace LanguageExt
         /// <returns>Filtered map</returns>
         [Pure]
         public Map<K, U> Choose<U>(Func<K, V, Option<U>> selector) =>
-            new Map<K, U>(MapModule.Choose(Value.Root, selector), Value.Rev);
+            new Map<K, U>(Value.Choose(selector));
 
         /// <summary>
         /// Equivalent to map and filter but the filtering is done based on whether the returned
@@ -910,7 +891,7 @@ namespace LanguageExt
         /// <returns>Filtered map</returns>
         [Pure]
         public Map<K, U> Choose<U>(Func<V, Option<U>> selector) =>
-            new Map<K, U>(MapModule.Choose(Value.Root, selector), Value.Rev);
+            new Map<K, U>(Value.Choose(selector));
 
         /// <summary>
         /// Atomically folds all items in the map (in order) using the folder function provided.
@@ -935,7 +916,7 @@ namespace LanguageExt
             MapModule.Fold(Value.Root, state, folder);
 
         /// <summary>
-        /// Union two maps.  The merge function is called keys are
+        /// Union two maps.  The merge function is called when keys are
         /// present in both map.
         /// </summary>
         [Pure]
@@ -943,7 +924,7 @@ namespace LanguageExt
             Union(other, (k, v) => v, (k, v) => v, Merge);
 
         /// <summary>
-        /// Union two maps.  The merge function is called keys are
+        /// Union two maps.  The merge function is called when keys are
         /// present in both map.
         /// </summary>
         [Pure]
@@ -951,7 +932,7 @@ namespace LanguageExt
             Union(other, (k, v) => v, MapRight, Merge);
 
         /// <summary>
-        /// Union two maps.  The merge function is called keys are
+        /// Union two maps.  The merge function is called when keys are
         /// present in both map.
         /// </summary>
         [Pure]
@@ -959,112 +940,35 @@ namespace LanguageExt
             Union(other, MapLeft, (k, v) => v, Merge);
 
         /// <summary>
-        /// Union two maps.  The merge function is called keys are
+        /// Union two maps.  The merge function is called when keys are
         /// present in both map.
         /// </summary>
         [Pure]
-        public Map<K, R> Union<V2, R>(Map<K, V2> other, WhenMissing<K, V, R> MapLeft, WhenMissing<K, V2, R> MapRight, WhenMatched<K, V, V2, R> Merge)
-        {
-            // TODO: Look into more optimal solution
-
-            if (MapLeft == null) throw new ArgumentNullException(nameof(MapLeft));
-            if (MapRight == null) throw new ArgumentNullException(nameof(MapRight));
-            if (Merge == null) throw new ArgumentNullException(nameof(Merge));
-
-            var result = Map<K, R>.Empty;
-            foreach (var right in other)
-            {
-                var key = right.Key;
-                var left = Find(key);
-                if(left.IsSome)
-                {
-                    result = result.Add(key, Merge(key, left.Value, right.Value));
-                }
-                else
-                {
-                    result = result.Add(key, MapRight(key, right.Value));
-                }
-            }
-            foreach (var left in this)
-            {
-                var key = left.Key;
-                var right = other.Find(key);
-                if (right.IsNone)
-                {
-                    result = result.Add(key, MapLeft(key, left.Value));
-                }
-            }
-            return result;
-        }
-
+        public Map<K, R> Union<V2, R>(Map<K, V2> other, WhenMissing<K, V, R> MapLeft, WhenMissing<K, V2, R> MapRight, WhenMatched<K, V, V2, R> Merge) =>
+            new Map<K, R>(Value.Union(other.Value, MapLeft, MapRight, Merge));
+            
         /// <summary>
         /// Intersect two maps.  Only keys that are in both maps are
         /// returned.  The merge function is called for every resulting
         /// key.
         [Pure]
-        public Map<K, R> Intersect<V2, R>(Map<K, V2> other, WhenMatched<K, V, V2, R> Merge)
-        {
-            // TODO: Look into more optimal solution
-
-            if (Merge == null) throw new ArgumentNullException(nameof(Merge));
-
-            var map = Map<K, R>.Empty;
-            foreach (var right in other)
-            {
-                var left = Find(right.Key);
-                if (left.IsSome)
-                {
-                    map = map.Add(right.Key, Merge(right.Key, left.Value, right.Value));
-                }
-            }
-            return map;
-        }
+        public Map<K, R> Intersect<V2, R>(Map<K, V2> other, WhenMatched<K, V, V2, R> Merge) =>
+            new Map<K, R>(Value.Intersect(other.Value, Merge));
 
         /// <summary>
         /// Map differencing based on key.  this - other.
         /// </summary>
         [Pure]
-        public Map<K, V> Except(Map<K, V> other)
-        {
-            // TODO: Look into more optimal solution
-
-            var map = this;
-            foreach (var right in other)
-            {
-                if (map.ContainsKey(right.Key))
-                {
-                    map = map.Remove(right.Key);
-                }
-            }
-            return map;
-        }
+        public Map<K, V> Except(Map<K, V> other) =>
+            Wrap(Value.Except(other.Value));
 
         /// <summary>
         /// Keys that are in both maps are dropped and the remaining
         /// items are merged and returned.
         /// </summary>
         [Pure]
-        public Map<K, V> SymmetricExcept(Map<K, V> other)
-        {
-            // TODO: Look into more optimal solution
-
-            var map = Map<K, V>.Empty;
-            foreach (var left in this)
-            {
-                if (!other.ContainsKey(left.Key))
-                {
-                    map = map.Add(left.Key, left.Value);
-                }
-            }
-            foreach (var right in other)
-            {
-                if (!ContainsKey(right.Key))
-                {
-                    map = map.Add(right.Key, right.Value);
-                }
-            }
-            return map;
-        }
+        public Map<K, V> SymmetricExcept(Map<K, V> other) =>
+            Wrap(Value.SymmetricExcept(other.Value));
 
         [Pure]
         public int CompareTo(Map<K, V> other) =>

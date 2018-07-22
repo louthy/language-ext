@@ -40,16 +40,6 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        Lst(ListItem<A> root, bool rev)
-        {
-            if (root == null) throw new NullReferenceException(nameof(root));
-            value = new LstInternal<A>(root, rev);
-            if (!default(PredList).True(this)) throw new ArgumentOutOfRangeException(nameof(value));
-        }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
         Lst(LstInternal<A> root)
         {
             value = root;
@@ -61,10 +51,7 @@ namespace LanguageExt
         {
             get
             {
-                if (value.IsNull())
-                {
-                    throw new BottomException();
-                }
+                if (value.IsNull()) throw new BottomException();
                 return value;
             }
         }
@@ -88,7 +75,7 @@ namespace LanguageExt
             get
             {
                 if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-                return ListModule.GetItem(Root, Rev ? Count - index - 1 : index);
+                return ListModule.GetItem(Root, index);
             }
         }
 
@@ -109,11 +96,9 @@ namespace LanguageExt
             get
             {
                 if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-                return ListModule.GetItem(Root, Rev ? Count - index - 1 : index);
+                return ListModule.GetItem(Root, index);
             }
         }
-
-        internal bool Rev => value?.Rev ?? false;
 
         /// <summary>
         /// Find if a value is in the collection
@@ -175,7 +160,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public IEnumerator<A> GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root,Rev,0);
+            new ListModule.ListEnumerator<A>(Root, false, 0);
 
         [Pure]
         public Seq<A> ToSeq() =>
@@ -263,11 +248,11 @@ namespace LanguageExt
 
         [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, Rev, 0);
+            new ListModule.ListEnumerator<A>(Root, false, 0);
 
         [Pure]
         IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, Rev, 0);
+            new ListModule.ListEnumerator<A>(Root, false, 0);
 
         [Pure]
         public IEnumerable<A> Skip(int amount) =>

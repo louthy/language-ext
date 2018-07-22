@@ -34,26 +34,17 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        public Lst(IEnumerable<A> initial)
-        {
-            value = new LstInternal<A>(initial, default(True<A>));
-        }
+        public Lst(IEnumerable<A> initial) =>
+            value = new LstInternal<A>(initial);
 
         /// <summary>
         /// Ctor
         /// </summary>
-        internal Lst(ListItem<A> root, bool rev)
-        {
-            value = new LstInternal<A>(root, rev);
-        }
+        internal Lst(ListItem<A> root) =>
+            value = new LstInternal<A>(root);
 
-        private ListItem<A> Root
-        {
-            get
-            {
-                return Value.Root ?? ListItem<A>.Empty;
-            }
-        }
+        ListItem<A> Root =>
+            Value.Root ?? ListItem<A>.Empty;
 
         /// <summary>
         /// Index accessor
@@ -64,7 +55,7 @@ namespace LanguageExt
             get
             {
                 if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-                return ListModule.GetItem(Root, Value.Rev ? Count - index - 1 : index);
+                return ListModule.GetItem(Root, index);
             }
         }
 
@@ -85,11 +76,9 @@ namespace LanguageExt
             get
             {
                 if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-                return ListModule.GetItem(Root, Rev ? Count - index - 1 : index);
+                return ListModule.GetItem(Root, index);
             }
         }
-
-        internal bool Rev => Value.Rev;
 
         Lst<A> Wrap(LstInternal<A> list) =>
             new Lst<A>(list);
@@ -142,7 +131,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public IEnumerator<A> GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root,Rev,0);
+            new ListModule.ListEnumerator<A>(Root, false, 0);
 
         /// <summary>
         /// Find the index of an item
@@ -229,11 +218,11 @@ namespace LanguageExt
 
         [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, Rev, 0);
+            new ListModule.ListEnumerator<A>(Root, false, 0);
 
         [Pure]
         IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, Rev, 0);
+            new ListModule.ListEnumerator<A>(Root, false, 0);
 
         [Pure]
         public Seq<A> ToSeq() =>

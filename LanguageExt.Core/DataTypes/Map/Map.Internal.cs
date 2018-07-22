@@ -48,6 +48,36 @@ namespace LanguageExt
             Rev = rev;
         }
 
+        internal MapInternal(IEnumerable<(K Key, V Value)> items, MapModuleM.AddOpt option)
+        {
+            var root = MapItem<K, V>.Empty;
+            foreach(var item in items)
+            {
+                root = MapModuleM.Add<OrdK, K, V>(root, item.Key, item.Value, option);
+            }
+            Root = root;
+        }
+
+        internal MapInternal(IEnumerable<KeyValuePair<K, V>> items, MapModuleM.AddOpt option)
+        {
+            var root = MapItem<K, V>.Empty;
+            foreach (var item in items)
+            {
+                root = MapModuleM.Add<OrdK, K, V>(root, item.Key, item.Value, option);
+            }
+            Root = root;
+        }
+
+        internal MapInternal(IEnumerable<Tuple<K, V>> items, MapModuleM.AddOpt option)
+        {
+            var root = MapItem<K, V>.Empty;
+            foreach (var item in items)
+            {
+                root = MapModuleM.Add<OrdK, K, V>(root, item.Item1, item.Item2, option);
+            }
+            Root = root;
+        }
+
         /// <summary>
         /// 'this' accessor
         /// </summary>
@@ -159,6 +189,12 @@ namespace LanguageExt
             {
                 return this;
             }
+
+            if(Count == 0)
+            {
+                return new MapInternal<OrdK, K, V>(range, MapModuleM.AddOpt.ThrowOnDuplicate);
+            }
+
             var self = Root;
             foreach (var item in range)
             {
@@ -183,6 +219,12 @@ namespace LanguageExt
             {
                 return this;
             }
+
+            if (Count == 0)
+            {
+                return new MapInternal<OrdK, K, V>(range, MapModuleM.AddOpt.ThrowOnDuplicate);
+            }
+
             var self = Root;
             foreach (var item in range)
             {
@@ -206,6 +248,11 @@ namespace LanguageExt
             if (range == null)
             {
                 return this;
+            }
+
+            if (Count == 0)
+            {
+                return new MapInternal<OrdK, K, V>(range, MapModuleM.AddOpt.TryAdd);
             }
 
             var self = Root;
@@ -233,6 +280,11 @@ namespace LanguageExt
                 return this;
             }
 
+            if (Count == 0)
+            {
+                return new MapInternal<OrdK, K, V>(range, MapModuleM.AddOpt.TryAdd);
+            }
+
             var self = Root;
             foreach (var item in range)
             {
@@ -256,6 +308,11 @@ namespace LanguageExt
             if (range == null)
             {
                 return this;
+            }
+
+            if (Count == 0)
+            {
+                return new MapInternal<OrdK, K, V>(range, MapModuleM.AddOpt.TryAdd);
             }
 
             var self = Root;
@@ -283,6 +340,11 @@ namespace LanguageExt
                 return this;
             }
 
+            if (Count == 0)
+            {
+                return new MapInternal<OrdK, K, V>(range, MapModuleM.AddOpt.TryUpdate);
+            }
+
             var self = Root;
             foreach (var item in range)
             {
@@ -308,6 +370,11 @@ namespace LanguageExt
                 return this;
             }
 
+            if (Count == 0)
+            {
+                return new MapInternal<OrdK, K, V>(range, MapModuleM.AddOpt.TryUpdate);
+            }
+
             var self = Root;
             foreach (var item in range)
             {
@@ -331,6 +398,11 @@ namespace LanguageExt
             if (range == null)
             {
                 return this;
+            }
+
+            if (Count == 0)
+            {
+                return new MapInternal<OrdK, K, V>(range, MapModuleM.AddOpt.TryUpdate);
             }
 
             var self = Root;
@@ -597,8 +669,7 @@ namespace LanguageExt
         /// <returns>New Map with the items added</returns>
         [Pure]
         public MapInternal<OrdK, K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) =>
-            AddRange(from kv in pairs
-                     select Tuple(kv.Key, kv.Value));
+            AddRange(pairs.Map(kv => (kv.Key, kv.Value)));
 
         /// <summary>
         /// Atomically sets a series of items using the KeyValuePairs provided
@@ -609,7 +680,16 @@ namespace LanguageExt
         [Pure]
         public MapInternal<OrdK, K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items)
         {
-            if (items == null) return this;
+            if (items == null)
+            {
+                return this;
+            }
+
+            if (Count == 0)
+            {
+                return new MapInternal<OrdK, K, V>(items, MapModuleM.AddOpt.ThrowOnDuplicate);
+            }
+
             var self = Root;
             foreach (var item in items)
             {
@@ -628,7 +708,16 @@ namespace LanguageExt
         [Pure]
         public MapInternal<OrdK, K, V> SetItems(IEnumerable<Tuple<K, V>> items)
         {
-            if (items == null) return this;
+            if (items == null)
+            {
+                return this;
+            }
+
+            if (Count == 0)
+            {
+                return new MapInternal<OrdK, K, V>(items, MapModuleM.AddOpt.ThrowOnDuplicate);
+            }
+
             var self = Root;
             foreach (var item in items)
             {
@@ -647,7 +736,16 @@ namespace LanguageExt
         [Pure]
         public MapInternal<OrdK, K, V> SetItems(IEnumerable<(K, V)> items)
         {
-            if (items == null) return this;
+            if (items == null)
+            {
+                return this;
+            }
+
+            if (Count == 0)
+            {
+                return new MapInternal<OrdK, K, V>(items, MapModuleM.AddOpt.ThrowOnDuplicate);
+            }
+
             var self = Root;
             foreach (var item in items)
             {
@@ -666,6 +764,16 @@ namespace LanguageExt
         [Pure]
         public MapInternal<OrdK, K, V> TrySetItems(IEnumerable<KeyValuePair<K, V>> items)
         {
+            if(items == null)
+            {
+                return this;
+            }
+
+            if (Count == 0)
+            {
+                return new MapInternal<OrdK, K, V>(items, MapModuleM.AddOpt.TryAdd);
+            }
+
             var self = Root;
             foreach (var item in items)
             {
@@ -684,6 +792,17 @@ namespace LanguageExt
         [Pure]
         public MapInternal<OrdK, K, V> TrySetItems(IEnumerable<Tuple<K, V>> items)
         {
+            if(items == null)
+            {
+                return this;
+            }
+
+
+            if (Count == 0)
+            {
+                return new MapInternal<OrdK, K, V>(items, MapModuleM.AddOpt.TryAdd);
+            }
+
             var self = Root;
             foreach (var item in items)
             {
@@ -702,6 +821,16 @@ namespace LanguageExt
         [Pure]
         public MapInternal<OrdK, K, V> TrySetItems(IEnumerable<(K, V)> items)
         {
+            if(items== null)
+            {
+                return this;
+            }
+
+            if (Count == 0)
+            {
+                return new MapInternal<OrdK, K, V>(items, MapModuleM.AddOpt.TryAdd);
+            }
+
             var self = Root;
             foreach (var item in items)
             {
@@ -722,6 +851,11 @@ namespace LanguageExt
         [Pure]
         public MapInternal<OrdK, K, V> TrySetItems(IEnumerable<K> keys, Func<V, V> Some)
         {
+            if(keys == null)
+            {
+                return this;
+            }
+
             var self = this;
             foreach (var key in keys)
             {
@@ -773,6 +907,50 @@ namespace LanguageExt
                             None: () => Tuple(default(V), false));
             value = res.Item1;
             return res.Item2;
+        }
+
+        /// <summary>
+        /// Equivalent to map and filter but the filtering is done based on whether the returned
+        /// Option is Some or None.  If the item is None then it's filtered out, if not the the
+        /// mapped Some value is used.
+        /// </summary>
+        /// <param name="selector">Predicate</param>
+        /// <returns>Filtered map</returns>
+        [Pure]
+        public MapInternal<OrdK, K, U> Choose<U>(Func<K, V, Option<U>> selector)
+        {
+            IEnumerable<(K, U)> Yield()
+            {
+                foreach(var item in this)
+                {
+                    var opt = selector(item.Key, item.Value);
+                    if (opt.IsNone) continue;
+                    yield return ((item.Key, (U)opt));
+                }
+            }
+            return new MapInternal<OrdK, K, U>(Yield(), MapModuleM.AddOpt.TryAdd);
+        }
+
+        /// <summary>
+        /// Equivalent to map and filter but the filtering is done based on whether the returned
+        /// Option is Some or None.  If the item is None then it's filtered out, if not the the
+        /// mapped Some value is used.
+        /// </summary>
+        /// <param name="selector">Predicate</param>
+        /// <returns>Filtered map</returns>
+        [Pure]
+        public MapInternal<OrdK, K, U> Choose<U>(Func<V, Option<U>> selector)
+        {
+            IEnumerable<(K, U)> Yield()
+            {
+                foreach (var item in this)
+                {
+                    var opt = selector(item.Value);
+                    if (opt.IsNone) continue;
+                    yield return ((item.Key, (U)opt));
+                }
+            }
+            return new MapInternal<OrdK, K, U>(Yield(), MapModuleM.AddOpt.TryAdd);
         }
 
         /// <summary>
@@ -869,7 +1047,8 @@ namespace LanguageExt
         IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
             AsEnumerable().Map(ToKeyValuePair).GetEnumerator();
 
-        static KeyValuePair<K, V> ToKeyValuePair((K Key, V Value) kv) => new KeyValuePair<K, V>(kv.Key, kv.Value);
+        static KeyValuePair<K, V> ToKeyValuePair((K Key, V Value) kv) => 
+            new KeyValuePair<K, V>(kv.Key, kv.Value);
 
         internal MapInternal<OrdK, K, V> SetRoot(MapItem<K, V> root) =>
             new MapInternal<OrdK, K, V>(root, Rev);
@@ -878,9 +1057,150 @@ namespace LanguageExt
         public static MapInternal<OrdK, K, V> operator +(MapInternal<OrdK, K, V> lhs, MapInternal<OrdK, K, V> rhs) =>
             lhs.Append(rhs);
 
+        /// <summary>
+        /// Union two maps.  The merge function is called keys are
+        /// present in both map.
+        /// </summary>
+        [Pure]
+        public MapInternal<OrdK, K, R> Union<V2, R>(MapInternal<OrdK, K, V2> other, WhenMissing<K, V, R> MapLeft, WhenMissing<K, V2, R> MapRight, WhenMatched<K, V, V2, R> Merge)
+        {
+            if (MapLeft == null) throw new ArgumentNullException(nameof(MapLeft));
+            if (MapRight == null) throw new ArgumentNullException(nameof(MapRight));
+            if (Merge == null) throw new ArgumentNullException(nameof(Merge));
+
+            var root = MapItem<K, R>.Empty;
+
+            foreach (var right in other)
+            {
+                var key = right.Key;
+                var left = Find(key);
+                if (left.IsSome)
+                {
+                    root = MapModuleM.Add<OrdK, K, R>(
+                        root,
+                        key,
+                        Merge(key, left.Value, right.Value),
+                        MapModuleM.AddOpt.TryAdd);
+                }
+                else
+                {
+                    root = MapModuleM.Add<OrdK, K, R>(
+                        root,
+                        key,
+                        MapRight(key, right.Value),
+                        MapModuleM.AddOpt.TryAdd);
+                }
+            }
+            foreach (var left in this)
+            {
+                var key = left.Key;
+                var right = other.Find(key);
+                if (right.IsNone)
+                {
+                    root = MapModuleM.Add<OrdK, K, R>(
+                        root,
+                        key,
+                        MapLeft(key, left.Value),
+                        MapModuleM.AddOpt.TryAdd);
+                }
+            }
+            return new MapInternal<OrdK, K, R>(root, Rev);
+        }
+
+        /// <summary>
+        /// Intersect two maps.  Only keys that are in both maps are
+        /// returned.  The merge function is called for every resulting
+        /// key.
+        [Pure]
+        public MapInternal<OrdK, K, R> Intersect<V2, R>(MapInternal<OrdK, K, V2> other, WhenMatched<K, V, V2, R> Merge)
+        {
+            if (Merge == null) throw new ArgumentNullException(nameof(Merge));
+
+            var root = MapItem<K, R>.Empty;
+
+            foreach (var right in other)
+            {
+                var left = Find(right.Key);
+                if (left.IsSome)
+                {
+                    root = MapModuleM.Add<OrdK, K, R>(
+                        root,
+                        right.Key,
+                        Merge(right.Key, left.Value, right.Value),
+                        MapModuleM.AddOpt.TryAdd);
+                }
+            }
+            return new MapInternal<OrdK, K, R>(root, Rev);
+        }
+
+        /// <summary>
+        /// Map differencing based on key.  this - other.
+        /// </summary>
+        [Pure]
+        public MapInternal<OrdK, K, V> Except(MapInternal<OrdK, K, V> other)
+        {
+            var root = MapItem<K, V>.Empty;
+            foreach(var item in this)
+            {
+                if (!other.ContainsKey(item.Key))
+                {
+                    root = MapModuleM.Add<OrdK, K, V>(
+                        root,
+                        item.Key,
+                        item.Value,
+                        MapModuleM.AddOpt.ThrowOnDuplicate);
+                }
+            }
+            return new MapInternal<OrdK, K, V>(root, Rev);
+        }
+
+        /// <summary>
+        /// Keys that are in both maps are dropped and the remaining
+        /// items are merged and returned.
+        /// </summary>
+        [Pure]
+        public MapInternal<OrdK, K, V> SymmetricExcept(MapInternal<OrdK, K, V> other)
+        {
+            var root = MapItem<K, V>.Empty;
+
+            foreach (var left in this)
+            {
+                if (!other.ContainsKey(left.Key))
+                {
+                    root = MapModuleM.Add<OrdK, K, V>(
+                        root,
+                        left.Key,
+                        left.Value,
+                        MapModuleM.AddOpt.ThrowOnDuplicate);
+                }
+            }
+            foreach (var right in other)
+            {
+                if (!ContainsKey(right.Key))
+                {
+                    //map = map.Add(right.Key, right.Value);
+                    root = MapModuleM.Add<OrdK, K, V>(
+                        root,
+                        right.Key,
+                        right.Value,
+                        MapModuleM.AddOpt.ThrowOnDuplicate);
+                }
+            }
+            return new MapInternal<OrdK, K, V>(root, Rev);
+        }
+
         [Pure]
         public MapInternal<OrdK, K, V> Append(MapInternal<OrdK, K, V> rhs)
         {
+            if (Count == 0)
+            {
+                return rhs;
+            }
+            if (rhs.Count == 0)
+            {
+                return this;
+            }
+
             var self = this;
             foreach (var item in rhs)
             {
@@ -899,12 +1219,37 @@ namespace LanguageExt
         [Pure]
         public MapInternal<OrdK, K, V> Subtract(MapInternal<OrdK, K, V> rhs)
         {
-            var self = this;
-            foreach (var item in rhs)
+            if(Count == 0)
             {
-                self = self.Remove(item.Key);
+                return Empty;
             }
-            return self;
+
+            if (rhs.Count == 0)
+            {
+                return this;
+            }
+
+            if (rhs.Count < Count)
+            {
+                var self = this;
+                foreach (var item in rhs)
+                {
+                    self = self.Remove(item.Key);
+                }
+                return self;
+            }
+            else
+            {
+                var root = MapItem<K, V>.Empty;
+                foreach (var item in this)
+                {
+                    if (!rhs.Contains(item))
+                    {
+                        root = MapModuleM.Add<OrdK, K, V>(root, item.Key, item.Value, MapModuleM.AddOpt.TryAdd);
+                    }
+                }
+                return new MapInternal<OrdK, K, V>(root, Rev);
+            }
         }
 
         [Pure]
@@ -988,6 +1333,16 @@ namespace LanguageExt
             }
             return 0;
         }
+
+        public MapInternal<OrdK, K, V> Filter(Func<K, V, bool> f) =>
+            new MapInternal<OrdK, K, V>(
+                AsEnumerable().Filter(mi => f(mi.Key, mi.Value)), 
+                MapModuleM.AddOpt.ThrowOnDuplicate);
+
+        public MapInternal<OrdK, K, V> Filter(Func<V, bool> f) =>
+            new MapInternal<OrdK, K, V>(
+                AsEnumerable().Filter(mi => f(mi.Value)),
+                MapModuleM.AddOpt.ThrowOnDuplicate);
     }
 
     internal interface IMapItem<K, V>
@@ -1006,10 +1361,10 @@ namespace LanguageExt
         internal static readonly MapItem<K, V> Empty = new MapItem<K, V>(0, 0, (default(K), default(V)), null, null);
 
         internal bool IsEmpty => Count == 0;
-        internal readonly int Count;
-        internal readonly byte Height;
-        internal readonly MapItem<K, V> Left;
-        internal readonly MapItem<K, V> Right;
+        internal int Count;
+        internal byte Height;
+        internal MapItem<K, V> Left;
+        internal MapItem<K, V> Right;
 
         /// <summary>
         /// Ctor
@@ -1049,12 +1404,119 @@ namespace LanguageExt
         internal int BalanceFactor =>
             Count == 0
                 ? 0
-                : ((int)Left.Height) - ((int)Right.Height);
+                : ((int)Right.Height) - ((int)Left.Height);
 
         public (K Key, V Value) KeyValue
         {
             get;
-            private set;
+            internal set;
+        }
+    }
+
+    internal static class MapModuleM
+    {
+        public enum AddOpt
+        {
+            ThrowOnDuplicate,
+            TryAdd,
+            TryUpdate
+        }
+
+        public static MapItem<K, V> Add<OrdK, K, V>(MapItem<K, V> node, K key, V value, AddOpt option)
+            where OrdK : struct, Ord<K>
+        {
+            if (node.IsEmpty)
+            {
+                return new MapItem<K, V>(1, 1, (key, value), MapItem<K, V>.Empty, MapItem<K, V>.Empty);
+            }
+            var cmp = default(OrdK).Compare(key, node.KeyValue.Key);
+            if (cmp < 0)
+            {
+                node.Left = Add<OrdK, K, V>(node.Left, key, value, option);
+                return Balance(node);
+            }
+            else if (cmp > 0)
+            {
+                node.Right = Add<OrdK, K, V>(node.Right, key, value, option);
+                return Balance(node);
+            }
+            else if(option == AddOpt.TryAdd)
+            {
+                // Already exists, but we don't care
+                return node;
+            }
+            else if (option == AddOpt.TryUpdate)
+            {
+                // Already exists, and we want to update the content
+                node.KeyValue = (key, value);
+                return node;
+            }
+            else
+            {
+                throw new ArgumentException("An element with the same key already exists in the Map");
+            }
+        }
+
+        public static MapItem<K, V> Balance<K, V>(MapItem<K, V> node)
+        {
+            node.Height = (byte)(1 + Math.Max(node.Left.Height, node.Right.Height));
+            node.Count = 1 + node.Left.Count + node.Right.Count;
+
+            return node.BalanceFactor >= 2
+                ? node.Right.BalanceFactor < 0
+                    ? DblRotLeft(node)
+                    : RotLeft(node)
+                : node.BalanceFactor <= -2
+                    ? node.Left.BalanceFactor > 0
+                        ? DblRotRight(node)
+                        : RotRight(node)
+                    : node;
+        }
+
+        public static MapItem<K, V> DblRotRight<K, V>(MapItem<K, V> node)
+        {
+            node.Left = RotLeft(node.Left);
+            return RotRight(node);
+        }
+
+        public static MapItem<K, V> DblRotLeft<K, V>(MapItem<K, V> node)
+        {
+            node.Right = RotRight(node.Right);
+            return RotLeft(node);
+        }
+
+        public static MapItem<K, V> RotRight<K, V>(MapItem<K, V> node)
+        {
+            if (node.IsEmpty || node.Left.IsEmpty) return node;
+
+            var y = node;
+            var x = y.Left;
+            var t2 = x.Right;
+            x.Right = y;
+            y.Left = t2;
+            y.Height = (byte)(1 + Math.Max(y.Left.Height, y.Right.Height));
+            x.Height = (byte)(1 + Math.Max(x.Left.Height, x.Right.Height));
+            y.Count = 1 + y.Left.Count + y.Right.Count;
+            x.Count = 1 + x.Left.Count + x.Right.Count;
+
+            return x;
+        }
+
+        public static MapItem<K, V> RotLeft<K, V>(MapItem<K, V> node)
+        {
+            if (node.IsEmpty || node.Right.IsEmpty) return node;
+
+            var x = node;
+            var y = x.Right;
+            var t2 = y.Left;
+            y.Left = x;
+            x.Right = t2;
+            x.Height = (byte)(1 + Math.Max(x.Left.Height, x.Right.Height));
+            y.Height = (byte)(1 + Math.Max(y.Left.Height, y.Right.Height));
+            x.Count = 1 + x.Left.Count + x.Right.Count;
+            y.Count = 1 + y.Left.Count + y.Right.Count;
+
+            return y;
         }
     }
 
@@ -1086,12 +1548,6 @@ namespace LanguageExt
             return state;
         }
 
-        public static MapItem<K, U> Choose<K, V, U>(MapItem<K, V> node, Func<K, V, Option<U>> selector) =>
-            Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
-
-        public static MapItem<K, U> Choose<K, V, U>(MapItem<K, V> node, Func<V, Option<U>> selector) =>
-            Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
-
         public static bool ForAll<K, V>(MapItem<K, V> node, Func<K, V, bool> pred) =>
             node.IsEmpty
                 ? true
@@ -1105,20 +1561,6 @@ namespace LanguageExt
                 : pred(node.KeyValue.Key, node.KeyValue.Value)
                     ? true
                     : Exists(node.Left, pred) || Exists(node.Right, pred);
-
-        public static MapItem<K, V> Filter<K, V>(MapItem<K, V> node, Func<K, V, bool> pred) =>
-            node.IsEmpty
-                ? node
-                : pred(node.KeyValue.Key, node.KeyValue.Value)
-                    ? Balance(Make(node.KeyValue, Filter(node.Left, pred), Filter(node.Right, pred)))
-                    : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
-
-        public static MapItem<K, V> Filter<K, V>(MapItem<K, V> node, Func<V, bool> pred) =>
-            node.IsEmpty
-                ? node
-                : pred(node.KeyValue.Value)
-                    ? Balance(Make(node.KeyValue, Filter(node.Left, pred), Filter(node.Right, pred)))
-                    : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
 
         public static MapItem<K, U> Map<K, V, U>(MapItem<K, V> node, Func<V, U> mapper) =>
             node.IsEmpty
@@ -1240,11 +1682,6 @@ namespace LanguageExt
             }
         }
 
-        public static MapItem<K, V> AddTreeToRight<K, V>(MapItem<K, V> node, MapItem<K, V> toAdd) =>
-            node.IsEmpty
-                ? toAdd
-                : Balance(Make(node.KeyValue, node.Left, AddTreeToRight(node.Right, toAdd)));
-
         public static MapItem<K, V> Remove<OrdK, K, V>(MapItem<K, V> node, K key)
             where OrdK : struct, Ord<K>
         {
@@ -1263,7 +1700,34 @@ namespace LanguageExt
             }
             else
             {
-                return Balance(AddTreeToRight(node.Left, node.Right));
+                // If this is a leaf, just remove it 
+                // by returning Empty.  If we have only one child,
+                // replace the node with the child.
+                if (node.Right.IsEmpty && node.Left.IsEmpty)
+                {
+                    return MapItem<K, V>.Empty;
+                }
+                else if (node.Right.IsEmpty && !node.Left.IsEmpty)
+                {
+                    return node.Left;
+                }
+                else if (!node.Right.IsEmpty && node.Left.IsEmpty)
+                {
+                    return node.Right;
+                }
+                else
+                {
+                    // We have two children. Remove the next-highest node and replace
+                    // this node with it.
+                    var successor = node.Right;
+                    while (!successor.Left.IsEmpty)
+                    {
+                        successor = successor.Left;
+                    }
+
+                    var newRight = Remove<OrdK, K, V>(node.Right, successor.KeyValue.Key);
+                    return Balance(Make(successor.KeyValue, node.Left, newRight));
+                }
             }
         }
 
@@ -1393,13 +1857,13 @@ namespace LanguageExt
 
         public static MapItem<K, V> Balance<K, V>(MapItem<K, V> node) =>
             node.BalanceFactor >= 2
-                ? node.Left.BalanceFactor >= 1
-                    ? RotRight(node)
-                    : DblRotRight(node)
+                ? node.Right.BalanceFactor < 0
+                    ? DblRotLeft(node)
+                    : RotLeft(node)
                 : node.BalanceFactor <= -2
-                    ? node.Left.BalanceFactor <= -1
-                        ? RotLeft(node)
-                        : DblRotLeft(node)
+                    ? node.Left.BalanceFactor > 0
+                        ? DblRotRight(node)
+                        : RotRight(node)
                     : node;
 
         public static MapItem<K, V> RotRight<K, V>(MapItem<K, V> node) =>
@@ -1413,12 +1877,12 @@ namespace LanguageExt
                 : Make(node.Right.KeyValue, Make(node.KeyValue, node.Left, node.Right.Left), node.Right.Right);
 
         public static MapItem<K, V> DblRotRight<K, V>(MapItem<K, V> node) =>
-            node.IsEmpty
+            node.IsEmpty || node.Left.IsEmpty
                 ? node
                 : RotRight(Make(node.KeyValue, RotLeft(node.Left), node.Right));
 
         public static MapItem<K, V> DblRotLeft<K, V>(MapItem<K, V> node) =>
-            node.IsEmpty
+            node.IsEmpty || node.Right.IsEmpty
                 ? node
                 : RotLeft(Make(node.KeyValue, node.Left, RotRight(node.Right)));
     }
