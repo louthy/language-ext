@@ -170,6 +170,18 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Fluent matching
+        /// </summary>
+        public ValidationContext<MonoidFail, FAIL, SUCCESS, Ret> Succ<Ret>(Func<SUCCESS, Ret> f) =>
+            new ValidationContext<MonoidFail, FAIL, SUCCESS, Ret>(this, f);
+
+        /// <summary>
+        /// Fluent matching
+        /// </summary>
+        public ValidationUnitContext<MonoidFail, FAIL, SUCCESS> Succ<Ret>(Action<SUCCESS> f) =>
+            new ValidationUnitContext<MonoidFail, FAIL, SUCCESS>(this, f);
+
+        /// <summary>
         /// Invokes the `Succ` or `Fail` function depending on the state of the `Validation`
         /// </summary>
         /// <typeparam name="Ret">Return type</typeparam>
@@ -780,5 +792,49 @@ namespace LanguageExt
                 ? bind(t).Map(u => project(t, u))
                 : Validation<MonoidFail, FAIL, V>.Fail(FailValue);
         }
+    }
+
+    /// <summary>
+    /// Context for the fluent Either matching
+    /// </summary>
+    public struct ValidationContext<MonoidFail, FAIL, SUCCESS, Ret>
+        where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL>
+    {
+        readonly Validation<MonoidFail, FAIL, SUCCESS> validation;
+        readonly Func<SUCCESS, Ret> success;
+
+        internal ValidationContext(Validation<MonoidFail, FAIL, SUCCESS> validation, Func<SUCCESS, Ret> success)
+        {
+            this.validation = validation;
+            this.success = success;
+        }
+
+        /// <summary>
+        /// Fail match
+        /// </summary>
+        /// <param name="Fail"></param>
+        /// <returns>Result of the match</returns>
+        [Pure]
+        public Ret Fail(Func<FAIL, Ret> fail) =>
+            validation.Match(success, fail);
+    }
+
+    /// <summary>
+    /// Context for the fluent Validation matching
+    /// </summary>
+    public struct ValidationUnitContext<MonoidFail, FAIL, SUCCESS>
+        where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL>
+    {
+        readonly Validation<MonoidFail, FAIL, SUCCESS> validation;
+        readonly Action<SUCCESS> success;
+
+        internal ValidationUnitContext(Validation<MonoidFail, FAIL, SUCCESS> validation, Action<SUCCESS> success)
+        {
+            this.validation = validation;
+            this.success = success;
+        }
+
+        public Unit Left(Action<FAIL> fail) =>
+            validation.Match(success, fail);
     }
 }

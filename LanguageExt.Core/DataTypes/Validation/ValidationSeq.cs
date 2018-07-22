@@ -176,6 +176,18 @@ namespace LanguageExt
             new Validation<FAIL, SUCCESS>(fail);
 
         /// <summary>
+        /// Fluent matching
+        /// </summary>
+        public ValidationContext<FAIL, SUCCESS, Ret> Succ<Ret>(Func<SUCCESS, Ret> f) =>
+            new ValidationContext<FAIL, SUCCESS, Ret>(this, f);
+
+        /// <summary>
+        /// Fluent matching
+        /// </summary>
+        public ValidationUnitContext<FAIL, SUCCESS> Succ<Ret>(Action<SUCCESS> f) =>
+            new ValidationUnitContext<FAIL, SUCCESS>(this, f);
+
+        /// <summary>
         /// Invokes the `Succ` or `Fail` function depending on the state of the `Validation`
         /// </summary>
         /// <typeparam name="Ret">Return type</typeparam>
@@ -774,5 +786,47 @@ namespace LanguageExt
             IsSuccess && f(success)
                 ? this
                 : Fail(Seq<FAIL>.Empty);
+    }
+
+    /// <summary>
+    /// Context for the fluent Either matching
+    /// </summary>
+    public struct ValidationContext<FAIL, SUCCESS, Ret>
+    {
+        readonly Validation<FAIL, SUCCESS> validation;
+        readonly Func<SUCCESS, Ret> success;
+
+        internal ValidationContext(Validation<FAIL, SUCCESS> validation, Func<SUCCESS, Ret> success)
+        {
+            this.validation = validation;
+            this.success = success;
+        }
+
+        /// <summary>
+        /// Fail match
+        /// </summary>
+        /// <param name="Fail"></param>
+        /// <returns>Result of the match</returns>
+        [Pure]
+        public Ret Fail(Func<Seq<FAIL>, Ret> fail) =>
+            validation.Match(success, fail);
+    }
+
+    /// <summary>
+    /// Context for the fluent Validation matching
+    /// </summary>
+    public struct ValidationUnitContext<FAIL, SUCCESS>
+    {
+        readonly Validation<FAIL, SUCCESS> validation;
+        readonly Action<SUCCESS> success;
+
+        internal ValidationUnitContext(Validation<FAIL, SUCCESS> validation, Action<SUCCESS> success)
+        {
+            this.validation = validation;
+            this.success = success;
+        }
+
+        public Unit Left(Action<Seq<FAIL>> fail) =>
+            validation.Match(success, fail);
     }
 }
