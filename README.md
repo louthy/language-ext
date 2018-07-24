@@ -24,6 +24,12 @@ Nu-get package | Description
 [LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
 [LanguageExt.Rx](https://www.nuget.org/packages/LanguageExt.Rx) | Reactive Extensions support for various types within the Core
 
+## Unity
+
+This library seems compatible on the latest (at the time of writing) Unity 2018.2 with __incremental compiler__ (which enables C# 7).
+So this library should work well once Unity has official support for C# 7 on upcoming 2018.3.
+In the meanwhile, you can install incremental compiler instead. 
+
 __Twitter:__ 
 https://twitter.com/paullouth
 
