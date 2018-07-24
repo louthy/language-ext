@@ -9,6 +9,9 @@ This library uses and abuses the features of C# to provide a functional-programm
 extensions to the language itself.  The desire here is to make programming in C# much more reliable and to make the engineer's inertia flow 
 in the direction of declarative and functional code rather than imperative.
 
+__Author on twitter:__ 
+https://twitter.com/paullouth
+
 ## Reference
 
 #### [API Reference](https://louthy.github.io/language-ext)
@@ -29,9 +32,6 @@ Nu-get package | Description
 This library seems compatible on the latest (at the time of writing) Unity 2018.2 with __incremental compiler__ (which enables C# 7).
 So this library should work well once Unity has official support for C# 7 on upcoming 2018.3.
 In the meanwhile, you can install incremental compiler instead. 
-
-__Twitter:__ 
-https://twitter.com/paullouth
 
 ## Supporting language-ext
 
