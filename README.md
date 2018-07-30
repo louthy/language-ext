@@ -18,6 +18,10 @@ https://twitter.com/paullouth
 
 #### [Issues that contain documentation and examples](https://github.com/louthy/language-ext/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3A%22examples%20%2F%20documentation%22%20)
 
+## Contributing & Code of Conduct
+
+If you would like to get involved with this project, please first read the [Contribution Guidelines](https://github.com/louthy/language-ext/blob/master/CONTRIBUTING.md) and the [Code of Conduct](https://github.com/louthy/language-ext/blob/master/CODE_OF_CONDUCT.md
+
 ## Nu-get
 
 Nu-get package | Description
@@ -1695,19 +1699,7 @@ As well as the extensions, there are also static classes for the transformer typ
     var mb    = OptionT.filterT(ma, x > 3); // List(Some(3), Some(4))
 ```
 
-I could go on endlessly about the new types.  There are so many.  But for the release notes I think I should wrap it up.  It's worth taking a look at the API documentation for the [type-classes](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.TypeClasses/index.htm) and the [instances](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.ClassInstances/index.htm)
-
-
-
-
-
 
 ### The rest
 
 This README.md is a basic introduction to the library.  It is however full of many, many useful types, so do check the [API Reference](https://louthy.github.io/language-ext/index.htm) for more info.
-
-### Contributions
-All contributors are welcome.  For anything other than bug fixes please get in touch via the issues page.  There are no fixed rules on what should and shouldn't be in this library, but some features are more valuable than others, and some require long-term maintenance that outweighs the value of the 
-feature.  So please get sign-off from the project leader (Paul Louth) before putting in an excessive amount of work. 
-
-If you would just like to get involved, but don't have any major feature work to submit, then the project will always benefit from more unit-tests, documentation, peer-review, etc.
