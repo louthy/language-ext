@@ -109,27 +109,6 @@ using static LanguageExt.Prelude;
 
 The namespace `LanguageExt` contains the core types, and `LanguageExt.Prelude` contains the functions that you bring into scope `using static LanguageExt.Prelude`.  
 
-There is also:
-* [`LanguageExt.List`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/List_.htm)
-* [`LanguageExt.Map`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Map_.htm)
-* [`LanguageExt.HashMap`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashMap_.htm)
-* [`LanguageExt.Queue`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Queue_.htm)
-* [`LanguageExt.Set`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Set_.htm)
-* [`LanguageExt.HashSet`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashSet_.htm)
-* [`LanguageExt.Stack` ](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Stack_.htm)
-* [`LanguageExt.TypeClass`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TypeClass_.htm)
-* [`LanguageExt.ClassInstances`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.ClassInstances/index.htm)
-* [`LanguageExt.Parsec`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/index.htm)
-* [`LanguageExt.Parsec.Char`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Char_.htm)
-* [`LanguageExt.Parsec.Expr`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Expr_.htm)
-* [`LanguageExt.Parsec.Prim`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Prim_.htm)
-* `LanguageExt.Parsec.Token`
-* [`LanguageExt.Parsec.Indent`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Indent_.htm)
-* [`LanguageExt.UnitsOfMeasure`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.UnitsOfMeasure/index.htm)
-
-
-_(more on those later)_
-
 ### Features
 
 This library is quickly becoming a 'Base Class Library' for functional programming in C#.  The features include:
@@ -160,6 +139,7 @@ Location | Feature | Description
 `Core` | `Reader<E, A>` | [Reader monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Reader_Env_A.htm)
 `Core` | `Writer<MonoidW, W, T>` | [Writer monad that logs to a `W` constrained to be a Monoid](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Writer_MonoidW_W_A.htm)
 `Core` | `State<S, A>` | [State monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/State_S_A.htm)
+`Core` | `Patch<EqA, A>` | Uses patch-theory to efficiently calculate the difference (`Patch.diff(list1, list2)`) between two collections of `A` and build a patch which can be applied (`Patch.apply(patch, list)`) to one to make the other (think git diff).
 `Parsec` | `Parser<A>` | [String parser monad and full parser combinators library](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/index.htm#Parser_T)
 `Parsec` | `Parser<I, O>` | [Parser monad that can work with any input stream type](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/index.htm#Parser_I_O)
 `Core` | `NewType<SELF, A, PRED>` | [Haskell `newtype` equivalent](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/NewType_NEWTYPE_A_PRED.htm) i.e: `class Hours : NewType<Hours, double> { public Hours(double value) : base(value) { } }`.  The resulting type is: equatable, comparable, foldable, a functor, monadic, and iterable
