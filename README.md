@@ -9,11 +9,18 @@ This library uses and abuses the features of C# to provide a functional-programm
 extensions to the language itself.  The desire here is to make programming in C# much more reliable and to make the engineer's inertia flow 
 in the direction of declarative and functional code rather than imperative.
 
+__Author on twitter:__ 
+https://twitter.com/paullouth
+
 ## Reference
 
 #### [API Reference](https://louthy.github.io/language-ext)
 
 #### [Issues that contain documentation and examples](https://github.com/louthy/language-ext/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3A%22examples%20%2F%20documentation%22%20)
+
+## Contributing & Code of Conduct
+
+If you would like to get involved with this project, please first read the [Contribution Guidelines](https://github.com/louthy/language-ext/blob/master/CONTRIBUTING.md) and the [Code of Conduct](https://github.com/louthy/language-ext/blob/master/CODE_OF_CONDUCT.md)
 
 ## Nu-get
 
@@ -24,8 +31,11 @@ Nu-get package | Description
 [LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
 [LanguageExt.Rx](https://www.nuget.org/packages/LanguageExt.Rx) | Reactive Extensions support for various types within the Core
 
-__Twitter:__ 
-https://twitter.com/paullouth
+## Unity
+
+This library seems compatible on the latest (at the time of writing) Unity 2018.2 with __incremental compiler__ (which enables C# 7).
+So this library should work well once Unity has official support for C# 7 on upcoming 2018.3.
+In the meanwhile, you can install incremental compiler instead. 
 
 ## Supporting language-ext
 
@@ -99,27 +109,6 @@ using static LanguageExt.Prelude;
 
 The namespace `LanguageExt` contains the core types, and `LanguageExt.Prelude` contains the functions that you bring into scope `using static LanguageExt.Prelude`.  
 
-There is also:
-* [`LanguageExt.List`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/List_.htm)
-* [`LanguageExt.Map`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Map_.htm)
-* [`LanguageExt.HashMap`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashMap_.htm)
-* [`LanguageExt.Queue`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Queue_.htm)
-* [`LanguageExt.Set`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Set_.htm)
-* [`LanguageExt.HashSet`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashSet_.htm)
-* [`LanguageExt.Stack` ](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Stack_.htm)
-* [`LanguageExt.TypeClass`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TypeClass_.htm)
-* [`LanguageExt.ClassInstances`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.ClassInstances/index.htm)
-* [`LanguageExt.Parsec`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/index.htm)
-* [`LanguageExt.Parsec.Char`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Char_.htm)
-* [`LanguageExt.Parsec.Expr`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Expr_.htm)
-* [`LanguageExt.Parsec.Prim`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Prim_.htm)
-* `LanguageExt.Parsec.Token`
-* [`LanguageExt.Parsec.Indent`](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/Indent_.htm)
-* [`LanguageExt.UnitsOfMeasure`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.UnitsOfMeasure/index.htm)
-
-
-_(more on those later)_
-
 ### Features
 
 This library is quickly becoming a 'Base Class Library' for functional programming in C#.  The features include:
@@ -150,6 +139,7 @@ Location | Feature | Description
 `Core` | `Reader<E, A>` | [Reader monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Reader_Env_A.htm)
 `Core` | `Writer<MonoidW, W, T>` | [Writer monad that logs to a `W` constrained to be a Monoid](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Writer_MonoidW_W_A.htm)
 `Core` | `State<S, A>` | [State monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/State_S_A.htm)
+`Core` | `Patch<EqA, A>` | Uses patch-theory to efficiently calculate the difference (`Patch.diff(list1, list2)`) between two collections of `A` and build a patch which can be applied (`Patch.apply(patch, list)`) to one to make the other (think git diff).
 `Parsec` | `Parser<A>` | [String parser monad and full parser combinators library](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/index.htm#Parser_T)
 `Parsec` | `Parser<I, O>` | [Parser monad that can work with any input stream type](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/index.htm#Parser_I_O)
 `Core` | `NewType<SELF, A, PRED>` | [Haskell `newtype` equivalent](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/NewType_NEWTYPE_A_PRED.htm) i.e: `class Hours : NewType<Hours, double> { public Hours(double value) : base(value) { } }`.  The resulting type is: equatable, comparable, foldable, a functor, monadic, and iterable
@@ -1689,19 +1679,7 @@ As well as the extensions, there are also static classes for the transformer typ
     var mb    = OptionT.filterT(ma, x > 3); // List(Some(3), Some(4))
 ```
 
-I could go on endlessly about the new types.  There are so many.  But for the release notes I think I should wrap it up.  It's worth taking a look at the API documentation for the [type-classes](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.TypeClasses/index.htm) and the [instances](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.ClassInstances/index.htm)
-
-
-
-
-
 
 ### The rest
 
 This README.md is a basic introduction to the library.  It is however full of many, many useful types, so do check the [API Reference](https://louthy.github.io/language-ext/index.htm) for more info.
-
-### Contributions
-All contributors are welcome.  For anything other than bug fixes please get in touch via the issues page.  There are no fixed rules on what should and shouldn't be in this library, but some features are more valuable than others, and some require long-term maintenance that outweighs the value of the 
-feature.  So please get sign-off from the project leader (Paul Louth) before putting in an excessive amount of work. 
-
-If you would just like to get involved, but don't have any major feature work to submit, then the project will always benefit from more unit-tests, documentation, peer-review, etc.
