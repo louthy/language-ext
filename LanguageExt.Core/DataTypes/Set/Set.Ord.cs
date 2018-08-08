@@ -165,7 +165,17 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public Set<OrdA, A> Except(Set<OrdA, A> other) =>
-            Wrap(Value.Except(other));
+            Wrap(Value.Except(other.Value));
+
+        /// <summary>
+        /// Returns this - other.  Only the items in this that are not in 
+        /// other will be returned.
+        /// </summary>
+        [Pure]
+        public Set<OrdA, A> Except(IEnumerable<A> other) =>
+            other is Set<OrdA, A> rhs
+                ? Except(rhs)
+                : Wrap(Value.Except(other));
 
         /// <summary>
         /// Only items that are in one set or the other will be returned.
@@ -174,6 +184,16 @@ namespace LanguageExt
         [Pure]
         public Set<OrdA, A> SymmetricExcept(Set<OrdA, A> other) =>
             Wrap(Value.SymmetricExcept(other));
+
+        /// <summary>
+        /// Only items that are in one set or the other will be returned.
+        /// If an item is in both, it is dropped.
+        /// </summary>
+        [Pure]
+        public Set<OrdA, A> SymmetricExcept(IEnumerable<A> other) =>
+            other is Set<OrdA, A> rhs
+                ? SymmetricExcept(rhs)
+                : Wrap(Value.SymmetricExcept(other));
 
         /// <summary>
         /// Finds the union of two sets and produces a new set with 

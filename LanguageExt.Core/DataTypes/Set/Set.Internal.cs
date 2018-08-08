@@ -232,13 +232,9 @@ namespace LanguageExt
         /// other will be returned.
         /// </summary>
         [Pure]
-        public SetInternal<OrdA, A> Except(IEnumerable<A> other)
+        public SetInternal<OrdA, A> Except(SetInternal<OrdA, A> rhs)
         {
             var root = SetItem<A>.Empty;
-            var rhs = other is SetInternal<OrdA, A> set
-                        ? set
-                        : new SetInternal<OrdA, A>(other);
-
             foreach (var item in this)
             {
                 if (!rhs.Contains(item))
@@ -248,6 +244,14 @@ namespace LanguageExt
             }
             return new SetInternal<OrdA, A>(root);
         }
+
+        /// <summary>
+        /// Returns this - other.  Only the items in this that are not in 
+        /// other will be returned.
+        /// </summary>
+        [Pure]
+        public SetInternal<OrdA, A> Except(IEnumerable<A> other) =>
+            Except(new SetInternal<OrdA, A>(other));
 
         /// <summary>
         /// Only items that are in one set or the other will be returned.
