@@ -235,9 +235,13 @@ namespace LanguageExt
         public SetInternal<OrdA, A> Except(IEnumerable<A> other)
         {
             var root = SetItem<A>.Empty;
+            var rhs = other is SetInternal<OrdA, A> set
+                        ? set
+                        : new SetInternal<OrdA, A>(other);
+
             foreach (var item in this)
             {
-                if (!other.Contains(item))
+                if (!rhs.Contains(item))
                 {
                     root = SetModuleM.Add<OrdA, A>(root, item, SetModuleM.AddOpt.TryAdd);
                 }
