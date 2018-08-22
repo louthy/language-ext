@@ -1211,8 +1211,8 @@ The important bit is the `NumA` generic argument, and the constraint of `struct,
 
 And so this can now be called by:
 ```c#
-    int a    = DoubleIt<TInt, int>(5);        // 10
-    double b = DoubleIt<TFloat, float>(5.25); // 10.5
+    int a   = DoubleIt<TInt, int>(5);        // 10
+    float b = DoubleIt<TFloat, float>(5.25); // 10.5
 ```
 By expanding the amount of operations that the `Num<A>` type-class can do, you can perform any numeric operation you like.  If you like you can add new numeric types (say for complex numbers, or whatever), where the rules of the type are kept in the _ad-hoc_ instance.
 
