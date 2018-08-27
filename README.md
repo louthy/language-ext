@@ -1226,7 +1226,7 @@ Luckily you don't need to do that, because I have created the `Num<A>` type (in 
 
 #### `Eq<A>`
 
-Next up is `Eq<A>`.  Equality testing in C# is an absolute nightmare.  From the different semantics of `Eqauls` and `==`, to `IEqualityComparer`, and the enormous hack which is `EqualityComparer.Default` (which doesn't blow up at compile-time if your code is wrong).
+Next up is `Eq<A>`.  Equality testing in C# is an absolute nightmare.  From the different semantics of `Equals` and `==`, to `IEqualityComparer`, and the enormous hack which is `EqualityComparer.Default` (which doesn't blow up at compile-time if your code is wrong).
 
 The `Eq<A>` type-class looks like this:
 ```c#
