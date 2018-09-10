@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using LanguageExt.ClassInstances;
 using Xunit;
 using static LanguageExt.Prelude;
 
@@ -96,6 +97,94 @@ namespace LanguageExt.Tests
 
             Assert.True(tasks[0].Status == TaskStatus.RanToCompletion);
             Assert.True(tasks[1].Status == TaskStatus.RanToCompletion);
+        }
+
+        [Fact]
+        public async Task MOptionAsync_BiFold_IsSome_DelegateSomeExecuted()
+        {
+            var subject = MOptionAsync<Unit>.Inst;
+            var ma = Some(unit).AsTask().ToAsync();
+            var result = await subject.BiFold(ma, true,
+                (s, m) => true,
+                (s, _) => false);
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task MOptionAsync_BiFoldAsync_OverloadSyncAsync_IsSome_DelegateSomeExecuted()
+        {
+            var subject = MOptionAsync<Unit>.Inst;
+            var ma = Some(unit).AsTask().ToAsync();
+            var result = await subject.BiFoldAsync(ma, true,
+                (s, m) => true,
+                (s, _) => false.AsTask());
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task MOptionAsync_BiFoldAsync_OverloadAsyncSync_IsSome_DelegateSomeExecuted()
+        {
+            var subject = MOptionAsync<Unit>.Inst;
+            var ma = Some(unit).AsTask().ToAsync();
+            var result = await subject.BiFoldAsync(ma, true,
+                (s, m) => true.AsTask(),
+                (s, _) => false);
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task MOptionAsync_BiFoldAsync_OverloadAsyncAsync_IsSome_DelegateSomeExecuted()
+        {
+            var subject = MOptionAsync<Unit>.Inst;
+            var ma = Some(unit).AsTask().ToAsync();
+            var result = await subject.BiFoldAsync(ma, true,
+                (s, m) => true.AsTask(),
+                (s, _) => false.AsTask());
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task MOptionAsync_BiFold_IsNone_DelegateNoneExecuted()
+        {
+            var subject = MOptionAsync<Unit>.Inst;
+            var ma = Option<Unit>.None.AsTask().ToAsync();
+            var result = await subject.BiFold(ma, true,
+                (s, m) => false,
+                (s, _) => true);
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task MOptionAsync_BiFoldAsync_OverloadSyncAsync_IsNone_DelegateNoneExecuted()
+        {
+            var subject = MOptionAsync<Unit>.Inst;
+            var ma = Option<Unit>.None.AsTask().ToAsync();
+            var result = await subject.BiFoldAsync(ma, true,
+                (s, m) => false,
+                (s, _) => true.AsTask());
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task MOptionAsync_BiFoldAsync_OverloadAsyncSync_IsNone_DelegateNoneExecuted()
+        {
+            var subject = MOptionAsync<Unit>.Inst;
+            var ma = Option<Unit>.None.AsTask().ToAsync();
+            var result = await subject.BiFoldAsync(ma, true,
+                (s, m) => false.AsTask(),
+                (s, _) => true);
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task MOptionAsync_BiFoldAsync_OverloadAsyncAsync_IsNone_DelegateNoneExecuted()
+        {
+            var subject = MOptionAsync<Unit>.Inst;
+            var ma = Option<Unit>.None.AsTask().ToAsync();
+            var result = await subject.BiFoldAsync(ma, true,
+                (s, m) => false.AsTask(),
+                (s, _) => true.AsTask());
+            Assert.True(result);
         }
 
         // Not valuable any more 
