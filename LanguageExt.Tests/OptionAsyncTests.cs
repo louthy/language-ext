@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Xunit;
-using LanguageExt;
-using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
 using System.Threading.Tasks;
-using LanguageExt.ClassInstances;
+using Xunit;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests
 {
@@ -65,7 +61,7 @@ namespace LanguageExt.Tests
             Assert.True(await mc == 100);
         }
 
-        Task DoWork()
+        private Task DoWork()
         {
             return Task.Run(() => Console.WriteLine("here"));
         }
@@ -83,7 +79,7 @@ namespace LanguageExt.Tests
             {
                 var x = DoWork();
 
-                lock(sync)
+                lock (sync)
                 {
                     tasks.Add(x);
                     output.Add($"Inner id {x.Id}");
