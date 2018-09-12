@@ -224,7 +224,7 @@ namespace LanguageExt.ClassInstances
         /// <summary>
         /// Bitwise bi-conditional. 
         /// </summary>
-        /// <returns>`XOr(Not(a), Not(b))`</returns>
+        /// <returns>`Not(XOr(a, b))`</returns>
         [Pure]
         public long BiCondition(long a, long b) =>
             Not(XOr(a, b));

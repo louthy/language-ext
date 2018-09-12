@@ -1211,8 +1211,8 @@ The important bit is the `NumA` generic argument, and the constraint of `struct,
 
 And so this can now be called by:
 ```c#
-    int a    = DoubleIt<TInt, int>(5);        // 10
-    double b = DoubleIt<TFloat, float>(5.25); // 10.5
+    int a   = DoubleIt<TInt, int>(5);        // 10
+    float b = DoubleIt<TFloat, float>(5.25); // 10.5
 ```
 By expanding the amount of operations that the `Num<A>` type-class can do, you can perform any numeric operation you like.  If you like you can add new numeric types (say for complex numbers, or whatever), where the rules of the type are kept in the _ad-hoc_ instance.
 
@@ -1226,7 +1226,7 @@ Luckily you don't need to do that, because I have created the `Num<A>` type (in 
 
 #### `Eq<A>`
 
-Next up is `Eq<A>`.  Equality testing in C# is an absolute nightmare.  From the different semantics of `Eqauls` and `==`, to `IEqualityComparer`, and the enormous hack which is `EqualityComparer.Default` (which doesn't blow up at compile-time if your code is wrong).
+Next up is `Eq<A>`.  Equality testing in C# is an absolute nightmare.  From the different semantics of `Equals` and `==`, to `IEqualityComparer`, and the enormous hack which is `EqualityComparer.Default` (which doesn't blow up at compile-time if your code is wrong).
 
 The `Eq<A>` type-class looks like this:
 ```c#
@@ -1452,7 +1452,7 @@ So we now know that `MonadB` is a class-instance of the `Monad<MB, B>` type-clas
                 ? f(ma.Value)
                 : default(MonadB).Fail();
 ```
-The eagle eyed reader will notice that this actually allows binding to any resulting monad (not just `Option<B>`).  I'm not an academic, but I'm sure there will be someone throwing their toys out of their prams at this point.  However, it works, it's type-safe, and it's efficient. 
+The eagle eyed reader will notice that this actually allows binding to any resulting monad (not just `Option<B>`).  I'm sure some may consider labelling this a monad as incorrect, but it works, it's type-safe, it's efficient, and performs the exact same function and so I am happy to use the term. 
 
 [The actual definition of `Monad`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.TypeClasses/Monad_Env_Out_MA_A.htm) is more complex than this, in order to unify monadic types that take arguments (`Reader` and `State`) and monads that carry internal state (`Writer` and `State`), as well as to support asynchronous monads (`TryAsync` and `TryOption`).  I won't muddy the waters too much right now, but unified and type-safe they are.  There are no hacks.
 
