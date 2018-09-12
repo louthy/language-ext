@@ -238,14 +238,23 @@ namespace LanguageExt
 
         class PropCache<T>
         {
-            public static PropertyInfo Info = typeof(T).GetTypeInfo().DeclaredProperties.Where(p => p.Name == "Result").First();
+            public static PropertyInfo Info = typeof(T).GetTypeInfo().DeclaredProperties.Where(p => p.Name == "Result").FirstOrDefault();
         }
 
-        public static async Task<T> Cast<T>(this Task source)
+        public static async Task<A> Cast<A>(this Task source)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            await source;
+            var prop = PropCache<A>.Info;
+            return prop == null
+                ? (A)prop.GetValue(source)
+                : default(A);
+        }
+
+        public static async Task<Unit> ToUnit(this Task source)
         {
             await source;
-            if (source == null) return default(T);
-            return (T)PropCache<T>.Info.GetValue(source);
+            return unit;
         }
     }
 }
