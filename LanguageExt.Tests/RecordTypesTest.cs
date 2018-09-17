@@ -4,8 +4,11 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
+using SimpleInjector.Advanced;
 using Xunit;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests
 {
@@ -355,6 +358,109 @@ namespace LanguageExt.Tests
             var y = new TestClass2(1, "Hello", Guid.NewGuid());
 
             Assert.True(x.ToString() == y.ToString());
+        }
+    }
+
+    /*
+    public struct OrdSet<T> : Ord<Set<T>>
+    {
+        public bool Equals(Set<T> x, Set<T> y)
+        {
+            return default(OrdSet<OrdInt, int>).Compare( x,y )==0;
+        }
+
+        public int GetHashCode(Set<T> x)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Compare(Set<T> x, Set<T> y)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    */
+
+    /// <summary>
+    /// These test will all fail because there is no <![CDATA[ OrdSet for Set<ORD,T> ]]>
+    /// </summary>
+    public class ContainerWithCustomOrdOrderingTests
+    {
+        public class Data : Record<Data>
+        {
+            public Data(Set<OrdInt, int> so)
+            {
+                SO = so;
+            }
+
+            public Set<OrdInt, int> SO { get; }
+        }
+
+        [Fact]
+        public void GetOrderableContainerOrd2Works()
+        {
+            var type = Class<Ord<Set<OrdInt, int>>>.GetOrderableContainerOrd2();
+
+            // Type should be OrdSet<OrdInt,int>
+            Assert.True(type.IsSome);
+        }
+
+        [Fact]
+        public void SetOrderingWorks()
+        {
+            {
+                var a = new Data(Set<OrdInt, int>(0, 1, 2));
+                var b = new Data(Set<OrdInt, int>(0, 1, 2));
+                Assert.Equal(0, a.CompareTo(b));
+            }
+        }
+    }
+
+    public class ContainerWithOrderingTests
+    {
+        public class Data : Record<Data>
+        {
+            public Data(int i, Set<int> s, Arr<int> a, Lst<int> l)
+            {
+                I = i;
+                S = s;
+                A = a;
+                L = l;
+            }
+
+            public int I { get; }
+            public Set<int> S { get; }
+            public Lst<int> L { get; }
+            public Arr<int> A { get; }
+
+        }
+
+        [Fact]
+        public void GetOrderableContainerOrdWorks()
+        {
+            var type = Class<Ord<Set<int>>>.GetOrderableContainerOrd();
+            Assert.True( type.IsSome );
+
+        }
+
+        [Fact]
+        public void SetOrderingWorks()
+        {
+            {
+                var a = new Data( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 ));
+                var b = new Data( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 ));
+                Assert.Equal( 0, a.CompareTo( b ) );
+            }
+            {
+                var a = new Data( 0, Set( 0, 1, 2 ), Array( 1, 1, 2 ), List( 0, 1, 2 ));
+                var b = new Data( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 ));
+                Assert.Equal( 1, a.CompareTo( b ) );
+            }
+            {
+                var a = new Data( 0, Set( 0, 1, 2 ), Array( -1, 1, 2 ), List( 0, 1, 2 ) );
+                var b = new Data( 0, Set( 0, 1, 2 ), Array( 0, 1, 2 ), List( 0, 1, 2 )  );
+                Assert.Equal( -1, a.CompareTo( b ) );
+            }
         }
     }
 }
