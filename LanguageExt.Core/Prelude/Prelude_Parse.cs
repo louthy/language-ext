@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using System.Net;
 
 namespace LanguageExt
 {
@@ -105,6 +106,10 @@ namespace LanguageExt
         public static Option<TEnum> parseEnum<TEnum>(string value)
             where TEnum : struct =>
             Parse<TEnum>(Enum.TryParse, value);
+
+[Pure]
+public static Option<IPAddress> parseIPAddress(string value) =>
+            Parse<IPAddress>(IPAddress.TryParse, value);
 
         private delegate bool TryParse<T>(string value, out T result);
 
