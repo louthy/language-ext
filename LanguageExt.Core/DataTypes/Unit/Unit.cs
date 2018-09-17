@@ -75,5 +75,9 @@ namespace LanguageExt
         [Pure]
         public int CompareTo(Unit other) =>
             0;
+
+        [Pure]
+        public static Unit operator +(Unit a, Unit b) =>
+            Default;
     }
 }

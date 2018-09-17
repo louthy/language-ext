@@ -53,10 +53,10 @@ namespace LanguageExt
             this.value = map.value;
         }
 
-        HashMap<EqK, K, V> Wrap(HashMapInternal<EqK, K, V> value) =>
+        static HashMap<EqK, K, V> Wrap(HashMapInternal<EqK, K, V> value) =>
             new HashMap<EqK, K, V>(value);
 
-        HashMap<EqK, K, U> Wrap<U>(HashMapInternal<EqK, K, U> value) =>
+        static HashMap<EqK, K, U> Wrap<U>(HashMapInternal<EqK, K, U> value) =>
             new HashMap<EqK, K, U>(value);
 
         /// <summary>
@@ -326,6 +326,28 @@ namespace LanguageExt
         [Pure]
         public R Find<R>(K key, Func<V, R> Some, Func<R> None) =>
             Value.Find(key,Some,None);
+
+        /// <summary>
+        /// Try to find the key in the map, if it doesn't exist, add a new 
+        /// item by invoking the delegate provided.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <param name="None">Delegate to get the value</param>
+        /// <returns>Updated map and added value</returns>
+        [Pure]
+        public (HashMap<EqK, K, V> Map, V Value) FindOrAdd(K key, Func<V> None) =>
+            Value.FindOrAdd(key, None).Map((x, y) => (Wrap(x), y));
+
+        /// <summary>
+        /// Try to find the key in the map, if it doesn't exist, add a new 
+        /// item provided.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <param name="value">Delegate to get the value</param>
+        /// <returns>Updated map and added value</returns>
+        [Pure]
+        public (HashMap<EqK, K, V>, V Value) FindOrAdd(K key, V value) =>
+            Value.FindOrAdd(key, value).Map((x, y) => (Wrap(x), y));
 
         /// <summary>
         /// Atomically updates an existing item

@@ -1,4 +1,6 @@
-﻿namespace LanguageExt
+﻿using System.Runtime.CompilerServices;
+
+namespace LanguageExt
 {
     public static partial class Prelude
     {
@@ -13,7 +15,8 @@
         /// </summary>
         /// <param name="anything">Value to ignore</param>
         /// <returns>Unit</returns>
-        public static Unit ignore<T>(T anything) =>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Unit ignore<A>(A anything) =>
             unit;
     }
 }

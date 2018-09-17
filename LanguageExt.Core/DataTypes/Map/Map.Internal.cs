@@ -459,6 +459,36 @@ namespace LanguageExt
                 : match(MapModule.TryFind<OrdK, K, V>(Root, key), Some, None);
 
         /// <summary>
+        /// Try to find the key in the map, if it doesn't exist, add a new 
+        /// item by invoking the delegate provided.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <param name="None">Delegate to get the value</param>
+        /// <returns>Updated map and added value</returns>
+        [Pure]
+        public (MapInternal<OrdK, K, V> Map, V Value) FindOrAdd(K key, Func<V> None) =>
+            Find(key).Match(
+                Some: x => (this, x),
+                None: () =>
+                {
+                    var v = None();
+                    return (Add(key, v), v);
+                });
+
+        /// <summary>
+        /// Try to find the key in the map, if it doesn't exist, add a new 
+        /// item provided.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <param name="value">Delegate to get the value</param>
+        /// <returns>Updated map and added value</returns>
+        [Pure]
+        public (MapInternal<OrdK, K, V>, V Value) FindOrAdd(K key, V value) =>
+            Find(key).Match(
+                Some: x => (this, x),
+                None: () => (Add(key, value), value));
+
+        /// <summary>
         /// Atomically updates an existing item
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>
