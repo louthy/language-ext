@@ -267,7 +267,7 @@ namespace LanguageExt.ClassInstances
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return Check.NullReturn(await ma.IsNone
+            return Check.NullReturn(await ma.IsSome
                 ? fa(state, await ma.Value)
                 : fb(state, unit));
         }
@@ -278,7 +278,7 @@ namespace LanguageExt.ClassInstances
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return Check.NullReturn(await ma.IsNone
+            return Check.NullReturn(await ma.IsSome
                 ? fa(state, await ma.Value)
                 : await fb(state, unit));
         }
@@ -289,7 +289,7 @@ namespace LanguageExt.ClassInstances
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return Check.NullReturn(await ma.IsNone
+            return Check.NullReturn(await ma.IsSome
                 ? await fa(state, await ma.Value)
                 : fb(state, unit));
         }
@@ -300,7 +300,7 @@ namespace LanguageExt.ClassInstances
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return Check.NullReturn(await ma.IsNone
+            return Check.NullReturn(await ma.IsSome
                 ? await fa(state, await ma.Value)
                 : await fb(state, unit));
         }
