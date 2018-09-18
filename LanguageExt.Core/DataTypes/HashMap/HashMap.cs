@@ -362,7 +362,7 @@ namespace LanguageExt
         /// <returns>New map with the item set</returns>
         [Pure]
         public HashMap<K, V> TrySetItem(K key, Func<V, V> Some) =>
-            Wrap(Value.SetItem(key, Some));
+            Wrap(Value.TrySetItem(key, Some));
 
         /// <summary>
         /// Checks for existence of a key in the map

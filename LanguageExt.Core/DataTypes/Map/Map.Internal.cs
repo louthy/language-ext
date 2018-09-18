@@ -1170,7 +1170,7 @@ namespace LanguageExt
             }
             else
             {
-                return new MapItem<K, V>(node.Height, node.Count, (node.KeyValue.Key, value), node.Left, node.Right);
+                return new MapItem<K, V>(node.Height, node.Count, (key, value), node.Left, node.Right);
             }
         }
 
@@ -1192,7 +1192,7 @@ namespace LanguageExt
             }
             else
             {
-                return new MapItem<K, V>(node.Height, node.Count, (node.KeyValue.Key, value), node.Left, node.Right);
+                return new MapItem<K, V>(node.Height, node.Count, (key, value), node.Left, node.Right);
             }
         }
 

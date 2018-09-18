@@ -5,13 +5,14 @@ using static LanguageExt.HashMap;
 using Xunit;
 using System;
 using System.Linq;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExtTests
 {
     public class HashMapTests
     {
         [Fact]
-        public void MapGeneratorTest()
+        public void HashMapGeneratorTest()
         {
             var m1 = HashMap<int, string>();
             m1 = add(m1, 100, "hello");
@@ -199,6 +200,19 @@ namespace LanguageExtTests
                 max--;
                 Assert.True(m.Count == max);
             }
+        }
+
+        [Fact]
+        public void HashMapSetTest()
+        {
+            var map = HashMap<EqStringOrdinalIgnoreCase, string, int>(("one", 1), ("two",2), ("three", 3));
+            var map2 = map.SetItem("One", -1);
+            Assert.Equal(3, map2.Count);
+            Assert.Equal(-1, map2["one"]);
+            Assert.DoesNotContain("one", map2.Keys); // make sure key got replaced, too
+            Assert.Contains("One", map2.Keys); // make sure key got replaced, too
+
+            Assert.Throws<ArgumentException>(() => map.SetItem("four", identity));
         }
 
         [Fact]
