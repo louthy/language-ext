@@ -26,21 +26,7 @@ namespace LanguageExt.Tests
             Assert.True(set.Contains("thREE"));
         }
 
-        [Fact]
-        public void HashSetKeyTypeTests()
-        {
-            var set = HashSet<EqStringOrdinalIgnoreCase, string>("one", "two", "three");
-
-            Assert.True(set.Contains("one"));
-            Assert.True(set.Contains("ONE"));
-
-            Assert.True(set.Contains("two"));
-            Assert.True(set.Contains("Two"));
-
-            Assert.True(set.Contains("three"));
-            Assert.True(set.Contains("thREE"));
-        }
-
+  
         [Fact]
         public void EqualsTest()
         {

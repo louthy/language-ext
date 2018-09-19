@@ -4,6 +4,7 @@ using static LanguageExt.HashSet;
 using Xunit;
 using System;
 using System.Linq;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExtTests
 {
@@ -68,7 +69,7 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void MapAddInReverseOrderTest()
+        public void HashSetAddInReverseOrderTest()
         {
             var m = HashSet(1);
             m.Find(1).IfNone(() => failwith<int>("Broken"));
@@ -97,7 +98,7 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void MapAddInMixedOrderTest()
+        public void HashSetAddInMixedOrderTest()
         {
             var m = HashSet(5, 1, 3, 2, 4);
             m.Find(1).IfNone(() => failwith<int>("Broken"));
@@ -115,7 +116,7 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void MapRemoveTest()
+        public void HashSetRemoveTest()
         {
             var m = HashSet("a", "b", "c", "d", "e");
 
@@ -156,6 +157,33 @@ namespace LanguageExtTests
             m = remove(m, "e");
             Assert.True(m.Count == 0);
             Assert.True(m.Find("e").IsNone);
+        }
+
+        [Fact]
+        public void HashSetKeyTypeTests()
+        {
+            var set = HashSet<EqStringOrdinalIgnoreCase, string>("one", "two", "three");
+
+            Assert.True(set.Contains("one"));
+            Assert.True(set.Contains("ONE"));
+
+            Assert.True(set.Contains("two"));
+            Assert.True(set.Contains("Two"));
+
+            Assert.True(set.Contains("three"));
+            Assert.True(set.Contains("thREE"));
+        }
+
+        [Fact]
+        public void HashSetSetTest()
+        {
+            var set = HashSet<EqStringOrdinalIgnoreCase, string>("one", "two", "three");
+            var set2 = set.SetItem("One");
+            Assert.Equal(3, set2.Count);
+            Assert.False(set2.ToSeq().Freeze().Contains("one"));
+            Assert.True(set2.ToSeq().Freeze().Contains("One"));
+
+            Assert.Throws<ArgumentException>(() => set.SetItem("four"));
         }
 
         [Fact]
