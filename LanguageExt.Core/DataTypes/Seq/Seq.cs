@@ -41,7 +41,7 @@ namespace LanguageExt
         /// Head of the sequence if this node isn't the empty node or fail
         /// </summary>
         /// <typeparam name="FAIL"></typeparam>
-        /// <param name="fail">Failure case</param>
+        /// <param name="fail">Fail case</param>
         /// <returns>Head of the sequence or fail</returns>
         public Validation<FAIL, A> HeadOrInvalid<FAIL>(FAIL fail) =>
             IsEmpty

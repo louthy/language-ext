@@ -89,7 +89,7 @@ namespace LanguageExt
         /// Get the item at the head (first) of the sequence or Fail if the sequence is empty
         /// </summary>
         /// <param name="list">sequence</param>
-        /// <param name="fail">value for fail</param>
+        /// <param name="fail">Fail case</param>
         /// <returns>Validated head item</returns>
         [Pure]
         public static Validation<FAIL, A> headOrInvalid<FAIL, A>(Seq<A> list, FAIL fail) =>
@@ -99,7 +99,7 @@ namespace LanguageExt
         /// Get the item at the head (first) of the sequence or Left if the sequence is empty
         /// </summary>
         /// <param name="list">sequence</param>
-        /// <param name="left">value for left</param>
+        /// <param name="left">Left case</param>
         /// <returns>Either head item or left</returns>
         [Pure]
         public static Either<L, A> headOrLeft<L, A>(Seq<A> list, L left) =>
