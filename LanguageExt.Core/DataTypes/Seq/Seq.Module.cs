@@ -86,6 +86,26 @@ namespace LanguageExt
             list.HeadOrNone();
 
         /// <summary>
+        /// Get the item at the head (first) of the sequence or Fail if the sequence is empty
+        /// </summary>
+        /// <param name="list">sequence</param>
+        /// <param name="fail">value for fail</param>
+        /// <returns>Validated head item</returns>
+        [Pure]
+        public static Validation<FAIL, A> headOrInvalid<FAIL, A>(Seq<A> list, FAIL fail) =>
+            list.HeadOrInvalid(fail);
+
+        /// <summary>
+        /// Get the item at the head (first) of the sequence or Left if the sequence is empty
+        /// </summary>
+        /// <param name="list">sequence</param>
+        /// <param name="left">value for left</param>
+        /// <returns>Either head item or left</returns>
+        [Pure]
+        public static Either<L, A> headOrLeft<L, A>(Seq<A> list, L left) =>
+            list.HeadOrLeft(left);
+
+        /// <summary>
         /// Get the tail of the sequence (skips the head item)
         /// </summary>
         /// <param name="list">sequence</param>

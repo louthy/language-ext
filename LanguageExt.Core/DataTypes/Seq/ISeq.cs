@@ -24,6 +24,16 @@ namespace LanguageExt
         Option<A> HeadOrNone();
 
         /// <summary>
+        /// Head of the sequence
+        /// </summary>
+        Validation<FAIL, A> HeadOrInvalid<FAIL>(FAIL fail);
+
+        /// <summary>
+        /// Head of the sequence
+        /// </summary>
+        Either<L, A> HeadOrLeft<L>(L left);
+
+        /// <summary>
         /// Tail of the sequence
         /// </summary>
         Seq<A> Tail { get; }

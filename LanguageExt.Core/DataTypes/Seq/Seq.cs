@@ -38,6 +38,28 @@ namespace LanguageExt
                 : Some(Head);
 
         /// <summary>
+        /// Head of the sequence if this node isn't the empty node or fail
+        /// </summary>
+        /// <typeparam name="FAIL"></typeparam>
+        /// <param name="fail">Failure case</param>
+        /// <returns>Head of the sequence or fail</returns>
+        public Validation<FAIL, A> HeadOrInvalid<FAIL>(FAIL fail) =>
+            IsEmpty
+                ? Fail<FAIL,A>(fail)
+                : Success<FAIL,A>(Head);
+
+        /// <summary>
+        /// Head of the sequence if this node isn't the empty node or left
+        /// </summary>
+        /// <typeparam name="L"></typeparam>
+        /// <param name="left">Left case</param>
+        /// <returns>Head of the sequence or left</returns>
+        public Either<L, A> HeadOrLeft<L>(L left) =>
+            IsEmpty
+                ? Left<L, A>(left)
+                : Right<L, A>(Head);
+
+        /// <summary>
         /// True if this cons node is the Empty node
         /// </summary>
         public abstract bool IsEmpty { get; }

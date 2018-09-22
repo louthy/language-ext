@@ -101,6 +101,28 @@ namespace LanguageExt
             toSeq<FOLD, F, A>(fa).HeadOrNone();
 
         /// <summary>
+        /// Get the first item in a foldable structure
+        /// </summary>
+        /// <typeparam name="A">Sequence item type</typeparam>
+        /// <param name="fa">Foldable</param>
+        /// <param name="fail">Fail case</param>
+        /// <returns>First A produced by the foldable (Or Fail if no items produced)</returns>
+        [Pure]
+        public static Validation<FAIL, A> headOrInvalid<FOLD, F, FAIL, A>(F fa, FAIL fail) where FOLD : Foldable<F, A> =>
+            toSeq<FOLD, F, A>(fa).HeadOrInvalid(fail);
+
+        /// <summary>
+        /// Get the first item in a foldable structure
+        /// </summary>
+        /// <typeparam name="A">Sequence item type</typeparam>
+        /// <param name="fa">Foldable</param>
+        /// <param name="left">Left case</param>
+        /// <returns>First A produced by the foldable (Or Left if no items produced)</returns>
+        [Pure]
+        public static Either<L, A> headOrLeft<FOLD, F, L, A>(F fa, L left) where FOLD : Foldable<F, A> =>
+            toSeq<FOLD, F, A>(fa).HeadOrLeft(left);
+
+        /// <summary>
         /// Get the last item in a foldable structure
         /// </summary>
         /// <typeparam name="A">Sequence item type</typeparam>
