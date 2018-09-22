@@ -63,11 +63,11 @@ namespace LanguageExt.ClassInstances
 #else
 
                 Types = (from nam in GetAssemblies().Freeze()
-                         where nam != null && nam.Name != "mscorlib" && !nam.Name.StartsWith("System.")
+                         where nam != null && nam.Name != "mscorlib" && !nam.Name.StartsWith("System.") && !nam.Name.StartsWith("Microsoft.")
                          let asm = SafeLoadAsm(nam)
                          where asm != null
                          from typ in asm.GetTypes()
-                         where typ != null
+                         where typ != null && !typ.FullName.StartsWith("<") && !typ.FullName.Contains("+<")
                          select typ.GetTypeInfo())
                         .Freeze();
 

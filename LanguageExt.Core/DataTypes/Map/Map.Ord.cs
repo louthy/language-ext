@@ -236,6 +236,28 @@ namespace LanguageExt
         public R Find<R>(K key, Func<V, R> Some, Func<R> None) => Value.Find(key, Some, None);
 
         /// <summary>
+        /// Try to find the key in the map, if it doesn't exist, add a new 
+        /// item by invoking the delegate provided.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <param name="None">Delegate to get the value</param>
+        /// <returns>Updated map and added value</returns>
+        [Pure]
+        public (Map<OrdK, K, V> Map, V Value) FindOrAdd(K key, Func<V> None) =>
+            Value.FindOrAdd(key, None).Map((x, y) => (Wrap(x), y));
+
+        /// <summary>
+        /// Try to find the key in the map, if it doesn't exist, add a new 
+        /// item provided.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <param name="value">Delegate to get the value</param>
+        /// <returns>Updated map and added value</returns>
+        [Pure]
+        public (Map<OrdK, K, V>, V Value) FindOrAdd(K key, V value) =>
+            Value.FindOrAdd(key, value).Map((x, y) => (Wrap(x), y));
+
+        /// <summary>
         /// Atomically updates an existing item
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>

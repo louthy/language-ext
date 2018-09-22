@@ -527,6 +527,38 @@ namespace LanguageExt
         public R Find<R>(K key, Func<V, R> Some, Func<R> None) =>
             Find(key).Match(Some, None);
 
+
+        /// <summary>
+        /// Try to find the key in the map, if it doesn't exist, add a new 
+        /// item by invoking the delegate provided.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <param name="None">Delegate to get the value</param>
+        /// <returns>Updated map and added value</returns>
+        [Pure]
+        public (HashMapInternal<EqK, K, V> Map, V Value) FindOrAdd(K key, Func<V> None) =>
+            Find(key).Match(
+                Some: x => (this, x),
+                None: () =>
+                {
+                    var v = None();
+                    return (Add(key, v), v);
+                });
+
+        /// <summary>
+        /// Try to find the key in the map, if it doesn't exist, add a new 
+        /// item provided.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <param name="value">Delegate to get the value</param>
+        /// <returns>Updated map and added value</returns>
+        [Pure]
+        public (HashMapInternal<EqK, K, V>, V Value) FindOrAdd(K key, V value) =>
+            Find(key).Match(
+                Some: x => (this, x),
+                None: () => (Add(key, value), value));
+
+
         /// <summary>
         /// Atomically updates an existing item
         /// </summary>
@@ -534,6 +566,7 @@ namespace LanguageExt
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
+        /// <exception cref="ArgumentException">Throws ArgumentException if the item isn't found</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
         public HashMapInternal<EqK, K, V> SetItem(K key, V value)
@@ -545,11 +578,11 @@ namespace LanguageExt
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
-                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? (x.Key, value) : x)), Count);
+                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? (key, value) : x)), Count);
             }
             else
             {
-                return this;
+                throw new ArgumentException("Key not found in Map");
             }
         }
 
@@ -558,6 +591,7 @@ namespace LanguageExt
         /// put it back.
         /// </summary>
         /// <param name="key">Key to set</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <exception cref="ArgumentException">Throws ArgumentException if the item isn't found</exception>
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
@@ -571,11 +605,11 @@ namespace LanguageExt
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
-                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? (x.Key, Some(x.Value)) : x)), Count);
+                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? (key, Some(x.Value)) : x)), Count);
             }
             else
             {
-                return this;
+                throw new ArgumentException("Key not found in Map");
             }
         }
 

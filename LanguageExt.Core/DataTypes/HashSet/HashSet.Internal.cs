@@ -301,7 +301,7 @@ namespace LanguageExt
             var bucket = ht.Find(hash);
             return bucket.IsSome
                 ? new HashSetInternal<EqA, A>(ht.SetItem(hash, bucket.Value.Map(x => default(EqA).Equals(x, key) ? key : x)), Count)
-                : this;
+                : throw new ArgumentException("Key not found in Set");
         }
 
         [Pure]

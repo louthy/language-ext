@@ -54,10 +54,10 @@ namespace LanguageExt
             this.value = map.value;
         }
 
-        HashMap<K, V> Wrap(HashMapInternal<EqDefault<K>, K, V> value) =>
+        static HashMap<K, V> Wrap(HashMapInternal<EqDefault<K>, K, V> value) =>
             new HashMap<K, V>(value);
 
-        HashMap<K, U> Wrap<U>(HashMapInternal<EqDefault<K>, K, U> value) =>
+        static HashMap<K, U> Wrap<U>(HashMapInternal<EqDefault<K>, K, U> value) =>
             new HashMap<K, U>(value);
 
         /// <summary>
@@ -329,6 +329,28 @@ namespace LanguageExt
             Value.Find(key,Some,None);
 
         /// <summary>
+        /// Try to find the key in the map, if it doesn't exist, add a new 
+        /// item by invoking the delegate provided.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <param name="None">Delegate to get the value</param>
+        /// <returns>Updated map and added value</returns>
+        [Pure]
+        public (HashMap<K, V> Map, V Value) FindOrAdd(K key, Func<V> None) =>
+            Value.FindOrAdd(key, None).Map((x, y) => (Wrap(x), y));
+
+        /// <summary>
+        /// Try to find the key in the map, if it doesn't exist, add a new 
+        /// item provided.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <param name="value">Delegate to get the value</param>
+        /// <returns>Updated map and added value</returns>
+        [Pure]
+        public (HashMap<K, V>, V Value) FindOrAdd(K key, V value) =>
+            Value.FindOrAdd(key, value).Map((x, y) => (Wrap(x), y));
+
+        /// <summary>
         /// Atomically updates an existing item
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>
@@ -376,7 +398,7 @@ namespace LanguageExt
         /// <returns>New map with the item set</returns>
         [Pure]
         public HashMap<K, V> TrySetItem(K key, Func<V, V> Some) =>
-            Wrap(Value.SetItem(key, Some));
+            Wrap(Value.TrySetItem(key, Some));
 
         /// <summary>
         /// Checks for existence of a key in the map

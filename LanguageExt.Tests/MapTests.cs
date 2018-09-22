@@ -4,6 +4,7 @@ using static LanguageExt.Map;
 using Xunit;
 using System;
 using System.Linq;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExtTests
 {
@@ -54,6 +55,29 @@ namespace LanguageExtTests
                 Some: v => Assert.True(v == "x"),
                 None: () => Assert.False(true)
                 );
+
+            Assert.Throws<ArgumentException>(() => setItem(m1, 4, "y"));
+        }
+
+        
+        [Fact]
+        public void MapOrdSetTest()
+        {
+            var m1 = Map<OrdStringOrdinalIgnoreCase, string, int>(("one", 1), ("two",2), ("three", 3));
+            var m2 = m1.SetItem("One", -1);
+            
+            Assert.Equal(3, m2.Count);
+            Assert.Equal(-1, m2["one"]);
+            Assert.DoesNotContain("one", m2.Keys); // make sure key got replaced, too
+            Assert.Contains("One", m2.Keys); // make sure key got replaced, too
+
+            Assert.Throws<ArgumentException>(() => m1.SetItem("four", identity));
+
+            var m3 = m1.TrySetItem("four", 0).Add("five", 0).TrySetItem("Five", 5);
+            Assert.Equal(5, m3["fiVe"]);
+            Assert.DoesNotContain("four", m3.Keys);
+            Assert.DoesNotContain("five", m3.Keys);
+            Assert.Contains("Five", m3.Keys);
         }
 
         [Fact]
