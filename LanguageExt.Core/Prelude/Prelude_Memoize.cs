@@ -7,14 +7,35 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
-        /// Returns a Func<T> that wraps func.  The first
-        /// call to the resulting Func<T> will cache the result.
+        /// Returns a Func<A> that wraps func.  The first
+        /// call to the resulting Func<A> will cache the result.
         /// Subsequent calls return the cached item.
         /// </summary>
-        public static Func<T> memo<T>(Func<T> func)
+        public static Func<A> memo<A>(Func<A> func)
         {
-            var value = new Lazy<T>(func, true);
-            return () => value.Value;
+            var sync = new object();
+            var value = default(A);
+            bool valueSet = false;
+            return () =>
+            {
+                if(valueSet)
+                {
+                    return value;
+                }
+                lock(sync)
+                {
+                    if (valueSet)
+                    {
+                        return value;
+                    }
+                    else
+                    {
+                        value = func();
+                        valueSet = true;
+                        return value;
+                    }
+                }
+            };
         }
 
         /// <summary>
