@@ -104,6 +104,14 @@ public class TopHatTests
         public Option<int> Id2 { get; set; }
     }
 
+    OptionAsync<int> SumOptionAsync() => SomeAsync(async _ =>
+    {
+        var first = await Task.FromResult(1);
+        var second = await Task.FromResult(2);
+
+        return first + second;
+    });
+
     [Fact]
     public void TopHatSerialisationTest()
     {

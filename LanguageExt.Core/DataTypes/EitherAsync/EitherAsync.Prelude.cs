@@ -206,6 +206,30 @@ namespace LanguageExt
 
         /// <summary>
         /// Either constructor
+        /// Constructs an Either in a Right state
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="value">Right value</param>
+        /// <returns>A new Either instance</returns>
+        [Pure]
+        public static EitherAsync<L, R> RightAsync<L, R>(Func<Unit, Task<R>> value) =>
+            EitherAsync<L, R>.RightAsync(value(unit));
+
+        /// <summary>
+        /// Either constructor
+        /// Constructs an Either in a Right state
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="value">Right value</param>
+        /// <returns>A new Either instance</returns>
+        [Pure]
+        public static EitherAsync<L, R> RightAsync<L, R>(R value) =>
+            EitherAsync<L, R>.Right(value);
+
+        /// <summary>
+        /// Either constructor
         /// Constructs an Either in a Left state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
@@ -215,7 +239,31 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, R> LeftAsync<L, R>(Task<L> value) =>
             EitherAsync<L, R>.LeftAsync(value);
-        
+
+        /// <summary>
+        /// Either constructor
+        /// Constructs an Either in a Left state
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="value">Left value</param>
+        /// <returns>A new Either instance</returns>
+        [Pure]
+        public static EitherAsync<L, R> LeftAsync<L, R>(Func<Unit, Task<L>> value) =>
+            EitherAsync<L, R>.LeftAsync(value(unit));
+
+        /// <summary>
+        /// Either constructor
+        /// Constructs an Either in a Left state
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="value">Left value</param>
+        /// <returns>A new Either instance</returns>
+        [Pure]
+        public static EitherAsync<L, R> LeftAsync<L, R>(L value) =>
+            EitherAsync<L, R>.Left(value);
+
         /// <summary>
         /// Executes the Left function if the Either is in a Left state.
         /// Returns the Right value if the Either is in a Right state.
