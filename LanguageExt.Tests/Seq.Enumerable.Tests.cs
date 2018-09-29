@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 using static LanguageExt.Prelude;
 
@@ -250,10 +249,10 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void SeqEnumeratorDoesntDisposeEnumerator()
+        public void SeqDisposesEnumerator()
         {
             var myEnumerable = new MyEnumerable<int>();
-            myEnumerable.ToSeq().Apply(Enumerable.FirstOrDefault);
+            myEnumerable.ToSeq().GetEnumerator().Dispose();
             Assert.True(myEnumerable.Enumerator.WasDisposed);
         }
 
