@@ -39,14 +39,16 @@ namespace LanguageExt
                 {
                     if (cached == null)
                     {
-                        var iter = seq.GetEnumerator();
-                        if (iter.MoveNext())
+                        using (var iter = seq.GetEnumerator())
                         {
-                            cached = new SeqEnumerable<A>(iter.Current, iter);
-                        }
-                        else
-                        {
-                            cached = Empty;
+                            if (iter.MoveNext())
+                            {
+                                cached = new SeqEnumerable<A>(iter.Current, iter);
+                            }
+                            else
+                            {
+                                cached = Empty;
+                            }
                         }
                     }
                 }

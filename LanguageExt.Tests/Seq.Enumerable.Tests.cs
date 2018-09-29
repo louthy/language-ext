@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Xunit;
 using static LanguageExt.Prelude;
@@ -246,5 +247,45 @@ namespace LanguageExt.Tests
             Assert.True(fa1);
             Assert.False(fa2);
         }
+
+        [Fact]
+        public void SeqDisposesEnumerator()
+        {
+            var myEnumerable = new MyEnumerable<int>();
+            myEnumerable.ToSeq().GetEnumerator().Dispose();
+            Assert.True(myEnumerable.Enumerator.WasDisposed);
+        }
+
+        private class MyEnumerable<T> : IEnumerable<T>
+        {
+            public MyEnumerable()
+            {
+                this.Enumerator = new MyEnumerator<T>();
+            }
+
+            public MyEnumerator<T> Enumerator { get; }
+            public IEnumerator<T> GetEnumerator() => this.Enumerator;
+            IEnumerator IEnumerable.GetEnumerator() => this.Enumerator;
+        }
+
+        private class MyEnumerator<T> : IEnumerator<T>
+        {
+            public MyEnumerator()
+            {
+                this.WasDisposed = false;
+            }
+            public bool WasDisposed { get; private set; }
+
+            public bool MoveNext() => true;
+
+            public void Reset() { }
+
+            public T Current => default;
+
+            object IEnumerator.Current => Current;
+
+            public void Dispose() => WasDisposed = true;
+        }
+
     }
 }
