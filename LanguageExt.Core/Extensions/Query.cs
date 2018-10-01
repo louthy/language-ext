@@ -15,6 +15,12 @@ namespace LanguageExt
         public static Option<T> headOrNone<T>(IQueryable<T> list) =>
             list.ToSeq().HeadOrNone();
 
+        public static Validation<S, T> headOrInvalid<S, T>(IQueryable<T> list, S fail) =>
+            list.ToSeq().HeadOrInvalid(fail);
+
+        public static Either<S, T> headOrLeft<S, T>(IQueryable<T> list, S left) =>
+            list.ToSeq().HeadOrLeft(left);
+
         public static IQueryable<T> tail<T>(IQueryable<T> list) =>
             Queryable.Skip(list, 1);
 
@@ -128,6 +134,12 @@ public static class QueryExtensions
 
     public static Option<T> HeadOrNone<T>(this IQueryable<T> list) =>
         LanguageExt.Query.headOrNone(list);
+
+    public static Validation<S, T> HeadOrInvalid<S, T>(this IQueryable<T> list, S fail) =>
+        LanguageExt.Query.headOrInvalid(list, fail);
+
+    public static Either<S, T> HeadOrLeft<S, T>(this IQueryable<T> list, S left) =>
+        LanguageExt.Query.headOrLeft(list, left);
 
     public static IQueryable<T> Tail<T>(this IQueryable<T> list) =>
         LanguageExt.Query.tail(list);
