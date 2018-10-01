@@ -77,6 +77,7 @@ namespace LanguageExt
                 {
                     tail = Empty;
                     count = 1;
+                    iter.Dispose();
                 }
             }
             return tail;

@@ -47,6 +47,7 @@ namespace LanguageExt
                         else
                         {
                             cached = Empty;
+                            iter.Dispose();
                         }
                     }
                 }
