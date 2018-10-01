@@ -125,9 +125,9 @@ namespace LanguageExt.UnitsOfMeasure
 
         public double MetresPerSecond     => Value;
         public double KilometresPerSecond => Value / 1000.0;
-        public double KilometresPerHour   => Value / 1000.0 / 3600.0;
+        public double KilometresPerHour   => Value / 1000.0 * 3600.0;
         public double MilesPerSecond      => Value / 1609.344000006437376000025749504;
-        public double MilesPerHour        => Value / 1609.344000006437376000025749504 / 3600.0;
+        public double MilesPerHour        => Value / 1609.344000006437376000025749504 * 3600.0;
     }
 
     public static class UnitsVelocityExtensions
