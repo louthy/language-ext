@@ -449,7 +449,7 @@ namespace LanguageExt
                     : Expression.Condition(refEq, Expression.Constant(0), expr)
                 , self);
 
-            return lambda.Compile();
+            return Compile<Func<A, int>>(lambda, typeof(A).Name, "HashCode");
         }
 
         /// <summary>
@@ -551,7 +551,7 @@ namespace LanguageExt
                     ? expr
                     : orExpr, self, other);
 
-            return lambda.Compile();
+            return Compile<Func<A, object, bool>>(lambda, typeof(A).Name, "Equality");
         }
 
         /// <summary>
@@ -643,7 +643,7 @@ namespace LanguageExt
                     ? expr
                     : orExpr, self, other);
 
-            return lambda.Compile();
+            return Compile<Func<A, A, bool>>(lambda, typeof(A).Name, "EqualityTyped");
         }
 
         /// <summary>
@@ -784,7 +784,23 @@ namespace LanguageExt
 
             var lambda = Expression.Lambda<Func<A, A, int>>(block, self, other);
 
-            return lambda.Compile();
+            return Compile<Func<A, A, int>>(lambda, typeof(A).Name, "Ordering");
+        }
+
+        static F Compile<F>(LambdaExpression lambda, string typeName, string methodName) where F : Delegate
+        {
+#if COREFX20
+            return (F)lambda.Compile();
+#else
+            var name = Guid.NewGuid().ToString();
+            var asm = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName(name), AssemblyBuilderAccess.Run);
+            var type = asm.DefineDynamicModule("module").DefineType(typeName);
+            var builder = type.DefineMethod(methodName, MethodAttributes.Public | MethodAttributes.Static);
+            lambda.CompileToMethod(builder);
+            var resultingType = type.CreateType();
+
+            return (F)Delegate.CreateDelegate(typeof(F), resultingType.GetMethod(methodName));
+#endif
         }
 
         public static Func<A, string> ToString<A>(bool includeBase)
