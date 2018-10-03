@@ -689,52 +689,85 @@ namespace LanguageExt
                 return fld.GetValue(null);
             });
 
-            IEnumerable<(FieldInfo Field, Expression[] Expr)> Fields()
+            IEnumerable<Expression[]> Fields()
             {
                 foreach (var f in fields)
                 {
-                    yield return (f, new[] {
+                    var comparer =
                         Expression.Assign(ord,
                             fieldOrd(f) == null
-                                ? Expression.Call(
-                                    Expression.Property(null,
-                                        typeof(Comparer<>)
+                                    ? Expression.Call(
+                                        Expression.Property(null,
+                                            typeof(Comparer<>)
+                                                .MakeGenericType(f.FieldType)
+                                                .GetTypeInfo()
+                                                .DeclaredProperties.Where(m => m.Name == "Default")
+                                                .Single()),
+                                        typeof(IComparer<>)
+                                            .GetTypeInfo()
                                             .MakeGenericType(f.FieldType)
                                             .GetTypeInfo()
-                                            .DeclaredProperties.Where(m => m.Name == "Default")
-                                            .Single()),
-                                    typeof(IComparer<>)
-                                        .GetTypeInfo()
-                                        .MakeGenericType(f.FieldType)
-                                        .GetTypeInfo()
-                                        .GetAllMethods(true)
-                                        .Where(m => m.Name == "Compare")
-                                        .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(f.FieldType, f.FieldType))
-                                        .Head(),
+                                            .GetAllMethods(true)
+                                            .Where(m => m.Name == "Compare")
+                                            .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(f.FieldType, f.FieldType))
+                                            .Head(),
+                                        Expression.PropertyOrField(self, f.Name),
+                                        Expression.PropertyOrField(other, f.Name))
+                                    : Expression.Call(
+                                            Expression.Field(null,
+                                                typeof(Class<>)
+                                                    .MakeGenericType(typeof(Ord<>).MakeGenericType(f.FieldType))
+                                                    .GetTypeInfo()
+                                                    .DeclaredFields.Where(m => m.Name == "Default")
+                                                    .Single()),
+                                            typeof(Ord<>)
+                                                .GetTypeInfo()
+                                                .MakeGenericType(f.FieldType)
+                                                .GetTypeInfo()
+                                                .GetAllMethods(true)
+                                                .Where(m => m.Name == "Compare")
+                                                .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(f.FieldType, f.FieldType))
+                                                .Head(),
+                                            Expression.PropertyOrField(self, f.Name),
+                                            Expression.PropertyOrField(other, f.Name)
+                                        ));
+
+                    if (f.FieldType.IsValueType)
+                    {
+                        yield return new[] { comparer };
+                    }
+                    else
+                    { 
+                        var fnull = Expression.Constant(null, f.FieldType);
+
+                        yield return new[] {
+                            Expression.IfThen(
+                                Expression.And(
+                                    Expression.ReferenceEqual(Expression.PropertyOrField(self, f.Name), fnull),
+                                    Expression.IsFalse(Expression.ReferenceEqual(Expression.PropertyOrField(other, f.Name), fnull))),
+                                Expression.Return(returnTarget, Minus1)),
+
+                            Expression.IfThen(
+                                Expression.And(
+                                    Expression.ReferenceEqual(Expression.PropertyOrField(other, f.Name), fnull),
+                                    Expression.IsFalse(Expression.ReferenceEqual(Expression.PropertyOrField(self, f.Name), fnull))),
+                                Expression.Return(returnTarget, Plus1)),
+
+                            Expression.IfThenElse(
+                                Expression.ReferenceEqual(
                                     Expression.PropertyOrField(self, f.Name),
-                                    Expression.PropertyOrField(other, f.Name))
-                                : Expression.Call(
-                                      Expression.Field(null,
-                                          typeof(Class<>)
-                                              .MakeGenericType(typeof(Ord<>).MakeGenericType(f.FieldType))
-                                              .GetTypeInfo()
-                                              .DeclaredFields.Where(m => m.Name == "Default")
-                                              .Single()),
-                                      typeof(Ord<>)
-                                          .GetTypeInfo()
-                                          .MakeGenericType(f.FieldType)
-                                          .GetTypeInfo()
-                                          .GetAllMethods(true)
-                                          .Where(m => m.Name == "Compare")
-                                          .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(f.FieldType, f.FieldType))
-                                          .Head(),
-                                      Expression.PropertyOrField(self, f.Name),
-                                      Expression.PropertyOrField(other, f.Name)
-                                  )),
+                                    Expression.PropertyOrField(other, f.Name)),
+                                Expression.Assign(ord, Zero),
+                                comparer)
+                            };
+                    }
+
+                    yield return new[] {
+                        // Fields are not equal
                         Expression.IfThen(
                             Expression.NotEqual(ord, Zero),
                             Expression.Return(returnTarget, ord, typeof(int))) as Expression
-                        });
+                        };
                 }
             }
 
@@ -746,7 +779,7 @@ namespace LanguageExt
                     Expression.IfThen(yIsNull, Expression.Return(returnTarget, Plus1)),
                     Expression.IfThen(typesNotEqual, Expression.Return(returnTarget, Minus1))
                 }
-                .Append( Fields().Bind(f => f.Expr))
+                .Append( Fields().Bind(identity))
                 .Append( new [] { Expression.Label(returnTarget, Zero) as Expression }));
 
             var lambda = Expression.Lambda<Func<A, A, int>>(block, self, other);
