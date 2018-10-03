@@ -1685,3 +1685,4 @@ As well as the extensions, there are also static classes for the transformer typ
 ### The rest
 
 This README.md is a basic introduction to the library.  It is however full of many, many useful types, so do check the [API Reference](https://louthy.github.io/language-ext/index.htm) for more info.
+.
