@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.Core.DataTypes.UnitsOfMeasure;
 using LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExt
@@ -505,5 +506,109 @@ namespace LanguageExt
         /// kelvin
         /// </summary>
         public static readonly Temperature K = new Temperature(Temperature.UnitType.K, 1);
-    }
+
+    /// <summary>
+    /// Gram
+    /// </summary>
+    /// <example>
+    ///    Mass x = 10*g;
+    /// <example>
+    public static readonly Mass g = 1.Grams();
+
+    /// <summary>
+    /// Gram
+    /// </summary>
+    /// <example>
+    ///    Mass x = 10*gram;
+    /// <example>
+    public static readonly Mass gram = 1.Grams();
+
+    /// <summary>
+    /// Kilogram
+    /// </summary>
+    /// <example>
+    ///    Mass x = 10*kg;
+    /// <example>
+    public static readonly Mass kg = 1.Kilograms();
+
+    /// <summary>
+    /// Kilogram
+    /// </summary>
+    /// <example>
+    ///    Mass x = 10*kilogram;
+    /// <example>
+    public static readonly Mass kilogram = 1.Kilograms();
+
+    /// <summary>
+    /// Tonne
+    /// </summary>
+    /// <example>
+    ///    Mass x = 10*tonne;
+    /// <example>
+    public static readonly Mass tonne = 1.Tonnes();
+
+    /// <summary>
+    /// Ounce
+    /// </summary>
+    /// <example>
+    ///    Mass x = 10*oz;
+    /// <example>
+    public static readonly Mass oz = 1.Ounces();
+
+    /// <summary>
+    /// Ounce
+    /// </summary>
+    /// <example>
+    ///    Mass x = 10*ounce;
+    /// <example>
+    public static readonly Mass ounce = 1.Ounces();
+
+    /// <summary>
+    /// Pound
+    /// </summary>
+    /// <example>
+    ///    Mass x = 10*lb;
+    /// <example>
+    public static readonly Mass lb = 1.Pounds();
+
+    /// <summary>
+    /// Pound
+    /// </summary>
+    /// <example>
+    ///    Mass x = 10*pound;
+    /// <example>
+    public static readonly Mass pound = 1.Pounds();
+
+    /// <summary>
+    /// Stone
+    /// </summary>
+    /// <example>
+    ///    Mass x = 10*st;
+    /// <example>
+    public static readonly Mass st = 1.Stones();
+
+    /// <summary>
+    /// Stone
+    /// </summary>
+    /// <example>
+    ///    Mass x = 10*stone;
+    /// <example>
+    public static readonly Mass stone = 1.Stones();
+
+    /// <summary>
+    /// TonsUK
+    /// </summary>
+    /// <example>
+    ///    Mass x = 10*tonUK;
+    /// <example>
+    public static readonly Mass tonUK = 1.TonsUK();
+
+    /// <summary>
+    /// TonsUS
+    /// </summary>
+    /// <example>
+    ///    Mass x = 10*tonUS;
+    /// <example>
+    public static readonly Mass tonUS = 1.TonsUS();
+  }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Xunit;
 
 using LanguageExt;
+using LanguageExt.Core.DataTypes.UnitsOfMeasure;
 using LanguageExt.UnitsOfMeasure;
 using static LanguageExt.Prelude;
 
@@ -369,5 +370,43 @@ namespace LanguageExtTests
             Assert.True(x + y == z);
         }
 
+        [Fact]
+        public void PreludeMassEqualityTest()
+        {
+            // Metric units
+            Assert.True(1000 * g == 1 * kg, "g -> kg");
+            Assert.True(1000 * kg == 1 * tonne, "kg -> tonne");
+            // Imperial units. We use Math.Abs to check these, as they will differ at some point down the decimal expansion due to the fact that we store the value internally in Kg
+            double delta = 0.00001;
+            Mass sixteenOunces = 16 * ounce;
+            Mass onePound = 1 * lb;
+            Assert.True(Math.Abs((sixteenOunces - onePound).Pounds) < delta, "ounce -> pound");
+            Mass fourteenPounds = 14 * lb;
+            Mass oneStone = 1 * stone;
+            Assert.True(Math.Abs((fourteenPounds - oneStone).Pounds) < delta, "lb -> stone");
+            Mass oneHundredAndSixtyStones = 160 * stone;
+            Mass oneTonUk = 1 * tonUK;
+            Assert.True(Math.Abs((oneHundredAndSixtyStones - oneTonUk).Pounds) < delta, "stone -> tonUK");
+            Mass oneTonUs = 1 * tonUS;
+            Mass oneTonUsinStones = 142.857142858 * stone;
+            Assert.True(Math.Abs((oneTonUsinStones - oneTonUs).Pounds) < delta, "stone -> tonUS");
+            // Metric against Imperial
+            Mass oneKilo = 1 * kg;
+            Mass oneKiloInPounds = 2.2046226219 * lb;
+            Assert.True(Math.Abs((oneKilo - oneKiloInPounds).Pounds) < delta, "kg -> pounds");
+        }
+
+        [Fact]
+        public void PreludeMassCompareTest1()
+        {
+            Assert.True(1 * tonne > 1 * kg);
+        }
+
+        [Fact]
+        public void PreludeMassScalarTest2()
+        {
+            Assert.True(1 * kg / 500 == 2 * g);
+            Assert.True(1 * kilogram / 500 == 2 * gram);
+        }
     }
 }
