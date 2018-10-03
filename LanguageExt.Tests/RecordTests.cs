@@ -64,5 +64,34 @@ namespace LanguageExt.Tests
 
             var str = treeA.ToString();
         }
+
+
+        class Disorder : Record<Disorder>
+        {
+            public string Present = "Here";
+            public string Absent = null;
+        }
+
+        [Fact]
+        public void NullMemberEqualityTest()
+        {
+            var a = new Disorder();
+            var b = new Disorder();
+
+            Assert.True(a == b);
+            Assert.True(a.GetHashCode() == b.GetHashCode());
+            Assert.False(a != b);
+            Assert.False(a.GetHashCode() != b.GetHashCode());
+        }
+
+        [Fact]
+        public void NullMemberOrderingTest()
+        {
+            var a = new Disorder();
+            var b = new Disorder();
+
+            Assert.True(a.CompareTo(b) == 0);
+            Assert.True(b.CompareTo(a) == 0);
+        }
     }
 }

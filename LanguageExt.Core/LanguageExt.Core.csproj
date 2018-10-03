@@ -20,7 +20,7 @@
     <PackageIconUrl>https://raw.githubusercontent.com/louthy/language-ext/master/backers-images/lang-ext-thumb.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
-    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <OutputType>library</OutputType>
@@ -38,6 +38,7 @@
     <None Remove="obj\**" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
   </ItemGroup>
