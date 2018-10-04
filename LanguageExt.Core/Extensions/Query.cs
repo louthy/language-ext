@@ -13,7 +13,7 @@ namespace LanguageExt
         public static T head<T>(IQueryable<T> list) => list.First();
 
         public static Option<T> headOrNone<T>(IQueryable<T> list) =>
-            list.ToSeq().HeadOrNone();
+            list.AsEnumerable().HeadOrNone();
 
         public static Validation<S, T> headOrInvalid<S, T>(IQueryable<T> list, S fail) =>
             list.ToSeq().HeadOrInvalid(fail);
