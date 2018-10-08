@@ -15,6 +15,64 @@ namespace LanguageExt.Tests
     public class ValidationTests
     {
         [Fact]
+        public void MapFailsFailure()
+        {
+            var failure = Fail<string, int>("something went wrong")
+                .MapFail(f => f.ToUpper());
+
+            failure.Match(
+                Succ: _ => Assert.True(false, "should never get here"),
+                Fail: errors =>
+                {
+                    Assert.True(errors.Count == 1);
+                    Assert.True(errors.Head == "SOMETHING WENT WRONG");
+                });
+        }
+
+        [Fact]
+        public void MapFailsSuccess()
+        {
+            var success = Success<string, int>(42)
+                .MapFail(f => f.ToUpper());
+
+            success.Match(
+                Succ: succ => Assert.True(succ == 42),
+                Fail: errors => Assert.True(false, "should never get here"));
+        }
+
+        [Fact]
+        public void BiMapFailure()
+        {
+            var failure = Fail<string, int>("something went wrong")
+                .BiMap(
+                    Success: succ => succ + 1,
+                    Fail: error => error.ToUpper()
+                );
+
+            failure.Match(
+                Succ: _ => Assert.True(false, "should never get here"),
+                Fail: errors =>
+                {
+                    Assert.True(errors.Count == 1);
+                    Assert.True(errors.Head == "SOMETHING WENT WRONG");
+                });
+        }
+
+        [Fact]
+        public void BiMapSuccess()
+        {
+            var success = Success<string, int>(42)
+                .BiMap(
+                    Success: succ => succ + 1,
+                    Fail: error => error.ToUpper()
+                );
+
+            success.Match(
+                Succ: succ => Assert.True(succ == 43),
+                Fail: err => Assert.True(false, "should never get here"));
+        }
+
+        [Fact]
         public void ValidCreditCardTest()
         {
             // Valid test
