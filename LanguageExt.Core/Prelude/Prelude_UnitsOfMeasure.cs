@@ -595,20 +595,20 @@ namespace LanguageExt
     /// <example>
     public static readonly Mass stone = 1.Stones();
 
-    /// <summary>
-    /// TonsUK
-    /// </summary>
-    /// <example>
-    ///    Mass x = 10*tonUK;
-    /// <example>
-    public static readonly Mass tonUK = 1.TonsUK();
+        /// <summary>
+        /// ImperialTons
+        /// </summary>
+        /// <example>
+        ///    Mass x = 10*ton;
+        /// <example>
+        public static readonly Mass ton = 1.ImperialTons();
 
-    /// <summary>
-    /// TonsUS
-    /// </summary>
-    /// <example>
-    ///    Mass x = 10*tonUS;
-    /// <example>
-    public static readonly Mass tonUS = 1.TonsUS();
+        /// <summary>
+        /// ShortTon
+        /// </summary>
+        /// <example>
+        ///    Mass x = 10*shortTon;
+        /// <example>
+        public static readonly Mass shortTon = 1.ShortTon();
   }
 }

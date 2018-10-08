@@ -107,15 +107,15 @@ namespace LanguageExt.Core.DataTypes.UnitsOfMeasure
 
     #region Conversion units
 
-    public double Grams => Value / 1000;
+    public double Grams => Value * 1000.0;
     public double Kilograms => Value;
-    public double Tonnes => Value * 1000;
+    public double Tonnes => Value / 1000.0;
 
-    public double Ounces => Pounds * 16;
+    public double Ounces => Pounds * 16.0;
     public double Pounds => Value * 2.2046226;
-    public double Stones => Pounds / 14;
-    public double TonsUK => Value / 0.00098421;
-    public double TonsUS => Value / 0.0011023;
+    public double Stones => Pounds / 14.0;
+    public double ImperialTons => Value / 0.000984207;
+    public double ShortTons => Value / 0.00110231;
 
     #endregion
   }
@@ -125,9 +125,9 @@ namespace LanguageExt.Core.DataTypes.UnitsOfMeasure
     public static Mass Grams(this int self)
         => new Mass(self / 1000.0);
     public static Mass Grams(this double self)
-        => new Mass(self / 1000);
+        => new Mass(self / 1000.0);
     public static Mass Grams(this float self)
-        => new Mass(self / 1000);
+        => new Mass(self / 1000.0);
     public static Mass Kilograms(this int self)
         => new Mass(self);
     public static Mass Kilograms(this double self)
@@ -135,11 +135,11 @@ namespace LanguageExt.Core.DataTypes.UnitsOfMeasure
     public static Mass Kilograms(this float self)
         => new Mass(self);
     public static Mass Tonnes(this int self)
-        => new Mass(self * 1000);
+        => new Mass(self * 1000.0);
     public static Mass Tonnes(this double self)
-        => new Mass(self * 1000);
+        => new Mass(self * 1000.0);
     public static Mass Tonnes(this float self)
-        => new Mass(self * 1000);
+        => new Mass(self * 1000.0);
     public static Mass Ounces(this int self)
         => new Mass(self / 35.273961949);
     public static Mass Ounces(this double self)
@@ -158,17 +158,17 @@ namespace LanguageExt.Core.DataTypes.UnitsOfMeasure
         => new Mass(self / 0.157473044418);
     public static Mass Stones(this float self)
         => new Mass(self / 0.157473044418);
-    public static Mass TonsUK(this int self)
+    public static Mass ImperialTons(this int self)
         => new Mass(self / 0.0009842065277);
-    public static Mass TonsUK(this double self)
+    public static Mass ImperialTons(this double self)
         => new Mass(self / 0.0009842065277);
-    public static Mass TonsUK(this float self)
+    public static Mass ImperialTons(this float self)
         => new Mass(self / 0.0009842065277);
-    public static Mass TonsUS(this int self)
+    public static Mass ShortTon(this int self)
         => new Mass(self / 0.00110231131093);
-    public static Mass TonsUS(this double self)
+    public static Mass ShortTon(this double self)
         => new Mass(self / 0.00110231131093);
-    public static Mass TonsUS(this float self)
+    public static Mass ShortTon(this float self)
         => new Mass(self / 0.00110231131093);
   }
 }
