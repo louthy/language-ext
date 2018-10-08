@@ -24,4 +24,18 @@ namespace LanguageExt.ClassInstances
                 Fail: Validation<MonoidFail, FAIL, SUCCESS2>.Fail,
                 Succ: b => Validation<MonoidFail, FAIL, SUCCESS2>.Success(f(b)));
     }
+
+    public struct FValidationBi<MonoidFail, FAIL, SUCCESS, MonoidFail2, FAIL2, SUCCESS2> :
+        BiFunctor<Validation<MonoidFail, FAIL, SUCCESS>, Validation<MonoidFail2, FAIL2, SUCCESS2>, FAIL, SUCCESS, FAIL2, SUCCESS2>
+        where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL>
+        where MonoidFail2 : struct, Monoid<FAIL2>, Eq<FAIL2>
+    {
+        public static readonly FValidationBi<MonoidFail, FAIL, SUCCESS, MonoidFail2, FAIL2, SUCCESS2> Inst = default(FValidationBi<MonoidFail, FAIL, SUCCESS, MonoidFail2, FAIL2, SUCCESS2>);
+
+        [Pure]
+        public Validation<MonoidFail2, FAIL2, SUCCESS2> BiMap(Validation<MonoidFail, FAIL, SUCCESS> ma, Func<FAIL, FAIL2> fa, Func<SUCCESS, SUCCESS2> fb) =>
+            ma.Match(
+                Fail: a => Validation<MonoidFail2, FAIL2, SUCCESS2>.Fail(fa(a)),
+                Succ: b => Validation<MonoidFail2, FAIL2, SUCCESS2>.Success(fb(b)));
+    }
 }

@@ -14,11 +14,13 @@ namespace LanguageExt.Tests
 
     public class ValidationTests
     {
+        public Func<string, string> ToUpper => x => x.ToUpper();
+
         [Fact]
-        public void MapFailsFailure()
+        public void ValidationSeq_MapFails_Failure()
         {
             var failure = Fail<string, int>("something went wrong")
-                .MapFail(f => f.ToUpper());
+                .MapFail(ToUpper);
 
             failure.Match(
                 Succ: _ => Assert.True(false, "should never get here"),
@@ -30,10 +32,10 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void MapFailsSuccess()
+        public void ValidationSeq_MapFails_Success()
         {
             var success = Success<string, int>(42)
-                .MapFail(f => f.ToUpper());
+                .MapFail(ToUpper);
 
             success.Match(
                 Succ: succ => Assert.True(succ == 42),
@@ -41,12 +43,12 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void BiMapFailure()
+        public void ValidationSeq_BiMap_Failure()
         {
             var failure = Fail<string, int>("something went wrong")
                 .BiMap(
                     Success: succ => succ + 1,
-                    Fail: error => error.ToUpper()
+                    Fail: ToUpper
                 );
 
             failure.Match(
@@ -59,12 +61,70 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void BiMapSuccess()
+        public void ValidationSeq_BiMap_Success()
         {
             var success = Success<string, int>(42)
                 .BiMap(
                     Success: succ => succ + 1,
-                    Fail: error => error.ToUpper()
+                    Fail: ToUpper
+                );
+
+            success.Match(
+                Succ: succ => Assert.True(succ == 43),
+                Fail: err => Assert.True(false, "should never get here"));
+        }
+
+        [Fact]
+        public void Validation_MapFails_Failure()
+        {
+            var failure = Fail<MSeq<string>, Seq<string>, int>(Seq1("something went wrong"))
+                .MapFail<MSeq<string>, Seq<string>>(f => f.Map(ToUpper));
+
+            failure.Match(
+                Succ: _ => Assert.True(false, "should never get here"),
+                Fail: errors =>
+                {
+                    Assert.True(errors.Count == 1);
+                    Assert.True(errors.Head == "SOMETHING WENT WRONG");
+                });
+        }
+
+        [Fact]
+        public void Validation_MapFails_Success()
+        {
+            var success = Success<MSeq<string>, Seq<string>, int>(42)
+                .MapFail<MSeq<string>, Seq<string>>(f => f.Map(ToUpper));
+
+            success.Match(
+                Succ: succ => Assert.True(succ == 42),
+                Fail: errors => Assert.True(false, "should never get here"));
+        }
+
+        [Fact]
+        public void Validation_BiMap_Failure()
+        {
+            var failure = Fail<MSeq<string>, Seq<string>, int>(Seq1("something went wrong"))
+                .BiMap<MSeq<string>, Seq<string>, int>(
+                    Success: succ => succ + 1,
+                    Fail: fail => fail.Map(ToUpper)
+                );
+
+            failure.Match(
+                Succ: _ => Assert.True(false, "should never get here"),
+                Fail: errors =>
+                {
+                    Assert.True(errors.Count == 1);
+                    Assert.True(errors.Head == "SOMETHING WENT WRONG");
+                });
+        }
+
+        [Fact]
+        public void Validation_BiMap_Success()
+        {
+            var success = Success<MSeq<string>, Seq<string>, int>(42)
+                .BiMap<MSeq<string>, Seq<string>, int>(
+                    Success: succ => succ + 1,
+                    Fail: fail => fail.Map(ToUpper)
                 );
 
             success.Match(
