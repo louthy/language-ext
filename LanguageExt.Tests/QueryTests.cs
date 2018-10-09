@@ -1,4 +1,7 @@
-﻿using Xunit;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Xunit;
 using static LanguageExt.Prelude;
 using static LanguageExt.Query;
 
@@ -76,6 +79,49 @@ namespace LanguageExtTests
                         .Reduce((x, s) => s + x);
 
             Assert.True(res == 120);
+        }
+
+        [Fact]
+        public void QueryableHeadOrNoneDisposesEnumerator()
+        {
+            var enumerable = new MyEnumerable<int>();
+
+            enumerable.AsQueryable().HeadOrNone();
+
+            Assert.True(enumerable.Enumerator.IsDisposed);
+        }
+
+        private class MyEnumerable<T> : IEnumerable<T>
+        {
+            public MyEnumerable()
+            {
+                this.Enumerator = new MyEnumerator<T>();
+            }
+            public MyEnumerator<T> Enumerator { get; }
+            public IEnumerator<T> GetEnumerator() => Enumerator;
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+        private class MyEnumerator<T> : IEnumerator<T>
+        {
+            public MyEnumerator()
+            {
+                this.IsDisposed = false;
+
+            }
+            public bool IsDisposed { get; private set; }
+            public bool MoveNext() => true;
+
+            public void Reset() { }
+
+            public T Current => default;
+
+            object IEnumerator.Current => default;
+
+            public void Dispose()
+            {
+                this.IsDisposed = true;
+            }
         }
     }
 }
