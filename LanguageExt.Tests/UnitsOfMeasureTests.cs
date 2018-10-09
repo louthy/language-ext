@@ -369,5 +369,18 @@ namespace LanguageExtTests
             Assert.True(x + y == z);
         }
 
+        [Fact]
+        public void CtorThrowsBelowAbsZeroTest()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => -300 * degC);
+        }
+
+        [Fact]
+        public void RetrieveKValueTest()
+        {
+            var x = 100.0 * degC;
+            Assert.True(x.KValue == 373.15);
+        }
+
     }
 }
