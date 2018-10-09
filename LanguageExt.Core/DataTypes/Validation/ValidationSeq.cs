@@ -748,6 +748,28 @@ namespace LanguageExt
             FValidation<FAIL, SUCCESS, Ret>.Inst.BiMap(this, Fail, Success);
 
         /// <summary>
+        /// Maps the value in the Validation if it's in a Fail state
+        /// </summary>
+        /// <typeparam name="Ret">Fail return</typeparam>
+        /// <param name="Fail">Fail map function</param>
+        /// <returns>Mapped Validation</returns>
+        [Pure]
+        public Validation<Ret, SUCCESS> MapFail<Ret>(Func<FAIL, Ret> Fail) =>
+            FValidationBi<FAIL, SUCCESS, Ret, SUCCESS>.Inst.BiMap(this, Fail, identity);
+
+        /// <summary>
+        /// Bi-maps the value in the Validation
+        /// </summary>
+        /// <typeparam name="FAIL2">Fail return</typeparam>
+        /// <typeparam name="SUCCESS2">Success return</typeparam>
+        /// <param name="Success">Success map function</param>
+        /// <param name="Fail">Fail map function</param>
+        /// <returns>Mapped Validation</returns>
+        [Pure]
+        public Validation<FAIL2, SUCCESS2> BiMap<FAIL2, SUCCESS2>(Func<SUCCESS, SUCCESS2> Success, Func<FAIL, FAIL2> Fail) =>
+            FValidationBi<FAIL, SUCCESS, FAIL2, SUCCESS2>.Inst.BiMap(this, Fail, Success);
+
+        /// <summary>
         /// Maps the value in the Validation if it's in a Success state
         /// </summary>
         /// <typeparam name="L">Fail</typeparam>
