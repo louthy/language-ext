@@ -128,11 +128,55 @@ namespace LanguageExt
         /// <param name="list">List</param>
         /// <returns>Optional head item</returns>
         [Pure]
-        public static Option<T> headOrNone<T>(IEnumerable<T> list) =>
-            (from x in list
-             select Some(x))
-            .DefaultIfEmpty(None)
-            .FirstOrDefault();
+        public static Option<A> headOrNone<A>(IEnumerable<A> list) =>
+            list.Select(Option<A>.Some)
+                .DefaultIfEmpty(Option<A>.None)
+                .FirstOrDefault();
+
+        /// <summary>
+        /// Get the item at the head (first) of the list or Left if the list is empty
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Either head item or left</returns>
+        [Pure]
+        public static Either<L, R> headOrLeft<L, R>(IEnumerable<R> list, L left) =>
+            list.Select(Either<L, R>.Right)
+                .DefaultIfEmpty(Either<L, R>.Left(left))
+                .FirstOrDefault();
+
+        /// <summary>
+        /// Get the item at the head (first) of the list or fail if the list is empty
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Either head item or fail</returns>
+        [Pure]
+        public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail) =>
+            list.Select(Validation<Fail, Success>.Success)
+                .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq1(fail)))
+                .FirstOrDefault();
+
+        /// <summary>
+        /// Get the item at the head (first) of the list or fail if the list is empty
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Either head item or fail</returns>
+        [Pure]
+        public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IEnumerable<Success> list, Seq<Fail> fail) =>
+            list.Select(Validation<Fail, Success>.Success)
+                .DefaultIfEmpty(Validation<Fail, Success>.Fail(fail))
+                .FirstOrDefault();
+
+        /// <summary>
+        /// Get the item at the head (first) of the list or fail if the list is empty
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Either head item or fail</returns>
+        [Pure]
+        public static Validation<MonoidFail, Fail, Success> headOrInvalid<MonoidFail, Fail, Success>(IEnumerable<Success> list, Fail fail)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+            list.Select(Validation<MonoidFail, Fail, Success>.Success)
+                .DefaultIfEmpty(Validation<MonoidFail, Fail, Success>.Fail(fail))
+                .FirstOrDefault();
 
         /// <summary>
         /// Get the tail of the list (skips the head item)

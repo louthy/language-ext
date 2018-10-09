@@ -83,6 +83,43 @@ public static class ListExtensions
         LanguageExt.List.headOrNone(list);
 
     /// <summary>
+    /// Get the item at the head (first) of the list or Left if the list is empty
+    /// </summary>
+    /// <param name="list">List</param>
+    /// <returns>Either head item or left</returns>
+    [Pure]
+    public static Either<L, R> HeadOrLeft<L, R>(this IEnumerable<R> list, L left) =>
+        LanguageExt.List.headOrLeft(list, left);
+
+    /// <summary>
+    /// Get the item at the head (first) of the list or fail if the list is empty
+    /// </summary>
+    /// <param name="list">List</param>
+    /// <returns>Either head item or fail</returns>
+    [Pure]
+    public static Validation<Fail, Success> HeadOrInvalid<Fail, Success>(this IEnumerable<Success> list, Fail fail) =>
+        LanguageExt.List.headOrInvalid(list, fail);
+
+    /// <summary>
+    /// Get the item at the head (first) of the list or fail if the list is empty
+    /// </summary>
+    /// <param name="list">List</param>
+    /// <returns>Either head item or fail</returns>
+    [Pure]
+    public static Validation<Fail, Success> HeadOrInvalid<Fail, Success>(this IEnumerable<Success> list, Seq<Fail> fail) =>
+        LanguageExt.List.headOrInvalid(list, fail);
+
+    /// <summary>
+    /// Get the item at the head (first) of the list or fail if the list is empty
+    /// </summary>
+    /// <param name="list">List</param>
+    /// <returns>Either head item or fail</returns>
+    [Pure]
+    public static Validation<MonoidFail, Fail, Success> HeadOrInvalid<MonoidFail, Fail, Success>(this IEnumerable<Success> list, Fail fail)
+        where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+        LanguageExt.List.headOrInvalid<MonoidFail, Fail, Success>(list, fail);
+
+    /// <summary>
     /// Get the tail of the list (skips the head item)
     /// </summary>
     /// <param name="list">List</param>
