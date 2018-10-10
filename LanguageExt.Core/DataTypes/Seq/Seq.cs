@@ -326,6 +326,25 @@ namespace LanguageExt
                     (s, x) => s ^ (x.IsNull() ? 0 : x.GetHashCode()));
 
         /// <summary>
+        /// Append operator
+        /// </summary>
+        public static Seq<A> operator +(Seq<A> x, Seq<A> y)
+        {
+            IEnumerable<A> Yield(Seq<A> sx, Seq<A> sy)
+            {
+                foreach(var a in sx)
+                {
+                    yield return a;
+                }
+                foreach (var b in sy)
+                {
+                    yield return b;
+                }
+            }
+            return SeqEnumerable<A>.New(Yield(x, y));
+        }
+
+        /// <summary>
         /// Ordering operator
         /// </summary>
         public static bool operator >(Seq<A> x, Seq<A> y) =>
