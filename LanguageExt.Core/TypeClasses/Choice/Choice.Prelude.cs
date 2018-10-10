@@ -189,6 +189,20 @@ namespace LanguageExt
                 Right: rightMap);
 
         /// <summary>
+        /// Returns the input if in Left or Right state
+        /// Returns the result of bottom function if in Bottom state
+        /// </summary>
+        /// <param name="bottom">Function to generate a Either value if in the Bottom state</param>
+        /// <returns>Returns an either value</returns>
+        [Pure]
+        public static Either<A, B> ifBottom<CHOICE, CH, A, B>(CH ma, Func<Either<A, B>> bottom)
+            where CHOICE : struct, Choice<CH, A, B> =>
+            default(CHOICE).Match(ma,
+                Left: Left<A, B>,
+                Right: Right<A, B>,
+                Bottom: bottom);
+
+        /// <summary>
         /// Project the Either into a Lst R
         /// </summary>
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
