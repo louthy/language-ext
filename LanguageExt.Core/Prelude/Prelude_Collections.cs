@@ -689,6 +689,18 @@ namespace LanguageExt
             items.AsQueryable();
 
         /// <summary>
+        /// Match empty list, or multi-item list
+        /// </summary>
+        /// <typeparam name="B">Return value type</typeparam>
+        /// <param name="Empty">Match for an empty list</param>
+        /// <param name="More">Match for a non-empty</param>
+        /// <returns>Result of match function invoked</returns>
+        public static B match<A, B>(IEnumerable<A> list,
+            Func<B> Empty,
+            Func<Seq<A>, B> More) =>
+            Seq(list).Match(Empty, More);
+
+        /// <summary>
         /// List pattern matching
         /// </summary>
         [Pure]
