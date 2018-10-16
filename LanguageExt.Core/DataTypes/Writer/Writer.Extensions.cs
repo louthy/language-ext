@@ -62,7 +62,7 @@ public static class WriterExtensions
     [Pure]
     public static Writer<MonoidW, W, Seq<A>> ToSeq<MonoidW, W, A>(this Writer<MonoidW, W, A> self)
         where MonoidW : struct, Monoid<W> =>
-            self.Select(x => x.Cons(Empty));
+            self.Select(x => x.Cons());
 
     [Pure]
     public static Writer<MonoidW, W, Seq<A>> AsEnumerable<MonoidW, W, A>(this Writer<MonoidW, W, A> self)

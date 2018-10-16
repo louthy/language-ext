@@ -1,33 +1,356 @@
-﻿using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using LanguageExt;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
 
 namespace LanguageExt
 {
+
     /// <summary>
     /// Cons sequence
     /// Represents a sequence of values in a similar way to IEnumerable, but without the
     /// issues of multiple evaluation for key LINQ operators like Skip, Count, etc.
     /// </summary>
     /// <typeparam name="A">Type of the values in the sequence</typeparam>
-    public abstract class Seq<A> : ISeq<A>
+    public class Seq<A> : IEnumerable<A>, ISeq<A>, IComparable<Seq<A>>, IEquatable<Seq<A>>
     {
-        public static readonly Seq<A> Empty = SeqEmpty<A>.Default;
+        const byte ConsAndAddAllowed = 1;
+        const byte NoCons = 1;
+        const byte NoAdd = 1;
+
+        /// <summary>
+        /// Empty sequence
+        /// </summary>
+        public static Seq<A> Empty = new Seq<A>(new A[0], 0, 0, 0, ConsAndAddAllowed, null);
+
+        /// <summary>
+        /// Backing data
+        /// </summary>
+        A[] data;
+
+        /// <summary>
+        /// Index into data where the Head is
+        /// </summary>
+        int start;
+
+        /// <summary>
+        /// Known size of the sequence - 0 means unknown
+        /// </summary>
+        int count;
+
+        /// <summary>
+        /// Lazy sequence
+        /// </summary>
+        Enum<A> seq;
+
+        /// <summary>
+        /// Index into data where the lazy sequence starts
+        /// </summary>
+        int seqStart;
+
+        /// <summary>
+        /// Has this sequence been cons'd, in which case subsequent
+        /// cons from the same Seq will need to clone.
+        /// </summary>
+        byte flags;
+
+        /// <summary>
+        /// Cached hash code
+        /// </summary>
+        int hash;
+
+        /// <summary>
+        /// Constructor from lazy sequence
+        /// </summary>
+        internal Seq(IEnumerable<A> seq)
+        {
+            this.data = new A[0];
+            this.start = 0;
+            this.count = 0;
+            this.seqStart = 0;
+            this.seq = new Enum<A>(seq);
+            this.flags = 0;
+            this.hash = 0;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        internal Seq(A[] data, int start, int count, int seqStart, byte flags, Enum<A> seq)
+        {
+            this.data = data;
+            this.start = start;
+            this.count = count;
+            this.seqStart = seqStart;
+            this.seq = seq;
+            this.flags = flags;
+            this.hash = 0;
+        }
+
+        /// <summary>
+        /// Add an item to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the item 
+        /// can be appended
+        /// </remarks>
+        public Seq<A> Add(A value)
+        {
+            if (seq != null)
+            {
+                // Can't add to the end of a sequence unless we know
+                // where the end is.  So, we must stream all lazy items
+                // first.
+                Strict();
+            }
+
+            var end = start + count;
+            if (end == data.Length || (flags & 2) == 2)
+            {
+                return CloneAdd(value);
+            }
+            else
+            {
+                lock (data)
+                {
+                    end = start + count;
+                    if (end == data.Length || (flags & 2) == 2)
+                    {
+                        return CloneAdd(value);
+                    }
+                    else
+                    {
+                        flags |= 2;
+                        data[end] = value;
+                        return new Seq<A>(data, start, count + 1, 0, 0, null);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the item 
+        /// can be appended
+        /// </remarks>
+        public Seq<A> Concat(IEnumerable<A> items) =>
+            items is A[] ? Concat((A[])items)
+          : Concat(items.ToArray());
+
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the item 
+        /// can be appended
+        /// </remarks>
+        Seq<A> Concat(A[] items)
+        {
+            if (seq != null)
+            {
+                // Can't add to the end of a sequence unless we know
+                // where the end is.  So, we must stream all lazy items
+                // first.
+                Strict();
+            }
+
+            var end = start + count;
+            if ((end + items.Length >= data.Length) || (flags & 2) == 2)
+            {
+                return CloneAddRange(items);
+            }
+            else
+            {
+                lock (data)
+                {
+                    end = start + count;
+                    if ((end + items.Length >= data.Length) || (flags & 2) == 2)
+                    {
+                        return CloneAddRange(items);
+                    }
+                    else
+                    {
+                        flags |= 2;
+
+                        System.Array.Copy(items, 0, data, end, items.Length);
+                        return new Seq<A>(data, start, count + items.Length, 0, 0, null);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Prepend an item to the sequence
+        /// </summary>
+        internal Seq<A> Cons(A value)
+        {
+            if (start == 0 || (flags & 1) == 1)
+            {
+                return CloneCons(value);
+            }
+            else
+            {
+                lock (data)
+                {
+                    if (start == 0 || (flags & 1) == 1)
+                    {
+                        return CloneCons(value);
+                    }
+                    else
+                    {
+                        flags |= 1;
+                        var nstart = start - 1;
+                        data[nstart] = value;
+                        return new Seq<A>(data, start - 1, count + 1, seqStart, 0, seq);
+                    }
+                }
+            }
+        }
+
+        Seq<A> CloneCons(A value)
+        {
+            if (start == 0)
+            {
+                // Find the new size of the data array
+                var nlength = Math.Max(data.Length << 1, 1);
+
+                // Allocate it
+                var ndata = new A[nlength];
+
+                // Copy the old data block to the second half of the new one
+                // so we have space on the left-hand-side to put the cons'd
+                // value
+                System.Array.Copy(data, 0, ndata, data.Length, data.Length);
+
+                // If we have a seq != null then we need to offset where it's
+                // streaming in to.
+                var nseqStart = seqStart + data.Length;
+
+                // The new head position will be 1 cell to to left of the 
+                // middle of the newly allocated block.
+                var nstart = data.Length == 0
+                                ? 0
+                                : data.Length - 1;
+
+                // We have one more item
+                var ncount = count + 1;
+
+                // Set the value in the new data block
+                ndata[nstart] = value;
+
+                // Return everything 
+                return new Seq<A>(ndata, nstart, ncount, data.Length == 0 ? 1 : nseqStart, 0, seq);
+            }
+            else
+            {
+                // We're cloning because there are multiple cons operations
+                // from the same Seq.  We can't keep walking along the same 
+                // array, so we clone with the exact same settings and insert
+
+                var ndata = new A[data.Length];
+                var nstart = start - 1;
+
+                System.Array.Copy(data, start, ndata, start, count);
+
+                ndata[nstart] = value;
+
+                return new Seq<A>(ndata, nstart, count + 1, seqStart, ConsAndAddAllowed, seq);
+            }
+        }
+
+        Seq<A> CloneAdd(A value)
+        {
+            // Find the new size of the data array
+            var nlength = Math.Max(data.Length << 1, 1);
+
+            // Allocate it
+            var ndata = new A[nlength];
+
+            // Copy the old data block to the first half of the new one
+            // so we have space on the right-hand-side to put the added
+            // value
+            System.Array.Copy(data, 0, ndata, 0, data.Length);
+
+            // Set the value in the new data block
+            ndata[data.Length] = value;
+
+            // Return everything 
+            return new Seq<A>(ndata, start, count + 1, 0, 0, null);
+        }
+
+        Seq<A> CloneAddRange(A[] values)
+        {
+            var end = start + count;
+
+            // Find the new size of the data array
+            var nlength = Math.Max(Math.Max(data.Length << 1, 1), end + values.Length);
+
+            // Allocate it
+            var ndata = new A[nlength];
+
+            // Copy the old data block to the first half of the new one
+            // so we have space on the right-hand-side to put the added
+            // value
+            System.Array.Copy(data, 0, ndata, 0, end);
+
+            // Set the value in the new data block
+            System.Array.Copy(values, 0, ndata, end, values.Length);
+
+            // Return everything 
+            return new Seq<A>(ndata, start, count + values.Length, 0, 0, null);
+        }
 
         /// <summary>
         /// Head item in the sequence.  NOTE:  If `IsEmpty` is true then Head 
         /// is undefined.  Call HeadOrNone() if for maximum safety.
         /// </summary>
-        public abstract A Head { get;  }
+        public A Head
+        {
+            get
+            {
+                if (count == 0)
+                {
+                    var (success, value) = StreamNextItem();
+
+                    return success
+                        ? value
+                        : throw new InvalidOperationException("Sequence is empty");
+                }
+                else
+                {
+                    return data[start];
+                }
+            }
+        }
 
         /// <summary>
         /// Tail of the sequence
         /// </summary>
-        public abstract Seq<A> Tail { get;  }
+        public Seq<A> Tail
+        {
+            get
+            {
+                if (count == 0)
+                {
+                    var (success, value) = StreamNextItem();
+
+                    return success
+                        ? new Seq<A>(data, start + 1, count - 1, seqStart, NoCons, seq)
+                        : Empty;
+                }
+                else
+                {
+                    return new Seq<A>(data, start + 1, count - 1, seqStart, NoCons, seq);
+                }
+            }
+        }
 
         /// <summary>
         /// Head of the sequence if this node isn't the empty node
@@ -37,6 +360,7 @@ namespace LanguageExt
                 ? None
                 : Some(Head);
 
+
         /// <summary>
         /// Head of the sequence if this node isn't the empty node or fail
         /// </summary>
@@ -45,8 +369,8 @@ namespace LanguageExt
         /// <returns>Head of the sequence or fail</returns>
         public Validation<Fail, A> HeadOrInvalid<Fail>(Fail fail) =>
             IsEmpty
-                ? Fail<Fail,A>(fail)
-                : Success<Fail,A>(Head);
+                ? Fail<Fail, A>(fail)
+                : Success<Fail, A>(Head);
 
         /// <summary>
         /// Head of the sequence
@@ -68,48 +392,38 @@ namespace LanguageExt
                 : Right<L, A>(Head);
 
         /// <summary>
-        /// True if this cons node is the Empty node
+        /// Returns true if the sequence is empty
         /// </summary>
-        public abstract bool IsEmpty { get; }
+        /// <remarks>
+        /// For lazy streams this will have to peek at the first 
+        /// item.  So, the first item will be consumed.
+        /// </summary>
+        public bool IsEmpty =>
+            seq == null
+                ? count == 0
+                : count == 0 && !StreamNextItem().Success;
 
         /// <summary>
         /// Returns the number of items in the sequence
         /// </summary>
         /// <returns>Number of items in the sequence</returns>
-        public abstract int Count { get; }
-
-        /// <summary>
-        /// Get an enumerator for the sequence
-        /// </summary>
-        /// <returns>An IEnumerator of As</returns>
-        public virtual IEnumerator<A> GetEnumerator() =>
-            AsEnumerable().GetEnumerator();
-
-        /// <summary>
-        /// Get an enumerator for the sequence
-        /// </summary>
-        /// <returns>An IEnumerator of As</returns>
-        IEnumerator IEnumerable.GetEnumerator() =>
-            GetEnumerator();
-
-        /// <summary>
-        /// Stream as an enumerable
-        /// </summary>
-        public virtual IEnumerable<A> AsEnumerable()
+        public int Count
         {
-            var current = this;
-            while (!current.IsEmpty)
+            get
             {
-                yield return current.Head;
-                current = current.Tail;
+                if (seq != null)
+                {
+                    Strict();
+                }
+                return count;
             }
         }
 
         /// <summary>
-        /// Implicit conversion operator from SeqEmpty
+        /// Stream as an enumerable
         /// </summary>
-        public static implicit operator Seq<A>(SeqEmpty empty) =>
-            Empty;
+        public IEnumerable<A> AsEnumerable() =>
+            this;
 
         /// <summary>
         /// Match empty sequence, or multi-item sequence
@@ -118,7 +432,7 @@ namespace LanguageExt
         /// <param name="Empty">Match for an empty list</param>
         /// <param name="Tail">Match for a non-empty</param>
         /// <returns>Result of match function invoked</returns>
-        public virtual B Match<B>(
+        public B Match<B>(
             Func<B> Empty,
             Func<A, Seq<A>, B> Tail) =>
             IsEmpty
@@ -132,7 +446,7 @@ namespace LanguageExt
         /// <param name="Empty">Match for an empty list</param>
         /// <param name="Tail">Match for a non-empty</param>
         /// <returns>Result of match function invoked</returns>
-        public virtual B Match<B>(
+        public B Match<B>(
             Func<B> Empty,
             Func<A, B> Head,
             Func<A, Seq<A>, B> Tail) =>
@@ -149,7 +463,7 @@ namespace LanguageExt
         /// <param name="Empty">Match for an empty list</param>
         /// <param name="Sequence">Match for a non-empty</param>
         /// <returns>Result of match function invoked</returns>
-        public virtual B Match<B>(
+        public B Match<B>(
             Func<B> Empty,
             Func<Seq<A>, B> Seq) =>
             IsEmpty
@@ -163,7 +477,7 @@ namespace LanguageExt
         /// <param name="Empty">Match for an empty list</param>
         /// <param name="Tail">Match for a non-empty</param>
         /// <returns>Result of match function invoked</returns>
-        public virtual B Match<B>(
+        public B Match<B>(
             Func<B> Empty,
             Func<A, B> Head,
             Func<Seq<A>, B> Tail) =>
@@ -181,14 +495,14 @@ namespace LanguageExt
         /// <returns>Mapped sequence</returns>
         public Seq<B> Map<B>(Func<A, B> f)
         {
-            IEnumerable<B> Yield()
+            IEnumerable<B> Yield(Seq<A> ma, Func<A, B> map)
             {
-                foreach(var item in this)
+                foreach (var item in ma)
                 {
-                    yield return f(item);
+                    yield return map(item);
                 }
             }
-            return SeqEnumerable<B>.New(Yield());
+            return new Seq<B>(Yield(this, f));
         }
 
         /// <summary>
@@ -197,7 +511,7 @@ namespace LanguageExt
         /// <typeparam name="B"></typeparam>
         /// <param name="f">Mapping function</param>
         /// <returns>Mapped sequence</returns>
-        public Seq<B> Select<B>(Func<A, B> f) => 
+        public Seq<B> Select<B>(Func<A, B> f) =>
             Map(f);
 
         /// <summary>
@@ -208,17 +522,17 @@ namespace LanguageExt
         /// <returns>Flatmapped sequence</returns>
         public Seq<B> Bind<B>(Func<A, Seq<B>> f)
         {
-            IEnumerable<B> Yield()
+            IEnumerable<B> Yield(Seq<A> ma, Func<A, Seq<B>> bnd)
             {
-                foreach(var a in this)
+                foreach (var a in ma)
                 {
-                    foreach(var b in f(a))
+                    foreach (var b in bnd(a))
                     {
                         yield return b;
                     }
                 }
             }
-            return SeqEnumerable<B>.New(Yield());
+            return new Seq<B>(Yield(this, f));
         }
 
         /// <summary>
@@ -229,17 +543,17 @@ namespace LanguageExt
         /// <returns>Flatmapped sequence</returns>
         public Seq<C> SelectMany<B, C>(Func<A, Seq<B>> bind, Func<A, B, C> project)
         {
-            IEnumerable<C> Yield()
+            IEnumerable<C> Yield(Seq<A> ma, Func<A, Seq<B>> bnd, Func<A, B, C> prj)
             {
-                foreach (var a in this)
+                foreach (var a in ma)
                 {
-                    foreach (var b in bind(a))
+                    foreach (var b in bnd(a))
                     {
-                        yield return project(a, b);
+                        yield return prj(a, b);
                     }
                 }
             }
-            return SeqEnumerable<C>.New(Yield());
+            return new Seq<C>(Yield(this, bind, project));
         }
 
         /// <summary>
@@ -249,14 +563,14 @@ namespace LanguageExt
         /// <returns>Filtered sequence</returns>
         public Seq<A> Filter(Func<A, bool> f)
         {
-            IEnumerable<A> Yield()
+            IEnumerable<A> Yield(Seq<A> ma, Func<A, bool> pred)
             {
-                foreach (var item in this)
+                foreach (var item in ma)
                 {
-                    if(f(item)) yield return item;
+                    if (pred(item)) yield return item;
                 }
             }
-            return SeqEnumerable<A>.New(Yield());
+            return new Seq<A>(Yield(this, f));
         }
 
         /// <summary>
@@ -264,7 +578,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Predicate to apply to the items</param>
         /// <returns>Filtered sequence</returns>
-        public Seq<A> Where(Func<A, bool> f) => 
+        public Seq<A> Where(Func<A, bool> f) =>
             Filter(f);
 
         /// <summary>
@@ -274,7 +588,14 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="f">Fold function</param>
         /// <returns>Aggregated state</returns>
-        public abstract S Fold<S>(S state, Func<S, A, S> f);
+        public S Fold<S>(S state, Func<S, A, S> f)
+        {
+            foreach (var item in this)
+            {
+                state = f(state, item);
+            }
+            return state;
+        }
 
         /// <summary>
         /// Fold the sequence from the last item to the first.  For 
@@ -285,7 +606,20 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="f">Fold function</param>
         /// <returns>Aggregated state</returns>
-        public abstract S FoldBack<S>(S state, Func<S, A, S> f);
+        public S FoldBack<S>(S state, Func<S, A, S> f)
+        {
+            if(seq != null)
+            {
+                Strict();
+            }
+
+            for(var i = start + count - 1; i >= start; i-- )
+            {
+                state = f(state, data[i]);
+            }
+
+            return state;
+        }
 
         /// <summary>
         /// Returns true if the supplied predicate returns true for any
@@ -294,7 +628,8 @@ namespace LanguageExt
         /// <param name="f">Predicate to apply</param>
         /// <returns>True if the supplied predicate returns true for any
         /// item in the sequence.  False otherwise.</returns>
-        public abstract bool Exists(Func<A, bool> f);
+        public bool Exists(Func<A, bool> f) =>
+            AsEnumerable().Exists(f);
 
         /// <summary>
         /// Returns true if the supplied predicate returns true for all
@@ -305,13 +640,14 @@ namespace LanguageExt
         /// <returns>True if the supplied predicate returns true for all
         /// items in the sequence.  False otherwise.  If there is an 
         /// empty sequence then true is returned.</returns>
-        public abstract bool ForAll(Func<A, bool> f);
+        public bool ForAll(Func<A, bool> f) =>
+            AsEnumerable().ForAll(f);
 
         /// <summary>
         /// Returns true if the sequence has items in it
         /// </summary>
         /// <returns>True if the sequence has items in it</returns>
-        public bool Any() => 
+        public bool Any() =>
             !IsEmpty;
 
         /// <summary>
@@ -319,66 +655,56 @@ namespace LanguageExt
         /// </summary>
         /// <returns></returns>
         public override int GetHashCode() =>
-            IsEmpty
-                ? 0
-                : Fold(
-                    Head.IsNull() ? 0 : Head.GetHashCode(), 
-                    (s, x) => s ^ (x.IsNull() ? 0 : x.GetHashCode()));
+            hash == 0
+                ? (hash = hash(this))
+                : hash;
 
         /// <summary>
         /// Append operator
         /// </summary>
-        public static Seq<A> operator +(Seq<A> x, Seq<A> y)
-        {
-            IEnumerable<A> Yield(Seq<A> sx, Seq<A> sy)
-            {
-                foreach(var a in sx)
-                {
-                    yield return a;
-                }
-                foreach (var b in sy)
-                {
-                    yield return b;
-                }
-            }
-            return SeqEnumerable<A>.New(Yield(x, y));
-        }
+        public static Seq<A> operator +(Seq<A> x, Seq<A> y) =>
+            x.Concat(y);
 
         /// <summary>
         /// Ordering operator
         /// </summary>
         public static bool operator >(Seq<A> x, Seq<A> y) =>
-            default(OrdSeq<OrdDefault<A>, A>).Compare(x, y) > 0;
+            x.CompareTo(y) > 0;
 
         /// <summary>
         /// Ordering operator
         /// </summary>
         public static bool operator >=(Seq<A> x, Seq<A> y) =>
-            default(OrdSeq<OrdDefault<A>, A>).Compare(x, y) >= 0;
+            x.CompareTo(y) >= 0;
 
         /// <summary>
         /// Ordering  operator
         /// </summary>
         public static bool operator <(Seq<A> x, Seq<A> y) =>
-            default(OrdSeq<OrdDefault<A>, A>).Compare(x, y) < 0;
+            x.CompareTo(y) < 0;
 
         /// <summary>
         /// Ordering  operator
         /// </summary>
         public static bool operator <=(Seq<A> x, Seq<A> y) =>
-            default(OrdSeq<OrdDefault<A>, A>).Compare(x, y) <= 0;
+            x.CompareTo(y) <= 0;
 
         /// <summary>
         /// Equality operator
         /// </summary>
         public static bool operator ==(Seq<A> x, Seq<A> y) =>
-            default(EqSeq<EqDefault<A>, A>).Equals(x, y);
+             x.seq == null && y.seq == null &&
+             x.Count == y.Count &&
+             x.GetHashCode() == y.GetHashCode() &&
+             Enumerable.SequenceEqual(x, y)
+                ? true
+                : Enumerable.SequenceEqual(x, y);
 
         /// <summary>
         /// Non-equality operator
         /// </summary>
         public static bool operator !=(Seq<A> x, Seq<A> y) =>
-            !(x==y);
+            !(x == y);
 
         /// <summary>
         /// Equality test
@@ -391,18 +717,91 @@ namespace LanguageExt
         /// <summary>
         /// Equality test
         /// </summary>
-        public virtual bool Equals(ISeq<A> rhs) =>
-            default(EqSeq<EqDefault<A>, A>).Equals(this, rhs);
+        public bool Equals(ISeq<A> rhs) =>
+            Enumerable.SequenceEqual(this, rhs);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        public bool Equals(Seq<A> rhs)
+        {
+            var x = this;
+            var y = rhs;
+
+            if (x.seq == null && y.seq == null &&
+                (x.Count != y.Count ||
+                 x.GetHashCode() != y.GetHashCode()))
+            {
+                return false;
+            }
+
+            return Enumerable.SequenceEqual(this, rhs);
+        }
 
         /// <summary>
         /// Skip count items
         /// </summary>
-        public abstract Seq<A> Skip(int count);
+        public Seq<A> Skip(int amount)
+        {
+            if(amount < 1)
+            {
+                return this;
+            }
+
+            var end = start + count;
+            var virtualEnd = start + amount;
+
+            if (virtualEnd > end)
+            {
+                if (seq == null)
+                {
+                    return Empty;
+                }
+                else
+                {
+                    StreamNextItems(virtualEnd - end);
+                    return Skip(amount);
+                }
+            }
+            else
+            {
+                return new Seq<A>(data, start + amount, count - amount, seqStart, NoCons, seq);
+            }
+        }
 
         /// <summary>
         /// Take count items
         /// </summary>
-        public abstract Seq<A> Take(int count);
+        public Seq<A> Take(int amount)
+        {
+            if (amount < 1)
+            {
+                return Empty;
+            }
+
+            var end = start + count;
+            var virtualEnd = start + amount;
+
+            if (virtualEnd > end)
+            {
+                if (seq == null)
+                {
+                    return this;
+                }
+                else
+                {
+                    StreamNextItems(virtualEnd - end);
+                    return Take(amount);
+                }
+            }
+            else
+            {
+                var nlength = Math.Min(virtualEnd, end) - start;
+                var nitems = new A[nlength];
+                System.Array.Copy(data, start, nitems, 0, nlength);
+                return new Seq<A>(nitems, 0, nlength, 0, 0, null);
+            }
+        }
 
         /// <summary>
         /// Iterate the sequence, yielding items if they match the predicate 
@@ -410,7 +809,30 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
-        public abstract Seq<A> TakeWhile(Func<A, bool> pred);
+        public Seq<A> TakeWhile(Func<A, bool> pred)
+        {
+            var data = new A[0];
+            var index = 0;
+
+            foreach (var item in this)
+            {
+                if (pred(item))
+                {
+                    if (index == data.Length)
+                    {
+                        var ndata = new A[Math.Max(1, data.Length << 1)];
+                        System.Array.Copy(data, ndata, data.Length);
+                        data = ndata;
+                    }
+
+                    data[index] = item;
+                    index++;
+                }
+            }
+            return index == 0
+                ? Empty
+                : new Seq<A>(data, 0, index, 0, 0, null);
+        }
 
         /// <summary>
         /// Iterate the sequence, yielding items if they match the predicate 
@@ -419,24 +841,229 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
-        public abstract Seq<A> TakeWhile(Func<A, int, bool> pred);
+        public Seq<A> TakeWhile(Func<A, int, bool> pred)
+        {
+            var data = new A[0];
+            var index = 0;
+
+            foreach (var item in this)
+            {
+                if (pred(item, index))
+                {
+                    if (index == data.Length)
+                    {
+                        var ndata = new A[Math.Max(1, data.Length << 1)];
+                        System.Array.Copy(data, ndata, data.Length);
+                        data = ndata;
+                    }
+
+                    data[index] = item;
+                    index++;
+                }
+            }
+            return index == 0
+                ? Empty
+                : new Seq<A>(data, 0, index, 0, 0, null);
+        }
 
         /// <summary>
         /// Compare to another sequence
         /// </summary>
-        public int CompareTo(ISeq<A> other) =>
-            default(OrdSeq<OrdDefault<A>, A>).Compare(this, other);
-
-        protected int GetCount()
+        public int CompareTo(ISeq<A> other)
         {
-            int count = 0;
-            foreach (var item in this)
+            var x = this;
+            var y = other;
+            var cmp = 0;
+
+            var iterX = x.GetEnumerator();
+            var iterY = y.GetEnumerator();
+
+            while (iterX.MoveNext() && iterY.MoveNext())
             {
-                count++;
+                cmp = Comparer<A>.Default.Compare(iterX.Current, iterY.Current);
+                if (cmp != 0) return cmp;
             }
-            return count;
+            return cmp;
         }
 
-        internal abstract bool IsTerminator { get; }
+        /// <summary>
+        /// Compare to another sequence
+        /// </summary>
+        public int CompareTo(Seq<A> other)
+        {
+            var x = this;
+            var y = other;
+            var cmp = 0;
+
+            if (x.seq == null && y.seq == null)
+            {
+                cmp = x.Count.CompareTo(y.Count);
+                if (cmp != 0) return cmp;
+            }
+
+            var iterX = x.GetEnumerator();
+            var iterY = y.GetEnumerator();
+
+            while (iterX.MoveNext() && iterY.MoveNext())
+            {
+                cmp = Comparer<A>.Default.Compare(iterX.Current, iterY.Current);
+                if (cmp != 0) return cmp;
+            }
+            return cmp;
+        }
+
+        /// <summary>
+        /// Force all items lazy to stream
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Strict() =>
+            StreamNextItems(Int32.MaxValue);
+
+        /// <summary>
+        /// Stream the next lazy item
+        /// </summary>
+        (bool Success, A Value) StreamNextItem()
+        {
+            if (seq == null)
+            {
+                // Nothing left to stream, so we result Fail
+                return (false, default(A));
+            }
+
+            var localCount = count;
+            lock (seq)
+            {
+                if (seq == null)
+                {
+                    // Nothing left to stream, so we result Fail
+                    return (false, default(A));
+                }
+                else
+                {
+                    var end = start + count;
+                    if (end < seqStart)
+                    {
+                        // We're trying to stream something before
+                        // the seq, so let's just honour the item
+                        return (true, data[end]);
+                    }
+                    else
+                    {
+                        var (success, value) = seq.Get(end - seqStart);
+                        if (success)
+                        {
+                            if (data.Length == end)
+                            {
+                                var ndata = new A[Math.Max(end << 1, 1)];
+                                System.Array.Copy(data, ndata, data.Length);
+                                data = ndata;
+                            }
+                            data[end] = value;
+                            count++;
+                            return (true, value);
+                        }
+                        else
+                        {
+                            seq = null;
+                            return (false, value);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Force all items lazy to stream
+        /// </summary>
+        Seq<A> StreamNextItems(int amount)
+        {
+            if (seq == null)
+            {
+                // Nothing left to stream
+                return this;
+            }
+
+            var localCount = count;
+            lock (seq)
+            {
+                if (seq == null)
+                {
+                    // Nothing left to stream, so we result Fail
+                    return this;
+                }
+                else
+                {
+                    var end = Math.Max(start + count, seqStart);
+
+                    while (amount > 0)
+                    {
+                        amount--;
+
+                        var (success, value) = seq.Get(end - seqStart);
+                        if (success)
+                        {
+                            if (data.Length == end)
+                            {
+                                var ndata = new A[Math.Max(end << 1, 1)];
+                                System.Array.Copy(data, ndata, data.Length);
+                                data = ndata;
+                            }
+                            data[end] = value;
+                            count++;
+                            end++;
+                        }
+                        else
+                        {
+                            seq = null;
+                            return this;
+                        }
+                    }
+                    return this;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Enumerator
+        /// </summary>
+        public IEnumerator<A> GetEnumerator()
+        {
+            var end = start + count;
+
+            // First yield the already cached items
+            for (var i = start; i < end; i++)
+            {
+                yield return data[i];
+            }
+
+            if (seq == null)
+            {
+                yield break;
+            }
+
+            // Next stream the lazy items
+            bool success = true;
+            A value = default(A);
+            while (success)
+            {
+                (success, value) = StreamNextItem();
+                if (success)
+                {
+                    yield return value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Enumerator
+        /// </summary>
+        IEnumerator IEnumerable.GetEnumerator() =>
+            GetEnumerator();
+
+        /// <summary>
+        /// Implicit conversion from an untyped empty list
+        /// </summary>
+        public static implicit operator Seq<A>(SeqEmpty _) => 
+            Empty;
     }
 }

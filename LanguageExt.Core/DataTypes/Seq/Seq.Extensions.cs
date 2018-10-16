@@ -18,26 +18,6 @@ public static class SeqExtensions
     /// <summary>
     /// Get the head item in the sequence
     /// </summary>
-    public static A Head<A>(this ISeq<A> seq) =>
-        seq.Head;
-
-    /// <summary>
-    /// Get the head item in the sequence
-    /// </summary>
-    public static Seq<A> Tail<A>(this ISeq<A> seq) =>
-        seq.Tail;
-
-    /// <summary>
-    /// Get the head item in the sequence
-    /// </summary>
-    public static Option<A> HeadOrNone<A>(this ISeq<A> seq) =>
-        seq.IsEmpty
-            ? None
-            : Some(seq.Head);
-
-    /// <summary>
-    /// Get the head item in the sequence
-    /// </summary>
     public static A First<A>(this ISeq<A> seq) =>
         seq.Head;
 

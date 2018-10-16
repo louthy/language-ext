@@ -39,8 +39,12 @@ namespace LanguageExt
         /// <param name="items">Items</param>
         /// <returns>sequence</returns>
         [Pure]
-        public static Seq<A> create<A>(params A[] items) =>
-            SeqArray<A>.New(items);
+        public static Seq<A> create<A>(params A[] items)
+        {
+            var nitems = new A[items.Length];
+            System.Array.Copy(items, nitems, items.Length);
+            return new Seq<A>(items, 0, items.Length, 0, 0, null);
+        }
 
         /// <summary>
         /// Create a sequence from an initial set of items
@@ -49,7 +53,7 @@ namespace LanguageExt
         /// <returns>sequence</returns>
         [Pure]
         public static Seq<A> createRange<A>(IEnumerable<A> items) =>
-            SeqEnumerable<A>.New(items);
+            new Seq<A>(items);
 
         /// <summary>
         /// Generates a sequence of A using the provided delegate to initialise

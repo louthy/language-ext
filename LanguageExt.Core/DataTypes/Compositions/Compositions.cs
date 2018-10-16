@@ -26,15 +26,14 @@ namespace LanguageExt
     public struct Compositions<A> : IEquatable<Compositions<A>>, IEnumerable<A>
     {
         public static readonly Compositions<A> Empty = new Compositions<A>(Seq<Node>());
+        public readonly Seq<Node> Tree;
 
-        readonly Seq<Node> tree;
         int? hashCode;
-        public Seq<Node> Tree => tree ?? Seq<Node>();
 
         internal Compositions(Seq<Node> tree)
         {
             hashCode = null;
-            this.tree = tree;
+            Tree = tree;
         }
 
         /// <summary>

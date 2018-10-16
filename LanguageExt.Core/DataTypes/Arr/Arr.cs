@@ -492,5 +492,12 @@ namespace LanguageExt
             }
             return res.ToArr();
         }
+
+        /// <summary>
+        /// Implicit conversion from an untyped empty list
+        /// </summary>
+        public static implicit operator Arr<A>(SeqEmpty _) =>
+            Empty;
+
     }
 }

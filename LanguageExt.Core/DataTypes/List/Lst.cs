@@ -336,5 +336,11 @@ namespace LanguageExt
         [Pure]
         public int CompareTo(Lst<A> other) =>
             Value.CompareTo(other.Value);
+
+        /// <summary>
+        /// Implicit conversion from an untyped empty list
+        /// </summary>
+        public static implicit operator Lst<A>(SeqEmpty _) =>
+            Empty;
     }
 }

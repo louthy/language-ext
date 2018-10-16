@@ -1005,6 +1005,7 @@ namespace LanguageExt
         [Pure]
         public static Task<IQueryable<R>> rightToQuery<L, R>(EitherAsync<L, R> either) =>
             either.RightAsEnumerable()
+                  .Map(x => x.AsEnumerable())
                   .Map(Queryable.AsQueryable);
 
         /// <summary>
@@ -1017,6 +1018,7 @@ namespace LanguageExt
         [Pure]
         public static Task<IQueryable<L>> leftToQuery<L, R>(EitherAsync<L, R> either) =>
             either.LeftAsEnumerable()
+                  .Map(x => x.AsEnumerable())
                   .Map(Queryable.AsQueryable);
 
         /// <summary>
