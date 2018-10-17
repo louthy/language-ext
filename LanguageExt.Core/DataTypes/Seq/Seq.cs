@@ -18,9 +18,9 @@ namespace LanguageExt
     /// <typeparam name="A">Type of the values in the sequence</typeparam>
     public class Seq<A> : IEnumerable<A>, ISeq<A>, IComparable<Seq<A>>, IEquatable<Seq<A>>
     {
-        const byte ConsAndAddAllowed = 1;
-        const byte NoCons = 1;
-        const byte NoAdd = 2;
+        const int ConsAndAddAllowed = 1;
+        const int NoCons = 1;
+        const int NoAdd = 2;
 
         /// <summary>
         /// Empty sequence
@@ -53,12 +53,6 @@ namespace LanguageExt
         int seqStart;
 
         /// <summary>
-        /// Has this sequence been cons'd, in which case subsequent
-        /// cons from the same Seq will need to clone.
-        /// </summary>
-        byte flags;
-
-        /// <summary>
         /// Cached hash code
         /// </summary>
         int hash;
@@ -73,22 +67,20 @@ namespace LanguageExt
             this.count = 0;
             this.seqStart = 0;
             this.seq = new Enum<A>(seq);
-            this.flags = 0;
             this.hash = 0;
         }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        internal Seq(A[] data, int start, int count, int seqStart, byte flags, Enum<A> seq)
+        internal Seq(A[] data, int start, int count, int seqStart, int flags, Enum<A> seq)
         {
             this.data = data;
             this.start = start;
             this.count = count;
             this.seqStart = seqStart;
             this.seq = seq;
-            this.flags = flags;
-            this.hash = 0;
+            this.hash = flags & 3;
         }
 
         public void Deconstruct(out A head, out Seq<A> tail)
@@ -104,13 +96,13 @@ namespace LanguageExt
         {
             get
             {
-                if(index < 0)
+                if (index < 0)
                 {
                     throw new IndexOutOfRangeException();
                 }
-                if(index >= count)
+                if (index >= count)
                 {
-                    if(seq == null)
+                    if (seq == null)
                     {
                         throw new IndexOutOfRangeException();
                     }
@@ -126,6 +118,22 @@ namespace LanguageExt
                 }
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool IsConsUnsafe() =>
+            (hash & 1) == 1;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool IsAddUnsafe() =>
+            (hash & 2) == 2;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void SetConsUnsafe() =>
+            hash |= 1;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void SetAddUnsafe() =>
+            hash |= 2;
 
         /// <summary>
         /// Add an item to the end of the sequence
@@ -145,7 +153,7 @@ namespace LanguageExt
             }
 
             var end = start + count;
-            if (end == data.Length || (flags & 2) == 2)
+            if (end == data.Length || IsAddUnsafe())
             {
                 return CloneAdd(value);
             }
@@ -154,13 +162,13 @@ namespace LanguageExt
                 lock (data)
                 {
                     end = start + count;
-                    if (end == data.Length || (flags & 2) == 2)
+                    if (end == data.Length || IsAddUnsafe())
                     {
                         return CloneAdd(value);
                     }
                     else
                     {
-                        flags |= 2;
+                        SetAddUnsafe();
                         data[end] = value;
                         return new Seq<A>(data, start, count + 1, 0, 0, null);
                     }
@@ -197,7 +205,7 @@ namespace LanguageExt
             }
 
             var end = start + count;
-            if ((end + items.Length >= data.Length) || (flags & 2) == 2)
+            if ((end + items.Length >= data.Length) || IsAddUnsafe())
             {
                 return CloneAddRange(items);
             }
@@ -206,14 +214,13 @@ namespace LanguageExt
                 lock (data)
                 {
                     end = start + count;
-                    if ((end + items.Length >= data.Length) || (flags & 2) == 2)
+                    if ((end + items.Length >= data.Length) || IsAddUnsafe())
                     {
                         return CloneAddRange(items);
                     }
                     else
                     {
-                        flags |= 2;
-
+                        SetAddUnsafe();
                         System.Array.Copy(items, 0, data, end, items.Length);
                         return new Seq<A>(data, start, count + items.Length, 0, 0, null);
                     }
@@ -226,7 +233,7 @@ namespace LanguageExt
         /// </summary>
         internal Seq<A> Cons(A value)
         {
-            if (start == 0 || (flags & 1) == 1)
+            if (start == 0 || IsConsUnsafe())
             {
                 return CloneCons(value);
             }
@@ -234,13 +241,13 @@ namespace LanguageExt
             {
                 lock (data)
                 {
-                    if (start == 0 || (flags & 1) == 1)
+                    if (start == 0 || IsConsUnsafe())
                     {
                         return CloneCons(value);
                     }
                     else
                     {
-                        flags |= 1;
+                        SetConsUnsafe();
                         var nstart = start - 1;
                         data[nstart] = value;
                         return new Seq<A>(data, start - 1, count + 1, seqStart, 0, seq);
@@ -390,6 +397,7 @@ namespace LanguageExt
         /// <summary>
         /// Head of the sequence if this node isn't the empty node
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<A> HeadOrNone() =>
             IsEmpty
                 ? None
@@ -401,6 +409,7 @@ namespace LanguageExt
         /// <typeparam name="Fail"></typeparam>
         /// <param name="fail">Fail case</param>
         /// <returns>Head of the sequence or fail</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<Fail, A> HeadOrInvalid<Fail>(Fail fail) =>
             IsEmpty
                 ? Fail<Fail, A>(fail)
@@ -409,6 +418,7 @@ namespace LanguageExt
         /// <summary>
         /// Head of the sequence
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<MonoidFail, Fail, A> HeadOrInvalid<MonoidFail, Fail>(Fail fail) where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
             IsEmpty
                 ? Fail<MonoidFail, Fail, A>(fail)
@@ -420,6 +430,7 @@ namespace LanguageExt
         /// <typeparam name="L"></typeparam>
         /// <param name="left">Left case</param>
         /// <returns>Head of the sequence or left</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Either<L, A> HeadOrLeft<L>(L left) =>
             IsEmpty
                 ? Left<L, A>(left)
@@ -456,6 +467,7 @@ namespace LanguageExt
         /// <summary>
         /// Stream as an enumerable
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<A> AsEnumerable() =>
             this;
 
@@ -466,6 +478,7 @@ namespace LanguageExt
         /// <param name="Empty">Match for an empty list</param>
         /// <param name="Tail">Match for a non-empty</param>
         /// <returns>Result of match function invoked</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B Match<B>(
             Func<B> Empty,
             Func<A, Seq<A>, B> Tail) =>
@@ -480,6 +493,7 @@ namespace LanguageExt
         /// <param name="Empty">Match for an empty list</param>
         /// <param name="Tail">Match for a non-empty</param>
         /// <returns>Result of match function invoked</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B Match<B>(
             Func<B> Empty,
             Func<A, B> Head,
@@ -497,6 +511,7 @@ namespace LanguageExt
         /// <param name="Empty">Match for an empty list</param>
         /// <param name="Sequence">Match for a non-empty</param>
         /// <returns>Result of match function invoked</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B Match<B>(
             Func<B> Empty,
             Func<Seq<A>, B> Seq) =>
@@ -511,6 +526,7 @@ namespace LanguageExt
         /// <param name="Empty">Match for an empty list</param>
         /// <param name="Tail">Match for a non-empty</param>
         /// <returns>Result of match function invoked</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B Match<B>(
             Func<B> Empty,
             Func<A, B> Head,
@@ -545,6 +561,7 @@ namespace LanguageExt
         /// <typeparam name="B"></typeparam>
         /// <param name="f">Mapping function</param>
         /// <returns>Mapped sequence</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<B> Select<B>(Func<A, B> f) =>
             Map(f);
 
@@ -612,6 +629,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Predicate to apply to the items</param>
         /// <returns>Filtered sequence</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Where(Func<A, bool> f) =>
             Filter(f);
 
@@ -622,6 +640,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="f">Fold function</param>
         /// <returns>Aggregated state</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S Fold<S>(S state, Func<S, A, S> f)
         {
             foreach (var item in this)
@@ -640,6 +659,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="f">Fold function</param>
         /// <returns>Aggregated state</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S FoldBack<S>(S state, Func<S, A, S> f)
         {
             if (seq != null)
@@ -662,6 +682,7 @@ namespace LanguageExt
         /// <param name="f">Predicate to apply</param>
         /// <returns>True if the supplied predicate returns true for any
         /// item in the sequence.  False otherwise.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Exists(Func<A, bool> f) =>
             AsEnumerable().Exists(f);
 
@@ -674,6 +695,7 @@ namespace LanguageExt
         /// <returns>True if the supplied predicate returns true for all
         /// items in the sequence.  False otherwise.  If there is an 
         /// empty sequence then true is returned.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ForAll(Func<A, bool> f) =>
             AsEnumerable().ForAll(f);
 
@@ -681,6 +703,7 @@ namespace LanguageExt
         /// Returns true if the sequence has items in it
         /// </summary>
         /// <returns>True if the sequence has items in it</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Any() =>
             !IsEmpty;
 
@@ -688,44 +711,57 @@ namespace LanguageExt
         /// Get the hash code for all of the items in the sequence, or 0 if empty
         /// </summary>
         /// <returns></returns>
-        public override int GetHashCode() =>
-            hash == 0
-                ? (hash = hash(this))
-                : hash;
+        public override int GetHashCode()
+        {
+            var h = hash >> 2;
+            if (h == 0)
+            {
+                var f = hash & 3;
+                h = hash(this) >> 2;
+                hash = (h << 2) | f;
+            }
+            return h;
+        }
 
         /// <summary>
         /// Append operator
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<A> operator +(Seq<A> x, Seq<A> y) =>
             x.Concat(y);
 
         /// <summary>
         /// Ordering operator
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator >(Seq<A> x, Seq<A> y) =>
             x.CompareTo(y) > 0;
 
         /// <summary>
         /// Ordering operator
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator >=(Seq<A> x, Seq<A> y) =>
             x.CompareTo(y) >= 0;
 
         /// <summary>
         /// Ordering  operator
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator <(Seq<A> x, Seq<A> y) =>
             x.CompareTo(y) < 0;
 
         /// <summary>
         /// Ordering  operator
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator <=(Seq<A> x, Seq<A> y) =>
             x.CompareTo(y) <= 0;
 
         /// <summary>
         /// Equality operator
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(Seq<A> x, Seq<A> y) =>
              x.seq == null && y.seq == null &&
              x.Count == y.Count &&
@@ -737,12 +773,14 @@ namespace LanguageExt
         /// <summary>
         /// Non-equality operator
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(Seq<A> x, Seq<A> y) =>
             !(x == y);
 
         /// <summary>
         /// Equality test
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object obj) =>
             obj is ISeq<A> x
                 ? Equals(x)
@@ -751,6 +789,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality test
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(ISeq<A> rhs) =>
             Enumerable.SequenceEqual(this, rhs);
 
@@ -1110,12 +1149,14 @@ namespace LanguageExt
         /// <summary>
         /// Enumerator
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator() =>
             GetEnumerator();
 
         /// <summary>
         /// Implicit conversion from an untyped empty list
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Seq<A>(SeqEmpty _) =>
             Empty;
     }
