@@ -91,6 +91,42 @@ namespace LanguageExt
             this.hash = 0;
         }
 
+        public void Deconstruct(out A head, out Seq<A> tail)
+        {
+            head = Head;
+            tail = Tail;
+        }
+
+        /// <summary>
+        /// Indexer
+        /// </summary>
+        public A this[int index]
+        {
+            get
+            {
+                if(index < 0)
+                {
+                    throw new IndexOutOfRangeException();
+                }
+                if(index >= count)
+                {
+                    if(seq == null)
+                    {
+                        throw new IndexOutOfRangeException();
+                    }
+                    else
+                    {
+                        StreamNextItems(index - count + 1);
+                        return this[index];
+                    }
+                }
+                else
+                {
+                    return data[start + index];
+                }
+            }
+        }
+
         /// <summary>
         /// Add an item to the end of the sequence
         /// </summary>
