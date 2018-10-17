@@ -34,7 +34,7 @@ namespace LanguageExt
         internal Compositions(Seq<Node> tree)
         {
             hashCode = null;
-            Tree = tree;
+            this.tree = tree;
         }
 
         /// <summary>
