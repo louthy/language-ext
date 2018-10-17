@@ -10,7 +10,6 @@ using static LanguageExt.TypeClass;
 
 namespace LanguageExt
 {
-
     /// <summary>
     /// Cons sequence
     /// Represents a sequence of values in a similar way to IEnumerable, but without the
@@ -21,7 +20,7 @@ namespace LanguageExt
     {
         const byte ConsAndAddAllowed = 1;
         const byte NoCons = 1;
-        const byte NoAdd = 1;
+        const byte NoAdd = 2;
 
         /// <summary>
         /// Empty sequence
@@ -360,7 +359,6 @@ namespace LanguageExt
                 ? None
                 : Some(Head);
 
-
         /// <summary>
         /// Head of the sequence if this node isn't the empty node or fail
         /// </summary>
@@ -608,12 +606,12 @@ namespace LanguageExt
         /// <returns>Aggregated state</returns>
         public S FoldBack<S>(S state, Func<S, A, S> f)
         {
-            if(seq != null)
+            if (seq != null)
             {
                 Strict();
             }
 
-            for(var i = start + count - 1; i >= start; i-- )
+            for (var i = start + count - 1; i >= start; i--)
             {
                 state = f(state, data[i]);
             }
@@ -743,7 +741,7 @@ namespace LanguageExt
         /// </summary>
         public Seq<A> Skip(int amount)
         {
-            if(amount < 1)
+            if (amount < 1)
             {
                 return this;
             }
@@ -936,7 +934,9 @@ namespace LanguageExt
                 if (seq == null)
                 {
                     // Nothing left to stream, so we result Fail
-                    return (false, default(A));
+                    return localCount < count
+                        ? (true, data[start + localCount])
+                        : (false, default(A));
                 }
                 else
                 {
@@ -1029,9 +1029,10 @@ namespace LanguageExt
         public IEnumerator<A> GetEnumerator()
         {
             var end = start + count;
+            var i = 0;
 
             // First yield the already cached items
-            for (var i = start; i < end; i++)
+            for (i = start; i < end; i++)
             {
                 yield return data[i];
             }
@@ -1041,15 +1042,31 @@ namespace LanguageExt
                 yield break;
             }
 
-            // Next stream the lazy items
-            bool success = true;
-            A value = default(A);
-            while (success)
+            lock (seq)
             {
-                (success, value) = StreamNextItem();
-                if (success)
+                end = start + count;
+
+                // First yield the already cached items
+                for (; i < end; i++)
                 {
-                    yield return value;
+                    yield return data[i];
+                }
+
+                if (seq == null)
+                {
+                    yield break;
+                }
+
+                // Next stream the lazy items
+                bool success = true;
+                A value = default(A);
+                while (success)
+                {
+                    (success, value) = StreamNextItem();
+                    if (success)
+                    {
+                        yield return value;
+                    }
                 }
             }
         }
@@ -1063,7 +1080,7 @@ namespace LanguageExt
         /// <summary>
         /// Implicit conversion from an untyped empty list
         /// </summary>
-        public static implicit operator Seq<A>(SeqEmpty _) => 
+        public static implicit operator Seq<A>(SeqEmpty _) =>
             Empty;
     }
 }
