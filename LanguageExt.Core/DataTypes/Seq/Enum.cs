@@ -4,6 +4,12 @@ using System.Text;
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// Enumerates an IEnumerable at most once and caches
+    /// the values in a List.  Seq uses this to iterate an
+    /// enumerable by index, which allows this type to be
+    /// shared.
+    /// </summary>
     internal class Enum<A>
     {
         IEnumerator<A> iter;
@@ -44,25 +50,20 @@ namespace LanguageExt
                 {
                     lock (list)
                     {
-                        theresMore = iter.MoveNext();
+                        theresMore = iter?.MoveNext() ?? false;
                         if (theresMore)
                         {
                             list.Add(iter.Current);
                         }
+                        else
+                        {
+                            iter = null;
+                        }
                     }
                 }
-                if (!theresMore)
-                {
-                    iter = null;
-                }
-                if (index < list.Count)
-                {
-                    return (true, list[index]);
-                }
-                else
-                {
-                    return (false, default(A));
-                }
+                return index < list.Count
+                    ? (true, list[index])
+                    : (false, default(A));
             }
         }
 
