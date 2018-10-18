@@ -39,26 +39,30 @@ namespace LanguageExt
             }
             else
             {
-                lock (list)
+                bool theresMore = true;
+                while (index >= list.Count && theresMore)
                 {
-                    bool theresMore = true;
-                    while (index >= list.Count && (theresMore = iter.MoveNext()))
+                    lock (list)
                     {
-                        list.Add(iter.Current);
-                    }
-                    if (!theresMore)
-                    {
-                        iter = null;
+                        theresMore = iter.MoveNext();
+                        if (theresMore)
+                        {
+                            list.Add(iter.Current);
+                        }
                     }
                 }
-            }
-            if (index < list.Count)
-            {
-                return (true, list[index]);
-            }
-            else
-            {
-                return (false, default(A));
+                if (!theresMore)
+                {
+                    iter = null;
+                }
+                if (index < list.Count)
+                {
+                    return (true, list[index]);
+                }
+                else
+                {
+                    return (false, default(A));
+                }
             }
         }
 

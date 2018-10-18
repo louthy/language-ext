@@ -180,21 +180,10 @@ namespace LanguageExt
         /// Add a range of items to the end of the sequence
         /// </summary>
         /// <remarks>
-        /// Forces evaluation of the entire lazy sequence so the item 
-        /// can be appended
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
         /// </remarks>
-        public Seq<A> Concat(IEnumerable<A> items) =>
-            items is A[] ? Concat((A[])items)
-          : Concat(items.ToArray());
-
-        /// <summary>
-        /// Add a range of items to the end of the sequence
-        /// </summary>
-        /// <remarks>
-        /// Forces evaluation of the entire lazy sequence so the item 
-        /// can be appended
-        /// </remarks>
-        Seq<A> Concat(A[] items)
+        public Seq<A> Concat(IEnumerable<A> items)
         {
             if (seq != null)
             {
@@ -204,25 +193,48 @@ namespace LanguageExt
                 Strict();
             }
 
-            var end = start + count;
-            if ((end + items.Length >= data.Length) || IsAddUnsafe())
+            switch (items)
             {
-                return CloneAddRange(items);
+                case Seq<A> seq:
+                    seq = seq.Strict();
+                    return Concat(seq.data, seq.start, seq.count);
+
+                case A[] arr:
+                    return Concat(arr, 0, arr.Length);
+
+                case Arr<A> arr:
+                    return Concat(arr.Value, 0, arr.Count);
+
+                default:
+                    var ndata = items.ToArray();
+                    return Concat(ndata, 0, ndata.Length);
+            }
+        }
+
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        Seq<A> Concat(A[] items, int itemsStart, int itemsCount)
+        {
+            var end = start + count;
+            if ((end + itemsCount >= data.Length) || IsAddUnsafe())
+            {
+                return CloneAddRange(items, itemsStart, itemsCount);
             }
             else
             {
                 lock (data)
                 {
                     end = start + count;
-                    if ((end + items.Length >= data.Length) || IsAddUnsafe())
+                    if ((end + itemsCount >= data.Length) || IsAddUnsafe())
                     {
-                        return CloneAddRange(items);
+                        return CloneAddRange(items, itemsStart, itemsCount);
                     }
                     else
                     {
                         SetAddUnsafe();
-                        System.Array.Copy(items, 0, data, end, items.Length);
-                        return new Seq<A>(data, start, count + items.Length, 0, 0, null);
+                        System.Array.Copy(items, itemsStart, data, end, itemsCount);
+                        return new Seq<A>(data, start, count + itemsCount, 0, 0, null);
                     }
                 }
             }
@@ -327,12 +339,12 @@ namespace LanguageExt
             return new Seq<A>(ndata, start, count + 1, 0, 0, null);
         }
 
-        Seq<A> CloneAddRange(A[] values)
+        Seq<A> CloneAddRange(A[] values, int valuesStart, int valuesCount)
         {
             var end = start + count;
 
             // Find the new size of the data array
-            var nlength = Math.Max(Math.Max(data.Length << 1, 1), end + values.Length);
+            var nlength = Math.Max(Math.Max(data.Length << 1, 1), end + valuesCount);
 
             // Allocate it
             var ndata = new A[nlength];
@@ -343,10 +355,10 @@ namespace LanguageExt
             System.Array.Copy(data, 0, ndata, 0, end);
 
             // Set the value in the new data block
-            System.Array.Copy(values, 0, ndata, end, values.Length);
+            System.Array.Copy(values, valuesStart, ndata, end, valuesCount);
 
             // Return everything 
-            return new Seq<A>(ndata, start, count + values.Length, 0, 0, null);
+            return new Seq<A>(ndata, start, count + valuesCount, 0, 0, null);
         }
 
         /// <summary>

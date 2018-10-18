@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using System.ComponentModel;
+using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
@@ -61,16 +61,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Seq<A> init<A>(int count, Func<int, A> generator) =>
-            Seq(from i in Range(0, count)
-                select generator(i));
+            Seq(Range(0, count).Map(generator));
 
         /// <summary>
         /// Generates a sequence that contains one repeated value.
         /// </summary>
         [Pure]
         public static Seq<A> repeat<A>(A item, int count) =>
-            Seq(from _ in Range(0, count)
-                select item);
+            Seq(Range(0, count).Map(_ => item));
 
         /// <summary>
         /// Get the item at the head (first) of the sequence
@@ -78,7 +76,8 @@ namespace LanguageExt
         /// <param name="list">sequence</param>
         /// <returns>Head item</returns>
         [Pure]
-        public static A head<A>(Seq<A> list) => list.Head;
+        public static A head<A>(Seq<A> list) => 
+            list.Head;
 
         /// <summary>
         /// Get the item at the head (first) of the sequence or None if the sequence is empty
@@ -188,6 +187,15 @@ namespace LanguageExt
         [Pure]
         public static Seq<B> choose<A, B>(Seq<A> list, Func<int, A, Option<B>> selector) =>
             map(filter(map(list, selector), t => t.IsSome), t => t.Value);
+
+        /// <summary>
+        /// Returns the sum total of all the items in the list (Sum in LINQ)
+        /// </summary>
+        /// <param name="list">List to sum</param>
+        /// <returns>Sum total</returns>
+        [Pure]
+        public static A sum<MonoidA, A>(Seq<A> list) where MonoidA : struct, Monoid<A> =>
+            mconcat<MonoidA, A>(list);
 
         /// <summary>
         /// Returns the sum total of all the items in the list (Sum in LINQ)
