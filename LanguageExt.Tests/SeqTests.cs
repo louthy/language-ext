@@ -158,5 +158,49 @@ namespace LanguageExt.Tests
             var output4 = foldBackUntil(input, 0, (s, x) => s + x, predstate: s => s >= 90);
             Assert.Equal(90, output4);
         }
+
+        [Fact]
+        public void EqualityTest_BothNull()
+        {
+            Seq<int> x = null;
+            Seq<int> y = null;
+
+            var eq = x == y;
+
+            Assert.True(eq);
+        }
+
+        [Fact]
+        public void EqualityTest_LeftNull()
+        {
+            Seq<int> x = null;
+            Seq<int> y = Seq(1, 2, 3);
+
+            var eq = x == y;
+
+            Assert.False(eq);
+        }
+
+        [Fact]
+        public void EqualityTest_RightNull()
+        {
+            Seq<int> x = Seq(1, 2, 3);
+            Seq<int> y = null;
+
+            var eq = x == y;
+
+            Assert.False(eq);
+        }
+
+        [Fact]
+        public void EqualityTest()
+        {
+            Seq<int> x = Seq(1, 2, 3);
+            Seq<int> y = Seq(1, 2, 3);
+
+            var eq = x == y;
+
+            Assert.True(eq);
+        }
     }
 }

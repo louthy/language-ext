@@ -774,13 +774,13 @@ namespace LanguageExt
         /// Equality operator
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(Seq<A> x, Seq<A> y) =>
-             x.seq == null && y.seq == null &&
-             x.Count == y.Count &&
-             x.GetHashCode() == y.GetHashCode() &&
-             Enumerable.SequenceEqual(x, y)
-                ? true
-                : Enumerable.SequenceEqual(x, y);
+        public static bool operator ==(Seq<A> x, Seq<A> y)
+        {
+            if (ReferenceEquals(x, y)) return true;
+            if (ReferenceEquals(x, null)) return false;
+            if (ReferenceEquals(y, null)) return false;
+            return x.Equals(y);
+        }
 
         /// <summary>
         /// Non-equality operator
@@ -808,20 +808,14 @@ namespace LanguageExt
         /// <summary>
         /// Equality test
         /// </summary>
-        public bool Equals(Seq<A> rhs)
-        {
-            var x = this;
-            var y = rhs;
-
-            if (x.seq == null && y.seq == null &&
-                (x.Count != y.Count ||
-                 x.GetHashCode() != y.GetHashCode()))
-            {
-                return false;
-            }
-
-            return Enumerable.SequenceEqual(this, rhs);
-        }
+        public bool Equals(Seq<A> rhs) =>
+            !ReferenceEquals(rhs, null) &&
+            this.seq == null && rhs.seq == null &&
+            this.Count == rhs.Count &&
+            this.GetHashCode() == rhs.GetHashCode() &&
+            Enumerable.SequenceEqual(this, rhs)
+                 ? true
+                 : Enumerable.SequenceEqual(this, rhs);
 
         /// <summary>
         /// Skip count items
@@ -976,6 +970,8 @@ namespace LanguageExt
         /// </summary>
         public int CompareTo(Seq<A> other)
         {
+            if (ReferenceEquals(other, null)) return 1;
+
             var x = this;
             var y = other;
             var cmp = 0;
