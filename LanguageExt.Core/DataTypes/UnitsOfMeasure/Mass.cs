@@ -1,6 +1,6 @@
 using System;
 
-namespace LanguageExt.Core.DataTypes.UnitsOfMeasure
+namespace LanguageExt.UnitsOfMeasure
 {
     public struct Mass : IComparable<Mass>, IEquatable<Mass>
     {

@@ -1,5 +1,4 @@
 ﻿using System;
-using LanguageExt.Core.DataTypes.UnitsOfMeasure;
 using LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExt
