@@ -92,8 +92,18 @@ namespace LanguageExt
         /// <param name="fail">Fail case</param>
         /// <returns>Validated head item</returns>
         [Pure]
-        public static Validation<FAIL, A> headOrInvalid<FAIL, A>(Seq<A> list, FAIL fail) =>
+        public static Validation<Fail, A> headOrInvalid<Fail, A>(Seq<A> list, Fail fail) =>
             list.HeadOrInvalid(fail);
+
+        /// <summary>
+        /// Get the item at the head (first) of the sequence or Fail if the sequence is empty
+        /// </summary>
+        /// <param name="list">sequence</param>
+        /// <param name="fail">Fail case</param>
+        /// <returns>Validated head item</returns>
+        [Pure]
+        public static Validation<MonoidFail, Fail, A> headOrInvalid<MonoidFail, Fail, A>(Seq<A> list, Fail fail) where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+            list.HeadOrInvalid<MonoidFail, Fail, A>(fail);
 
         /// <summary>
         /// Get the item at the head (first) of the sequence or Left if the sequence is empty

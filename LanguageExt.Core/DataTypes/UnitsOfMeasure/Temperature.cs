@@ -24,6 +24,8 @@ namespace LanguageExt.UnitsOfMeasure
         {
             Type = type;
             Value = value;
+
+            if (this < AbsoluteZero) throw new ArgumentOutOfRangeException(nameof(value), $"{value} [{type}]", "Less than absolute zero");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -63,6 +65,12 @@ namespace LanguageExt.UnitsOfMeasure
             Type == UnitType.K ? this
           : Type == UnitType.C ? new Temperature(UnitType.K, CtoK(Value))
           : Type == UnitType.F ? new Temperature(UnitType.K, FtoK(Value))
+          : throw new NotSupportedException(Type.ToString());
+
+        public double KValue =>
+            Type == UnitType.K ? Value
+          : Type == UnitType.C ? CtoK(Value)
+          : Type == UnitType.F ? FtoK(Value)
           : throw new NotSupportedException(Type.ToString());
 
         public Temperature Celcius =>

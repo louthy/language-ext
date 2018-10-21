@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -13,13 +14,20 @@ namespace LanguageExt
         public static T head<T>(IQueryable<T> list) => list.First();
 
         public static Option<T> headOrNone<T>(IQueryable<T> list) =>
-            list.ToSeq().HeadOrNone();
+            list.AsEnumerable().HeadOrNone();
 
-        public static Validation<S, T> headOrInvalid<S, T>(IQueryable<T> list, S fail) =>
-            list.ToSeq().HeadOrInvalid(fail);
+        public static Either<L, R> headOrLeft<L, R>(IQueryable<R> list, L left) =>
+            list.AsEnumerable().HeadOrLeft(left);
 
-        public static Either<S, T> headOrLeft<S, T>(IQueryable<T> list, S left) =>
-            list.ToSeq().HeadOrLeft(left);
+        public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IQueryable<Success> list, Fail fail) =>
+            list.AsEnumerable().HeadOrInvalid(fail);
+
+        public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IQueryable<Success> list, Seq<Fail> fail) =>
+            list.AsEnumerable().HeadOrInvalid(fail);
+
+        public static Validation<MonoidFail, Fail, Success> headOrInvalid<MonoidFail, Fail, Success>(IQueryable<Success> list, Fail fail)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+                list.AsEnumerable().HeadOrInvalid<MonoidFail, Fail, Success>(fail);
 
         public static IQueryable<T> tail<T>(IQueryable<T> list) =>
             Queryable.Skip(list, 1);

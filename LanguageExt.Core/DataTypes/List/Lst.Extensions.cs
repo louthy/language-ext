@@ -40,6 +40,18 @@ public static class ListExtensions
         lhs.Concat(rhs);
 
     /// <summary>
+    /// Match empty list, or multi-item list
+    /// </summary>
+    /// <typeparam name="B">Return value type</typeparam>
+    /// <param name="Empty">Match for an empty list</param>
+    /// <param name="More">Match for a non-empty</param>
+    /// <returns>Result of match function invoked</returns>
+    public static B Match<A, B>(this IEnumerable<A> list,
+        Func<B> Empty,
+        Func<Seq<A>, B> More) =>
+        Seq(list).Match(Empty, More);
+
+    /// <summary>
     /// List pattern matching
     /// </summary>
     [Pure]
@@ -81,6 +93,43 @@ public static class ListExtensions
     [Pure]
     public static Option<T> HeadOrNone<T>(this IEnumerable<T> list) =>
         LanguageExt.List.headOrNone(list);
+
+    /// <summary>
+    /// Get the item at the head (first) of the list or Left if the list is empty
+    /// </summary>
+    /// <param name="list">List</param>
+    /// <returns>Either head item or left</returns>
+    [Pure]
+    public static Either<L, R> HeadOrLeft<L, R>(this IEnumerable<R> list, L left) =>
+        LanguageExt.List.headOrLeft(list, left);
+
+    /// <summary>
+    /// Get the item at the head (first) of the list or fail if the list is empty
+    /// </summary>
+    /// <param name="list">List</param>
+    /// <returns>Either head item or fail</returns>
+    [Pure]
+    public static Validation<Fail, Success> HeadOrInvalid<Fail, Success>(this IEnumerable<Success> list, Fail fail) =>
+        LanguageExt.List.headOrInvalid(list, fail);
+
+    /// <summary>
+    /// Get the item at the head (first) of the list or fail if the list is empty
+    /// </summary>
+    /// <param name="list">List</param>
+    /// <returns>Either head item or fail</returns>
+    [Pure]
+    public static Validation<Fail, Success> HeadOrInvalid<Fail, Success>(this IEnumerable<Success> list, Seq<Fail> fail) =>
+        LanguageExt.List.headOrInvalid(list, fail);
+
+    /// <summary>
+    /// Get the item at the head (first) of the list or fail if the list is empty
+    /// </summary>
+    /// <param name="list">List</param>
+    /// <returns>Either head item or fail</returns>
+    [Pure]
+    public static Validation<MonoidFail, Fail, Success> HeadOrInvalid<MonoidFail, Fail, Success>(this IEnumerable<Success> list, Fail fail)
+        where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+        LanguageExt.List.headOrInvalid<MonoidFail, Fail, Success>(list, fail);
 
     /// <summary>
     /// Get the tail of the list (skips the head item)

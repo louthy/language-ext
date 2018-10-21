@@ -40,13 +40,21 @@ namespace LanguageExt
         /// <summary>
         /// Head of the sequence if this node isn't the empty node or fail
         /// </summary>
-        /// <typeparam name="FAIL"></typeparam>
+        /// <typeparam name="Fail"></typeparam>
         /// <param name="fail">Fail case</param>
         /// <returns>Head of the sequence or fail</returns>
-        public Validation<FAIL, A> HeadOrInvalid<FAIL>(FAIL fail) =>
+        public Validation<Fail, A> HeadOrInvalid<Fail>(Fail fail) =>
             IsEmpty
-                ? Fail<FAIL,A>(fail)
-                : Success<FAIL,A>(Head);
+                ? Fail<Fail,A>(fail)
+                : Success<Fail,A>(Head);
+
+        /// <summary>
+        /// Head of the sequence
+        /// </summary>
+        public Validation<MonoidFail, Fail, A> HeadOrInvalid<MonoidFail, Fail>(Fail fail) where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+            IsEmpty
+                ? Fail<MonoidFail, Fail, A>(fail)
+                : Success<MonoidFail, Fail, A>(Head);
 
         /// <summary>
         /// Head of the sequence if this node isn't the empty node or left
@@ -316,6 +324,25 @@ namespace LanguageExt
                 : Fold(
                     Head.IsNull() ? 0 : Head.GetHashCode(), 
                     (s, x) => s ^ (x.IsNull() ? 0 : x.GetHashCode()));
+
+        /// <summary>
+        /// Append operator
+        /// </summary>
+        public static Seq<A> operator +(Seq<A> x, Seq<A> y)
+        {
+            IEnumerable<A> Yield(Seq<A> sx, Seq<A> sy)
+            {
+                foreach(var a in sx)
+                {
+                    yield return a;
+                }
+                foreach (var b in sy)
+                {
+                    yield return b;
+                }
+            }
+            return SeqEnumerable<A>.New(Yield(x, y));
+        }
 
         /// <summary>
         /// Ordering operator

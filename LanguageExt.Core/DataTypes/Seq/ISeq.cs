@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -26,7 +27,12 @@ namespace LanguageExt
         /// <summary>
         /// Head of the sequence
         /// </summary>
-        Validation<FAIL, A> HeadOrInvalid<FAIL>(FAIL fail);
+        Validation<Fail, A> HeadOrInvalid<Fail>(Fail fail);
+
+        /// <summary>
+        /// Head of the sequence
+        /// </summary>
+        Validation<MonoidFail, Fail, A> HeadOrInvalid<MonoidFail, Fail>(Fail fail) where MonoidFail : struct, Monoid<Fail>, Eq<Fail>;
 
         /// <summary>
         /// Head of the sequence

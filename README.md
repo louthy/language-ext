@@ -529,7 +529,7 @@ This is super powerful, and means that most of the time you can leave your `Opti
 
 
 ## if( arg == null ) throw new ArgumentNullException("arg")
-Another horrible side-effect of `null` is having to bullet-proof every function that take reference arguments.  This is truly tedious.  Instead use this:
+Another horrible side-effect of `null` is having to bullet-proof every function that takes reference arguments.  This is truly tedious.  Instead use this:
 ```C#
     public void Foo( Some<string> arg )
     {
