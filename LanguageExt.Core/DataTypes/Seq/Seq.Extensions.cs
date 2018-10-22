@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
 
 public static class SeqExtensions
 {
@@ -14,26 +15,6 @@ public static class SeqExtensions
     /// </summary>
     public static int Count<A>(this ISeq<A> seq) =>
         seq.Count;
-
-    /// <summary>
-    /// Get the head item in the sequence
-    /// </summary>
-    public static A Head<A>(this ISeq<A> seq) =>
-        seq.Head;
-
-    /// <summary>
-    /// Get the head item in the sequence
-    /// </summary>
-    public static Seq<A> Tail<A>(this ISeq<A> seq) =>
-        seq.Tail;
-
-    /// <summary>
-    /// Get the head item in the sequence
-    /// </summary>
-    public static Option<A> HeadOrNone<A>(this ISeq<A> seq) =>
-        seq.IsEmpty
-            ? None
-            : Some(seq.Head);
 
     /// <summary>
     /// Get the head item in the sequence
@@ -73,6 +54,15 @@ public static class SeqExtensions
     [Pure]
     public static Seq<B> Choose<A, B>(this Seq<A> list, Func<int, A, Option<B>> selector) =>
         LanguageExt.Seq.choose(list, selector);
+
+    /// <summary>
+    /// Returns the sum total of all the items in the list (Sum in LINQ)
+    /// </summary>
+    /// <param name="list">List to sum</param>
+    /// <returns>Sum total</returns>
+    [Pure]
+    public static A Sum<MonoidA, A>(this Seq<A> list) where MonoidA : struct, Monoid<A> =>
+        mconcat<MonoidA, A>(list);
 
     /// <summary>
     /// Returns the sum total of all the items in the list (Sum in LINQ)

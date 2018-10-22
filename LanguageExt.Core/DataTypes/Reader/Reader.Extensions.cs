@@ -43,11 +43,11 @@ public static class ReaderExt
 
     [Pure]
     public static Reader<Env, Seq<A>> AsEnumerable<Env, A>(this Reader<Env, A> self) =>
-        self.Map(x => x.Cons(Empty));
+        self.Map(x => x.Cons());
 
     [Pure]
     public static Seq<A> ToSeq<Env, A>(this Reader<Env, A> self, Env env) =>
-        self.Map(x => x.Cons(Empty)).Run(env).IfNoneOrFail(Empty);
+        self.Map(x => x.Cons()).Run(env).IfNoneOrFail(Empty);
 
     [Pure]
     public static Seq<A> AsEnumerable<Env, A>(this Reader<Env, A> self, Env env) =>
