@@ -43,7 +43,7 @@ public static class StateExtensions
 
     [Pure]
     public static State<S, Seq<A>> ToSeq<S, A>(this State<S, A> self) =>
-        self.Select(x => x.Cons(Empty));
+        self.Select(x => x.Cons());
 
     [Pure]
     public static Seq<A> ToSeq<S, A>(this State<S, A> self, S state)

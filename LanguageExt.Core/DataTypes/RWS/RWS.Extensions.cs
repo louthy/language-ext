@@ -44,7 +44,7 @@ public static class RWSExtensions
 
     [Pure]
     public static RWS<MonoidW, R, W, S, Seq<A>> ToSeq<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self)
-       where MonoidW : struct, Monoid<W> => self.Map(x => x.Cons(Empty));
+       where MonoidW : struct, Monoid<W> => self.Map(x => x.Cons());
 
     [Pure]
     public static RWS<MonoidW, R, W, S, Seq<A>> AsEnumerable<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self)

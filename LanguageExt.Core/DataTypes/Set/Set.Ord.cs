@@ -556,5 +556,11 @@ namespace LanguageExt
         [Pure]
         public int CompareTo(Set<OrdA, A> other) =>
             Value.CompareTo(other.Value);
+
+        /// <summary>
+        /// Implicit conversion from an untyped empty list
+        /// </summary>
+        public static implicit operator Set<OrdA, A>(SeqEmpty _) =>
+            Empty;
     }
 }

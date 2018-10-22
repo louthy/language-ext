@@ -83,13 +83,13 @@ namespace LanguageExt
         /// Hash code provider
         /// </summary>
         public override int GetHashCode() =>
-            Edits?.GetHashCode() ?? 0;
+            Edits.GetHashCode();
 
         /// <summary>
         /// Return a string representation of the patch
         /// </summary>
         public override string ToString() =>
-            $"[{String.Join("; ", Edits?.Map(x => x.ToString()) ?? Seq<string>())}]";
+            $"[{String.Join("; ", Edits.Map(x => x.ToString()))}]";
 
         /// <summary>
         /// Returns true if a patch can be safely applied to a document, that is,

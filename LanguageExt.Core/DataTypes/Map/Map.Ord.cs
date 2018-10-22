@@ -993,5 +993,11 @@ namespace LanguageExt
         [Pure]
         public int CompareTo(Map<OrdK, K, V> other) =>
             Value.CompareTo(other.Value);
+
+        /// <summary>
+        /// Implicit conversion from an untyped empty list
+        /// </summary>
+        public static implicit operator Map<OrdK, K, V>(SeqEmpty _) =>
+            Empty;
     }
 }

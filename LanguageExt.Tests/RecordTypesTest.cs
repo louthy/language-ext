@@ -38,13 +38,13 @@ namespace LanguageExt.Tests
 
     public class TestClass2 : Record<TestClass2>
     {
-        [OptOutOfEq]
+        [NonEq]
         public readonly int X;
 
-        [OptOutOfHashCode]
+        [NonHash]
         public readonly string Y;
 
-        [OptOutOfToString]
+        [NonShow]
         public readonly Guid Z;
 
         public TestClass2(int x, string y, Guid z)
