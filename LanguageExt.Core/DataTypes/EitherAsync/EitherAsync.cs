@@ -457,7 +457,7 @@ namespace LanguageExt
         /// <summary>
         /// Executes the Left action if the Either is in a Left state.
         /// </summary>
-        /// <param name="Left">Function to generate a Right value if in the Left state</param>
+        /// <param name="Left">Action to invoke if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         public Task<Unit> IfLeft(Action<L> Left) =>
             Match(
@@ -467,7 +467,7 @@ namespace LanguageExt
         /// <summary>
         /// Executes the Left action if the Either is in a Left state.
         /// </summary>
-        /// <param name="Left">Function to generate a Right value if in the Left state</param>
+        /// <param name="LeftAsync">async Action to invoke if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         public Task<Unit> IfLeftAsync(Func<L, Task> LeftAsync) =>
             MatchAsync(
@@ -477,7 +477,7 @@ namespace LanguageExt
         /// <summary>
         /// Invokes the Right action if the Either is in a Right state, otherwise does nothing
         /// </summary>
-        /// <param name="Right">Action to invoke</param>
+        /// <param name="Right">Action to invoke if in the Right state</param>
         /// <returns>Unit</returns>
         public Task<Unit> IfRight(Action<R> Right) =>
             Match(
@@ -487,7 +487,7 @@ namespace LanguageExt
         /// <summary>
         /// Invokes the Right action if the Either is in a Right state, otherwise does nothing
         /// </summary>
-        /// <param name="Right">Action to invoke</param>
+        /// <param name="RightAsync">async Action to invoke if in the Right state</param>
         /// <returns>Unit</returns>
         public Task<Unit> IfRightAsync(Func<R, Task> RightAsync) =>
             MatchAsync(
