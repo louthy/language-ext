@@ -994,13 +994,13 @@ namespace LanguageExt
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
-        /// then True is returned if invoking None returns True.
+        /// then False is returned.
         /// If the Option is in a Some state the value is the result of running 
         /// applying the bound value to the Some predicate supplied.        
         /// </summary>
         /// <param name="pred"></param>
-        /// <returns>If the Option is in a None state then True is returned if 
-        /// invoking None returns True. If the Option is in a Some state the value 
+        /// <returns>If the Option is in a None state then False is returned.
+        /// If the Option is in a Some state the value 
         /// is the result of running applying the bound value to the Some predicate 
         /// supplied.</returns>
         [Pure]

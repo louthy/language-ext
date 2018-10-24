@@ -129,7 +129,7 @@ namespace LanguageExt
             compare<OrdDefault<A>, A>(this, other);
 
         /// <summary>
-        /// Implicit conversion operator from `Option<A>` to `A1
+        /// Explicit conversion operator from `Option<A>` to `A`
         /// </summary>
         /// <param name="a">None value</param>
         [Pure]
@@ -787,14 +787,13 @@ namespace LanguageExt
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
-        /// then True is returned if invoking None returns True.
+        /// then False is returned.
         /// If the Option is in a Some state the value is the result of running 
-        /// applying the bound value to the Some predicate supplied.        
+        /// applying the bound value to the predicate supplied.        
         /// </summary>
         /// <param name="pred"></param>
-        /// <returns>If the Option is in a None state then True is returned if 
-        /// invoking None returns True. If the Option is in a Some state the value 
-        /// is the result of running applying the bound value to the Some predicate 
+        /// <returns>If the Option is in a None state then False is returned. If the Option is in a Some state the value 
+        /// is the result of running applying the bound value to the predicate 
         /// supplied.</returns>
         [Pure]
         public bool Exists(Func<A, bool> pred) =>
