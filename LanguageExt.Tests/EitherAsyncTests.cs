@@ -10,6 +10,16 @@ namespace LanguageExt.Tests
 
     public class EitherAsyncTests
     {
+        /// <summary>
+        /// Tests for bug / PR #508
+        /// </summary>
+        /// <returns></returns>
+        [Fact]
+        public async Task BottomTest()
+        {
+            Assert.True(await EitherAsync<int, string>.Bottom.IsBottom);
+        }
+
         [Fact]
         public async Task ToAsyncExtensionLeftTest()
         {
