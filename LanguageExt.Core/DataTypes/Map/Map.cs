@@ -54,7 +54,7 @@ namespace LanguageExt
         /// 'this' accessor
         /// </summary>
         /// <param name="key">Key</param>
-        /// <returns>Optional value</returns>
+        /// <returns>value</returns>
         [Pure]
         public V this[K key] => Value[key];
 
