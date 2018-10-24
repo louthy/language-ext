@@ -497,6 +497,13 @@ namespace LanguageExt
         /// Invokes the action if Option is in the Some state, otherwise nothing happens.
         /// </summary>
         /// <param name="f">Action to invoke if Option is in the Some state</param>
+        public Task<Unit> IfSome(Func<A, Task> f) =>
+            ifSomeAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, f);
+
+        /// <summary>
+        /// Invokes the action if Option is in the Some state, otherwise nothing happens.
+        /// </summary>
+        /// <param name="f">Action to invoke if Option is in the Some state</param>
         public Task<Unit> IfSome(Action<A> f) =>
             ifSomeAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, f);
 
