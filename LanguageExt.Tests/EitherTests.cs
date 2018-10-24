@@ -129,11 +129,11 @@ namespace LanguageExtTests
                 .Filter(isDefault);
 
             Assert.True(x.IsBottom);
-            Assert.Equal(Right(0), x.IfBottom(() => Right(0)));
+            Assert.Equal(Right(0), x.BindBottom(() => Right(0)));
 
             var y = Right<string, int>(1)
                 .Filter(isDefault)
-                .IfBottom(() => "is not default");
+                .BindBottom(() => "is not default");
 
             Assert.False(x.IsBottom);
             Assert.Equal(Left("is not default"), y);

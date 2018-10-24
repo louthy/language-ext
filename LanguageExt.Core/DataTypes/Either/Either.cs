@@ -400,15 +400,64 @@ namespace LanguageExt
             ifRight<MEither<L, R>, Either<L, R>, L, R>(this, rightMap);
 
         /// <summary>
-        /// Executes the function if the Either is in bottom state.
         /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns the result of Bottom if in bottom state.
         /// </summary>
-        /// <param name="Bottom">Function to generate a Left/Right value if in the Bottom state</param>
+        /// <param name="Bottom">Function to generate a value if in the Bottom state</param>
         /// <returns>Returns an Either value</returns>
         [Pure]
-        public Either<L,R> IfBottom(Func<Either<L, R>> Bottom) =>
-            ifBottom<MEither<L, R>, Either<L, R>, L, R>(this, Bottom);
+        public Either<L,R> BindBottom(Func<Either<L, R>> Bottom) =>
+            bindBottom<MEither<L, R>, Either<L, R>, L, R>(this, Bottom);
 
+        /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns Bottom if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">value to return if in the Bottom state</param>
+        /// <returns>Returns an Either value</returns>
+        [Pure]
+        public Either<L, R> BindBottom(Either<L, R> Bottom) =>
+            bindBottom<MEither<L, R>, Either<L, R>, L, R>(this, Bottom);
+
+        /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns the result of Bottom as Left if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">Function to generate a Left value if in the Bottom state</param>
+        /// <returns></returns>
+        [Pure]
+        public Either<L, R> MapBottom(Func<L> Bottom) =>
+            mapBottom<MEither<L, R>, Either<L, R>, L, R>(this, Bottom);
+
+        /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns Left(Bottom) if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">value to return as Left if in the Bottom state</param>
+        /// <returns>Returns an Either value</returns>
+        [Pure]
+        public Either<L, R> MapBottom(L Bottom) =>
+            mapBottom<MEither<L, R>, Either<L, R>, L, R>(this, Bottom);
+
+        /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns the result of Bottom as Right if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">Function to generate a Right value if in the Bottom state</param>
+        /// <returns></returns>
+        [Pure]
+        public Either<L, R> MapBottom(Func<R> Bottom) =>
+            mapBottom<MEither<L, R>, Either<L, R>, L, R>(this, Bottom);
+
+        /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns Right(Bottom) if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">value to return as Right if in the Bottom state</param>
+        /// <returns>Returns an Either value</returns>
+        [Pure]
+        public Either<L, R> MapBottom(R Bottom) =>
+            mapBottom<MEither<L, R>, Either<L, R>, L, R>(this, Bottom);
 
         /// <summary>
         /// Match Right and return a context.  You must follow this with .Left(...) to complete the match

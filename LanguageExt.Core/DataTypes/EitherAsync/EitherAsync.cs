@@ -555,6 +555,67 @@ namespace LanguageExt
                 Left: l => l);
 
         /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns the result of Bottom if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">Function to generate a value if in the Bottom state</param>
+        /// <returns>Returns an Either value</returns>
+        [Pure]
+        public EitherAsync<L, R> BindBottom(Func<EitherAsync<L, R>> Bottom) =>
+            bindBottom<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(this, Bottom);
+
+        /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns Bottom if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">value to return if in the Bottom state</param>
+        /// <returns>Returns an Either value</returns>
+        [Pure]
+        public EitherAsync<L, R> BindBottom(EitherAsync<L, R> Bottom) =>
+            bindBottom<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(this, Bottom);
+
+        /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns the result of Bottom as Left if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">Function to generate a Left value if in the Bottom state</param>
+        /// <returns></returns>
+        [Pure]
+        public EitherAsync<L, R> MapBottom(Func<L> Bottom) =>
+            mapBottom<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(this, Bottom);
+
+        /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns Left(Bottom) if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">value to return as Left if in the Bottom state</param>
+        /// <returns>Returns an Either value</returns>
+        [Pure]
+        public EitherAsync<L, R> MapBottom(L Bottom) =>
+            mapBottom<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(this, Bottom);
+
+        /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns the result of Bottom as Right if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">Function to generate a Right value if in the Bottom state</param>
+        /// <returns></returns>
+        [Pure]
+        public EitherAsync<L, R> MapBottom(Func<R> Bottom) =>
+            mapBottom<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(this, Bottom);
+
+        /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns Right(Bottom) if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">value to return as Right if in the Bottom state</param>
+        /// <returns>Returns an Either value</returns>
+        [Pure]
+        public EitherAsync<L, R> MapBottom(R Bottom) =>
+            mapBottom<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(this, Bottom);
+
+
+        /// <summary>
         /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
         /// </summary>
         /// <param name="right">Action to invoke if the Either is in a Right state</param>
