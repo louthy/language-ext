@@ -363,7 +363,14 @@ namespace LanguageExt
                 return Class<Eq<A>>.Default.GetHashCode;
             }
 
-            var fields = GetPublicInstanceFields<A>(includeBase, typeof(OptOutOfHashCodeAttribute));
+            var fields = GetPublicInstanceFields<A>(
+                includeBase,
+#pragma warning disable CS0618
+                typeof(OptOutOfHashCodeAttribute),
+#pragma warning restore CS0618
+                typeof(NonHashAttribute), 
+                typeof(NonStructuralAttribute), 
+                typeof(NonRecordAttribute));
 
             var self = Expression.Parameter(typeof(A));
             var hash = Expression.Constant(-2128831035);
@@ -469,7 +476,14 @@ namespace LanguageExt
                 return new Func<A, object, bool>((a, obj) => obj is A b && Class<Eq<A>>.Default.Equals(a, b));
             }
 
-            var fields = GetPublicInstanceFields<A>(includeBase, typeof(OptOutOfEqAttribute));
+            var fields = GetPublicInstanceFields<A>(
+                includeBase,
+#pragma warning disable CS0618
+                typeof(OptOutOfEqAttribute),
+#pragma warning restore CS0618
+                typeof(NonEqAttribute),
+                typeof(NonStructuralAttribute),
+                typeof(NonRecordAttribute));
 
             var self = Expression.Parameter(typeof(A), "self");
             var other = Expression.Parameter(typeof(object), "other");
@@ -570,7 +584,15 @@ namespace LanguageExt
                 return Class<Eq<A>>.Default.Equals;
             }
 
-            var fields = GetPublicInstanceFields<A>(includeBase,  typeof(OptOutOfEqAttribute));
+            var fields = GetPublicInstanceFields<A>(
+                includeBase,
+#pragma warning disable CS0618
+                typeof(OptOutOfEqAttribute),
+#pragma warning restore CS0618
+                typeof(NonEqAttribute),
+                typeof(NonStructuralAttribute),
+                typeof(NonRecordAttribute)
+                );
 
             var self = Expression.Parameter(typeof(A), "self");
             var other = Expression.Parameter(typeof(A), "other");
@@ -662,7 +684,15 @@ namespace LanguageExt
                 return Class<Ord<A>>.Default.Compare;
             }
 
-            var fields = GetPublicInstanceFields<A>(includeBase, typeof(OptOutOfOrdAttribute));
+            var fields = GetPublicInstanceFields<A>(
+                includeBase,
+#pragma warning disable CS0618
+                typeof(OptOutOfOrdAttribute),
+#pragma warning restore CS0618
+                typeof(NonOrdAttribute),
+                typeof(NonStructuralAttribute),
+                typeof(NonRecordAttribute)
+                );
 
             var self = Expression.Parameter(typeof(A), "self");
             var other = Expression.Parameter(typeof(A), "other");
@@ -807,7 +837,14 @@ namespace LanguageExt
         {
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
             var dynamic = new DynamicMethod("FieldsToString", typeof(string), new[] { typeof(A) },true);
-            var fields = GetPublicInstanceFields<A>(includeBase, typeof(OptOutOfToStringAttribute)).ToArray();
+            var fields = GetPublicInstanceFields<A>(
+                includeBase,
+#pragma warning disable CS0618
+                typeof(OptOutOfToStringAttribute),
+#pragma warning restore CS0618
+                typeof(NonShowAttribute),
+                typeof(NonRecordAttribute)
+                ).ToArray();
             var stringBuilder = GetConstructor<StringBuilder>().IfNone(() => throw new ArgumentException($"Constructor not found for StringBuilder"));
             var appendChar = GetPublicInstanceMethod<StringBuilder, char>("Append", true).IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
             var appendString = GetPublicInstanceMethod<StringBuilder, string>("Append", true).IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
@@ -927,7 +964,14 @@ namespace LanguageExt
         {
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
             var dynamic = new DynamicMethod("GetObjectData", null, new[] { typeof(A), typeof(SerializationInfo) }, true);
-            var fields = GetPublicInstanceFields<A>(includeBase, typeof(OptOutOfSerializationAttribute), typeof(NonSerializedAttribute));
+            var fields = GetPublicInstanceFields<A>(
+                includeBase,
+#pragma warning disable CS0618
+                typeof(OptOutOfSerializationAttribute),
+#pragma warning restore CS0618
+                typeof(NonSerializedAttribute),
+                typeof(NonRecordAttribute)
+                );
             var argNullExcept =  GetConstructor<ArgumentNullException, string>().IfNone(() => throw new Exception());
             var il = dynamic.GetILGenerator();
 
@@ -971,7 +1015,13 @@ namespace LanguageExt
         public static Action<A, SerializationInfo> SetObjectData<A>(bool includeBase)
         {
             var dynamic = new DynamicMethod("SetObjectData", null, new[] { typeof(A), typeof(SerializationInfo) }, typeof(A), true);
-            var fields = GetPublicInstanceFields<A>(includeBase, typeof(OptOutOfSerializationAttribute), typeof(NonSerializedAttribute));
+            var fields = GetPublicInstanceFields<A>(includeBase,
+#pragma warning disable CS0618
+                typeof(OptOutOfSerializationAttribute),
+#pragma warning restore CS0618
+                typeof(NonSerializedAttribute),
+                typeof(NonRecordAttribute)
+                );
             var getTypeFromHandle = GetPublicStaticMethod<Type, RuntimeTypeHandle>("GetTypeFromHandle").IfNone(() => throw new Exception());
             var getValue = GetPublicInstanceMethod<SerializationInfo, string, Type>("GetValue", true).IfNone(() => throw new Exception());
             var argNullExcept = GetConstructor<ArgumentNullException, string>().IfNone(() => throw new Exception());

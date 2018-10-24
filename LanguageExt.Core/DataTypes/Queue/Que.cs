@@ -120,5 +120,11 @@ namespace LanguageExt
         [Pure]
         public bool Equals(Que<T> other) =>
             hashCode == other.hashCode && Enumerable.Equals(this.Value, other.Value);
+
+        /// <summary>
+        /// Implicit conversion from an untyped empty list
+        /// </summary>
+        public static implicit operator Que<T>(SeqEmpty _) =>
+            Empty;
     }
 }

@@ -11,7 +11,8 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="RECORDTYPE"></typeparam>
     [Serializable]
-    public abstract class Record<RECORDTYPE> : IEquatable<RECORDTYPE>, IComparable<RECORDTYPE>
+    public abstract class Record<RECORDTYPE> : 
+        IEquatable<RECORDTYPE>, IComparable<RECORDTYPE>, IComparable
         where RECORDTYPE : Record<RECORDTYPE>
     {
         protected Record() { }
@@ -54,5 +55,8 @@ namespace LanguageExt
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context) =>
             RecordType<RECORDTYPE>.GetObjectData((RECORDTYPE)this, info);
+
+        public int CompareTo(object obj) =>
+            obj is RECORDTYPE rt ? CompareTo(rt) : 1;
     }
 }

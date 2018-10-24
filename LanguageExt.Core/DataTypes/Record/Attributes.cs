@@ -3,22 +3,51 @@ using System.Reflection;
 
 namespace LanguageExt
 {
+    public class NonRecordAttribute : Attribute
+    {
+    }
+
+    public class NonStructuralAttribute : Attribute
+    {
+    }
+
+    [Obsolete("Use NonHash instead")]
     public class OptOutOfHashCodeAttribute : Attribute
     {
     }
 
+    public class NonHashAttribute : Attribute
+    {
+    }
+
+    [Obsolete("Use NonEq instead")]
     public class OptOutOfEqAttribute : Attribute
     {
     }
 
+    public class NonEqAttribute : Attribute
+    {
+    }
+
+    [Obsolete("Use NonOrd instead")]
     public class OptOutOfOrdAttribute : Attribute
     {
     }
 
+    public class NonOrdAttribute : Attribute
+    {
+    }
+
+    [Obsolete("Use NonShow instead")]
     public class OptOutOfToStringAttribute : Attribute
     {
     }
 
+    public class NonShowAttribute : Attribute
+    {
+    }
+
+    [Obsolete("Use NonSerializable instead")]
     public class OptOutOfSerializationAttribute : Attribute
     {
     }
