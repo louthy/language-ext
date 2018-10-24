@@ -129,14 +129,14 @@ namespace LanguageExtTests
                 .Filter(isDefault);
 
             Assert.True(x.IsBottom);
-            Assert.Equal(Right(0), x.BindBottom(() => Right(0)));
+            Assert.Equal(Right<string, int>(0), x.BindBottom(0));
+            Assert.Equal(Right<string, int>(0), x.BindBottom(() => 0));
+            Assert.Equal(Right<string, int>(0), x.BindBottom(Right<string, int>(0)));
+            Assert.Equal(Right<string, int>(0), x.BindBottom(() => Right<string, int>(0)));
 
-            var y = Right<string, int>(1)
-                .Filter(isDefault)
-                .BindBottom(() => "is not default");
-
-            Assert.False(y.IsBottom);
-            Assert.Equal(Left("is not default"), y);
+            Assert.Equal(Left("is not default"), x.BindBottom("is not default"));
+            Assert.Equal(Left("is not default"), x.BindBottom(() => "is not default"));
+            Assert.Equal(Left("is not default"), x.BindBottom(Left<string, int>("is not default")));
         }
 
         private Either<string, int> GetValue(bool select)
