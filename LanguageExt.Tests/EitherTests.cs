@@ -135,7 +135,7 @@ namespace LanguageExtTests
                 .Filter(isDefault)
                 .BindBottom(() => "is not default");
 
-            Assert.False(x.IsBottom);
+            Assert.False(y.IsBottom);
             Assert.Equal(Left("is not default"), y);
         }
 
