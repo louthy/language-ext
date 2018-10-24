@@ -31,7 +31,7 @@ namespace LanguageExt
     public struct EitherAsync<L, R> :
         IEitherAsync
     {
-        public readonly static EitherAsync<L, R> Bottom = new EitherAsync<L, R>();
+        public readonly static EitherAsync<L, R> Bottom = new EitherAsync<L, R>(null);
         internal readonly Task<EitherData<L, R>> data;
 
         internal EitherAsync(Task<EitherData<L, R>> data) =>
