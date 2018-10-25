@@ -29,8 +29,14 @@ namespace LanguageExt
 
         ~Enum()
         {
-            iter?.Dispose();
-            iter = null;
+            try
+            {
+                iter?.Dispose();
+                iter = null;
+            }
+            catch
+            {
+            }
         }
 
         public (bool Success, A Value) Get(int index)
