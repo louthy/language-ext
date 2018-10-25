@@ -137,9 +137,9 @@ namespace LanguageExt.Parsec
                                let v = parseInt(new string(x.ToArray()), 16)
                                from n in v.Match(
                                    Some: d => result(d),
-                                   None: () => failure<int>("Not a valid octal value"))
+                                   None: () => failure<int>("Not a valid hexadecimal value"))
                                select n)
-                              .label("octal number");
+                              .label("hexadecimal number");
 
             var zeroNumber = (from _ in ch('0')
                               from r in choice(hexadecimal, octal, dec, result(0))
