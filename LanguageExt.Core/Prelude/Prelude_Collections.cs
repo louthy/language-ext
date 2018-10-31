@@ -112,11 +112,11 @@ namespace LanguageExt
         /// Lazy sequence of natural numbers up to Int32.MaxValue
         /// </summary>
         [Pure]
-        public static readonly IEnumerable<int> Naturals
+        public static IEnumerable<int> Naturals
         {
             get
             {
-                for (var i = 0; i < Int32.Max; i++)
+                for (var i = 0; i < Int32.MaxValue; i++)
                 {
                     yield return i;
                 }
@@ -127,11 +127,11 @@ namespace LanguageExt
         /// Lazy sequence of natural numbers up to Int64.MaxValue
         /// </summary>
         [Pure]
-        public static readonly IEnumerable<long> LongNaturals
+        public static IEnumerable<long> LongNaturals
         {
             get
             {
-                for (var i = 0; i < Int64.Max; i++)
+                for (var i = 0; i < Int64.MaxValue; i++)
                 {
                     yield return i;
                 }
