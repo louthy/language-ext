@@ -109,6 +109,36 @@ namespace LanguageExt
             tail.Insert(0, head);
 
         /// <summary>
+        /// Lazy sequence of natural numbers up to Int32.MaxValue
+        /// </summary>
+        [Pure]
+        public static readonly IEnumerable<int> Naturals
+        {
+            get
+            {
+                for (var i = 0; i < Int32.Max; i++)
+                {
+                    yield return i;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Lazy sequence of natural numbers up to Int64.MaxValue
+        /// </summary>
+        [Pure]
+        public static readonly IEnumerable<long> LongNaturals
+        {
+            get
+            {
+                for (var i = 0; i < Int64.Max; i++)
+                {
+                    yield return i;
+                }
+            }
+        }
+
+        /// <summary>
         /// Lazily generate a range of integers.  
         /// </summary>
         [Pure]
