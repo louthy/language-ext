@@ -489,6 +489,34 @@ namespace LanguageExt
                 None: () => (Add(key, value), value));
 
         /// <summary>
+        /// Try to find the key in the map, if it doesn't exist, add a new 
+        /// item provided.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <param name="value">Delegate to get the value</param>
+        /// <returns>Updated map and added value</returns>
+        [Pure]
+        public (MapInternal<OrdK, K, V>, Option<V> Value) FindOrMaybeAdd(K key, Func<Option<V>> value) =>
+            Find(key).Match(
+                Some: x => (this, Some(x)),
+                None: () => value().Map(v => (Add(key, v), Some(v)))
+                                   .IfNone((this, None)));
+
+        /// <summary>
+        /// Try to find the key in the map, if it doesn't exist, add a new 
+        /// item provided.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <param name="value">Delegate to get the value</param>
+        /// <returns>Updated map and added value</returns>
+        [Pure]
+        public (MapInternal<OrdK, K, V>, Option<V> Value) FindOrMaybeAdd(K key, Option<V> value) =>
+            Find(key).Match(
+                Some: x => (this, Some(x)),
+                None: () => value.Map(v => (Add(key, v), Some(v)))
+                                 .IfNone((this, None)));
+
+        /// <summary>
         /// Atomically updates an existing item
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>

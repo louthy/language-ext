@@ -261,6 +261,28 @@ namespace LanguageExt
             Value.FindOrAdd(key, value).Map((x, y) => (Wrap(x), y));
 
         /// <summary>
+        /// Try to find the key in the map, if it doesn't exist, add a new 
+        /// item by invoking the delegate provided.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <param name="None">Delegate to get the value</param>
+        /// <returns>Updated map and added value</returns>
+        [Pure]
+        public (Map<K, V> Map, Option<V> Value) FindOrMaybeAdd(K key, Func<Option<V>> None) =>
+            Value.FindOrMaybeAdd(key, None).Map((x, y) => (Wrap(x), y));
+
+        /// <summary>
+        /// Try to find the key in the map, if it doesn't exist, add a new 
+        /// item by invoking the delegate provided.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <param name="None">Delegate to get the value</param>
+        /// <returns>Updated map and added value</returns>
+        [Pure]
+        public (Map<K, V> Map, Option<V> Value) FindOrMaybeAdd(K key, Option<V> None) =>
+            Value.FindOrMaybeAdd(key, None).Map((x, y) => (Wrap(x), y));
+
+        /// <summary>
         /// Atomically updates an existing item
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>
