@@ -14,7 +14,6 @@ namespace LanguageExt
     {
         IEnumerator<A> iter;
         List<A> list;
-
         public Enum(IEnumerable<A> seq)
         {
             this.iter = seq.GetEnumerator();
@@ -25,18 +24,6 @@ namespace LanguageExt
         {
             this.iter = iter;
             this.list = new List<A>();
-        }
-
-        ~Enum()
-        {
-            try
-            {
-                iter?.Dispose();
-                iter = null;
-            }
-            catch
-            {
-            }
         }
 
         public (bool Success, A Value) Get(int index)
@@ -56,14 +43,22 @@ namespace LanguageExt
                 {
                     lock (list)
                     {
-                        theresMore = iter?.MoveNext() ?? false;
-                        if (theresMore)
+                        if (iter == null)
                         {
-                            list.Add(iter.Current);
+                            theresMore = false;
                         }
                         else
                         {
-                            iter = null;
+                            theresMore = iter.MoveNext();
+                            if (theresMore)
+                            {
+                                list.Add(iter.Current);
+                            }
+                            else
+                            {
+                                iter.Dispose();
+                                iter = null;
+                            }
                         }
                     }
                 }
@@ -85,6 +80,7 @@ namespace LanguageExt
                         {
                             list.Add(iter.Current);
                         }
+                        iter.Dispose();
                         iter = null;
                     }
                 }
