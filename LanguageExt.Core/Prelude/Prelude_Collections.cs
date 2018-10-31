@@ -131,7 +131,7 @@ namespace LanguageExt
         {
             get
             {
-                for (var i = 0; i < Int64.MaxValue; i++)
+                for (var i = 0L; i < Int64.MaxValue; i++)
                 {
                     yield return i;
                 }
