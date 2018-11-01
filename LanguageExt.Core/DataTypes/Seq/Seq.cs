@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -415,6 +416,121 @@ namespace LanguageExt
             IsEmpty
                 ? None
                 : Some(Head);
+
+        /// <summary>
+        /// Last item in sequence.  Throws if no items in sequence
+        /// </summary>
+        public A Last
+        {
+            get
+            {
+                if (seq != null)
+                {
+                    Strict();
+                }
+                return IsEmpty
+                  ? throw new InvalidOperationException("Sequence is empty")
+                  : data[start + count - 1];
+            }
+        }
+
+        /// <summary>
+        /// Last item in sequence.
+        /// </summary>
+        public Option<A> LastOrNone()
+        {
+            if (seq != null)
+            {
+                Strict();
+            }
+            return IsEmpty
+                ? None
+                : Some(data[start + count - 1]);
+        }
+
+        /// <summary>
+        /// Last item in sequence.
+        /// </summary>
+        public Either<L, A> LastOrLeft<L>(L Left)
+        {
+            if (seq != null)
+            {
+                Strict();
+            }
+            return IsEmpty
+                ? Either<L, A>.Left(Left)
+                : Either<L, A>.Right(data[start + count - 1]);
+        }
+
+        /// <summary>
+        /// Last item in sequence.
+        /// </summary>
+        public Either<L, A> LastOrLeft<L>(Func<L> Left)
+        {
+            if (seq != null)
+            {
+                Strict();
+            }
+            return IsEmpty
+                ? Either<L, A>.Left(Left())
+                : Either<L, A>.Right(data[start + count - 1]);
+        }
+
+        /// <summary>
+        /// Last item in sequence.
+        /// </summary>
+        public Validation<F, A> LastOrInvalid<F>(F Fail)
+        {
+            if (seq != null)
+            {
+                Strict();
+            }
+            return IsEmpty
+                ? Validation<F, A>.Fail(Seq1(Fail))
+                : Validation<F, A>.Success(data[start + count - 1]);
+        }
+
+        /// <summary>
+        /// Last item in sequence.
+        /// </summary>
+        public Validation<F, A> LastOrInvalid<F>(Func<F> Fail)
+        {
+            if (seq != null)
+            {
+                Strict();
+            }
+            return IsEmpty
+                ? Validation<F, A>.Fail(Seq1(Fail()))
+                : Validation<F, A>.Success(data[start + count - 1]);
+        }
+
+        /// <summary>
+        /// Last item in sequence.
+        /// </summary>
+        public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(F Fail) where MonoidFail : struct, Monoid<F>, Eq<F>
+        {
+            if (seq != null)
+            {
+                Strict();
+            }
+            return IsEmpty
+                ? Validation<MonoidFail, F, A>.Fail(Fail)
+                : Validation<MonoidFail, F, A>.Success(data[start + count - 1]);
+        }
+
+        /// <summary>
+        /// Last item in sequence.
+        /// </summary>
+        public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(Func<F> Fail) where MonoidFail : struct, Monoid<F>, Eq<F>
+        {
+            if (seq != null)
+            {
+                Strict();
+            }
+            return IsEmpty
+                ? Validation<MonoidFail, F, A>.Fail(Fail())
+                : Validation<MonoidFail, F, A>.Success(data[start + count - 1]);
+        }
 
         /// <summary>
         /// Head of the sequence if this node isn't the empty node or fail
