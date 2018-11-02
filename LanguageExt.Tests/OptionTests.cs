@@ -194,6 +194,13 @@ namespace LanguageExtTests
             Assert.Equal(2, way);
         }
 
+        [Fact]
+        public void OptionMap_ToNull_ThrowsValueIsNullException()
+        {
+            var option = Some(new object());
+            Assert.Throws<ValueIsNullException>(() => option.Map(_ => (object)null));
+        }
+
         private Option<string> GetStringNone()
         {
             // This should fail
