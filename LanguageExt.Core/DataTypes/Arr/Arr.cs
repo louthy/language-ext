@@ -377,11 +377,11 @@ namespace LanguageExt
             Value.AsEnumerable().GetEnumerator();
 
         [Pure]
-        IEnumerable<A> AsEnumerable() =>
+        public IEnumerable<A> AsEnumerable() =>
             this;
 
         [Pure]
-        Seq<A> ToSeq() =>
+        public Seq<A> ToSeq() =>
             Seq(this);
 
         [Pure]
