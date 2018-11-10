@@ -54,22 +54,22 @@ namespace LanguageExt.TypeClasses
         /// <summary>
         /// Match the two states of the Option A
         /// </summary>
-        /// <param name="Some">Some match operation</param>
+        /// <param name="SomeAsync">Async Some match operation</param>
         /// <param name="None">None match operation</param>
         Task<Unit> MatchAsync(OA opt, Func<A, Task> SomeAsync, Action None);
 
         /// <summary>
         /// Match the two states of the Option A
         /// </summary>
-        /// <param name="Some">Some match operation</param>
-        /// <param name="None">None match operation</param>
+        /// <param name="SomeAsync">Async Some match operation</param>
+        /// <param name="NoneAsync">Async None match operation</param>
         Task<Unit> MatchAsync(OA opt, Func<A, Task> SomeAsync, Func<Task> NoneAsync);
 
         /// <summary>
         /// Match the two states of the Option A
         /// </summary>
         /// <param name="Some">Some match operation</param>
-        /// <param name="None">None match operation</param>
+        /// <param name="NoneAsync">Async None match operation</param>
         Task<Unit> MatchAsync(OA opt, Action<A> Some, Func<Task> NoneAsync);
 
         [Pure]

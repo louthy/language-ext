@@ -78,6 +78,7 @@ namespace LanguageExt.Tests
             OptionAsync<int> optAsync = Some(4).ToAsync();
             var tskOptionAsync = optAsync.IfSome(async (i) =>
             {
+                await Task.Delay(100);
                 var x = DoWork();
 
                 lock (sync)
@@ -95,8 +96,8 @@ namespace LanguageExt.Tests
             }
             await tskOptionAsync;
 
-            Assert.True(tasks[0].Status == TaskStatus.RanToCompletion);
-            Assert.True(tasks[1].Status == TaskStatus.RanToCompletion);
+            Assert.Equal(TaskStatus.RanToCompletion, tasks[0].Status);
+            Assert.Equal(TaskStatus.RanToCompletion, tasks[1].Status);
         }
 
         [Fact]
