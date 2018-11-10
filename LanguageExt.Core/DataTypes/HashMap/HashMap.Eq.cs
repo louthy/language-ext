@@ -651,6 +651,18 @@ namespace LanguageExt
             Value.GetHashCode();
 
         /// <summary>
+        /// Impure iteration of the bound values in the structure
+        /// </summary>
+        /// <returns>
+        /// Returns the original unmodified structure
+        /// </returns>
+        public HashMap<EqK, K, V> Do(Action<V> f)
+        {
+            this.Iter(f);
+            return this;
+        }
+
+        /// <summary>
         /// Atomically maps the map to a new map
         /// </summary>
         /// <returns>Mapped items in a new map</returns>

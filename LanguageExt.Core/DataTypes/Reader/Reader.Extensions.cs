@@ -92,6 +92,18 @@ public static class ReaderExt
         return (a, false);
     };
 
+    /// <summary>
+    /// Impure iteration of the bound value in the structure
+    /// </summary>
+    /// <returns>
+    /// Returns the original unmodified structure
+    /// </returns>
+    public static Reader<Env, A> Do<Env, A>(this Reader<Env, A> ma, Action<A> f)
+    {
+        ma.Iter(f);
+        return ma;
+    }
+
     [Pure]
     public static Reader<Env, B> Bind<Env, A, B>(this Reader<Env, A> self, Func<A, Reader<Env, B>> binder) =>
         default(MReader<Env, A>)

@@ -785,6 +785,18 @@ namespace LanguageExt
             biExists<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Left, Right);
 
         /// <summary>
+        /// Impure iteration of the bound values in the structure
+        /// </summary>
+        /// <returns>
+        /// Returns the original unmodified structure
+        /// </returns>
+        public EitherUnsafe<L, R> Do(Action<R> f)
+        {
+            Iter(f);
+            return this;
+        }
+
+        /// <summary>
         /// Maps the value in the EitherUnsafe if it's in a Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>

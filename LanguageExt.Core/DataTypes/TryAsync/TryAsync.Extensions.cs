@@ -595,6 +595,15 @@ public static class TryAsyncExtensions
         self.MapAsync(pred).IfFail(false);
 
     /// <summary>
+    /// Impure iteration of the bound value in the structure
+    /// </summary>
+    /// <returns>
+    /// Returns the original unmodified structure
+    /// </returns>
+    public static TryAsync<A> Do<A>(this TryAsync<A> ma, Action<A> f) =>
+        ma.Map(x => { f(x); return x; });
+
+    /// <summary>
     /// Maps the bound value
     /// </summary>
     /// <typeparam name="A">Type of the bound value</typeparam>

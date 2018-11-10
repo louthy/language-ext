@@ -129,6 +129,19 @@ public static class WriterExtensions
             self.Select(f);
 
     /// <summary>
+    /// Impure iteration of the bound value in the structure
+    /// </summary>
+    /// <returns>
+    /// Returns the original unmodified structure
+    /// </returns>
+    public static Writer<MonoidW, W, A> Do<MonoidW, W, A>(this Writer<MonoidW, W, A> ma, Action<A> f) where MonoidW : struct, Monoid<W>
+    {
+        ma.Iter<MonoidW, W, A>(f);
+        return ma;
+    }
+
+
+    /// <summary>
     /// pass is an action that executes the monad, which
     /// returns a value and a function, and returns the value, applying
     /// the function to the output.

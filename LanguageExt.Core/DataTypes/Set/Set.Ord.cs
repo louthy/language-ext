@@ -269,6 +269,18 @@ namespace LanguageExt
             Value.FoldBack(state, folder);
 
         /// <summary>
+        /// Impure iteration of the bound values in the structure
+        /// </summary>
+        /// <returns>
+        /// Returns the original unmodified structure
+        /// </returns>
+        public Set<OrdA, A> Do(Action<A> f)
+        {
+            this.Iter(f);
+            return this;
+        }
+
+        /// <summary>
         /// Maps the values of this set into a new set of values using the
         /// mapper function to tranform the source values.
         /// </summary>

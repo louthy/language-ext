@@ -1136,6 +1136,18 @@ namespace LanguageExt
             biExists<MEither<L, R>, Either<L, R>,L,  R>(this, Left, Right);
 
         /// <summary>
+        /// Impure iteration of the bound values in the structure
+        /// </summary>
+        /// <returns>
+        /// Returns the original unmodified structure
+        /// </returns>
+        public Either<L, R> Do(Action<R> f)
+        {
+            Iter(f);
+            return this;
+        }
+
+        /// <summary>
         /// Maps the value in the Either if it's in a Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>

@@ -1171,6 +1171,15 @@ namespace LanguageExt
                 Bottom: () => false);
 
         /// <summary>
+        /// Impure iteration of the bound values in the structure
+        /// </summary>
+        /// <returns>
+        /// Returns the original unmodified structure
+        /// </returns>
+        public EitherAsync<L, R> Do(Action<R> f) =>
+            Map(x => { f(x); return x; });
+
+        /// <summary>
         /// Maps the value in the Either if it's in a Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>

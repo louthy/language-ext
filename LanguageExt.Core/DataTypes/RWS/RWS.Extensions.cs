@@ -114,6 +114,18 @@ public static class RWSExtensions
         };
 
     /// <summary>
+    /// Impure iteration of the bound value in the structure
+    /// </summary>
+    /// <returns>
+    /// Returns the original unmodified structure
+    /// </returns>
+    public static RWS<MonoidW, R, W, S, A> Do<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> ma, Action<A> f) where MonoidW : struct, Monoid<W>
+    {
+        ma.Iter<MonoidW, R, W, S, A>(f);
+        return ma;
+    }
+
+    /// <summary>
     /// Monadic state transformer.
     /// Maps an old state to a new state inside a RWS monad.  The old state is thrown away.
     /// </summary>

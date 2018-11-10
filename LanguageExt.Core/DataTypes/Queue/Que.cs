@@ -8,27 +8,39 @@ using System.Diagnostics.Contracts;
 namespace LanguageExt
 {
     [Serializable]
-    public struct Que<T> : 
-        IEnumerable<T>, 
+    public struct Que<A> : 
+        IEnumerable<A>, 
         IEnumerable,
-        IEquatable<Que<T>>
+        IEquatable<Que<A>>
     {
-        public readonly static Que<T> Empty = new Que<T>(QueInternal<T>.Empty);
+        public readonly static Que<A> Empty = new Que<A>(QueInternal<A>.Empty);
 
         int hashCode;
-        readonly QueInternal<T> value;
-        QueInternal<T> Value => value ?? QueInternal<T>.Empty;
+        readonly QueInternal<A> value;
+        QueInternal<A> Value => value ?? QueInternal<A>.Empty;
 
-        internal Que(QueInternal<T> value)
+        internal Que(QueInternal<A> value)
         {
             this.value = value;
             this.hashCode = 0;
         }
 
-        public Que(IEnumerable<T> items)
+        public Que(IEnumerable<A> items)
         {
-            this.value = new QueInternal<T>(items);
+            this.value = new QueInternal<A>(items);
             this.hashCode = 0;
+        }
+
+        /// <summary>
+        /// Impure iteration of the bound value in the structure
+        /// </summary>
+        /// <returns>
+        /// Returns the original unmodified structure
+        /// </returns>
+        public Que<A> Do(Action<A> f)
+        {
+            this.Iter(f);
+            return this;
         }
 
         [Pure]
@@ -40,43 +52,43 @@ namespace LanguageExt
             Value.IsEmpty;
 
         [Pure]
-        public Que<T> Clear() =>
+        public Que<A> Clear() =>
             Empty;
 
         [Pure]
-        public T Peek() =>
+        public A Peek() =>
             Value.Peek();
 
         [Pure]
-        public Que<T> Dequeue() =>
-            new Que<T>(Value.Dequeue());
+        public Que<A> Dequeue() =>
+            new Que<A>(Value.Dequeue());
 
         [Pure]
-        public (Que<T> Queue, T Value) DequeueUnsafe() =>
+        public (Que<A> Queue, A Value) DequeueUnsafe() =>
             (Dequeue(), Peek());
 
         [Pure]
-        public (Que<T> Queue, Option<T> Value) TryDequeue() =>
-            Value.TryDequeue().MapFirst(qi => new Que<T>(qi));
+        public (Que<A> Queue, Option<A> Value) TryDequeue() =>
+            Value.TryDequeue().MapFirst(qi => new Que<A>(qi));
 
         [Pure]
-        public Option<T> TryPeek() =>
+        public Option<A> TryPeek() =>
             Value.TryPeek();
 
         [Pure]
-        public Que<T> Enqueue(T value) =>
-            new Que<T>(Value.Enqueue(value));
+        public Que<A> Enqueue(A value) =>
+            new Que<A>(Value.Enqueue(value));
 
         [Pure]
-        public Seq<T> ToSeq() =>
+        public Seq<A> ToSeq() =>
             Seq(Value);
 
         [Pure]
-        public IEnumerable<T> AsEnumerable() =>
+        public IEnumerable<A> AsEnumerable() =>
             Value;
 
         [Pure]
-        public IEnumerator<T> GetEnumerator() =>
+        public IEnumerator<A> GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
         [Pure]
@@ -84,27 +96,27 @@ namespace LanguageExt
             AsEnumerable().GetEnumerator();
 
         [Pure]
-        public static Que<T> operator +(Que<T> lhs, Que<T> rhs) =>
+        public static Que<A> operator +(Que<A> lhs, Que<A> rhs) =>
             lhs.Append(rhs);
 
         [Pure]
-        public Que<T> Append(Que<T> rhs) =>
-            new Que<T>(Value.Append(rhs));
+        public Que<A> Append(Que<A> rhs) =>
+            new Que<A>(Value.Append(rhs));
 
         [Pure]
-        public static Que<T> operator -(Que<T> lhs, Que<T> rhs) =>
+        public static Que<A> operator -(Que<A> lhs, Que<A> rhs) =>
             lhs.Subtract(rhs);
 
         [Pure]
-        public Que<T> Subtract(Que<T> rhs) =>
-            new Que<T>(Enumerable.Except(Value.AsEnumerable(), rhs.Value.AsEnumerable()));
+        public Que<A> Subtract(Que<A> rhs) =>
+            new Que<A>(Enumerable.Except(Value.AsEnumerable(), rhs.Value.AsEnumerable()));
 
         [Pure]
-        public static bool operator ==(Que<T> lhs, Que<T> rhs) =>
+        public static bool operator ==(Que<A> lhs, Que<A> rhs) =>
             lhs.Equals(rhs);
 
         [Pure]
-        public static bool operator !=(Que<T> lhs, Que<T> rhs) =>
+        public static bool operator !=(Que<A> lhs, Que<A> rhs) =>
             !(lhs == rhs);
 
         [Pure]
@@ -115,16 +127,16 @@ namespace LanguageExt
 
         [Pure]
         public override bool Equals(object obj) =>
-            obj is Que<T> && Equals((Que<T>)obj);
+            obj is Que<A> && Equals((Que<A>)obj);
 
         [Pure]
-        public bool Equals(Que<T> other) =>
+        public bool Equals(Que<A> other) =>
             hashCode == other.hashCode && Enumerable.Equals(this.Value, other.Value);
 
         /// <summary>
         /// Implicit conversion from an untyped empty list
         /// </summary>
-        public static implicit operator Que<T>(SeqEmpty _) =>
+        public static implicit operator Que<A>(SeqEmpty _) =>
             Empty;
     }
 }

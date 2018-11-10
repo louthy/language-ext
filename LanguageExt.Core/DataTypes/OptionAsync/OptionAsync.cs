@@ -182,6 +182,15 @@ namespace LanguageExt
             data.Map(a => a.Value);
 
         /// <summary>
+        /// Impure iteration of the bound value in the structure
+        /// </summary>
+        /// <returns>
+        /// Returns the original unmodified structure
+        /// </returns>
+        public OptionAsync<A> Do(Action<A> f) =>
+            Map(x => { f(x); return x; });
+
+        /// <summary>
         /// Projection from one value to another 
         /// </summary>
         /// <typeparam name="B">Resulting functor value type</typeparam>

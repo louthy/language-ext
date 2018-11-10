@@ -409,6 +409,18 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Impure iteration of the bound values in the structure
+        /// </summary>
+        /// <returns>
+        /// Returns the original unmodified structure
+        /// </returns>
+        public Arr<A> Do(Action<A> f)
+        {
+            this.Iter(f);
+            return this;
+        }
+
+        /// <summary>
         /// Map
         /// </summary>
         [Pure]

@@ -251,6 +251,18 @@ namespace LanguageExt
             Value.Fold(state, folder);
 
         /// <summary>
+        /// Impure iteration of the bound values in the structure
+        /// </summary>
+        /// <returns>
+        /// Returns the original unmodified structure
+        /// </returns>
+        public Lst<A> Do(Action<A> f)
+        {
+            this.Iter(f);
+            return this;
+        }
+
+        /// <summary>
         /// Map
         /// </summary>
         [Pure]

@@ -187,6 +187,15 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Impure iteration of the bound value in the structure
+        /// </summary>
+        /// <returns>
+        /// Returns the original unmodified structure
+        /// </returns>
+        public static Task<A> Do<A>(this Task<A> ma, Action<A> f) =>
+            ma.Map(x => { f(x); return x; });
+
+        /// <summary>
         /// Returns map(Result) if not faulted or cancelled.
         /// </summary>
         [Pure]

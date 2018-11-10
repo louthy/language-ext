@@ -117,6 +117,18 @@ public static class StateExtensions
                 : (f(s, x), s, false);
         };
 
+    /// <summary>
+    /// Impure iteration of the bound value in the structure
+    /// </summary>
+    /// <returns>
+    /// Returns the original unmodified structure
+    /// </returns>
+    public static State<S, A> Do<S, A>(this State<S, A> ma, Action<A> f)
+    {
+        ma.Iter(f);
+        return ma;
+    }
+
     [Pure]
     public static State<S, B> Map<S, A, B>(this State<S, A> self, Func<A, B> f) =>
         self.Select(f);

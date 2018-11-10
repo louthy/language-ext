@@ -730,6 +730,18 @@ namespace LanguageExt
             biExists<FoldValidation<MonoidFail, FAIL, SUCCESS>, Validation<MonoidFail, FAIL, SUCCESS>, FAIL, SUCCESS>(this, Fail, Success);
 
         /// <summary>
+        /// Impure iteration of the bound value in the structure
+        /// </summary>
+        /// <returns>
+        /// Returns the original unmodified structure
+        /// </returns>
+        public Validation<MonoidFail, FAIL, SUCCESS> Do(Action<SUCCESS> f)
+        {
+            Iter(f);
+            return this;
+        }
+
+        /// <summary>
         /// Maps the value in the Validation if it's in a Success state
         /// </summary>
         /// <typeparam name="L">Fail</typeparam>

@@ -325,6 +325,18 @@ namespace LanguageExt
             data.Value;
 
         /// <summary>
+        /// Impure iteration of the bound value in the structure
+        /// </summary>
+        /// <returns>
+        /// Returns the original unmodified structure
+        /// </returns>
+        public OptionUnsafe<A> Do(Action<A> f)
+        {
+            Iter(f);
+            return this;
+        }
+
+        /// <summary>
         /// Projection from one value to another 
         /// </summary>
         /// <typeparam name="B">Resulting functor value type</typeparam>

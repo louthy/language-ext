@@ -391,6 +391,18 @@ public static class TryExtensions
     }
 
     /// <summary>
+    /// Impure iteration of the bound value in the structure
+    /// </summary>
+    /// <returns>
+    /// Returns the original unmodified structure
+    /// </returns>
+    public static Try<A> Do<A>(this Try<A> ma, Action<A> f)
+    {
+        ma.Iter(f);
+        return ma;
+    }
+
+    /// <summary>
     /// Maps the bound value
     /// </summary>
     /// <typeparam name="A">Type of the bound value</typeparam>

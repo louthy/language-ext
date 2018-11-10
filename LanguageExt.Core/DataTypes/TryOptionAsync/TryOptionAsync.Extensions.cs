@@ -1432,6 +1432,15 @@ public static class TryOptionAsyncExtensions
         self.MapAsync(pred).IfNoneOrFail(false);
 
     /// <summary>
+    /// Impure iteration of the bound value in the structure
+    /// </summary>
+    /// <returns>
+    /// Returns the original unmodified structure
+    /// </returns>
+    public static TryOptionAsync<A> Do<A>(this TryOptionAsync<A> ma, Action<A> f) =>
+        ma.Map(x => { f(x); return x; });
+
+    /// <summary>
     /// Maps the bound value
     /// </summary>
     /// <typeparam name="A">Type of the bound value</typeparam>

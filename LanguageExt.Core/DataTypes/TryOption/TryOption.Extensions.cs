@@ -478,6 +478,18 @@ public static class TryOptionExtensions
     }
 
     /// <summary>
+    /// Impure iteration of the bound value in the structure
+    /// </summary>
+    /// <returns>
+    /// Returns the original unmodified structure
+    /// </returns>
+    public static TryOption<A> Do<A>(this TryOption<A> ma, Action<A> f)
+    {
+        ma.Iter(f);
+        return ma;
+    }
+
+    /// <summary>
     /// Maps the bound value
     /// </summary>
     /// <typeparam name="T">Type of the bound value</typeparam>
