@@ -1256,29 +1256,30 @@ namespace LanguageExt
 
             lock (seq)
             {
-                end = start + count;
-
-                // First yield the already cached items
-                for (; i < end; i++)
-                {
-                    yield return data[i];
-                }
-
-                if (seq == null)
-                {
-                    yield break;
-                }
-
-                // Next stream the lazy items
                 bool success = true;
                 A value = default(A);
                 while (success)
                 {
-                    (success, value) = StreamNextItem();
-                    if (success)
+                    end = start + count;
+
+                    // First yield the already cached items
+                    if (i < end)
                     {
-                        yield return value;
+                        yield return data[i];
                     }
+                    else if (seq == null)
+                    {
+                        yield break;
+                    }
+                    else
+                    {
+                        (success, value) = StreamNextItem();
+                        if (success)
+                        {
+                            yield return value;
+                        }
+                    }
+                    i++;
                 }
             }
         }

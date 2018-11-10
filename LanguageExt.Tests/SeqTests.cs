@@ -202,5 +202,42 @@ namespace LanguageExt.Tests
 
             Assert.True(eq);
         }
+
+        /// <summary>
+        /// Test ensures that lazily evaluated Seq returns the same as strictly evaluated when multiple enumerations occur
+        /// </summary>
+        [Fact]
+        public void GetEnumeratorTest()
+        {           
+            var res1 = Seq.empty<int>();
+            var res2 = Seq.empty<int>();
+
+            IEnumerable<int> a = new List<int> { 1, 2, 3, 4 };
+
+            var s1 = a.ToSeq();
+            var s2 = a.ToSeq().Strict();
+
+            foreach (var s in s1)
+            {
+                if (s == 2)
+                {
+                    s1.FoldWhile("", (x, y) => "", x => x != 3);
+                }
+                res1 = res1.Add(s);
+            }
+
+            foreach (var s in s2)
+            {
+                if (s == 2)
+                {
+                    s2.FoldWhile("", (x, y) => "", x => x != 3);
+                }
+                res2 = res2.Add(s);
+            }
+
+            var eq = res1 == res2;
+
+            Assert.True(eq);
+        }
     }
 }
