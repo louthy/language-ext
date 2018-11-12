@@ -31,11 +31,11 @@ namespace LanguageExt
     public struct EitherAsync<L, R> :
         IEitherAsync
     {
-        public readonly static EitherAsync<L, R> Bottom = new EitherAsync<L, R>(null);
+        public readonly static EitherAsync<L, R> Bottom = default; // new EitherAsync<L, R>();
         internal readonly Task<EitherData<L, R>> data;
 
         internal EitherAsync(Task<EitherData<L, R>> data) =>
-            this.data = data ?? EitherData<L, R>.Bottom.AsTask();
+            this.data = data ?? throw new ArgumentNullException(nameof(data)); // EitherData<L, R>.Bottom.AsTask();
 
         /// <summary>
         /// State of the Either
@@ -45,21 +45,21 @@ namespace LanguageExt
         ///     IsBottom
         /// </summary>
         public Task<EitherStatus> State =>
-            data.Select(x => x.State);
+            data == null ? Task.FromResult(EitherStatus.IsBottom) : data.Select(x => x.State);
 
         /// <summary>
         /// Is the Either in a Right state?
         /// </summary>
         [Pure]
         public Task<bool> IsRight =>
-            data.Map(x => x.State == EitherStatus.IsRight);
+            data == null ? Task.FromResult(false) : data.Map(x => x.State == EitherStatus.IsRight);
 
         /// <summary>
         /// Is the Either in a Left state?
         /// </summary>
         [Pure]
         public Task<bool> IsLeft =>
-            data.Map(x => x.State == EitherStatus.IsLeft);
+            data == null ? Task.FromResult(false) : data.Map(x => x.State == EitherStatus.IsLeft);
 
         /// <summary>
         /// Is the Either in a Bottom state?
@@ -76,7 +76,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public Task<bool> IsBottom =>
-            data.Map(x => x.State == EitherStatus.IsBottom);
+            data == null ? Task.FromResult(true) : data.Map(x => x.State == EitherStatus.IsBottom);
 
         /// <summary>
         /// Implicit conversion operator from R to Either R L

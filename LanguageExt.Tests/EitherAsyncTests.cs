@@ -15,9 +15,19 @@ namespace LanguageExt.Tests
         /// </summary>
         /// <returns></returns>
         [Fact]
-        public async Task BottomTest()
+        public async Task BottomIsBottomTest()
         {
             Assert.True(await EitherAsync<int, string>.Bottom.IsBottom);
+        }
+
+        /// <summary>
+        /// default EitherAsync must be bottom
+        /// </summary>
+        /// <returns></returns>
+        [Fact]
+        public async Task DefaultIsBottomTest()
+        {
+            Assert.True(await default(EitherAsync<int, string>).IsBottom);
         }
 
         [Fact]
