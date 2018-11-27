@@ -225,7 +225,7 @@ namespace LanguageExt
     public class NotAppendableException : Exception
     {
         public NotAppendableException(Type t)
-            : base($"Type '{t.Name}' not appendable: It's neither a CLR numeric-type, a string nor dervied from IAppendable")
+            : base($"Type '{t.Name}' not appendable: It's neither a CLR numeric-type, a string nor derived from IAppendable")
         {
         }
     }
@@ -234,7 +234,7 @@ namespace LanguageExt
     public class NotSubtractableException : Exception
     {
         public NotSubtractableException(Type t)
-            : base($"Type '{t.Name}' not subtractable: It's neither a CLR numeric-type, nor dervied from ISubtractable")
+            : base($"Type '{t.Name}' not subtractable: It's neither a CLR numeric-type, nor derived from ISubtractable")
         {
         }
     }
@@ -243,7 +243,7 @@ namespace LanguageExt
     public class NotMultiplicableException : Exception
     {
         public NotMultiplicableException(Type t)
-            : base($"Type '{t.Name}' not multiplicable: It's neither a CLR numeric-type, nor dervied from IMultiplicable")
+            : base($"Type '{t.Name}' not multiplicable: It's neither a CLR numeric-type, nor derived from IMultiplicable")
         {
         }
     }
@@ -252,7 +252,7 @@ namespace LanguageExt
     public class NotDivisibleException : Exception
     {
         public NotDivisibleException(Type t)
-            : base($"Type '{t.Name}' not divisible: It's neither a CLR numeric-type, nor dervied from IDivisible")
+            : base($"Type '{t.Name}' not divisible: It's neither a CLR numeric-type, nor derived from IDivisible")
         {
         }
     }

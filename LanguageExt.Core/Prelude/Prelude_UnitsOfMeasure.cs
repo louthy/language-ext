@@ -492,7 +492,7 @@ namespace LanguageExt
         public static readonly Accel ms2 = m/s/s;
 
         /// <summary>
-        /// Degrees Celcius
+        /// Degrees Celsius
         /// </summary>
         public static readonly Temperature degC = new Temperature(Temperature.UnitType.C, 1);
 

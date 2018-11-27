@@ -17,7 +17,7 @@ namespace LanguageExt.UnitsOfMeasure
         readonly double Value;
 
         public static Temperature AbsoluteZero = default(Temperature);
-        public static Temperature ZeroCelcius = new Temperature(UnitType.C, 0.0);
+        public static Temperature ZeroCelsius = new Temperature(UnitType.C, 0.0);
         public static Temperature ZeroFahrenheit = new Temperature(UnitType.F, 0.0);
 
         internal Temperature(UnitType type, double value)
@@ -73,7 +73,7 @@ namespace LanguageExt.UnitsOfMeasure
           : Type == UnitType.F ? FtoK(Value)
           : throw new NotSupportedException(Type.ToString());
 
-        public Temperature Celcius =>
+        public Temperature Celsius =>
             Type == UnitType.K ? new Temperature(UnitType.C, KtoC(Value))
           : Type == UnitType.C ? this
           : Type == UnitType.F ? new Temperature(UnitType.C, FtoC(Value))
@@ -241,13 +241,13 @@ namespace LanguageExt.UnitsOfMeasure
 
     public static class UnitsTemperatureExtensions
     {
-        public static Temperature Celcius(this int self) =>
+        public static Temperature Celsius(this int self) =>
             new Temperature(Temperature.UnitType.C, self);
 
-        public static Temperature Celcius(this float self) =>
+        public static Temperature Celsius(this float self) =>
             new Temperature(Temperature.UnitType.C, self);
 
-        public static Temperature Celcius(this double self) =>
+        public static Temperature Celsius(this double self) =>
             new Temperature(Temperature.UnitType.C, self);
 
         public static Temperature Fahrenheit(this int self) =>

@@ -20,7 +20,7 @@ namespace LanguageExt.Parsec
         ///  definitions in the language record.
         /// 
         ///  The use of this function is quite stylised - one imports the
-        ///  appropiate language definition and selects the lexical parsers that
+        ///  appropriate language definition and selects the lexical parsers that
         ///  are needed from the resulting 'GenTokenParser'.
         /// 
         ///    // The parser
