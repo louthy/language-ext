@@ -277,7 +277,7 @@ namespace LanguageExt
             }
             else if (await IsBottom)
             {
-                if (Bottom == null)
+                if (Bottom != null)
                 {
                     Bottom();
                 }
@@ -308,7 +308,7 @@ namespace LanguageExt
             }
             else if (await IsBottom)
             {
-                if (Bottom == null)
+                if (Bottom != null)
                 {
                     Bottom();
                 }
@@ -339,7 +339,7 @@ namespace LanguageExt
             }
             else if (await IsBottom)
             {
-                if (Bottom == null)
+                if (Bottom != null)
                 {
                     Bottom();
                 }
@@ -370,7 +370,7 @@ namespace LanguageExt
             }
             else if (await IsBottom)
             {
-                if (Bottom == null)
+                if (Bottom != null)
                 {
                     Bottom();
                 }
