@@ -87,11 +87,8 @@ namespace LanguageExt.ClassInstances
             fa.FoldBack(state, f);
 
         [Pure]
-        public IEnumerable<A> Plus(IEnumerable<A> ma, IEnumerable<A> mb)
-        {
-            foreach (var a in ma) yield return a;
-            foreach (var b in mb) yield return b;
-        }
+        public IEnumerable<A> Plus(IEnumerable<A> ma, IEnumerable<A> mb) =>
+            Enumerable.Concat(ma, mb);
 
         [Pure]
         public IEnumerable<A> Zero() =>

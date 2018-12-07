@@ -481,4 +481,23 @@ namespace Issues
         //                    .IfLeft(0);
         //}
     }
+
+    public class Issue533
+    {
+        [Fact]
+        public void Test()
+        {
+
+            var someData = Enumerable
+                .Range(0, 30000)
+                .Select(_ => Guid.NewGuid().ToString())
+                .ToArray();
+
+            var result = someData
+                .Select(Some)
+                .Sequence()
+                .Map(x => x.ToArray());
+        }
+
+    }
 }
