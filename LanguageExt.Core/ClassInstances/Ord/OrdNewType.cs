@@ -98,10 +98,10 @@ namespace LanguageExt.ClassInstances
     /// Compare the equality and ordering of any type in the NewType
     /// type-class
     /// </summary>
-    public struct OrdNewType<NEWTYPE, ORD, A, PRED> : Ord<NewType<NEWTYPE, A, PRED>>
+    public struct OrdNewType<NEWTYPE, ORD, A, PRED> : Ord<NewType<NEWTYPE, A, PRED, ORD>>
         where ORD     : struct, Ord<A>
         where PRED    : struct, Pred<A>
-        where NEWTYPE : NewType<NEWTYPE, A, PRED>
+        where NEWTYPE : NewType<NEWTYPE, A, PRED, ORD>
     {
         public static readonly OrdNewType<NEWTYPE, ORD, A, PRED> Inst = default(OrdNewType<NEWTYPE, ORD, A, PRED>);
 
@@ -112,8 +112,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public bool Equals(NewType<NEWTYPE, A, PRED> x, NewType<NEWTYPE, A, PRED> y) =>
-            default(EqNewType<NEWTYPE, ORD, A, PRED>).Equals(x, y);
+        public bool Equals(NewType<NEWTYPE, A, PRED, ORD> x, NewType<NEWTYPE, A, PRED, ORD> y) =>
+            default(EqNewType<NEWTYPE, ORD, A, PRED, ORD>).Equals(x, y);
 
         /// <summary>
         /// Compare two values
@@ -126,7 +126,7 @@ namespace LanguageExt.ClassInstances
         /// if x equals y       : 0
         /// </returns>
         [Pure]
-        public int Compare(NewType<NEWTYPE, A, PRED> mx, NewType<NEWTYPE, A, PRED> my)
+        public int Compare(NewType<NEWTYPE, A, PRED, ORD> mx, NewType<NEWTYPE, A, PRED, ORD> my)
         {
             if (ReferenceEquals(mx, my)) return 0;
             if (ReferenceEquals(mx, null)) return -1;
@@ -139,7 +139,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <returns>Hash code of x</returns>
         [Pure]
-        public int GetHashCode(NewType<NEWTYPE, A, PRED> x) =>
+        public int GetHashCode(NewType<NEWTYPE, A, PRED, ORD> x) =>
             x.IsNull() ? 0 : x.GetHashCode();
     }
 }

@@ -97,4 +97,40 @@ namespace LanguageExt.ClassInstances
         public int GetHashCode(NewType<NEWTYPE, A, PRED> x) =>
             x.IsNull() ? 0 : x.GetHashCode();
     }
+
+    /// <summary>
+    /// Compare the equality of any type in the NewType type-class
+    /// </summary>
+    public struct EqNewType<NEWTYPE, EQ, A, PRED, ORD> : Eq<NewType<NEWTYPE, A, PRED, ORD>>
+        where EQ : struct, Eq<A>
+        where PRED : struct, Pred<A>
+        where NEWTYPE : NewType<NEWTYPE, A, PRED, ORD>
+        where ORD : struct, Ord<A>
+    {
+        public static readonly EqNewType<NEWTYPE, EQ, A, PRED, ORD> Inst = default(EqNewType<NEWTYPE, EQ, A, PRED, ORD>);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public bool Equals(NewType<NEWTYPE, A, PRED, ORD> x, NewType<NEWTYPE, A, PRED, ORD> y)
+        {
+            if (ReferenceEquals(x, y)) return true;
+            if (ReferenceEquals(x, null)) return false;
+            if (ReferenceEquals(y, null)) return false;
+            return default(EQ).Equals((A)x, (A)y);
+        }
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        public int GetHashCode(NewType<NEWTYPE, A, PRED, ORD> x) =>
+            x.IsNull() ? 0 : x.GetHashCode();
+    }
 }
