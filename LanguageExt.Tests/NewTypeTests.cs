@@ -91,6 +91,7 @@ namespace LanguageExtTests
             // Assert.Throws<Exception>(() => h1 <= m2);
         }
 
+        #pragma warning disable CS1718
         [Fact]
         public void OrdTest2()
         {

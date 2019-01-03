@@ -1,6 +1,6 @@
 ﻿using LanguageExt.TypeClasses;
+using System;
 using System.Diagnostics.Contracts;
-using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
 {
@@ -8,6 +8,7 @@ namespace LanguageExt.ClassInstances
     /// Compare the equality and ordering of any type in the NewType
     /// type-class
     /// </summary>
+    [Obsolete("Use OrdNewType<NEWTYPE, ORD, A, True<A>>")]
     public struct OrdNewType<NEWTYPE, ORD, A> : Ord<NewType<NEWTYPE, A>>
         where ORD : struct, Ord<A>
         where NEWTYPE : NewType<NEWTYPE, A>
@@ -56,6 +57,7 @@ namespace LanguageExt.ClassInstances
     /// Compare the equality and ordering of any type in the NewType
     /// type-class
     /// </summary>
+    [Obsolete("Use OrdNewType<NEWTYPE, OrdDefault<A>, A, True<A>>")]
     public struct OrdNewType<NEWTYPE, A> : Ord<NewType<NEWTYPE, A>>
         where NEWTYPE : NewType<NEWTYPE, A>
     {
@@ -113,7 +115,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>True if x and y are equal</returns>
         [Pure]
         public bool Equals(NewType<NEWTYPE, A, PRED, ORD> x, NewType<NEWTYPE, A, PRED, ORD> y) =>
-            default(EqNewType<NEWTYPE, ORD, A, PRED, ORD>).Equals(x, y);
+            default(EqNewType<NEWTYPE, ORD, A, PRED >).Equals(x, y);
 
         /// <summary>
         /// Compare two values
