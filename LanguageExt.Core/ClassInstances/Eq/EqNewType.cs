@@ -70,6 +70,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Compare the equality of any type in the NewType type-class
     /// </summary>
+    [Obsolete("Use OrdNewType<NEWTYPE, ORD, A, PRED>")]
     public struct EqNewType<NEWTYPE, ORD, A, PRED> : Eq<NewType<NEWTYPE, A, PRED, ORD>>
         where ORD : struct, Ord<A>
         where PRED : struct, Pred<A>
