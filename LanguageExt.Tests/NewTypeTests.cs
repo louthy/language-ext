@@ -134,6 +134,15 @@ namespace LanguageExtTests
         }
 
         [Fact]
+        public void HashTest()
+        {
+            var a1 = new Email("a@b.com");
+            var a2 = new Email("A@b.com");
+
+            Assert.True(a1.GetHashCode() == a2.GetHashCode());
+        }
+
+        [Fact]
         public void LinqTest()
         {
             var m1 = new Metres(1);

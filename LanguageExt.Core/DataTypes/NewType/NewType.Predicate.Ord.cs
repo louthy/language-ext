@@ -103,7 +103,7 @@ namespace LanguageExt
 
         [Pure]
         public override int GetHashCode() =>
-            Class<Eq<A>>.Default?.GetHashCode(Value) ?? Value?.GetHashCode() ?? 0;
+            OrdNewType<NEWTYPE, ORD, A, PRED>.Inst.GetHashCode(this);
 
         [Pure]
         public static bool operator ==(NewType<NEWTYPE, A, PRED, ORD> lhs, NewType<NEWTYPE, A, PRED, ORD> rhs) =>

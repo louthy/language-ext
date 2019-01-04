@@ -147,6 +147,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>Hash code of x</returns>
         [Pure]
         public int GetHashCode(NewType<NEWTYPE, A, PRED, ORD> x) =>
-            x.IsNull() ? 0 : x.GetHashCode();
+            x.IsNull() ? 0 : default(ORD).GetHashCode(x.Value);
     }
 }
