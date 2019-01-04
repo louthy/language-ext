@@ -1,7 +1,5 @@
-﻿using LanguageExt.TypeClasses;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt.ClassInstances
 {
@@ -20,8 +18,8 @@ namespace LanguageExt.ClassInstances
 
         public S BiFold<S>(Validation<FAIL, SUCCESS> foldable, S state, Func<S, FAIL, S> fa, Func<S, SUCCESS, S> fb) =>
             foldable.Match(
-                Fail:    f => f.Fold(state, fa),
-                Succ:    s => fb(state, s));
+                Fail: f => f.Fold(state, fa),
+                Succ: s => fb(state, s));
 
         public S BiFoldBack<S>(Validation<FAIL, SUCCESS> foldable, S state, Func<S, FAIL, S> fa, Func<S, SUCCESS, S> fb) =>
             foldable.Match(
@@ -36,7 +34,7 @@ namespace LanguageExt.ClassInstances
         public Validation<FAIL, SUCCESS> Empty() =>
             Validation<FAIL, SUCCESS>.Fail(Seq<FAIL>.Empty);
 
-        public Func<Unit, S> Fold<S>(Validation<FAIL, SUCCESS> fa, S state, Func<S, SUCCESS, S> f) => _ => 
+        public Func<Unit, S> Fold<S>(Validation<FAIL, SUCCESS> fa, S state, Func<S, SUCCESS, S> f) => _ =>
             fa.Match(
                 Fail: x => state,
                 Succ: s => f(state, s));
