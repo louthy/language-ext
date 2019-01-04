@@ -12,13 +12,11 @@ namespace LanguageExt.ClassInstances
         Foldable<Validation<FAIL, SUCCESS>, SUCCESS>
     {
         public Validation<FAIL, SUCCESS> Append(Validation<FAIL, SUCCESS> x, Validation<FAIL, SUCCESS> y) =>
-            x.Match(
-                Succ: xs => y.Match(
-                    Succ: ys => x,
-                    Fail: yf => y),
-                Fail: xf => y.Match(
-                    Succ: ys => x,
-                    Fail: yf => Validation<FAIL, SUCCESS>.Fail(default(MSeq<FAIL>).Append(xf, yf))));
+            y.Match(
+                Succ: ys => x,
+                Fail: yf => x.Match(
+                    Succ: xs => y,
+                    Fail: xf => Validation<FAIL, SUCCESS>.Fail(default(MSeq<FAIL>).Append(xf, yf))));
 
         public S BiFold<S>(Validation<FAIL, SUCCESS> foldable, S state, Func<S, FAIL, S> fa, Func<S, SUCCESS, S> fb) =>
             foldable.Match(
