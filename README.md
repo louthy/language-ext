@@ -41,15 +41,6 @@ In the meanwhile, you can install incremental compiler instead.
 
 language-ext is an MIT-licensed open source project. Its ongoing development is made possible thanks to the support by these awesome [backers](/BACKERS.md). If you'd like to join them, check out the [language-ext Patreon campaign](https://www.patreon.com/louthy).  Or if you'd just like to help support the coffee fund, [that is very welcome too!](http://ko-fi.com/louthy).
 
-<p align="center">
-  <b>Special thanks to the generous sponsorship by:</b>
-  <br><br>
-  <a href="https://www.meddbase.com">
-    <img width="240px" src="/backers-images/meddbase.png">
-  </a>
-  <br><br>
-</p>
-
 ## Introduction
 One of the great features of C#6+ is that it allows us to treat static classes like namespaces.  This means that we can use static 
 methods without qualifying them first.  That instantly gives us access to single term method names that look exactly like functions 
