@@ -17,6 +17,6 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Option<B> Map(Option<A> ma, Func<A, B> f) =>
-            MOption<A>.Inst.Bind<MOption<B>, Option<B>, B>(ma, a => MOption<B>.Inst.Return(f(a)));
+            MOption<A>.Inst.Bind<MOption<B>, Option<B>, B>(ma, a => Some(f(a)));
     }
 }
