@@ -257,9 +257,10 @@ namespace LanguageExt.Tests
         /// </summary>
         public static Validation<Error, CreditCard> ValidateCreditCard(string cardHolder, string number, string expMonth, string expYear)
         {
+            var fakeDateTime = new DateTime(year: 2019, month: 1, day: 1);
             var cardHolderV = ValidateCardHolder(cardHolder);
             var numberV = DigitsOnly(number) | MaxStrLength(16)(number);
-            var validToday = ValidExpiration(DateTime.Now.Month, DateTime.Now.Year);
+            var validToday = ValidExpiration(fakeDateTime.Month, fakeDateTime.Year);
 
             // This falls back to monadic behaviour because validToday needs both
             // a month and year to continue.  
