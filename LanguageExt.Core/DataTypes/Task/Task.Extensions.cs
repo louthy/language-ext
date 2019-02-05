@@ -255,7 +255,7 @@ namespace LanguageExt
             if (source == null) throw new ArgumentNullException(nameof(source));
             await source;
             var prop = PropCache<A>.Info;
-            return prop == null
+            return prop != null
                 ? (A)prop.GetValue(source)
                 : default(A);
         }
