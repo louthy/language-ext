@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Xunit;
 using LanguageExt;
 using static LanguageExt.Prelude;
@@ -28,5 +29,23 @@ namespace LanguageExtTests
     
         public TryOption<string> GetLastPathObj(string text) =>
             () => text.Split('/').Last();
+
+        [Fact]
+        public void TryOptionBottomMatch()
+        {
+            var tryOptionBottom = TryOption<string>((Exception) null); // produce bottom value
+            Assert.True(tryOptionBottom.Try().IsBottom, "TryOption not in Bottom (test requirement)");
+            Assert.True(tryOptionBottom.Match(some => false, () => false, ex => ex != null), "TryOption.Match in Bottom does give null as Exception");
+            Assert.True(tryOptionBottom.Match(some => false, () => false, ex => ex is BottomException), "TryOption.Match in Bottom does not give BottomException");
+            Assert.Equal(nameof(BottomException), tryOptionBottom.IfNoneOrFail(() => "", ex => ex?.GetType().Name));
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task TryOptionBottomMatchAsync()
+        {
+            var tryOptionBottom = TryOption<string>((Exception) null); // produce bottom value
+            Assert.True(tryOptionBottom.Try().IsBottom, "TryOption not in Bottom (test requirement)");
+            Assert.True(await tryOptionBottom.AsTask().MatchAsync(some => false, () => false, ex => ex is BottomException), "TryOption.Match in Bottom does not give BottomException");
+        }
     }
 }

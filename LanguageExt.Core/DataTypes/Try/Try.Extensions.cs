@@ -113,6 +113,8 @@ public static class TryExtensions
     public static A IfFail<A>(this Try<A> self, Func<Exception, A> Fail)
     {
         var res = self.Try();
+        if (res.IsBottom)
+            return Fail(res.Exception ?? new BottomException());
         if (res.IsFaulted)
             return Fail(res.Exception);
         else
@@ -145,8 +147,8 @@ public static class TryExtensions
     public static R Match<A, R>(this Try<A> self, Func<A, R> Succ, Func<Exception, R> Fail)
     {
         var res = self.Try();
-        return res.IsFaulted
-            ? Fail(res.Exception)
+        return res.IsBottom ? Fail(res.Exception ?? new BottomException())
+            : res.IsFaulted ? Fail(res.Exception)
             : Succ(res.Value);
     }
 
@@ -176,8 +178,9 @@ public static class TryExtensions
     public static Unit Match<A>(this Try<A> self, Action<A> Succ, Action<Exception> Fail)
     {
         var res = self.Try();
-
-        if (res.IsFaulted)
+        if (res.IsBottom)
+            Fail(res.Exception ?? new BottomException());
+        else if (res.IsFaulted)
             Fail(res.Exception);
         else
             Succ(res.Value);

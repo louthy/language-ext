@@ -154,10 +154,12 @@ public static class TryOptionExtensions
         Func<Exception, A> Fail)
     {
         var res = TryOptionExtensions.Try(self);
-        if (res.Value.IsNone)
-            return None();
+        if (res.IsBottom)
+            return Fail(res.Exception ?? new BottomException());
         else if (res.IsFaulted)
             return Fail(res.Exception);
+        else if (res.Value.IsNone)
+            return None();
         else
             return res.Value.Value;
     }
@@ -171,6 +173,7 @@ public static class TryOptionExtensions
     public static ExceptionMatch<Option<A>> IfFail<A>(this TryOption<A> self)
     {
         var res = TryOptionExtensions.Try(self);
+        // BUG/TODO what about IsBottom (res.Exception might be null!)
         if (res.IsFaulted)
             return res.Exception.Match<Option<A>>();
         else
@@ -204,11 +207,10 @@ public static class TryOptionExtensions
     public static R Match<A, R>(this TryOption<A> self, Func<A, R> Some, Func<R> None, Func<Exception, R> Fail)
     {
         var res = TryOptionExtensions.Try(self);
-        return res.IsFaulted
-            ? Fail(res.Exception)
-            : res.Value.IsSome
-                ? Some(res.Value.Value)
-                : None();
+        return res.IsBottom ? Fail(res.Exception ?? new BottomException())
+            : res.IsFaulted ? Fail(res.Exception)
+            : res.Value.IsSome ? Some(res.Value.Value)
+            : None();
     }
 
     /// <summary>
@@ -720,10 +722,9 @@ public static class TryOptionExtensions
         await self.ContinueWith(trySelf =>
         {
             var res = trySelf.Result.Try();
-            return res.IsFaulted
-            ? Fail(res.Exception)
-            : res.Value.IsSome
-                ? Some(res.Value.Value)
+            return res.IsBottom ? Fail(res.Exception ?? new BottomException())
+                : res.IsFaulted ? Fail(res.Exception)
+                : res.Value.IsSome ? Some(res.Value.Value)
                 : None();
         });
 
@@ -740,7 +741,8 @@ public static class TryOptionExtensions
         await (from tt in self.ContinueWith(trySelf =>
         {
             var res = trySelf.Result.Try();
-            return res.IsFaulted
+            return /* res.IsBottom ? Fail(res.Exception ?? new BottomException()).AsTask()
+            : */ res.IsFaulted
                 ? Fail(res.Exception).AsTask()
                 : res.Value.IsSome
                     ? Some(res.Value.Value)
@@ -775,7 +777,8 @@ public static class TryOptionExtensions
         await (from tt in self.ContinueWith(trySelf =>
         {
             var res = trySelf.Result.Try();
-            return res.IsFaulted
+            return /* res.IsBottom ? Fail(res.Exception ?? new BottomException())
+            : */res.IsFaulted
                 ? Fail(res.Exception)
                 : res.Value.IsSome 
                     ? Some(res.Value.Value)
@@ -799,7 +802,8 @@ public static class TryOptionExtensions
         await (from tt in self.ContinueWith(trySelf =>
         {
             var res = trySelf.Result.Try();
-            return res.IsFaulted
+            return /* res.IsBottom ? Fail(res.Exception ?? new BottomException())
+            : */ res.IsFaulted
                 ? Fail(res.Exception)
                 : res.Value.IsSome
                     ? Some(res.Value.Value).AsTask()
