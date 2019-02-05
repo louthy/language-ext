@@ -14,20 +14,20 @@ namespace LanguageExt
         public static T head<T>(IQueryable<T> list) => list.First();
 
         public static Option<T> headOrNone<T>(IQueryable<T> list) =>
-            list.AsEnumerable().HeadOrNone();
+            list.Take(1).AsEnumerable().HeadOrNone();
 
         public static Either<L, R> headOrLeft<L, R>(IQueryable<R> list, L left) =>
-            list.AsEnumerable().HeadOrLeft(left);
+            list.Take(1).AsEnumerable().HeadOrLeft(left);
 
         public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IQueryable<Success> list, Fail fail) =>
-            list.AsEnumerable().HeadOrInvalid(fail);
+            list.Take(1).AsEnumerable().HeadOrInvalid(fail);
 
         public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IQueryable<Success> list, Seq<Fail> fail) =>
-            list.AsEnumerable().HeadOrInvalid(fail);
+            list.Take(1).AsEnumerable().HeadOrInvalid(fail);
 
         public static Validation<MonoidFail, Fail, Success> headOrInvalid<MonoidFail, Fail, Success>(IQueryable<Success> list, Fail fail)
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
-                list.AsEnumerable().HeadOrInvalid<MonoidFail, Fail, Success>(fail);
+                list.Take(1).AsEnumerable().HeadOrInvalid<MonoidFail, Fail, Success>(fail);
 
         public static IQueryable<T> tail<T>(IQueryable<T> list) =>
             Queryable.Skip(list, 1);
