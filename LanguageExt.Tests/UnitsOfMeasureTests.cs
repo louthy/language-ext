@@ -215,14 +215,14 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void CelciusToStringTest()
+        public void CelsiusToStringTest()
         {
             var x = 10 * degC;
             Assert.True(x.ToString() == "10 °C");
         }
 
         [Fact]
-        public void CelciusAddTest()
+        public void CelsiusAddTest()
         {
             var x = 10 * degC;
             var y = 20 * degC;
@@ -232,7 +232,7 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void CelciusSubTest()
+        public void CelsiusSubTest()
         {
             var x = 10 * degC;
             var y = 20 * degC;
@@ -242,7 +242,7 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void CelciusScalar1Test()
+        public void CelsiusScalar1Test()
         {
             var x = 10 * degC;
             var y = 20 * degC;
@@ -251,7 +251,7 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void CelciusScalar2Test()
+        public void CelsiusScalar2Test()
         {
             var x = 10 * degC;
             var y = 20 * degC;
@@ -350,7 +350,7 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void KelvinAddCelciusTest()
+        public void KelvinAddCelsiusTest()
         {
             var x = 10 * K;
             var y = 20 * degC;
