@@ -20,6 +20,8 @@ namespace LanguageExt
     /// Will not accept null values
     ///
     /// </summary>
+    /// <typeparam name="NEWTYPE">Implementing class</typeparam>
+    /// <typeparam name="A">Inner bound value type</typeparam>
     [Serializable]
     public abstract class NewType<NEWTYPE, A> : NewType<NEWTYPE, A, True<A>>
         where NEWTYPE : NewType<NEWTYPE, A>

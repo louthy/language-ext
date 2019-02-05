@@ -182,7 +182,7 @@ namespace LanguageExt
         public static int compare<NEWTYPE, ORD, T, PRED>(NEWTYPE x, NEWTYPE y)
             where ORD : struct, Ord<T>
             where PRED : struct, Pred<T>
-            where NEWTYPE : NewType<NEWTYPE, T, PRED> =>
+            where NEWTYPE : NewType<NEWTYPE, T, PRED, ORD> =>
             OrdNewType<NEWTYPE, ORD, T, PRED>.Inst.Compare(x, y);
 
         /// <summary>

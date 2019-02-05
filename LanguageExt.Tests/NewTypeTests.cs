@@ -26,6 +26,11 @@ namespace LanguageExtTests
         public Seconds(int value) : base(value) { }
     }
 
+    public class Email : NewType<Email, string, True<string>, OrdStringOrdinalIgnoreCase>
+    {
+        public Email(string value) : base(value) { }
+    }
+
     public class NewTypeTests
     {
         [Fact]
@@ -84,6 +89,57 @@ namespace LanguageExtTests
             // Assert.Throws<Exception>(() => h1 < m2);
             // Assert.Throws<Exception>(() => h1 >= m2);
             // Assert.Throws<Exception>(() => h1 <= m2);
+        }
+
+        #pragma warning disable CS1718
+        [Fact]
+        public void OrdTest2()
+        {
+            var a1 = new Email("a@b.com");
+            var a2 = new Email("A@b.com");
+            var b = new Email("b@b.com");
+
+            Assert.Equal(0, a1.CompareTo(a1));
+            Assert.Equal(0, a1.CompareTo(a2));
+            Assert.Equal(0, a2.CompareTo(a1));
+
+            Assert.True(a1.CompareTo(b) < 0);
+            Assert.True(b.CompareTo(a1) > 0);
+
+
+            Assert.True(a1 == a1);
+            Assert.True(a1 == a2);
+            Assert.True(a2 == a1);
+            Assert.False(a1 == b);
+
+            Assert.True(a1 <= a1);
+            Assert.True(a1 <= a2);
+            Assert.True(a2 <= a1);
+            Assert.True(a1 <= b);
+
+            Assert.True(a1 >= a1);
+            Assert.True(a1 >= a2);
+            Assert.True(a2 >= a1);
+            Assert.False(a1 >= b);
+
+            Assert.False(a1 < a1);
+            Assert.False(a1 < a2);
+            Assert.False(a2 < a1);
+            Assert.True(a1 < b);
+
+            Assert.False(a1 > a1);
+            Assert.False(a1 > a2);
+            Assert.False(a2 > a1);
+            Assert.False(a1 > b);
+        }
+
+        [Fact]
+        public void HashTest()
+        {
+            var a1 = new Email("a@b.com");
+            var a2 = new Email("A@b.com");
+
+            Assert.True(a1.GetHashCode() == a2.GetHashCode());
         }
 
         [Fact]
