@@ -101,6 +101,77 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        public async Task NoneTest()
+        {
+            var x = OptionAsync<int>.None;
+            Assert.True(await x.IsNone);
+        }
+
+        [Fact]
+        public async Task MapTest()
+        {
+            var x = OptionAsync<int>.Some(1);
+            Assert.True(await x.Select(i => i * 2).Exists(j => j == 2));
+            Assert.True(await x.Map(i => i * 2).Exists(j => j == 2));
+
+            var y = OptionAsync<int>.None;
+            Assert.False(await y.Select(i => 2).Exists(j => j == 2));
+            Assert.False(await y.Map(i => 2).Exists(j => j == 2));
+        }
+
+        [Fact]
+        public async Task BindTest()
+        {
+            var x = OptionAsync<int>.Some(1);
+            Assert.True(await x.SelectMany(i => SomeAsync(i * 2), (i, j) => j).Exists(j => j == 2));
+            Assert.True(await x.Bind(i => SomeAsync(i * 2)).Exists(j => j == 2));
+
+            var y = OptionAsync<int>.None;
+            Assert.False(await y.SelectMany(i => SomeAsync(2), (i, j) => j).Exists(j => true));
+            Assert.False(await y.Bind(i => SomeAsync(2)).Exists(j => true));
+        }
+
+        [Fact]
+        public async Task BiExistsTest()
+        {
+            Assert.True(await OptionAsync<int>.Some(1).BiExists(i => i == 1, () => false));
+            Assert.False(await OptionAsync<int>.Some(1).BiExists(i => i != 1, () => true));
+            Assert.False(await OptionAsync<int>.None.BiExists(i => i == 1, () => false));
+            Assert.True(await OptionAsync<int>.None.BiExists(i => i != 1, () => true));
+        }
+
+        [Fact]
+        public async Task ExistsAsyncTest()
+        {
+            Assert.True(await OptionAsync<int>.Some(1).ExistsAsync(i => Task.FromResult(i == 1)));
+            Assert.False(await OptionAsync<int>.None.ExistsAsync(i => Task.FromResult(true)));
+        }
+
+        [Fact]
+        public async Task FilterTest()
+        {
+            Assert.True(await OptionAsync<int>.Some(1).Filter(i => i == 1).IsSome);
+            Assert.True(await OptionAsync<int>.Some(1).FilterAsync(i => Task.FromResult(i == 1)).IsSome);
+            Assert.False(await OptionAsync<int>.Some(2).Filter(i => i == 1).IsSome);
+            Assert.False(await OptionAsync<int>.Some(2).FilterAsync(i => Task.FromResult(i == 1)).IsSome);
+            Assert.False(await OptionAsync<int>.None.Filter(i => true).IsSome);
+            Assert.False(await OptionAsync<int>.None.FilterAsync(i => Task.FromResult(true)).IsSome);
+
+            Assert.True(await OptionAsync<int>.Some(1).Where(i => i == 1).IsSome);
+            Assert.False(await OptionAsync<int>.Some(2).Where(i => i == 1).IsSome);
+            Assert.False(await OptionAsync<int>.None.Where(i => true).IsSome);
+        }
+
+        [Fact]
+        public async Task ParMapTest()
+        {
+            var multiply = fun<int, int, int>((x, y) => x * y);
+            var oDoubler = SomeAsync(2).ParMap(multiply);
+            var oFour = oDoubler.Map(doubler => doubler(2));
+            Assert.True(await oFour.Exists(i => i == 4));
+        }
+
+        [Fact]
         public async Task MOptionAsync_BiFold_IsSome_DelegateSomeExecuted()
         {
             var subject = MOptionAsync<Unit>.Inst;
