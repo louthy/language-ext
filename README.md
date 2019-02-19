@@ -917,23 +917,23 @@ This gives you `Equals`, `IEquatable.Equals`, `IComparer.CompareTo`, `GetHashCod
 
 Note that only _fields_ or _field backed properties_ are used in the structural comparisons and hash-code building.  There are also `Attribute`s for opting fields out of the equality testing, ordering comparisons, hash-code generation, stringification (`ToString`),  and serialisation:
 
-* `Equals()` - `OptOutOfEq`
-* `CompareTo()` - `OptOutOfOrd`
-* `GetHashCode()` - `OptOutOfHashCode`
-* `ToString()` - `OptOutOfToString`
-* Serialization - `OptOutOfSerialization` (can also use `NonSerializable`)
+* `Equals()` - `NonEq`
+* `CompareTo()` - `NonOrd`
+* `GetHashCode()` - `NonHash`
+* `ToString()` - `NonShow`
+* Serialization - `NonSerializable`)
 
 For example, here's a record type that opts out of various default behaviours:
 ```c#
     public class TestClass2 : Record<TestClass2>
     {
-        [OptOutOfEq]
+        [NonEq]
         public readonly int X;
 
-        [OptOutOfHashCode]
+        [NonHash]
         public readonly string Y;
 
-        [OptOutOfToString]
+        [NonShow]
         public readonly Guid Z;
 
         public TestClass2(int x, string y, Guid z)
