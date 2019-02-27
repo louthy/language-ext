@@ -1338,6 +1338,7 @@ namespace LanguageExt
                 iterA.MoveNext();
                 iterB.MoveNext();
                 if (!default(OrdK).Equals(iterA.Current.Key, iterB.Current.Key)) return false;
+                if (!iterA.Current.Value.Equals(iterB.Current.Value)) return false;
             }
             return true;
         }
