@@ -271,7 +271,7 @@ namespace LanguageExt
                 : y;
 
         /// <summary>
-        /// Find the minimum value between any two values
+        /// Find the maximum value between any two values
         /// </summary>
         /// <param name="x">First value</param>
         /// <param name="y">Second value</param>
@@ -294,7 +294,7 @@ namespace LanguageExt
             fold<MArray<A>, A[], A, A>(tail, min<OrdA, A>(x, min<OrdA, A>(y, z)), min<OrdA, A>);
 
         /// <summary>
-        /// Find the minimum value between a set of values
+        /// Find the maximum value between a set of values
         /// </summary>
         /// <param name="x">First value</param>
         /// <param name="y">Second value</param>
