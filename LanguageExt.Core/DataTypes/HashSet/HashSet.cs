@@ -46,6 +46,30 @@ namespace LanguageExt
             value = new HashSetInternal<OrdDefault<A>, A>(items, tryAdd);
 
         /// <summary>
+        /// Item at index lens
+        /// </summary>
+        [Pure]
+        public static Lens<HashSet<A>, bool> item(A key) => Lens<HashSet<A>, bool>.New(
+            Get: la => la.Contains(key),
+            Set: a => la => a ? la.AddOrUpdate(key) : la.Remove(key)
+            );
+
+        /// <summary>
+        /// Lens map
+        /// </summary>
+        [Pure]
+        public static Lens<HashSet<A>, HashSet<A>> map<B>(Lens<A, A> lens) => Lens<HashSet<A>, HashSet<A>>.New(
+            Get: la => la.Map(lens.Get),
+            Set: lb => la =>
+            {
+                foreach (var item in lb)
+                {
+                    la = la.Find(item).Match(Some: x => la.AddOrUpdate(lens.Set(x, item)), None: () => la);
+                }
+                return la;
+            });
+
+        /// <summary>
         /// 'this' accessor
         /// </summary>
         /// <param name="key">Key</param>

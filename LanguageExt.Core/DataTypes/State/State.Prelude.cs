@@ -39,6 +39,13 @@ namespace LanguageExt
             default(MState<S, S>).Get();
 
         /// <summary>
+        /// Applies a lens in the 'get' direction within a state monad   
+        /// </summary>
+        [Pure]
+        public static State<A, B> get<A, B>(Lens<A, B> la) =>
+            get<A>().Map(la.Get);
+
+        /// <summary>
         /// Set the state 
         /// </summary>
         /// <typeparam name="S">State type</typeparam>
@@ -46,6 +53,15 @@ namespace LanguageExt
         [Pure]
         public static State<S, Unit> put<S>(S state) =>
             default(MState<S, Unit>).Put(state);
+
+        /// <summary>
+        /// Applies a lens in the 'set' direction within a state monad
+        /// </summary>
+        [Pure]
+        public static State<A, Unit> put<A, B>(Lens<A, B> la, B value) =>
+            from a in get<A>()
+            from _ in put(la.Set(value, a))
+            select unit;
 
         /// <summary>
         /// modify::MonadState s m => (s -> s) -> m()
@@ -57,6 +73,16 @@ namespace LanguageExt
         [Pure]
         public static State<S, Unit> modify<S>(Func<S, S> f) =>
             s => (unit, f(s), false);
+
+        /// <summary>
+        /// Update through a lens within a state monad
+        /// </summary>
+        [Pure]
+        public static State<A, Unit> modify<A, B>(Lens<A, B> la, Func<B, B> f) =>
+            from b in get(la)
+            from _ in put(la, f(b))
+            select unit;
+
 
         /// <summary>
         /// gets :: MonadState s m => (s -> a) -> m a

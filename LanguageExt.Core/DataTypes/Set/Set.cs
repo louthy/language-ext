@@ -62,6 +62,30 @@ namespace LanguageExt
                     ? SetModuleM.AddOpt.TryAdd
                     : SetModuleM.AddOpt.ThrowOnDuplicate);
 
+        /// <summary>
+        /// Item at index lens
+        /// </summary>
+        [Pure]
+        public static Lens<Set<A>, bool> item(A key) => Lens<Set<A>, bool>.New(
+            Get: la => la.Contains(key),
+            Set: a => la => a ? la.AddOrUpdate(key) : la.Remove(key)
+            );
+
+        /// <summary>
+        /// Lens map
+        /// </summary>
+        [Pure]
+        public static Lens<Set<A>, Set<A>> map<B>(Lens<A, A> lens) => Lens<Set<A>, Set<A>>.New(
+            Get: la => la.Map(lens.Get),
+            Set: lb => la =>
+            {
+                foreach (var item in lb)
+                {
+                    la = la.Find(item).Match(Some: x => la.AddOrUpdate(lens.Set(x, item)), None: () => la);
+                }
+                return la;
+            });
+
         static Set<A> Wrap(SetInternal<OrdDefault<A>, A> set) =>
             new Set<A>(set);
 

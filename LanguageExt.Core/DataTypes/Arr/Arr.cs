@@ -55,6 +55,65 @@ namespace LanguageExt
             new Arr<A>(xs);
 
         /// <summary>
+        /// Head lens
+        /// </summary>
+        public static Lens<Arr<A>, A> head = Lens<Arr<A>, A>.New(
+            Get: la => la.Count == 0 ? throw new IndexOutOfRangeException() : la[0],
+            Set: a => la => la.Count == 0 ? throw new IndexOutOfRangeException() : la.SetItem(0, a)
+            );
+
+        /// <summary>
+        /// Head or none lens
+        /// </summary>
+        public static Lens<Arr<A>, Option<A>> headOrNone = Lens<Arr<A>, Option<A>>.New(
+            Get: la => la.Count == 0 ? None : Some(la[0]),
+            Set: a => la => la.Count == 0 || a.IsNone ? la : la.SetItem(0, a.Value)
+            );
+
+        /// <summary>
+        /// Tail lens
+        /// </summary>
+        public static Lens<Arr<A>, A> tail = Lens<Arr<A>, A>.New(
+            Get: la => la.Count == 0 ? throw new IndexOutOfRangeException() : la[la.Count - 1],
+            Set: a => la => la.Count == 0 ? throw new IndexOutOfRangeException() : la.SetItem(la.Count - 1, a)
+            );
+
+        /// <summary>
+        /// Tail or none lens
+        /// </summary>
+        public static Lens<Arr<A>, Option<A>> tailOrNone = Lens<Arr<A>, Option<A>>.New(
+            Get: la => la.Count == 0 ? None : Some(la[la.Count - 1]),
+            Set: a => la => la.Count == 0 || a.IsNone ? la : la.SetItem(la.Count - 1, a.Value)
+            );
+
+        /// <summary>
+        /// Item at index lens
+        /// </summary>
+        [Pure]
+        public static Lens<Arr<A>, A> item(int index) => Lens<Arr<A>, A>.New(
+            Get: la => la.Count == 0 ? throw new IndexOutOfRangeException() : la[index],
+            Set: a => la => la.Count == 0 ? throw new IndexOutOfRangeException() : la.SetItem(index, a)
+            );
+
+        /// <summary>
+        /// Item or none at index lens
+        /// </summary>
+        [Pure]
+        public static Lens<Arr<A>, Option<A>> itemOrNone(int index) => Lens<Arr<A>, Option<A>>.New(
+            Get: la => la.Count < index - 1 ? None : Some(la[index]),
+            Set: a => la => la.Count < index - 1 || a.IsSome ? la : la.SetItem(index, a.Value)
+            );
+
+        /// <summary>
+        /// Lens map
+        /// </summary>
+        [Pure]
+        public static Lens<Arr<A>, Arr<B>> map<B>(Lens<A, B> lens) => Lens<Arr<A>, Arr<B>>.New(
+            Get: la => la.Map(lens.Get),
+            Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Item2, ab.Item1)).ToArr()
+            );
+
+        /// <summary>
         /// Index accessor
         /// </summary>
         [Pure]

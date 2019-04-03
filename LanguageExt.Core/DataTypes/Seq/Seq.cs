@@ -92,6 +92,47 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Head lens
+        /// </summary>
+        public static Lens<Seq<A>, A> head = Lens<Seq<A>, A>.New(
+            Get: la => la.IsEmpty ? throw new IndexOutOfRangeException() : la[0],
+            Set: a => la => la.IsEmpty ? throw new IndexOutOfRangeException() : a.Cons(la.Tail)
+            );
+
+        /// <summary>
+        /// Head or none lens
+        /// </summary>
+        public static Lens<Seq<A>, Option<A>> headOrNone = Lens<Seq<A>, Option<A>>.New(
+            Get: la => la.HeadOrNone(),
+            Set: a => la => la.IsEmpty || a.IsNone ? la : a.Value.Cons(la.Tail)
+            );
+
+        /// <summary>
+        /// Tail lens
+        /// </summary>
+        public static Lens<Seq<A>, A> tail = Lens<Seq<A>, A>.New(
+            Get: la => la.IsEmpty ? throw new IndexOutOfRangeException() : la.Last,
+            Set: a => la => la.IsEmpty ? throw new IndexOutOfRangeException() : la.Take(la.Count - 1).Add(a)
+            );
+
+        /// <summary>
+        /// Tail or none lens
+        /// </summary>
+        public static Lens<Seq<A>, Option<A>> tailOrNone = Lens<Seq<A>, Option<A>>.New(
+            Get: la => la.IsEmpty ? None : Some(la.Last),
+            Set: a => la => la.IsEmpty || a.IsNone ? la : la.Take(la.Count - 1).Add(a.Value)
+            );
+
+        /// <summary>
+        /// Lens map
+        /// </summary>
+        [Pure]
+        public static Lens<Seq<A>, Seq<B>> map<B>(Lens<A, B> lens) => Lens<Seq<A>, Seq<B>>.New(
+            Get: la => la.Map(lens.Get),
+            Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Item2, ab.Item1))
+            );
+
+        /// <summary>
         /// Indexer
         /// </summary>
         public A this[int index]

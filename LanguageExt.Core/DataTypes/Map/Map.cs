@@ -51,6 +51,39 @@ namespace LanguageExt
             value ?? MapInternal<OrdDefault<K>, K, V>.Empty;
 
         /// <summary>
+        /// Item at index lens
+        /// </summary>
+        [Pure]
+        public static Lens<Map<K, V>, V> item(K key) => Lens<Map<K, V>, V>.New(
+            Get: la => la[key],
+            Set: a  => la => la.AddOrUpdate(key, a)
+            );
+
+        /// <summary>
+        /// Item or none at index lens
+        /// </summary>
+        [Pure]
+        public static Lens<Map<K, V>, Option<V>> itemOrNone(K key) => Lens<Map<K, V>, Option<V>>.New(
+            Get: la => la[key],
+            Set: a => la => a.Match(Some: x => la.AddOrUpdate(key, x), None: () => la.Remove(key))
+            );
+
+        /// <summary>
+        /// Lens map
+        /// </summary>
+        [Pure]
+        public static Lens<Map<K, V>, Map<K, B>> map<B>(Lens<V, B> lens) => Lens<Map<K, V>, Map<K, B>>.New(
+            Get: la => la.Map(lens.Get),
+            Set: lb => la =>
+            {
+                foreach (var item in lb)
+                {
+                    la = la.AddOrUpdate(item.Key, lens.Set(item.Value, la[item.Key]));
+                }
+                return la;
+            });
+
+        /// <summary>
         /// 'this' accessor
         /// </summary>
         /// <param name="key">Key</param>

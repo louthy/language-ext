@@ -54,6 +54,39 @@ namespace LanguageExt
             this.value = map.value;
         }
 
+        /// <summary>
+        /// Item at index lens
+        /// </summary>
+        [Pure]
+        public static Lens<HashMap<K, V>, V> item(K key) => Lens<HashMap<K, V>, V>.New(
+            Get: la => la[key],
+            Set: a => la => la.AddOrUpdate(key, a)
+            );
+
+        /// <summary>
+        /// Item or none at index lens
+        /// </summary>
+        [Pure]
+        public static Lens<HashMap<K, V>, Option<V>> itemOrNone(K key) => Lens<HashMap<K, V>, Option<V>>.New(
+            Get: la => la[key],
+            Set: a => la => a.Match(Some: x => la.AddOrUpdate(key, x), None: () => la.Remove(key))
+            );
+
+        /// <summary>
+        /// Lens map
+        /// </summary>
+        [Pure]
+        public static Lens<HashMap<K, V>, HashMap<K, B>> map<B>(Lens<V, B> lens) => Lens<HashMap<K, V>, HashMap<K, B>>.New(
+            Get: la => la.Map(lens.Get),
+            Set: lb => la =>
+            {
+                foreach (var item in lb)
+                {
+                    la = la.AddOrUpdate(item.Key, lens.Set(item.Value, la[item.Key]));
+                }
+                return la;
+            });
+
         static HashMap<K, V> Wrap(HashMapInternal<EqDefault<K>, K, V> value) =>
             new HashMap<K, V>(value);
 
