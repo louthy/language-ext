@@ -110,15 +110,23 @@ namespace LanguageExt
         /// <summary>
         /// Tail lens
         /// </summary>
-        public static Lens<Seq<A>, A> tail = Lens<Seq<A>, A>.New(
+        public static Lens<Seq<A>, Seq<A>> tail = Lens<Seq<A>, Seq<A>>.New(
+            Get: la => la.IsEmpty ? Seq<A>.Empty : la.Tail,
+            Set: a => la => la.IsEmpty ? a : la.Head.Cons(a)
+            );
+
+        /// <summary>
+        /// Last lens
+        /// </summary>
+        public static Lens<Seq<A>, A> last = Lens<Seq<A>, A>.New(
             Get: la => la.IsEmpty ? throw new IndexOutOfRangeException() : la.Last,
             Set: a => la => la.IsEmpty ? throw new IndexOutOfRangeException() : la.Take(la.Count - 1).Add(a)
             );
 
         /// <summary>
-        /// Tail or none lens
+        /// Last or none lens
         /// </summary>
-        public static Lens<Seq<A>, Option<A>> tailOrNone = Lens<Seq<A>, Option<A>>.New(
+        public static Lens<Seq<A>, Option<A>> lastOrNone = Lens<Seq<A>, Option<A>>.New(
             Get: la => la.IsEmpty ? None : Some(la.Last),
             Set: a => la => la.IsEmpty || a.IsNone ? la : la.Take(la.Count - 1).Add(a.Value)
             );

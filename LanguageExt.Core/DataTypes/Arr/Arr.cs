@@ -71,17 +71,17 @@ namespace LanguageExt
             );
 
         /// <summary>
-        /// Tail lens
+        /// Last lens
         /// </summary>
-        public static Lens<Arr<A>, A> tail = Lens<Arr<A>, A>.New(
+        public static Lens<Arr<A>, A> last = Lens<Arr<A>, A>.New(
             Get: la => la.Count == 0 ? throw new IndexOutOfRangeException() : la[la.Count - 1],
             Set: a => la => la.Count == 0 ? throw new IndexOutOfRangeException() : la.SetItem(la.Count - 1, a)
             );
 
         /// <summary>
-        /// Tail or none lens
+        /// Last or none lens
         /// </summary>
-        public static Lens<Arr<A>, Option<A>> tailOrNone = Lens<Arr<A>, Option<A>>.New(
+        public static Lens<Arr<A>, Option<A>> lastOrNone = Lens<Arr<A>, Option<A>>.New(
             Get: la => la.Count == 0 ? None : Some(la[la.Count - 1]),
             Set: a => la => la.Count == 0 || a.IsNone ? la : la.SetItem(la.Count - 1, a.Value)
             );
