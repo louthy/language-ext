@@ -6,7 +6,7 @@ using LanguageExt;
 namespace TestBed
 {
     [With]
-    public class TestWith : Record<TestWith>
+    public partial class TestWith : Record<TestWith>
     {
         public string Name;
         public string Surname;

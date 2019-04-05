@@ -13,8 +13,6 @@ namespace LanguageExt.CodeGen
 {
     public class RecordWithGenerator : ICodeGenerator
     {
-        private readonly string suffix;
-
         public RecordWithGenerator(AttributeData attributeData)
         {
             //Requires.NotNull(attributeData, nameof(attributeData));
@@ -46,11 +44,11 @@ namespace LanguageExt.CodeGen
             var applyToClass = (ClassDeclarationSyntax)context.ProcessingNode;
 
             // Apply a suffix to the name of a copy of the class.
-            var extensionClass = SyntaxFactory.ClassDeclaration($"{applyToClass.Identifier}__Extensions")
+            var extensionClass = SyntaxFactory.ClassDeclaration($"{applyToClass.Identifier}")
                                               .WithModifiers(
                                                    SyntaxFactory.TokenList(
                                                        SyntaxFactory.Token(SyntaxKind.PublicKeyword), 
-                                                       SyntaxFactory.Token(SyntaxKind.StaticKeyword)));
+                                                       SyntaxFactory.Token(SyntaxKind.PartialKeyword)));
 
             var returnType = TypeFromClass(applyToClass);
 
@@ -60,8 +58,6 @@ namespace LanguageExt.CodeGen
                                              .Where(m => m.Modifiers.Any(SyntaxKind.ReadOnlyKeyword))
                                              .Where(m => !m.Modifiers.Any(SyntaxKind.StaticKeyword))
                                              .ToList();
-
-            LogLine("withParams");
 
             var withParms = fields.Where(f => f.Declaration.Variables.Count > 0)
                                   .Select(f => (Id: f.Declaration.Variables[0].Identifier, Type: SyntaxFactory.GenericName(
@@ -75,19 +71,20 @@ namespace LanguageExt.CodeGen
                                                     .WithDefault(SyntaxFactory.EqualsValueClause(SyntaxFactory.DefaultExpression(f.Type))))
                                   .ToArray();
 
-            var withThisArg = SyntaxFactory.Parameter(SyntaxFactory.Identifier("self"))
-                                           .WithType(returnType)
-                                           .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ThisKeyword)));
+            //var withThisArg = SyntaxFactory.Parameter(SyntaxFactory.Identifier("self"))
+            //                               .WithType(returnType)
+            //                               .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ThisKeyword)));
 
-            var lst = (new[] { withThisArg }).ToList();
-            lst.AddRange(withParms);
-            var arr = lst.ToArray();
+            //var lst = (new[] { withThisArg }).ToList();
+            //lst.AddRange(withParms);
+            //var arr = lst.ToArray();
 
-            var withArgs = SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(arr));
+            //var withArgs = SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(arr));
 
             var withMethod = SyntaxFactory.MethodDeclaration(returnType, "With")
-                                          .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.StaticKeyword)))
-                                          .WithParameterList(withArgs)
+                                          .WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList<ParameterSyntax>(withParms)))
+                                          .WithModifiers(SyntaxFactory.TokenList(
+                                              SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
                                           .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
                                           .WithExpressionBody(
                                               SyntaxFactory.ArrowExpressionClause(
@@ -101,15 +98,15 @@ namespace LanguageExt.CodeGen
                                                                         SyntaxFactory.MemberAccessExpression(
                                                                             SyntaxKind.SimpleMemberAccessExpression,
                                                                             SyntaxFactory.IdentifierName(wa.Identifier),
-                                                                            SyntaxFactory.IdentifierName("IfNone")))
+                                                                            SyntaxFactory.IdentifierName("IfNoneUnsafe")))
                                                                             .WithArgumentList(
                                                                                 SyntaxFactory.ArgumentList(
                                                                                     SyntaxFactory.SingletonSeparatedList<ArgumentSyntax>(
                                                                                         SyntaxFactory.Argument(
                                                                                             SyntaxFactory.MemberAccessExpression(
                                                                                                 SyntaxKind.SimpleMemberAccessExpression,
-                                                                                                SyntaxFactory.IdentifierName("self"),
-                                                                                                SyntaxFactory.IdentifierName(wa.Identifier)))))))))),
+                                                                                                SyntaxFactory.ThisExpression(),
+                                                                                                 SyntaxFactory.IdentifierName(wa.Identifier)))))))))),
                                                   null)));
 
             //var ctorArgs = SyntaxFactory.ParameterList(
