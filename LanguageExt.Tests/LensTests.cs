@@ -38,7 +38,8 @@ namespace LanguageExt.Tests
         }
     }
 
-    public class Person : Record<Person>
+    [WithLens]
+    public partial class Person : Record<Person>
     {
         public readonly string Name;
         public readonly string Surname;
@@ -50,24 +51,10 @@ namespace LanguageExt.Tests
             Surname = surname;
             Appts = appts;
         }
-
-        public Person With(string Name = null, string Surname = null, Map<int, Appt>? Appts = null) =>
-            new Person(Name ?? this.Name, Surname ?? this.Surname, Appts ?? this.Appts);
-
-        public static readonly Lens<Person, string> name = Lens<Person, string>.New(
-            Get: a => a.Name,
-            Set: a => s => s.With(Name: a));
-
-        public static readonly Lens<Person, string> surname = Lens<Person, string>.New(
-            Get: a => a.Surname,
-            Set: a => s => s.With(Surname: a));
-
-        public static readonly Lens<Person, Map<int, Appt>> appts = Lens<Person, Map<int, Appt>>.New(
-            Get: a => a.Appts,
-            Set: a => s => s.With(Appts: a));
     }
 
-    public class Appt : Record<Appt>
+    [WithLens]
+    public partial class Appt : Record<Appt>
     {
         public readonly int Id;
         public readonly DateTime StartDate;
@@ -79,21 +66,6 @@ namespace LanguageExt.Tests
             StartDate = startDate;
             State = state;
         }
-
-        public Appt With(int? Id = null, DateTime? StartDate = null, ApptState? State = null) =>
-            new Appt(Id ?? this.Id, StartDate ?? this.StartDate, State ?? this.State);
-
-        public static readonly Lens<Appt, ApptState> state = Lens<Appt, ApptState>.New(
-            Get: a => a.State,
-            Set: a => s => s.With(State: a));
-
-        public static readonly Lens<Appt, DateTime> startDate = Lens<Appt, DateTime>.New(
-            Get: a => a.StartDate,
-            Set: a => s => s.With(StartDate: a));
-
-        public static readonly Lens<Appt, int> id = Lens<Appt, int>.New(
-            Get: a => a.Id,
-            Set: a => s => s.With(Id: a));
     }
 
     public enum ApptState
@@ -104,7 +76,8 @@ namespace LanguageExt.Tests
         Cancelled
     }
 
-    public class Car : Record<Car>
+    [WithLens]
+    public partial class Car : Record<Car>
     {
         public readonly string Make;
         public readonly string Model;
@@ -116,17 +89,10 @@ namespace LanguageExt.Tests
             Model = model;
             Mileage = mileage;
         }
-
-        public Car With(string Make = null, string Model = null, int? Mileage = null) =>
-            new Car(Make ?? this.Make, Model ?? this.Model, Mileage ?? this.Mileage);
-
-        public static readonly Lens<Car, int> mileage =
-            Lens<Car, int>.New(
-                Get: car => car.Mileage,
-                Set: v => car => car.With(Mileage: v));
     }
 
-    public class Editor : Record<Editor>
+    [WithLens]
+    public partial class Editor : Record<Editor>
     {
         public readonly string Name;
         public readonly int Salary;
@@ -138,22 +104,10 @@ namespace LanguageExt.Tests
             Salary = salary;
             Car = car;
         }
-
-        public Editor With(string Name = null, int? Salary = null, Car Car = null) =>
-            new Editor(Name ?? this.Name, Salary ?? this.Salary, Car ?? this.Car);
-
-        public static readonly Lens<Editor, Car> car =
-            Lens<Editor, Car>.New(
-                Get: editor => editor.Car,
-                Set: v => editor => editor.With(Car: v));
-
-        public static readonly Lens<Editor, int> salary =
-            Lens<Editor, int>.New(
-                Get: editor => editor.Salary,
-                Set: v => editor => editor.With(Salary: v));
     }
 
-    public class Book : Record<Book>
+    [WithLens]
+    public partial class Book : Record<Book>
     {
         public readonly string Name;
         public readonly string Author;
@@ -165,14 +119,6 @@ namespace LanguageExt.Tests
             Author = author;
             Editor = editor;
         }
-
-        public Book With(string Name = null, string Author = null, Editor Editor = null) =>
-            new Book(Name ?? this.Name, Author ?? this.Author, Editor ?? this.Editor);
-
-        public static readonly Lens<Book, Editor> editor =
-            Lens<Book, Editor>.New(
-                Get: book => book.Editor,
-                Set: v => book => book.With(Editor: v));
     }
 }
 
