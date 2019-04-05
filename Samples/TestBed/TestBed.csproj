@@ -19,18 +19,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" />
         <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
         <ProjectReference Include="..\..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
         <ProjectReference Include="..\..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="LanguageExt.CodeGen">
-        <HintPath>..\..\LanguageExt.CodeGen\bin\Debug\netstandard2.0\LanguageExt.CodeGen.dll</HintPath>
-      </Reference>
-      <Reference Include="LanguageExt.CodeGen.Attributes">
-        <HintPath>..\..\LanguageExt.CodeGen.Attributes\bin\Debug\netstandard2.0\LanguageExt.CodeGen.Attributes.dll</HintPath>
-      </Reference>
     </ItemGroup>
 
 </Project>

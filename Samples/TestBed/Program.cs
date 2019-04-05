@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using TestBed;
 
 public static class Global
 {
@@ -30,24 +31,14 @@ public interface IRepository
     Task<Option<Gender>> GetGenderByIdAsync(Guid id);
 }
 
-[With]
-public class TestWith : Record<TestWith>
-{
-    public string Name;
-    public string Surname;
-
-    public TestWith(string name, string surname)
-    {
-        Name = name;
-        Surname = surname;
-    }
-}
-
 class Program
 {
     static void Main(string[] args)
     {
         var xyz = new TestWith("Paul", "Louth");
+        //var xxx = new TestWithA(
+
+        //var yxsdd = new TestWithA(
 
         //TestWith__Extensions.
 
@@ -55,7 +46,7 @@ class Program
 
         //xyz.With()
 
-        //xyz.With(
+        //xyz.With();
 
 
         var asq = typeof(LanguageExt.CodeGen.RecordWithAndLensGenerator).AssemblyQualifiedName;

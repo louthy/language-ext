@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
 using CodeGeneration.Roslyn;
+using LanguageExt.CodeGen;
 
 namespace LanguageExt
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    [CodeGenerationAttribute("LanguageExt.CodeGen.RecordWithGenerator, LanguageExt.CodeGen, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null")]
+    [CodeGenerationAttribute(typeof(RecordWithGenerator))]
     [Conditional("CodeGeneration")]
     public class WithAttribute : Attribute
     {
-        public WithAttribute()
-        {
-        }
     }
 
     //[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]

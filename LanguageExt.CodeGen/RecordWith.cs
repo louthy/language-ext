@@ -21,10 +21,25 @@ namespace LanguageExt.CodeGen
             //this.suffix = (string)attributeData.ConstructorArguments[0].Value;
         }
 
+        public A Log<A>(A value)
+        {
+            Console.WriteLine(value);
+            return value;
+        }
+
+        public A Log<A>(A value, string msg)
+        {
+            Console.WriteLine($"{msg} : {value}");
+            return value;
+        }
+
+        public void LogLine(string msg)
+        {
+            Console.WriteLine(msg);
+        }
+
         public Task<SyntaxList<MemberDeclarationSyntax>> GenerateAsync(TransformationContext context, IProgress<Diagnostic> progress, CancellationToken cancellationToken)
         {
-            File.WriteAllText("c:\\codegen.txt", "running");
-
             var results = SyntaxFactory.List<MemberDeclarationSyntax>();
 
             // Our generator is applied to any class that our attribute is applied to.
@@ -42,16 +57,26 @@ namespace LanguageExt.CodeGen
             var fields = applyToClass.Members.Where(m => m is FieldDeclarationSyntax)
                                              .Select(m => m as FieldDeclarationSyntax)
                                              .Where(m => m.Modifiers.Any(SyntaxKind.PublicKeyword))
+                                             .Where(m => m.Modifiers.Any(SyntaxKind.ReadOnlyKeyword))
                                              .Where(m => !m.Modifiers.Any(SyntaxKind.StaticKeyword))
                                              .ToList();
 
-            var withParms = fields.Select(f =>
-                                       SyntaxFactory.Parameter(MakeFirstCharUpper(f.Declaration.Variables.First().Identifier))
-                                                    .WithType(SyntaxFactory.ParseTypeName($"LanguageExt.Option<{f.Declaration.Type}>"))
-                                                    .WithDefault(SyntaxFactory.EqualsValueClause(SyntaxFactory.LiteralExpression(SyntaxKind.DefaultKeyword)))
-                                          ).ToArray();
+            LogLine("withParams");
+
+            var withParms = fields.Where(f => f.Declaration.Variables.Count > 0)
+                                  .Select(f => (Id: f.Declaration.Variables[0].Identifier, Type: SyntaxFactory.GenericName(
+                                                                SyntaxFactory.Identifier("Option"))
+                                                                .WithTypeArgumentList(
+                                                                    SyntaxFactory.TypeArgumentList(
+                                                                        SyntaxFactory.SingletonSeparatedList<TypeSyntax>(f.Declaration.Type)))))
+                                  .Select(f =>
+                                       SyntaxFactory.Parameter(MakeFirstCharUpper(f.Id))
+                                                    .WithType(f.Type)
+                                                    .WithDefault(SyntaxFactory.EqualsValueClause(SyntaxFactory.DefaultExpression(f.Type))))
+                                  .ToArray();
 
             var withThisArg = SyntaxFactory.Parameter(SyntaxFactory.Identifier("self"))
+                                           .WithType(returnType)
                                            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ThisKeyword)));
 
             var lst = (new[] { withThisArg }).ToList();
@@ -63,6 +88,7 @@ namespace LanguageExt.CodeGen
             var withMethod = SyntaxFactory.MethodDeclaration(returnType, "With")
                                           .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.StaticKeyword)))
                                           .WithParameterList(withArgs)
+                                          .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
                                           .WithExpressionBody(
                                               SyntaxFactory.ArrowExpressionClause(
                                                   SyntaxFactory.ObjectCreationExpression(
@@ -71,15 +97,20 @@ namespace LanguageExt.CodeGen
                                                           SyntaxFactory.SeparatedList<ArgumentSyntax>(
                                                               withParms.Select(wa =>
                                                                 SyntaxFactory.Argument(
-                                                                    SyntaxFactory.BinaryExpression(
-                                                                        SyntaxKind.LogicalOrExpression,
-                                                                        SyntaxFactory.IdentifierName(wa.Identifier),
+                                                                    SyntaxFactory.InvocationExpression(
                                                                         SyntaxFactory.MemberAccessExpression(
                                                                             SyntaxKind.SimpleMemberAccessExpression,
-                                                                            SyntaxFactory.IdentifierName("self"),
-                                                                            SyntaxFactory.IdentifierName(wa.Identifier))
-                                                                        ))))),
-                                                      null)));
+                                                                            SyntaxFactory.IdentifierName(wa.Identifier),
+                                                                            SyntaxFactory.IdentifierName("IfNone")))
+                                                                            .WithArgumentList(
+                                                                                SyntaxFactory.ArgumentList(
+                                                                                    SyntaxFactory.SingletonSeparatedList<ArgumentSyntax>(
+                                                                                        SyntaxFactory.Argument(
+                                                                                            SyntaxFactory.MemberAccessExpression(
+                                                                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                                                                SyntaxFactory.IdentifierName("self"),
+                                                                                                SyntaxFactory.IdentifierName(wa.Identifier)))))))))),
+                                                  null)));
 
             //var ctorArgs = SyntaxFactory.ParameterList(
             //                   SyntaxFactory.SeparatedList(
