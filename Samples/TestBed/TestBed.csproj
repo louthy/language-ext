@@ -1,19 +1,36 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp2.0</TargetFramework>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <DotNetCliToolReference Include="dotnet-codegen" Version="0.5.13" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
-    <ProjectReference Include="..\..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
-    <ProjectReference Include="..\..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.5.13">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+        <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
+        <ProjectReference Include="..\..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
+        <ProjectReference Include="..\..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="LanguageExt.CodeGen">
+        <HintPath>..\..\LanguageExt.CodeGen\bin\Debug\netstandard2.0\LanguageExt.CodeGen.dll</HintPath>
+      </Reference>
+      <Reference Include="LanguageExt.CodeGen.Attributes">
+        <HintPath>..\..\LanguageExt.CodeGen.Attributes\bin\Debug\netstandard2.0\LanguageExt.CodeGen.Attributes.dll</HintPath>
+      </Reference>
+    </ItemGroup>
 
 </Project>

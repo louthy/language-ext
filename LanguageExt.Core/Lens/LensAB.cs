@@ -29,5 +29,8 @@ namespace LanguageExt
             var self = this;
             return a => self.Set(f(self.Get(a)), a);
         }
+
+        public A Update(Func<B, B> f, A value) =>
+            Set(f(Get(value)), value);
     }
 }

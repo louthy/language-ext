@@ -175,3 +175,4 @@ namespace LanguageExt.Tests
                 Set: v => book => book.With(Editor: v));
     }
 }
+
