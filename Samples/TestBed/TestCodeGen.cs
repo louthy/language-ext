@@ -5,11 +5,11 @@ using LanguageExt;
 
 namespace TestBed
 {
-    [With]
+    [WithLens]
     public partial class TestWith : Record<TestWith>
     {
-        public string Name;
-        public string Surname;
+        public readonly string Name;
+        public readonly string Surname;
 
         public TestWith(string name, string surname)
         {

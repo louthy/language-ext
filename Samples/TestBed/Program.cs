@@ -36,6 +36,11 @@ class Program
     static void Main(string[] args)
     {
         var xyz = new TestWith("Paul", "Louth");
+
+        xyz = xyz.With(Name: "Test1");
+        xyz = TestWith.surname.Set("Test2", xyz);
+
+
         //var xxx = new TestWithA(
 
         //var yxsdd = new TestWithA(

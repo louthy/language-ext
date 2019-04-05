@@ -3,20 +3,17 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-//using Validation;
-    
+
 namespace LanguageExt.CodeGen
 {
     public class RecordWithAndLensGenerator : ICodeGenerator
     {
-        private readonly string suffix;
-
         public RecordWithAndLensGenerator(AttributeData attributeData)
         {
-            //Requires.NotNull(attributeData, nameof(attributeData));
-            this.suffix = (string)attributeData.ConstructorArguments[0].Value;
         }
 
         public Task<SyntaxList<MemberDeclarationSyntax>> GenerateAsync(TransformationContext context, IProgress<Diagnostic> progress, CancellationToken cancellationToken)
@@ -27,12 +24,25 @@ namespace LanguageExt.CodeGen
             var applyToClass = (ClassDeclarationSyntax)context.ProcessingNode;
 
             // Apply a suffix to the name of a copy of the class.
-            var copy = applyToClass
-                .WithIdentifier(SyntaxFactory.Identifier(applyToClass.Identifier.ValueText + this.suffix));
+            var partialClass = SyntaxFactory.ClassDeclaration($"{applyToClass.Identifier}")
+                                            .WithModifiers(
+                                                 SyntaxFactory.TokenList(
+                                                     SyntaxFactory.Token(SyntaxKind.PublicKeyword),
+                                                     SyntaxFactory.Token(SyntaxKind.PartialKeyword)));
 
-            // Return our modified copy. It will be added to the user's project for compilation.
-            results = results.Add(copy);
-            return Task.FromResult<SyntaxList<MemberDeclarationSyntax>>(results);
+            var returnType = CodeGenUtil.TypeFromClass(applyToClass);
+
+            var fields = applyToClass.Members.Where(m => m is FieldDeclarationSyntax)
+                                             .Select(m => m as FieldDeclarationSyntax)
+                                             .Where(m => m.Modifiers.Any(SyntaxKind.PublicKeyword))
+                                             .Where(m => m.Modifiers.Any(SyntaxKind.ReadOnlyKeyword))
+                                             .Where(m => !m.Modifiers.Any(SyntaxKind.StaticKeyword))
+                                             .ToList();
+
+            partialClass = CodeGenUtil.AddWith(partialClass, returnType, fields);
+            partialClass = CodeGenUtil.AddLenses(partialClass, returnType, fields);
+
+            return Task.FromResult<SyntaxList<MemberDeclarationSyntax>>(results.Add(partialClass));
         }
     }
 }

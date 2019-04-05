@@ -12,13 +12,13 @@ namespace LanguageExt
     {
     }
 
-    //[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    //[CodeGenerationAttribute("LanguageExt.CodeGen.RecordWithAndLensGenerator, LanguageExt.CodeGen, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null")]
-    //[Conditional("CodeGeneration")]
-    //public class WithLensAttribute : Attribute
-    //{
-    //    public WithLensAttribute()
-    //    {
-    //    }
-    //}
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+    [CodeGenerationAttribute(typeof(RecordWithAndLensGenerator))]
+    [Conditional("CodeGeneration")]
+    public class WithLensAttribute : Attribute
+    {
+        public WithLensAttribute()
+        {
+        }
+    }
 }
