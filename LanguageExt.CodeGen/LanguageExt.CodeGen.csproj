@@ -7,6 +7,14 @@
 
   <ItemGroup>
     <PackageReference Include="CodeGeneration.Roslyn" Version="0.5.13" />
+    <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.5.13">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="tools\" />
   </ItemGroup>
 
 </Project>
