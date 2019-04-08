@@ -367,7 +367,7 @@ namespace LanguageExt
         /// <returns>Concatenated enumerable</returns>
         [Pure]
         public static IEnumerable<T> append<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) =>
-            lhs.Concat(rhs);
+            lhs.ConcatFast(rhs);
 
         /// <summary>
         /// Concatenate an enumerable and an enumerable of enumerables

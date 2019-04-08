@@ -37,7 +37,7 @@ public static class ListExtensions
     /// <returns>Concatenated enumerable</returns>
     [Pure]
     public static IEnumerable<A> Append<A>(this IEnumerable<A> lhs, IEnumerable<A> rhs) =>
-        lhs.Concat(rhs);
+        lhs.ConcatFast(rhs);
 
     /// <summary>
     /// Match empty list, or multi-item list
@@ -808,16 +808,8 @@ public static class ListExtensions
     /// Monadic bind function for IEnumerable
     /// </summary>
     [Pure]
-    public static IEnumerable<R> Bind<T, R>(this IEnumerable<T> self, Func<T, IEnumerable<R>> binder)
-    {
-        foreach (var t in self)
-        {
-            foreach (var u in binder(t))
-            {
-                yield return u;
-            }
-        }
-    }
+    public static IEnumerable<R> Bind<T, R>(this IEnumerable<T> self, Func<T, IEnumerable<R>> binder) =>
+        EnumerableOptimal.BindFast(self, binder);
 
     /// <summary>
     /// LINQ Select implementation for Lst
@@ -838,32 +830,16 @@ public static class ListExtensions
     /// Monadic bind function for Lst that returns an IEnumerable
     /// </summary>
     [Pure]
-    public static IEnumerable<B> BindEnumerable<A, B>(this Lst<A> self, Func<A, Lst<B>> binder)
-    {
-        foreach (var t in self)
-        {
-            foreach (var u in binder(t))
-            {
-                yield return u;
-            }
-        }
-    }
+    public static IEnumerable<B> BindEnumerable<A, B>(this Lst<A> self, Func<A, Lst<B>> binder) =>
+        EnumerableOptimal.BindFast(self, binder);
 
     /// <summary>
     /// Monadic bind function for Lst that returns an IEnumerable
     /// </summary>
     [Pure]
     public static IEnumerable<B> BindEnumerable<PredList, A, B>(this Lst<PredList, A> self, Func<A, Lst<PredList, B>> binder) 
-        where PredList : struct, Pred<ListInfo>
-    {
-        foreach (var t in self)
-        {
-            foreach (var u in binder(t))
-            {
-                yield return u;
-            }
-        }
-    }
+        where PredList : struct, Pred<ListInfo> =>
+        EnumerableOptimal.BindFast<PredList, A, B>(self, binder);
 
     /// <summary>
     /// Monadic bind function for Lst that returns an IEnumerable
@@ -872,16 +848,8 @@ public static class ListExtensions
     public static IEnumerable<B> BindEnumerable<PredList, PredItemA, PredItemB, A, B>(this Lst<PredList, PredItemA, A> self, Func<A, Lst<PredList, PredItemB, B>> binder)
         where PredList : struct, Pred<ListInfo>
         where PredItemA : struct, Pred<A>
-        where PredItemB : struct, Pred<B>
-    {
-        foreach (var t in self)
-        {
-            foreach (var u in binder(t))
-            {
-                yield return u;
-            }
-        }
-    }
+        where PredItemB : struct, Pred<B> =>
+        EnumerableOptimal.BindFast<PredList, PredItemA, PredItemB, A, B>(self, binder);
 
     /// <summary>
     /// Monadic bind function

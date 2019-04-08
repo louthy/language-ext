@@ -20,7 +20,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Set<A> Append(Set<A> x, Set<A> y) =>
-            Set.createRange(x.Concat(y));
+            Set.createRange(x.ConcatFast(y));
 
         [Pure]
         public MB Bind<MONADB, MB, B>(Set<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>

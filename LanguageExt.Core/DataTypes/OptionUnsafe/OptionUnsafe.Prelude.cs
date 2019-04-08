@@ -495,7 +495,7 @@ namespace LanguageExt
             list.Match(
                 None,
                 opt => matchUnsafe(opt, v => Some(v), None),
-                (x, xs) => matchUnsafe(x, v => Some(v), None).Concat(matchUnsafe(xs, Some, None)) // TODO: Flatten recursion
+                (x, xs) => matchUnsafe(x, v => Some(v), None).ConcatFast(matchUnsafe(xs, Some, None)) // TODO: Flatten recursion
             );
 
         /// <summary>

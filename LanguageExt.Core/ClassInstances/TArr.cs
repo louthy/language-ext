@@ -18,7 +18,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Arr<A> Append(Arr<A> x, Arr<A> y) =>
-            x.Concat(y).ToArray();
+            x.ConcatFast(y).ToArray();
 
         [Pure]
         public Arr<A> Empty() => emp;

@@ -78,7 +78,7 @@ namespace LanguageExt
             Seq<Edit<EqA, A>> normalise1(Seq<Edit<EqA, A>.Insert> inserts, Seq<Edit<EqA, A>.Delete> deletes, Seq<Edit<EqA, A>.Replace> replaces)
             {
                 if (!inserts.IsEmpty && !deletes.IsEmpty) return normalise1(inserts.Tail, deletes.Tail, Edit<EqA, A>.Replace.New(deletes.Head.Position, deletes.Head.Element, inserts.Head.Element).Cons(replaces));
-                if (deletes.IsEmpty) return Seq(inserts.Map(i => i as Edit<EqA, A>).Concat(replaces.Take(1)).ToArray());
+                if (deletes.IsEmpty) return Seq(inserts.Map(i => i as Edit<EqA, A>).ConcatFast(replaces.Take(1)).ToArray());
                 if (inserts.IsEmpty) return Seq1(deletes.Head as Edit<EqA, A>);
                 throw new InvalidOperationException();
             }

@@ -505,7 +505,7 @@ namespace LanguageExt
                     {
                         var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Enumerable.Empty<B>()));
                         if (!success) return OptionAsync<IEnumerable<B>>.None;
-                        results = Enumerable.Concat(results, imb);
+                        results = EnumerableOptimal.ConcatFast(results, imb);
                     }
                     return OptionAsync<IEnumerable<B>>.Some(results.AsEnumerable());
                 });
@@ -518,7 +518,7 @@ namespace LanguageExt
                     foreach (var ia in ima)
                     {
                         var imb = await f(ia);
-                        results = Enumerable.Concat(results, imb);
+                        results = EnumerableOptimal.ConcatFast(results, imb);
                     }
                     return results.AsEnumerable();
                 });
@@ -532,7 +532,7 @@ namespace LanguageExt
                     {
                         var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left: default(L))).IfLeft(l => (false, Enumerable.Empty<B>(), l));
                         if (!success) return EitherAsync<L, IEnumerable<B>>.Left(left);
-                        results = Enumerable.Concat(results, imb);
+                        results = EnumerableOptimal.ConcatFast(results, imb);
                     }
                     return EitherAsync<L, IEnumerable<B>>.Right(results.AsEnumerable());
                 });
@@ -548,7 +548,7 @@ namespace LanguageExt
                                                                   Fail: ex => (false, Enumerable.Empty<B>(), ex));
 
                         if (!success) return TryAsync<IEnumerable<B>>(e);
-                        results = Enumerable.Concat(results, imb);
+                        results = EnumerableOptimal.ConcatFast(results, imb);
                     }
                     return TryAsync(results.AsEnumerable());
                 });
@@ -566,7 +566,7 @@ namespace LanguageExt
 
                         if (!success && e == null) return TryOptionAsync(Option<IEnumerable<B>>.None);
                         if (!success && e != null) return TryOptionAsync<IEnumerable<B>>(e);
-                        results = Enumerable.Concat(results, imb);
+                        results = EnumerableOptimal.ConcatFast(results, imb);
                     }
                     return TryOptionAsync(results.AsEnumerable());
                 });
@@ -583,7 +583,7 @@ namespace LanguageExt
                     {
                         var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Seq<B>()));
                         if (!success) return OptionAsync<Seq<B>>.None;
-                        results = Enumerable.Concat(results, imb);
+                        results = EnumerableOptimal.ConcatFast(results, imb);
                     }
                     return OptionAsync<Seq<B>>.Some(Seq(results));
                 });
@@ -596,7 +596,7 @@ namespace LanguageExt
                     foreach (var ia in ima)
                     {
                         var imb = await f(ia);
-                        results = Enumerable.Concat(results, imb);
+                        results = EnumerableOptimal.ConcatFast(results, imb);
                     }
                     return Seq(results);
                 });
@@ -610,7 +610,7 @@ namespace LanguageExt
                     {
                         var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left: default(L))).IfLeft(l => (false, Seq<B>(), l));
                         if (!success) return EitherAsync<L, Seq<B>>.Left(left);
-                        results = Enumerable.Concat(results, imb);
+                        results = EnumerableOptimal.ConcatFast(results, imb);
                     }
                     return EitherAsync<L, Seq<B>>.Right(Seq(results));
                 });
@@ -626,7 +626,7 @@ namespace LanguageExt
                                                                   Fail: ex => (succ: false, res: Enumerable.Empty<B>(), left: ex));
 
                         if (!success) return TryAsync<Seq<B>>(e);
-                        results = Enumerable.Concat(results, imb);
+                        results = EnumerableOptimal.ConcatFast(results, imb);
                     }
                     return TryAsync(Seq(results));
                 });
@@ -644,7 +644,7 @@ namespace LanguageExt
 
                         if (!success && e == null) return TryOptionAsync(Option<Seq<B>>.None);
                         if (!success && e != null) return TryOptionAsync<Seq<B>>(e);
-                        results = Enumerable.Concat(results, imb);
+                        results = EnumerableOptimal.ConcatFast(results, imb);
                     }
                     return TryOptionAsync(Seq(results));
                 });

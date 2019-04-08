@@ -28,9 +28,9 @@ namespace LanguageExt.ClassInstances
 
         static IEnumerable<AssemblyName> GetAssemblies()
         {
-            var asmNames = Enumerable.Concat(
+            var asmNames = EnumerableOptimal.ConcatFast(
                                Assembly.GetEntryAssembly()?.GetReferencedAssemblies() ?? new AssemblyName[0],
-                                   Enumerable.Concat(
+                                   EnumerableOptimal.ConcatFast(
                                         Assembly.GetCallingAssembly()?.GetReferencedAssemblies() ?? new AssemblyName[0],
                                         Assembly.GetExecutingAssembly()?.GetReferencedAssemblies() ?? new AssemblyName[0]))
                                     .Distinct();

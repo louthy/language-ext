@@ -112,7 +112,7 @@ namespace LanguageExt
 
         [Pure]
         public Seq<T> AsEnumerable() =>
-            Seq(forward.AsEnumerable().Concat(BackwardRev));
+            Seq(forward.AsEnumerable().ConcatFast(BackwardRev));
 
         [Pure]
         public IEnumerator<T> GetEnumerator() =>

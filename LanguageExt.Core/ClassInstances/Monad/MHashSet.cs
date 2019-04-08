@@ -19,7 +19,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public HashSet<A> Append(HashSet<A> x, HashSet<A> y) =>
-            HashSet.createRange(x.Concat(y));
+            HashSet.createRange(x.ConcatFast(y));
 
         [Pure]
         public MB Bind<MONADB, MB, B>(HashSet<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>

@@ -254,7 +254,7 @@ namespace LanguageExt
         public static Seq<T> append<T>(Seq<T> lhs, Seq<T> rhs) =>
             lhs.IsEmpty      ? rhs
           : lhs.Tail.IsEmpty ? lhs.Head.Cons(rhs)
-          : Seq(lhs.Concat(rhs));
+          : Seq(lhs.ConcatFast(rhs));
 
         /// <summary>
         /// Concatenate a sequence and a sequence of sequences

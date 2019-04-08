@@ -22,7 +22,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public IEnumerable<A> Append(IEnumerable<A> x, IEnumerable<A> y) =>
-            x.Concat(y);
+            x.ConcatFast(y);
 
         [Pure]
         public MB Bind<MONADB, MB, B>(IEnumerable<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
@@ -88,7 +88,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public IEnumerable<A> Plus(IEnumerable<A> ma, IEnumerable<A> mb) =>
-            Enumerable.Concat(ma, mb);
+            EnumerableOptimal.ConcatFast(ma, mb);
 
         [Pure]
         public IEnumerable<A> Zero() =>

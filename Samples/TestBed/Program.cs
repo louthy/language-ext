@@ -31,27 +31,26 @@ public interface IRepository
     Task<Option<Gender>> GetGenderByIdAsync(Guid id);
 }
 
+
+
 class Program
 {
     static void Main(string[] args)
     {
+        var xs = (new[] { 1, 2, 3 }).ConcatFast(new[] { 4, 5, 6 });
+        var ys = (new int [0]).ConcatFast(new[] { 4, 5, 6 });
+        var zs = (new[] { 1, 2, 3 }).ConcatFast(new int[0]);
+
+        var nxs = ((IEnumerable<int>)null).ConcatFast(new[] { 4, 5, 6 });
+        var nzs = (new[] { 1, 2, 3 }).ConcatFast(((IEnumerable<int>)null));
+
+        var bxs = new[] { 1, 2, 3 }.Bind(va => new[] { 1 * va, 2 * va, 3 * va });
+
+
         var xyz = new TestWith("Paul", "Louth");
 
         xyz = xyz.With(Name: "Test1");
         xyz = TestWith.surname.Set("Test2", xyz);
-
-
-        //var xxx = new TestWithA(
-
-        //var yxsdd = new TestWithA(
-
-        //TestWith__Extensions.
-
-        //xyz.With();
-
-        //xyz.With()
-
-        //xyz.With();
 
 
         var asq = typeof(LanguageExt.CodeGen.RecordWithAndLensGenerator).AssemblyQualifiedName;

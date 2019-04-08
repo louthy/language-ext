@@ -21,7 +21,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Lst<A> Append(Lst<A> x, Lst<A> y) =>
-            x.Concat(y).Freeze();
+            x.ConcatFast(y).Freeze();
 
         [Pure]
         public MB Bind<MONADB, MB, B>(Lst<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>

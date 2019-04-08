@@ -44,7 +44,7 @@ namespace LanguageExt
                                                 publicPropNames.Exists(p => f.Name.StartsWith($"<{p.Name}>")))
                                     .ToArray();
 
-            return Enumerable.Concat(publicFields, backingFields);
+            return EnumerableOptimal.ConcatFast(publicFields, backingFields);
         }
 
         /// <summary>

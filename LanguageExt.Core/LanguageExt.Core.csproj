@@ -66,6 +66,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>HKT.AsyncSync.Extensions.tt</DependentUpon>
     </Compile>
+    <Compile Update="HKT\SyncAsync\HKT.SyncAsync.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.SyncAsync.Extensions.tt</DependentUpon>
+    </Compile>
     <Compile Update="HKT\Sync\HKT.Extensions.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

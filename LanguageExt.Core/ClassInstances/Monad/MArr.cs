@@ -22,7 +22,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Arr<A> Append(Arr<A> x, Arr<A> y) =>
-            x.Concat(y).ToArray();
+            x.ConcatFast(y).ToArray();
 
         [Pure]
         public MB Bind<MONADB, MB, B>(Arr<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>

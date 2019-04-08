@@ -21,7 +21,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public A[] Append(A[] x, A[] y) =>
-            x.Concat(y).ToArray();
+            x.ConcatFast(y).ToArray();
 
         [Pure]
         public MB Bind<MONADB, MB, B>(A[] ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
