@@ -25,12 +25,43 @@ namespace LanguageExt.ClassInstances
             x.ConcatFast(y);
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(IEnumerable<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
-            traverse<MEnumerable<A>, MONADB, IEnumerable<A>, MB, A, B>(ma, f);
+        public MB Bind<MONADB, MB, B>(IEnumerable<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
+        {
+            if (typeof(MB) == typeof(IEnumerable<B>))
+            {
+                // The casts are not ideal, but it should still work reliably
+                return (MB)(object)BindLazy(ma, (Func<A, IEnumerable<B>>)(object)f);
+            }
+            else if (typeof(MB) == typeof(Seq<B>))
+            {
+                // The casts are not ideal, but it should still work reliably
+                return (MB)(object)BindLazy(ma, (Func<A, Seq<B>>)(object)f);
+            }
+
+            var b = default(MONADB).Zero();
+            foreach (var a in ma)
+            {
+                b = default(MONADB).Plus(b, f(a));
+            }
+            return b;
+        }
+
+        static IEnumerable<B> BindLazy<B>(IEnumerable<A> ma, Func<A, IEnumerable<B>> f) =>
+            EnumerableOptimal.BindFast(ma, f);
+
+        static Seq<B> BindLazy<B>(Seq<A> ma, Func<A, Seq<B>> f) =>
+            Seq(EnumerableOptimal.BindFast(ma, a => f(a).AsEnumerable()));
 
         [Pure]
-        public MB BindAsync<MONADB, MB, B>(IEnumerable<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
-            traverseSyncAsync<MEnumerable<A>, MONADB, IEnumerable<A>, MB, A, B>(ma, f);
+        public MB BindAsync<MONADB, MB, B>(IEnumerable<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B>
+        {
+            var b = default(MONADB).Zero();
+            foreach (var a in ma)
+            {
+                b = default(MONADB).Plus(b, f(a));
+            }
+            return b;
+        }
 
         [Pure]
         public Func<Unit, int> Count(IEnumerable<A> fa) => _ =>

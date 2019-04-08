@@ -37,6 +37,8 @@ class Program
 {
     static void Main(string[] args)
     {
+        IEnumerableOptionBindT_NotEnumerabled_NotEvaluated();
+
         var xs = (new[] { 1, 2, 3 }).ConcatFast(new[] { 4, 5, 6 });
         var ys = (new int [0]).ConcatFast(new[] { 4, 5, 6 });
         var zs = (new[] { 1, 2, 3 }).ConcatFast(new int[0]);
@@ -83,6 +85,22 @@ class Program
 
 
         Console.WriteLine("Coming soon");
+    }
+
+    public static void IEnumerableOptionBindT_NotEnumerabled_NotEvaluated()
+    {
+        var evaluted = false;
+        var list = Seq1(unit)
+            .AsEnumerable()
+            .Select(_ =>
+            {
+                evaluted = true;
+                return unit;
+            })
+            .Select(Some)
+            .BindT(Some);
+
+        Debug.Assert(!evaluted);
     }
 
     public static void TraverseTest()
