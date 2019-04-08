@@ -162,6 +162,10 @@ It started out trying to deal with issues in C#, that after using Haskell and F#
    * [List pattern matching](#list-pattern-matching)
    * [Maps](#maps)
 * [Difficulty in creating immutable record types](#difficulty-in-creating-immutable-record-types)
+* [Mutation of immutable types](#mutation-of-immutable-types)
+   * [`[With]`](#with)
+* [Mutation of nested immutable types with Lenses](#mutation-of-nested-immutable-types-with-lenses)
+   * [`[WithLens]`](#withlens)
 * [The awful 'out' parameter](#the-awful-out-parameter)
 * [The lack of ad-hoc polymorphism](#ad-hoc-polymorphism)
    * [`Num<A>`](#num<A>)
@@ -483,11 +487,16 @@ This makes them into what would be known in Haskell as a Type Class (although mo
 
 __Monad transformers__
 
-Now the problem with C# is it can't do higher order polymorphism  (imagine saying `Monad<Option<T>>` instead of `Option<T>`, `Either<L,R>`, `Try<T>`, `IEnumerable<T>`.  And then the resulting type having all the features of the `Option` as well as the standard interface to `Monad`).
+Monad transformers allow for nested monadic types.  Imagine functionality for working with `Seq<Option<A>>` or a `Option<Task<A>>`, etc.
 
-There's a kind of cheat way to do it in C# through extension methods.  It still doesn't get you a single type called `Monad<T>`, so it has limitations in terms of passing it around.  However it makes some of the problems of dealing with nested monadic types easier.
+Now the problem with C# is it can't do higher order polymorphism  (imagine saying `Monad<M<T>>` where the `M` is polymorphic like the `T`).
 
-For example, below is a list of optional integers: `Lst<Option<int>>` (see lists later).  We want to double all of the `Some` values, leave the `None` alone and keep everything in the list:
+There's a kind of cheat way to do it in C# through extension methods.  It still doesn't get you a single type called `Monad<M<T>>` 
+(which is discussed later in the section on Ad-hoc Polymorphism), so it has limitations in that you can't write generic functions over higher-kinds.  
+However it makes some of the problems of dealing with nested monadic types easier.
+
+For example, below is a list of optional integers: `Lst<Option<int>>` (see lists later).  We want to double all of the `Some` values, leave the 
+`None` alone and keep everything in the list:
 
 ```C#
     using LanguageExt;
@@ -512,11 +521,17 @@ Notice the use of `MapT` instead of `Map` (and `SumT` instead of `Sum`).  If we 
     
     var postsum = list.Map(x => x.Sum()).Sum();
 ```
-As you can see the intention is much clearer in the first example.  And that's the point with functional programming most of the time.  It's about declaring intent rather than the mechanics of delivery.
+As you can see the intention is much clearer in the first example.  And that's the point with functional programming most of the time.  It's about 
+declaring intent rather than the mechanics of delivery.
 
-To make this work we need extension methods for `List<Option<T>>` that define `MapT` and `SumT` [for the one  example above].  And we need one for every pair of monads in this library (for one level of nesting `A<B<T>>`), and for every function from the 'standard functional set' listed above.  So that's 13 monads * 13 monads * 14 functions.  That's a lot of extension methods.  So there's T4 template that generates 'monad transformers' that allows for nested monads.
+To make this work we need extension methods for `List<Option<T>>` that define `MapT` and `SumT` [for the one  example above].  And we need one for 
+every pair of monads in this library (for one level of nesting `A<B<T>>`), and for every function from the 'standard functional set' listed above.  
+So that's 13 monads * 13 monads * 14 functions.  That's a lot of extension methods.  So there's T4 template that generates 'monad transformers' 
+that allows for nested monads.
 
-This is super powerful, and means that most of the time you can leave your `Option<T>` or any of the monads in this library wrapped.  You rarely need to extract the value.  Mostly you only need to extract the value to pass to the BCL or Third-party libraries.  Even then you could keep them wrapped and use `Iter` or `IterT`.
+This is super powerful, and means that most of the time you can leave your `Option<T>` or any of the monads in this library wrapped.  You rarely 
+need to extract the value.  Mostly you only need to extract the value to pass to the BCL or Third-party libraries.  Even then you could keep 
+them wrapped and use `Iter` or `IterT`.
 
 
 ## if( arg == null ) throw new ArgumentNullException("arg")
@@ -1068,6 +1083,235 @@ Below is the toolkit in use,  it's used to build a `struct` type that has struct
             RecordType<TestStruct>.EqualityTyped(this, other);
     }
 ```
+
+## Mutation of immutable types
+
+If you're writing functional code you should treat your types as values.  Which means they should be immutable.  One common way to do this is
+to use `readonly` fields and provide a `With` function for mutation. i.e.
+
+```c#
+public class A
+{
+    public readonly X X;
+    public readonly Y Y;
+
+    public A(X x, Y y)
+    {
+        X = x;
+        Y = y;
+    }
+
+    public A With(X X = null, Y Y = null) =>
+        new A(
+            X ?? this.X,
+            Y ?? this.Y
+        );
+}
+```
+Then use the named arguments feature of C# thus:
+
+```c#
+val = val.With(X: x);
+
+val = val.With(Y: y);
+
+val = val.With(X: x, Y: y);
+```
+### `[With]`
+It can be quite tedious to write the `With` function however.  And so, if you include the `LanguageExt.CodeGen` package in your solution you gain
+the ability to use the `[With]` attribtue on a type.  This will build the `With` method for you.
+
+> NOTE: The `LanguageExt.CodeGen` package and its dependencies will not be included in your final build - it is purely there to generate the code.
+
+You must however:
+* Make the `class` `partial`
+* Have a constructor that takes the fields in the order they are in the type
+* The names of the arguments should be the same as the field, but with the first character lower-case
+
+i.e.
+
+```c#
+[With]
+public partial class A
+{
+    public readonly X X;
+    public readonly Y Y;
+
+    public A(X x, Y y)
+    {
+        X = x;
+        Y = y;
+    }
+}
+```
+
+## Mutation of nested immutable types with Lenses
+
+One of the problems with immutable types is trying to mutate something nested deep in several data structures.  This often requires a lot of nested `With`
+methods, which are not very pretty or easy to use.  Enter the `Lens<A, B>` type.
+
+Lenses encapsulate the getter and setter of a field in an immutable data structure:
+
+```c#
+[With]
+public partial class Person
+{
+    public readonly string Name;
+    public readonly string Surname;
+
+    public Person(string name, string surname)
+    {
+        Name = name;
+        Surname = surname;
+    }
+
+    public static Lens<Person, string> name =>
+        Lens<Person, string>.New(
+            Get: p => p.Name,
+            Set: x => p => p.With(Name: x));
+
+    public static Lens<Person, string> surname =>
+        Lens<Person, string>.New(
+            Get: p => p.Surname,
+            Set: x => p => p.With(Surname: x));
+}
+```
+This then allows direct mutation of the type:
+```c#
+var person = new Person("Joe", "Bloggs");
+
+var name = Person.name.Get(person);
+var person2 = Person.name.Set(name + "l", person);
+```
+There can also be achieved using the `Update` function:
+```c#
+var person = new Person("Joe", "Bloggs");
+
+var person2 = Person.name.Update(name => name + "l", person);
+```
+The power of lenses really becomes apparent when using nested immutable types, because lenses can be composed.  So, let's first create a `Role`
+type which will be used with the `Person` type to represent an employee's job title and salary.
+```c#
+[With]
+public partial class Person
+{
+    public readonly string Name;
+    public readonly string Surname;
+    public readonly Role Role;
+
+    public Person(string name, string surname, Role role)
+    {
+        Name = name;
+        Surname = surname;
+        Role = role;
+    }
+
+    public static Lens<Person, string> name =>
+        Lens<Person, string>.New(
+            Get: p => p.Name,
+            Set: x => p => p.With(Name: x));
+
+    public static Lens<Person, string> surname =>
+        Lens<Person, string>.New(
+            Get: p => p.Surname,
+            Set: x => p => p.With(Surname: x));
+
+    public static Lens<Person, Role> role =>
+        Lens<Person, Role>.New(
+            Get: p => p.Role,
+            Set: x => p => p.With(Role: x));
+}
+
+[With]
+public partial class Role
+{
+    public readonly string Title;
+    public readonly int Salary;
+
+    public Role(string title, int salary)
+    {
+        Title = title;
+        Salary = salary;
+    }
+
+    public static Lens<Role, string> title =>
+        Lens<Role, string>.New(
+            Get: p => p.Title,
+            Set: x => p => p.With(Title: x));
+
+    public static Lens<Role, int> salary =>
+        Lens<Role, int>.New(
+            Get: p => p.Salary,
+            Set: x => p => p.With(Salary: x));
+}
+```
+We can now compose the lenses within the types to access the nested fields:
+```c#
+var cto = new Person("Joe", "Bloggs", new Role("CTO", 150000));
+
+var personSalary = lens(Person.role, Role.salary);
+
+var cto2 = personSalary.Set(170000, cto);
+```
+### `[WithLens]`
+
+Now typing the lens fields out every time is even more tedious that writing the `With` function, and so there is code generation for that 
+too, using the `[WithLens]` attribute.  Next we'll use some of the built-in lenses in the `Map` type to access and mutate a value within a map:
+```c#
+[WithLens]
+public partial class Person : Record<Person>
+{
+    public readonly string Name;
+    public readonly string Surname;
+    public readonly Map<int, Appt> Appts;
+
+    public Person(string name, string surname, Map<int, Appt> appts)
+    {
+        Name = name;
+        Surname = surname;
+        Appts = appts;
+    }
+}
+
+[WithLens]
+public partial class Appt : Record<Appt>
+{
+    public readonly int Id;
+    public readonly DateTime StartDate;
+    public readonly ApptState State;
+
+    public Appt(int id, DateTime startDate, ApptState state)
+    {
+        Id = id;
+        StartDate = startDate;
+        State = state;
+    }
+}
+
+public enum ApptState
+{
+    NotArrived,
+    Arrived,
+    DNA,
+    Cancelled
+}
+```
+So, here we have a `Person` with a map of `Appt` types.  And we want to update an appointment state to be `Arrived`:
+```c#
+var person = new Person("Paul", "Louth", Map(
+    (1, new Appt(1, DateTime.Parse("1/1/2010"), ApptState.NotArrived)),
+    (2, new Appt(2, DateTime.Parse("2/1/2010"), ApptState.NotArrived)),
+    (3, new Appt(3, DateTime.Parse("3/1/2010"), ApptState.NotArrived))));
+
+Lens<Person, ApptState> setState(int id) => 
+    lens(Person.appts, Map<int, Appt>.item(id), Appt.state);
+
+var person2 = setState(2).Set(ApptState.Arrived, person);
+```
+Notice the local-function which takes an ID and uses that with the `item` lens in the `Map` type to mutate an `Appt`.  Very powerful stuff.
+
+There are a number of useful lenses in the collection types that can do common things like mutate by index, head, tail, last, etc.
+
 
 ## The awful `out` parameter
 This has to be one of the most awful patterns in C#:
