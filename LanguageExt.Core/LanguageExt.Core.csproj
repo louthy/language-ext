@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
+    <DefineConstants>CONTRACTS_FULL</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>COREFX20</DefineConstants>
