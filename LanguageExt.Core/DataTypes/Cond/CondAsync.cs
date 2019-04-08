@@ -43,58 +43,6 @@ namespace LanguageExt
     public static class CondAsyncExt
     {
         /// <summary>
-        /// Apply a value as the first argument to the function provided.  
-        /// </summary>
-        /// <remarks>This is a general case apply function, however it is especially 
-        /// useful for fluently applying a value to the result of the CondAsync.Else() 
-        /// extension method.
-        /// </remarks>
-        /// <typeparam name="A">Type of the value to apply to the function</typeparam>
-        /// <typeparam name="B"></typeparam>
-        /// <param name="a">Value to apply to the function</param>
-        /// <param name="f">Function to apply the value to</param>
-        /// <returns>Promise to return the result of applying the value to the function</returns>
-        [Pure]
-        public static Task<B> Apply<A, B>(this A a, Func<A, Task<B>> f) =>
-            f(a);
-
-        /// <summary>
-        /// Apply a value as the first argument to the function provided.  
-        /// </summary>
-        /// <remarks>This is a general case apply function, however it is especially 
-        /// useful for fluently applying a value to the result of the CondAsync.Else() 
-        /// extension method.
-        /// </remarks>
-        /// <typeparam name="A">Type of the value to apply to the function</typeparam>
-        /// <typeparam name="B"></typeparam>
-        /// <param name="taskA">Task to continue from and apply its result value to the 
-        /// conditional computation</param>
-        /// <param name="f">Function to apply the value to</param>
-        /// <returns>Promise to return the result of applying the value to the function</returns>
-        [Pure]
-        public static Task<B> Apply<A, B>(this Task<A> taskA, Func<A, Task<B>> f) =>
-            from a in taskA
-            from b in f(a)
-            select b;
-
-        /// <summary>
-        /// Apply a value as the first argument to the function provided.  
-        /// </summary>
-        /// <remarks>This is a general case apply function, however it is especially 
-        /// useful for fluently applying a value to the result of the CondAsync.Else() 
-        /// extension method.
-        /// </remarks>
-        /// <typeparam name="A">Type of the value to apply to the function</typeparam>
-        /// <typeparam name="B"></typeparam>
-        /// <param name="taskA">Task to continue from and apply its result value to the 
-        /// conditional computation</param>
-        /// <param name="f">Function to apply the value to</param>
-        /// <returns>Promise to return the result of applying the value to the function</returns>
-        [Pure]
-        public static Task<B> Apply<A, B>(this Task<A> taskA, Func<Task<A>, Task<B>> f) =>
-            f(taskA);
-
-        /// <summary>
         /// Provide the behaviour to run if the condition of the Cond computation
         /// is in a Some/True state.  This is equivalent to the 'then' part of an If/Then/Else
         /// operation.
