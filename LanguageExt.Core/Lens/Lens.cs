@@ -8,7 +8,7 @@ namespace LanguageExt
         /// <summary>
         /// Pair two lenses
         /// </summary>
-        public static Lens<(A, B), (C, D)> pair<A, B, C, D>(Lens<A, C> First, Lens<B, D> Second) =>
+        public static Lens<(A, B), (C, D)> tuple<A, B, C, D>(Lens<A, C> First, Lens<B, D> Second) =>
             Lens<(A, B), (C, D)>.New(
                 Get: a => (First.Get(a.Item1), Second.Get(a.Item2)),
                 Set: v => a => (First.Set(v.Item1, a.Item1), Second.Set(v.Item2, a.Item2)));
@@ -16,7 +16,7 @@ namespace LanguageExt
         /// <summary>
         /// Triple three lenses
         /// </summary>
-        public static Lens<(A, B, C), (D, E, F)> pair<A, B, C, D, E, F>(Lens<A, D> First, Lens<B, E> Second, Lens<C, F> Third) =>
+        public static Lens<(A, B, C), (D, E, F)> tuple<A, B, C, D, E, F>(Lens<A, D> First, Lens<B, E> Second, Lens<C, F> Third) =>
             Lens<(A, B, C), (D, E, F)>.New(
                 Get: a => (First.Get(a.Item1), Second.Get(a.Item2), Third.Get(a.Item3)),
                 Set: v => a => (First.Set(v.Item1, a.Item1), Second.Set(v.Item2, a.Item2), Third.Set(v.Item3, a.Item3)));
