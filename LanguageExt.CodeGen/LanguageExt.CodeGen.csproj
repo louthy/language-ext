@@ -1,20 +1,43 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build">
 
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
-    <LangVersion>7.3</LangVersion>
-  </PropertyGroup>
+    <PropertyGroup>
+        <PackageVersion>3.1.16</PackageVersion>
+        <PackageId>LanguageExt.CodeGen</PackageId>
+        <Title>LanguageExtCodeGenCore</Title>
+        <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+        <LangVersion>7.3</LangVersion>
+        <Authors>Paul Louth</Authors>
+        <Summary>Functional language code-generation for C#</Summary>
+        <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
+        <Description>Design and build-time code-gen for lenses and immutable With functions</Description>
+        <PackageTags>C#, Functional, Language Extension, Lenses, Records, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
+        <PackageIconUrl>https://raw.githubusercontent.com/louthy/language-ext/master/backers-images/lang-ext-thumb.png</PackageIconUrl>
+        <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+        <OutputType>library</OutputType>
+        <AssemblyVersion>3.0.0.0</AssemblyVersion>
+        <FileVersion>3.0.0.0</FileVersion>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="CodeGeneration.Roslyn" Version="0.5.13" />
+        <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.5.13">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CodeGeneration.Roslyn" Version="0.5.13" />
-    <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.5.13">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="tools\" />
-  </ItemGroup>
+    <ItemGroup>
+        <Compile Include="**\*.cs" />
+        <EmbeddedResource Include="**\*.resx" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <Compile Remove="obj\**" />
+        <EmbeddedResource Remove="obj\**" />
+        <None Remove="obj\**" />
+    </ItemGroup>
 
 </Project>
