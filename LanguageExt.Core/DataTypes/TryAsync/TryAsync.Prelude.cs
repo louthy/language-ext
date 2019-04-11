@@ -11,13 +11,6 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
-        /// Monadic join
-        /// </summary>
-        [Pure]
-        public static TryAsync<A> flatten<A>(TryAsync<TryAsync<A>> ma) =>
-            ma.Bind(identity);
-
-        /// <summary>
         /// TryAsync constructor function
         /// </summary>
         /// <typeparam name="A">Bound value type</typeparam>

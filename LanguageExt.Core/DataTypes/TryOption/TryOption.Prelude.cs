@@ -10,13 +10,6 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
-        /// Monadic join
-        /// </summary>
-        [Pure]
-        public static TryOption<A> flatten<A>(TryOption<TryOption<A>> ma) =>
-            ma.Bind(identity);
-
-        /// <summary>
         /// TryOption constructor
         /// </summary>
         [Pure]

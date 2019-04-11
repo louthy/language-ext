@@ -16,13 +16,6 @@ using System.Collections.Generic;
 public static class TryOptionExtensions
 {
     /// <summary>
-    /// Monadic join
-    /// </summary>
-    [Pure]
-    public static TryOption<A> Flatten<A>(this TryOption<TryOption<A>> ma) =>
-        ma.Bind(identity);
-
-    /// <summary>
     /// Memoize the computation so that it's only run once
     /// </summary>
     public static TryOption<A> Memo<A>(this TryOption<A> ma)

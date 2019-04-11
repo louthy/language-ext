@@ -14,13 +14,6 @@ using static LanguageExt.TypeClass;
 public static class TryExtensions
 {
     /// <summary>
-    /// Monadic join
-    /// </summary>
-    [Pure]
-    public static Try<A> Flatten<A>(this Try<Try<A>> ma) =>
-        ma.Bind(identity);
-
-    /// <summary>
     /// Memoize the computation so that it's only run once
     /// </summary>
     public static Try<A> Memo<A>(this Try<A> ma)

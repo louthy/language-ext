@@ -15,13 +15,6 @@ using LanguageExt.ClassInstances;
 public static class TryAsyncExtensions
 {
     /// <summary>
-    /// Monadic join
-    /// </summary>
-    [Pure]
-    public static TryAsync<A> Flatten<A>(this TryAsync<TryAsync<A>> ma) =>
-        ma.Bind(identity);
-
-    /// <summary>
     /// Memoize the computation so that it's only run once
     /// </summary>
     public static TryAsync<A> Memo<A>(this TryAsync<A> ma)
