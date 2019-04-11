@@ -14,6 +14,13 @@ using LanguageExt.ClassInstances;
 public static class EitherAsyncExtensions
 {
     /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static EitherAsync<L, R> Flatten<L, R>(this EitherAsync<L, EitherAsync<L, R>> ma) =>
+        ma.Bind(identity);
+
+    /// <summary>
     /// Add the bound values of x and y, uses an Add type-class to provide the add
     /// operation for type A.  For example x.Add<TInteger,int>(y)
     /// </summary>

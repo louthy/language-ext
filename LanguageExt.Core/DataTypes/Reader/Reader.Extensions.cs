@@ -16,6 +16,13 @@ using LanguageExt.ClassInstances;
 public static class ReaderExt
 {
     /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static Reader<Env, A> Flatten<Env, A>(this Reader<Env, Reader<Env, A>> ma) =>
+        ma.Bind(identity);
+
+    /// <summary>
     /// Runs the Reader monad and memoizes the result in a TryOption monad.  Use
     /// Match, IfSucc, IfNone, etc to extract.
     /// </summary>

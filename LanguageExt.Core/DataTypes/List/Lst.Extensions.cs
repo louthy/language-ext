@@ -11,6 +11,20 @@ using LanguageExt.ClassInstances;
 public static class ListExtensions
 {
     /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static Lst<A> Flatten<A>(this Lst<Lst<A>> ma) =>
+        ma.Bind(identity);
+
+    /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static IEnumerable<A> Flatten<A>(this IEnumerable<IEnumerable<A>> ma) =>
+        ma.Bind(identity);
+
+    /// <summary>
     /// Converts an enumerable to a `Seq`
     /// </summary>
     public static Seq<A> ToSeq<A>(this IEnumerable<A> enumerable) =>

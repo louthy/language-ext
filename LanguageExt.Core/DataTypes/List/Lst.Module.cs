@@ -13,6 +13,20 @@ namespace LanguageExt
     public static partial class List
     {
         /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public static Lst<A> flatten<A>(Lst<Lst<A>> ma) =>
+            ma.Bind(identity);
+
+        /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public static IEnumerable<A> flatten<A>(IEnumerable<IEnumerable<A>> ma) =>
+            ma.Bind(identity);
+
+        /// <summary>
         /// Create an empty IEnumerable T
         /// </summary>
         [Pure]

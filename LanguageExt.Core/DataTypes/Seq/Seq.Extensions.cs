@@ -11,20 +11,30 @@ using static LanguageExt.TypeClass;
 public static class SeqExtensions
 {
     /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static Seq<A> Flatten<A>(this Seq<Seq<A>> ma) =>
+        ma.Bind(identity);
+
+    /// <summary>
     /// Get the number of items in the sequence
     /// </summary>
+    [Pure]
     public static int Count<A>(this ISeq<A> seq) =>
         seq.Count;
 
     /// <summary>
     /// Get the head item in the sequence
     /// </summary>
+    [Pure]
     public static A First<A>(this ISeq<A> seq) =>
         seq.Head;
 
     /// <summary>
     /// Get the head item in the sequence
     /// </summary>
+    [Pure]
     public static A FirstOrDefault<A>(this ISeq<A> seq) =>
         seq.IsEmpty
             ? default(A)

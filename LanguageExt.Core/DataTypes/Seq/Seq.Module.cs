@@ -19,6 +19,13 @@ namespace LanguageExt
     public static class Seq
     {
         /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public static Seq<A> flatten<A>(Seq<Seq<A>> ma) =>
+            ma.Bind(identity);
+
+        /// <summary>
         /// Create an empty sequence
         /// </summary>
         [Pure]

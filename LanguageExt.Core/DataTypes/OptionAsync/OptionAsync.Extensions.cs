@@ -16,6 +16,13 @@ using LanguageExt.ClassInstances;
 public static partial class OptionAsyncExtensions
 {
     /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static OptionAsync<A> Flatten<A>(this OptionAsync<OptionAsync<A>> ma) =>
+        ma.Bind(identity);
+
+    /// <summary>
     /// Extracts from a list of `Option` all the `Some` elements.
     /// All the `Some` elements are extracted in order.
     /// </summary>

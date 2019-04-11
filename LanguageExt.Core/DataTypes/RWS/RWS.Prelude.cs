@@ -10,6 +10,14 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public static RWS<MonoidW, R, W, S, A> flatten<MonoidW, R, W, S, A>(RWS<MonoidW, R, W, S, RWS<MonoidW, R, W, S, A>> ma)
+            where MonoidW : struct, Monoid<W> =>
+            ma.Bind(identity);
+
+        /// <summary>
         /// RWS monad constructor
         /// </summary>
         /// <typeparam name="R">Environment type</typeparam>

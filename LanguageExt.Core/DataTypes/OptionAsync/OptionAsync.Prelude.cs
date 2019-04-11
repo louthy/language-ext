@@ -11,6 +11,13 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public static OptionAsync<A> flatten<A>(OptionAsync<OptionAsync<A>> ma) =>
+            ma.Bind(identity);
+
+        /// <summary>
         /// Subtract the Ts
         /// </summary>
         /// <param name="lhs">Left-hand side of the operation</param>

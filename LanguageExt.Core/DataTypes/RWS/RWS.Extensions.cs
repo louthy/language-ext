@@ -12,6 +12,14 @@ using System.Collections.Generic;
 public static class RWSExtensions
 {
     /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static RWS<MonoidW, R, W, S, A> Flatten<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, RWS<MonoidW, R, W, S, A>> ma)
+        where MonoidW : struct, Monoid<W> =>
+        ma.Bind(identity);
+
+    /// <summary>
     /// Runs the RWS monad and memoizes the result in a TryOption monad.  Use
     /// Match, IfSucc, IfNone, etc to extract.
     /// </summary>

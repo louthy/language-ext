@@ -16,6 +16,13 @@ using LanguageExt.DataTypes.Serialisation;
 public static class TryOptionAsyncExtensions
 {
     /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static TryOptionAsync<A> Flatten<A>(this TryOptionAsync<TryOptionAsync<A>> ma) =>
+        ma.Bind(identity);
+
+    /// <summary>
     /// Memoize the computation so that it's only run once
     /// </summary>
     public static TryOptionAsync<A> Memo<A>(this TryOptionAsync<A> ma)

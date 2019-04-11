@@ -8,6 +8,13 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public static Reader<Env, A> flatten<Env, A>(Reader<Env, Reader<Env, A>> ma) =>
+            ma.Bind(identity);
+
+        /// <summary>
         /// Reader monad constructor
         /// </summary>
         /// <typeparam name="Env">Environment</typeparam>

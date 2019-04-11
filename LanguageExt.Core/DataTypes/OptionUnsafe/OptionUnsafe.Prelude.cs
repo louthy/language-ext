@@ -13,6 +13,13 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public static OptionUnsafe<A> flatten<A>(OptionUnsafe<OptionUnsafe<A>> ma) =>
+            ma.Bind(identity);
+
+        /// <summary>
         /// Subtract the Ts
         /// </summary>
         /// <param name="lhs">Left-hand side of the operation</param>
