@@ -121,6 +121,7 @@ namespace LanguageExt
                     else
                     {
                         current = default;
+                        mb.Dispose();
                         return false;
                     }
                 }
@@ -144,6 +145,7 @@ namespace LanguageExt
                         else
                         {
                             current = default;
+                            mb.Dispose();
                             return false;
                         }
                     }
@@ -152,6 +154,7 @@ namespace LanguageExt
 
             public void Reset()
             {
+                Dispose();
                 ma = ema.GetEnumerator();
                 mb = emb.GetEnumerator();
             }
@@ -202,6 +205,7 @@ namespace LanguageExt
                             continue;
                         }
                     }
+                    ma.Dispose();
                     ma = null;
                     return false;
                 }
@@ -214,6 +218,7 @@ namespace LanguageExt
                     }
                     else
                     {
+                        mb.Dispose();
                         mb = null;
                         while (ma.MoveNext())
                         {
@@ -228,6 +233,7 @@ namespace LanguageExt
                                 continue;
                             }
                         }
+                        ma.Dispose();
                         ma = null;
                         return false;
                     }
@@ -236,6 +242,7 @@ namespace LanguageExt
 
             public void Reset()
             {
+                Dispose();
                 ma = ema.GetEnumerator();
             }
         }
