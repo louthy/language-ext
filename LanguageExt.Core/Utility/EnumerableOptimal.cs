@@ -12,7 +12,32 @@ namespace LanguageExt
             if (ma == null && mb == null) return new A[0];
             if (ma == null) return mb;
             if (mb == null) return ma;
-            return new ConcactEnum<A>(ma, mb);
+
+            if (ma is ConcatEnum<A> ca && mb is ConcatEnum<A> cb)
+            {
+                var cs = new IEnumerable<A>[ca.count + cb.count];
+                Array.Copy(ca.ms, cs, ca.count);
+                Array.Copy(cb.ms, 0, cs, ca.count, cb.count);
+                return new ConcatEnum<A>(cs, cs.Length);
+            }
+            else if (ma is ConcatEnum<A> ca2)
+            {
+                var cs = new IEnumerable<A>[ca2.count + 1];
+                Array.Copy(ca2.ms, cs, ca2.count);
+                cs[ca2.count] = mb;
+                return new ConcatEnum<A>(cs, cs.Length);
+            }
+            else if (mb is ConcatEnum<A> cb2)
+            {
+                var cs = new IEnumerable<A>[cb2.count + 1];
+                Array.Copy(cb2.ms, 0, cs, 1, cb2.count);
+                cs[0] = mb;
+                return new ConcatEnum<A>(cs, cs.Length);
+            }
+            else
+            {
+                return new ConcatEnum<A>(new[] { ma, mb }, 2);
+            }
         }
 
         internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A> ma, Func<A, IEnumerable<B>> f) =>
@@ -44,23 +69,22 @@ namespace LanguageExt
                 ? (IEnumerable<B>)(new B[0])
                 : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
 
-
-        class ConcactEnum<A> : IEnumerable<A>
+        class ConcatEnum<A> : IEnumerable<A>
         {
-            readonly IEnumerable<A> ma;
-            readonly IEnumerable<A> mb;
+            internal readonly IEnumerable<A>[] ms;
+            internal readonly int count;
 
-            public ConcactEnum(IEnumerable<A> ma, IEnumerable<A> mb)
+            public ConcatEnum(IEnumerable<A>[] ms, int count)
             {
-                this.ma = ma;
-                this.mb = mb;
+                this.ms = ms;
+                this.count = count;
             }
 
             public IEnumerator<A> GetEnumerator() =>
-                new ConcatIter<A>(ma, mb);
+                new ConcatIter<A>(ms, count);
 
             IEnumerator IEnumerable.GetEnumerator() =>
-                new ConcatIter<A>(ma, mb);
+                new ConcatIter<A>(ms, count);
         }
 
         class BindEnum<A, B> : IEnumerable<B>
@@ -83,80 +107,65 @@ namespace LanguageExt
 
         class ConcatIter<A> : IEnumerator<A>
         {
-            IEnumerable<A> ema;
-            IEnumerable<A> emb;
-            IEnumerator<A> ma;
-            IEnumerator<A> mb;
+            IEnumerable<A>[] ms;
+            IEnumerator<A> iter;
+            int count;
+            int index;
             A current;
 
-            public ConcatIter(IEnumerable<A> ma, IEnumerable<A> mb)
+            public ConcatIter(IEnumerable<A>[] ms, int count)
             {
-                this.ema = ma;
-                this.emb = mb;
-                this.ma = ema.GetEnumerator();
-                this.mb = emb.GetEnumerator();
+                this.ms = ms;
+                this.count = count;
+                this.index = 0;
+                this.iter = ms[0].GetEnumerator();
             }
 
-            public A Current =>
+            public A Current => 
                 current;
 
-            object IEnumerator.Current =>
+            object IEnumerator.Current => 
                 current;
 
-            public void Dispose()
-            {
-                ma?.Dispose();
-                mb?.Dispose();
-            }
+            public void Dispose() =>
+                iter?.Dispose();
 
             public bool MoveNext()
             {
-                if (ma == null)
+                if (iter.MoveNext())
                 {
-                    if (mb.MoveNext())
-                    {
-                        current = mb.Current;
-                        return true;
-                    }
-                    else
-                    {
-                        current = default;
-                        mb.Dispose();
-                        return false;
-                    }
+                    current = iter.Current;
+                    return true;
                 }
                 else
                 {
-                    if (ma.MoveNext())
+                    current = default;
+                    index++;
+                    while(index < count)
                     {
-                        current = ma.Current;
-                        return true;
-                    }
-                    else
-                    {
-                        ma.Dispose();
-                        ma = null;
-
-                        if (mb.MoveNext())
+                        iter.Dispose();
+                        iter = ms[index].GetEnumerator();
+                        if (iter.MoveNext())
                         {
-                            current = mb.Current;
+                            current = iter.Current;
                             return true;
                         }
                         else
                         {
-                            current = default;
-                            mb.Dispose();
-                            return false;
+                            index++;
+                            continue;
                         }
                     }
+                    iter.Dispose();
+                    return false;
                 }
             }
 
             public void Reset()
             {
                 Dispose();
-                ma = ema.GetEnumerator();
-                mb = emb.GetEnumerator();
+                index = 0;
+                iter = ms[0].GetEnumerator();
             }
         }
 
