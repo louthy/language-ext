@@ -408,6 +408,10 @@ namespace LanguageExt.Parsec
                         results.Add(t.Reply.Result);
                         current = t.Reply.State;
                         error = t.Reply.Error;
+                        if (count == n)
+                        {
+                            return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                        }
                         continue;
                     }
 
