@@ -346,6 +346,7 @@ namespace LanguageExt.Parsec
                 while (true)
                 {
                     var t = p(current);
+                    count++;
 
                     // cok
                     if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
@@ -353,7 +354,6 @@ namespace LanguageExt.Parsec
                         results.Add(t.Reply.Result);
                         current = t.Reply.State;
                         error = t.Reply.Error;
-                        count++;
                         continue;
                     }
 
@@ -400,6 +400,7 @@ namespace LanguageExt.Parsec
                 while (true)
                 {
                     var t = p(current);
+                    count++;
 
                     // cok
                     if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
@@ -407,7 +408,6 @@ namespace LanguageExt.Parsec
                         results.Add(t.Reply.Result);
                         current = t.Reply.State;
                         error = t.Reply.Error;
-                        count++;
                         continue;
                     }
 
