@@ -37,6 +37,8 @@ class Program
 {
     static void Main(string[] args)
     {
+        Test533();
+
         IEnumerableOptionBindT_NotEnumerabled_NotEvaluated();
 
         var xs = (new[] { 1, 2, 3 }).ConcatFast(new[] { 4, 5, 6 });
@@ -85,6 +87,20 @@ class Program
 
 
         Console.WriteLine("Coming soon");
+    }
+
+    public static void Test533()
+    {
+
+        var someData = Enumerable
+            .Range(0, 30000)
+            .Select(_ => Guid.NewGuid().ToString())
+            .ToArray();
+
+        var result = someData
+            .Select(Some)
+            .Sequence()
+            .Map(x => x.ToArray());
     }
 
     public static void IEnumerableOptionBindT_NotEnumerabled_NotEvaluated()

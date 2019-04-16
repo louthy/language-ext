@@ -49,7 +49,8 @@ namespace LanguageExt
         /// <summary>
         /// Head lens
         /// </summary>
-        public static Lens<Lst<A>, A> head = Lens<Lst<A>, A>.New(
+        [Pure]
+        public static Lens<Lst<A>, A> head => Lens<Lst<A>, A>.New(
             Get: la => la.Count == 0 ? throw new IndexOutOfRangeException() : la[0],
             Set: a => la => la.Count == 0 ? throw new IndexOutOfRangeException() : la.SetItem(0, a)
             );
@@ -57,7 +58,8 @@ namespace LanguageExt
         /// <summary>
         /// Head or none lens
         /// </summary>
-        public static Lens<Lst<A>, Option<A>> headOrNone = Lens<Lst<A>, Option<A>>.New(
+        [Pure]
+        public static Lens<Lst<A>, Option<A>> headOrNone => Lens<Lst<A>, Option<A>>.New(
             Get: la => la.Count == 0 ? None : Some(la[0]),
             Set: a => la => la.Count == 0 || a.IsNone ? la : la.SetItem(0, a.Value)
             );
@@ -65,7 +67,8 @@ namespace LanguageExt
         /// <summary>
         /// Tail lens
         /// </summary>
-        public static Lens<Lst<A>, A> tail = Lens<Lst<A>, A>.New(
+        [Pure]
+        public static Lens<Lst<A>, A> tail => Lens<Lst<A>, A>.New(
             Get: la => la.Count == 0 ? throw new IndexOutOfRangeException() : la[la.Count - 1],
             Set: a => la => la.Count == 0 ? throw new IndexOutOfRangeException() : la.SetItem(la.Count - 1, a)
             );
@@ -73,7 +76,8 @@ namespace LanguageExt
         /// <summary>
         /// Tail or none lens
         /// </summary>
-        public static Lens<Lst<A>, Option<A>> tailOrNone = Lens<Lst<A>, Option<A>>.New(
+        [Pure]
+        public static Lens<Lst<A>, Option<A>> tailOrNone => Lens<Lst<A>, Option<A>>.New(
             Get: la => la.Count == 0 ? None : Some(la[la.Count - 1]),
             Set: a => la => la.Count == 0 || a.IsNone ? la : la.SetItem(la.Count - 1, a.Value)
             );

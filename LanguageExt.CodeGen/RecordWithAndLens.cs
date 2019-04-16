@@ -10,8 +10,14 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.CodeGen
 {
+    /// <summary>
+    /// Provides a With function and lens fields for record types
+    /// </summary>
     public class RecordWithAndLensGenerator : ICodeGenerator
     {
+        /// <summary>
+        /// Provides a With function and lens fields for record types
+        /// </summary>
         public RecordWithAndLensGenerator(AttributeData attributeData)
         {
         }

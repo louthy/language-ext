@@ -15,6 +15,13 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public static Either<L, R> flatten<L, R>(Either<L, Either<L, R>> ma) =>
+            ma.Bind(identity);
+
+        /// <summary>
         /// Add the bound values of x and y, uses an Add type-class to provide the add
         /// operation for type A.  For example x.Add<TInteger,int>(y)
         /// </summary>

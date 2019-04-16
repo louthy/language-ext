@@ -91,7 +91,31 @@ namespace LanguageExt
         /// <param name="array">Array to reverse</param>
         /// <returns>Reversed list</returns>
         [Pure]
+        public static T[] rev<T>(T[] array) =>
+            array.Reverse().ToArray();
+
+        /// <summary>
+        /// Reverses the array (Reverse in LINQ)
+        /// </summary>
+        /// <typeparam name="T">Array item type</typeparam>
+        /// <param name="array">Array to reverse</param>
+        /// <returns>Reversed list</returns>
+        [Pure]
         public static Arr<T> rev<T>(Arr<T> array) =>
             array.Reverse();
+
+        /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public static A[] flatten<A>(A[][] ma) =>
+            ma.Bind(identity).ToArray();
+
+        /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public static Arr<A> flatten<A>(Arr<Arr<A>> ma) =>
+            ma.Bind(identity);
     }
 }

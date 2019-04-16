@@ -30,6 +30,16 @@ Nu-get package | Description
 [LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop library.  Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
 [LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
 [LanguageExt.Rx](https://www.nuget.org/packages/LanguageExt.Rx) | Reactive Extensions support for various types within the Core
+[LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) | Used to generate lenses and `With` functions automagically for record types. 
+
+## Code-gen setup
+
+To use the code-generation features of language-ext (which are totally optional by the way), then you must include the [LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) package into your project.  You must also include
+
+To make the reference **build and design time only** (i.e. your project doesn't gain an additional dependencies because of the code-generator), open up your `csproj` and set the `PrivateAssets` attribute to `all`:
+```c#
+  <PackageReference Include="LanguageExt.CodeGen" Version="..." PrivateAssets="all" />
+```
 
 ## Unity
 
@@ -129,6 +139,7 @@ Location | Feature | Description
 `Core` | `TryOption<A>` | [Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TryOption_A.htm) 'Fail' that catches exceptions
 `Core` | `TryOptionAsync<A>` | [Asynchronous Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TryOptionAsync_A.htm) 'Fail' that catches exceptions
 `Core` | `Record<A>` | [Base type for creating record types](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Record_RECORDTYPE.htm)  with automatic structural equality, ordering, and hash code calculation.
+`Core` | `Lens<A, B>` | [Well behaved bidirectional transformations](#transformation-of-nested-immutable-types-with-lenses) - i.e. the ability to easily generate new immutable values from existing ones, even when heavily nested.
 `Core` | `Reader<E, A>` | [Reader monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Reader_Env_A.htm)
 `Core` | `Writer<MonoidW, W, T>` | [Writer monad that logs to a `W` constrained to be a Monoid](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Writer_MonoidW_W_A.htm)
 `Core` | `State<S, A>` | [State monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/State_S_A.htm)
@@ -162,10 +173,10 @@ It started out trying to deal with issues in C#, that after using Haskell and F#
    * [List pattern matching](#list-pattern-matching)
    * [Maps](#maps)
 * [Difficulty in creating immutable record types](#difficulty-in-creating-immutable-record-types)
-* [Mutation of immutable types](#mutation-of-immutable-types)
-   * [`[With]`](#with)
-* [Mutation of nested immutable types with Lenses](#mutation-of-nested-immutable-types-with-lenses)
-   * [`[WithLens]`](#withlens)
+   * [Transformation of immutable types](#transformation-of-immutable-types)
+      * [`[With]`](#with)
+   * [Transformation of nested immutable types with Lenses](#transformation-of-nested-immutable-types-with-lenses)
+      * [`[WithLens]`](#withlens)
 * [The awful 'out' parameter](#the-awful-out-parameter)
 * [The lack of ad-hoc polymorphism](#ad-hoc-polymorphism)
    * [`Num<A>`](#num<A>)
@@ -1083,11 +1094,9 @@ Below is the toolkit in use,  it's used to build a `struct` type that has struct
             RecordType<TestStruct>.EqualityTyped(this, other);
     }
 ```
+## Transformation of immutable types
 
-## Mutation of immutable types
-
-If you're writing functional code you should treat your types as values.  Which means they should be immutable.  One common way to do this is
-to use `readonly` fields and provide a `With` function for mutation. i.e.
+If you're writing functional code you should treat your types as values.  Which means they should be immutable.  One common way to do this is to use `readonly` fields and provide a `With` function for mutation. i.e.
 
 ```c#
 public class A
@@ -1108,7 +1117,7 @@ public class A
         );
 }
 ```
-Then use the named arguments feature of C# thus:
+Then transformation can be achieved by using the named arguments feature of C# thus:
 
 ```c#
 val = val.With(X: x);
@@ -1118,8 +1127,7 @@ val = val.With(Y: y);
 val = val.With(X: x, Y: y);
 ```
 ### `[With]`
-It can be quite tedious to write the `With` function however.  And so, if you include the `LanguageExt.CodeGen` package in your solution you gain
-the ability to use the `[With]` attribtue on a type.  This will build the `With` method for you.
+It can be quite tedious to write the `With` function however.  And so, if you include the `LanguageExt.CodeGen` nu-get package in your solution you gain the ability to use the `[With]` attribtue on a type.  This will build the `With` method for you.
 
 > NOTE: The `LanguageExt.CodeGen` package and its dependencies will not be included in your final build - it is purely there to generate the code.
 
@@ -1145,12 +1153,13 @@ public partial class A
 }
 ```
 
-## Mutation of nested immutable types with Lenses
+## Transformation of nested immutable types with Lenses
 
-One of the problems with immutable types is trying to mutate something nested deep in several data structures.  This often requires a lot of nested `With`
-methods, which are not very pretty or easy to use.  Enter the `Lens<A, B>` type.
+One of the problems with immutable types is trying to transform something nested deep in several data structures.  This often requires a lot of nested `With` methods, which are not very pretty or easy to use.  
 
-Lenses encapsulate the getter and setter of a field in an immutable data structure:
+Enter the `Lens<A, B>` type.
+
+Lenses encapsulate the getter and setter of a field in an immutable data structure and are composable:
 
 ```c#
 [With]
@@ -1176,22 +1185,44 @@ public partial class Person
             Set: x => p => p.With(Surname: x));
 }
 ```
-This then allows direct mutation of the type:
+This allows direct transformation of the value:
 ```c#
 var person = new Person("Joe", "Bloggs");
 
 var name = Person.name.Get(person);
-var person2 = Person.name.Set(name + "l", person);
+var person2 = Person.name.Set(name + "l", person);  // Joel Bloggs
 ```
-There can also be achieved using the `Update` function:
+This can also be achieved using the `Update` function:
 ```c#
 var person = new Person("Joe", "Bloggs");
 
-var person2 = Person.name.Update(name => name + "l", person);
+var person2 = Person.name.Update(name => name + "l", person);  // Joel Bloggs
 ```
-The power of lenses really becomes apparent when using nested immutable types, because lenses can be composed.  So, let's first create a `Role`
-type which will be used with the `Person` type to represent an employee's job title and salary.
+The power of lenses really becomes apparent when using nested immutable types, because lenses can be composed.  So, let's first create a `Role` type which will be used with the `Person` type to represent an employee's job title and salary:
 ```c#
+[With]
+public partial class Role
+{
+    public readonly string Title;
+    public readonly int Salary;
+
+    public Role(string title, int salary)
+    {
+        Title = title;
+        Salary = salary;
+    }
+
+    public static Lens<Role, string> title =>
+        Lens<Role, string>.New(
+            Get: p => p.Title,
+            Set: x => p => p.With(Title: x));
+
+    public static Lens<Role, int> salary =>
+        Lens<Role, int>.New(
+            Get: p => p.Salary,
+            Set: x => p => p.With(Salary: x));
+}
+
 [With]
 public partial class Person
 {
@@ -1222,28 +1253,6 @@ public partial class Person
             Set: x => p => p.With(Role: x));
 }
 
-[With]
-public partial class Role
-{
-    public readonly string Title;
-    public readonly int Salary;
-
-    public Role(string title, int salary)
-    {
-        Title = title;
-        Salary = salary;
-    }
-
-    public static Lens<Role, string> title =>
-        Lens<Role, string>.New(
-            Get: p => p.Title,
-            Set: x => p => p.With(Title: x));
-
-    public static Lens<Role, int> salary =>
-        Lens<Role, int>.New(
-            Get: p => p.Salary,
-            Set: x => p => p.With(Salary: x));
-}
 ```
 We can now compose the lenses within the types to access the nested fields:
 ```c#
@@ -1255,8 +1264,7 @@ var cto2 = personSalary.Set(170000, cto);
 ```
 ### `[WithLens]`
 
-Now typing the lens fields out every time is even more tedious that writing the `With` function, and so there is code generation for that 
-too, using the `[WithLens]` attribute.  Next we'll use some of the built-in lenses in the `Map` type to access and mutate a value within a map:
+Typing the lens fields out every time is even more tedious than writing the `With` function, and so there is code generation for that too: using the `[WithLens]` attribute.  Next, we'll use some of the built-in lenses in the `Map` type to access and mutate a `Appt` type within a map:
 ```c#
 [WithLens]
 public partial class Person : Record<Person>
@@ -1298,20 +1306,22 @@ public enum ApptState
 ```
 So, here we have a `Person` with a map of `Appt` types.  And we want to update an appointment state to be `Arrived`:
 ```c#
+// Generate a Person with three Appts in a Map
 var person = new Person("Paul", "Louth", Map(
     (1, new Appt(1, DateTime.Parse("1/1/2010"), ApptState.NotArrived)),
     (2, new Appt(2, DateTime.Parse("2/1/2010"), ApptState.NotArrived)),
     (3, new Appt(3, DateTime.Parse("3/1/2010"), ApptState.NotArrived))));
 
+// Local function for composing a new lens from 3 other lenses
 Lens<Person, ApptState> setState(int id) => 
     lens(Person.appts, Map<int, Appt>.item(id), Appt.state);
 
+// Transform
 var person2 = setState(2).Set(ApptState.Arrived, person);
 ```
 Notice the local-function which takes an ID and uses that with the `item` lens in the `Map` type to mutate an `Appt`.  Very powerful stuff.
 
 There are a number of useful lenses in the collection types that can do common things like mutate by index, head, tail, last, etc.
-
 
 ## The awful `out` parameter
 This has to be one of the most awful patterns in C#:

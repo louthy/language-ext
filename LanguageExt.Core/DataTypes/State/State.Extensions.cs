@@ -12,6 +12,13 @@ using LanguageExt.ClassInstances;
 public static class StateExtensions
 {
     /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static State<Env, A> Flatten<Env, A>(this State<Env, State<Env, A>> ma) =>
+        ma.Bind(identity);
+
+    /// <summary>
     /// Runs the State monad and memoizes the result in a TryOption monad.  Use
     /// Match, IfSucc, IfNone, etc to extract.
     /// </summary>

@@ -16,6 +16,13 @@ using LanguageExt.ClassInstances;
 public static class OptionExtensions
 {
     /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static Option<A> Flatten<A>(this Option<Option<A>> ma) =>
+        ma.Bind(identity);
+
+    /// <summary>
     /// Extracts from a list of `Option` all the `Some` elements.
     /// All the `Some` elements are extracted in order.
     /// </summary>

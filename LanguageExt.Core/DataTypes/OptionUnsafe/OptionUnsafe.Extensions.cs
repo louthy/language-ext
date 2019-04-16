@@ -16,6 +16,13 @@ using LanguageExt.ClassInstances;
 public static class OptionUnsafeExtensions
 {
     /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static OptionUnsafe<A> Flatten<A>(this OptionUnsafe<OptionUnsafe<A>> ma) =>
+        ma.Bind(identity);
+
+    /// <summary>
     /// Extracts from a list of `OptionUnsafe` all the `Some` elements.
     /// All the `Some` elements are extracted in order.
     /// </summary>

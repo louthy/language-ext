@@ -8,6 +8,13 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public static State<Env, A> flatten<Env, A>(State<Env, State<Env, A>> ma) =>
+            ma.Bind(identity);
+
+        /// <summary>
         /// State monad constructor
         /// </summary>
         /// <typeparam name="S">State type</typeparam>

@@ -7,12 +7,17 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-//using Validation;
 
 namespace LanguageExt.CodeGen
 {
+    /// <summary>
+    /// Provides a With function for record types
+    /// </summary>
     public class RecordWithGenerator : ICodeGenerator
     {
+        /// <summary>
+        /// Provides a With function for record types
+        /// </summary>
         public RecordWithGenerator(AttributeData attributeData)
         {
         }
