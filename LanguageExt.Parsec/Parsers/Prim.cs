@@ -324,6 +324,123 @@ namespace LanguageExt.Parsec
             };
 
         /// <summary>
+        /// manyn(p, n) applies the parser p n times.
+        /// </summary>
+        /// <example>
+        ///     var identifier  = from c in letter
+        ///                       from cs in manyn(letterOrDigit, 4)
+        ///                       select c.Cons(cs)
+        /// </example>
+        /// <returns>
+        /// Enumerable of the returned values of p.
+        /// </returns>
+        public static Parser<Seq<T>> manyn<T>(Parser<T> p, int n) =>
+            inp =>
+            {
+                var current = inp;
+                var results = new List<T>();
+                ParserError error = null;
+
+                int count = 0;
+
+                while (true)
+                {
+                    var t = p(current);
+
+                    // cok
+                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
+                    {
+                        results.Add(t.Reply.Result);
+                        current = t.Reply.State;
+                        error = t.Reply.Error;
+                        count++;
+                        continue;
+                    }
+
+                    // eok
+                    if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
+                    {
+                        // eok, eerr
+                        return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'manyn' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                    }
+
+                    // cerr
+                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
+                    {
+                        return ConsumedError<Seq<T>>(mergeError(error, t.Reply.Error));
+                    }
+
+                    // eerr
+                    return count == n
+                        ? ConsumedError<Seq<T>>(mergeError(error, t.Reply.Error))
+                        : EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                }
+            };
+
+        /// <summary>
+        /// manyn0(p) applies the parser p zero or up to a maximum of n times.
+        /// </summary>
+        /// <example>
+        ///     var identifier  = from c in letter
+        ///                       from cs in manyn0(letterOrDigit, 4)
+        ///                       select c.Cons(cs)
+        /// </example>
+        /// <returns>
+        /// Enumerable of the returned values of p.
+        /// </returns>
+        public static Parser<Seq<T>> manyn0<T>(Parser<T> p, int n) =>
+            inp =>
+            {
+                var current = inp;
+                var results = new List<T>();
+                ParserError error = null;
+
+                int count = 0;
+
+                while (true)
+                {
+                    var t = p(current);
+
+                    // cok
+                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
+                    {
+                        results.Add(t.Reply.Result);
+                        current = t.Reply.State;
+                        error = t.Reply.Error;
+                        count++;
+                        continue;
+                    }
+
+                    // eok
+                    if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
+                    {
+                        // eok, eerr
+                        return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'manyn' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                    }
+
+                    // cerr
+                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
+                    {
+                        return ConsumedError<Seq<T>>(mergeError(error, t.Reply.Error));
+                    }
+
+                    // eerr
+                    return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                }
+            };
+
+        /// <summary>
+        /// manyn1(p) applies the parser p one or up to a maximum of n times.
+        /// </summary>
+        /// <returns>
+        /// Enumerable of the returned values of p.
+        /// </returns>
+        public static Parser<Seq<T>> manyn1<T>(Parser<T> p, int n) =>
+            from x in p
+            from xs in manyn0(p, n)
+            select x.Cons(xs);
+
+        /// <summary>
         /// many1(p) applies the parser p one or more times.
         /// </summary>
         /// <returns>
