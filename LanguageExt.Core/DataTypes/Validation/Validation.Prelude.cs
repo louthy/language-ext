@@ -1,8 +1,5 @@
-﻿using LanguageExt.TypeClasses;
-using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
-using System;
-using LanguageExt.ClassInstances;
+﻿using System;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -80,7 +77,7 @@ namespace LanguageExt
                  .Disjunction(items.Item2)
                  .Disjunction(items.Item3)
                  .Map(_ => f(
-                     items.Item1.SuccessValue, 
+                     items.Item1.SuccessValue,
                      items.Item2.SuccessValue,
                      items.Item3.SuccessValue
                      ));
