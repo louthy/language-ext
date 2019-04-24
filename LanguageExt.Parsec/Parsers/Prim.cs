@@ -354,6 +354,10 @@ namespace LanguageExt.Parsec
                         results.Add(t.Reply.Result);
                         current = t.Reply.State;
                         error = t.Reply.Error;
+                        if (count == n)
+                        {
+                            return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                        }
                         continue;
                     }
 
@@ -441,7 +445,7 @@ namespace LanguageExt.Parsec
         /// </returns>
         public static Parser<Seq<T>> manyn1<T>(Parser<T> p, int n) =>
             from x in p
-            from xs in manyn0(p, n)
+            from xs in manyn0(p, n - 1)
             select x.Cons(xs);
 
         /// <summary>

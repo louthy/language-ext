@@ -21,6 +21,22 @@ namespace LanguageExt
     /// 
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
+    /// <remarks>
+    /// `Result<A>` (and `OptionalResult<A>`) is purely there to represent a concrete result value of a invoked lazy operation 
+    /// (like `Try<A>`).  You're not really meant to consume it directly.
+    /// 
+    /// For example:
+    /// 
+    ///     var ma = Try(...);
+    ///     var ra = ma(); // This will produce a `Result<A>` because that's what the `Try` delegate returns
+    /// 
+    /// But you should be matching on the result, or using any of the other convenient extension methods to get a concrete value:
+    /// 
+    ///     var ma = Try(...);
+    ///     var ra1 = ma.IfFail(0);
+    ///     var ra1 = ma.Match(Succ: x => x + 10, Fail: 0);
+    ///     // ... etc ...
+    /// </remarks>
     public struct OptionalResult<A> : IEquatable<OptionalResult<A>>, IComparable<OptionalResult<A>>
     {
         internal static readonly OptionalResult<A> None = new OptionalResult<A>(Prelude.None);
