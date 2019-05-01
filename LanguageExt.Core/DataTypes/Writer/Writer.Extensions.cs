@@ -194,8 +194,24 @@ public static class WriterExtensions
     /// </returns>
     public static Writer<MonoidW, W, A> Do<MonoidW, W, A>(this Writer<MonoidW, W, A> ma, Action<A> f) where MonoidW : struct, Monoid<W>
     {
-        ma.Iter<MonoidW, W, A>(f);
+        ma = ma.Strict();
+        ma.Iter(f);
         return ma;
+    }
+
+    /// <summary>
+    /// Force evaluation of the Writer 
+    /// </summary>
+    public static Writer<MSeq<W>, Seq<W>, A> Strict<W, A>(this Writer<MSeq<W>, Seq<W>, A> ma) =>
+        ma.Strict<MSeq<W>, Seq<W>, A>();
+
+    /// <summary>
+    /// Force evaluation of the Writer 
+    /// </summary>
+    public static Writer<MonoidW, W, A> Strict<MonoidW, W, A>(this Writer<MonoidW, W, A> ma) where MonoidW : struct, Monoid<W>
+    {
+        var r = ma();
+        return () => r;
     }
 
     /// <summary>

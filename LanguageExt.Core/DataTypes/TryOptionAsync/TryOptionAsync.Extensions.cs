@@ -1437,8 +1437,12 @@ public static class TryOptionAsyncExtensions
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    public static TryOptionAsync<A> Do<A>(this TryOptionAsync<A> ma, Action<A> f) =>
-        ma.Map(x => { f(x); return x; });
+    public static TryOptionAsync<A> Do<A>(this TryOptionAsync<A> ma, Action<A> f)
+    {
+        ma = ma.Strict();
+        ma.Iter(f);
+        return ma;
+    }
 
     /// <summary>
     /// Maps the bound value

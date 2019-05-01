@@ -487,9 +487,9 @@ public static class TryOptionExtensions
     /// </returns>
     public static TryOption<A> Do<A>(this TryOption<A> ma, Action<A> f)
     {
-        var strict = ma.Strict();
-        strict.Iter(f);
-        return strict;
+        ma = ma.Strict();
+        ma.Iter(f);
+        return ma;
     }
 
     /// <summary>

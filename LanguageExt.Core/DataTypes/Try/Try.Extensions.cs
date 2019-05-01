@@ -401,6 +401,7 @@ public static class TryExtensions
     /// </returns>
     public static Try<A> Do<A>(this Try<A> ma, Action<A> f)
     {
+        ma = ma.Strict();
         ma.Iter(f);
         return ma;
     }

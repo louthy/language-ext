@@ -600,8 +600,12 @@ public static class TryAsyncExtensions
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    public static TryAsync<A> Do<A>(this TryAsync<A> ma, Action<A> f) =>
-        ma.Map(x => { f(x); return x; });
+    public static TryAsync<A> Do<A>(this TryAsync<A> ma, Action<A> f)
+    {
+        ma = ma.Strict();
+        ma.Iter(f);
+        return ma;
+    }
 
     /// <summary>
     /// Maps the bound value

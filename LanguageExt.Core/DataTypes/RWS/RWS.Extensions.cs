@@ -122,6 +122,26 @@ public static class RWSExtensions
         };
 
     /// <summary>
+    /// Force evaluation of the monad (once only)
+    /// </summary>
+    [Pure]
+    public static RWS<MonoidW, R, W, S, A> Strict<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> ma) where MonoidW : struct, Monoid<W>
+    {
+        Option<(A, W, S, bool)> cache = default;
+        object sync = new object();
+        return (env, state) =>
+        {
+            if (cache.IsSome) return cache.Value;
+            lock (sync)
+            {
+                if (cache.IsSome) return cache.Value;
+                cache = ma(env, state);
+                return cache.Value;
+            }
+        };
+    }
+
+    /// <summary>
     /// Impure iteration of the bound value in the structure
     /// </summary>
     /// <returns>
@@ -129,6 +149,7 @@ public static class RWSExtensions
     /// </returns>
     public static RWS<MonoidW, R, W, S, A> Do<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> ma, Action<A> f) where MonoidW : struct, Monoid<W>
     {
+        ma = ma.Strict();
         ma.Iter<MonoidW, R, W, S, A>(f);
         return ma;
     }

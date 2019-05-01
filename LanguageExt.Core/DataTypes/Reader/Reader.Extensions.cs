@@ -100,6 +100,26 @@ public static class ReaderExt
     };
 
     /// <summary>
+    /// Force evaluation of the monad (once only)
+    /// </summary>
+    [Pure]
+    public static Reader<Env, A> Strict<Env, A>(this Reader<Env, A> ma)
+    {
+        Option<(A, bool)> cache = default;
+        object sync = new object();
+        return env =>
+        {
+            if (cache.IsSome) return cache.Value;
+            lock (sync)
+            {
+                if (cache.IsSome) return cache.Value;
+                cache = ma(env);
+                return cache.Value;
+            }
+        };
+    }
+
+    /// <summary>
     /// Impure iteration of the bound value in the structure
     /// </summary>
     /// <returns>
@@ -107,6 +127,7 @@ public static class ReaderExt
     /// </returns>
     public static Reader<Env, A> Do<Env, A>(this Reader<Env, A> ma, Action<A> f)
     {
+        ma = ma.Strict();
         ma.Iter(f);
         return ma;
     }

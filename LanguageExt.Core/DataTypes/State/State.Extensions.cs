@@ -125,6 +125,26 @@ public static class StateExtensions
         };
 
     /// <summary>
+    /// Force evaluation of the monad (once only)
+    /// </summary>
+    [Pure]
+    public static State<S, A> Strict<S, A>(this State<S, A> ma)
+    {
+        Option<(A, S, bool)> cache = default;
+        object sync = new object();
+        return state =>
+        {
+            if (cache.IsSome) return cache.Value;
+            lock (sync)
+            {
+                if (cache.IsSome) return cache.Value;
+                cache = ma(state);
+                return cache.Value;
+            }
+        };
+    }
+
+    /// <summary>
     /// Impure iteration of the bound value in the structure
     /// </summary>
     /// <returns>
@@ -132,6 +152,7 @@ public static class StateExtensions
     /// </returns>
     public static State<S, A> Do<S, A>(this State<S, A> ma, Action<A> f)
     {
+        ma = ma.Strict();
         ma.Iter(f);
         return ma;
     }
