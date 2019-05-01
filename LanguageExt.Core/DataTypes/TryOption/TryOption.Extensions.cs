@@ -485,12 +485,15 @@ public static class TryOptionExtensions
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    public static TryOption<A> Do<A>(this TryOption<A> ma, Action<A> f)
+    public static TryOption<A> Do<A>(this TryOption<A> ma, Action<A> f) => () =>
     {
-        ma = ma.Strict();
-        ma.Iter(f);
-        return ma;
-    }
+        var r = ma.Try();
+        if (!r.IsFaultedOrNone)
+        {
+            f(r.Value.Value);
+        }
+        return r;
+    };
 
     /// <summary>
     /// Maps the bound value

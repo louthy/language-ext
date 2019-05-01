@@ -399,12 +399,15 @@ public static class TryExtensions
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    public static Try<A> Do<A>(this Try<A> ma, Action<A> f)
+    public static Try<A> Do<A>(this Try<A> ma, Action<A> f) => () =>
     {
-        ma = ma.Strict();
-        ma.Iter(f);
-        return ma;
-    }
+        var r = ma.Try();
+        if (!r.IsFaulted)
+        {
+            f(r.Value);
+        }
+        return r;
+    };
 
     /// <summary>
     /// Maps the bound value

@@ -147,12 +147,16 @@ public static class RWSExtensions
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    public static RWS<MonoidW, R, W, S, A> Do<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> ma, Action<A> f) where MonoidW : struct, Monoid<W>
-    {
-        ma = ma.Strict();
-        ma.Iter<MonoidW, R, W, S, A>(f);
-        return ma;
-    }
+    public static RWS<MonoidW, R, W, S, A> Do<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> ma, Action<A> f) where MonoidW : struct, Monoid<W> =>
+        (env, state) =>
+        {
+            var r = ma(env, state);
+            if (!r.IsFaulted)
+            {
+                f(r.Value);
+            }
+            return r;
+        };
 
     /// <summary>
     /// Monadic state transformer.
