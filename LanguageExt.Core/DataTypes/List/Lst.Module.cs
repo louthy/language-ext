@@ -639,21 +639,38 @@ namespace LanguageExt
             foldUntil(rev(list), state, folder, predstate: predstate);
 
         /// <summary>
-        /// Applies a function to each element of the collection (from last element to first), threading 
+        /// Applies a function to each element of the collection (from first element to last), threading 
         /// an accumulator argument through the computation. This function first applies the function 
         /// to the first two elements of the list. Then, it passes this result into the function along 
         /// with the third element and so on. Finally, it returns the final result.
         /// </summary>
-        /// <typeparam name="T">Enumerable item type</typeparam>
+        /// <remarks>The enumerable must contain at least one item or an excpetion will be thrown</remarks>
+        /// <typeparam name="A">Bound item type</typeparam>
         /// <param name="list">Enumerable to reduce</param>
         /// <param name="reducer">Reduce function</param>
         /// <returns>Aggregate value</returns>
         [Pure]
-        public static T reduce<T>(IEnumerable<T> list, Func<T, T, T> reducer) =>
-            match(headOrNone(list),
-                Some: x => fold(tail(list), x, reducer),
-                None: () => failwith<T>("Input list was empty")
-            );
+        public static A reduce<A>(IEnumerable<A> list, Func<A, A, A> reducer) =>
+            list.Match(
+                ()      => failwith<A>("Input list was empty"),
+                (x, xs) => fold(xs, x, reducer));
+
+        /// <summary>
+        /// Applies a function to each element of the collection (from first element to last), threading 
+        /// an accumulator argument through the computation. This function first applies the function 
+        /// to the first two elements of the list. Then, it passes this result into the function along 
+        /// with the third element and so on. Finally, it returns the final result.
+        /// </summary>
+        /// <remarks>The enumerable must contain at least one item or None will be returned</remarks>
+        /// <typeparam name="A">Bound item type</typeparam>
+        /// <param name="list">Enumerable to reduce</param>
+        /// <param name="reducer">Reduce function</param>
+        /// <returns>Optional aggregate value</returns>
+        [Pure]
+        public static Option<A> reduceOrNone<A>(IEnumerable<A> list, Func<A, A, A> reducer) =>
+            list.Match(
+                ()      => None,
+                (x, xs) => Some(fold(xs, x, reducer)));
 
         /// <summary>
         /// Applies a function to each element of the collection, threading an accumulator argument 
@@ -661,13 +678,33 @@ namespace LanguageExt
         /// elements of the list. Then, it passes this result into the function along with the third 
         /// element and so on. Finally, it returns the final result.
         /// </summary>
-        /// <typeparam name="T">Enumerable item type</typeparam>
+        /// <remarks>The enumerable must contain at least one item or an excpetion will be thrown</remarks>
+        /// <typeparam name="A">Bound item type</typeparam>
         /// <param name="list">Enumerable to reduce</param>
         /// <param name="reducer">Reduce function</param>
         /// <returns>Aggregate value</returns>
         [Pure]
-        public static T reduceBack<T>(IEnumerable<T> list, Func<T, T, T> reducer) =>
-            reduce(rev(list), reducer);
+        public static A reduceBack<A>(IEnumerable<A> list, Func<A, A, A> reducer) =>
+            list.Match(
+                ()      => failwith<A>("Input list was empty"),
+                (x, xs) => foldBack(xs, x, reducer));
+
+        /// <summary>
+        /// Applies a function to each element of the collection, threading an accumulator argument 
+        /// through the computation. This function first applies the function to the first two 
+        /// elements of the list. Then, it passes this result into the function along with the third 
+        /// element and so on. Finally, it returns the final result.
+        /// </summary>
+        /// <remarks>The enumerable must contain at least one item or None will be returned</remarks>
+        /// <typeparam name="A">Bound item type</typeparam>
+        /// <param name="list">Enumerable to reduce</param>
+        /// <param name="reducer">Reduce function</param>
+        /// <returns>Optional aggregate value</returns>
+        [Pure]
+        public static Option<A> reduceBackOrNone<A>(IEnumerable<A> list, Func<A, A, A> reducer) =>
+            list.Match(
+                ()      => None,
+                (x, xs) => Some(foldBack(xs, x, reducer)));
 
         /// <summary>
         /// Applies a function to each element of the collection, threading an accumulator argument 
