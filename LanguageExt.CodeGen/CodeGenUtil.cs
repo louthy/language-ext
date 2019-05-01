@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -81,11 +82,11 @@ namespace LanguageExt.CodeGen
             return partialClass.AddMembers(lfield);
         }
 
-        public static ClassDeclarationSyntax AddWith(ClassDeclarationSyntax partialClass, TypeSyntax returnType, System.Collections.Generic.List<FieldDeclarationSyntax> fields)
+        public static ClassDeclarationSyntax AddWith(ClassDeclarationSyntax partialClass, TypeSyntax returnType, List<FieldDeclarationSyntax> fields)
         {
             var withParms = fields.Where(f => f.Declaration.Variables.Count > 0)
                                   .Select(f => (Id: f.Declaration.Variables[0].Identifier, Type: SyntaxFactory.GenericName(
-                                                                SyntaxFactory.Identifier("Option"))
+                                                                SyntaxFactory.Identifier("WithOpt"))
                                                                 .WithTypeArgumentList(
                                                                     SyntaxFactory.TypeArgumentList(
                                                                         SyntaxFactory.SingletonSeparatedList<TypeSyntax>(f.Declaration.Type)))))
@@ -112,7 +113,7 @@ namespace LanguageExt.CodeGen
                                                                         SyntaxFactory.MemberAccessExpression(
                                                                             SyntaxKind.SimpleMemberAccessExpression,
                                                                             SyntaxFactory.IdentifierName(wa.Identifier),
-                                                                            SyntaxFactory.IdentifierName("IfNoneUnsafe")))
+                                                                            SyntaxFactory.IdentifierName("IfNone")))
                                                                             .WithArgumentList(
                                                                                 SyntaxFactory.ArgumentList(
                                                                                     SyntaxFactory.SingletonSeparatedList<ArgumentSyntax>(

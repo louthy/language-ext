@@ -52,6 +52,12 @@ class Program
 
 
         var xyz = new TestWith("Paul", "Louth");
+        var xyz2 = new TestWith2("Paul", "Louth");
+
+        xyz2 = xyz2.With();
+        xyz2 = xyz2.With(Name: Some("P"));
+        xyz2 = xyz2.With(Surname: Some("L"));
+        xyz2 = xyz2.With(Name: None, Surname: None);
 
         xyz = xyz.With(Name: "Test1");
         xyz = TestWith.surname.Set("Test2", xyz);

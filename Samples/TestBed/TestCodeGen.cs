@@ -17,4 +17,17 @@ namespace TestBed
             Surname = surname;
         }
     }
+
+    [WithLens]
+    public partial class TestWith2 : Record<TestWith>
+    {
+        public readonly Option<string> Name;
+        public readonly Option<string> Surname;
+
+        public TestWith2(Option<string> name, Option<string> surname)
+        {
+            Name = name;
+            Surname = surname;
+        }
+    }
 }
