@@ -62,7 +62,7 @@ namespace LanguageExt
         /// <summary>
         /// Constructor from lazy sequence
         /// </summary>
-        internal Seq(IEnumerable<A> seq)
+        public Seq(IEnumerable<A> seq)
         {
             this.data = new A[0];
             this.start = 0;

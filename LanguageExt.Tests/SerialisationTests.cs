@@ -73,6 +73,24 @@ namespace LanguageExtTests
             Assert.True(list[3] == "test3");
             Assert.True(list[4] == "test4");
         }
+
+        [Fact]
+        public void SeqTest()
+        {
+            var seq = Seq("test5", "test2", "test1", "test3", "test4");
+
+            var json = JsonConvert.SerializeObject(seq);
+
+            seq = JsonConvert.DeserializeObject<Seq<string>>(json);
+
+            Assert.True(seq.Count == 5);
+            Assert.True(seq[0] == "test5");
+            Assert.True(seq[1] == "test2");
+            Assert.True(seq[2] == "test1");
+            Assert.True(seq[3] == "test3");
+            Assert.True(seq[4] == "test4");
+        }
+
         [Fact]
         public void OptionTest()
         {
