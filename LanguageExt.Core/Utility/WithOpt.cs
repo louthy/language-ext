@@ -7,22 +7,22 @@ namespace LanguageExt
     /// </summary>
     public struct WithOpt<A>
     {
-        readonly bool IsNone;
+        readonly bool IsSome;
         readonly A Value;
 
         public WithOpt(A value)
         {
-            IsNone = ReferenceEquals(value, null);
+            IsSome = !ReferenceEquals(value, null);
             Value = value;
         }
 
         public A IfNone(A defaultValue) =>
-            IsNone
-                ? defaultValue
-                : Value;
+            IsSome
+                ? Value
+                : defaultValue;
 
         public static implicit operator WithOpt<A>(OptionNone _) =>
-            new WithOpt<A>(default);
+            default;
 
         public static implicit operator WithOpt<A>(A value) =>
             new WithOpt<A>(value);
