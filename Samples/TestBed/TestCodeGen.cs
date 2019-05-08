@@ -19,13 +19,28 @@ namespace TestBed
     }
 
     [WithLens]
-    public partial class TestWith2 : Record<TestWith>
+    public partial class TestWith2 : Record<TestWith2>
     {
         public readonly Option<string> Name;
         public readonly Option<string> Surname;
 
         public TestWith2(Option<string> name, Option<string> surname)
         {
+            Name = name;
+            Surname = surname;
+        }
+    }
+
+    [WithLens]
+    public partial class TestWith3<A> : Record<TestWith3<A>> where A : class
+    {
+        public readonly A Value;
+        public readonly Option<string> Name;
+        public readonly Option<string> Surname;
+
+        public TestWith3(A value, Option<string> name, Option<string> surname)
+        {
+            Value = value;
             Name = name;
             Surname = surname;
         }

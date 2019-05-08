@@ -36,6 +36,16 @@ namespace LanguageExt.CodeGen
                                                      SyntaxFactory.Token(SyntaxKind.PublicKeyword),
                                                      SyntaxFactory.Token(SyntaxKind.PartialKeyword)));
 
+            if (applyToClass.TypeParameterList != null)
+            {
+                partialClass = partialClass.WithTypeParameterList(applyToClass.TypeParameterList);
+            }
+
+            if (applyToClass.ConstraintClauses != null)
+            {
+                partialClass = partialClass.WithConstraintClauses(applyToClass.ConstraintClauses);
+            }
+
             var returnType = CodeGenUtil.TypeFromClass(applyToClass);
 
             var fields = applyToClass.Members.Where(m => m is FieldDeclarationSyntax)
@@ -45,7 +55,7 @@ namespace LanguageExt.CodeGen
                                              .Where(m => !m.Modifiers.Any(SyntaxKind.StaticKeyword))
                                              .ToList();
 
-            partialClass = CodeGenUtil.AddWith(partialClass, returnType, fields);
+            partialClass = CodeGenUtil.AddWith(context, partialClass, returnType, fields);
 
             return Task.FromResult<SyntaxList<MemberDeclarationSyntax>>(results.Add(partialClass));
         }

@@ -53,6 +53,9 @@ class Program
 
         var xyz = new TestWith("Paul", "Louth");
         var xyz2 = new TestWith2("Paul", "Louth");
+        var xyz3 = new TestWith3<string>("Test", "Paul", "Louth");
+
+        xyz3 = xyz3.With(Value: "Another");
 
         xyz2 = xyz2.With();
         xyz2 = xyz2.With(Name: Some("P"));
