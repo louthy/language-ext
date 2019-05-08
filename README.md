@@ -34,7 +34,7 @@ Nu-get package | Description
 
 ## Code-gen setup
 
-To use the code-generation features of language-ext (which are totally optional by the way), then you must include the [LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) package into your project.  You must also include
+To use the code-generation features of language-ext (which are totally optional by the way), then you must include the [LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) package into your project.  
 
 To make the reference **build and design time only** (i.e. your project doesn't gain an additional dependencies because of the code-generator), open up your `csproj` and set the `PrivateAssets` attribute to `all`:
 ```c#
@@ -111,8 +111,6 @@ using static LanguageExt.Prelude;
 The namespace `LanguageExt` contains the core types, and `LanguageExt.Prelude` contains the functions that you bring into scope `using static LanguageExt.Prelude`.  
 
 ### Features
-
-This library is quickly becoming a 'Base Class Library' for functional programming in C#.  The features include:
 
 Location | Feature | Description
 ---------|---------|------------
