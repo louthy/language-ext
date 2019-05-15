@@ -32,7 +32,7 @@ namespace TestBed
     }
 
     [WithLens]
-    public partial class TestWith3<A> : Record<TestWith3<A>> where A : class
+    internal partial class TestWith3<A> : Record<TestWith3<A>> where A : class
     {
         public readonly A Value;
         public readonly Option<string> Name;

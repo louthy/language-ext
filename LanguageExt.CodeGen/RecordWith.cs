@@ -29,12 +29,15 @@ namespace LanguageExt.CodeGen
             // Our generator is applied to any class that our attribute is applied to.
             var applyToClass = (ClassDeclarationSyntax)context.ProcessingNode;
 
+            var classModifiers = SyntaxFactory.TokenList(
+                    Enumerable.Concat(
+                        applyToClass.Modifiers
+                                    .Where(t => !t.IsKind(SyntaxKind.PartialKeyword)).AsEnumerable(), 
+                        new[] { SyntaxFactory.Token(SyntaxKind.PartialKeyword) }));
+
             // Apply a suffix to the name of a copy of the class.
             var partialClass = SyntaxFactory.ClassDeclaration($"{applyToClass.Identifier}")
-                                            .WithModifiers(
-                                                 SyntaxFactory.TokenList(
-                                                     SyntaxFactory.Token(SyntaxKind.PublicKeyword),
-                                                     SyntaxFactory.Token(SyntaxKind.PartialKeyword)));
+                                            .WithModifiers(classModifiers);
 
             if (applyToClass.TypeParameterList != null)
             {

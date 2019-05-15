@@ -76,54 +76,15 @@ namespace LanguageExt.CodeGen
 
             lfield = lfield.WithModifiers(
                 SyntaxFactory.TokenList(
-                    SyntaxFactory.Token(SyntaxKind.PublicKeyword),
-                    SyntaxFactory.Token(SyntaxKind.StaticKeyword),
-                    SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword)));
+                    Enumerable.Concat(
+                        field.Modifiers.Where(m => m.IsKind(SyntaxKind.PublicKeyword) || m.IsKind(SyntaxKind.PrivateKeyword) || m.IsKind(SyntaxKind.ProtectedKeyword)),
+                        new[] { SyntaxFactory.Token(SyntaxKind.StaticKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword) })));
 
             return partialClass.AddMembers(lfield);
         }
 
         public static ClassDeclarationSyntax AddWith(TransformationContext context, ClassDeclarationSyntax partialClass, TypeSyntax returnType, List<FieldDeclarationSyntax> fields)
         {
-            //var withParms = fields.Where(f => f.Declaration.Variables.Count > 0)
-            //                      .Select(f => (Id: f.Declaration.Variables[0].Identifier, Type: SyntaxFactory.GenericName(
-            //                                                    SyntaxFactory.Identifier("WithOpt"))
-            //                                                    .WithTypeArgumentList(
-            //                                                        SyntaxFactory.TypeArgumentList(
-            //                                                            SyntaxFactory.SingletonSeparatedList<TypeSyntax>(f.Declaration.Type)))))
-            //                      .Select(f =>
-            //                           SyntaxFactory.Parameter(MakeFirstCharUpper(f.Id))
-            //                                        .WithType(f.Type)
-            //                                        .WithDefault(SyntaxFactory.EqualsValueClause(SyntaxFactory.DefaultExpression(f.Type))))
-            //                      .ToArray();
-
-            //var withMethod = SyntaxFactory.MethodDeclaration(returnType, "With")
-            //                              .WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList<ParameterSyntax>(withParms)))
-            //                              .WithModifiers(SyntaxFactory.TokenList(
-            //                                  SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-            //                              .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
-            //                              .WithExpressionBody(
-            //                                  SyntaxFactory.ArrowExpressionClause(
-            //                                      SyntaxFactory.ObjectCreationExpression(
-            //                                          returnType,
-            //                                          SyntaxFactory.ArgumentList(
-            //                                              SyntaxFactory.SeparatedList<ArgumentSyntax>(
-            //                                                  withParms.Select(wa =>
-            //                                                    SyntaxFactory.Argument(
-            //                                                        SyntaxFactory.InvocationExpression(
-            //                                                            SyntaxFactory.MemberAccessExpression(
-            //                                                                SyntaxKind.SimpleMemberAccessExpression,
-            //                                                                SyntaxFactory.IdentifierName(wa.Identifier),
-            //                                                                SyntaxFactory.IdentifierName("IfNone")))
-            //                                                                .WithArgumentList(
-            //                                                                    SyntaxFactory.ArgumentList(
-            //                                                                        SyntaxFactory.SingletonSeparatedList<ArgumentSyntax>(
-            //                                                                            SyntaxFactory.Argument(
-            //                                                                                SyntaxFactory.MemberAccessExpression(
-            //                                                                                    SyntaxKind.SimpleMemberAccessExpression,
-            //                                                                                    SyntaxFactory.ThisExpression(),
-            //                                                                                     SyntaxFactory.IdentifierName(wa.Identifier)))))))))),
-            //                                      null)));
             var withParms = fields.Where(f => f.Declaration.Variables.Count > 0)
                                   .Select(f => (Field: f, Type: context.SemanticModel.GetTypeInfo(f.Declaration.Type)))
                                   .Select(f => (Id: f.Field.Declaration.Variables[0].Identifier, 
