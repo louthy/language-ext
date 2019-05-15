@@ -165,7 +165,7 @@ It started out trying to deal with issues in C#, that after using Haskell and F#
 * [Null reference problem](#null-reference-problem)
     * [Option](#option)
 * [Lack of lambda and expression inference](#lack-of-lambda-and-expression-inference)
-* [Void isn't a real type](#void-isn't-a-real-type)
+* [Void isn't a real type](#void-isnt-a-real-type)
 * [Mutable lists and dictionaries](#mutable-lists-and-dictionaries)
    * [Lists](#lists)
    * [List pattern matching](#list-pattern-matching)
