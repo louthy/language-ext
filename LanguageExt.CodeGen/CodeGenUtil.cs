@@ -10,6 +10,64 @@ namespace LanguageExt.CodeGen
 {
     internal static class CodeGenUtil
     {
+        public static (ClassDeclarationSyntax PartialClass, TypeSyntax ReturnType, List<FieldDeclarationSyntax> Fields) GetState(TransformationContext context)
+        {
+            // Our generator is applied to any class that our attribute is applied to.
+            var applyToClass = (ClassDeclarationSyntax)context.ProcessingNode;
+
+            var classModifiers = SyntaxFactory.TokenList(
+                    Enumerable.Concat(
+                        applyToClass.Modifiers
+                                    .Where(t => !t.IsKind(SyntaxKind.PartialKeyword)).AsEnumerable(),
+                        new[] { SyntaxFactory.Token(SyntaxKind.PartialKeyword) }));
+
+            // Apply a suffix to the name of a copy of the class.
+            var partialClass = SyntaxFactory.ClassDeclaration($"{applyToClass.Identifier}")
+                                            .WithModifiers(classModifiers);
+
+            if (applyToClass.TypeParameterList != null)
+            {
+                partialClass = partialClass.WithTypeParameterList(applyToClass.TypeParameterList);
+            }
+
+            if (applyToClass.ConstraintClauses != null)
+            {
+                partialClass = partialClass.WithConstraintClauses(applyToClass.ConstraintClauses);
+            }
+
+            var returnType = CodeGenUtil.TypeFromClass(applyToClass);
+
+            var fields = applyToClass.Members
+                                     .Where(m => m is FieldDeclarationSyntax)
+                                     .Select(m => m as FieldDeclarationSyntax)
+                                     .Where(f => f.Declaration.Variables.Count > 0)
+                                     .Where(f => FirstCharIsUpper(f.Declaration.Variables[0].Identifier.ToString()))
+                                     .Where(f => f.Modifiers.Any(SyntaxKind.PublicKeyword))
+                                     .Where(f => f.Modifiers.Any(SyntaxKind.ReadOnlyKeyword))
+                                     .Where(f => !f.Modifiers.Any(SyntaxKind.StaticKeyword))
+                                     .ToList();
+
+            return (partialClass, returnType, fields);
+        }
+
+        internal static bool ForAll<A>(this IEnumerable<A> ma, Func<A, bool> f)
+        {
+            foreach(var a in ma)
+            {
+                if (!f(a)) return false;
+            }
+            return true;
+        }
+
+        internal static bool Exists<A>(this IEnumerable<A> ma, Func<A, bool> f)
+        {
+            foreach (var a in ma)
+            {
+                if (f(a)) return true;
+            }
+            return false;
+        }
+
         public static ClassDeclarationSyntax AddLenses(ClassDeclarationSyntax partialClass, TypeSyntax returnType, System.Collections.Generic.List<FieldDeclarationSyntax> fields)
         {
             foreach (var field in fields)
@@ -147,5 +205,8 @@ namespace LanguageExt.CodeGen
             var id2 = $"{Char.ToLower(id[0])}{id.Substring(1)}";
             return SyntaxFactory.Identifier(id2);
         }
+
+        static bool FirstCharIsUpper(string name) =>
+            name.Length > 0 && Char.IsUpper(name[0]);
     }
 }

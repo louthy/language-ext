@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build">
+﻿<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build">
 
     <PropertyGroup>
-        <PackageVersion>3.1.23</PackageVersion>
+        <PackageVersion>3.1.24</PackageVersion>
         <PackageId>LanguageExt.CodeGen</PackageId>
         <Title>LanguageExtCodeGenCore</Title>
         <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
@@ -19,6 +19,7 @@
         <OutputType>library</OutputType>
         <AssemblyVersion>3.0.0.0</AssemblyVersion>
         <FileVersion>3.0.0.0</FileVersion>
+        <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
     </PropertyGroup>
     
     <ItemGroup>
