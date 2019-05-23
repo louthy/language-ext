@@ -46,6 +46,7 @@ To make the reference **build and design time only** (i.e. your project doesn't 
 This library seems compatible on the latest (at the time of writing) Unity 2018.2 with __incremental compiler__ (which enables C# 7).
 So this library should work well once Unity has official support for C# 7 on upcoming 2018.3.
 In the meanwhile, you can install incremental compiler instead. 
+If you are concerned about writing functionally and the possible performance overheads then please take a look at [this wiki page](https://github.com/louthy/language-ext/wiki/Performance).
 
 ## Supporting language-ext
 
