@@ -10,6 +10,8 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Collections;
+using System.Runtime.CompilerServices;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -43,7 +45,8 @@ namespace LanguageExt
         /// <summary>
         /// None
         /// </summary>
-        public static readonly Option<A> None = new Option<A>(OptionData<A>.None);
+        public static readonly Option<A> None =
+            default;
 
         /// <summary>
         /// Construct an Option of A in a Some state
@@ -51,8 +54,9 @@ namespace LanguageExt
         /// <param name="value">Value to bind, must be non-null</param>
         /// <returns>Option of A</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<A> Some(A value) =>
-            value;
+            new Option<A>(OptionData.Some(value));
 
         /// <summary>
         /// Takes the value-type OptionV<A>
@@ -69,7 +73,7 @@ namespace LanguageExt
         {
             var first = option.Take(1).ToArray();
             this.data = first.Length == 0
-                ? OptionData<A>.None
+                ? default
                 : OptionData.Optional(first[0]);
         }
 
@@ -84,7 +88,7 @@ namespace LanguageExt
             }
             else
             {
-                data = OptionData.None<A>();
+                data = default;
             }
         }
 
@@ -114,25 +118,60 @@ namespace LanguageExt
         /// </remarks>
         /// <param name="other">The Option type to compare this type with</param>
         /// <returns>True if this and other are equal</returns>
-        public bool Equals(Option<A> other) =>
-            equals<EqDefault<A>, A>(this, other);
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(Option<A> other)
+        {
+            if (ReferenceEquals(this, other)) return true;
+
+            var xIsSome = IsSome;
+            var yIsSome = other.IsSome;
+            var xIsNone = !xIsSome;
+            var yIsNone = !yIsSome;
+
+            return (xIsNone && yIsNone) || (xIsSome && yIsSome && default(EqDefault<A>).Equals(Value, other.Value));
+        }
 
         /// <summary>
-        /// Uses the OrdDefault instance to do an ordering comparison on the bound 
-        /// value.  To use anything other than the default call 
-        /// compare<OrdDefault<A>, A>(this, other), where EQ is an instance derived 
-        /// from Eq<A>
+        /// Uses the `OrdDefault` instance to do an ordering comparison on the bound 
+        /// value.  To use anything other than the default call  `this.Compare<OrdA>(this, other)`, 
+        /// where `OrdA` is an instance derived  from `Ord<A>`
         /// </summary>
-        /// <param name="other">The Option type to compare this type with</param>
-        /// <returns>True if this and other are equal</returns>
+        /// <param name="other">The `Option` type to compare `this` type with</param>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(Option<A> other) =>
-            compare<OrdDefault<A>, A>(this, other);
+            CompareTo<OrdDefault<A>>(other);
+
+        /// <summary>
+        /// Uses the `Ord` instance provided to do an ordering comparison on the bound 
+        /// value.  
+        /// </summary>
+        /// <param name="other">The `Option` type to compare `this` type with</param>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int CompareTo<OrdA>(Option<A> other) where OrdA : struct, Ord<A>
+        {
+            var xIsSome = IsSome;
+            var yIsSome = other.IsSome;
+            var xIsNone = !xIsSome;
+            var yIsNone = !yIsSome;
+
+            if (xIsNone && yIsNone) return 0;
+            if (xIsSome && yIsNone) return 1;
+            if (xIsNone && yIsSome) return -1;
+
+            return xIsSome && yIsSome
+                ? default(OrdA).Compare(Value, other.Value)
+                : 0;
+        }
 
         /// <summary>
         /// Explicit conversion operator from `Option<A>` to `A`
         /// </summary>
         /// <param name="a">None value</param>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static explicit operator A(Option<A> ma) =>
             ma.IsSome
                 ? ma.Value
@@ -286,6 +325,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>String representation of the Option</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString() =>
             data.ToString();
 
@@ -293,6 +333,7 @@ namespace LanguageExt
         /// True if this instance evaluates lazily
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsLazy =>
             data.IsLazy;
 
@@ -300,6 +341,7 @@ namespace LanguageExt
         /// Is the option in a Some state
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsSome =>
             data.IsSome;
 
@@ -307,12 +349,14 @@ namespace LanguageExt
         /// Is the option in a None state
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsNone =>
             !IsSome;
 
         /// <summary>
         /// Helper accessor for the bound value
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal A Value =>
             data.Value;
 
@@ -322,6 +366,7 @@ namespace LanguageExt
         /// <returns>
         /// Returns the original unmodified structure
         /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<A> Do(Action<A> f)
         {
             Iter(f);
@@ -335,6 +380,7 @@ namespace LanguageExt
         /// <param name="f">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> Select<B>(Func<A, B> f) =>
             FOption<A, B>.Inst.Map(this, f);
 
@@ -345,6 +391,7 @@ namespace LanguageExt
         /// <param name="f">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> Map<B>(Func<A, B> f) =>
             FOption<A, B>.Inst.Map(this, f);
 
@@ -352,6 +399,7 @@ namespace LanguageExt
         /// Monad bind operation
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> Bind<B>(Func<A, Option<B>> f) =>
             MOption<A>.Inst.Bind<MOption<B>, Option<B>, B>(this, f);
 
@@ -359,6 +407,7 @@ namespace LanguageExt
         /// Bi-bind.  Allows mapping of both monad states
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> BiBind<B>(Func<A, Option<B>> Some, Func<Option<B>> None) =>
             IsSome
                 ? Some(Value)
@@ -368,6 +417,7 @@ namespace LanguageExt
         /// Monad bind operation
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<C> SelectMany<B, C>(
             Func<A, Option<B>> bind,
             Func<A, B, C> project) =>
@@ -382,6 +432,7 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
             matchUntyped<MOption<A>, Option<A>, A, R>(this, Some, None);
 
@@ -394,6 +445,7 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public R MatchUntypedUnsafe<R>(Func<object, R> Some, Func<R> None) =>
             matchUntypedUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A, R>(ToOptionUnsafe(), Some, None);
 
@@ -402,6 +454,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Type of the bound value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Type GetUnderlyingType() => 
             typeof(A);
 
@@ -410,6 +463,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> ToArray() =>
             toArray<MOption<A>, Option<A>, A>(this);
 
@@ -418,6 +472,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An immutable list of zero or one items</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Lst<A> ToList() =>
             toList<MOption<A>, Option<A>, A>(this);
 
@@ -426,6 +481,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable sequence of zero or one items</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> ToSeq() =>
             toSeq<MOption<A>, Option<A>, A>(this);
 
@@ -434,10 +490,12 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> AsEnumerable() =>
             asEnumerable<MOption<A>, Option<A>, A>(this);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<FAIL, A> ToValidation<FAIL>(FAIL defaultFailureValue) =>
             IsSome
                 ? Success<FAIL, A>(Value)
@@ -449,6 +507,7 @@ namespace LanguageExt
         /// <param name="defaultLeftValue">Default value if the structure is in a None state</param>
         /// <returns>An Either representation of the structure</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Either<L, A> ToEither<L>(L defaultLeftValue) =>
             toEither<MOption<A>, Option<A>, L, A>(this, defaultLeftValue);
 
@@ -459,6 +518,7 @@ namespace LanguageExt
         /// structure is in a None state</param>
         /// <returns>An Either representation of the structure</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Either<L, A> ToEither<L>(Func<L> Left) =>
             toEither<MOption<A>, Option<A>, L, A>(this, Left);
 
@@ -468,6 +528,7 @@ namespace LanguageExt
         /// <param name="defaultLeftValue">Default value if the structure is in a None state</param>
         /// <returns>An EitherUnsafe representation of the structure</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public EitherUnsafe<L, A> ToEitherUnsafe<L>(L defaultLeftValue) =>
             toEitherUnsafe<MOption<A>, Option<A>, L, A>(this, defaultLeftValue);
 
@@ -478,6 +539,7 @@ namespace LanguageExt
         /// structure is in a None state</param>
         /// <returns>An EitherUnsafe representation of the structure</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public EitherUnsafe<L, A> ToEitherUnsafe<L>(Func<L> Left) =>
             toEitherUnsafe<MOption<A>, Option<A>, L, A>(this, Left);
 
@@ -486,6 +548,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An OptionUnsafe representation of the structure</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public OptionUnsafe<A> ToOptionUnsafe() =>
             toOptionUnsafe<MOption<A>, Option<A>, A>(this);
 
@@ -494,6 +557,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A TryOption representation of the structure</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TryOption<A> ToTryOption() =>
             toTryOption<MOption<A>, Option<A>, A>(this);
 
@@ -505,6 +569,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">The Some(x) match operation</param>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SomeUnitContext<MOption<A>, Option<A>, A> Some(Action<A> f) =>
             new SomeUnitContext<MOption<A>, Option<A>, A>(this, f);
 
@@ -518,6 +583,7 @@ namespace LanguageExt
         /// <param name="f">The Some(x) match operation</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SomeContext<MOption<A>, Option<A>, A, B> Some<B>(Func<A, B> f) =>
             new SomeContext<MOption<A>, Option<A>, A, B>(this, f);
 
@@ -529,6 +595,7 @@ namespace LanguageExt
         /// <param name="None">None match operation. Must not return null.</param>
         /// <returns>A non-null B</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B Match<B>(Func<A, B> Some, Func<B> None) =>
             MOption<A>.Inst.Match(this, Some, None);
 
@@ -540,6 +607,7 @@ namespace LanguageExt
         /// <param name="None">None match operation. May return null.</param>
         /// <returns>B, or null</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B MatchUnsafe<B>(Func<A, B> Some, Func<B> None) =>
             MOption<A>.Inst.MatchUnsafe(this, Some, None);
 
@@ -548,6 +616,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Some">Some match operation</param>
         /// <param name="None">None match operation</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit Match(Action<A> Some, Action None) =>
             MOption<A>.Inst.Match(this, Some, None);
 
@@ -555,6 +624,7 @@ namespace LanguageExt
         /// Invokes the action if Option is in the Some state, otherwise nothing happens.
         /// </summary>
         /// <param name="f">Action to invoke if Option is in the Some state</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit IfSome(Action<A> f) =>
             ifSome<MOption<A>, Option<A>, A>(this, f);
 
@@ -563,6 +633,7 @@ namespace LanguageExt
         /// happens.
         /// </summary>
         /// <param name="f">Function to invoke if Option is in the Some state</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit IfSome(Func<A, Unit> f) =>
             ifSome<MOption<A>, Option<A>, A>(this, f);
 
@@ -575,6 +646,7 @@ namespace LanguageExt
         /// <returns>Tesult of invoking the None() operation if the optional 
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public A IfNone(Func<A> None) =>
             ifNone<MOption<A>, Option<A>, A>(this, None);
 
@@ -587,6 +659,7 @@ namespace LanguageExt
         /// <returns>noneValue if the optional is in a None state, otherwise
         /// the bound Some(x) value is returned</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public A IfNone(A noneValue) =>
             ifNone<MOption<A>, Option<A>, A>(this, noneValue);
 
@@ -599,6 +672,7 @@ namespace LanguageExt
         /// <returns>Tesult of invoking the None() operation if the optional 
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public A IfNoneUnsafe(Func<A> None) =>
             OptionalUnsafe.ifNoneUnsafe<MOption<A>, Option<A>, A>(this, None);
 
@@ -611,6 +685,7 @@ namespace LanguageExt
         /// <returns>noneValue if the optional is in a None state, otherwise
         /// the bound Some(x) value is returned</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public A IfNoneUnsafe(A noneValue) =>
             OptionalUnsafe.ifNoneUnsafe<MOption<A>, Option<A>, A>(this, noneValue);
 
@@ -635,6 +710,7 @@ namespace LanguageExt
         /// <param name="folder">Folder function, applied if Option is in a Some state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S Fold<S>(S state, Func<S, A, S> folder) =>
             MOption<A>.Inst.Fold(this, state, folder)(unit);
 
@@ -659,6 +735,7 @@ namespace LanguageExt
         /// <param name="folder">Folder function, applied if Option is in a Some state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S FoldBack<S>(S state, Func<S, A, S> folder) =>
             MOption<A>.Inst.FoldBack(this, state, folder)(unit);
 
@@ -684,6 +761,7 @@ namespace LanguageExt
         /// <param name="None">Folder function, applied if Option is in a None state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, Unit, S> None) =>
             MOption<A>.Inst.BiFold(this, state, Some, None);
 
@@ -709,6 +787,7 @@ namespace LanguageExt
         /// <param name="None">Folder function, applied if Option is in a None state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, S> None) =>
             MOption<A>.Inst.BiFold(this, state, Some, (s, _) => None(s));
 
@@ -720,6 +799,7 @@ namespace LanguageExt
         /// <param name="None">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> BiMap<B>(Func<A, B> Some, Func<Unit, B> None) =>
             FOption<A, B>.Inst.BiMap(this, Some, None);
 
@@ -731,6 +811,7 @@ namespace LanguageExt
         /// <param name="None">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> BiMap<B>(Func<A, B> Some, Func<B> None) =>
             FOption<A, B>.Inst.BiMap(this, Some, _ => None());
 
@@ -747,6 +828,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns></returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Count() =>
             MOption<A>.Inst.Count(this)(unit);
 
@@ -762,6 +844,7 @@ namespace LanguageExt
         /// the value is the result of running applying the bound value to the 
         /// predicate supplied.</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ForAll(Func<A, bool> pred) =>
             forall<MOption<A>, Option<A>, A>(this, pred);
 
@@ -778,6 +861,7 @@ namespace LanguageExt
         /// is the result of running applying the bound value to the Some predicate 
         /// supplied.</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool BiForAll(Func<A, bool> Some, Func<Unit, bool> None) =>
             biForAll<MOption<A>, Option<A>, A, Unit>(this, Some, None);
 
@@ -794,6 +878,7 @@ namespace LanguageExt
         /// is the result of running applying the bound value to the Some predicate 
         /// supplied.</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool BiForAll(Func<A, bool> Some, Func<bool> None) =>
             biForAll<MOption<A>, Option<A>, A, Unit>(this, Some, _ => None());
 
@@ -808,6 +893,7 @@ namespace LanguageExt
         /// is the result of running applying the bound value to the predicate 
         /// supplied.</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Exists(Func<A, bool> pred) =>
             exists<MOption<A>, Option<A>, A>(this, pred);
 
@@ -823,6 +909,7 @@ namespace LanguageExt
         /// is the result of running applying the bound value to the Some predicate 
         /// supplied.</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool BiExists(Func<A, bool> Some, Func<Unit, bool> None) =>
             biExists<MOption<A>, Option<A>, A, Unit>(this, Some, None);
 
@@ -838,6 +925,7 @@ namespace LanguageExt
         /// is the result of running applying the bound value to the Some predicate 
         /// supplied.</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool BiExists(Func<A, bool> Some, Func<bool> None) =>
             biExists<MOption<A>, Option<A>, A, Unit>(this, Some, _ => None());
 
@@ -846,6 +934,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Some">Action to invoke</param>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit Iter(Action<A> Some) =>
             iter<MOption<A>, Option<A>, A>(this, Some);
 
@@ -855,6 +944,7 @@ namespace LanguageExt
         /// <param name="Some">Action to invoke if in a Some state</param>
         /// <param name="None">Action to invoke if in a None state</param>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit BiIter(Action<A> Some, Action<Unit> None) =>
             biIter<MOption<A>, Option<A>, A, Unit>(this, Some, None);
 
@@ -864,6 +954,7 @@ namespace LanguageExt
         /// <param name="Some">Action to invoke if in a Some state</param>
         /// <param name="None">Action to invoke if in a None state</param>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit BiIter(Action<A> Some, Action None) =>
             biIter<MOption<A>, Option<A>, A, Unit>(this, Some, _ => None());
 
@@ -874,6 +965,7 @@ namespace LanguageExt
         /// <returns>Some(x) if the Option is in a Some state and the predicate
         /// returns True.  None otherwise.</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<A> Filter(Func<A, bool> pred) =>
             filter<MOption<A>, Option<A>, A>(this, pred);
 
@@ -884,6 +976,7 @@ namespace LanguageExt
         /// <returns>Some(x) if the Option is in a Some state and the predicate
         /// returns True.  None otherwise.</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<A> Where(Func<A, bool> pred) =>
             filter<MOption<A>, Option<A>, A>(this, pred);
 
@@ -891,6 +984,7 @@ namespace LanguageExt
         /// Monadic join
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<D> Join<B, C, D>(
             Option<B> inner,
             Func<A, C> outerKeyMap,
@@ -905,6 +999,7 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<Func<B, C>> ParMap<B, C>(Func<A, B, C> func) =>
             Map(curry(func));
 
@@ -913,18 +1008,21 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<Func<B, Func<C, D>>> ParMap<B, C, D>(Func<A, B, C, D> func) =>
             Map(curry(func));
 
         /// <summary>
         /// Get an enumerator for the Option
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerator<A> GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
         /// <summary>
         /// Get an enumerator for the Option
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
     }

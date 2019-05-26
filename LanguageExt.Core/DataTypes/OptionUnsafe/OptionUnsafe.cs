@@ -10,6 +10,7 @@ using LanguageExt.ClassInstances;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
@@ -92,9 +93,13 @@ namespace LanguageExt
             if(IsSome) info.AddValue("Value", data.Value);
         }
 
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerator<A> GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
@@ -118,19 +123,53 @@ namespace LanguageExt
         /// </remarks>
         /// <param name="other">The OptionUnsafe type to compare this type with</param>
         /// <returns>True if this and other are equal</returns>
-        public bool Equals(OptionUnsafe<A> other) =>
-            equals<EqDefault<A>, A>(this, other);
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(OptionUnsafe<A> other)
+        {
+            if (ReferenceEquals(this, other)) return true;
+
+            var xIsSome = IsSome;
+            var yIsSome = other.IsSome;
+            var xIsNone = !xIsSome;
+            var yIsNone = !yIsSome;
+
+            return (xIsNone && yIsNone) || (xIsSome && yIsSome && default(EqDefault<A>).Equals(Value, other.Value));
+        }
 
         /// <summary>
-        /// Uses the OrdDefault instance to do an ordering comparison on the bound 
-        /// value.  To use anything other than the default call 
-        /// compare<OrdDefault<A>, A>(this, other), where EQ is an instance derived 
-        /// from Eq<A>
+        /// Uses the `OrdDefault` instance to do an ordering comparison on the bound 
+        /// value.  To use anything other than the default call  `this.Compare<OrdA>(this, other)`, 
+        /// where `OrdA` is an instance derived  from `Ord<A>`
         /// </summary>
-        /// <param name="other">The OptionUnsafe type to compare this type with</param>
-        /// <returns>True if this and other are equal</returns>
+        /// <param name="other">The `OptionUnsafe` type to compare `this` type with</param>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(OptionUnsafe<A> other) =>
-            compare<OrdDefault<A>, A>(this, other);
+            CompareTo<OrdDefault<A>>(other);
+
+        /// <summary>
+        /// Uses the `Ord` instance provided to do an ordering comparison on the bound 
+        /// value.  
+        /// </summary>
+        /// <param name="other">The `OptionUnsafe` type to compare `this` type with</param>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int CompareTo<OrdA>(OptionUnsafe<A> other) where OrdA : struct, Ord<A>
+        {
+            var xIsSome = IsSome;
+            var yIsSome = other.IsSome;
+            var xIsNone = !xIsSome;
+            var yIsNone = !yIsSome;
+
+            if (xIsNone && yIsNone) return 0;
+            if (xIsSome && yIsNone) return 1;
+            if (xIsNone && yIsSome) return -1;
+
+            return xIsSome && yIsSome
+                ? default(OrdA).Compare(Value, other.Value)
+                : 0;
+        }
 
         /// <summary>
         /// Implicit conversion operator from A to OptionUnsafe<A>

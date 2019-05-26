@@ -18,7 +18,7 @@ namespace LanguageExt
         IEquatable<OptionNone>,
         IComparable<OptionNone>
     {
-        public static OptionNone Default = new OptionNone();
+        public readonly static OptionNone Default = new OptionNone();
 
         public bool IsSome => false;
         public bool IsNone => true;
