@@ -46,6 +46,7 @@ To make the reference **build and design time only** (i.e. your project doesn't 
 This library seems compatible on the latest (at the time of writing) Unity 2018.2 with __incremental compiler__ (which enables C# 7).
 So this library should work well once Unity has official support for C# 7 on upcoming 2018.3.
 In the meanwhile, you can install incremental compiler instead. 
+If you are concerned about writing functionally and the possible performance overheads then please take a look at [this wiki page](https://github.com/louthy/language-ext/wiki/Performance).
 
 ## Supporting language-ext
 
@@ -222,8 +223,8 @@ For example:
     var abcd = ('a', 'b').Add('c').Add('d');                                 // ('a', 'b', 'c', 'd')
     var abcd5 = ('a', 'b').Add('c').Add('d').Add(5);                         // ('a', 'b', 'c', 'd', 5)
 
-    var sumA = (1, 2, 3).Sum<TInt, int>();                                   // 6
-    var sumB = (2, 4, 8).Product<TInt, int>();                               // 64
+    var sum = (1, 2, 3).Sum<TInt, int>();                                    // 6
+    var product = (2, 4, 8).Product<TInt, int>();                            // 64
     var flag = ("one", "two", "three").Contains<TString, string>("one");     // true
     var str = ("Hello", " ", "World").Concat<TString, string>();             // "Hello World"
     var list = (List(1, 2, 3), List(4, 5, 6)).Concat<TLst<int>, Lst<int>>(); // [1,2,3,4,5,6]
