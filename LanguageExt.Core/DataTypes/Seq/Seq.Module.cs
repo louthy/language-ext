@@ -976,13 +976,12 @@ namespace LanguageExt
         }
 
         internal static Seq<A> FromSingleValue<A>(A value) =>
-            new Seq<A>(new[] {
+            new Seq<A>( new[] {
                 default,
                 default,
                 default,
                 default,
                 value,
-                default,
                 default,
                 default,
                 default

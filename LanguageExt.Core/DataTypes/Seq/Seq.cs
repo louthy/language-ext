@@ -215,7 +215,7 @@ namespace LanguageExt
             }
 
             var end = start + count;
-            if (Interlocked.Exchange(ref addDisallowed, 1) == 1 || end == data.Length)
+            if (1 == Interlocked.Exchange(ref addDisallowed, 1) || end == data.Length)
             {
                 return CloneAdd(value);
             }
@@ -267,7 +267,7 @@ namespace LanguageExt
         Seq<A> Concat(A[] items, int itemsStart, int itemsCount)
         {
             var end = start + count;
-            if (Interlocked.Exchange(ref addDisallowed, 1) == 1 || (end + itemsCount >= data.Length))
+            if (1 == Interlocked.Exchange(ref addDisallowed, 1) || (end + itemsCount >= data.Length))
             {
                 return CloneAddRange(items, itemsStart, itemsCount);
             }
@@ -284,7 +284,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal Seq<A> Cons(A value)
         {
-            if (Interlocked.Exchange(ref consDisallowed, 1) == 1 || start == 0)
+            if (1 == Interlocked.Exchange(ref consDisallowed, 1) || start == 0)
             {
                 return CloneCons(value);
             }

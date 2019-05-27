@@ -28,6 +28,8 @@ namespace TestBed
                 AddItems(list, count);
                 listSW.Stop();
 
+                GC.Collect();
+
                 // Seq
                 var seqSW = Stopwatch.StartNew();
                 var seq = Seq<int>();
@@ -62,6 +64,8 @@ namespace TestBed
                 ConsItems(list, count);
                 listSW.Stop();
 
+                GC.Collect();
+
                 // Seq
                 var seqSW = Stopwatch.StartNew();
                 var seq = Seq<int>();
@@ -71,8 +75,8 @@ namespace TestBed
                 // Check
                 AssertConsItems(seq, count);
 
-                Console.WriteLine($"{count} items added to a List<T>: {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per operation");
-                Console.WriteLine($"{count} items added to a Seq<T>: {seqSW.ElapsedMilliseconds}ms, which is {(float)seqSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per operation");
+                Console.WriteLine($"{count} items consd to a List<T>: {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per operation");
+                Console.WriteLine($"{count} items consd to a Seq<T>: {seqSW.ElapsedMilliseconds}ms, which is {(float)seqSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per operation");
             }
         }
 
