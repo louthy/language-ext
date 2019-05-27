@@ -163,7 +163,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>Hash code of x</returns>
         [Pure]
         public int GetHashCode(string x) =>
-            x.IsNull() ? 0 : x.GetHashCode();
+            x?.GetHashCode() ?? 0;
     }
 
     public struct TStringCurrentCultureIgnoreCase : Ord<string>, Monoid<string>

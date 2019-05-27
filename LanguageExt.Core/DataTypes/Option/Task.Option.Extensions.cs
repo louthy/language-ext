@@ -11,7 +11,7 @@ using LanguageExt.TypeClasses;
 public static class TaskOptionAsyncExtensions
 {
     public static OptionAsync<A> ToAsync<A>(this Task<Option<A>> ma) =>
-        new OptionAsync<A>(ma.Map(a => a.data));
+        new OptionAsync<A>(ma.Map(a => (a.IsSome, a.Value)));
 
     /// <summary>
     /// Projection from one value to another 
@@ -158,7 +158,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>An Either representation of the structure</returns>
     [Pure]
     public static EitherAsync<L, A> ToEitherAsync<L, A>(this Task<Option<A>> self, Func<L> Left) =>
-        toEitherAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(new OptionAsync<A>(self.Map(x => x.data)), Left);
+        toEitherAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(new OptionAsync<A>(self.Map(x => (x.IsSome, x.Value))), Left);
 
     /// <summary>
     /// Convert the structure to an EitherUnsafe
@@ -167,7 +167,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>An EitherUnsafe representation of the structure</returns>
     [Pure]
     public static Task<EitherUnsafe<L, A>> ToEitherUnsafeAsync<L, A>(this Task<Option<A>> self, L defaultLeftValue) =>
-        toEitherUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(new OptionAsync<A>(self.Map(x => x.data)), defaultLeftValue);
+        toEitherUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(new OptionAsync<A>(self.Map(x => (x.IsSome, x.Value))), defaultLeftValue);
 
     /// <summary>
     /// Convert the structure to an EitherUnsafe

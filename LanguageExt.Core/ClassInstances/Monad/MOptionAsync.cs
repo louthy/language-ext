@@ -47,11 +47,8 @@ namespace LanguageExt.ClassInstances
                     : b);
 
         [Pure]
-        public OptionAsync<A> ReturnAsync(Func<Unit, Task<A>> f)
-        {
-            async Task<OptionData<A>> Do(Func<Unit, Task<A>> ff) => OptionData<A>.Optional(await ff(unit));
-            return new OptionAsync<A>(Do(f));
-        }
+        public OptionAsync<A> ReturnAsync(Func<Unit, Task<A>> f) =>
+            OptionAsync<A>.SomeAsync(f(unit));
 
         [Pure]
         public OptionAsync<A> Zero() =>
@@ -209,12 +206,10 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionAsync<A> RunAsync(Func<Unit, Task<OptionAsync<A>>> ma)
         {
-            async Task<OptionData<A>> Do(Func<Unit, Task<OptionAsync<A>>> mma)
+            async Task<(bool IsSome, A Value)> Do(Func<Unit, Task<OptionAsync<A>>> mma)
             {
                 var a = await mma(unit);
-                return await a.IsSome
-                    ? OptionData<A>.Optional(await a.Value)
-                    : OptionData<A>.None;
+                return await a.Data;
             }
             return new OptionAsync<A>(Do(ma));
         }
@@ -231,7 +226,7 @@ namespace LanguageExt.ClassInstances
         public Func<Unit, Task<S>> Fold<S>(OptionAsync<A> ma, S state, Func<S, A, S> f) => async _ => 
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
-            if (f == null) throw new ArgumentNullException(nameof(f));
+            f = f ?? throw new ArgumentNullException(nameof(f));
             return Check.NullReturn(await ma.IsSome
                 ? f(state, await ma.Value)
                 : state);
@@ -241,7 +236,7 @@ namespace LanguageExt.ClassInstances
         public Func<Unit, Task<S>> FoldAsync<S>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> f) => async _ =>
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
-            if (f == null) throw new ArgumentNullException(nameof(f));
+            f = f ?? throw new ArgumentNullException(nameof(f));
             return Check.NullReturn(await ma.IsSome
                 ? await f(state, await ma.Value)
                 : state);

@@ -274,7 +274,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int compare<ORD, L, R>(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where ORD : struct, Ord<R> =>
-            default(OrdChoiceUnsafe<ORD, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Compare(x, y);
+            default(OrdChoiceUnsafe<ORD, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>).Compare(x, y);
 
         /// <summary>
         /// Find the minimum value between any two values
@@ -285,7 +285,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static A min<OrdA, A>(A x, A y) where OrdA : struct, Ord<A> =>
-            compare<OrdA, A>(x, y) < 0
+            default(OrdA).Compare(x, y) < 0
                 ? x
                 : y;
 
@@ -298,7 +298,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static A max<OrdA, A>(A x, A y) where OrdA : struct, Ord<A> =>
-            compare<OrdA, A>(x, y) > 0
+            default(OrdA).Compare(x, y) > 0
                 ? x
                 : y;
 
@@ -312,7 +312,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static A min<OrdA, A>(A x, A y, A z, params A[] tail) where OrdA : struct, Ord<A> =>
-            fold<MArray<A>, A[], A, A>(tail, min<OrdA, A>(x, min<OrdA, A>(y, z)), min<OrdA, A>);
+            default(MArray<A>).Fold(tail, min<OrdA, A>(x, min<OrdA, A>(y, z)), min<OrdA, A>)(Prelude.unit);
 
         /// <summary>
         /// Find the maximum value between a set of values
@@ -324,6 +324,6 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static A max<OrdA, A>(A x, A y, A z, params A[] tail) where OrdA : struct, Ord<A> =>
-            fold<MArray<A>, A[], A, A>(tail, max<OrdA, A>(x, max<OrdA, A>(y, z)), max<OrdA, A>);
+            default(MArray<A>).Fold(tail, max<OrdA, A>(x, max<OrdA, A>(y, z)), max<OrdA, A>)(Prelude.unit);
     }
 }

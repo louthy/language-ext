@@ -102,18 +102,18 @@ namespace LanguageExt
         /// <summary>
         /// Pattern matching for values
         /// </summary>
-        /// <typeparam name="T">Value type to match</typeparam>
-        /// <typeparam name="R">Result of expression</typeparam>
+        /// <typeparam name="A">Value type to match</typeparam>
+        /// <typeparam name="B">Result of expression</typeparam>
         /// <param name="value">Value to match</param>
         /// <param name="clauses">Clauses to test</param>
         /// <returns>Result</returns>
         [Pure]
-        public static R match<T, R>(T value, params Func<T, Option<R>>[] clauses)
+        public static B match<A, B>(A value, params Func<A, Option<B>>[] clauses)
         {
             foreach (var clause in clauses)
             {
                 var res = clause(value);
-                if (res.IsSome) return res.IfNone(default(R));
+                if (res.IsSome) return (B)res;
             }
             throw new Exception("Match not exhaustive");
         }
@@ -121,27 +121,28 @@ namespace LanguageExt
         /// <summary>
         /// Pattern matching for values
         /// </summary>
-        /// <typeparam name="T">Value type to match</typeparam>
-        /// <typeparam name="R">Result of expression</typeparam>
+        /// <typeparam name="A">Value type to match</typeparam>
+        /// <typeparam name="B">Result of expression</typeparam>
         /// <param name="value">Value to match</param>
         /// <param name="clauses">Clauses to test</param>
         /// <returns>Result</returns>
         [Pure]
-        public static Func<T, R> function<T, R>(params Func<T, Option<R>>[] clauses) => (T value) =>
-         {
+        public static Func<A, B> function<A, B>(params Func<A, Option<B>>[] clauses) => (A value) =>
+        {
              foreach (var clause in clauses)
              {
                  var res = clause(value);
-                 if (res.IsSome) return res.IfNone(default(R));
+                 if (res.IsSome) return (B)res;
              }
              throw new Exception("Match not exhaustive");
-         };
+        };
 
         /// <summary>
         /// Identity function
         /// </summary>
         [Pure]
-        public static T identity<T>(T x) => x;
+        public static A identity<A>(A x) => 
+            x;
 
         /// <summary>
         /// Raises a lazy Exception with the message provided
@@ -149,7 +150,7 @@ namespace LanguageExt
         /// <param name="message">Exception message</param>
         /// <returns>Action that when executed throws</returns>
         public static Action failwith(string message) =>
-            () => { throw new Exception(message); };
+            () => throw new Exception(message);
 
         /// <summary>
         /// Raises an Exception with the message provided
@@ -159,12 +160,9 @@ namespace LanguageExt
         /// example</typeparam>
         /// <param name="message">Exception message</param>
         /// <returns>Throws an exception</returns>
-        public static R failwith<R>(string message)
-        {
+        public static R failwith<R>(string message) =>
             throw new Exception(message);
-        }
 
-#if !COREFX13
         /// <summary>
         /// Raises an ApplicationException with the message provided
         /// </summary>
@@ -173,11 +171,9 @@ namespace LanguageExt
         /// example</typeparam>
         /// <param name="message">ApplicationException message</param>
         /// <returns>Throws an ApplicationException</returns>
-        public static R raiseapp<R>(string message)
-        {
+        public static R raiseapp<R>(string message) =>
             throw new ApplicationException(message);
-        }
-#endif
+
         /// <summary>
         /// Raise an exception
         /// </summary>
@@ -186,10 +182,8 @@ namespace LanguageExt
         /// example</typeparam>
         /// <param name="ex">Exception to throw</param>
         /// <returns>Throws an exception</returns>
-        public static R raise<R>(Exception ex)
-        {
+        public static R raise<R>(Exception ex) =>
             throw ex;
-        }
 
         /// <summary>
         /// Identifies an exception as being of type E
@@ -208,7 +202,7 @@ namespace LanguageExt
         /// <summary>
         /// Calculate a hash-code for an enumerable
         /// </summary>
-        public static int hash<T>(IEnumerable<T> xs)
+        public static int hash<A>(IEnumerable<A> xs)
         {
             if (xs == null) return 0;
             unchecked
@@ -273,8 +267,8 @@ namespace LanguageExt
         /// default value</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool isDefault<T>(T value) =>
-            value.IsDefault();
+        public static bool isDefault<A>(A value) =>
+            ObjectExt.Check<A>.IsDefault(value);
 
         /// <summary>
         /// Returns true if the value is not equal to this type's
@@ -288,8 +282,8 @@ namespace LanguageExt
         /// default value</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool notDefault<T>(T value) =>
-            !isDefault(value);
+        public static bool notDefault<A>(A value) =>
+            !ObjectExt.Check<A>.IsDefault(value);
 
         /// <summary>
         /// Returns true if the value is null, and does so without
@@ -308,8 +302,8 @@ namespace LanguageExt
         /// return false.</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool isnull<T>(T value) =>
-            value.IsNull();
+        public static bool isnull<A>(A value) =>
+            ObjectExt.Check<A>.IsNull(value);
 
         /// <summary>
         /// Returns true if the value is not null, and does so without
@@ -330,14 +324,14 @@ namespace LanguageExt
         /// return false.</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool notnull<T>(T value) =>
-            !isnull(value);
+        public static bool notnull<A>(A value) =>
+            !ObjectExt.Check<A>.IsNull(value);
 
         /// <summary>
         /// Convert a value to string
         /// </summary>
         [Pure]
-        public static string toString<T>(T value) =>
-            value?.ToString();
+        public static string toString<A>(A value) =>
+            value?.ToString() ?? "";
    }
 }

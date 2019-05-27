@@ -282,7 +282,7 @@ public static class OptionExtensions
     /// <returns>The bound value or 0 if None</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Sum(this Option<int> a) =>
-        a.IfNone(0);
+        (int)a;
 
     /// <summary>
     /// Sum the bound value

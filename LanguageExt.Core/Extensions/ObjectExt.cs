@@ -20,8 +20,8 @@ namespace LanguageExt
         /// default value</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsDefault<T>(this T value) =>
-            Check<T>.IsDefault(value);
+        public static bool IsDefault<A>(this A value) =>
+            Check<A>.IsDefault(value);
 
         /// <summary>
         /// Returns true if the value is null, and does so without
@@ -40,31 +40,29 @@ namespace LanguageExt
         /// return false.</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsNull<T>(this T value) =>
-            Check<T>.IsNull(value);
+        public static bool IsNull<A>(this A value) =>
+            Check<A>.IsNull(value);
 
-        private static class Check<T>
+        internal static class Check<A>
         {
             static readonly bool IsReferenceType;
             static readonly bool IsNullable;
-            static readonly EqualityComparer<T> DefaultEqualityComparer;
+            static readonly EqualityComparer<A> DefaultEqualityComparer;
 
             static Check()
             {
-                IsNullable = Nullable.GetUnderlyingType(typeof(T)) != null;
-                IsReferenceType = !typeof(T).GetTypeInfo().IsValueType;
-                DefaultEqualityComparer = EqualityComparer<T>.Default;
+                IsNullable = Nullable.GetUnderlyingType(typeof(A)) != null;
+                IsReferenceType = !typeof(A).GetTypeInfo().IsValueType;
+                DefaultEqualityComparer = EqualityComparer<A>.Default;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal static bool IsDefault(T value) =>
-                DefaultEqualityComparer.Equals(value, default(T));
+            internal static bool IsDefault(A value) =>
+                DefaultEqualityComparer.Equals(value, default);
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal static bool IsNull(T value) =>
-                IsNullable
-                    ? value.Equals(default(T))
-                    : IsReferenceType && DefaultEqualityComparer.Equals(value, default(T));
+            internal static bool IsNull(A value) =>
+                (IsReferenceType && ReferenceEquals(value, null)) || (IsNullable && value.Equals(default));
         }
     }
 }

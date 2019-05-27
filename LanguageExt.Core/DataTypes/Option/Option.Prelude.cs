@@ -77,7 +77,6 @@ namespace LanguageExt
         /// 'No value' state of Option T.
         /// </summary>
         [Pure]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static OptionNone None =>
             default;
 
@@ -91,21 +90,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<A> Some<A>(A value) =>
-            isnull(value)
-                ? throw new ValueIsNullException()
-                : new Option<A>(OptionData.Some(value));
-
-        /// <summary>
-        /// Create a lazy `Some` of `A`
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="value">Non-null value to be made optional</param>
-        /// <returns>`Option<A>` in a `Some` state or throws `ValueIsNullException`
-        /// if `isnull(value)`.</returns>
-        [Pure]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Option<A> Some<A>(Func<Unit, A> f) =>
-            MOption<A>.Inst.Return(f);
+            Option<A>.Some(value);
 
         /// <summary>
         /// Create a `Some` of `A` from a `Nullable<A>`
@@ -118,7 +103,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<A> Some<A>(A? value) where A : struct =>
             value.HasValue
-                ? new Option<A>(OptionData.Some(value.Value))
+                ? new Option<A>(value.Value, true)
                 : throw new ValueIsNullException();
 
         /// <summary>
@@ -132,18 +117,7 @@ namespace LanguageExt
         public static Option<A> Optional<A>(A value) =>
             isnull(value)
                 ? default
-                : new Option<A>(OptionData.Some(value));
-
-        /// <summary>
-        /// Create a lazy `Option` of `A`
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="f">A function that returns the value to construct the option with</param>
-        /// <returns>A lazy `Option<A>`</returns>
-        [Pure]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Option<A> Optional<A>(Func<Unit, A> f) =>
-            MOption<A>.Inst.Return(f);
+                : new Option<A>(value, true);
 
         /// <summary>
         /// Create an `Option` of `A`
@@ -155,7 +129,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<A> Optional<A>(A? value) where A : struct =>
             value.HasValue
-                ? new Option<A>(OptionData.Some(value.Value))
+                ? new Option<A>(value.Value, true)
                 : default;
 
         /// <summary>
