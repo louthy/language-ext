@@ -37,6 +37,9 @@ class Program
 {
     static void Main(string[] args)
     {
+        SeqPerf.Test1();
+        return;
+
         Test533();
 
         IEnumerableOptionBindT_NotEnumerabled_NotEvaluated();

@@ -50,7 +50,7 @@ namespace LanguageExt
         {
             var nitems = new A[items.Length];
             System.Array.Copy(items, nitems, items.Length);
-            return new Seq<A>(items, 0, items.Length, 0, 0, null);
+            return FromArray(items);
         }
 
         /// <summary>
@@ -974,5 +974,21 @@ namespace LanguageExt
             }
             return (self.Take(index), self.Skip(index));
         }
+
+        internal static Seq<A> FromSingleValue<A>(A value) =>
+            new Seq<A>(new[] {
+                default,
+                default,
+                default,
+                default,
+                value,
+                default,
+                default,
+                default,
+                default
+            }, 4, 1, 0, 0, 0, null);
+
+        internal static Seq<A> FromArray<A>(A[] value) =>
+            new Seq<A>(value, 0, value.Length, 0, 0, 0, null);
     }
 }
