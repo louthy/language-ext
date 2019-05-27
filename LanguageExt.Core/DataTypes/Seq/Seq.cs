@@ -22,14 +22,13 @@ namespace LanguageExt
     public class Seq<A> : IEnumerable<A>, ISeq<A>, IComparable<Seq<A>>, IEquatable<Seq<A>>
     {
         const int DefaultCapacity = 8;
-        //const int ConsAndAddAllowed = 1;
         const int NoCons = 1;
-        const int NoAdd = 2;
+        const int NoAdd = 1;
 
         /// <summary>
         /// Empty sequence
         /// </summary>
-        public static Seq<A> Empty = new Seq<A>(new A[0], 0, 0, 0, NoCons, NoAdd, null);
+        public static Seq<A> Empty => new Seq<A>(new A[DefaultCapacity], 4, 0, 0, 0, 0, null);
 
         /// <summary>
         /// Backing data
@@ -47,22 +46,29 @@ namespace LanguageExt
         int count;
 
         /// <summary>
-        /// Lazy sequence
-        /// </summary>
-        Enum<A> seq;
-
-        /// <summary>
         /// Index into data where the lazy sequence starts
         /// </summary>
         readonly int seqStart;
 
         /// <summary>
+        /// 1 if no more consing is allowed
+        /// </summary>
+        int consDisallowed;
+
+        /// <summary>
+        /// 1 if no more adding is allowed
+        /// </summary>
+        int addDisallowed;
+
+        /// <summary>
+        /// Lazy sequence
+        /// </summary>
+        Enum<A> seq;
+
+        /// <summary>
         /// Cached hash code
         /// </summary>
         int hash;
-
-        int consDisallowed;
-        int addDisallowed;
 
         /// <summary>
         /// Constructor from lazy sequence
@@ -80,6 +86,7 @@ namespace LanguageExt
         /// <summary>
         /// Constructor
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal Seq(A[] data, int start, int count, int seqStart, int noCons, int noAdd, Enum<A> seq)
         {
             this.data = data;
@@ -87,6 +94,19 @@ namespace LanguageExt
             this.count = count;
             this.seqStart = seqStart;
             this.seq = seq;
+            this.consDisallowed = noCons;
+            this.addDisallowed = noAdd;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        Seq(A[] data, int start, int count, int noCons, int noAdd)
+        {
+            this.data = data;
+            this.start = start;
+            this.count = count;
             this.consDisallowed = noCons;
             this.addDisallowed = noAdd;
         }
@@ -183,6 +203,7 @@ namespace LanguageExt
         /// Forces evaluation of the entire lazy sequence so the item 
         /// can be appended
         /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Add(A value)
         {
             if (seq != null)
@@ -194,14 +215,14 @@ namespace LanguageExt
             }
 
             var end = start + count;
-            if (Interlocked.CompareExchange(ref addDisallowed, 0, 1) == 1 || end == data.Length)
+            if (Interlocked.Exchange(ref addDisallowed, 1) == 1 || end == data.Length)
             {
                 return CloneAdd(value);
             }
             else
             {
                 data[end] = value;
-                return new Seq<A>(data, start, count + 1, 0, consDisallowed, 0, null);
+                return new Seq<A>(data, start, count + 1, NoCons, 0);
             }
         }
 
@@ -246,23 +267,24 @@ namespace LanguageExt
         Seq<A> Concat(A[] items, int itemsStart, int itemsCount)
         {
             var end = start + count;
-            if (Interlocked.CompareExchange(ref addDisallowed, 0, 1) == 1 || (end + itemsCount >= data.Length))
+            if (Interlocked.Exchange(ref addDisallowed, 1) == 1 || (end + itemsCount >= data.Length))
             {
                 return CloneAddRange(items, itemsStart, itemsCount);
             }
             else
             {
                 System.Array.Copy(items, itemsStart, data, end, itemsCount);
-                return new Seq<A>(data, start, count + itemsCount, 0, consDisallowed, 0, null);
+                return new Seq<A>(data, start, count + itemsCount, 0, NoCons, 0, null);
             }
         }
 
         /// <summary>
         /// Prepend an item to the sequence
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal Seq<A> Cons(A value)
         {
-            if (Interlocked.CompareExchange(ref consDisallowed, 0, 1) == 1 || start == 0)
+            if (Interlocked.Exchange(ref consDisallowed, 1) == 1 || start == 0)
             {
                 return CloneCons(value);
             }
@@ -270,7 +292,7 @@ namespace LanguageExt
             {
                 var nstart = start - 1;
                 data[nstart] = value;
-                return new Seq<A>(data, start - 1, count + 1, seqStart, 0, addDisallowed, seq);
+                return new Seq<A>(data, start - 1, count + 1, seqStart, 0, NoAdd, seq);
             }
         }
 
@@ -1257,6 +1279,11 @@ namespace LanguageExt
 
             if (seq == null)
             {
+                end = start + count;
+                for (; i < end; i++)
+                {
+                    yield return data[i];
+                }
                 yield break;
             }
 

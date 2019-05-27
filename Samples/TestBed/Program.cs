@@ -37,7 +37,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        SeqPerf.Test1();
+        SeqPerf.TestCons();
         return;
 
         Test533();

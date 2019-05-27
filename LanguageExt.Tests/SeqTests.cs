@@ -162,8 +162,8 @@ namespace LanguageExt.Tests
         [Fact]
         public void EqualityTest_BothNull()
         {
-            Seq<int> x = null;
-            Seq<int> y = null;
+            Seq<int> x = default;
+            Seq<int> y = default;
 
             var eq = x == y;
 
@@ -173,7 +173,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void EqualityTest_LeftNull()
         {
-            Seq<int> x = null;
+            Seq<int> x = default;
             Seq<int> y = Seq(1, 2, 3);
 
             var eq = x == y;
@@ -185,7 +185,7 @@ namespace LanguageExt.Tests
         public void EqualityTest_RightNull()
         {
             Seq<int> x = Seq(1, 2, 3);
-            Seq<int> y = null;
+            Seq<int> y = default;
 
             var eq = x == y;
 
