@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using LanguageExt;
+using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
@@ -20,14 +21,14 @@ namespace LanguageExt
     /// <typeparam name="A">Type of the values in the sequence</typeparam>
     public class Seq<A> : IEnumerable<A>, ISeq<A>, IComparable<Seq<A>>, IEquatable<Seq<A>>
     {
-        const int ConsAndAddAllowed = 1;
+        const int DefaultCapacity = 8;
         const int NoCons = 1;
-        const int NoAdd = 2;
+        const int NoAdd = 1;
 
         /// <summary>
         /// Empty sequence
         /// </summary>
-        public static Seq<A> Empty = new Seq<A>(new A[0], 0, 0, 0, ConsAndAddAllowed, null);
+        public static Seq<A> Empty => new Seq<A>(new A[DefaultCapacity], DefaultCapacity >> 1, 0, 0, 0, 0, null);
 
         /// <summary>
         /// Backing data
@@ -37,7 +38,7 @@ namespace LanguageExt
         /// <summary>
         /// Index into data where the Head is
         /// </summary>
-        int start;
+        readonly int start;
 
         /// <summary>
         /// Known size of the sequence - 0 means unknown
@@ -45,14 +46,24 @@ namespace LanguageExt
         int count;
 
         /// <summary>
+        /// Index into data where the lazy sequence starts
+        /// </summary>
+        readonly int seqStart;
+
+        /// <summary>
+        /// 1 if no more consing is allowed
+        /// </summary>
+        int consDisallowed;
+
+        /// <summary>
+        /// 1 if no more adding is allowed
+        /// </summary>
+        int addDisallowed;
+
+        /// <summary>
         /// Lazy sequence
         /// </summary>
         Enum<A> seq;
-
-        /// <summary>
-        /// Index into data where the lazy sequence starts
-        /// </summary>
-        int seqStart;
 
         /// <summary>
         /// Cached hash code
@@ -64,10 +75,10 @@ namespace LanguageExt
         /// </summary>
         public Seq(IEnumerable<A> seq)
         {
-            this.data = new A[0];
-            this.start = 0;
+            this.data = new A[DefaultCapacity];
+            this.start = DefaultCapacity >> 1;
             this.count = 0;
-            this.seqStart = 0;
+            this.seqStart = start;
             this.seq = new Enum<A>(seq);
             this.hash = 0;
         }
@@ -75,14 +86,29 @@ namespace LanguageExt
         /// <summary>
         /// Constructor
         /// </summary>
-        internal Seq(A[] data, int start, int count, int seqStart, int flags, Enum<A> seq)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal Seq(A[] data, int start, int count, int seqStart, int noCons, int noAdd, Enum<A> seq)
         {
             this.data = data;
             this.start = start;
             this.count = count;
             this.seqStart = seqStart;
             this.seq = seq;
-            this.hash = flags & 3;
+            this.consDisallowed = noCons;
+            this.addDisallowed = noAdd;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        Seq(A[] data, int start, int count, int noCons, int noAdd)
+        {
+            this.data = data;
+            this.start = start;
+            this.count = count;
+            this.consDisallowed = noCons;
+            this.addDisallowed = noAdd;
         }
 
         public void Deconstruct(out A head, out Seq<A> tail)
@@ -170,22 +196,6 @@ namespace LanguageExt
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool IsConsUnsafe() =>
-            (hash & 1) == 1;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool IsAddUnsafe() =>
-            (hash & 2) == 2;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void SetConsUnsafe() =>
-            hash |= 1;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void SetAddUnsafe() =>
-            hash |= 2;
-
         /// <summary>
         /// Add an item to the end of the sequence
         /// </summary>
@@ -193,6 +203,7 @@ namespace LanguageExt
         /// Forces evaluation of the entire lazy sequence so the item 
         /// can be appended
         /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Add(A value)
         {
             if (seq != null)
@@ -204,26 +215,14 @@ namespace LanguageExt
             }
 
             var end = start + count;
-            if (end == data.Length || IsAddUnsafe())
+            if (1 == Interlocked.Exchange(ref addDisallowed, 1) || end == data.Length)
             {
                 return CloneAdd(value);
             }
             else
             {
-                lock (data)
-                {
-                    end = start + count;
-                    if (end == data.Length || IsAddUnsafe())
-                    {
-                        return CloneAdd(value);
-                    }
-                    else
-                    {
-                        SetAddUnsafe();
-                        data[end] = value;
-                        return new Seq<A>(data, start, count + 1, 0, 0, null);
-                    }
-                }
+                data[end] = value;
+                return new Seq<A>(data, start, count + 1, NoCons, 0);
             }
         }
 
@@ -268,54 +267,32 @@ namespace LanguageExt
         Seq<A> Concat(A[] items, int itemsStart, int itemsCount)
         {
             var end = start + count;
-            if ((end + itemsCount >= data.Length) || IsAddUnsafe())
+            if (1 == Interlocked.Exchange(ref addDisallowed, 1) || (end + itemsCount >= data.Length))
             {
                 return CloneAddRange(items, itemsStart, itemsCount);
             }
             else
             {
-                lock (data)
-                {
-                    end = start + count;
-                    if ((end + itemsCount >= data.Length) || IsAddUnsafe())
-                    {
-                        return CloneAddRange(items, itemsStart, itemsCount);
-                    }
-                    else
-                    {
-                        SetAddUnsafe();
-                        System.Array.Copy(items, itemsStart, data, end, itemsCount);
-                        return new Seq<A>(data, start, count + itemsCount, 0, 0, null);
-                    }
-                }
+                System.Array.Copy(items, itemsStart, data, end, itemsCount);
+                return new Seq<A>(data, start, count + itemsCount, 0, NoCons, 0, null);
             }
         }
 
         /// <summary>
         /// Prepend an item to the sequence
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal Seq<A> Cons(A value)
         {
-            if (start == 0 || IsConsUnsafe())
+            if (1 == Interlocked.Exchange(ref consDisallowed, 1) || start == 0)
             {
                 return CloneCons(value);
             }
             else
             {
-                lock (data)
-                {
-                    if (start == 0 || IsConsUnsafe())
-                    {
-                        return CloneCons(value);
-                    }
-                    else
-                    {
-                        SetConsUnsafe();
-                        var nstart = start - 1;
-                        data[nstart] = value;
-                        return new Seq<A>(data, start - 1, count + 1, seqStart, 0, seq);
-                    }
-                }
+                var nstart = start - 1;
+                data[nstart] = value;
+                return new Seq<A>(data, start - 1, count + 1, seqStart, 0, NoAdd, seq);
             }
         }
 
@@ -351,7 +328,7 @@ namespace LanguageExt
                 ndata[nstart] = value;
 
                 // Return everything 
-                return new Seq<A>(ndata, nstart, ncount, data.Length == 0 ? 1 : nseqStart, 0, seq);
+                return new Seq<A>(ndata, nstart, ncount, data.Length == 0 ? 1 : nseqStart, 0, 0, seq);
             }
             else
             {
@@ -366,7 +343,7 @@ namespace LanguageExt
 
                 ndata[nstart] = value;
 
-                return new Seq<A>(ndata, nstart, count + 1, seqStart, ConsAndAddAllowed, seq);
+                return new Seq<A>(ndata, nstart, count + 1, seqStart, 0, 0, seq);
             }
         }
 
@@ -387,7 +364,7 @@ namespace LanguageExt
             ndata[data.Length] = value;
 
             // Return everything 
-            return new Seq<A>(ndata, start, count + 1, 0, 0, null);
+            return new Seq<A>(ndata, start, count + 1, 0, 0, 0, null);
         }
 
         Seq<A> CloneAddRange(A[] values, int valuesStart, int valuesCount)
@@ -409,7 +386,7 @@ namespace LanguageExt
             System.Array.Copy(values, valuesStart, ndata, end, valuesCount);
 
             // Return everything 
-            return new Seq<A>(ndata, start, count + valuesCount, 0, 0, null);
+            return new Seq<A>(ndata, start, count + valuesCount, 0, 0, 0, null);
         }
 
         /// <summary>
@@ -447,12 +424,12 @@ namespace LanguageExt
                     var (success, value) = StreamNextItem();
 
                     return success
-                        ? new Seq<A>(data, start + 1, count - 1, seqStart, NoCons, seq)
+                        ? new Seq<A>(data, start + 1, count - 1, seqStart, NoCons, NoAdd, seq)
                         : Empty;
                 }
                 else
                 {
-                    return new Seq<A>(data, start + 1, count - 1, seqStart, NoCons, seq);
+                    return new Seq<A>(data, start + 1, count - 1, seqStart, NoCons, NoAdd, seq);
                 }
             }
         }
@@ -901,17 +878,10 @@ namespace LanguageExt
         /// Get the hash code for all of the items in the sequence, or 0 if empty
         /// </summary>
         /// <returns></returns>
-        public override int GetHashCode()
-        {
-            var h = hash >> 2;
-            if (h == 0)
-            {
-                var f = hash & 3;
-                h = hash(this) >> 2;
-                hash = (h << 2) | f;
-            }
-            return h;
-        }
+        public override int GetHashCode() =>
+            hash = hash == 0 
+                ? hash(this) 
+                : hash;
 
         /// <summary>
         /// Append operator
@@ -972,9 +942,7 @@ namespace LanguageExt
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object obj) =>
-            obj is ISeq<A> x
-                ? Equals(x)
-                : false;
+            obj is ISeq<A> seq && Equals(seq);
 
         /// <summary>
         /// Equality test
@@ -1022,7 +990,7 @@ namespace LanguageExt
             }
             else
             {
-                return new Seq<A>(data, start + amount, count - amount, seqStart, NoCons, seq);
+                return new Seq<A>(data, start + amount, count - amount, seqStart, NoCons, NoAdd, seq);
             }
         }
 
@@ -1054,9 +1022,7 @@ namespace LanguageExt
             else
             {
                 var nlength = Math.Min(virtualEnd, end) - start;
-                var nitems = new A[nlength];
-                System.Array.Copy(data, start, nitems, 0, nlength);
-                return new Seq<A>(nitems, 0, nlength, 0, 0, null);
+                return new Seq<A>(data, start, nlength, 0, NoCons, NoAdd, null);
             }
         }
 
@@ -1068,8 +1034,9 @@ namespace LanguageExt
         /// predicate</returns>
         public Seq<A> TakeWhile(Func<A, bool> pred)
         {
-            var data = new A[0];
-            var index = 0;
+            var halfCap = DefaultCapacity >> 1;
+            var data = new A[DefaultCapacity];
+            var index = halfCap;
 
             foreach (var item in this)
             {
@@ -1086,9 +1053,9 @@ namespace LanguageExt
                     index++;
                 }
             }
-            return index == 0
+            return index == halfCap
                 ? Empty
-                : new Seq<A>(data, 0, index, 0, 0, null);
+                : new Seq<A>(data, halfCap, index, 0, 0, 0, null);
         }
 
         /// <summary>
@@ -1100,8 +1067,9 @@ namespace LanguageExt
         /// predicate</returns>
         public Seq<A> TakeWhile(Func<A, int, bool> pred)
         {
-            var data = new A[0];
-            var index = 0;
+            var halfCap = DefaultCapacity >> 1;
+            var data = new A[DefaultCapacity];
+            var index = halfCap;
 
             foreach (var item in this)
             {
@@ -1118,15 +1086,21 @@ namespace LanguageExt
                     index++;
                 }
             }
-            return index == 0
+            return index == halfCap
                 ? Empty
-                : new Seq<A>(data, 0, index, 0, 0, null);
+                : new Seq<A>(data, halfCap, index, 0, 0, 0, null);
         }
 
         /// <summary>
         /// Compare to another sequence
         /// </summary>
-        public int CompareTo(ISeq<A> other)
+        public int CompareTo(ISeq<A> other) =>
+            CompareTo<OrdDefault<A>>(other);
+
+        /// <summary>
+        /// Compare to another sequence
+        /// </summary>
+        public int CompareTo<OrdA>(ISeq<A> other) where OrdA : struct, Ord<A>
         {
             var x = this;
             var y = other;
@@ -1137,7 +1111,7 @@ namespace LanguageExt
 
             while (iterX.MoveNext() && iterY.MoveNext())
             {
-                cmp = Comparer<A>.Default.Compare(iterX.Current, iterY.Current);
+                cmp = default(OrdA).Compare(iterX.Current, iterY.Current);
                 if (cmp != 0) return cmp;
             }
             return cmp;
@@ -1146,7 +1120,13 @@ namespace LanguageExt
         /// <summary>
         /// Compare to another sequence
         /// </summary>
-        public int CompareTo(Seq<A> other)
+        public int CompareTo(Seq<A> other) =>
+            CompareTo<OrdDefault<A>>(other);
+
+        /// <summary>
+        /// Compare to another sequence
+        /// </summary>
+        public int CompareTo<OrdA>(Seq<A> other) where OrdA : struct, Ord<A>
         {
             if (ReferenceEquals(other, null)) return 1;
 
@@ -1165,7 +1145,7 @@ namespace LanguageExt
 
             while (iterX.MoveNext() && iterY.MoveNext())
             {
-                cmp = Comparer<A>.Default.Compare(iterX.Current, iterY.Current);
+                cmp = default(OrdA).Compare(iterX.Current, iterY.Current);
                 if (cmp != 0) return cmp;
             }
             return cmp;
@@ -1244,7 +1224,6 @@ namespace LanguageExt
                 return this;
             }
 
-            var localCount = count;
             lock (seq)
             {
                 if (seq == null)
@@ -1300,6 +1279,11 @@ namespace LanguageExt
 
             if (seq == null)
             {
+                end = start + count;
+                for (; i < end; i++)
+                {
+                    yield return data[i];
+                }
                 yield break;
             }
 

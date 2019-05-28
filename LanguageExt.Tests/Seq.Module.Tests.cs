@@ -197,7 +197,7 @@ namespace LanguageExt.Tests
 
             foreach (var task in tasks)
             {
-                Assert.True(task.Result == sum);
+                Assert.True(task.Result == sum, $"Result is {task.Result}, should be: {sum}");
             }
         }
     }
