@@ -22,13 +22,14 @@ namespace LanguageExt
     public class Seq<A> : IEnumerable<A>, ISeq<A>, IComparable<Seq<A>>, IEquatable<Seq<A>>
     {
         const int DefaultCapacity = 8;
+        const int HalfDefaultCapacity = DefaultCapacity >> 1;
         const int NoCons = 1;
         const int NoAdd = 1;
 
         /// <summary>
         /// Empty sequence
         /// </summary>
-        public static Seq<A> Empty => new Seq<A>(new A[DefaultCapacity], DefaultCapacity >> 1, 0, 0, 0, 0, null);
+        public static Seq<A> Empty => new Seq<A>(new A[DefaultCapacity], HalfDefaultCapacity, 0, 0, 0, 0, null);
 
         /// <summary>
         /// Backing data
@@ -76,7 +77,7 @@ namespace LanguageExt
         public Seq(IEnumerable<A> seq)
         {
             this.data = new A[DefaultCapacity];
-            this.start = DefaultCapacity >> 1;
+            this.start = HalfDefaultCapacity;
             this.count = 0;
             this.seqStart = start;
             this.seq = new Enum<A>(seq);
@@ -99,16 +100,15 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Constructor
+        /// Add constructor (called in the Add function only)
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Seq(A[] data, int start, int count, int noCons, int noAdd)
+        Seq(A[] data, int start, int count)
         {
             this.data = data;
             this.start = start;
             this.count = count;
-            this.consDisallowed = noCons;
-            this.addDisallowed = noAdd;
+            this.consDisallowed = NoCons;
         }
 
         public void Deconstruct(out A head, out Seq<A> tail)
@@ -222,7 +222,7 @@ namespace LanguageExt
             else
             {
                 data[end] = value;
-                return new Seq<A>(data, start, count + 1, NoCons, 0);
+                return new Seq<A>(data, start, count + 1);
             }
         }
 
@@ -1034,7 +1034,7 @@ namespace LanguageExt
         /// predicate</returns>
         public Seq<A> TakeWhile(Func<A, bool> pred)
         {
-            var halfCap = DefaultCapacity >> 1;
+            var halfCap = HalfDefaultCapacity;
             var data = new A[DefaultCapacity];
             var index = halfCap;
 
@@ -1067,7 +1067,7 @@ namespace LanguageExt
         /// predicate</returns>
         public Seq<A> TakeWhile(Func<A, int, bool> pred)
         {
-            var halfCap = DefaultCapacity >> 1;
+            var halfCap = HalfDefaultCapacity;
             var data = new A[DefaultCapacity];
             var index = halfCap;
 
