@@ -28,7 +28,7 @@ namespace LanguageExt
         /// <summary>
         /// Empty sequence
         /// </summary>
-        public static Seq<A> Empty => new Seq<A>(new A[DefaultCapacity], 4, 0, 0, 0, 0, null);
+        public static Seq<A> Empty => new Seq<A>(new A[DefaultCapacity], DefaultCapacity >> 1, 0, 0, 0, 0, null);
 
         /// <summary>
         /// Backing data
@@ -76,9 +76,9 @@ namespace LanguageExt
         public Seq(IEnumerable<A> seq)
         {
             this.data = new A[DefaultCapacity];
-            this.start = 4;
+            this.start = DefaultCapacity >> 1;
             this.count = 0;
-            this.seqStart = 4;
+            this.seqStart = start;
             this.seq = new Enum<A>(seq);
             this.hash = 0;
         }

@@ -7,6 +7,7 @@ using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
@@ -22,6 +23,7 @@ namespace LanguageExt
         /// Monadic join
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<A> flatten<A>(Seq<Seq<A>> ma) =>
             ma.Bind(identity);
 
@@ -29,6 +31,7 @@ namespace LanguageExt
         /// Create an empty sequence
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<A> empty<A>() =>
             Seq<A>.Empty;
 
@@ -37,6 +40,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>sequence</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<A> create<A>() =>
             Seq<A>.Empty;
 
@@ -59,6 +63,7 @@ namespace LanguageExt
         /// <param name="items">Items</param>
         /// <returns>sequence</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<A> createRange<A>(IEnumerable<A> items) =>
             new Seq<A>(items);
 
@@ -67,6 +72,7 @@ namespace LanguageExt
         /// each item.
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<A> init<A>(int count, Func<int, A> generator) =>
             Seq(Range(0, count).Map(generator));
 
@@ -74,6 +80,7 @@ namespace LanguageExt
         /// Generates a sequence that contains one repeated value.
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<A> repeat<A>(A item, int count) =>
             Seq(Range(0, count).Map(_ => item));
 
@@ -83,6 +90,7 @@ namespace LanguageExt
         /// <param name="list">sequence</param>
         /// <returns>Head item</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static A head<A>(Seq<A> list) => 
             list.Head;
 
@@ -92,6 +100,7 @@ namespace LanguageExt
         /// <param name="list">sequence</param>
         /// <returns>Optional head item</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<A> headOrNone<A>(Seq<A> list) =>
             list.HeadOrNone();
 
@@ -102,6 +111,7 @@ namespace LanguageExt
         /// <param name="fail">Fail case</param>
         /// <returns>Validated head item</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Validation<Fail, A> headOrInvalid<Fail, A>(Seq<A> list, Fail fail) =>
             list.HeadOrInvalid(fail);
 
@@ -112,6 +122,7 @@ namespace LanguageExt
         /// <param name="fail">Fail case</param>
         /// <returns>Validated head item</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Validation<MonoidFail, Fail, A> headOrInvalid<MonoidFail, Fail, A>(Seq<A> list, Fail fail) where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
             list.HeadOrInvalid<MonoidFail, Fail, A>(fail);
 
@@ -122,6 +133,7 @@ namespace LanguageExt
         /// <param name="left">Left case</param>
         /// <returns>Either head item or left</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Either<L, A> headOrLeft<L, A>(Seq<A> list, L left) =>
             list.HeadOrLeft(left);
 
@@ -131,6 +143,7 @@ namespace LanguageExt
         /// <param name="list">sequence</param>
         /// <returns>Tail sequence</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<A> tail<A>(Seq<A> list) =>
             list.Tail;
 
@@ -143,6 +156,7 @@ namespace LanguageExt
         /// <param name="map">Map function</param>
         /// <returns>Mapped sequence</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<B> map<A, B>(Seq<A> list, Func<A, B> map) =>
             list.Select(map);
 
@@ -156,6 +170,7 @@ namespace LanguageExt
         /// <param name="map">Map function</param>
         /// <returns>Mapped sequence</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<B> map<A, B>(Seq<A> list, Func<int, A, B> map) =>
             Seq(zip(list, Seq(Range(0, Int32.MaxValue)), (t, i) => map(i, t)));
 
@@ -167,6 +182,7 @@ namespace LanguageExt
         /// <param name="predicate">Predicate function</param>
         /// <returns>Filtered sequence</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<A> filter<A>(Seq<A> list, Func<A, bool> predicate) =>
             list.Where(predicate);
 
@@ -179,6 +195,7 @@ namespace LanguageExt
         /// <param name="selector">Selector function</param>
         /// <returns>Mapped and filtered sequence</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<B> choose<A, B>(Seq<A> list, Func<A, Option<B>> selector) =>
             map(filter(map(list, selector), t => t.IsSome), t => t.Value);
 
@@ -192,6 +209,7 @@ namespace LanguageExt
         /// <param name="selector">Selector function</param>
         /// <returns>Mapped and filtered sequence</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<B> choose<A, B>(Seq<A> list, Func<int, A, Option<B>> selector) =>
             map(filter(map(list, selector), t => t.IsSome), t => t.Value);
 
@@ -201,6 +219,7 @@ namespace LanguageExt
         /// <param name="list">List to sum</param>
         /// <returns>Sum total</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static A sum<MonoidA, A>(Seq<A> list) where MonoidA : struct, Monoid<A> =>
             mconcat<MonoidA, A>(list);
 
@@ -210,6 +229,7 @@ namespace LanguageExt
         /// <param name="list">List to sum</param>
         /// <returns>Sum total</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int sum(Seq<int> list) =>
             fold(list, 0, (s, x) => s + x);
 
@@ -219,6 +239,7 @@ namespace LanguageExt
         /// <param name="list">List to sum</param>
         /// <returns>Sum total</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float sum(Seq<float> list) =>
             fold(list, 0.0f, (s, x) => s + x);
 
@@ -228,6 +249,7 @@ namespace LanguageExt
         /// <param name="list">List to sum</param>
         /// <returns>Sum total</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double sum(Seq<double> list) =>
             fold(list, 0.0, (s, x) => s + x);
 
@@ -237,6 +259,7 @@ namespace LanguageExt
         /// <param name="list">List to sum</param>
         /// <returns>Sum total</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static decimal sum(Seq<decimal> list) =>
             fold(list, (decimal)0, (s, x) => s + x);
 
@@ -247,6 +270,7 @@ namespace LanguageExt
         /// <param name="list">sequence to reverse</param>
         /// <returns>Reversed sequence</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<T> rev<T>(Seq<T> list) =>
             Seq(list.Reverse());
 
@@ -304,6 +328,7 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <returns>Aggregate value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static S fold<S, T>(Seq<T> list, S state, Func<S, T, S> folder) =>
             list.Fold(state, folder);
 
@@ -321,6 +346,7 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <returns>Aggregate value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static S foldBack<S, T>(Seq<T> list, S state, Func<S, T, S> folder) =>
             list.FoldBack(state, folder);
 
@@ -396,6 +422,7 @@ namespace LanguageExt
         /// <param name="preditem">Predicate function</param>
         /// <returns>Aggregate value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static S foldBackWhile<S, T>(Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
             foldWhile(rev(list), state, folder, preditem: preditem);
 
@@ -415,6 +442,7 @@ namespace LanguageExt
         /// <param name="predstate">Predicate function</param>
         /// <returns>Aggregate value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static S foldBackWhile<S, T>(Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
             foldWhile(rev(list), state, folder, predstate: predstate);
 
@@ -490,6 +518,7 @@ namespace LanguageExt
         /// <param name="preditem">Predicate function</param>
         /// <returns>Aggregate value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static S foldBackUntil<S, T>(Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
             foldUntil(rev(list), state, folder, preditem: preditem);
 
@@ -509,6 +538,7 @@ namespace LanguageExt
         /// <param name="predstate">Predicate function</param>
         /// <returns>Aggregate value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static S foldBackUntil<S, T>(Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
             foldUntil(rev(list), state, folder, predstate: predstate);
 
@@ -540,6 +570,7 @@ namespace LanguageExt
         /// <param name="reducer">Reduce function</param>
         /// <returns>Aggregate value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T reduceBack<T>(Seq<T> list, Func<T, T, T> reducer) =>
             reduce(rev(list), reducer);
 
@@ -585,6 +616,7 @@ namespace LanguageExt
         /// <param name="folder">Folding function</param>
         /// <returns>Aggregate state</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<S> scanBack<S, T>(Seq<T> list, S state, Func<S, T, S> folder) =>
             scan(rev(list), state, folder);
 
@@ -642,6 +674,7 @@ namespace LanguageExt
         /// <param name="zipper">Join function</param>
         /// <returns>Joined sequence</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<V> zip<T, U, V>(Seq<T> list, Seq<U> other, Func<T, U, V> zipper) =>
             Seq(list.Zip(other, zipper));
 
@@ -653,6 +686,7 @@ namespace LanguageExt
         /// <param name="zipper">Join function</param>
         /// <returns>Joined sequence of tuples</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<(T Left, U Right)> zip<T, U>(Seq<T> list, Seq<U> other) =>
             Seq(list.Zip(other, (t, u) => (t, u)));
 
@@ -663,6 +697,7 @@ namespace LanguageExt
         /// <param name="list">sequence to count</param>
         /// <returns>The number of items in the sequence</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int length<T>(Seq<T> list) =>
            list.Count;
 
@@ -708,6 +743,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the sequence match the predicate</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool forall<T>(Seq<T> list, Func<T, bool> pred) =>
             list.ForAll(pred);
 
@@ -718,6 +754,7 @@ namespace LanguageExt
         /// <param name="list">sequence</param>
         /// <returns>A new sequence with all duplicate values removed</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<T> distinct<T>(Seq<T> list) =>
             Seq(list.Distinct());
 
@@ -728,6 +765,7 @@ namespace LanguageExt
         /// <param name="list">sequence</param>
         /// <returns>A new sequence with all duplicate values removed</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<T> distinct<EQ, T>(Seq<T> list) where EQ : struct, Eq<T> =>
             Seq(list.Distinct(new EqCompare<T>((x, y) => default(EQ).Equals(x, y))));
 
@@ -738,6 +776,7 @@ namespace LanguageExt
         /// <param name="list">sequence</param>
         /// <returns>A new sequence with all duplicate values removed</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<T> distinct<T, K>(Seq<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
              Seq(list.Distinct(new EqCompare<T>((a, b) => compare.IfNone(EqualityComparer<K>.Default.Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0)));
 
@@ -749,6 +788,7 @@ namespace LanguageExt
         /// <param name="count">Number of items to take</param>
         /// <returns>A new sequence with the first 'count' items from the sequence provided</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<T> take<T>(Seq<T> list, int count) =>
             list.Take(count);
 
@@ -761,6 +801,7 @@ namespace LanguageExt
         /// <param name="count">Number of items to take</param>
         /// <returns>A new sequence with the first items that match the predicate</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<T> takeWhile<T>(Seq<T> list, Func<T, bool> pred) =>
             list.TakeWhile(pred);
 
@@ -773,6 +814,7 @@ namespace LanguageExt
         /// <param name="count">Number of items to take</param>
         /// <returns>A new sequence with the first items that match the predicate</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<T> takeWhile<T>(Seq<T> list, Func<T, int, bool> pred) =>
             list.TakeWhile(pred);
 
@@ -784,6 +826,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if any item in the sequence matches the predicate provided</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool exists<T>(Seq<T> list, Func<T, bool> pred) =>
             list.Exists(pred);
 
@@ -794,6 +837,7 @@ namespace LanguageExt
         /// <param name="fa">sequence of argument values</param>
         /// <returns>Returns the result of applying the sequence argument values to the sequence functions</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<B> apply<A, B>(Seq<Func<A, B>> fabc, Seq<A> fa) =>
             ApplSeq<A, B>.Inst.Apply(fabc, fa);
 
@@ -804,6 +848,7 @@ namespace LanguageExt
         /// <param name="fa">sequence of argument values</param>
         /// <returns>Returns the result of applying the sequence argument values to the sequence functions</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<B> apply<A, B>(Func<A, B> fabc, Seq<A> fa) =>
             ApplSeq<A, B>.Inst.Apply(fabc.Cons(), fa);
 
@@ -815,6 +860,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the sequence of argument values to the 
         /// IEnumerable of functions: a sequence of functions of arity 1</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<Func<B, C>> apply<A, B, C>(Seq<Func<A, B, C>> fabc, Seq<A> fa) =>
             ApplSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa);
 
@@ -826,6 +872,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the sequence of argument values to the 
         /// sequence of functions: a sequence of functions of arity 1</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, Seq<A> fa) =>
             ApplSeq<A, B, C>.Inst.Apply(curry(fabc).Cons(), fa);
 
@@ -837,6 +884,7 @@ namespace LanguageExt
         /// <param name="fb">sequence argument values</param>
         /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<C> apply<A, B, C>(Seq<Func<A, B, C>> fabc, Seq<A> fa, Seq<B> fb) =>
             ApplSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa, fb);
 
@@ -848,6 +896,7 @@ namespace LanguageExt
         /// <param name="fb">sequence argument values</param>
         /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<C> apply<A, B, C>(Func<A, B, C> fabc, Seq<A> fa, Seq<B> fb) =>
             ApplSeq<A, B, C>.Inst.Apply(curry(fabc).Cons(), fa, fb);
 
@@ -859,6 +908,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the sequence of argument values to the 
         /// sequence of functions: a sequence of functions of arity 1</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<Func<B, C>> apply<A, B, C>(Seq<Func<A, Func<B, C>>> fabc, Seq<A> fa) =>
             ApplSeq<A, B, C>.Inst.Apply(fabc, fa);
 
@@ -870,6 +920,7 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the sequence of argument values to the 
         /// sequence of functions: a sequence of functions of arity 1</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, Seq<A> fa) =>
             ApplSeq<A, B, C>.Inst.Apply(fabc.Cons(), fa);
 
@@ -881,6 +932,7 @@ namespace LanguageExt
         /// <param name="fb">sequence argument values</param>
         /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<C> apply<A, B, C>(Seq<Func<A, Func<B, C>>> fabc, Seq<A> fa, Seq<B> fb) =>
             ApplSeq<A, B, C>.Inst.Apply(fabc, fa, fb);
 
@@ -892,6 +944,7 @@ namespace LanguageExt
         /// <param name="fb">sequence argument values</param>
         /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<C> apply<A, B, C>(Func<A, Func<B, C>> fabc, Seq<A> fa, Seq<B> fb) =>
             ApplSeq<A, B, C>.Inst.Apply(fabc.Cons(), fa, fb);
 
@@ -902,6 +955,7 @@ namespace LanguageExt
         /// <param name="fb">Applicative to evaluate second and then return</param>
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<B> action<A, B>(Seq<A> fa, Seq<B> fb) =>
             ApplSeq<A, B>.Inst.Action(fa, fb);
 
@@ -975,6 +1029,7 @@ namespace LanguageExt
             return (self.Take(index), self.Skip(index));
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static Seq<A> FromSingleValue<A>(A value) =>
             new Seq<A>( new[] {
                 default,
@@ -987,6 +1042,7 @@ namespace LanguageExt
                 default
             }, 4, 1, 0, 0, 0, null);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static Seq<A> FromArray<A>(A[] value) =>
             new Seq<A>(value, 0, value.Length, 0, 0, 0, null);
     }
