@@ -37,6 +37,11 @@ class Program
 {
     static void Main(string[] args)
     {
+        SeqPerf.TestEnumStream();
+        SeqPerf.TestStrictEnum();
+        SeqPerf.TestListTEnum();
+        SeqPerf.TestSeqStream();
+        SeqPerf.TestStrict();
         SeqPerf.TestAdd();
         SeqPerf.TestCons();
         return;

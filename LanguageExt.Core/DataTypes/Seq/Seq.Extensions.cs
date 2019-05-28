@@ -72,7 +72,7 @@ public static class SeqExtensions
     /// <returns>Sum total</returns>
     [Pure]
     public static A Sum<MonoidA, A>(this Seq<A> list) where MonoidA : struct, Monoid<A> =>
-        mconcat<MonoidA, A>(list);
+        mconcat<MonoidA, A>(list.AsEnumerable());
 
     /// <summary>
     /// Returns the sum total of all the items in the list (Sum in LINQ)

@@ -12,7 +12,7 @@ namespace LanguageExt
     /// Represents a sequence of values in a similar way to IEnumerable, but without the
     /// issues of multiple evaluation for key LINQ operators like Skip, Count, etc.
     /// </summary>
-    public interface ISeq<A> : IEnumerable<A>, IEquatable<ISeq<A>>, IComparable<ISeq<A>>
+    public interface ISeq<A> : IEquatable<ISeq<A>>, IComparable<ISeq<A>>
     {
         /// <summary>
         /// Head of the sequence

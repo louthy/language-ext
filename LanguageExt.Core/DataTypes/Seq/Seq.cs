@@ -19,16 +19,17 @@ namespace LanguageExt
     /// issues of multiple evaluation for key LINQ operators like Skip, Count, etc.
     /// </summary>
     /// <typeparam name="A">Type of the values in the sequence</typeparam>
-    public class Seq<A> : IEnumerable<A>, ISeq<A>, IComparable<Seq<A>>, IEquatable<Seq<A>>
+    public class Seq<A> : ISeq<A>, IComparable<Seq<A>>, IEquatable<Seq<A>>
     {
         const int DefaultCapacity = 8;
+        const int HalfDefaultCapacity = DefaultCapacity >> 1;
         const int NoCons = 1;
         const int NoAdd = 1;
 
         /// <summary>
         /// Empty sequence
         /// </summary>
-        public static Seq<A> Empty => new Seq<A>(new A[DefaultCapacity], DefaultCapacity >> 1, 0, 0, 0, 0, null);
+        public static Seq<A> Empty => new Seq<A>(new A[DefaultCapacity], HalfDefaultCapacity, 0, 0, 0, 0, null);
 
         /// <summary>
         /// Backing data
@@ -76,7 +77,7 @@ namespace LanguageExt
         public Seq(IEnumerable<A> seq)
         {
             this.data = new A[DefaultCapacity];
-            this.start = DefaultCapacity >> 1;
+            this.start = HalfDefaultCapacity;
             this.count = 0;
             this.seqStart = start;
             this.seq = new Enum<A>(seq);
@@ -99,16 +100,15 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Constructor
+        /// Add constructor (called in the Add function only)
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Seq(A[] data, int start, int count, int noCons, int noAdd)
+        Seq(A[] data, int start, int count)
         {
             this.data = data;
             this.start = start;
             this.count = count;
-            this.consDisallowed = noCons;
-            this.addDisallowed = noAdd;
+            this.consDisallowed = NoCons;
         }
 
         public void Deconstruct(out A head, out Seq<A> tail)
@@ -171,23 +171,13 @@ namespace LanguageExt
         /// </summary>
         public A this[int index]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if (index < 0)
-                {
-                    throw new IndexOutOfRangeException();
-                }
                 if (index >= count)
                 {
-                    if (seq == null)
-                    {
-                        throw new IndexOutOfRangeException();
-                    }
-                    else
-                    {
-                        StreamNextItems(index - count + 1);
-                        return this[index];
-                    }
+                    StreamNextItems(index - count + 1);
+                    return this[index];
                 }
                 else
                 {
@@ -222,7 +212,7 @@ namespace LanguageExt
             else
             {
                 data[end] = value;
-                return new Seq<A>(data, start, count + 1, NoCons, 0);
+                return new Seq<A>(data, start, count + 1);
             }
         }
 
@@ -395,6 +385,7 @@ namespace LanguageExt
         /// </summary>
         public A Head
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (count == 0)
@@ -417,6 +408,7 @@ namespace LanguageExt
         /// </summary>
         public Seq<A> Tail
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (count == 0)
@@ -448,6 +440,7 @@ namespace LanguageExt
         /// </summary>
         public A Last
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (seq != null)
@@ -477,6 +470,7 @@ namespace LanguageExt
         /// <summary>
         /// Last item in sequence.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Either<L, A> LastOrLeft<L>(L Left)
         {
             if (seq != null)
@@ -491,6 +485,7 @@ namespace LanguageExt
         /// <summary>
         /// Last item in sequence.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Either<L, A> LastOrLeft<L>(Func<L> Left)
         {
             if (seq != null)
@@ -505,6 +500,7 @@ namespace LanguageExt
         /// <summary>
         /// Last item in sequence.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<F, A> LastOrInvalid<F>(F Fail)
         {
             if (seq != null)
@@ -519,6 +515,7 @@ namespace LanguageExt
         /// <summary>
         /// Last item in sequence.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<F, A> LastOrInvalid<F>(Func<F> Fail)
         {
             if (seq != null)
@@ -533,6 +530,7 @@ namespace LanguageExt
         /// <summary>
         /// Last item in sequence.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(F Fail) where MonoidFail : struct, Monoid<F>, Eq<F>
         {
             if (seq != null)
@@ -547,6 +545,7 @@ namespace LanguageExt
         /// <summary>
         /// Last item in sequence.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(Func<F> Fail) where MonoidFail : struct, Monoid<F>, Eq<F>
         {
             if (seq != null)
@@ -598,10 +597,14 @@ namespace LanguageExt
         /// For lazy streams this will have to peek at the first 
         /// item.  So, the first item will be consumed.
         /// </summary>
-        public bool IsEmpty =>
-            seq == null
-                ? count == 0
-                : count == 0 && !StreamNextItem().Success;
+        public bool IsEmpty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => seq == null
+                       ? count == 0
+                       : count == 0 && !StreamNextItem().Success;
+        }
+
 
         /// <summary>
         /// Returns the number of items in the sequence
@@ -609,6 +612,7 @@ namespace LanguageExt
         /// <returns>Number of items in the sequence</returns>
         public int Count
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (seq != null)
@@ -623,8 +627,13 @@ namespace LanguageExt
         /// Stream as an enumerable
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerable<A> AsEnumerable() =>
-            this;
+        public IEnumerable<A> AsEnumerable()
+        {
+            foreach(var item in this)
+            {
+                yield return item;
+            }
+        }
 
         /// <summary>
         /// Match empty sequence, or multi-item sequence
@@ -698,6 +707,7 @@ namespace LanguageExt
         /// <returns>
         /// Returns the original unmodified structure
         /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Do(Action<A> f)
         {
             this.Iter(f);
@@ -1034,9 +1044,8 @@ namespace LanguageExt
         /// predicate</returns>
         public Seq<A> TakeWhile(Func<A, bool> pred)
         {
-            var halfCap = DefaultCapacity >> 1;
             var data = new A[DefaultCapacity];
-            var index = halfCap;
+            var index = HalfDefaultCapacity;
 
             foreach (var item in this)
             {
@@ -1053,9 +1062,9 @@ namespace LanguageExt
                     index++;
                 }
             }
-            return index == halfCap
+            return index == HalfDefaultCapacity
                 ? Empty
-                : new Seq<A>(data, halfCap, index, 0, 0, 0, null);
+                : new Seq<A>(data, HalfDefaultCapacity, index, 0, 0, 0, null);
         }
 
         /// <summary>
@@ -1067,9 +1076,8 @@ namespace LanguageExt
         /// predicate</returns>
         public Seq<A> TakeWhile(Func<A, int, bool> pred)
         {
-            var halfCap = DefaultCapacity >> 1;
             var data = new A[DefaultCapacity];
-            var index = halfCap;
+            var index = HalfDefaultCapacity;
 
             foreach (var item in this)
             {
@@ -1086,9 +1094,9 @@ namespace LanguageExt
                     index++;
                 }
             }
-            return index == halfCap
+            return index == HalfDefaultCapacity
                 ? Empty
-                : new Seq<A>(data, halfCap, index, 0, 0, 0, null);
+                : new Seq<A>(data, HalfDefaultCapacity, index, 0, 0, 0, null);
         }
 
         /// <summary>
@@ -1263,66 +1271,63 @@ namespace LanguageExt
             }
         }
 
-        /// <summary>
-        /// Enumerator
-        /// </summary>
-        public IEnumerator<A> GetEnumerator()
+        public struct Enumerator
         {
-            var end = start + count;
-            var i = 0;
+            Seq<A> source;
+            A[] data;
+            int index;
+            int end;
+            A current;
 
-            // First yield the already cached items
-            for (i = start; i < end; i++)
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal Enumerator(Seq<A> source)
             {
-                yield return data[i];
+                this.source = source;
+                this.data = source.data;
+                this.index = source.start - 1;
+                this.end = source.start + source.count;
+                this.current = default;
             }
 
-            if (seq == null)
+            /// <summary>Advances the enumerator to the next element of the span.</summary>
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool MoveNext()
             {
-                end = start + count;
-                for (; i < end; i++)
+                var index = this.index + 1;
+                if(index < end)
                 {
-                    yield return data[i];
+                    // We're alive an enumerating the already streamed concrete data 
+                    current = data[index];
+                    this.index = index;
+                    return true;
                 }
-                yield break;
+                else if(source.seq == null)
+                {
+                    var (succ, val) = source.StreamNextItem();
+                    current = val;
+                    this.data = source.data;
+                    this.index = index;
+                    this.end = source.start + source.count;
+                    return succ;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
-            lock (seq)
-            {
-                bool success = true;
-                A value = default(A);
-                while (success)
-                {
-                    end = start + count;
+            public void Reset() => 
+                throw new NotSupportedException();
 
-                    // First yield the already cached items
-                    if (i < end)
-                    {
-                        yield return data[i];
-                    }
-                    else if (seq == null)
-                    {
-                        yield break;
-                    }
-                    else
-                    {
-                        (success, value) = StreamNextItem();
-                        if (success)
-                        {
-                            yield return value;
-                        }
-                    }
-                    i++;
-                }
+            public A Current
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => current;
             }
         }
 
-        /// <summary>
-        /// Enumerator
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        IEnumerator IEnumerable.GetEnumerator() =>
-            GetEnumerator();
+        public Enumerator GetEnumerator() =>
+            new Enumerator(this);
 
         /// <summary>
         /// Implicit conversion from an untyped empty list
