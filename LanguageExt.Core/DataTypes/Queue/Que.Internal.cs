@@ -111,16 +111,24 @@ namespace LanguageExt
                 : new QueInternal<T>(forward, backward.Push(value));
 
         [Pure]
-        public Seq<T> AsEnumerable() =>
+        public Seq<T> ToSeq() =>
             Seq(forward.AsEnumerable().ConcatFast(BackwardRev));
 
         [Pure]
-        public IEnumerator<T> GetEnumerator() =>
-            AsEnumerable().GetEnumerator();
+        public IEnumerable<T> AsEnumerable() =>
+            forward.AsEnumerable().ConcatFast(BackwardRev);
+
+        [Pure]
+        public Seq<T>.Enumerator GetEnumerator() =>
+            Seq(forward.AsEnumerable().ConcatFast(BackwardRev)).GetEnumerator();
+
+        [Pure]
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() =>
+            forward.AsEnumerable().ConcatFast(BackwardRev).GetEnumerator();
 
         [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
-            AsEnumerable().GetEnumerator();
+            forward.AsEnumerable().ConcatFast(BackwardRev).GetEnumerator();
 
         [Pure]
         public static QueInternal<T> operator +(QueInternal<T> lhs, QueInternal<T> rhs) =>

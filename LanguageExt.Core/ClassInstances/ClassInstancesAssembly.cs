@@ -4,15 +4,17 @@ using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System;
 using System.Collections.Generic;
+using GSet = System.Collections.Generic.HashSet<System.Type>;
+using Dict = System.Collections.Generic.Dictionary<System.Type, System.Collections.Generic.HashSet<System.Type>>;
 
 namespace LanguageExt.ClassInstances
 {
     public static class ClassInstancesAssembly
     {
-        internal static Lst<TypeInfo> Types;
-        internal static Lst<TypeInfo> Structs;
-        internal static Lst<TypeInfo> AllClassInstances;
-        internal static Map<OrdTypeInfo, TypeInfo, Set<OrdTypeInfo, TypeInfo>> ClassInstances;
+        internal static List<Type> Types;
+        internal static List<Type> Structs;
+        internal static List<Type> AllClassInstances;
+        internal static Dict ClassInstances;
 
         static Assembly SafeLoadAsm(AssemblyName name)
         {
@@ -62,27 +64,38 @@ namespace LanguageExt.ClassInstances
                 Types = typeof(ClassInstancesAssembly).GetTypeInfo().Assembly.DefinedTypes.Freeze();
 #else
 
-                Types = (from nam in GetAssemblies().Freeze()
+                Types = (from nam in GetAssemblies().ToList()
                          where nam != null && nam.Name != "mscorlib" && !nam.Name.StartsWith("System.") && !nam.Name.StartsWith("Microsoft.")
                          let asm = SafeLoadAsm(nam)
                          where asm != null
                          from typ in asm.GetTypes()
                          where typ != null && !typ.FullName.StartsWith("<") && !typ.FullName.Contains("+<")
-                         select typ.GetTypeInfo())
-                        .Freeze();
+                         select typ)
+                        .ToList();
 
 #endif
-                Structs = Types.Filter(t => t?.IsValueType ?? false);
-                AllClassInstances = Structs.Filter(t => t?.ImplementedInterfaces?.Exists(i => i == typeof(Typeclass)) ?? false);
-                ClassInstances = new Map<OrdTypeInfo, TypeInfo, Set<OrdTypeInfo, TypeInfo>>();
+                Structs = Types.Filter(t => t?.IsValueType ?? false).ToList();
+                AllClassInstances = Structs.Filter(t => t?.GetTypeInfo().ImplementedInterfaces?.Exists(i => i == typeof(Typeclass)) ?? false).ToList();
+                ClassInstances = new Dict();
                 foreach (var ci in AllClassInstances)
                 {
-                    var typeClasses = ci?.ImplementedInterfaces
+                    var typeClasses = ci?.GetTypeInfo().ImplementedInterfaces
                                         ?.Filter(i => typeof(Typeclass).GetTypeInfo().IsAssignableFrom(i.GetTypeInfo()))
-                                        ?.Map(t => t.GetTypeInfo())
-                                        ?.Freeze() ?? Lst<TypeInfo>.Empty;
+                                        ?.ToList() ?? new List<Type>();
 
-                    ClassInstances = typeClasses.Fold(ClassInstances, (s, x) => s.AddOrUpdate(x, Some: cis => cis.AddOrUpdate(ci), None: () => Set<OrdTypeInfo, TypeInfo>(ci)));
+                    foreach(var typeClass in typeClasses)
+                    {
+                        if(ClassInstances.ContainsKey(typeClass))
+                        {
+                            ClassInstances[typeClass].Add(ci);
+                        }
+                        else
+                        {
+                            var nset = new GSet();
+                            nset.Add(ci);
+                            ClassInstances.Add(typeClass, nset);
+                        }
+                    }
                 }
             }
             catch(Exception e)

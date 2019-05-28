@@ -629,7 +629,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<A> AsEnumerable()
         {
-            foreach(var item in this)
+            foreach (var item in this)
             {
                 yield return item;
             }
@@ -713,7 +713,7 @@ namespace LanguageExt
             this.Iter(f);
             return this;
         }
-        
+
         /// <summary>
         /// Map the sequence using the function provided
         /// </summary>
@@ -889,8 +889,8 @@ namespace LanguageExt
         /// </summary>
         /// <returns></returns>
         public override int GetHashCode() =>
-            hash = hash == 0 
-                ? hash(this) 
+            hash = hash == 0
+                ? hash(this)
                 : hash;
 
         /// <summary>
@@ -952,26 +952,52 @@ namespace LanguageExt
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object obj) =>
-            obj is ISeq<A> seq && Equals(seq);
+            obj is Seq<A> seq && Equals(seq);
 
         /// <summary>
         /// Equality test
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete("Please use Seq<A> directly.  ISeq is less performant that Seq and will go away eventually")]
         public bool Equals(ISeq<A> rhs) =>
             Enumerable.SequenceEqual(this, rhs);
 
         /// <summary>
         /// Equality test
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(Seq<A> rhs) =>
-            !ReferenceEquals(rhs, null) &&
-            this.seq == null && rhs.seq == null &&
-            this.Count == rhs.Count &&
-            this.GetHashCode() == rhs.GetHashCode() &&
-            Enumerable.SequenceEqual(this, rhs)
-                 ? true
-                 : Enumerable.SequenceEqual(this, rhs);
+            Equals<EqDefault<A>>(rhs);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        public bool Equals<EqA>(Seq<A> rhs) where EqA : struct, Eq<A>
+        {
+            if (rhs == null) return false;
+
+            // Differing lengths?
+            if(Count != rhs.Count) return false;
+
+            // If the hash code has been calculated on both sides then 
+            // check for differences
+            if (hash != 0 && rhs.hash != 0 && hash != rhs.hash)
+            {
+                return false;
+            }
+
+            // Iterate through both sides
+            var iterA = GetEnumerator();
+            var iterB = rhs.GetEnumerator();
+            while(iterA.MoveNext() && iterB.MoveNext())
+            { 
+                if (!default(EqA).Equals(iterA.Current, iterB.Current))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
 
         /// <summary>
         /// Skip count items
@@ -1102,174 +1128,321 @@ namespace LanguageExt
         /// <summary>
         /// Compare to another sequence
         /// </summary>
-        public int CompareTo(ISeq<A> other) =>
-            CompareTo<OrdDefault<A>>(other);
+        [Obsolete("Please use Seq<A> directly.  ISeq is less performant that Seq and will go away eventually")]
+        public int CompareTo(ISeq<A> rhs) =>
+            CompareTo<OrdDefault<A>>(rhs);
 
         /// <summary>
         /// Compare to another sequence
         /// </summary>
-        public int CompareTo<OrdA>(ISeq<A> other) where OrdA : struct, Ord<A>
+        [Obsolete("Please use Seq<A> directly.  ISeq is less performant that Seq and will go away eventually")]
+        public int CompareTo<OrdA>(ISeq<A> rhs) where OrdA : struct, Ord<A>
         {
-            var x = this;
-            var y = other;
-            var cmp = 0;
+            if (rhs == null) return 1;
 
-            var iterX = x.GetEnumerator();
-            var iterY = y.GetEnumerator();
+            // Differing lengths?
+            var cmp = Count.CompareTo(rhs.Count);
+            if (cmp != 0) return cmp;
 
-            while (iterX.MoveNext() && iterY.MoveNext())
+            // Iterate through both sides
+            var iterA = GetEnumerator();
+            var iterB = rhs.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
             {
-                cmp = default(OrdA).Compare(iterX.Current, iterY.Current);
+                cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
                 if (cmp != 0) return cmp;
             }
-            return cmp;
+            return 0;
         }
 
         /// <summary>
         /// Compare to another sequence
         /// </summary>
-        public int CompareTo(Seq<A> other) =>
-            CompareTo<OrdDefault<A>>(other);
+        public int CompareTo(Seq<A> rhs) =>
+            CompareTo<OrdDefault<A>>(rhs);
 
         /// <summary>
         /// Compare to another sequence
         /// </summary>
-        public int CompareTo<OrdA>(Seq<A> other) where OrdA : struct, Ord<A>
+        public int CompareTo<OrdA>(Seq<A> rhs) where OrdA : struct, Ord<A>
         {
-            if (ReferenceEquals(other, null)) return 1;
+            if (rhs == null) return 1;
 
-            var x = this;
-            var y = other;
-            var cmp = 0;
+            // Differing lengths?
+            var cmp = Count.CompareTo(rhs.Count);
+            if (cmp != 0) return cmp;
 
-            if (x.seq == null && y.seq == null)
+            // Iterate through both sides
+            var iterA = GetEnumerator();
+            var iterB = rhs.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
             {
-                cmp = x.Count.CompareTo(y.Count);
+                cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
                 if (cmp != 0) return cmp;
             }
-
-            var iterX = x.GetEnumerator();
-            var iterY = y.GetEnumerator();
-
-            while (iterX.MoveNext() && iterY.MoveNext())
-            {
-                cmp = default(OrdA).Compare(iterX.Current, iterY.Current);
-                if (cmp != 0) return cmp;
-            }
-            return cmp;
+            return 0;
         }
 
         /// <summary>
         /// Force all items lazy to stream
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Strict() =>
-            StreamNextItems(Int32.MaxValue);
+        public Seq<A> Strict()
+        {
+            StreamRest();
+            return this;
+        }
 
-        /// <summary>
-        /// Stream the next lazy item
-        /// </summary>
+
         (bool Success, A Value) StreamNextItem()
         {
-            if (seq == null)
+            // Where the next item should be
+            var end = start + count;
+
+            // Already streamed?
+            if (end < seqStart)
             {
-                // Nothing left to stream, so we result Fail
-                return (false, default(A));
+                return (true, data[end]);
             }
 
-            var localCount = count;
+            // Nothing left to stream
+            if (seq == null)
+            {
+                return (false, default);
+            }
+
             lock (seq)
             {
-                if (seq == null)
+                // Force evaluation of the next item
+                seq.GetRange(end);
+
+                // Get the next item
+                var (success, value) = seq.Get(start - seqStart);
+
+                if(success)
                 {
-                    // Nothing left to stream, so we result Fail
-                    return localCount < count
-                        ? (true, data[start + localCount])
-                        : (false, default(A));
+                    if (data.Length == end)
+                    {
+                        var ndata = new A[Math.Max(end << 1, 1)];
+                        System.Array.Copy(data, start, ndata, start, count);
+                        data = ndata;
+                    }
+                    data[end] = value;
+                    count++;
+                    return (true, value);
                 }
                 else
                 {
-                    var end = start + count;
-                    if (end < seqStart)
-                    {
-                        // We're trying to stream something before
-                        // the seq, so let's just honour the item
-                        return (true, data[end]);
-                    }
-                    else
-                    {
-                        var (success, value) = seq.Get(end - seqStart);
-                        if (success)
-                        {
-                            if (data.Length == end)
-                            {
-                                var ndata = new A[Math.Max(end << 1, 1)];
-                                System.Array.Copy(data, ndata, data.Length);
-                                data = ndata;
-                            }
-                            data[end] = value;
-                            count++;
-                            return (true, value);
-                        }
-                        else
-                        {
-                            seq = null;
-                            return (false, value);
-                        }
-                    }
+                    seq = null;
                 }
+                return (success, value);
             }
         }
 
-        /// <summary>
-        /// Force all items lazy to stream
-        /// </summary>
-        Seq<A> StreamNextItems(int amount)
+        void StreamNextItems(int amount)
         {
+            // Nothing left to stream
             if (seq == null)
+            {
+                return;
+            }
+
+            // Where the next item should be
+            var end = start + count;
+            var nend = end + amount;
+
+            if(nend < seqStart + (seq?.Count ?? 0))
+            {
+                return;
+            }
+
+            lock (seq)
             {
                 // Nothing left to stream
-                return this;
+                if (seq == null)
+                {
+                    return;
+                }
+
+                // Force evaluation of the next item
+                var (taken, isMore) = seq.GetRange(end - seqStart, amount);
+
+                var dlength = data.Length == 0 ? 1 : data.Length;
+                nend = end + taken;
+
+                while (nend >= dlength)
+                {
+                    dlength = dlength << 1;
+                }
+                if (dlength != data.Length)
+                {
+                    var ndata = new A[dlength];
+                    System.Array.Copy(data, start, ndata, start, count);
+                    data = ndata;
+                }
+
+                seq.CopyTo(end - seqStart, data, end, taken);
+                count += taken;
+
+                if (!isMore)
+                {
+                    seq = null;
+                }
+            }
+        }
+
+        void StreamRest()
+        {
+            // Where the next item should be
+            var end = start + count;
+
+            // Nothing left to stream
+            if (seq == null)
+            {
+                return;
             }
 
             lock (seq)
             {
+                // Nothing left to stream
                 if (seq == null)
                 {
-                    // Nothing left to stream, so we result Fail
-                    return this;
+                    return;
                 }
-                else
+
+                // Force evaluation of the next item
+                var (taken, isMore) = seq.GetTheRest(end - seqStart);
+
+                var dlength = data.Length == 0 ? 1 : data.Length;
+                var nend = end + taken;
+
+                while (nend >= dlength)
                 {
-                    var end = Math.Max(start + count, seqStart);
+                    dlength = dlength << 1;
+                }
+                if (dlength != data.Length)
+                {
+                    var ndata = new A[dlength];
+                    System.Array.Copy(data, start, ndata, start, count);
+                    data = ndata;
+                }
 
-                    while (amount > 0)
-                    {
-                        amount--;
+                seq.CopyTo(end - seqStart, data, end, taken);
+                count += taken;
 
-                        var (success, value) = seq.Get(end - seqStart);
-                        if (success)
-                        {
-                            if (data.Length == end)
-                            {
-                                var ndata = new A[Math.Max(end << 1, 1)];
-                                System.Array.Copy(data, ndata, data.Length);
-                                data = ndata;
-                            }
-                            data[end] = value;
-                            count++;
-                            end++;
-                        }
-                        else
-                        {
-                            seq = null;
-                            return this;
-                        }
-                    }
-                    return this;
+                if (!isMore)
+                {
+                    seq = null;
                 }
             }
         }
+
+        ///// <summary>
+        ///// Stream the next lazy item
+        ///// </summary>
+        //(bool Success, A Value) StreamNextItem()
+        //{
+        //    if (seq == null)
+        //    {
+        //        // Nothing left to stream, so we result Fail
+        //        return (false, default(A));
+        //    }
+
+        //    var localCount = count;
+        //    lock (seq)
+        //    {
+        //        if (seq == null)
+        //        {
+        //            // Nothing left to stream, so we result Fail
+        //            return localCount < count
+        //                ? (true, data[start + localCount])
+        //                : (false, default(A));
+        //        }
+        //        else
+        //        {
+        //            var end = start + count;
+        //            if (end < seqStart)
+        //            {
+        //                // We're trying to stream something before
+        //                // the seq, so let's just honour the item
+        //                return (true, data[end]);
+        //            }
+        //            else
+        //            {
+        //                var (success, value) = seq.Get(end - seqStart);
+        //                if (success)
+        //                {
+        //                    if (data.Length == end)
+        //                    {
+        //                        var ndata = new A[Math.Max(end << 1, 1)];
+        //                        System.Array.Copy(data, ndata, data.Length);
+        //                        data = ndata;
+        //                    }
+        //                    data[end] = value;
+        //                    count++;
+        //                    return (true, value);
+        //                }
+        //                else
+        //                {
+        //                    seq = null;
+        //                    return (false, value);
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+
+        ///// <summary>
+        ///// Force all items lazy to stream
+        ///// </summary>
+        //Seq<A> StreamNextItems(int amount)
+        //{
+        //    if (seq == null)
+        //    {
+        //        // Nothing left to stream
+        //        return this;
+        //    }
+
+        //    lock (seq)
+        //    {
+        //        if (seq == null)
+        //        {
+        //            // Nothing left to stream, so we result Fail
+        //            return this;
+        //        }
+        //        else
+        //        {
+        //            var from = Math.Max(start + count, seqStart) - seqStart;
+
+        //            //var end = Math.Max(start + count, seqStart);
+
+        //            //while (amount > 0)
+        //            //{
+        //            //    //amount--;
+
+        //            //    //var (success, value) = seq.Get(end - seqStart);
+        //            //    //if (success)
+        //            //    //{
+        //            //    //    if (data.Length == end)
+        //            //    //    {
+        //            //    //        var ndata = new A[Math.Max(end << 1, 1)];
+        //            //    //        System.Array.Copy(data, ndata, data.Length);
+        //            //    //        data = ndata;
+        //            //    //    }
+        //            //    //    data[end] = value;
+        //            //    //    count++;
+        //            //    //    end++;
+        //            //    //}
+        //            //    //else
+        //            //    //{
+        //            //    //    seq = null;
+        //            //    //    return this;
+        //            //    //}
+        //            //}
+        //            return this;
+        //        }
+        //    }
+        //}
 
         public struct Enumerator
         {
@@ -1294,14 +1467,14 @@ namespace LanguageExt
             public bool MoveNext()
             {
                 var index = this.index + 1;
-                if(index < end)
+                if (index < end)
                 {
                     // We're alive an enumerating the already streamed concrete data 
                     current = data[index];
                     this.index = index;
                     return true;
                 }
-                else if(source.seq == null)
+                else if (source.seq != null)
                 {
                     var (succ, val) = source.StreamNextItem();
                     current = val;
@@ -1316,7 +1489,7 @@ namespace LanguageExt
                 }
             }
 
-            public void Reset() => 
+            public void Reset() =>
                 throw new NotSupportedException();
 
             public A Current
@@ -1326,8 +1499,29 @@ namespace LanguageExt
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Enumerator GetEnumerator() =>
             new Enumerator(this);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        IEnumerator<A> IEnumerable<A>.GetEnumerator()
+        {
+            var iter = GetEnumerator();
+            while(iter.MoveNext())
+            {
+                yield return iter.Current;;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            var iter = GetEnumerator();
+            while (iter.MoveNext())
+            {
+                yield return iter.Current;
+            }
+        }
 
         /// <summary>
         /// Implicit conversion from an untyped empty list

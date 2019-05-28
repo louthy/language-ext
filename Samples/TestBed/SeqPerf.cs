@@ -11,6 +11,11 @@ namespace TestBed
     {
         const int runs = 5;
 
+        public static void LazyTest()
+        {
+            var seq = Seq(Range(0, 5)).Strict();
+        }
+
         public static void TestStrict()
         {
             Console.ForegroundColor = ConsoleColor.Green;

@@ -510,7 +510,7 @@ namespace LanguageExt
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> AsEnumerable() =>
+        public IEnumerable<A> AsEnumerable() =>
             ToSeq();
 
         [Pure]

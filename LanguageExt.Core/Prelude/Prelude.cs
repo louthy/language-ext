@@ -219,6 +219,25 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Calculate a hash-code for an enumerable
+        /// </summary>
+        public static int hash<A>(Seq<A> xs)
+        {
+            if (xs == null) return 0;
+            unchecked
+            {
+                int hash = 1;
+                foreach (var x in xs)
+                {
+                    hash = ReferenceEquals(x, null)
+                        ? hash * 31
+                        : hash * 31 + x.GetHashCode();
+                }
+                return hash;
+            }
+        }
+
+        /// <summary>
         /// Not function, for prettifying code and removing the need to 
         /// use the ! operator.
         /// </summary>

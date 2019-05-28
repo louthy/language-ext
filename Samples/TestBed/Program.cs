@@ -37,6 +37,7 @@ class Program
 {
     static void Main(string[] args)
     {
+        SeqPerf.LazyTest();
         SeqPerf.TestEnumStream();
         SeqPerf.TestStrictEnum();
         SeqPerf.TestListTEnum();
