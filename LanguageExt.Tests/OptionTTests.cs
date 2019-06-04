@@ -35,7 +35,7 @@ namespace LanguageExtTests
             Assert.True(r == Some(List(2, 4)));
         }
 
-        static Trans<MLst<Option<int>>, Lst<Option<int>>, MOption<int>, Option<int>, int> OptionT;
+        static Trans<Unit, Unit, MLst<Option<int>>, Lst<Option<int>>, Unit, Unit, MOption<int>, Option<int>, int> OptionT;
 
         [Fact]
         public void TestOptionT2()
@@ -73,14 +73,14 @@ namespace LanguageExtTests
 
         public static Lst<Option<B>> LstTBind<A, B>(Lst<Option<A>> list, Func<A, Option<B>> bind)
         {
-            var LstT = default(Trans<MLst<Option<A>>, Lst<Option<A>>, MOption<A>, Option<A>, A>);
+            var LstT = default(Trans<Unit, Unit, MLst<Option<A>>, Lst<Option<A>>, Unit, Unit, MOption<A>, Option<A>, A>);
 
             return LstT.Bind<MLst<Option<B>>, Lst<Option<B>>, MOption<B>, Option<B>, B>(list, bind);
         }
 
         public static Option<Lst<B>> OptionTBind<A, B>(Option<Lst<A>> list, Func<A, Lst<B>> bind)
         {
-            var OptionT = default(Trans<MOption<Lst<A>>, Option<Lst<A>>, MLst<A>, Lst<A>, A>);
+            var OptionT = default(Trans<Unit, Unit, MOption<Lst<A>>, Option<Lst<A>>, Unit, Unit, MLst<A>, Lst<A>, A>);
 
             return OptionT.Bind<MOption<Lst<B>>, Option<Lst<B>>, MLst<B>, Lst<B>, B>(list, bind);
         }

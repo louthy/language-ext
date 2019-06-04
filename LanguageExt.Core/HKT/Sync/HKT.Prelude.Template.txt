@@ -8,8 +8,9 @@
         /// <returns>Total of all `Num<A>`s in `OUTER_A`</returns>
         [Pure]
         public static A sumT<NumA, GENS, A>(OUTER_A ma)
+            WHERE_ARGS
             where NumA : struct, Num<A> =>
-                TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, NumA, A>.Inst.Sum(ma);
+                TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_A, OUTER_A, M_INNER_ENV, M_INNER_OUT, M_INNER_A, INNER_A, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
         /// Finds the number of bound values in the `OUTER_A`
@@ -18,8 +19,8 @@
         /// <param name="ma">The `OUTER_A` to perform the count operation on</param>
         /// <returns>Number of `A`s in `OUTER_A`</returns>
         [Pure]
-        public static int countT<GENS, A>(OUTER_A ma) =>
-            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>.Inst.Count(ma);
+        public static int countT<GENS, A>(OUTER_A ma) WHERE_ARGS =>
+            TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_A, OUTER_A, M_INNER_ENV, M_INNER_OUT, M_INNER_A, INNER_A, A>.Inst.Count(ma);
 
         /// <summary>
         /// Monadic bind operation
@@ -30,8 +31,8 @@
         /// <param name="f">The bind function to apply</param>
         /// <returns>`OUTER_B` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OUTER_B bindT<GENS, A, B>(OUTER_A ma, Func<A, INNER_B> f) =>
-            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+        public static OUTER_B bindT<GENS, A, B>(OUTER_A ma, Func<A, INNER_B> f) WHERE_ARGS =>
+            TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_A, OUTER_A, M_INNER_ENV, M_INNER_OUT, M_INNER_A, INNER_A, A>
                 .Inst.Bind<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
         /// <summary>
@@ -46,8 +47,8 @@
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`FLIPPED_OUTER_B`</returns>
         [Pure]
-        public static FLIPPED_OUTER_B traverse<GENS, A, B>(OUTER_A ma, Func<A, B> f) =>
-            FLIP_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+        public static FLIPPED_OUTER_B traverse<GENS, A, B>(OUTER_A ma, Func<A, B> f) WHERE_ARGS =>
+            FLIP_TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_A, OUTER_A, M_INNER_ENV, M_INNER_OUT, M_INNER_A, INNER_A, A>
                 .Inst.Traverse<M_FLIPPED_OUTER_B, FLIPPED_OUTER_B, M_FLIPPED_INNER_B, FLIPPED_INNER_B, B>(ma, f);
 
         /// <summary>
@@ -61,7 +62,7 @@
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`FLIPPED_OUTER_A`</returns>
         [Pure]
-        public static FLIPPED_OUTER_A sequence<GENS, A>(OUTER_A ma) =>
+        public static FLIPPED_OUTER_A sequence<GENS, A>(OUTER_A ma) WHERE_ARGS =>
             ma.Traverse<GENS, A, A>(identity);
 
         /// <summary>
@@ -74,8 +75,8 @@
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`OUTER_B` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OUTER_B mapT<GENS, A, B>(OUTER_A ma, Func<A, B> f) =>
-            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+        public static OUTER_B mapT<GENS, A, B>(OUTER_A ma, Func<A, B> f) WHERE_ARGS =>
+            TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_A, OUTER_A, M_INNER_ENV, M_INNER_OUT, M_INNER_A, INNER_A, A>
                 .Inst.Map<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
         /// <summary>
@@ -89,8 +90,8 @@
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static S foldT<S, GENS, A>(OUTER_A ma, S state, Func<S, A, S> f) =>
-            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+        public static S foldT<S, GENS, A>(OUTER_A ma, S state, Func<S, A, S> f) WHERE_ARGS =>
+            TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_A, OUTER_A, M_INNER_ENV, M_INNER_OUT, M_INNER_A, INNER_A, A>
                 .Inst.Fold(ma, state, f);
 
         /// <summary>
@@ -105,8 +106,8 @@
         /// <param name="f">The folding function to apply</param>
         /// <returns>The new aggregate state (which is then returned)</returns>
         [Pure]
-        public static S foldBackT<S, GENS, A>(OUTER_A ma, S state, Func<S, A, S> f) =>
-            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+        public static S foldBackT<S, GENS, A>(OUTER_A ma, S state, Func<S, A, S> f) WHERE_ARGS =>
+            TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_A, OUTER_A, M_INNER_ENV, M_INNER_OUT, M_INNER_A, INNER_A, A>
                 .Inst.FoldBack(ma, state, f);
 
         /// <summary>
@@ -119,8 +120,8 @@
         /// <returns>True if any of the bound value(s) return true when applied to the 
         /// predicate `f`.  If there are no bound values then false is returned.</returns>
         [Pure]
-        public static bool existsT<GENS, A>(OUTER_A ma, Func<A, bool> f) =>
-            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+        public static bool existsT<GENS, A>(OUTER_A ma, Func<A, bool> f) WHERE_ARGS =>
+            TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_A, OUTER_A, M_INNER_ENV, M_INNER_OUT, M_INNER_A, INNER_A, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
         /// <summary>
@@ -133,8 +134,8 @@
         /// <returns>True if all of the bound value(s) return true when applied to the 
         /// predicate `f`.  If there are no bound values then true is returned.</returns>
         [Pure]
-        public static bool forallT<GENS, A>(OUTER_A ma, Func<A, bool> f) =>
-            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+        public static bool forallT<GENS, A>(OUTER_A ma, Func<A, bool> f) WHERE_ARGS =>
+            TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_A, OUTER_A, M_INNER_ENV, M_INNER_OUT, M_INNER_A, INNER_A, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
         /// <summary>
@@ -143,8 +144,8 @@
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <param name="ma">The `OUTER_A` to perform the operation on</param>
         /// <param name="f">The action that contains the side-effects</param>
-        public static Unit iterT<GENS, A>(OUTER_A ma, Action<A> f) =>
-            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+        public static Unit iterT<GENS, A>(OUTER_A ma, Action<A> f) WHERE_ARGS =>
+            TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_A, OUTER_A, M_INNER_ENV, M_INNER_OUT, M_INNER_A, INNER_A, A>
                 .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
 
         /// <summary>
@@ -156,11 +157,11 @@
         /// <param name="f">The predicate function</param>
         /// <returns>`OUTER_A` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OUTER_A filterT<GENS, A>(OUTER_A ma, Func<A, bool> pred) =>
-            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+        public static OUTER_A filterT<GENS, A>(OUTER_A ma, Func<A, bool> pred) WHERE_ARGS =>
+            TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_A, OUTER_A, M_INNER_ENV, M_INNER_OUT, M_INNER_A, INNER_A, A>
                 .Inst.Bind<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
                     a => pred(a)
-                        ? default(M_INNER_A).Return(a)
+                        ? default(M_INNER_A).Return(_ => a)
                         : default(M_INNER_A).Zero());
 
         /// <summary>
@@ -172,7 +173,9 @@
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OUTER_A` which is the result of performing x + y</returns>
         [Pure]
-        public static OUTER_A plusT<NUM, GENS, A>(OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+        public static OUTER_A plusT<NUM, GENS, A>(OUTER_A x, OUTER_A y)
+            WHERE_ARGS
+            where NUM : struct, Num<A> =>
             applyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -184,7 +187,9 @@
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OUTER_A` which is the result of performing x - y</returns>
         [Pure]
-        public static OUTER_A subtractT<NUM, GENS, A>(OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+        public static OUTER_A subtractT<NUM, GENS, A>(OUTER_A x, OUTER_A y)
+            WHERE_ARGS
+            where NUM : struct, Num<A> =>
             applyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -196,7 +201,9 @@
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OUTER_A` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OUTER_A productT<NUM, GENS, A>(OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+        public static OUTER_A productT<NUM, GENS, A>(OUTER_A x, OUTER_A y)
+            WHERE_ARGS
+            where NUM : struct, Num<A> =>
             applyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -208,7 +215,9 @@
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OUTER_A` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OUTER_A divideT<NUM, GENS, A>(OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+        public static OUTER_A divideT<NUM, GENS, A>(OUTER_A x, OUTER_A y)
+            WHERE_ARGS
+            where NUM : struct, Num<A> =>
             applyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -220,7 +229,9 @@
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OUTER_A` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OUTER_A appendT<SEMI, GENS, A>(OUTER_A x, OUTER_A y) where SEMI : struct, Semigroup<A> =>
+        public static OUTER_A appendT<SEMI, GENS, A>(OUTER_A x, OUTER_A y)
+            WHERE_ARGS
+            where SEMI : struct, Semigroup<A> =>
             applyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -232,7 +243,9 @@
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int compareT<ORD, GENS, A>(OUTER_A x, OUTER_A y) where ORD : struct, Ord<A> =>
+        public static int compareT<ORD, GENS, A>(OUTER_A x, OUTER_A y)
+            WHERE_ARGS
+            where ORD : struct, Ord<A> =>
             applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -244,7 +257,9 @@
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OUTER_A` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool equalsT<EQ, GENS, A>(OUTER_A x, OUTER_A y) where EQ : struct, Eq<A> =>
+        public static bool equalsT<EQ, GENS, A>(OUTER_A x, OUTER_A y)
+            WHERE_ARGS
+            where EQ : struct, Eq<A> =>
             applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -256,10 +271,10 @@
         /// <param name="fa">Monad of `OUTER_A`</param>
         /// <returns>`OUTER_B` which is the result of performing `fab(fa)`</returns>
         [Pure]
-        public static OUTER_B applyT<GENS, A, B>(Func<A, B> fab, OUTER_A fa) =>
+        public static OUTER_B applyT<GENS, A, B>(Func<A, B> fab, OUTER_A fa) WHERE_ARGS =>
             APPL_INNER_AB.Inst.Apply(
-                 M_INNER_FUNC_AB.Inst.Return((INNER_A a) => APPL_AB.Inst.Apply(
-                     M_FUNC_AB.Inst.Return(fab), 
+                 M_INNER_FUNC_AB.Inst.Return(_ => (INNER_A a) => APPL_AB.Inst.Apply(
+                     M_FUNC_AB.Inst.Return(__ => fab), 
                      a)),
                  fa);
 
@@ -273,12 +288,12 @@
         /// <param name="fb">Monad of `OUTER_A`</param>
         /// <returns>`OUTER_B` which is the result of performing `fabc(fa, fb)`</returns>
         [Pure]
-        public static OUTER_C applyT<GENS, A, B, C>(Func<A, B, C> fabc, OUTER_A fa, OUTER_B fb) =>
+        public static OUTER_C applyT<GENS, A, B, C>(Func<A, B, C> fabc, OUTER_A fa, OUTER_B fb) WHERE_ARGS =>
             APPL_INNER_ABC.Inst.Apply(
-                M_INNER_FUNC_ABC.Inst.Return(
+                M_INNER_FUNC_ABC.Inst.Return(_ =>
                     (INNER_A a) =>
                         (INNER_B b) =>
                             APPL_ABC.Inst.Apply(
-                                M_FUNC_ABC.Inst.Return(curry(fabc)), a, b)), fa, fb);
+                                M_FUNC_ABC.Inst.Return(__ => curry(fabc)), a, b)), fa, fb);
 
     }

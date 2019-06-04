@@ -86,7 +86,7 @@ namespace LanguageExt.Tests
         {
             var x = List(Some(1), Some(2), Some(3), Some(4), Some(5));
 
-            var inst = Trans<MLst<Option<int>>, Lst<Option<int>>, MOption<int>, Option<int>, int>.Inst;
+            var inst = Trans<Unit, Unit, MLst<Option<int>>, Lst<Option<int>>, Unit, Unit, MOption<int>, Option<int>, int>.Inst;
 
             var y = inst.Sequence<MOption<Lst<int>>, Option<Lst<int>>, MLst<int>, Lst<int>>(x);
 
@@ -98,7 +98,7 @@ namespace LanguageExt.Tests
         {
             var x = List(Some(1), Some(2), Some(3), None, Some(5));
 
-            var inst = Trans<MLst<Option<int>>, Lst<Option<int>>, MOption<int>, Option<int>, int>.Inst;
+            var inst = Trans<Unit, Unit, MLst<Option<int>>, Lst<Option<int>>, Unit, Unit, MOption<int>, Option<int>, int>.Inst;
 
             var y = inst.Sequence<MOption<Lst<int>>, Option<Lst<int>>, MLst<int>, Lst<int>>(x);
 
@@ -142,7 +142,7 @@ namespace LanguageExt.Tests
             Assert.True(Set.createRange(res) == Set(2, 4, 6, 8, 10, 12));
 
             var ms = (int)(DateTime.UtcNow - start).TotalMilliseconds;
-            Assert.True(ms < 3500, $"Took {ms} ticks");
+            Assert.True(ms < 3000 * 6, $"Took {ms} ticks");
         }
 
         [Fact]

@@ -14,14 +14,19 @@
         T("SeqTrans", "Lst"),
         T("Trans", "Option"),
         T("Trans", "OptionUnsafe"),
-        T("Trans", "Either", "L"),
-        T("Trans", "EitherUnsafe", "L"),
+        T("Trans", "Either", "Unit", "Unit", "", "L"),
+        T("Trans", "EitherUnsafe", "Unit", "Unit", "", "L"),
         T("Trans", "Try"),
         T("Trans", "TryOption"), 
         T2("SeqTrans", "ApplEnumerable", "MEnumerable", "IEnumerable"),
         T("SeqTrans", "Seq"),
         T("SeqTrans", "Set"),
-        T("Trans" ,"Validation", "FAIL"),
+        T("Trans", "Validation", "Unit", "Unit", "", "FAIL"),
+        T("Trans", "Resource", "Unit", "HashMap<IDisposable, bool>"),
+        T("Trans", "Reader", "Env", "Unit", "", "Env"),
+        T("Trans", "Writer", "Unit", "(W, bool)", "where MonoidW : struct, Monoid<W>", "MonoidW", "W"),
+        T("Trans", "State", "State", "(State State, bool IsFaulted)", "", "State"),
+        T("Trans", "RWS", "(R Env, ST State)", "(W Output, ST State, bool IsFaulted)", "where MonoidW : struct, Monoid<W>", "MonoidW", "R", "W", "ST")
     };
 
     string header   = System.IO.File.ReadAllText(this.Host.ResolvePath("HKT.Extensions.Header.Template.txt"));
@@ -83,6 +88,28 @@ namespace LanguageExt
             var M_OUTER_B = outerType.MOuterTypeB(innerType);
             var M_OUTER_C = outerType.MOuterTypeC(innerType);
 
+            var MI_O_OUTER_B = innerType.MOuterType(outerType, OUTER_B);
+            var I_O_OUTER_B = innerType.OuterType(outerType, OUTER_B);
+            var MO_OUTER_B = outerType.MType(OUTER_B);
+            var O_OUTER_B = outerType.Type(OUTER_B);
+            var MI_OUTER_B = innerType.MType(OUTER_B);
+            var I_OUTER_B = innerType.Type(OUTER_B);
+            var MO_I_INNER_B = outerType.MOuterType(innerType, INNER_B);
+            var O_I_INNER_B = outerType.OuterType(innerType, INNER_B);
+            var MI_INNER_B = innerType.MType(INNER_B);
+            var I_INNER_B = innerType.Type(INNER_B);
+
+            var MI_O_OUTER_C = innerType.MOuterType(outerType, OUTER_C);
+            var I_O_OUTER_C = innerType.OuterType(outerType, OUTER_C);
+            var MO_OUTER_C = outerType.MType(OUTER_C);
+            var O_OUTER_C = outerType.Type(OUTER_C);
+            var MI_OUTER_C = innerType.MType(OUTER_C);
+            var I_OUTER_C = innerType.Type(OUTER_C);
+            var MO_I_INNER_C = outerType.MOuterType(innerType, INNER_C);
+            var O_I_INNER_C = outerType.OuterType(innerType, INNER_C);
+            var MI_INNER_C = innerType.MType(INNER_C);
+            var I_INNER_C = innerType.Type(INNER_C);
+
             var APPL_INNER_ABC  = outerType.ApplicativeInnerABC(innerType);
             var APPL_INNER_AB   = outerType.ApplicativeInnerAB(innerType);
             var APPL_ABC        = innerType.ApplicativeABC;
@@ -94,7 +121,13 @@ namespace LanguageExt
             var M_FUNC_ABC = innerType.MFuncABC;
             var M_FUNC_AB  = innerType.MFuncAB;
 
+            var M_OUTER_ENV = outerType.Env;
+            var M_OUTER_OUT = outerType.Out;
+            var M_INNER_ENV = innerType.Env;
+            var M_INNER_OUT = innerType.Out;
+
             var GENS = TypeDesc.Gens(outerType, innerType);
+            var WHERE_ARGS = TypeDesc.WhereArgs(outerType, innerType);
 
             b.AppendLine(currentTemplate.ReplaceInCodeAndDoc("INNER_CLASS_NAME", INNER_CLASS_NAME)
                                         .ReplaceInCodeAndDoc("OUTER_CLASS_NAME", OUTER_CLASS_NAME)
@@ -112,6 +145,26 @@ namespace LanguageExt
                                         .ReplaceInCodeAndDoc("M_INNER_FUNC_AB", M_INNER_FUNC_AB)
                                         .ReplaceInCodeAndDoc("M_FUNC_ABC", M_FUNC_ABC)
                                         .ReplaceInCodeAndDoc("M_FUNC_AB", M_FUNC_AB)
+                                        .ReplaceInCodeAndDoc("MI_O_OUTER_B", MI_O_OUTER_B)
+                                        .ReplaceInCodeAndDoc("I_O_OUTER_B", I_O_OUTER_B)
+                                        .ReplaceInCodeAndDoc("MO_OUTER_B", MO_OUTER_B)
+                                        .ReplaceInCodeAndDoc("O_OUTER_B", O_OUTER_B)
+                                        .ReplaceInCodeAndDoc("MI_OUTER_B", MI_OUTER_B)
+                                        .ReplaceInCodeAndDoc("I_OUTER_B", I_OUTER_B)
+                                        .ReplaceInCodeAndDoc("MO_I_INNER_B", MO_I_INNER_B)
+                                        .ReplaceInCodeAndDoc("O_I_INNER_B", O_I_INNER_B)
+                                        .ReplaceInCodeAndDoc("MI_INNER_B", MI_INNER_B)
+                                        .ReplaceInCodeAndDoc("I_INNER_B", I_INNER_B)
+                                        .ReplaceInCodeAndDoc("MI_O_OUTER_C", MI_O_OUTER_C)
+                                        .ReplaceInCodeAndDoc("I_O_OUTER_C", I_O_OUTER_C)
+                                        .ReplaceInCodeAndDoc("MO_OUTER_C", MO_OUTER_C)
+                                        .ReplaceInCodeAndDoc("O_OUTER_C", O_OUTER_C)
+                                        .ReplaceInCodeAndDoc("MI_OUTER_C", MI_OUTER_C)
+                                        .ReplaceInCodeAndDoc("I_OUTER_C", I_OUTER_C)
+                                        .ReplaceInCodeAndDoc("MO_I_INNER_C", MO_I_INNER_C)
+                                        .ReplaceInCodeAndDoc("O_I_INNER_C", O_I_INNER_C)
+                                        .ReplaceInCodeAndDoc("MI_INNER_C", MI_INNER_C)
+                                        .ReplaceInCodeAndDoc("I_INNER_C", I_INNER_C)
                                         .ReplaceInCodeAndDoc("M_OUTER_C", M_OUTER_C)
                                         .ReplaceInCodeAndDoc("M_OUTER_B", M_OUTER_B)
                                         .ReplaceInCodeAndDoc("M_OUTER_A", M_OUTER_A)
@@ -127,8 +180,14 @@ namespace LanguageExt
                                         .ReplaceInCodeAndDoc("INNER_B", INNER_B)
                                         .ReplaceInCodeAndDoc("INNER_A", INNER_A)
                                         .ReplaceInCodeAndDoc("GENS,", GENS)
+                                        .ReplaceInCodeAndDoc("WHERE_ARGS", WHERE_ARGS)
                                         .ReplaceInCodeAndDoc("FLIP_TRANS", innerType.Trans)
-                                        .ReplaceInCodeAndDoc("TRANS", outerType.Trans));
+                                        .ReplaceInCodeAndDoc("TRANS", outerType.Trans)
+                                        .ReplaceInCodeAndDoc("M_OUTER_ENV", M_OUTER_ENV)
+                                        .ReplaceInCodeAndDoc("M_OUTER_OUT", M_OUTER_OUT)
+                                        .ReplaceInCodeAndDoc("M_INNER_ENV", M_INNER_ENV)
+                                        .ReplaceInCodeAndDoc("M_INNER_OUT", M_INNER_OUT)
+                                    );
         }
         b.Append(footer);
 #>
@@ -177,14 +236,20 @@ namespace LanguageExt
         public readonly string FName;
         public readonly string MName;
         public readonly string Name;
+        public readonly string Env;
+        public readonly string Out;
+        public readonly string Constraints;
         public readonly string[] Args;
 
-        public TypeDesc(string trans, string fname, string mname, string name, params string[] args)
+        public TypeDesc(string trans, string fname, string mname, string name, string env, string output, string constraints, params string[] args)
         {
             Trans = trans;
             FName = fname;
             MName = mname;
             Name = name;
+            Env = env;
+            Out = output;
+            Constraints = constraints;
             Args = args;
         }
 
@@ -201,6 +266,11 @@ namespace LanguageExt
             if(gens.Length == 0) return "";
             return String.Join(", ", gens)+",";
         }
+
+        public static string WhereArgs(TypeDesc outer, TypeDesc inner) =>
+            outer.Constraints == inner.Constraints
+                ? outer.Constraints
+                : $"{outer.Constraints} {inner.Constraints}";
 
         public string ArgsDisplay(string a) =>
             Args.Length == 0
@@ -249,13 +319,13 @@ namespace LanguageExt
         public string MFuncAB => $"{MName}<{Gens()} Func<A, B>>";
     }
 
-    public TypeDesc T(string trans, string name, params string[] args)
+    public TypeDesc T(string trans, string name, string env = "Unit", string output = "Unit", string constraints = "", params string[] args)
     {
-        return new TypeDesc(trans, "Appl"+name, "M"+name, name,args);
+        return new TypeDesc(trans, "Appl"+name, "M"+name, name, env, output, constraints, args);
     }
 
-    public TypeDesc T2(string trans, string fname, string mname, string name, params string[] args)
+    public TypeDesc T2(string trans, string fname, string mname, string name, string env = "Unit", string output = "Unit", string constraints = "", params string[] args)
     {
-        return new TypeDesc(trans, fname, mname, name,args);
+        return new TypeDesc(trans, fname, mname, name, env, output, constraints, args);
     }
 #>

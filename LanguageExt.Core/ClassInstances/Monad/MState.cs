@@ -11,6 +11,8 @@ namespace LanguageExt.ClassInstances
         MonadState<S, A>, 
         Monad<S, (S State, bool IsFaulted), State<S, A>, A>
     {
+        public static readonly MState<S, A> Inst = default;
+
         [Pure]
         public MB Bind<MONADB, MB, B>(State<S, A> ma, Func<A, MB> f) where MONADB : struct, Monad<S, (S State, bool IsFaulted), MB, B> =>
             default(MONADB).Run(state =>

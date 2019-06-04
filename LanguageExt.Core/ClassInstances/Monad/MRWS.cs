@@ -12,6 +12,8 @@ namespace LanguageExt.ClassInstances
         Monad<(R Env, S State), (W Output, S State, bool IsFaulted), RWS<MonoidW, R, W, S, A>, A>
         where MonoidW : struct, Monoid<W>
     {
+        public static MRWS<MonoidW, R, W, S, A> Inst = default;
+
         public RWS<MonoidW, R, W, S, A> Apply(Func<A, A, A> f, RWS<MonoidW, R, W, S, A> fa, RWS<MonoidW, R, W, S, A> fb) =>
             from a in fa
             from b in fb

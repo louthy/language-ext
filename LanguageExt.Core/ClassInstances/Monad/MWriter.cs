@@ -10,6 +10,8 @@ namespace LanguageExt.ClassInstances
         Monad<Unit, (W, bool), Writer<MonoidW, W, A>, A>
         where MonoidW : struct, Monoid<W>
     {
+        public static MWriter<MonoidW, W, A> Inst = default;
+
         [Pure]
         public MB Bind<MONADB, MB, B>(Writer<MonoidW, W, A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, (W, bool), MB, B> =>
             default(MONADB).Run(_ =>

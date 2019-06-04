@@ -180,8 +180,8 @@ namespace LanguageExt.ClassInstances
             Return(value);
 
         [Pure]
-        public Try<A> Run(Func<Unit, Try<A>> ma) =>
-            ma(unit);
+        public Try<A> Run(Func<Unit, Try<A>> ma) => () =>
+            ma(unit)();
 
         [Pure]
         public Try<A> BindReturn(Unit _, Try<A> mb) =>
