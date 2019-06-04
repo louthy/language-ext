@@ -21,22 +21,24 @@ namespace LanguageExt.ClassInstances
         public TryOption<A> None => none;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(TryOption<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
-        {
-            var mr = ma.Try();
-            if (mr.IsFaulted) return default(MONADB).Fail(mr.Exception);
-            if (mr.Value.IsNone) return default(MONADB).Fail(None);
-            return f(mr.Value.Value);
-        }
+        public MB Bind<MONADB, MB, B>(TryOption<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
+            default(MONADB).Run(_ =>
+            {
+                var mr = ma.Try();
+                if (mr.IsFaulted) return default(MONADB).Fail(mr.Exception);
+                if (mr.Value.IsNone) return default(MONADB).Fail(Inst.None);
+                return f(mr.Value.Value);
+            });
 
         [Pure]
-        public MB BindAsync<MONADB, MB, B>(TryOption<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B>
-        {
-            var mr = ma.Try();
-            if (mr.IsFaulted) return default(MONADB).Fail(mr.Exception);
-            if (mr.Value.IsNone) return default(MONADB).Fail(None);
-            return f(mr.Value.Value);
-        }
+        public MB BindAsync<MONADB, MB, B>(TryOption<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            default(MONADB).RunAsync(_ =>
+            {
+                var mr = ma.Try();
+                if (mr.IsFaulted) return default(MONADB).Fail(mr.Exception).AsTask();
+                if (mr.Value.IsNone) return default(MONADB).Fail(Inst.None).AsTask();
+                return f(mr.Value.Value).AsTask();
+            });
 
         [Pure]
         public TryOption<A> Fail(object err = null) =>
@@ -179,8 +181,8 @@ namespace LanguageExt.ClassInstances
             Return(value);
 
         [Pure]
-        public TryOption<A> Run(Func<Unit, TryOption<A>> ma) =>
-            ma(unit);
+        public TryOption<A> Run(Func<Unit, TryOption<A>> ma) => () =>
+            ma(unit)();
 
         [Pure]
         public TryOption<A> BindReturn(Unit _, TryOption<A> mb) =>

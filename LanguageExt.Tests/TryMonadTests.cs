@@ -8,7 +8,7 @@ using System.Net.Http;
 namespace LanguageExtTests
 {
 
-    public class TryOptionMonadTests
+    public class TryMonadTests
     {
         [Fact]
         public void TryOddNumber1()
@@ -183,6 +183,23 @@ namespace LanguageExtTests
             int totalSize = getURLContent("http://www.google.com")
                                 .MapT(x => x.Length)
                                 .SumT<TInt, int>();
+        }
+
+        [Fact]
+        public void TryBindLazy()
+        {
+            var tried = false;
+            var try1 = Try(() => tried = true);
+            var try2 = Try(() => tried = true);
+
+            var tryBoth =
+                from a in try1
+                from b in try2
+                select a || b;
+            
+            Assert.False(tried);
+            tryBoth.Try();
+            Assert.True(tried);
         }
     }
 }

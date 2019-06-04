@@ -8,7 +8,7 @@ using System;
 namespace LanguageExtTests
 {
     
-    public class TryMonadTests
+    public class TryOptionMonadTests
     {
         [Fact]
         public void TryOptionListTest()
@@ -74,6 +74,23 @@ namespace LanguageExtTests
             Assert.True(
                 ifNoneOrFail(GetValue(false), "failed") == "failed"
                 );
+        }
+
+        [Fact]
+        public void TryOptionBindLazy()
+        {
+            var tried = false;
+            var try1 = TryOption(() => tried = true);
+            var try2 = TryOption(() => tried = true);
+
+            var tryBoth =
+                from a in try1
+                from b in try2
+                select a || b;
+            
+            Assert.False(tried);
+            tryBoth.Try();
+            Assert.True(tried);
         }
 
         public TryOption<string> GetSomeValue(bool select) =>
