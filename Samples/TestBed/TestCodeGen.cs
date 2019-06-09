@@ -45,4 +45,21 @@ namespace TestBed
             Surname = surname;
         }
     }
+
+    [WithLens]
+    public partial class TestWith4 : Record<TestWith4>
+    {
+        public readonly string New;
+        public readonly string Class;
+        public readonly string Static;
+        public readonly string While;
+
+        public TestWith4(string @new, string @class, string @static, string @while)
+        {
+            New = @new;
+            Class = @class;
+            Static = @static;
+            While = @while;
+        }
+    }
 }
