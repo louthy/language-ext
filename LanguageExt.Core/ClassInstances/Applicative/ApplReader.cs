@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt.ClassInstances
 {
