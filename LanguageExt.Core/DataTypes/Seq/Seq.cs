@@ -235,29 +235,30 @@ namespace LanguageExt
         /// </remarks>
         public Seq<A> Concat(IEnumerable<A> items)
         {
-            if (seq != null)
+            if (seq == null)
             {
-                // Can't add to the end of a sequence unless we know
-                // where the end is.  So, we must stream all lazy items
-                // first.
-                Strict();
+                switch (items)
+                {
+                    case Seq<A> seq when seq.seq == null:
+                        return Concat(seq.data, seq.start, seq.count);
+
+                    case A[] arr:
+                        return Concat(arr, 0, arr.Length);
+
+                    case Arr<A> arr:
+                        return Concat(arr.Value, 0, arr.Count);
+
+                    case ICollection<A> coll:
+                        var ndata = items.ToArray();
+                        return Concat(ndata, 0, ndata.Length);
+
+                    default:
+                        return new Seq<A>(EnumerableOptimal.ConcatFast(this, items));
+                }
             }
-
-            switch (items)
+            else
             {
-                case Seq<A> seq:
-                    seq = seq.Strict();
-                    return Concat(seq.data, seq.start, seq.count);
-
-                case A[] arr:
-                    return Concat(arr, 0, arr.Length);
-
-                case Arr<A> arr:
-                    return Concat(arr.Value, 0, arr.Count);
-
-                default:
-                    var ndata = items.ToArray();
-                    return Concat(ndata, 0, ndata.Length);
+                return new Seq<A>(EnumerableOptimal.ConcatFast(this, items));
             }
         }
 
