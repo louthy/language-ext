@@ -38,8 +38,11 @@ To use the code-generation features of language-ext (which are totally optional 
 
 To make the reference **build and design time only** (i.e. your project doesn't gain an additional dependencies because of the code-generator), open up your `csproj` and set the `PrivateAssets` attribute to `all`:
 ```c#
-  <PackageReference Include="LanguageExt.CodeGen" Version="..." PrivateAssets="all" />
+<DotNetCliToolReference Include="dotnet-codegen" Version="0.5.13" />
+<PackageReference Include="LanguageExt.CodeGen" Version="3.1.24" PrivateAssets="all" />
 ```
+
+> Obviously, update the `Version` attributes to the appropriate values
 
 ## Unity
 

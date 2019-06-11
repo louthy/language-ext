@@ -86,7 +86,7 @@ namespace LanguageExt.CodeGen
                                     SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList<TypeSyntax>(new[] { returnType, field.Declaration.Type }))))
                              .WithVariables(
                                 SyntaxFactory.SingletonSeparatedList<VariableDeclaratorSyntax>(
-                                    SyntaxFactory.VariableDeclarator(MakeFirstCharLower(field.Declaration.Variables[0].Identifier))
+                                    SyntaxFactory.VariableDeclarator(MakeCamelCaseId(field.Declaration.Variables[0].Identifier))
                                                  .WithInitializer(
                                                     SyntaxFactory.EqualsValueClause(
                                                         SyntaxFactory.InvocationExpression(
@@ -208,5 +208,44 @@ namespace LanguageExt.CodeGen
 
         static bool FirstCharIsUpper(string name) =>
             name.Length > 0 && Char.IsUpper(name[0]);
+
+
+        static HashSet<string> identifiers = new HashSet<string>(new[]
+        {
+            "abstract", "as", "base", "bool",
+            "break", "byte", "case", "catch",
+            "char", "checked", "class", "const",
+            "continue", "decimal", "default", "delegate",
+            "do", "double", "else", "enum",
+            "event", "explicit", "extern", "false",
+            "finally", "fixed", "float", "for",
+            "foreach", "goto", "if", "implicit",
+            "in", "int", "interface",
+            "internal", "is", "lock", "long",
+            "namespace", "new", "null", "object",
+            "operator", "out", "out", "override",
+            "params", "private", "protected", "public",
+            "readonly", "ref", "return", "sbyte",
+            "sealed", "short", "sizeof", "stackalloc",
+            "static", "string", "struct", "switch",
+            "this", "throw", "true", "try",
+            "typeof", "uint", "ulong", "unchecked",
+            "unsafe", "ushort", "using","void", "volatile",
+            "while"
+        });
+
+        static bool IsIdentifier(string id) =>
+            identifiers.Contains(id);
+
+        static string MakeCamelCaseId(string id)
+        {
+            var id2 = $"{Char.ToLower(id[0])}{id.Substring(1)}";
+            return IsIdentifier(id2)
+                ? $"@{id2}"
+                : id2;
+        }
+
+        public static SyntaxToken MakeCamelCaseId(SyntaxToken identifier) =>
+            SyntaxFactory.Identifier(MakeCamelCaseId(identifier.ToString()));
     }
 }

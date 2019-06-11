@@ -30,7 +30,6 @@ namespace LanguageExt.CodeGen
             partialClass = CodeGenUtil.AddLenses(partialClass, returnType, fields);
 
             return Task.FromResult(SyntaxFactory.List<MemberDeclarationSyntax>().Add(partialClass));
-
         }
     }
 }
