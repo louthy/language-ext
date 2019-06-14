@@ -37,11 +37,11 @@ class Program
 {
     static void Main(string[] args)
     {
-        SeqPerf.LazyTest();
+        SeqPerf.TestSeqStream();
         SeqPerf.TestEnumStream();
+        SeqPerf.LazyTest();
         SeqPerf.TestStrictEnum();
         SeqPerf.TestListTEnum();
-        SeqPerf.TestSeqStream();
         SeqPerf.TestStrict();
         SeqPerf.TestAdd();
         SeqPerf.TestCons();

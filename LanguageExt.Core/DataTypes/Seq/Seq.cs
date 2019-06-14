@@ -1194,42 +1194,43 @@ namespace LanguageExt
             return this;
         }
 
-
         (bool Success, A Value) StreamNextItem()
         {
+            // Cache our state
+            var ldata = data;
+            var lcount = count;
+
             // Where the next item should be
-            var end = start + count;
+            var end = start + lcount;
 
             // Already streamed?
             if (end < seqStart)
             {
-                return (true, data[end]);
+                return (true, ldata[end]);
             }
 
             // Nothing left to stream
+            var lseq = seq;
             if (seq == null)
             {
                 return (false, default);
             }
 
-            lock (seq)
+            lock (lseq)
             {
                 // Force evaluation of the next item
-                seq.GetRange(end);
+                var (success, value) = lseq.GetNext(end - seqStart);
 
-                // Get the next item
-                var (success, value) = seq.Get(start - seqStart);
-
-                if(success)
+                if (success)
                 {
                     if (data.Length == end)
                     {
                         var ndata = new A[Math.Max(end << 1, 1)];
-                        System.Array.Copy(data, start, ndata, start, count);
+                        System.Array.Copy(data, start, ndata, start, lcount);
                         data = ndata;
                     }
                     data[end] = value;
-                    count++;
+                    count = lcount + 1;
                     return (true, value);
                 }
                 else
@@ -1337,113 +1338,6 @@ namespace LanguageExt
                 }
             }
         }
-
-        ///// <summary>
-        ///// Stream the next lazy item
-        ///// </summary>
-        //(bool Success, A Value) StreamNextItem()
-        //{
-        //    if (seq == null)
-        //    {
-        //        // Nothing left to stream, so we result Fail
-        //        return (false, default(A));
-        //    }
-
-        //    var localCount = count;
-        //    lock (seq)
-        //    {
-        //        if (seq == null)
-        //        {
-        //            // Nothing left to stream, so we result Fail
-        //            return localCount < count
-        //                ? (true, data[start + localCount])
-        //                : (false, default(A));
-        //        }
-        //        else
-        //        {
-        //            var end = start + count;
-        //            if (end < seqStart)
-        //            {
-        //                // We're trying to stream something before
-        //                // the seq, so let's just honour the item
-        //                return (true, data[end]);
-        //            }
-        //            else
-        //            {
-        //                var (success, value) = seq.Get(end - seqStart);
-        //                if (success)
-        //                {
-        //                    if (data.Length == end)
-        //                    {
-        //                        var ndata = new A[Math.Max(end << 1, 1)];
-        //                        System.Array.Copy(data, ndata, data.Length);
-        //                        data = ndata;
-        //                    }
-        //                    data[end] = value;
-        //                    count++;
-        //                    return (true, value);
-        //                }
-        //                else
-        //                {
-        //                    seq = null;
-        //                    return (false, value);
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Force all items lazy to stream
-        ///// </summary>
-        //Seq<A> StreamNextItems(int amount)
-        //{
-        //    if (seq == null)
-        //    {
-        //        // Nothing left to stream
-        //        return this;
-        //    }
-
-        //    lock (seq)
-        //    {
-        //        if (seq == null)
-        //        {
-        //            // Nothing left to stream, so we result Fail
-        //            return this;
-        //        }
-        //        else
-        //        {
-        //            var from = Math.Max(start + count, seqStart) - seqStart;
-
-        //            //var end = Math.Max(start + count, seqStart);
-
-        //            //while (amount > 0)
-        //            //{
-        //            //    //amount--;
-
-        //            //    //var (success, value) = seq.Get(end - seqStart);
-        //            //    //if (success)
-        //            //    //{
-        //            //    //    if (data.Length == end)
-        //            //    //    {
-        //            //    //        var ndata = new A[Math.Max(end << 1, 1)];
-        //            //    //        System.Array.Copy(data, ndata, data.Length);
-        //            //    //        data = ndata;
-        //            //    //    }
-        //            //    //    data[end] = value;
-        //            //    //    count++;
-        //            //    //    end++;
-        //            //    //}
-        //            //    //else
-        //            //    //{
-        //            //    //    seq = null;
-        //            //    //    return this;
-        //            //    //}
-        //            //}
-        //            return this;
-        //        }
-        //    }
-        //}
 
         public struct Enumerator
         {

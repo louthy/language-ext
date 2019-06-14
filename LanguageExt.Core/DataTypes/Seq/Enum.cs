@@ -16,6 +16,7 @@ namespace LanguageExt
     {
         IEnumerator<A> iter;
         List<A> list;
+
         public Enum(IEnumerable<A> seq)
         {
             this.iter = seq.GetEnumerator();
@@ -45,7 +46,7 @@ namespace LanguageExt
 
             int count = 0;
             var start = Math.Min(from, list.Count);
-            var end = from + amount;
+            var end = start + amount;
 
             for (var i = start; i < end; i++ )
             {
@@ -64,21 +65,55 @@ namespace LanguageExt
             return (count, true);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public (bool IsMore, A Value) GetNext(int from)
+        {
+            var liter = iter;
+            if (iter == null)
+            {
+                return from < list.Count
+                    ? (true, list[from])
+                    : (false, default);
+            }
+            else if (from < list.Count)
+            {
+                return (true, list[from]);
+            }
+            else if (liter.MoveNext())
+            {
+                list.Add(liter.Current);
+                return (true, list[from]);
+            }
+            else
+            {
+                liter.Dispose();
+                iter = null;
+                return (false, default);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (int Count, bool IsMore) GetTheRest(int from)
         {
+            var liter = iter;
+            if (iter == null)
+            {
+                return (list.Count - from, default);
+            }
+
             int count = 0;
             var start = Math.Min(from, list.Count);
 
             for (var i = start; ; i++)
             {
-                if (iter.MoveNext())
+                if (liter.MoveNext())
                 {
-                    list.Add(iter.Current);
+                    list.Add(liter.Current);
                     count++;
                 }
                 else
                 {
-                    iter.Dispose();
+                    liter.Dispose();
                     iter = null;
                     return (count, false);
                 }
@@ -91,64 +126,6 @@ namespace LanguageExt
             return index >= list.Count
                 ? (false, default)
                 : (true, list[index]);
-
-            //if (index < list.Count)
-            //{
-            //    return (true, list[index]);
-            //}
-            //if (iter == null)
-            //{
-            //    return (false, default(A));
-            //}
-            //else
-            //{
-            //    bool theresMore = true;
-            //    while (index >= list.Count && theresMore)
-            //    {
-            //        //lock (list)
-            //        {
-            //            if (iter == null)
-            //            {
-            //                theresMore = false;
-            //            }
-            //            else
-            //            {
-            //                theresMore = iter.MoveNext();
-            //                if (theresMore)
-            //                {
-            //                    list.Add(iter.Current);
-            //                }
-            //                else
-            //                {
-            //                    iter.Dispose();
-            //                    iter = null;
-            //                }
-            //            }
-            //        }
-            //    }
-            //    return index < list.Count
-            //        ? (true, list[index])
-            //        : (false, default(A));
-            //}
         }
-
-        //public void Strict()
-        //{
-        //    if (iter != null)
-        //    {
-        //        //lock (list)
-        //        {
-        //            if (iter != null)
-        //            {
-        //                while (iter.MoveNext())
-        //                {
-        //                    list.Add(iter.Current);
-        //                }
-        //                iter.Dispose();
-        //                iter = null;
-        //            }
-        //        }
-        //    }
-        //}
     }
 }

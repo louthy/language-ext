@@ -16,6 +16,9 @@ namespace TestBed
             var seq = Seq(Range(0, 5)).Strict();
         }
 
+        public static int Sum2(this IEnumerable<int> ma) =>
+            ma.Fold(0, (s, x) => s + x);
+
         public static void TestStrict()
         {
             Console.ForegroundColor = ConsoleColor.Green;
@@ -70,7 +73,7 @@ namespace TestBed
 
                 listSW.Stop();
 
-                Debug.Assert(results.Sum() == Range(0, count).Sum());
+                Debug.Assert(results.Sum2() == Range(0, count).Sum2());
 
                 Console.WriteLine($"{count} items streamed (Strict enum) : {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per item");
             }
@@ -106,7 +109,7 @@ namespace TestBed
 
                 listSW.Stop();
 
-                Debug.Assert(results.Sum() == Range(0, count).Sum());
+                Debug.Assert(results.Sum2() == Range(0, count).Sum2());
 
                 Console.WriteLine($"{count} items streamed (List<T> enum) : {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per item");
             }
@@ -139,7 +142,7 @@ namespace TestBed
 
                 listSW.Stop();
 
-                Debug.Assert(results.Sum() == Range(0, count).Sum());
+                Debug.Assert(results.Sum2() == Range(0, count).Sum2());
                 Console.WriteLine($"{count} items streamed (lazy seq) : {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per item");
             }
         }
@@ -171,7 +174,8 @@ namespace TestBed
 
                 listSW.Stop();
 
-                Debug.Assert(results.Sum() == Range(0, count).Sum());
+                Debug.Assert(results.Sum2() == Range(0, count).Sum2());
+
                 Console.WriteLine($"{count} items streamed (lazy enum) : {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per item");
             }
         }
