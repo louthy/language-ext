@@ -176,7 +176,7 @@ namespace LanguageExt
             {
                 if (index >= count)
                 {
-                    StreamNextItems(index - count + 1);
+                    StreamNextItems(start + count, index - count + 1);
                     return this[index];
                 }
                 else
@@ -391,7 +391,7 @@ namespace LanguageExt
             {
                 if (count == 0)
                 {
-                    var (success, value) = StreamNextItem();
+                    var (success, value) = StreamNextItem(start);
 
                     return success
                         ? value
@@ -414,7 +414,7 @@ namespace LanguageExt
             {
                 if (count == 0)
                 {
-                    var (success, value) = StreamNextItem();
+                    var (success, value) = StreamNextItem(start + 1);
 
                     return success
                         ? new Seq<A>(data, start + 1, count - 1, seqStart, NoCons, NoAdd, seq)
@@ -603,7 +603,7 @@ namespace LanguageExt
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => seq == null
                        ? count == 0
-                       : count == 0 && !StreamNextItem().Success;
+                       : count == 0 && !StreamNextItem(start).Success;
         }
 
 
@@ -1021,7 +1021,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    StreamNextItems(virtualEnd - end);
+                    StreamNextItems(start + count, virtualEnd - end);
                     return Skip(amount);
                 }
             }
@@ -1052,7 +1052,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    StreamNextItems(virtualEnd - end);
+                    StreamNextItems(start + count, virtualEnd - end);
                     return Take(amount);
                 }
             }
@@ -1194,150 +1194,82 @@ namespace LanguageExt
             return this;
         }
 
-        (bool Success, A Value) StreamNextItem()
+        (bool Success, A Value) StreamNextItem(int end)
         {
-            // Cache our state
-            var ldata = data;
-            var lcount = count;
-
-            // Where the next item should be
-            var end = start + lcount;
-
-            // Already streamed?
-            if (end < seqStart)
+            if(end < start + count)
             {
-                return (true, ldata[end]);
+                return (true, data[end]);
             }
 
-            // Nothing left to stream
             var lseq = seq;
-            if (seq == null)
+            if (lseq == null)
             {
                 return (false, default);
             }
-
-            lock (lseq)
+            else
             {
-                // Force evaluation of the next item
-                var (success, value) = lseq.GetNext(end - seqStart);
+                var (succ, val) = lseq.Get(end - seqStart);
 
-                if (success)
+                if (succ)
                 {
-                    if (data.Length == end)
+                    if (end >= data.Length)
                     {
-                        var ndata = new A[Math.Max(end << 1, 1)];
-                        System.Array.Copy(data, start, ndata, start, lcount);
-                        data = ndata;
+                        lock (data)
+                        {
+                            if (end >= data.Length)
+                            {
+                                var ndata = new A[Math.Max(end << 1, 1)];
+                                System.Array.Copy(data, start, ndata, start, count);
+                                data = ndata;
+                            }
+                        }
                     }
-                    data[end] = value;
-                    count = lcount + 1;
-                    return (true, value);
+                    data[end] = val;
+                    count = (seqStart - start) + lseq.Count;
                 }
                 else
                 {
                     seq = null;
                 }
-                return (success, value);
+
+                return (succ, val);
             }
         }
 
-        void StreamNextItems(int amount)
+        void StreamNextItems(int from, int amount)
         {
-            // Nothing left to stream
-            if (seq == null)
+            if((long)from + (long)amount < (long)start + (long)count)
             {
                 return;
             }
 
-            // Where the next item should be
-            var end = start + count;
-            var nend = end + amount;
-
-            if(nend < seqStart + (seq?.Count ?? 0))
+            var lseq = seq;
+            if (lseq == null)
             {
                 return;
             }
-
-            lock (seq)
+            else
             {
-                // Nothing left to stream
-                if (seq == null)
+                var end = start + count;
+
+                var taken = 0;
+                var more = false;
+                (taken, more, data) = lseq.GetRange(data, end, end - seqStart, amount);
+
+                if (taken > 0)
                 {
-                    return;
+                    count = (seqStart - start) + lseq.Count;
                 }
 
-                // Force evaluation of the next item
-                var (taken, isMore) = seq.GetRange(end - seqStart, amount);
-
-                var dlength = data.Length == 0 ? 1 : data.Length;
-                nend = end + taken;
-
-                while (nend >= dlength)
-                {
-                    dlength = dlength << 1;
-                }
-                if (dlength != data.Length)
-                {
-                    var ndata = new A[dlength];
-                    System.Array.Copy(data, start, ndata, start, count);
-                    data = ndata;
-                }
-
-                seq.CopyTo(end - seqStart, data, end, taken);
-                count += taken;
-
-                if (!isMore)
+                if(!more)
                 {
                     seq = null;
                 }
             }
         }
 
-        void StreamRest()
-        {
-            // Where the next item should be
-            var end = start + count;
-
-            // Nothing left to stream
-            if (seq == null)
-            {
-                return;
-            }
-
-            lock (seq)
-            {
-                // Nothing left to stream
-                if (seq == null)
-                {
-                    return;
-                }
-
-                // Force evaluation of the next item
-                var (taken, isMore) = seq.GetTheRest(end - seqStart);
-
-                var dlength = data.Length == 0 ? 1 : data.Length;
-                var nend = end + taken;
-
-                while (nend >= dlength)
-                {
-                    dlength = dlength << 1;
-                }
-                if (dlength != data.Length)
-                {
-                    var ndata = new A[dlength];
-                    System.Array.Copy(data, start, ndata, start, count);
-                    data = ndata;
-                }
-
-                seq.CopyTo(end - seqStart, data, end, taken);
-                count += taken;
-
-                if (!isMore)
-                {
-                    seq = null;
-                }
-            }
-        }
+        void StreamRest() =>
+            StreamNextItems(start + count, Int32.MaxValue);
 
         public struct Enumerator
         {
@@ -1364,14 +1296,14 @@ namespace LanguageExt
                 var index = this.index + 1;
                 if (index < end)
                 {
-                    // We're alive an enumerating the already streamed concrete data 
+                    // We're alive and enumerating the already streamed concrete data 
                     current = data[index];
                     this.index = index;
                     return true;
                 }
                 else if (source.seq != null)
                 {
-                    var (succ, val) = source.StreamNextItem();
+                    var (succ, val) = source.StreamNextItem(end);
                     current = val;
                     this.data = source.data;
                     this.index = index;
