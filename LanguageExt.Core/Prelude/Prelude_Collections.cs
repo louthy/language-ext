@@ -842,7 +842,8 @@ namespace LanguageExt
         public static Seq<A> Seq<A>(IEnumerable<A> value) =>
             value == null                ? Empty
           : value is Seq<A> seq          ? seq
-          : value is A[] arr             ? Seq(arr)
+          : value is Arr<A> arr          ? LSeq.FromArray(arr.Value)
+          : value is A[] array           ? Seq(array)
           : value is IList<A> list       ? Seq(list)
           : value is ICollection<A> coll ? Seq(coll)
           : new Seq<A>(value);

@@ -119,11 +119,7 @@ namespace LanguageExt
             forward.AsEnumerable().ConcatFast(BackwardRev);
 
         [Pure]
-        public Seq<T>.Enumerator GetEnumerator() =>
-            Seq(forward.AsEnumerable().ConcatFast(BackwardRev)).GetEnumerator();
-
-        [Pure]
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() =>
+        public IEnumerator<T> GetEnumerator() =>
             forward.AsEnumerable().ConcatFast(BackwardRev).GetEnumerator();
 
         [Pure]

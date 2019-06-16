@@ -44,6 +44,25 @@ namespace TestBed
             }
         }
 
+        public static void ConsTest()
+        {
+            var seq5 = 5.Cons();
+            var seq4 = 4.Cons(seq5);
+            var seq3 = 3.Cons(seq4);
+            var seq2 = 2.Cons(seq3);
+            var seq1 = 1.Cons(seq2);
+
+            var seqN = Seq(seq1);
+
+            var seqF = seq1.Filter(x => x % 2 == 0);
+
+
+            foreach(var item in seqF)
+            {
+                Console.WriteLine(item);
+            }
+        }
+
         public static void TestStrictEnum()
         {
             Console.ForegroundColor = ConsoleColor.Green;

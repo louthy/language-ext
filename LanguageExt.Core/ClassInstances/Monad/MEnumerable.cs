@@ -27,15 +27,15 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public MB Bind<MONADB, MB, B>(IEnumerable<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
         {
-            if (typeof(MB) == typeof(IEnumerable<B>))
+            if (typeof(Func<A, MB>) == typeof(Func<A, IEnumerable<B>>))
             {
                 // The casts are not ideal, but it should still work reliably
                 return (MB)(object)BindLazy(ma, (Func<A, IEnumerable<B>>)(object)f);
             }
-            else if (typeof(MB) == typeof(Seq<B>))
+            else if (typeof(Func<A, MB>) == typeof(Func<A, Seq<B>>) && ma is Seq<A> seqA)
             {
                 // The casts are not ideal, but it should still work reliably
-                return (MB)(object)BindLazy(ma, (Func<A, Seq<B>>)(object)f);
+                return (MB)(object)BindLazy(seqA, (Func<A, Seq<B>>)(object)f);
             }
 
             var b = default(MONADB).Zero();

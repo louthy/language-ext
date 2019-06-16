@@ -35,7 +35,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Func<Unit, int> Count(Seq<A> fa) => _ =>
-            fa.Count();
+            fa.Count;
 
         [Pure]
         public Seq<A> Subtract(Seq<A> x, Seq<A> y) =>

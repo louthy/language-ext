@@ -14,7 +14,7 @@ namespace LanguageExt
     /// </summary>
     internal class Enum<A>
     {
-        const int DefaultCapacity = 64;
+        const int DefaultCapacity = 32;
         A[] data = new A[DefaultCapacity];
         int count;
         int ncount = -1;
@@ -99,30 +99,30 @@ namespace LanguageExt
             }
         }
 
-        public (int Taken, bool IsMore, A[] Data) GetRange(A[] data, int dataIndex, int index, int count)
-        {
-            int taken = 0;
-            while(taken < count)
-            {
-                var (succ, val) = Get(index);
-                if (succ)
-                {
-                    if (dataIndex >= data.Length)
-                    {
-                        var ndata = new A[data.Length << 1];
-                        Array.Copy(data, ndata, data.Length);
-                        data = ndata;
-                    }
-                    data[dataIndex++] = val;
-                    taken++;
-                    index++;
-                }
-                else
-                {
-                    return (taken, false, data);
-                }
-            }
-            return (taken, true, data);
-        }
+        //public (int Taken, bool IsMore, A[] Data) GetRange(A[] data, int dataIndex, int index, int count)
+        //{
+        //    int taken = 0;
+        //    while(taken < count)
+        //    {
+        //        var (succ, val) = Get(index);
+        //        if (succ)
+        //        {
+        //            if (dataIndex >= data.Length)
+        //            {
+        //                var ndata = new A[data.Length << 1];
+        //                Array.Copy(data, ndata, data.Length);
+        //                data = ndata;
+        //            }
+        //            data[dataIndex++] = val;
+        //            taken++;
+        //            index++;
+        //        }
+        //        else
+        //        {
+        //            return (taken, false, data);
+        //        }
+        //    }
+        //    return (taken, true, data);
+        //}
     }
 }
