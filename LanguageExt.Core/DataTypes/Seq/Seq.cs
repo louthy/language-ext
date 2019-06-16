@@ -47,6 +47,11 @@ namespace LanguageExt
         int count;
 
         /// <summary>
+        /// Next count
+        /// </summary>
+        int ncount;
+
+        /// <summary>
         /// Index into data where the lazy sequence starts
         /// </summary>
         readonly int seqStart;
@@ -79,6 +84,7 @@ namespace LanguageExt
             this.data = new A[DefaultCapacity];
             this.start = HalfDefaultCapacity;
             this.count = 0;
+            this.ncount = count;
             this.seqStart = start;
             this.seq = new Enum<A>(seq);
             this.hash = 0;
@@ -93,6 +99,7 @@ namespace LanguageExt
             this.data = data;
             this.start = start;
             this.count = count;
+            this.ncount = count;
             this.seqStart = seqStart;
             this.seq = seq;
             this.consDisallowed = noCons;
@@ -108,6 +115,7 @@ namespace LanguageExt
             this.data = data;
             this.start = start;
             this.count = count;
+            this.ncount = count;
             this.consDisallowed = NoCons;
         }
 
@@ -1196,76 +1204,68 @@ namespace LanguageExt
 
         (bool Success, A Value) StreamNextItem(int end)
         {
-            if(end < start + count)
+            var scount = count;
+            var sdata = data;
+
+            if(end < start + scount)
             {
-                return (true, data[end]);
+                return (true, sdata[end]);
             }
 
             var lseq = seq;
             if (lseq == null)
             {
-                return (false, default);
+                scount = count;
+                sdata = data;
+                return end < start + scount
+                    ? (true, sdata[end])
+                    : (false, default);
             }
             else
             {
                 var (succ, val) = lseq.Get(end - seqStart);
-
-                if (succ)
+                if(succ)
                 {
-                    if (end >= data.Length)
+                    if (end < start + count)
                     {
-                        lock (data)
-                        {
-                            if (end >= data.Length)
-                            {
-                                var ndata = new A[Math.Max(end << 1, 1)];
-                                System.Array.Copy(data, start, ndata, start, count);
-                                data = ndata;
-                            }
-                        }
+                        return (true, val);
                     }
-                    data[end] = val;
-                    count = (seqStart - start) + lseq.Count;
+                    else
+                    {
+                        if (Interlocked.CompareExchange(ref ncount, scount + 1, scount) == scount)
+                        {
+                            if (end >= sdata.Length)
+                            {
+                                var ndata = new A[Math.Max(sdata.Length << 1, 1)];
+                                System.Array.Copy(sdata, start, ndata, start, scount);
+                                sdata = ndata;
+                            }
+                            sdata[end] = val;
+                            data = sdata;
+                            count = scount + 1;
+                        }
+                        return (true, val);
+                    }
                 }
                 else
                 {
-                    seq = null;
+                    if (end < start + count)
+                    {
+                        return (true, data[end]);
+                    }
+                    else
+                    {
+                        seq = null;
+                        return (false, default);
+                    }
                 }
-
-                return (succ, val);
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void StreamNextItems(int from, int amount)
         {
-            if((long)from + (long)amount < (long)start + (long)count)
-            {
-                return;
-            }
-
-            var lseq = seq;
-            if (lseq == null)
-            {
-                return;
-            }
-            else
-            {
-                var end = start + count;
-
-                var taken = 0;
-                var more = false;
-                (taken, more, data) = lseq.GetRange(data, end, end - seqStart, amount);
-
-                if (taken > 0)
-                {
-                    count = (seqStart - start) + lseq.Count;
-                }
-
-                if(!more)
-                {
-                    seq = null;
-                }
-            }
+            for (; amount > 0 && StreamNextItem(from).Success; amount--, from++) ;
         }
 
         void StreamRest() =>
@@ -1274,18 +1274,14 @@ namespace LanguageExt
         public struct Enumerator
         {
             Seq<A> source;
-            A[] data;
             int index;
-            int end;
             A current;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal Enumerator(Seq<A> source)
             {
                 this.source = source;
-                this.data = source.data;
                 this.index = source.start - 1;
-                this.end = source.start + source.count;
                 this.current = default;
             }
 
@@ -1294,20 +1290,19 @@ namespace LanguageExt
             public bool MoveNext()
             {
                 var index = this.index + 1;
+                var end = source.start + source.count;
                 if (index < end)
                 {
                     // We're alive and enumerating the already streamed concrete data 
-                    current = data[index];
+                    current = source.data[index];
                     this.index = index;
                     return true;
                 }
                 else if (source.seq != null)
                 {
-                    var (succ, val) = source.StreamNextItem(end);
+                    var (succ, val) = source.StreamNextItem(index);
                     current = val;
-                    this.data = source.data;
                     this.index = index;
-                    this.end = source.start + source.count;
                     return succ;
                 }
                 else

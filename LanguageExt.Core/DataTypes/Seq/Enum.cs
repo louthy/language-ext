@@ -17,7 +17,7 @@ namespace LanguageExt
         const int DefaultCapacity = 64;
         A[] data = new A[DefaultCapacity];
         int count;
-        int lcount = -1;
+        int ncount = -1;
         IEnumerator<A> iter;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -28,6 +28,12 @@ namespace LanguageExt
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => count;
+        }
+
+        public A[] Data
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => data;
         }
 
         public (bool Success, A Value) Get(int index)
@@ -41,7 +47,8 @@ namespace LanguageExt
                 }
 
                 // If there's nothing left to stream, we must be done
-                if (iter == null)
+                var liter = iter;
+                if (liter == null)
                 {
                     // Check the index against the count again, just in case another
                     // thread has streamed something in 
@@ -50,12 +57,11 @@ namespace LanguageExt
                         : (false, default);
                 }
 
-                var liter = iter;
-                var lindex = index - 1;
+                var lcount = index - 1;
 
                 // lindex is a lagging counter that gets moved on by 1 here.  It's the 
                 // gatekeeper to moving along the iterator.  
-                if (Interlocked.CompareExchange(ref lcount, index, lindex) == lindex)
+                if (Interlocked.CompareExchange(ref ncount, index, lcount) == lcount)
                 {
                     if (liter.MoveNext())
                     {
@@ -86,7 +92,7 @@ namespace LanguageExt
                         // End of the iterator, so let's dispose
                         liter.Dispose();
                         iter = null;
-                        lcount = count - 1;
+                        ncount = count - 1;
                         return (false, default);
                     }
                 }
