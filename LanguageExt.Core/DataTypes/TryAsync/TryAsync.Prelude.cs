@@ -58,7 +58,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs ++ rhs</returns>
         [Pure]
-        public static TryAsync<A> Append<SEMI, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where SEMI : struct, Semigroup<A> =>
+        public static TryAsync<A> append<SEMI, A>(TryAsync<A> lhs, TryAsync<A> rhs) where SEMI : struct, Semigroup<A> =>
             lhs.Append<SEMI, A>(rhs);
     
         /// <summary>
