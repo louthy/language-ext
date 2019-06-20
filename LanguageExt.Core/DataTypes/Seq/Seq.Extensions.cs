@@ -21,13 +21,22 @@ public static class SeqExtensions
     /// Get the number of items in the sequence
     /// </summary>
     [Pure]
+    [Obsolete("Please use Seq<A> directly.  ISeq<A> is less performant than Seq<A> and will go away eventually")]
     public static int Count<A>(this ISeq<A> seq) =>
+        seq.Count;
+
+    /// <summary>
+    /// Get the number of items in the sequence
+    /// </summary>
+    [Pure]
+    public static int Count<A>(this Seq<A> seq) =>
         seq.Count;
 
     /// <summary>
     /// Get the head item in the sequence
     /// </summary>
     [Pure]
+    [Obsolete("Please use Seq<A> directly.  ISeq<A> is less performant than Seq<A> and will go away eventually")]
     public static A First<A>(this ISeq<A> seq) =>
         seq.Head;
 
@@ -35,7 +44,24 @@ public static class SeqExtensions
     /// Get the head item in the sequence
     /// </summary>
     [Pure]
+    public static A First<A>(this Seq<A> seq) =>
+        seq.Head;
+
+    /// <summary>
+    /// Get the head item in the sequence
+    /// </summary>
+    [Pure]
+    [Obsolete("Please use Seq<A> directly.  ISeq<A> is less performant than Seq<A> and will go away eventually")]
     public static A FirstOrDefault<A>(this ISeq<A> seq) =>
+        seq.IsEmpty
+            ? default(A)
+            : seq.Head;
+
+    /// <summary>
+    /// Get the head item in the sequence
+    /// </summary>
+    [Pure]
+    public static A FirstOrDefault<A>(this Seq<A> seq) =>
         seq.IsEmpty
             ? default(A)
             : seq.Head;
@@ -72,7 +98,7 @@ public static class SeqExtensions
     /// <returns>Sum total</returns>
     [Pure]
     public static A Sum<MonoidA, A>(this Seq<A> list) where MonoidA : struct, Monoid<A> =>
-        mconcat<MonoidA, A>(list);
+        mconcat<MonoidA, A>(list.AsEnumerable());
 
     /// <summary>
     /// Returns the sum total of all the items in the list (Sum in LINQ)

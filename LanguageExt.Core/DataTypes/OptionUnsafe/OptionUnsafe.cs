@@ -499,7 +499,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public Seq<A> AsEnumerable() =>
+        public IEnumerable<A> AsEnumerable() =>
             ToSeq();
 
         [Pure]

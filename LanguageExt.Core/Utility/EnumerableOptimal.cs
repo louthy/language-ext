@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -16,21 +17,21 @@ namespace LanguageExt
             if (ma is ConcatEnum<A> ca && mb is ConcatEnum<A> cb)
             {
                 var cs = new IEnumerable<A>[ca.count + cb.count];
-                Array.Copy(ca.ms, cs, ca.count);
-                Array.Copy(cb.ms, 0, cs, ca.count, cb.count);
+                System.Array.Copy(ca.ms, cs, ca.count);
+                System.Array.Copy(cb.ms, 0, cs, ca.count, cb.count);
                 return new ConcatEnum<A>(cs, cs.Length);
             }
             else if (ma is ConcatEnum<A> ca2)
             {
                 var cs = new IEnumerable<A>[ca2.count + 1];
-                Array.Copy(ca2.ms, cs, ca2.count);
+                System.Array.Copy(ca2.ms, cs, ca2.count);
                 cs[ca2.count] = mb;
                 return new ConcatEnum<A>(cs, cs.Length);
             }
             else if (mb is ConcatEnum<A> cb2)
             {
                 var cs = new IEnumerable<A>[cb2.count + 1];
-                Array.Copy(cb2.ms, 0, cs, 1, cb2.count);
+                System.Array.Copy(cb2.ms, 0, cs, 1, cb2.count);
                 cs[0] = mb;
                 return new ConcatEnum<A>(cs, cs.Length);
             }
@@ -38,6 +39,14 @@ namespace LanguageExt
             {
                 return new ConcatEnum<A>(new[] { ma, mb }, 2);
             }
+        }
+
+        public static Seq<A> ConcatFast<A>(this Seq<A> ma, Seq<A> mb)
+        {
+            if (ma == null && mb == null) return Empty;
+            if (ma == null) return mb;
+            if (mb == null) return ma;
+            return Seq(new ConcatEnum<A>(new[] { ma.AsEnumerable(), mb.AsEnumerable() }, 2));
         }
 
         internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A> ma, Func<A, IEnumerable<B>> f) =>

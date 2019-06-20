@@ -298,7 +298,7 @@ namespace LanguageExt
         public static Seq<T> append<T>(Seq<T> x, Seq<Seq<T>> xs) =>
             headOrNone(xs).IsNone
                 ? x
-                : append(x, append(xs.First(), xs.Skip(1)));
+                : append(x, append(xs.Head, xs.Skip(1)));
 
         /// <summary>
         /// Concatenate N sequences
@@ -1031,19 +1031,10 @@ namespace LanguageExt
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static Seq<A> FromSingleValue<A>(A value) =>
-            new Seq<A>( new[] {
-                default,
-                default,
-                default,
-                default,
-                value,
-                default,
-                default,
-                default
-            }, 4, 1, 0, 0, 0, null);
+            new Seq<A>(SeqStrict<A>.FromSingleValue(value));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static Seq<A> FromArray<A>(A[] value) =>
-            new Seq<A>(value, 0, value.Length, 0, 0, 0, null);
+            new Seq<A>(new SeqStrict<A>(value, 0, value.Length, 0, 0));
     }
 }

@@ -65,12 +65,14 @@ namespace LanguageExt
         [Pure]
         public Seq<A> ToSeq() =>
             initialised
-                ? value.Cons(Empty)
+                ? Seq1(value)
                 : Empty;
 
         [Pure]
-        public Seq<A> AsEnumerable() =>
-            ToSeq();
+        public IEnumerable<A> AsEnumerable() =>
+            initialised
+                ? new[] { value }
+                : new A[0];
 
         [Pure]
         public IEnumerator<A> GetEnumerator() =>

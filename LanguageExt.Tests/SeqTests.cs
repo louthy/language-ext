@@ -55,7 +55,7 @@ namespace LanguageExt.Tests
         {
             IEnumerable<int> Numbers()
             {
-                for (int i = 0; i < Int32.MaxValue; i++)
+                for (int i = 0; i < 100; i++)
                 {
                     yield return i;
                 }

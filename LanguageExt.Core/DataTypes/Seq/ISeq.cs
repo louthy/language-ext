@@ -7,12 +7,18 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
+    internal class ISeqObsolete
+    {
+        public const string Message = "Please use Seq<A> directly.  ISeq<A> is less performant than Seq<A> and will go away eventually.  For implicit conversions of ISeq<A> to ISeq<B> you can use seqA.Cast<B>() for an efficient mapping between compatible bound types";
+    }
+
     /// <summary>
     /// Cons sequence
     /// Represents a sequence of values in a similar way to IEnumerable, but without the
     /// issues of multiple evaluation for key LINQ operators like Skip, Count, etc.
     /// </summary>
-    public interface ISeq<A> : IEnumerable<A>, IEquatable<ISeq<A>>, IComparable<ISeq<A>>
+    [Obsolete(ISeqObsolete.Message)]
+    public interface ISeq<A> : IEquatable<ISeq<A>>, IComparable<ISeq<A>>, IEnumerable<A>
     {
         /// <summary>
         /// Head of the sequence

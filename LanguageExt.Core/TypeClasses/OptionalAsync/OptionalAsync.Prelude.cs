@@ -5,6 +5,7 @@ using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Threading.Tasks;
 using LanguageExt.DataTypes.Serialisation;
+using System.Collections.Generic;
 
 namespace LanguageExt
 {
@@ -225,9 +226,9 @@ namespace LanguageExt
         /// <param name="ma">Option</param>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public static Task<Seq<A>> asEnumerableAsync<OPT, OA, A>(OA ma)
+        public static Task<IEnumerable<A>> asEnumerableAsync<OPT, OA, A>(OA ma)
             where OPT : struct, OptionalAsync<OA, A> =>
-            toArrayAsync<OPT, OA, A>(ma).Map(Prelude.Seq);
+            toArrayAsync<OPT, OA, A>(ma).Map(x => (IEnumerable<A>)x.Value);
 
         /// <summary>
         /// Convert the structure to an Either

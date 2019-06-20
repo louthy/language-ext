@@ -7,6 +7,7 @@ using LanguageExt.ClassInstances;
 using System.Threading.Tasks;
 using LanguageExt;
 using LanguageExt.TypeClasses;
+using System.Collections.Generic;
 
 public static class TaskOptionAsyncExtensions
 {
@@ -138,7 +139,7 @@ public static class TaskOptionAsyncExtensions
     /// </summary>
     /// <returns>An enumerable of zero or one items</returns>
     [Pure]
-    public static Task<Seq<A>> AsEnumerableAsync<A>(this Task<Option<A>> self) =>
+    public static Task<IEnumerable<A>> AsEnumerableAsync<A>(this Task<Option<A>> self) =>
         asEnumerableAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync());
 
     /// <summary>

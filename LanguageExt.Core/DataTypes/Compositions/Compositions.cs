@@ -27,14 +27,13 @@ namespace LanguageExt
     {
         public static readonly Compositions<A> Empty = new Compositions<A>(Seq<Node>());
 
-        readonly Seq<Node> tree;
+        public readonly Seq<Node> Tree;
         int? hashCode;
-        public Seq<Node> Tree => tree ?? Seq<Node>();
 
         internal Compositions(Seq<Node> tree)
         {
             hashCode = null;
-            this.tree = tree;
+            Tree = tree;
         }
 
         /// <summary>

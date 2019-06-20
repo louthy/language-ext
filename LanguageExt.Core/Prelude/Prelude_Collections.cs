@@ -840,8 +840,12 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(IEnumerable<A> value) =>
-            value == null        ? Empty
-          : value is Seq<A> seq  ? seq
+            value == null                ? Empty
+          : value is Seq<A> seq          ? seq
+          : value is Arr<A> arr          ? LSeq.FromArray(arr.Value)
+          : value is A[] array           ? Seq(array)
+          : value is IList<A> list       ? Seq(list)
+          : value is ICollection<A> coll ? Seq(coll)
           : new Seq<A>(value);
 
         /// <summary>
@@ -896,6 +900,13 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(IList<A> value) =>
+            Seq(value.ToArray());
+
+        /// <summary>
+        /// Construct a sequence from a list
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(ICollection<A> value) =>
             Seq(value.ToArray());
 
         /// <summary>
