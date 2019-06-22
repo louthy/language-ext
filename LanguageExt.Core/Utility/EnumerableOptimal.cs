@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
@@ -8,46 +9,11 @@ namespace LanguageExt
 {
     public static class EnumerableOptimal
     {
-        public static IEnumerable<A> ConcatFast<A>(this IEnumerable<A> ma, IEnumerable<A> mb)
-        {
-            if (ma == null && mb == null) return new A[0];
-            if (ma == null) return mb;
-            if (mb == null) return ma;
-
-            if (ma is ConcatEnum<A> ca && mb is ConcatEnum<A> cb)
-            {
-                var cs = new IEnumerable<A>[ca.count + cb.count];
-                System.Array.Copy(ca.ms, cs, ca.count);
-                System.Array.Copy(cb.ms, 0, cs, ca.count, cb.count);
-                return new ConcatEnum<A>(cs, cs.Length);
-            }
-            else if (ma is ConcatEnum<A> ca2)
-            {
-                var cs = new IEnumerable<A>[ca2.count + 1];
-                System.Array.Copy(ca2.ms, cs, ca2.count);
-                cs[ca2.count] = mb;
-                return new ConcatEnum<A>(cs, cs.Length);
-            }
-            else if (mb is ConcatEnum<A> cb2)
-            {
-                var cs = new IEnumerable<A>[cb2.count + 1];
-                System.Array.Copy(cb2.ms, 0, cs, 1, cb2.count);
-                cs[0] = mb;
-                return new ConcatEnum<A>(cs, cs.Length);
-            }
-            else
-            {
-                return new ConcatEnum<A>(new[] { ma, mb }, 2);
-            }
-        }
-
-        public static Seq<A> ConcatFast<A>(this Seq<A> ma, Seq<A> mb)
-        {
-            if (ma == null && mb == null) return Empty;
-            if (ma == null) return mb;
-            if (mb == null) return ma;
-            return Seq(new ConcatEnum<A>(new[] { ma.AsEnumerable(), mb.AsEnumerable() }, 2));
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<A> ConcatFast<A>(this IEnumerable<A> ma, IEnumerable<A> mb) =>
+            ma is ConcatEnum<A> ca
+                ? ca.Concat(mb)
+                : new ConcatEnum<A>(Seq(ma, mb));
 
         internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A> ma, Func<A, IEnumerable<B>> f) =>
             ma == null
@@ -80,20 +46,21 @@ namespace LanguageExt
 
         class ConcatEnum<A> : IEnumerable<A>
         {
-            internal readonly IEnumerable<A>[] ms;
-            internal readonly int count;
+            internal readonly Seq<IEnumerable<A>> ms;
 
-            public ConcatEnum(IEnumerable<A>[] ms, int count)
+            public ConcatEnum(Seq<IEnumerable<A>> ms)
             {
                 this.ms = ms;
-                this.count = count;
             }
 
             public IEnumerator<A> GetEnumerator() =>
-                new ConcatIter<A>(ms, count);
+                new ConcatIter<A>(ms);
+
+            public ConcatEnum<A> Concat(IEnumerable<A> cb) =>
+                new ConcatEnum<A>(ms.Add(cb));
 
             IEnumerator IEnumerable.GetEnumerator() =>
-                new ConcatIter<A>(ms, count);
+                new ConcatIter<A>(ms);
         }
 
         class BindEnum<A, B> : IEnumerable<B>
@@ -116,16 +83,14 @@ namespace LanguageExt
 
         class ConcatIter<A> : IEnumerator<A>
         {
-            IEnumerable<A>[] ms;
+            Seq<IEnumerable<A>> ms;
             IEnumerator<A> iter;
-            int count;
             int index;
             A current;
 
-            public ConcatIter(IEnumerable<A>[] ms, int count)
+            public ConcatIter(Seq<IEnumerable<A>> ms)
             {
                 this.ms = ms;
-                this.count = count;
                 this.index = 0;
                 this.iter = ms[0].GetEnumerator();
             }
@@ -150,7 +115,7 @@ namespace LanguageExt
                 {
                     current = default;
                     index++;
-                    while(index < count)
+                    while(index < ms.Count)
                     {
                         iter.Dispose();
                         iter = ms[index].GetEnumerator();
