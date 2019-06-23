@@ -405,22 +405,23 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Impure iteration of the bound values in the structure
+        /// </summary>
+        /// <returns>
+        /// Returns the original unmodified structure
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Unit Iter(Action<A> f) =>
+            Value.Iter(f);
+
+        /// <summary>
         /// Map the sequence using the function provided
         /// </summary>
         /// <typeparam name="B"></typeparam>
         /// <param name="f">Mapping function</param>
         /// <returns>Mapped sequence</returns>
-        public Seq<B> Map<B>(Func<A, B> f)
-        {
-            IEnumerable<B> Yield(Seq<A> ma, Func<A, B> map)
-            {
-                foreach (var item in ma)
-                {
-                    yield return map(item);
-                }
-            }
-            return new Seq<B>(Yield(this, f));
-        }
+        public Seq<B> Map<B>(Func<A, B> f) =>
+            new Seq<B>(Value.Map(f));
 
         /// <summary>
         /// Map the sequence using the function provided
@@ -479,17 +480,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Predicate to apply to the items</param>
         /// <returns>Filtered sequence</returns>
-        public Seq<A> Filter(Func<A, bool> f)
-        {
-            IEnumerable<A> Yield(Seq<A> ma, Func<A, bool> pred)
-            {
-                foreach (var item in ma)
-                {
-                    if (pred(item)) yield return item;
-                }
-            }
-            return new Seq<A>(Yield(this, f));
-        }
+        public Seq<A> Filter(Func<A, bool> f) =>
+            new Seq<A>(Value.Filter(f));
 
         /// <summary>
         /// Filter the items in the sequence
@@ -532,14 +524,8 @@ namespace LanguageExt
         /// <returns>True if the supplied predicate returns true for any
         /// item in the sequence.  False otherwise.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Exists(Func<A, bool> f)
-        {
-            foreach(var a in this)
-            {
-                if (f(a)) return true;
-            }
-            return false;
-        }
+        public bool Exists(Func<A, bool> f) =>
+            Value.Exists(f);
 
         /// <summary>
         /// Returns true if the supplied predicate returns true for all
@@ -551,14 +537,8 @@ namespace LanguageExt
         /// items in the sequence.  False otherwise.  If there is an 
         /// empty sequence then true is returned.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ForAll(Func<A, bool> f)
-        {
-            foreach (var a in this)
-            {
-                if (!f(a)) return false;
-            }
-            return true;
-        }
+        public bool ForAll(Func<A, bool> f) =>
+            Value.ForAll(f);
 
         /// <summary>
         /// Returns true if the sequence has items in it

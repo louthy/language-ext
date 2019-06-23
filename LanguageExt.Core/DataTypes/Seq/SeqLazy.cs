@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -429,6 +430,45 @@ namespace LanguageExt
                     yield break;
                 }
             }
+        }
+
+        public ISeqInternal<A> Filter(Func<A, bool> f) =>
+            new SeqLazy<A>(this.Where(f));
+
+        public ISeqInternal<B> Map<B>(Func<A, B> f) =>
+            new SeqLazy<B>(this.Select(f));
+
+        public Unit Iter(Action<A> f)
+        {
+            foreach(var item in this)
+            {
+                f(item);
+            }
+            return default;
+        }
+
+        public bool Exists(Func<A, bool> f)
+        {
+            foreach(var item in this)
+            {
+                if (f(item))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool ForAll(Func<A, bool> f)
+        {
+            foreach (var item in this)
+            {
+                if (!f(item))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

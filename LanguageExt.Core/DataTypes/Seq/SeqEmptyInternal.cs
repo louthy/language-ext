@@ -57,5 +57,21 @@ namespace LanguageExt
         {
             yield break;
         }
+
+        public ISeqInternal<A> Filter(Func<A, bool> f) =>
+            this;
+
+        public ISeqInternal<B> Map<B>(Func<A, B> f) =>
+            SeqEmptyInternal<B>.Default;
+
+        public Unit Iter(Action<A> f) =>
+            default;
+
+        public bool Exists(Func<A, bool> f) => 
+            false;
+
+        public bool ForAll(Func<A, bool> f) =>
+            true;
+
     }
 }
