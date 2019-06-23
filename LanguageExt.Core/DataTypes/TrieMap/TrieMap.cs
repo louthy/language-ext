@@ -765,12 +765,16 @@ namespace LanguageExt
             }
 
             public (bool Found, V Value) GetValue(K key, uint hash, Sec section)
-            {
-                var hashIndex = (int)((hash & (uint)(Sec.Mask << section.Offset)) >> section.Offset); // Bit.Get(hash, section);
-                var mask = (uint)(1 << hashIndex);                                                    // Mask(hashIndex)
-                if ((EntryMap & mask) == mask)                                                        // if(Bit.Get(EntryMap, mask))
+            {                                                                                         
+                // var hashIndex = Bit.Get(hash, section);
+                // Mask(hashIndex)
+                var mask = (uint)(1 << (int)((hash & (uint)(Sec.Mask << section.Offset)) >> section.Offset));
+
+                // if(Bit.Get(EntryMap, mask))
+                if ((EntryMap & mask) == mask)                                                        
                 {
-                    var entryIndex = Index(EntryMap, mask);
+                    // var entryIndex = Index(EntryMap, mask);
+                    var entryIndex = BitCount((int)EntryMap & (((int)mask) - 1));                     
                     if (default(EqK).Equals(Items[entryIndex].Key, key))
                     {
                         return (true, Items[entryIndex].Value);
@@ -780,10 +784,12 @@ namespace LanguageExt
                         return default;
                     }
                 }
-                else if ((NodeMap & mask) == mask)                                                   // else if (Bit.Get(NodeMap, mask))
+                // else if (Bit.Get(NodeMap, mask))
+                else if ((NodeMap & mask) == mask)                                                   
                 {
-                    var subNode = Nodes[Index(NodeMap, mask)];
-                    return subNode.GetValue(key, hash, section.Next());
+                    // var entryIndex = Index(NodeMap, mask);
+                    var entryIndex = BitCount((int)NodeMap & (((int)mask) - 1));                     
+                    return Nodes[entryIndex].GetValue(key, hash, section.Next());
                 }
                 else
                 {
