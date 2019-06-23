@@ -57,7 +57,7 @@ namespace LanguageExt
             var type = tryAdd ? UpdateType.TryAdd : UpdateType.AddOrUpdate;
             foreach (var item in items)
             {
-                var hash = new BitVector32(default(EqK).GetHashCode(item.Key));
+                var hash = (uint)default(EqK).GetHashCode(item.Key);
                 var section = BitVector32.CreateSection(PartitionMaxValue);
                 var (countDelta, newRoot) = Root.Update(type, true, item, hash, section);
                 count += countDelta;
@@ -376,9 +376,9 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TrieMap<EqK, K, V> Remove(K key)
         {
-            var hashVector = new BitVector32(default(EqK).GetHashCode(key));
+            var hash = (uint)default(EqK).GetHashCode(key);
             var section = BitVector32.CreateSection(PartitionMaxValue);
-            var (countDelta, newRoot) = Root.Remove(key, hashVector, section);
+            var (countDelta, newRoot) = Root.Remove(key, hash, section);
             return ReferenceEquals(newRoot, Root)
                 ? this
                 : new TrieMap<EqK, K, V>(newRoot, count + countDelta);
@@ -441,7 +441,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<V> Find(K key)
         {
-            var hash = new BitVector32(default(EqK).GetHashCode(key));
+            var hash = (uint)default(EqK).GetHashCode(key);
             var section = BitVector32.CreateSection(PartitionMaxValue);
             return Root.GetValue(key, hash, section);
         }
@@ -622,7 +622,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         TrieMap<EqK, K, V> Update(K key, V value, UpdateType type, bool inplace)
         {
-            var hash = new BitVector32(default(EqK).GetHashCode(key));
+            var hash = (uint)default(EqK).GetHashCode(key);
             var section = BitVector32.CreateSection(PartitionMaxValue);
             var (countDelta, newRoot) = Root.Update(type, inplace, (key, value), hash, section);
             return ReferenceEquals(newRoot, Root)
@@ -640,9 +640,9 @@ namespace LanguageExt
         /// </summary>
         internal interface Node : IEnumerable<(K, V)>
         {
-            Option<V> GetValue(K key, BitVector32 hash, BitVector32.Section section);
-            (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, BitVector32 hash, BitVector32.Section section);
-            (int CountDelta, Node Node) Remove(K key, BitVector32 hash, BitVector32.Section section);
+            Option<V> GetValue(K key, uint hash, BitVector32.Section section);
+            (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, BitVector32.Section section);
+            (int CountDelta, Node Node) Remove(K key, uint hash, BitVector32.Section section);
         }
 
         /// <summary>
@@ -650,12 +650,12 @@ namespace LanguageExt
         /// </summary>
         internal class Entries : Node
         {
-            public readonly BitVector32 EntryMap;
-            public readonly BitVector32 NodeMap;
+            public readonly uint EntryMap;
+            public readonly uint NodeMap;
             public readonly (K Key, V Value)[] Items;
             public readonly Node[] Nodes;
 
-            public Entries(BitVector32 entryMap, BitVector32 nodeMap, (K, V)[] items, Node[] nodes)
+            public Entries(uint entryMap, uint nodeMap, (K, V)[] items, Node[] nodes)
             {
                 EntryMap = entryMap;
                 NodeMap = nodeMap;
@@ -663,7 +663,7 @@ namespace LanguageExt
                 Nodes = nodes;
             }
 
-            public void Deconstruct(out BitVector32 entryMap, out BitVector32 nodeMap, out (K, V)[] items, out Node[] nodes)
+            public void Deconstruct(out uint entryMap, out uint nodeMap, out (K, V)[] items, out Node[] nodes)
             {
                 entryMap = EntryMap;
                 nodeMap = NodeMap;
@@ -671,19 +671,18 @@ namespace LanguageExt
                 nodes = Nodes;
             }
 
-            public (int CountDelta, Node Node) Remove(K key, BitVector32 hash, BitVector32.Section section)
+            public (int CountDelta, Node Node) Remove(K key, uint hash, BitVector32.Section section)
             {
-                var hashIndex = hash[section];
+                var hashIndex = Bit.Get(hash, section);
                 var mask = Mask(hashIndex);
 
                 // If key belongs to an entry
-                if (EntryMap[mask])
+                if (Bit.Get(EntryMap, mask))
                 {
                     var ind = Index(EntryMap, mask);
                     if (default(EqK).Equals(Items[ind].Key, key))
                     {
-                        var newMap = new BitVector32(EntryMap);
-                        newMap[mask] = false;
+                        var newMap = Bit.Set(EntryMap, mask, false);
                         var newItems = RemoveAt(Items, ind);
                         return (-1, new Entries(newMap, NodeMap, newItems, Nodes));
                     }
@@ -693,7 +692,7 @@ namespace LanguageExt
                     }
                 }
                 //If key lies in a subnode
-                else if (NodeMap[mask])
+                else if (Bit.Get(NodeMap, mask))
                 {
                     var ind = Index(NodeMap, mask);
                     var (cd, subNode) = Nodes[ind].Remove(key, hash, BitVector32.CreateSection(PartitionMaxValue, section));
@@ -711,10 +710,8 @@ namespace LanguageExt
                                 else
                                 {
                                     var indexToInsert = Index(EntryMap, mask);
-                                    var newNodeMap = new BitVector32(NodeMap);
-                                    var newEntryMap = new BitVector32(EntryMap);
-                                    newNodeMap[mask] = false;
-                                    newEntryMap[mask] = true;
+                                    var newNodeMap = Bit.Set(NodeMap, mask, false);
+                                    var newEntryMap = Bit.Set(EntryMap, mask, true);
                                     var newEntries = Insert(Items, indexToInsert, subItems[0]);
                                     var newNodes = RemoveAt(Nodes, ind);
                                     return (cd, new Entries(newEntryMap, newNodeMap, newEntries, newNodes));
@@ -744,11 +741,11 @@ namespace LanguageExt
                 }
             }
 
-            public Option<V> GetValue(K key, BitVector32 hash, BitVector32.Section section)
+            public Option<V> GetValue(K key, uint hash, BitVector32.Section section)
             {
-                var hashIndex = hash[section];
+                var hashIndex = Bit.Get(hash, section);
                 var mask = Mask(hashIndex);
-                if (EntryMap[mask])
+                if (Bit.Get(EntryMap, mask))
                 {
                     var entryIndex = Index(EntryMap, mask);
                     if (default(EqK).Equals(Items[entryIndex].Key, key))
@@ -760,7 +757,7 @@ namespace LanguageExt
                         return None;
                     }
                 }
-                else if (NodeMap[mask])
+                else if (Bit.Get(NodeMap, mask))
                 {
                     var subNode = Nodes[Index(NodeMap, mask)];
                     return subNode.GetValue(key, hash, BitVector32.CreateSection(PartitionMaxValue, section));
@@ -771,11 +768,11 @@ namespace LanguageExt
                 }
             }
 
-            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, BitVector32 hash, BitVector32.Section section)
+            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, BitVector32.Section section)
             {
-                var hashIndex = hash[section];
+                var hashIndex = Bit.Get(hash, section);
                 var mask = Mask(hashIndex);
-                if (EntryMap[mask])
+                if (Bit.Get(EntryMap, mask))
                 {
                     var entryIndex = Index(EntryMap, mask);
                     if (default(EqK).Equals(Items[entryIndex].Key, change.Key))
@@ -809,19 +806,17 @@ namespace LanguageExt
 
                         // Add
                         var currentEntry = Items[entryIndex];
-                        var currentHash = new BitVector32(default(EqK).GetHashCode(currentEntry.Key));
+                        var currentHash = (uint)default(EqK).GetHashCode(currentEntry.Key);
                         var node = Merge(change, currentEntry, hash, currentHash, section);
                         var newItems = Items.Filter(elem => !default(EqK).Equals(elem.Key, currentEntry.Key)).ToArray();
-                        var newEntryMap = new BitVector32(EntryMap);
-                        newEntryMap[mask] = false;
-                        var newNodeMap = new BitVector32(NodeMap);
-                        newNodeMap[mask] = true;
+                        var newEntryMap = Bit.Set(EntryMap, mask, false);
+                        var newNodeMap = Bit.Set(NodeMap, mask, true);
                         var nodeIndex = Index(NodeMap, mask);
                         var newNodes = Insert(Nodes, nodeIndex, node);
                         return (1, new Entries(newEntryMap, newNodeMap, newItems, newNodes));
                     }
                 }
-                else if (NodeMap[mask])
+                else if (Bit.Get(NodeMap, mask))
                 {
                     var nodeIndex = Index(NodeMap, mask);
                     var nodeToUpdate = Nodes[nodeIndex];
@@ -843,8 +838,7 @@ namespace LanguageExt
                     }
 
                     var entryIndex = Index(EntryMap, mask);
-                    var entries = new BitVector32(EntryMap);
-                    entries[mask] = true;
+                    var entries = Bit.Set(EntryMap, mask, true);
                     var newItems = Insert(Items, entryIndex, change);
                     return (1, new Entries(entries, NodeMap, newItems, Nodes));
                 }
@@ -876,15 +870,15 @@ namespace LanguageExt
         internal class Collision : Node
         {
             public readonly (K Key, V Value)[] Items;
-            public readonly BitVector32 Hash;
+            public readonly uint Hash;
 
-            public Collision((K Key, V Value)[] items, BitVector32 hash)
+            public Collision((K Key, V Value)[] items, uint hash)
             {
                 Items = items;
                 Hash = hash;
             }
 
-            public Option<V> GetValue(K key, BitVector32 hash, BitVector32.Section section)
+            public Option<V> GetValue(K key, uint hash, BitVector32.Section section)
             {
                 foreach (var kv in Items)
                 {
@@ -896,7 +890,7 @@ namespace LanguageExt
                 return None;
             }
 
-            public (int CountDelta, Node Node) Remove(K key, BitVector32 hash, BitVector32.Section section)
+            public (int CountDelta, Node Node) Remove(K key, uint hash, BitVector32.Section section)
             {
                 var len = Items.Length;
                 if (len == 0) return (0, this);
@@ -928,7 +922,7 @@ namespace LanguageExt
                 }
             }
 
-            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, BitVector32 hash, BitVector32.Section section)
+            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, BitVector32.Section section)
             {
                 var index = -1;
                 for (var i = 0; i < Items.Length; i++)
@@ -990,13 +984,13 @@ namespace LanguageExt
         {
             public static readonly EmptyNode Default = new EmptyNode();
 
-            public Option<V> GetValue(K key, BitVector32 hash, BitVector32.Section section) =>
+            public Option<V> GetValue(K key, uint hash, BitVector32.Section section) =>
                 None;
 
-            public (int CountDelta, Node Node) Remove(K key, BitVector32 hash, BitVector32.Section section) =>
+            public (int CountDelta, Node Node) Remove(K key, uint hash, BitVector32.Section section) =>
                 (0, this);
 
-            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, BitVector32 hash, BitVector32.Section section)
+            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, BitVector32.Section section)
             {
                 if (type == UpdateType.SetItem)
                 {
@@ -1009,11 +1003,8 @@ namespace LanguageExt
                     return (0, this);
                 }
 
-                var dataMap = new BitVector32(Mask(hash[section]));
-                var items = new[] { change };
-                var nodes = new Node[0];
-                var nodeMap = new BitVector32(0);
-                return (1, new Entries(dataMap, nodeMap, items, nodes));
+                var dataMap = Mask(Bit.Get(hash, section));
+                return (1, new Entries(dataMap, 0, new[] { change }, new Node[0]));
             }
 
             public IEnumerator<(K, V)> GetEnumerator()
@@ -1030,7 +1021,7 @@ namespace LanguageExt
         /// <summary>
         /// Merges two key-value pairs into a Node
         /// </summary>
-        static Node Merge((K, V) pair1, (K, V) pair2, BitVector32 pair1Hash, BitVector32 pair2Hash, BitVector32.Section section)
+        static Node Merge((K, V) pair1, (K, V) pair2, uint pair1Hash, uint pair2Hash, BitVector32.Section section)
         {
             if (section.Offset >= 25)
             {
@@ -1039,19 +1030,19 @@ namespace LanguageExt
             else
             {
                 var nextLevel = BitVector32.CreateSection(PartitionMaxValue, section);
-                var pair1Index = pair1Hash[nextLevel];
-                var pair2Index = pair2Hash[nextLevel];
+                var pair1Index = Bit.Get(pair1Hash, nextLevel);
+                var pair2Index = Bit.Get(pair2Hash, nextLevel);
                 if (pair1Index == pair2Index)
                 {
                     var node = Merge(pair1, pair2, pair1Hash, pair2Hash, nextLevel);
-                    var nodeMap = new BitVector32(Mask(pair1Index));
-                    return new Entries(new BitVector32(0), nodeMap, new (K, V)[0], new[] { node });
+                    var nodeMap = Mask(pair1Index);
+                    return new Entries(0, nodeMap, new (K, V)[0], new[] { node });
                 }
                 else
                 {
-                    var dataMap = new BitVector32(Mask(pair1Index));
-                    dataMap[Mask(pair2Index)] = true;
-                    return new Entries(dataMap, new BitVector32(0), pair1Index < pair2Index
+                    var dataMap = Mask(pair1Index);
+                    dataMap = Bit.Set(dataMap, Mask(pair2Index), true);
+                    return new Entries(dataMap, 0, pair1Index < pair2Index
                         ? new[] { pair1, pair2 }
                         : new[] { pair2, pair1 }, new Node[0]);
                 }
@@ -1085,8 +1076,17 @@ namespace LanguageExt
         /// This function is used to find where in the array of entries or nodes the item should be inserted
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static int Index(BitVector32 bitmap, int pos) =>
-            BitCount(bitmap.Data & (pos - 1));
+        static int Index(uint bitmap, int pos) =>
+            BitCount((int)bitmap & (pos - 1));
+
+        /// <summary>
+        /// Finds the number of 1-bits below the bit at "pos"
+        /// Since the array in the ChampHashMap is compressed (does not have room for unfilled values)
+        /// This function is used to find where in the array of entries or nodes the item should be inserted
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static int Index(uint bitmap, uint pos) =>
+            BitCount((int)bitmap & (((int)pos) - 1));
 
         /// <summary>
         /// Returns the value used to index into the BitVector.  
@@ -1094,8 +1094,8 @@ namespace LanguageExt
         /// the mask must be 2^n
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static int Mask(int index) =>
-            1 << index;
+        static uint Mask(int index) =>
+            (uint)(1 << index);
 
         /// <summary>
         /// Sets the value at index "index" to "value". If inplace is true it sets the 
@@ -1186,5 +1186,40 @@ namespace LanguageExt
         IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
             AsEnumerable().Select(kv => new KeyValuePair<K, V>(kv.Key, kv.Value))
                           .GetEnumerator();
+    }
+
+    internal static class Bit
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint Set(uint value, int bit, bool flag) =>
+            flag
+                ? value | (uint)bit
+                : value & (~(uint)bit);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint Set(uint value, uint bit, bool flag) =>
+            flag
+                ? value | bit
+                : value & (~bit);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Get(uint value, int bit) =>
+            (value & (uint)bit) == (uint)bit;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Get(uint value, uint bit) =>
+            (value & bit) == bit;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Get(uint data, BitVector32.Section section) =>
+            (int)((data & (uint)(section.Mask << section.Offset)) >> section.Offset);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint Set(uint data, BitVector32.Section section, int value)
+        {
+            value <<= section.Offset;
+            int offsetMask = (0xFFFF & (int)section.Mask) << section.Offset;
+            return (data & ~(uint)offsetMask) | ((uint)value & (uint)offsetMask);
+        }
     }
 }
