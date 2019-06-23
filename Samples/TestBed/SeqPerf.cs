@@ -69,7 +69,7 @@ namespace TestBed
             Console.WriteLine("\n\nTestStrictEnum");
             Console.ForegroundColor = ConsoleColor.White;
 
-            const int count = 10000000;
+            const int count = 1000000;
 
             GC.Collect();
 
@@ -105,7 +105,7 @@ namespace TestBed
             Console.WriteLine("\n\nTestListTEnum");
             Console.ForegroundColor = ConsoleColor.White;
 
-            const int count = 10000000;
+            const int count = 1000000;
 
             GC.Collect();
 
@@ -140,7 +140,7 @@ namespace TestBed
             Console.WriteLine("\n\nTestSeqStream");
             Console.ForegroundColor = ConsoleColor.White;
 
-            const int count = 10000000;
+            const int count = 1000000;
             var results = new int[count];
 
             for (int i = 0; i < runs; i++)
@@ -172,7 +172,7 @@ namespace TestBed
             Console.WriteLine("\n\nTestEnumStream");
             Console.ForegroundColor = ConsoleColor.White;
 
-            const int count = 10000000;
+            const int count = 1000000;
             var results = new int[count];
 
             for (int i = 0; i < runs; i++)
@@ -205,7 +205,7 @@ namespace TestBed
             Console.WriteLine("\n\nTestAdd");
             Console.ForegroundColor = ConsoleColor.White;
 
-            const int count = 10000000;
+            const int count = 1000000;
 
             // Warm up
             AddItems(new List<int>(), count);
