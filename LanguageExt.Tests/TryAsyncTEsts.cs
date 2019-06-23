@@ -35,7 +35,7 @@ namespace LanguageExt.Tests
             finally
             {
                 var elapsed = w.ElapsedMilliseconds;
-                Assert.True(Math.Abs(elapsed - milliseconds) < 150, $"Supposed to complete in {milliseconds}ms.  It took {elapsed}ms. " + thing);
+                Assert.True(Math.Abs(elapsed - milliseconds) < (milliseconds / 10), $"Supposed to complete in {milliseconds}ms.  It took {elapsed}ms. " + thing);
             }
         }
 

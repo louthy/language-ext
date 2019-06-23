@@ -20,16 +20,16 @@ namespace LanguageExt
     {
         public static readonly HashSetInternal<EqA, A> Empty = new HashSetInternal<EqA, A>();
 
-        readonly MapInternal<TInt, int, Lst<A>> hashTable;
+        readonly MapInternal<TInt, int, SeqStrict<A>> hashTable;
         readonly int count;
         int hashCode;
 
         internal HashSetInternal()
         {
-            hashTable = MapInternal<TInt, int, Lst<A>>.Empty;
+            hashTable = MapInternal<TInt, int, SeqStrict<A>>.Empty;
         }
 
-        internal HashSetInternal(MapInternal<TInt, int, Lst<A>> hashTable, int count)
+        internal HashSetInternal(MapInternal<TInt, int, SeqStrict<A>> hashTable, int count)
         {
             this.hashTable = hashTable;
             this.count = count;
@@ -103,12 +103,12 @@ namespace LanguageExt
         [Pure]
         public HashSetInternal<EqA, A> Filter(Func<A, bool> pred)
         {
-            var ht = MapInternal<TInt, int, Lst<A>>.Empty;
+            var ht = MapInternal<TInt, int, SeqStrict<A>>.Empty;
             var count = 0;
 
             foreach(var bucket in hashTable)
             {
-                var b = bucket.Value.Filter(pred);
+                var b = (SeqStrict<A>)bucket.Value.Filter(pred);
                 count += b.Count;
                 if (b.Count > 0)
                 {
@@ -135,11 +135,11 @@ namespace LanguageExt
                         throw new ArgumentException("Key already exists in HSet");
                     }
                 }
-                ht = ht.SetItem(hash, bucket.Value.Add(key));
+                ht = ht.SetItem(hash, (SeqStrict<A>)bucket.Value.Add(key));
             }
             else
             {
-                ht = ht.Add(hash, List(key));
+                ht = ht.Add(hash, SeqStrict<A>.FromSingleValue(key));
             }
             return new HashSetInternal<EqA, A>(ht, Count + 1);
         }
@@ -161,11 +161,11 @@ namespace LanguageExt
                         return this;
                     }
                 }
-                ht = ht.SetItem(hash, bucket.Value.Add(key));
+                ht = ht.SetItem(hash, (SeqStrict<A>)bucket.Value.Add(key));
             }
             else
             {
-                ht = ht.Add(hash, List(key));
+                ht = ht.Add(hash, SeqStrict<A>.FromSingleValue(key));
             }
             return new HashSetInternal<EqA, A>(ht, Count + 1);
         }
@@ -200,12 +200,12 @@ namespace LanguageExt
                 }
                 else
                 {
-                    return new HashSetInternal<EqA, A>(ht.SetItem(hash, bucketValue.Add(key)), Count + 1);
+                    return new HashSetInternal<EqA, A>(ht.SetItem(hash, (SeqStrict<A>)bucketValue.Add(key)), Count + 1);
                 }
             }
             else
             {
-                return new HashSetInternal<EqA, A>(ht.Add(hash, List(key)), Count + 1);
+                return new HashSetInternal<EqA, A>(ht.Add(hash, SeqStrict<A>.FromSingleValue(key)), Count + 1);
             }
         }
 
@@ -264,7 +264,7 @@ namespace LanguageExt
             if (bucket.IsSome)
             {
                 var bucketValue = bucket.Value;
-                bucketValue = bucketValue.Filter(x => !default(EqA).Equals(x, key));
+                bucketValue = (SeqStrict<A>)bucketValue.Filter(x => !default(EqA).Equals(x, key));
                 return bucketValue.Count == 0
                     ? new HashSetInternal<EqA, A>(ht.Remove(hash), Count - 1)
                     : new HashSetInternal<EqA, A>(ht.SetItem(hash, bucketValue), Count - 1);
@@ -300,7 +300,7 @@ namespace LanguageExt
             var hash = default(EqA).GetHashCode(key);
             var bucket = ht.Find(hash);
             return bucket.IsSome
-                ? new HashSetInternal<EqA, A>(ht.SetItem(hash, bucket.Value.Map(x => default(EqA).Equals(x, key) ? key : x)), Count)
+                ? new HashSetInternal<EqA, A>(ht.SetItem(hash, (SeqStrict<A>)bucket.Value.Map(x => default(EqA).Equals(x, key) ? key : x)), Count)
                 : throw new ArgumentException("Key not found in Set");
         }
 
@@ -313,7 +313,7 @@ namespace LanguageExt
             var hash = default(EqA).GetHashCode(key);
             var bucket = ht.Find(hash);
             return bucket.IsSome
-                ? new HashSetInternal<EqA, A>(ht.TrySetItem(hash, bucket.Value.Map(x => default(EqA).Equals(x, key) ? key : x)), Count)
+                ? new HashSetInternal<EqA, A>(ht.TrySetItem(hash, (SeqStrict<A>)bucket.Value.Map(x => default(EqA).Equals(x, key) ? key : x)), Count)
                 : this;
         }
 

@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClasses;
+using System.Linq;
 
 namespace LanguageExt
 {
@@ -17,14 +19,14 @@ namespace LanguageExt
         IEnumerable<(K Key, V Value)>,
         IEquatable<HashMap<K, V>>
     {
-        public static readonly HashMap<K, V> Empty = new HashMap<K,V>(HashMapInternal<EqDefault<K>, K, V>.Empty);
+        public static readonly HashMap<K, V> Empty = new HashMap<K,V>(TrieMap<EqDefault<K>, K, V>.Empty);
 
-        readonly HashMapInternal<EqDefault<K>, K, V> value;
+        readonly TrieMap<EqDefault<K>, K, V> value;
 
-        internal HashMapInternal<EqDefault<K>, K, V> Value => 
-            value ?? HashMapInternal<EqDefault<K>, K, V>.Empty;
+        internal TrieMap<EqDefault<K>, K, V> Value => 
+            value ?? TrieMap<EqDefault<K>, K, V>.Empty;
 
-        internal HashMap(HashMapInternal<EqDefault<K>, K, V> value)
+        internal HashMap(TrieMap<EqDefault<K>, K, V> value)
         {
             this.value = value;
         }
@@ -34,25 +36,8 @@ namespace LanguageExt
             : this(items, true)
         { }
 
-        public HashMap(IEnumerable<(K Key, V Value)> items, bool tryAdd)
-        {
-            var map = HashMap<K, V>.Empty;
-            if (tryAdd)
-            {
-                foreach (var item in items)
-                {
-                    map = map.TryAdd(item.Key, item.Value);
-                }
-            }
-            else
-            {
-                foreach (var item in items)
-                {
-                    map = map.AddOrUpdate(item.Key, item.Value);
-                }
-            }
-            this.value = map.value;
-        }
+        public HashMap(IEnumerable<(K Key, V Value)> items, bool tryAdd) =>
+            this.value = new TrieMap<EqDefault<K>, K, V>(items, tryAdd);
 
         /// <summary>
         /// Item at index lens
@@ -87,10 +72,10 @@ namespace LanguageExt
                 return la;
             });
 
-        static HashMap<K, V> Wrap(HashMapInternal<EqDefault<K>, K, V> value) =>
+        static HashMap<K, V> Wrap(TrieMap<EqDefault<K>, K, V> value) =>
             new HashMap<K, V>(value);
 
-        static HashMap<K, U> Wrap<U>(HashMapInternal<EqDefault<K>, K, U> value) =>
+        static HashMap<K, U> Wrap<U>(TrieMap<EqDefault<K>, K, U> value) =>
             new HashMap<K, U>(value);
 
         /// <summary>
@@ -128,7 +113,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
-            value;
+            Value;
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -359,7 +344,7 @@ namespace LanguageExt
         /// <returns>Found value</returns>
         [Pure]
         public R Find<R>(K key, Func<V, R> Some, Func<R> None) =>
-            Value.Find(key,Some,None);
+            Value.Find(key, Some, None);
 
         /// <summary>
         /// Try to find the key in the map, if it doesn't exist, add a new 
@@ -474,6 +459,15 @@ namespace LanguageExt
             Value.Contains(key, value);
 
         /// <summary>
+        /// Checks for existence of a key in the map
+        /// </summary>
+        /// <param name="key">Key to check</param>
+        /// <returns>True if an item with the key supplied is in the map</returns>
+        [Pure]
+        public bool Contains<EqV>(K key, V value) where EqV : struct, Eq<V> =>
+            Value.Contains<EqV>(key, value);
+
+        /// <summary>
         /// Clears all items from the map 
         /// </summary>
         /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
@@ -580,7 +574,7 @@ namespace LanguageExt
         /// <returns>True if exists, false otherwise</returns>
         [Pure]
         public bool Contains(KeyValuePair<K, V> pair) =>
-            Value.Contains(pair);
+            Value.Contains(pair.Key, pair.Value);
 
         /// <summary>
         /// Enumerable of map keys
@@ -602,16 +596,15 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public IReadOnlyDictionary<K, V> ToDictionary() =>
-            Value.ToDictionary();
+            Value;
 
         /// <summary>
         /// Map the map the a dictionary
         /// </summary>
         [Pure]
         public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K Key, V Value), KR> keySelector, Func<(K Key, V Value), VR> valueSelector) =>
-            Value.ToDictionary(keySelector, valueSelector);
+            AsEnumerable().ToDictionary(x => keySelector(x), x => valueSelector(x));
 
-        #region IEnumerable interface
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
@@ -626,13 +619,11 @@ namespace LanguageExt
 
         [Pure]
         public Seq<(K Key, V Value)> ToSeq() =>
-            Seq(Value.AsEnumerable());
+            Seq(AsEnumerable());
 
         [Pure]
         public IEnumerable<(K Key, V Value)> AsEnumerable() =>
-            Value.AsEnumerable();
-
-        #endregion
+            Value;
 
         [Pure]
         public static bool operator ==(HashMap<K, V> lhs, HashMap<K, V> rhs) =>
@@ -660,7 +651,7 @@ namespace LanguageExt
 
         [Pure]
         public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) && obj is HashMap<K, V> && Equals((HashMap<K, V>)obj);
+            obj is HashMap<K, V> && Equals((HashMap<K, V>)obj);
 
         [Pure]
         public override int GetHashCode() =>
