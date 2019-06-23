@@ -116,9 +116,9 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TrieMap<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None)
         {
-            var value = Find(key);
-            return value.IsSome
-                ? AddOrUpdate(key, Some((V)value))
+            var (found, value) = FindInternal(key);
+            return found
+                ? AddOrUpdate(key, Some(value))
                 : AddOrUpdate(key, None());
         }
 
@@ -128,9 +128,9 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TrieMap<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, V None)
         {
-            var value = Find(key);
-            return value.IsSome
-                ? AddOrUpdate(key, Some((V)value))
+            var (found, value) = FindInternal(key);
+            return found
+                ? AddOrUpdate(key, Some(value))
                 : AddOrUpdate(key, None);
         }
 
@@ -397,9 +397,10 @@ namespace LanguageExt
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                var value = Find(key);
-                if (value.IsNone) throw new ArgumentException($"Key doesn't exist in map: {key}");
-                return (V)value;
+                var (found, value) = FindInternal(key);
+                return found
+                    ? value
+                    : throw new ArgumentException($"Key doesn't exist in map: {key}");
             }
         }
 
@@ -424,7 +425,7 @@ namespace LanguageExt
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ContainsKey(K key) =>
-            Find(key).IsSome;
+            FindInternal(key).Found;
 
         /// <summary>
         /// Returns the whether the `key` exists in the map
@@ -445,6 +446,18 @@ namespace LanguageExt
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<V> Find(K key)
+        {
+            var (found, value) = FindInternal(key);
+            return found
+                ? Some(value)
+                : default;
+        }
+
+        /// <summary>
+        /// Returns the value associated with `key`.  Or None, if no key exists
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        (bool Found, V Value) FindInternal(K key)
         {
             var hash = (uint)default(EqK).GetHashCode(key);
             Sec section = default;
@@ -646,7 +659,7 @@ namespace LanguageExt
         internal interface Node : IEnumerable<(K, V)>
         {
             Tag Type { get; }
-            Option<V> GetValue(K key, uint hash, Sec section);
+            (bool Found, V Value) GetValue(K key, uint hash, Sec section);
             (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, Sec section);
             (int CountDelta, Node Node) Remove(K key, uint hash, Sec section);
         }
@@ -751,30 +764,30 @@ namespace LanguageExt
                 }
             }
 
-            public Option<V> GetValue(K key, uint hash, Sec section)
+            public (bool Found, V Value) GetValue(K key, uint hash, Sec section)
             {
-                var hashIndex = Bit.Get(hash, section);
-                var mask = Mask(hashIndex);
-                if (Bit.Get(EntryMap, mask))
+                var hashIndex = (int)((hash & (uint)(Sec.Mask << section.Offset)) >> section.Offset); // Bit.Get(hash, section);
+                var mask = (uint)(1 << hashIndex);                                                    // Mask(hashIndex)
+                if ((EntryMap & mask) == mask)                                                        // if(Bit.Get(EntryMap, mask))
                 {
                     var entryIndex = Index(EntryMap, mask);
                     if (default(EqK).Equals(Items[entryIndex].Key, key))
                     {
-                        return Items[entryIndex].Value;
+                        return (true, Items[entryIndex].Value);
                     }
                     else
                     {
-                        return None;
+                        return default;
                     }
                 }
-                else if (Bit.Get(NodeMap, mask))
+                else if ((NodeMap & mask) == mask)                                                   // else if (Bit.Get(NodeMap, mask))
                 {
                     var subNode = Nodes[Index(NodeMap, mask)];
                     return subNode.GetValue(key, hash, section.Next());
                 }
                 else
                 {
-                    return None;
+                    return default;
                 }
             }
 
@@ -890,16 +903,16 @@ namespace LanguageExt
                 Hash = hash;
             }
 
-            public Option<V> GetValue(K key, uint hash, Sec section)
+            public (bool Found, V Value) GetValue(K key, uint hash, Sec section)
             {
                 foreach (var kv in Items)
                 {
                     if (default(EqK).Equals(kv.Key, key))
                     {
-                        return Some(kv.Value);
+                        return (true, kv.Value);
                     }
                 }
-                return None;
+                return default;
             }
 
             public (int CountDelta, Node Node) Remove(K key, uint hash, Sec section)
@@ -998,8 +1011,8 @@ namespace LanguageExt
 
             public Tag Type => Tag.Empty;
 
-            public Option<V> GetValue(K key, uint hash, Sec section) =>
-                None;
+            public (bool Found, V Value) GetValue(K key, uint hash, Sec section) =>
+                default;
 
             public (int CountDelta, Node Node) Remove(K key, uint hash, Sec section) =>
                 (0, this);

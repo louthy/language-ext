@@ -10,7 +10,7 @@ namespace TestBed
 {
     public static class HashMapPerf
     {
-        const int count = 100000;
+        const int count = 1000000;
         const int runs = 5;
 
         public static void TestHashMapEnum()
@@ -20,10 +20,10 @@ namespace TestBed
             Console.ForegroundColor = ConsoleColor.White;
 
 
-            GC.Collect();
-
             for (int i = 0; i < runs; i++)
             {
+                GC.Collect();
+
                 Console.WriteLine($"\nStream enum run {i + 1}");
 
                 var seq = Seq(Range(0, count));
@@ -54,10 +54,10 @@ namespace TestBed
             Console.WriteLine("\nTestDictionaryEnum");
             Console.ForegroundColor = ConsoleColor.White;
 
-            GC.Collect();
-
             for (int i = 0; i < runs; i++)
             {
+                GC.Collect();
+
                 Console.WriteLine($"\nStream enum run {i + 1}");
 
                 var seq = Seq(Range(0, count));
@@ -88,10 +88,10 @@ namespace TestBed
             Console.WriteLine("\nTestImmutableDictionaryEnum");
             Console.ForegroundColor = ConsoleColor.White;
 
-            GC.Collect();
-
             for (int i = 0; i < runs; i++)
             {
+                GC.Collect();
+
                 Console.WriteLine($"\nStream enum run {i + 1}");
 
                 var seq = Seq(Range(0, count));
@@ -123,10 +123,10 @@ namespace TestBed
             Console.WriteLine("\nTestHashMapRandomAccess");
             Console.ForegroundColor = ConsoleColor.White;
 
-            GC.Collect();
-
             for (int i = 0; i < runs; i++)
             {
+                GC.Collect();
+
                 Console.WriteLine($"\nRandom access run {i + 1}");
 
                 var seq = Seq(Range(0, count));
@@ -155,10 +155,10 @@ namespace TestBed
             Console.WriteLine("\nTestDictionaryRandomAccess");
             Console.ForegroundColor = ConsoleColor.White;
 
-            GC.Collect();
-
             for (int i = 0; i < runs; i++)
             {
+                GC.Collect();
+
                 Console.WriteLine($"\nRandom access run {i + 1}");
 
                 var seq = Seq(Range(0, count));
@@ -187,10 +187,10 @@ namespace TestBed
             Console.WriteLine("\nTestImmutableDictionaryRandomAccess");
             Console.ForegroundColor = ConsoleColor.White;
 
-            GC.Collect();
-
             for (int i = 0; i < runs; i++)
             {
+                GC.Collect();
+
                 Console.WriteLine($"\nRandom access run {i + 1}");
 
                 var seq = Seq(Range(0, count));
