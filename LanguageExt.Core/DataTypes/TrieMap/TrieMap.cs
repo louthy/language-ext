@@ -24,8 +24,6 @@ namespace LanguageExt
         IReadOnlyDictionary<K, V>
         where EqK : struct, Eq<K>
     {
-        const short PartitionMaxValue = 31;
-
         internal enum UpdateType
         {
             Add,
@@ -33,6 +31,13 @@ namespace LanguageExt
             AddOrUpdate,
             SetItem,
             TrySetItem
+        }
+
+        internal enum Tag
+        {
+            Entries,
+            Collision,
+            Empty
         }
 
         public static readonly TrieMap<EqK, K, V> Empty = new TrieMap<EqK, K, V>(EmptyNode.Default, 0);
@@ -58,7 +63,7 @@ namespace LanguageExt
             foreach (var item in items)
             {
                 var hash = (uint)default(EqK).GetHashCode(item.Key);
-                var section = BitVector32.CreateSection(PartitionMaxValue);
+                Sec section = default;
                 var (countDelta, newRoot) = Root.Update(type, true, item, hash, section);
                 count += countDelta;
                 Root = newRoot;
@@ -377,7 +382,7 @@ namespace LanguageExt
         public TrieMap<EqK, K, V> Remove(K key)
         {
             var hash = (uint)default(EqK).GetHashCode(key);
-            var section = BitVector32.CreateSection(PartitionMaxValue);
+            Sec section = default;
             var (countDelta, newRoot) = Root.Remove(key, hash, section);
             return ReferenceEquals(newRoot, Root)
                 ? this
@@ -442,7 +447,7 @@ namespace LanguageExt
         public Option<V> Find(K key)
         {
             var hash = (uint)default(EqK).GetHashCode(key);
-            var section = BitVector32.CreateSection(PartitionMaxValue);
+            Sec section = default;
             return Root.GetValue(key, hash, section);
         }
 
@@ -623,7 +628,7 @@ namespace LanguageExt
         TrieMap<EqK, K, V> Update(K key, V value, UpdateType type, bool inplace)
         {
             var hash = (uint)default(EqK).GetHashCode(key);
-            var section = BitVector32.CreateSection(PartitionMaxValue);
+            Sec section = default;
             var (countDelta, newRoot) = Root.Update(type, inplace, (key, value), hash, section);
             return ReferenceEquals(newRoot, Root)
                 ? this
@@ -640,9 +645,10 @@ namespace LanguageExt
         /// </summary>
         internal interface Node : IEnumerable<(K, V)>
         {
-            Option<V> GetValue(K key, uint hash, BitVector32.Section section);
-            (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, BitVector32.Section section);
-            (int CountDelta, Node Node) Remove(K key, uint hash, BitVector32.Section section);
+            Tag Type { get; }
+            Option<V> GetValue(K key, uint hash, Sec section);
+            (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, Sec section);
+            (int CountDelta, Node Node) Remove(K key, uint hash, Sec section);
         }
 
         /// <summary>
@@ -654,6 +660,8 @@ namespace LanguageExt
             public readonly uint NodeMap;
             public readonly (K Key, V Value)[] Items;
             public readonly Node[] Nodes;
+
+            public Tag Type => Tag.Entries;
 
             public Entries(uint entryMap, uint nodeMap, (K, V)[] items, Node[] nodes)
             {
@@ -671,7 +679,7 @@ namespace LanguageExt
                 nodes = Nodes;
             }
 
-            public (int CountDelta, Node Node) Remove(K key, uint hash, BitVector32.Section section)
+            public (int CountDelta, Node Node) Remove(K key, uint hash, Sec section)
             {
                 var hashIndex = Bit.Get(hash, section);
                 var mask = Mask(hashIndex);
@@ -695,11 +703,14 @@ namespace LanguageExt
                 else if (Bit.Get(NodeMap, mask))
                 {
                     var ind = Index(NodeMap, mask);
-                    var (cd, subNode) = Nodes[ind].Remove(key, hash, BitVector32.CreateSection(PartitionMaxValue, section));
-                    switch (subNode)
+                    var (cd, subNode) = Nodes[ind].Remove(key, hash, section.Next());
+                    switch (subNode.Type)
                     {
-                        case Entries bitmapNode:
-                            var (subItemMap, subNodeMap, subItems, subNodes) = bitmapNode;
+                        case Tag.Entries:
+
+                            var subEntries = (Entries)subNode;
+
+                            var (subItemMap, subNodeMap, subItems, subNodes) = subEntries;
                             if (subItems.Length == 1 && subNodes.Length == 0)
                             {
                                 // If the node only has one subnode, make that subnode the new node
@@ -719,15 +730,14 @@ namespace LanguageExt
                             }
                             else
                             {
-                                var nodeCopy = new Node[Nodes.Length];
-                                System.Array.Copy(Nodes, nodeCopy, Nodes.Length);
+                                var nodeCopy = Clone(Nodes);
                                 nodeCopy[ind] = subNode;
                                 return (cd, new Entries(EntryMap, NodeMap, Items, nodeCopy));
                             }
 
-                        case Collision collNode:
-                            var nodeCopy2 = new Node[Nodes.Length];
-                            System.Array.Copy(Nodes, nodeCopy2, Nodes.Length);
+                        case Tag.Collision:
+                            var collNode = (Collision)subNode;
+                            var nodeCopy2 = Clone(Nodes);
                             nodeCopy2[ind] = subNode;
                             return (cd, new Entries(EntryMap, NodeMap, Items, nodeCopy2));
 
@@ -741,7 +751,7 @@ namespace LanguageExt
                 }
             }
 
-            public Option<V> GetValue(K key, uint hash, BitVector32.Section section)
+            public Option<V> GetValue(K key, uint hash, Sec section)
             {
                 var hashIndex = Bit.Get(hash, section);
                 var mask = Mask(hashIndex);
@@ -760,7 +770,7 @@ namespace LanguageExt
                 else if (Bit.Get(NodeMap, mask))
                 {
                     var subNode = Nodes[Index(NodeMap, mask)];
-                    return subNode.GetValue(key, hash, BitVector32.CreateSection(PartitionMaxValue, section));
+                    return subNode.GetValue(key, hash, section.Next());
                 }
                 else
                 {
@@ -768,7 +778,7 @@ namespace LanguageExt
                 }
             }
 
-            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, BitVector32.Section section)
+            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, Sec section)
             {
                 var hashIndex = Bit.Get(hash, section);
                 var mask = Mask(hashIndex);
@@ -820,7 +830,7 @@ namespace LanguageExt
                 {
                     var nodeIndex = Index(NodeMap, mask);
                     var nodeToUpdate = Nodes[nodeIndex];
-                    var (cd, newNode) = nodeToUpdate.Update(type, inplace, change, hash, BitVector32.CreateSection(PartitionMaxValue, section));
+                    var (cd, newNode) = nodeToUpdate.Update(type, inplace, change, hash, section.Next());
                     var newNodes = Set(Nodes, nodeIndex, newNode, inplace);
                     return (cd, new Entries(EntryMap, NodeMap, Items, newNodes));
                 }
@@ -872,13 +882,15 @@ namespace LanguageExt
             public readonly (K Key, V Value)[] Items;
             public readonly uint Hash;
 
+            public Tag Type => Tag.Collision;
+
             public Collision((K Key, V Value)[] items, uint hash)
             {
                 Items = items;
                 Hash = hash;
             }
 
-            public Option<V> GetValue(K key, uint hash, BitVector32.Section section)
+            public Option<V> GetValue(K key, uint hash, Sec section)
             {
                 foreach (var kv in Items)
                 {
@@ -890,7 +902,7 @@ namespace LanguageExt
                 return None;
             }
 
-            public (int CountDelta, Node Node) Remove(K key, uint hash, BitVector32.Section section)
+            public (int CountDelta, Node Node) Remove(K key, uint hash, Sec section)
             {
                 var len = Items.Length;
                 if (len == 0) return (0, this);
@@ -898,8 +910,8 @@ namespace LanguageExt
                 else if (len == 2)
                 {
                     var (_, n) = default(EqK).Equals(Items[0].Key, key)
-                        ? EmptyNode.Default.Update(UpdateType.Add, false, Items[1], hash, BitVector32.CreateSection(PartitionMaxValue))
-                        : EmptyNode.Default.Update(UpdateType.Add, false, Items[0], hash, BitVector32.CreateSection(PartitionMaxValue));
+                        ? EmptyNode.Default.Update(UpdateType.Add, false, Items[1], hash, default)
+                        : EmptyNode.Default.Update(UpdateType.Add, false, Items[0], hash, default);
 
                     return (-1, n);
                 }
@@ -922,7 +934,7 @@ namespace LanguageExt
                 }
             }
 
-            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, BitVector32.Section section)
+            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, Sec section)
             {
                 var index = -1;
                 for (var i = 0; i < Items.Length; i++)
@@ -984,13 +996,15 @@ namespace LanguageExt
         {
             public static readonly EmptyNode Default = new EmptyNode();
 
-            public Option<V> GetValue(K key, uint hash, BitVector32.Section section) =>
+            public Tag Type => Tag.Empty;
+
+            public Option<V> GetValue(K key, uint hash, Sec section) =>
                 None;
 
-            public (int CountDelta, Node Node) Remove(K key, uint hash, BitVector32.Section section) =>
+            public (int CountDelta, Node Node) Remove(K key, uint hash, Sec section) =>
                 (0, this);
 
-            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, BitVector32.Section section)
+            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, Sec section)
             {
                 if (type == UpdateType.SetItem)
                 {
@@ -1021,7 +1035,7 @@ namespace LanguageExt
         /// <summary>
         /// Merges two key-value pairs into a Node
         /// </summary>
-        static Node Merge((K, V) pair1, (K, V) pair2, uint pair1Hash, uint pair2Hash, BitVector32.Section section)
+        static Node Merge((K, V) pair1, (K, V) pair2, uint pair1Hash, uint pair2Hash, Sec section)
         {
             if (section.Offset >= 25)
             {
@@ -1029,7 +1043,7 @@ namespace LanguageExt
             }
             else
             {
-                var nextLevel = BitVector32.CreateSection(PartitionMaxValue, section);
+                var nextLevel = section.Next();
                 var pair1Index = Bit.Get(pair1Hash, nextLevel);
                 var pair2Index = Bit.Get(pair2Hash, nextLevel);
                 if (pair1Index == pair2Index)
@@ -1098,7 +1112,7 @@ namespace LanguageExt
             (uint)(1 << index);
 
         /// <summary>
-        /// Sets the value at index "index" to "value". If inplace is true it sets the 
+        /// Sets the value at index. If inplace is true it sets the 
         /// value without copying the array. Otherwise it returns a new copy
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1118,8 +1132,25 @@ namespace LanguageExt
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static A[] Clone<A>(A[] items, int count)
+        {
+            var nitems = new A[count];
+            System.Array.Copy(items, nitems, count);
+            return nitems;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static A[] Clone<A>(A[] items)
+        {
+            var len = items.Length;
+            var nitems = new A[len];
+            System.Array.Copy(items, nitems, len);
+            return nitems;
+        }
+
         /// <summary>
-        /// Inserts a new element in an array at index "index"
+        /// Inserts a new item in the array (immutably)
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static A[] Insert<A>(A[] array, int index, A value)
@@ -1188,6 +1219,20 @@ namespace LanguageExt
                           .GetEnumerator();
     }
 
+    internal struct Sec
+    {
+        public const int Mask = 31;
+        public readonly int Offset;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Sec(int offset) =>
+            Offset = offset;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Sec Next() =>
+            new Sec(Offset + 5);
+    }
+
     internal static class Bit
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1211,14 +1256,14 @@ namespace LanguageExt
             (value & bit) == bit;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Get(uint data, BitVector32.Section section) =>
-            (int)((data & (uint)(section.Mask << section.Offset)) >> section.Offset);
+        public static int Get(uint data, Sec section) =>
+            (int)((data & (uint)(Sec.Mask << section.Offset)) >> section.Offset);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint Set(uint data, BitVector32.Section section, int value)
+        public static uint Set(uint data, Sec section, int value)
         {
             value <<= section.Offset;
-            int offsetMask = (0xFFFF & (int)section.Mask) << section.Offset;
+            int offsetMask = (0xFFFF & (int)Sec.Mask) << section.Offset;
             return (data & ~(uint)offsetMask) | ((uint)value & (uint)offsetMask);
         }
     }

@@ -37,21 +37,23 @@ class Program
 {
     static void Main(string[] args)
     {
-        Console.ForegroundColor = ConsoleColor.DarkGreen;
-        Console.WriteLine("Enumeration tests");
+        Console.ForegroundColor = ConsoleColor.Magenta;
+        Console.WriteLine("\nEnumeration tests");
         Console.ForegroundColor = ConsoleColor.White;
 
         HashMapPerf.TestHashMapEnum();
         HashMapPerf.TestDictionaryEnum();
         HashMapPerf.TestImmutableDictionaryEnum();
 
-        Console.ForegroundColor = ConsoleColor.DarkGreen;
-        Console.WriteLine("Random access tests");
+        Console.ForegroundColor = ConsoleColor.Magenta;
+        Console.WriteLine("\nRandom access tests");
         Console.ForegroundColor = ConsoleColor.White;
 
         HashMapPerf.TestHashMapRandomAccess();
         HashMapPerf.TestDictionaryRandomAccess();
         HashMapPerf.TestImmutableDictionaryRandomAccess();
+
+        return;
 
         //SeqPerf.ConsTest();
         //SeqPerf.LazyTest();
@@ -62,7 +64,6 @@ class Program
         SeqPerf.TestStrict();
         SeqPerf.TestAdd();
         SeqPerf.TestCons();
-        return;
 
         Test533();
 

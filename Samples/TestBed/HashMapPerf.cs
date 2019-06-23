@@ -10,13 +10,13 @@ namespace TestBed
 {
     public static class HashMapPerf
     {
-        const int count = 1000000;
+        const int count = 100000;
         const int runs = 5;
 
         public static void TestHashMapEnum()
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\n\nTestHashMapEnum");
+            Console.WriteLine("\nTestHashMapEnum");
             Console.ForegroundColor = ConsoleColor.White;
 
 
@@ -51,7 +51,7 @@ namespace TestBed
         public static void TestDictionaryEnum()
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\n\nTestDictionaryEnum");
+            Console.WriteLine("\nTestDictionaryEnum");
             Console.ForegroundColor = ConsoleColor.White;
 
             GC.Collect();
@@ -85,7 +85,7 @@ namespace TestBed
         public static void TestImmutableDictionaryEnum()
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\n\nTestImmutableDictionaryEnum");
+            Console.WriteLine("\nTestImmutableDictionaryEnum");
             Console.ForegroundColor = ConsoleColor.White;
 
             GC.Collect();
@@ -120,7 +120,7 @@ namespace TestBed
         public static void TestHashMapRandomAccess()
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\n\nTestHashMapRandomAccess");
+            Console.WriteLine("\nTestHashMapRandomAccess");
             Console.ForegroundColor = ConsoleColor.White;
 
             GC.Collect();
@@ -152,7 +152,7 @@ namespace TestBed
         public static void TestDictionaryRandomAccess()
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\n\nTestDictionaryRandomAccess");
+            Console.WriteLine("\nTestDictionaryRandomAccess");
             Console.ForegroundColor = ConsoleColor.White;
 
             GC.Collect();
@@ -184,7 +184,7 @@ namespace TestBed
         public static void TestImmutableDictionaryRandomAccess()
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\n\nTestDictionaryRandomAccess");
+            Console.WriteLine("\nTestImmutableDictionaryRandomAccess");
             Console.ForegroundColor = ConsoleColor.White;
 
             GC.Collect();
