@@ -145,7 +145,7 @@ namespace TestBed
 
                 Debug.Assert(results.Sum2() == Range(0, count).Sum2());
 
-                Console.WriteLine($"{count} items streamed (HashMap) : {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per item");
+                Console.WriteLine($"{count} items accessed (HashMap) : {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per item");
             }
         }
 
@@ -177,7 +177,7 @@ namespace TestBed
 
                 Debug.Assert(results.Sum2() == Range(0, count).Sum2());
 
-                Console.WriteLine($"{count} items streamed (Dictionary) : {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per item");
+                Console.WriteLine($"{count} items accessed (Dictionary) : {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per item");
             }
         }
 
@@ -209,7 +209,103 @@ namespace TestBed
 
                 Debug.Assert(results.Sum2() == Range(0, count).Sum2());
 
-                Console.WriteLine($"{count} items streamed (ImmutableDictionary) : {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per item");
+                Console.WriteLine($"{count} items accessed (ImmutableDictionary) : {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per item");
+            }
+        }
+
+        public static void TestHashMapFromEmptyAdds()
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\nTestHashMapFromEmptyAdds");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            for (int i = 0; i < runs; i++)
+            {
+                GC.Collect();
+
+                Console.WriteLine($"\nFrom empty adding run {i + 1}");
+
+                var map = HashMap<int,int>();
+
+                var listSW = Stopwatch.StartNew();
+
+                var results = new int[count];
+                for (int j = 0; j < count; j++)
+                {
+                    map = map.Add(j, j);
+                    results[j] = j;
+                    j++;
+                }
+
+                listSW.Stop();
+
+                Debug.Assert(results.Sum2() == map.Values.Sum2());
+
+                Console.WriteLine($"{count} items added (HashMap) : {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per item");
+            }
+        }
+
+        public static void TestDictionaryFromEmptyAdds()
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\nTestDictionaryFromEmptyAdds");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            for (int i = 0; i < runs; i++)
+            {
+                GC.Collect();
+
+                Console.WriteLine($"\nFrom empty adding run {i + 1}");
+
+                var map = new Dictionary<int, int>();
+
+                var listSW = Stopwatch.StartNew();
+
+                var results = new int[count];
+                for (int j = 0; j < count; j++)
+                {
+                    map.Add(j, j);
+                    results[j] = j;
+                    j++;
+                }
+
+                listSW.Stop();
+
+                Debug.Assert(results.Sum2() == map.Values.Sum2());
+
+                Console.WriteLine($"{count} items added (Dictionary) : {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per item");
+            }
+        }
+
+        public static void TestImmutableDictionaryFromEmptyAdds()
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\nTestImmutableDictionaryFromEmptyAdds");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            for (int i = 0; i < runs; i++)
+            {
+                GC.Collect();
+
+                Console.WriteLine($"\nFrom empty adding run {i + 1}");
+
+                var map = ImmutableDictionary.Create<int, int>();
+
+                var listSW = Stopwatch.StartNew();
+
+                var results = new int[count];
+                for (int j = 0; j < count; j++)
+                {
+                    map = map.Add(j, j);
+                    results[j] = j;
+                    j++;
+                }
+
+                listSW.Stop();
+
+                Debug.Assert(results.Sum2() == map.Values.Sum2());
+
+                Console.WriteLine($"{count} items added (ImmutableDictionary) : {listSW.ElapsedMilliseconds}ms, which is {(float)listSW.ElapsedMilliseconds / (float)count * 1000000.0:F3}ns per item");
             }
         }
     }

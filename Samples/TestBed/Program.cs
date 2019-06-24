@@ -53,6 +53,14 @@ class Program
         HashMapPerf.TestDictionaryRandomAccess();
         HashMapPerf.TestImmutableDictionaryRandomAccess();
 
+        Console.ForegroundColor = ConsoleColor.Magenta;
+        Console.WriteLine("\nAdds from empty tests");
+        Console.ForegroundColor = ConsoleColor.White;
+
+        HashMapPerf.TestHashMapFromEmptyAdds();
+        HashMapPerf.TestDictionaryFromEmptyAdds();
+        HashMapPerf.TestImmutableDictionaryFromEmptyAdds();
+
         return;
 
         //SeqPerf.ConsTest();

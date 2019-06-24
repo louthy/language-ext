@@ -799,12 +799,18 @@ namespace LanguageExt
 
             public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, Sec section)
             {
-                var hashIndex = Bit.Get(hash, section);
-                var mask = Mask(hashIndex);
-                if (Bit.Get(EntryMap, mask))
+                // var hashIndex = Bit.Get(hash, section);
+                // var mask = Mask(hashIndex);
+                var mask = (uint)(1 << (int)((hash & (uint)(Sec.Mask << section.Offset)) >> section.Offset));
+
+                //if (Bit.Get(EntryMap, mask))
+                if((EntryMap & mask) == mask)
                 {
-                    var entryIndex = Index(EntryMap, mask);
-                    if (default(EqK).Equals(Items[entryIndex].Key, change.Key))
+                    //var entryIndex = Index(EntryMap, mask);
+                    var entryIndex = BitCount((int)EntryMap & (((int)mask) - 1));
+                    var currentEntry = Items[entryIndex];
+
+                    if (default(EqK).Equals(currentEntry.Key, change.Key))
                     {
                         if (type == UpdateType.Add)
                         {
@@ -834,20 +840,43 @@ namespace LanguageExt
                         }
 
                         // Add
-                        var currentEntry = Items[entryIndex];
-                        var currentHash = (uint)default(EqK).GetHashCode(currentEntry.Key);
-                        var node = Merge(change, currentEntry, hash, currentHash, section);
-                        var newItems = Items.Filter(elem => !default(EqK).Equals(elem.Key, currentEntry.Key)).ToArray();
-                        var newEntryMap = Bit.Set(EntryMap, mask, false);
-                        var newNodeMap = Bit.Set(NodeMap, mask, true);
-                        var nodeIndex = Index(NodeMap, mask);
+                        var node = Merge(change, currentEntry, hash, (uint)default(EqK).GetHashCode(currentEntry.Key), section);
+
+                        //var newItems = Items.Filter(elem => !default(EqK).Equals(elem.Key, currentEntry.Key)).ToArray();
+                        var newItems = new (K Key, V Value)[Items.Length - 1];
+                        var i = 0;
+                        foreach(var elem in Items)
+                        {
+                            if(!default(EqK).Equals(elem.Key, currentEntry.Key))
+                            {
+                                newItems[i] = elem;
+                                i++;
+                            }
+                        }
+
+                        //var newEntryMap = Bit.Set(EntryMap, mask, false);
+                        var newEntryMap = EntryMap & (~mask);
+
+                        // var newNodeMap = Bit.Set(NodeMap, mask, true);
+                        var newNodeMap = NodeMap | mask;
+
+                        // var nodeIndex = Index(NodeMap, mask);
+                        var nodeIndex = BitCount((int)NodeMap & (((int)mask) - 1));
+
                         var newNodes = Insert(Nodes, nodeIndex, node);
-                        return (1, new Entries(newEntryMap, newNodeMap, newItems, newNodes));
+
+                        return (1, new Entries(
+                            newEntryMap, 
+                            newNodeMap, 
+                            newItems, 
+                            newNodes));
                     }
                 }
                 else if (Bit.Get(NodeMap, mask))
                 {
-                    var nodeIndex = Index(NodeMap, mask);
+                    // var nodeIndex = Index(NodeMap, mask);
+                    var nodeIndex = BitCount((int)NodeMap & (((int)mask) - 1));
+
                     var nodeToUpdate = Nodes[nodeIndex];
                     var (cd, newNode) = nodeToUpdate.Update(type, inplace, change, hash, section.Next());
                     var newNodes = Set(Nodes, nodeIndex, newNode, inplace);
@@ -866,8 +895,12 @@ namespace LanguageExt
                         return (0, this);
                     }
 
-                    var entryIndex = Index(EntryMap, mask);
-                    var entries = Bit.Set(EntryMap, mask, true);
+                    // var entryIndex = Index(EntryMap, mask);
+                    var entryIndex = BitCount((int)EntryMap & (((int)mask) - 1));
+
+                    // var entries = Bit.Set(EntryMap, mask, true);
+                    var entries = EntryMap | mask;
+
                     var newItems = Insert(Items, entryIndex, change);
                     return (1, new Entries(entries, NodeMap, newItems, Nodes));
                 }
