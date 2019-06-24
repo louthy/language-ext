@@ -64,7 +64,7 @@ namespace LanguageExt
             {
                 var hash = (uint)default(EqK).GetHashCode(item.Key);
                 Sec section = default;
-                var (countDelta, newRoot) = Root.Update(type, true, item, hash, section);
+                var (countDelta, newRoot) = Root.Update((type, true), item, hash, section);
                 count += countDelta;
                 Root = newRoot;
             }
@@ -428,11 +428,25 @@ namespace LanguageExt
             FindInternal(key).Found;
 
         /// <summary>
+        /// Returns the whether the `value` exists in the map
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Contains(V value) =>
+            Contains<EqDefault<V>>(value);
+
+        /// <summary>
+        /// Returns the whether the `value` exists in the map
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Contains<EqV>(V value) where EqV: struct, Eq<V> =>
+            Values.Exists(v => default(EqV).Equals(v, value));
+
+        /// <summary>
         /// Returns the whether the `key` exists in the map
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains(K key, V Value) =>
-            Find(key).Map(v => ReferenceEquals(v, Value) || (v?.Equals(Value) ?? false)).IfNone(false);
+        public bool Contains(K key, V value) =>
+            Find(key).Map(v => ReferenceEquals(v, value) || (v?.Equals(value) ?? false)).IfNone(false);
 
         /// <summary>
         /// Returns the whether the `key` exists in the map
@@ -461,7 +475,7 @@ namespace LanguageExt
         {
             var hash = (uint)default(EqK).GetHashCode(key);
             Sec section = default;
-            return Root.GetValue(key, hash, section);
+            return Root.Read(key, hash, section);
         }
 
         /// <summary>
@@ -638,11 +652,11 @@ namespace LanguageExt
         /// Update an item in the map - can mutate if needed
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        TrieMap<EqK, K, V> Update(K key, V value, UpdateType type, bool inplace)
+        TrieMap<EqK, K, V> Update(K key, V value, UpdateType type, bool mutate)
         {
             var hash = (uint)default(EqK).GetHashCode(key);
             Sec section = default;
-            var (countDelta, newRoot) = Root.Update(type, inplace, (key, value), hash, section);
+            var (countDelta, newRoot) = Root.Update((type, mutate), (key, value), hash, section);
             return ReferenceEquals(newRoot, Root)
                 ? this
                 : new TrieMap<EqK, K, V>(newRoot, count + countDelta);
@@ -659,10 +673,17 @@ namespace LanguageExt
         internal interface Node : IEnumerable<(K, V)>
         {
             Tag Type { get; }
-            (bool Found, V Value) GetValue(K key, uint hash, Sec section);
-            (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, Sec section);
+            (bool Found, V Value) Read(K key, uint hash, Sec section);
+            (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section);
             (int CountDelta, Node Node) Remove(K key, uint hash, Sec section);
         }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        //
+        // NOTE: Here be dragons!  The code below is has been optimised for performace.  Yes, it's 
+        //       ugly, yes there's repetition, but it's all to squeeze the last few nanoseconds of 
+        //       performance out of the system.  Don't hate me ;)
+        //
 
         /// <summary>
         /// Contains items and sub-nodes
@@ -697,9 +718,9 @@ namespace LanguageExt
                 var hashIndex = Bit.Get(hash, section);
                 var mask = Mask(hashIndex);
 
-                // If key belongs to an entry
                 if (Bit.Get(EntryMap, mask))
                 {
+                    // If key belongs to an entry
                     var ind = Index(EntryMap, mask);
                     if (default(EqK).Equals(Items[ind].Key, key))
                     {
@@ -712,9 +733,9 @@ namespace LanguageExt
                         return (0, this);
                     }
                 }
-                //If key lies in a subnode
                 else if (Bit.Get(NodeMap, mask))
                 {
+                    //If key lies in a sub-node
                     var ind = Index(NodeMap, mask);
                     var (cd, subNode) = Nodes[ind].Remove(key, hash, section.Next());
                     switch (subNode.Type)
@@ -764,7 +785,7 @@ namespace LanguageExt
                 }
             }
 
-            public (bool Found, V Value) GetValue(K key, uint hash, Sec section)
+            public (bool Found, V Value) Read(K key, uint hash, Sec section)
             {                                                                                         
                 // var hashIndex = Bit.Get(hash, section);
                 // Mask(hashIndex)
@@ -789,7 +810,7 @@ namespace LanguageExt
                 {
                     // var entryIndex = Index(NodeMap, mask);
                     var entryIndex = BitCount((int)NodeMap & (((int)mask) - 1));                     
-                    return Nodes[entryIndex].GetValue(key, hash, section.Next());
+                    return Nodes[entryIndex].Read(key, hash, section.Next());
                 }
                 else
                 {
@@ -797,7 +818,7 @@ namespace LanguageExt
                 }
             }
 
-            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, Sec section)
+            public (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
             {
                 // var hashIndex = Bit.Get(hash, section);
                 // var mask = Mask(hashIndex);
@@ -812,28 +833,28 @@ namespace LanguageExt
 
                     if (default(EqK).Equals(currentEntry.Key, change.Key))
                     {
-                        if (type == UpdateType.Add)
+                        if (env.Type == UpdateType.Add)
                         {
                             // Key already exists - so it's an error to add again
                             throw new ArgumentException($"Key already exists in map: {change.Key}");
                         }
-                        else if (type == UpdateType.TryAdd)
+                        else if (env.Type == UpdateType.TryAdd)
                         {
                             // Already added, so we don't continue to try
                             return (0, this);
                         }
 
-                        var newItems = Set(Items, entryIndex, change, inplace);
+                        var newItems = SetItem(Items, entryIndex, change, env.Mutate);
                         return (0, new Entries(EntryMap, NodeMap, newItems, Nodes));
                     }
                     else
                     {
-                        if (type == UpdateType.SetItem)
+                        if (env.Type == UpdateType.SetItem)
                         {
                             // Key must already exist to set it
                             throw new ArgumentException($"Key already exists in map: {change.Key}");
                         }
-                        else if (type == UpdateType.TrySetItem)
+                        else if (env.Type == UpdateType.TrySetItem)
                         {
                             // Key doesn't exist, so there's nothing to set
                             return (0, this);
@@ -878,18 +899,18 @@ namespace LanguageExt
                     var nodeIndex = BitCount((int)NodeMap & (((int)mask) - 1));
 
                     var nodeToUpdate = Nodes[nodeIndex];
-                    var (cd, newNode) = nodeToUpdate.Update(type, inplace, change, hash, section.Next());
-                    var newNodes = Set(Nodes, nodeIndex, newNode, inplace);
+                    var (cd, newNode) = nodeToUpdate.Update(env, change, hash, section.Next());
+                    var newNodes = SetItem(Nodes, nodeIndex, newNode, env.Mutate);
                     return (cd, new Entries(EntryMap, NodeMap, Items, newNodes));
                 }
                 else
                 {
-                    if (type == UpdateType.SetItem)
+                    if (env.Type == UpdateType.SetItem)
                     {
                         // Key must already exist to set it
                         throw new ArgumentException($"Key doesn't exist in map: {change.Key}");
                     }
-                    else if (type == UpdateType.TrySetItem)
+                    else if (env.Type == UpdateType.TrySetItem)
                     {
                         // Key doesn't exist, so there's nothing to set
                         return (0, this);
@@ -942,7 +963,7 @@ namespace LanguageExt
                 Hash = hash;
             }
 
-            public (bool Found, V Value) GetValue(K key, uint hash, Sec section)
+            public (bool Found, V Value) Read(K key, uint hash, Sec section)
             {
                 foreach (var kv in Items)
                 {
@@ -962,8 +983,8 @@ namespace LanguageExt
                 else if (len == 2)
                 {
                     var (_, n) = default(EqK).Equals(Items[0].Key, key)
-                        ? EmptyNode.Default.Update(UpdateType.Add, false, Items[1], hash, default)
-                        : EmptyNode.Default.Update(UpdateType.Add, false, Items[0], hash, default);
+                        ? EmptyNode.Default.Update((UpdateType.Add, false), Items[1], hash, default)
+                        : EmptyNode.Default.Update((UpdateType.Add, false), Items[0], hash, default);
 
                     return (-1, n);
                 }
@@ -986,7 +1007,7 @@ namespace LanguageExt
                 }
             }
 
-            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, Sec section)
+            public (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
             {
                 var index = -1;
                 for (var i = 0; i < Items.Length; i++)
@@ -1000,28 +1021,28 @@ namespace LanguageExt
 
                 if (index >= 0)
                 {
-                    if (type == UpdateType.Add)
+                    if (env.Type == UpdateType.Add)
                     {
                         // Key already exists - so it's an error to add again
                         throw new ArgumentException($"Key already exists in map: {change.Key}");
                     }
-                    else if (type == UpdateType.TryAdd)
+                    else if (env.Type == UpdateType.TryAdd)
                     {
                         // Already added, so we don't continue to try
                         return (0, this);
                     }
 
-                    var newArr = Set(Items, index, change, false);
+                    var newArr = SetItem(Items, index, change, false);
                     return (0, new Collision(newArr, hash));
                 }
                 else
                 {
-                    if (type == UpdateType.SetItem)
+                    if (env.Type == UpdateType.SetItem)
                     {
                         // Key must already exist to set it
                         throw new ArgumentException($"Key doesn't exist in map: {change.Key}");
                     }
-                    else if (type == UpdateType.TrySetItem)
+                    else if (env.Type == UpdateType.TrySetItem)
                     {
                         // Key doesn't exist, so there's nothing to set
                         return (0, this);
@@ -1050,20 +1071,20 @@ namespace LanguageExt
 
             public Tag Type => Tag.Empty;
 
-            public (bool Found, V Value) GetValue(K key, uint hash, Sec section) =>
+            public (bool Found, V Value) Read(K key, uint hash, Sec section) =>
                 default;
 
             public (int CountDelta, Node Node) Remove(K key, uint hash, Sec section) =>
                 (0, this);
 
-            public (int CountDelta, Node Node) Update(UpdateType type, bool inplace, (K Key, V Value) change, uint hash, Sec section)
+            public (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
             {
-                if (type == UpdateType.SetItem)
+                if (env.Type == UpdateType.SetItem)
                 {
                     // Key must already exist to set it
                     throw new ArgumentException($"Key doesn't exist in map: {change.Key}");
                 }
-                else if (type == UpdateType.TrySetItem)
+                else if (env.Type == UpdateType.TrySetItem)
                 {
                     // Key doesn't exist, so there's nothing to set
                     return (0, this);
@@ -1085,7 +1106,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Merges two key-value pairs into a Node
+        /// Merges two key-value pairs into a single Node
         /// </summary>
         static Node Merge((K, V) pair1, (K, V) pair2, uint pair1Hash, uint pair2Hash, Sec section)
         {
@@ -1128,49 +1149,47 @@ namespace LanguageExt
         /// Counts the number of 1-bits in bitmap
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static int BitCount(int bitmap)
+        static int BitCount(int bits)
         {
-            var count2 = bitmap - ((bitmap >> 1) & 0x55555555);
-            var count4 = (count2 & 0x33333333) + ((count2 >> 2) & 0x33333333);
-            var count8 = (count4 + (count4 >> 4)) & 0x0f0f0f0f;
-            return (count8 * 0x01010101) >> 24;
+            var c2 = bits - ((bits >> 1) & 0x55555555);
+            var c4 = (c2 & 0x33333333) + ((c2 >> 2) & 0x33333333);
+            var c8 = (c4 + (c4 >> 4)) & 0x0f0f0f0f;
+            return (c8 * 0x01010101) >> 24;
         }
 
         /// <summary>
-        /// Finds the number of 1-bits below the bit at "pos"
-        /// Since the array in the ChampHashMap is compressed (does not have room for unfilled values)
-        /// This function is used to find where in the array of entries or nodes the item should be inserted
+        /// Finds the number of set bits below the bit at `location`
+        /// This function is used to find where in the array of entries or nodes 
+        /// the item should be inserted
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static int Index(uint bitmap, int pos) =>
-            BitCount((int)bitmap & (pos - 1));
+        static int Index(uint bits, int location) =>
+            BitCount((int)bits & (location - 1));
 
         /// <summary>
-        /// Finds the number of 1-bits below the bit at "pos"
-        /// Since the array in the ChampHashMap is compressed (does not have room for unfilled values)
-        /// This function is used to find where in the array of entries or nodes the item should be inserted
+        /// Finds the number of 1-bits below the bit at `location`
+        /// This function is used to find where in the array of entries or nodes 
+        /// the item should be inserted
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static int Index(uint bitmap, uint pos) =>
-            BitCount((int)bitmap & (((int)pos) - 1));
+        static int Index(uint bitmap, uint location) =>
+            BitCount((int)bitmap & (((int)location) - 1));
 
         /// <summary>
-        /// Returns the value used to index into the BitVector.  
-        /// The BitVector must be accessed by powers of 2, so to get the nth bit
-        /// the mask must be 2^n
+        /// Returns the value used to index into the bit vector
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static uint Mask(int index) =>
             (uint)(1 << index);
 
         /// <summary>
-        /// Sets the value at index. If inplace is true it sets the 
-        /// value without copying the array. Otherwise it returns a new copy
+        /// Sets the item at index. If mutate is true it sets the 
+        /// value without copying the array, otherwise the operation is pure
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static A[] Set<A>(A[] items, int index, A value, bool inplace)
+        static A[] SetItem<A>(A[] items, int index, A value, bool mutate)
         {
-            if (inplace)
+            if (mutate)
             {
                 items[index] = value;
                 return items;
@@ -1184,6 +1203,9 @@ namespace LanguageExt
             }
         }
 
+        /// <summary>
+        /// Clones part of an existing array
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static A[] Clone<A>(A[] items, int count)
         {
@@ -1192,6 +1214,9 @@ namespace LanguageExt
             return nitems;
         }
 
+        /// <summary>
+        /// Clones an existing array
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static A[] Clone<A>(A[] items)
         {

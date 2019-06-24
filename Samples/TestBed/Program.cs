@@ -37,41 +37,8 @@ class Program
 {
     static void Main(string[] args)
     {
-        Console.ForegroundColor = ConsoleColor.Magenta;
-        Console.WriteLine("\nEnumeration tests");
-        Console.ForegroundColor = ConsoleColor.White;
-
-        HashMapPerf.TestHashMapEnum();
-        HashMapPerf.TestDictionaryEnum();
-        HashMapPerf.TestImmutableDictionaryEnum();
-
-        Console.ForegroundColor = ConsoleColor.Magenta;
-        Console.WriteLine("\nRandom access tests");
-        Console.ForegroundColor = ConsoleColor.White;
-
-        HashMapPerf.TestHashMapRandomAccess();
-        HashMapPerf.TestDictionaryRandomAccess();
-        HashMapPerf.TestImmutableDictionaryRandomAccess();
-
-        Console.ForegroundColor = ConsoleColor.Magenta;
-        Console.WriteLine("\nAdds from empty tests");
-        Console.ForegroundColor = ConsoleColor.White;
-
-        HashMapPerf.TestHashMapFromEmptyAdds();
-        HashMapPerf.TestDictionaryFromEmptyAdds();
-        HashMapPerf.TestImmutableDictionaryFromEmptyAdds();
-
+        HashMapPerf.Run();
         return;
-
-        //SeqPerf.ConsTest();
-        //SeqPerf.LazyTest();
-        SeqPerf.TestSeqStream();
-        SeqPerf.TestEnumStream();
-        SeqPerf.TestStrictEnum();
-        SeqPerf.TestListTEnum();
-        SeqPerf.TestStrict();
-        SeqPerf.TestAdd();
-        SeqPerf.TestCons();
 
         Test533();
 

@@ -11,6 +11,19 @@ namespace TestBed
     {
         const int runs = 5;
 
+        public static void Run()
+        {
+            //SeqPerf.ConsTest();
+            //SeqPerf.LazyTest();
+            SeqPerf.TestSeqStream();
+            SeqPerf.TestEnumStream();
+            SeqPerf.TestStrictEnum();
+            SeqPerf.TestListTEnum();
+            SeqPerf.TestStrict();
+            SeqPerf.TestAdd();
+            SeqPerf.TestCons();
+        }
+
         public static void LazyTest()
         {
             var seq = Seq(Range(0, 5)).Strict();

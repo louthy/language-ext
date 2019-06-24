@@ -13,6 +13,33 @@ namespace TestBed
         const int count = 1000000;
         const int runs = 5;
 
+        public static void Run()
+        {
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine("\nAdds from empty tests");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            HashMapPerf.TestImmutableDictionaryFromEmptyAdds();
+            HashMapPerf.TestDictionaryFromEmptyAdds();
+            HashMapPerf.TestHashMapFromEmptyAdds();
+
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine("\nRandom access tests");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            HashMapPerf.TestImmutableDictionaryRandomAccess();
+            HashMapPerf.TestDictionaryRandomAccess();
+            HashMapPerf.TestHashMapRandomAccess();
+
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine("\nEnumeration tests");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            HashMapPerf.TestImmutableDictionaryEnum();
+            HashMapPerf.TestDictionaryEnum();
+            HashMapPerf.TestHashMapEnum();
+        }
+
         public static void TestHashMapEnum()
         {
             Console.ForegroundColor = ConsoleColor.Green;
