@@ -667,6 +667,141 @@ namespace LanguageExt
         public HashMap<K, V> Subtract(HashMap<K, V> rhs) =>
             Wrap(Value.Subtract(rhs.Value));
 
+        /// <summary>
+        /// Returns True if 'other' is a proper subset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a proper subset of this set</returns>
+        [Pure]
+        public bool IsProperSubsetOf(IEnumerable<(K Key, V Value)> other) =>
+            Value.IsProperSubsetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a proper subset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a proper subset of this set</returns>
+        [Pure]
+        public bool IsProperSubsetOf(IEnumerable<K> other) =>
+            Value.IsProperSubsetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a proper superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a proper superset of this set</returns>
+        [Pure]
+        public bool IsProperSupersetOf(IEnumerable<(K Key, V Value)> other) =>
+            Value.IsProperSupersetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a proper superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a proper superset of this set</returns>
+        [Pure]
+        public bool IsProperSupersetOf(IEnumerable<K> other) =>
+            Value.IsProperSupersetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
+        [Pure]
+        public bool IsSubsetOf(IEnumerable<(K Key, V Value)> other) =>
+            Value.IsSubsetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
+        [Pure]
+        public bool IsSubsetOf(IEnumerable<K> other) =>
+            Value.IsSubsetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
+        [Pure]
+        public bool IsSupersetOf(IEnumerable<(K Key, V Value)> other) =>
+            Value.IsSupersetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
+        [Pure]
+        public bool IsSupersetOf(IEnumerable<K> rhs) =>
+            Value.IsSupersetOf(rhs);
+
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        [Pure]
+        public HashMap<K, V> Intersect(IEnumerable<K> rhs) =>
+            Wrap(Value.Intersect(rhs));
+
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        [Pure]
+        public HashMap<K, V> Intersect(IEnumerable<(K Key, V Value)> rhs) =>
+            Wrap(Value.Intersect(rhs));
+
+        /// <summary>
+        /// Returns True if other overlaps this set
+        /// </summary>
+        [Pure]
+        public bool Overlaps(IEnumerable<(K Key, V Value)> other) =>
+            Overlaps(other);
+
+        /// <summary>
+        /// Returns True if other overlaps this set
+        /// </summary>
+        [Pure]
+        public bool Overlaps(IEnumerable<K> other) =>
+            Value.Overlaps(other);
+
+        /// <summary>
+        /// Returns this - other.  Only the items in this that are not in 
+        /// other will be returned.
+        /// </summary>
+        [Pure]
+        public HashMap<K, V> Except(IEnumerable<K> rhs) =>
+            Wrap(Value.Except(rhs));
+
+        /// <summary>
+        /// Returns this - other.  Only the items in this that are not in 
+        /// other will be returned.
+        /// </summary>
+        [Pure]
+        public HashMap<K, V> Except(IEnumerable<(K Key, V Value)> rhs) =>
+            Wrap(Value.Except(rhs));
+
+        /// <summary>
+        /// Only items that are in one set or the other will be returned.
+        /// If an item is in both, it is dropped.
+        /// </summary>
+        [Pure]
+        public HashMap<K, V> SymmetricExcept(HashMap<K, V> rhs) =>
+            Wrap(Value.SymmetricExcept(rhs.Value));
+
+        /// <summary>
+        /// Only items that are in one set or the other will be returned.
+        /// If an item is in both, it is dropped.
+        /// </summary>
+        [Pure]
+        public HashMap<K, V> SymmetricExcept(IEnumerable<(K Key, V Value)> rhs) =>
+            Wrap(Value.SymmetricExcept(rhs));
+
+        /// <summary>
+        /// Finds the union of two sets and produces a new set with 
+        /// the results
+        /// </summary>
+        /// <param name="other">Other set to union with</param>
+        /// <returns>A set which contains all items from both sets</returns>
+        [Pure]
+        public HashMap<K, V> Union(IEnumerable<(K, V)> rhs) =>
+            this.TryAddRange(rhs);
+
+
         [Pure]
         public override bool Equals(object obj) =>
             obj is HashMap<K, V> && Equals((HashMap<K, V>)obj);

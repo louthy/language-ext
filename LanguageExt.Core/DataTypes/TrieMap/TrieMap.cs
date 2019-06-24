@@ -116,7 +116,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TrieMap<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None)
         {
-            var (found, value) = FindInternal(key);
+            var (found, _, value) = FindInternal(key);
             return found
                 ? AddOrUpdate(key, Some(value))
                 : AddOrUpdate(key, None());
@@ -128,7 +128,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TrieMap<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, V None)
         {
-            var (found, value) = FindInternal(key);
+            var (found, _, value) = FindInternal(key);
             return found
                 ? AddOrUpdate(key, Some(value))
                 : AddOrUpdate(key, None);
@@ -397,11 +397,44 @@ namespace LanguageExt
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                var (found, value) = FindInternal(key);
+                var (found, _, value) = FindInternal(key);
                 return found
                     ? value
                     : throw new ArgumentException($"Key doesn't exist in map: {key}");
             }
+        }
+
+        /// <summary>
+        /// Get a key value pair from a key
+        /// </summary>
+        public (K Key, V Value) Get(K key)
+        {
+            var (found, nkey, value) = FindInternal(key);
+            return found
+                ? (nkey, value)
+                : throw new ArgumentException($"Key doesn't exist in map: {key}");
+        }
+
+        /// <summary>
+        /// Get a key value pair from a key
+        /// </summary>
+        public Option<(K Key, V Value)> GetOption(K key)
+        {
+            var (found, nkey, value) = FindInternal(key);
+            return found
+                ? Some((nkey, value))
+                : default;
+        }
+
+        /// <summary>
+        /// Get a key value pair from a key
+        /// </summary>
+        public Option<K> GetKeyOption(K key)
+        {
+            var (found, nkey, value) = FindInternal(key);
+            return found
+                ? Some(nkey)
+                : default;
         }
 
         /// <summary>
@@ -461,7 +494,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<V> Find(K key)
         {
-            var (found, value) = FindInternal(key);
+            var (found, _, value) = FindInternal(key);
             return found
                 ? Some(value)
                 : default;
@@ -471,7 +504,7 @@ namespace LanguageExt
         /// Returns the value associated with `key`.  Or None, if no key exists
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        (bool Found, V Value) FindInternal(K key)
+        (bool Found, K Key, V Value) FindInternal(K key)
         {
             var hash = (uint)default(EqK).GetHashCode(key);
             Sec section = default;
@@ -663,6 +696,275 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Returns True if 'other' is a proper subset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a proper subset of this set</returns>
+        public bool IsProperSubsetOf(IEnumerable<(K Key, V Value)> other) =>
+            IsProperSubsetOf(other.Map(x => x.Key));
+
+        /// <summary>
+        /// Returns True if 'other' is a proper subset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a proper subset of this set</returns>
+        public bool IsProperSubsetOf(IEnumerable<K> other)
+        {
+            if (IsEmpty)
+            {
+                return other.Any();
+            }
+
+            int matches = 0;
+            bool extraFound = false;
+            foreach (var item in other)
+            {
+                if (ContainsKey(item))
+                {
+                    matches++;
+                }
+                else
+                {
+                    extraFound = true;
+                }
+
+                if (matches == Count && extraFound)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns True if 'other' is a proper superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a proper superset of this set</returns>
+        public bool IsProperSupersetOf(IEnumerable<(K Key, V Value)> other) =>
+            IsProperSupersetOf(other.Map(x => x.Key));
+
+        /// <summary>
+        /// Returns True if 'other' is a proper superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a proper superset of this set</returns>
+        public bool IsProperSupersetOf(IEnumerable<K> other)
+        {
+            if (IsEmpty)
+            {
+                return false;
+            }
+
+            int matchCount = 0;
+            foreach (var item in other)
+            {
+                matchCount++;
+                if (!ContainsKey(item))
+                {
+                    return false;
+                }
+            }
+
+            return Count > matchCount;
+        }
+
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
+        public bool IsSubsetOf(IEnumerable<(K Key, V Value)> other) =>
+            IsSubsetOf(other.Map(x => x.Key));
+
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
+        public bool IsSubsetOf(IEnumerable<K> other)
+        {
+            if (IsEmpty)
+            {
+                return true;
+            }
+
+            int matches = 0;
+            foreach (var item in other)
+            {
+                if (ContainsKey(item))
+                {
+                    matches++;
+                }
+            }
+            return matches == Count;
+        }
+
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
+        public bool IsSupersetOf(IEnumerable<(K Key, V Value)> other) =>
+            IsSupersetOf(other.Map(x => x.Key));
+
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
+        public bool IsSupersetOf(IEnumerable<K> other)
+        {
+            foreach (var item in other)
+            {
+                if (!ContainsKey(item))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Returns True if other overlaps this set
+        /// </summary>
+        public bool Overlaps(IEnumerable<(K Key, V Value)> other) =>
+            Overlaps(other.Map(x => x.Key));
+
+        /// <summary>
+        /// Returns True if other overlaps this set
+        /// </summary>
+        public bool Overlaps(IEnumerable<K> other)
+        {
+            if (IsEmpty)
+            {
+                return false;
+            }
+
+            foreach (var item in other)
+            {
+                if (ContainsKey(item))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        public TrieMap<EqK, K, V> Intersect(IEnumerable<K> other)
+        {
+            var res = new List<(K, V)>();
+            foreach (var item in other)
+            {
+                var litem = GetOption(item);
+                if (litem.IsSome) res.Add(((K, V))litem);
+            }
+            return new TrieMap<EqK, K, V>(res);
+        }
+
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        public TrieMap<EqK, K, V> Intersect(IEnumerable<(K Key, V Value)> other)
+        {
+            var res = new List<(K, V)>();
+            foreach (var item in other)
+            {
+                var litem = GetOption(item.Key);
+                if (litem.IsSome) res.Add(((K, V))litem);
+            }
+            return new TrieMap<EqK, K, V>(res);
+        }
+
+        /// <summary>
+        /// Returns this - other.  Only the items in this that are not in 
+        /// other will be returned.
+        /// </summary>
+        public TrieMap<EqK, K, V> Except(IEnumerable<K> other)
+        {
+            var self = this;
+            foreach (var item in other)
+            {
+                self = self.Remove(item);
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// Returns this - other.  Only the items in this that are not in 
+        /// other will be returned.
+        /// </summary>
+        public TrieMap<EqK, K, V> Except(IEnumerable<(K Key, V Value)> other)
+        {
+            var self = this;
+            foreach (var item in other)
+            {
+                self = self.Remove(item.Key);
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// Only items that are in one set or the other will be returned.
+        /// If an item is in both, it is dropped.
+        /// </summary>
+        public TrieMap<EqK, K, V> SymmetricExcept(TrieMap<EqK, K, V> rhs)
+        {
+            var res = new List<(K Key, V Value)>();
+
+            foreach (var item in this)
+            {
+                if (!rhs.ContainsKey(item.Key))
+                {
+                    res.Add(item);
+                }
+            }
+
+            foreach (var item in rhs)
+            {
+                if (!ContainsKey(item.Key))
+                {
+                    res.Add(item);
+                }
+            }
+
+            return new TrieMap<EqK, K, V>(res);
+        }
+
+        /// <summary>
+        /// Only items that are in one set or the other will be returned.
+        /// If an item is in both, it is dropped.
+        /// </summary>
+        public TrieMap<EqK, K, V> SymmetricExcept(IEnumerable<(K Key, V Value)> other)
+        {
+            var rhs = other.ToDictionary(kv => kv.Key, kv => kv.Value);
+            var res = new List<(K Key, V Value)>();
+
+            foreach (var item in this)
+            {
+                if (!rhs.ContainsKey(item.Key))
+                {
+                    res.Add(item);
+                }
+            }
+
+            foreach (var item in other)
+            {
+                if (!ContainsKey(item.Key))
+                {
+                    res.Add(item);
+                }
+            }
+
+            return new TrieMap<EqK, K, V>(res);
+        }
+
+        /// <summary>
+        /// Finds the union of two sets and produces a new set with 
+        /// the results
+        /// </summary>
+        /// <param name="other">Other set to union with</param>
+        /// <returns>A set which contains all items from both sets</returns>
+        public TrieMap<EqK, K, V> Union(IEnumerable<(K, V)> other) =>
+            this.TryAddRange(other);
+
+        /// <summary>
         /// Nodes in the CHAMP hash trie map can be in one of three states:
         /// 
         ///     Empty - nothing in the map
@@ -673,7 +975,7 @@ namespace LanguageExt
         internal interface Node : IEnumerable<(K, V)>
         {
             Tag Type { get; }
-            (bool Found, V Value) Read(K key, uint hash, Sec section);
+            (bool Found, K Key, V Value) Read(K key, uint hash, Sec section);
             (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section);
             (int CountDelta, Node Node) Remove(K key, uint hash, Sec section);
         }
@@ -724,9 +1026,12 @@ namespace LanguageExt
                     var ind = Index(EntryMap, mask);
                     if (default(EqK).Equals(Items[ind].Key, key))
                     {
-                        var newMap = Bit.Set(EntryMap, mask, false);
-                        var newItems = RemoveAt(Items, ind);
-                        return (-1, new Entries(newMap, NodeMap, newItems, Nodes));
+                        return (-1, 
+                            new Entries(
+                                Bit.Set(EntryMap, mask, false), 
+                                NodeMap,
+                                RemoveAt(Items, ind), 
+                                Nodes));
                     }
                     else
                     {
@@ -744,22 +1049,21 @@ namespace LanguageExt
 
                             var subEntries = (Entries)subNode;
 
-                            var (subItemMap, subNodeMap, subItems, subNodes) = subEntries;
-                            if (subItems.Length == 1 && subNodes.Length == 0)
+                            if (subEntries.Items.Length == 1 && subEntries.Nodes.Length == 0)
                             {
                                 // If the node only has one subnode, make that subnode the new node
                                 if (Items.Length == 0 && Nodes.Length == 1)
                                 {
-                                    return (cd, new Entries(subItemMap, subNodeMap, subItems, subNodes));
+                                    return (cd, subEntries);
                                 }
                                 else
                                 {
-                                    var indexToInsert = Index(EntryMap, mask);
-                                    var newNodeMap = Bit.Set(NodeMap, mask, false);
-                                    var newEntryMap = Bit.Set(EntryMap, mask, true);
-                                    var newEntries = Insert(Items, indexToInsert, subItems[0]);
-                                    var newNodes = RemoveAt(Nodes, ind);
-                                    return (cd, new Entries(newEntryMap, newNodeMap, newEntries, newNodes));
+                                    return (cd, 
+                                        new Entries(
+                                            Bit.Set(EntryMap, mask, true), 
+                                            Bit.Set(NodeMap, mask, false),
+                                            Insert(Items, Index(EntryMap, mask), subEntries.Items[0]),
+                                            RemoveAt(Nodes, ind)));
                                 }
                             }
                             else
@@ -785,7 +1089,7 @@ namespace LanguageExt
                 }
             }
 
-            public (bool Found, V Value) Read(K key, uint hash, Sec section)
+            public (bool Found, K Key, V Value) Read(K key, uint hash, Sec section)
             {                                                                                         
                 // var hashIndex = Bit.Get(hash, section);
                 // Mask(hashIndex)
@@ -798,7 +1102,8 @@ namespace LanguageExt
                     var entryIndex = BitCount((int)EntryMap & (((int)mask) - 1));                     
                     if (default(EqK).Equals(Items[entryIndex].Key, key))
                     {
-                        return (true, Items[entryIndex].Value);
+                        var item = Items[entryIndex];
+                        return (true, item.Key, item.Value);
                     }
                     else
                     {
@@ -963,13 +1268,13 @@ namespace LanguageExt
                 Hash = hash;
             }
 
-            public (bool Found, V Value) Read(K key, uint hash, Sec section)
+            public (bool Found, K Key, V Value) Read(K key, uint hash, Sec section)
             {
                 foreach (var kv in Items)
                 {
                     if (default(EqK).Equals(kv.Key, key))
                     {
-                        return (true, kv.Value);
+                        return (true, kv.Key, kv.Value);
                     }
                 }
                 return default;
@@ -1071,7 +1376,7 @@ namespace LanguageExt
 
             public Tag Type => Tag.Empty;
 
-            public (bool Found, V Value) Read(K key, uint hash, Sec section) =>
+            public (bool Found, K Key, V Value) Read(K key, uint hash, Sec section) =>
                 default;
 
             public (int CountDelta, Node Node) Remove(K key, uint hash, Sec section) =>
