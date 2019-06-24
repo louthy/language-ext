@@ -37,8 +37,10 @@ class Program
 {
     static void Main(string[] args)
     {
-        HashMapPerf.Run();
+        SeqPerf.Broken1();
         return;
+        HashMapPerf.Run();
+        SeqPerf.Run();
 
         Test533();
 

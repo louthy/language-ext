@@ -346,5 +346,36 @@ namespace TestBed
             }
         }
 
+
+        public static void Broken1()
+        {
+            var x1 = new Foo("1", 1);
+            var x2 = new Foo("2", 2);
+
+            var xs = Seq<Foo>();
+            var xs1 = x1.Cons(xs);
+            var xs2 = x2.Cons(xs1);
+
+            var res = xs2.Filter(t => t.Str == "2");
+
+            foreach (var r in res)
+            {
+                Console.WriteLine(r.Str);
+            }
+
+            Console.ReadLine();
+        }
+
+        class Foo
+        {
+            public readonly string Str;
+            public readonly int Num;
+
+            public Foo(string str, int num)
+            {
+                Str = str;
+                Num = num;
+            }
+        }
     }
 }

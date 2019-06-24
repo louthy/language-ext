@@ -396,7 +396,7 @@ namespace LanguageExt
                 var item = data[i];
                 if (f(data[i]))
                 {
-                    ndata[ncount] = item;
+                    ndata[start + ncount] = item;
                     ncount++;
                 }
             }
