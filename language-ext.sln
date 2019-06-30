@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecordsNetCore", "Samples\R
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.Rx", "LanguageExt.Rx\LanguageExt.Rx.csproj", "{A191CF80-FC53-4142-9769-CF949F3277B9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.CodeGen", "LanguageExt.CodeGen\LanguageExt.CodeGen.csproj", "{4057F3E0-BD39-43BA-94DE-72195B136394}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.CodeGen", "LanguageExt.RoslynCodeGen\LanguageExt.CodeGen.csproj", "{4057F3E0-BD39-43BA-94DE-72195B136394}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
