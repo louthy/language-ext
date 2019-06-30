@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>LanguageExt.Core</id>
+        <version>3.1.9-beta</version>
+        <title>LanguageExt.Core</title>
+        <authors>Paul Louth</authors>
+        <owners>Paul Louth</owners>
+        <licenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/louthy/language-ext</projectUrl>
+        <iconUrl>https://raw.githubusercontent.com/louthy/language-ext/master/backers-images/lang-ext-thumb.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>This library uses and abuses the features of C# 6 and 7 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself.</description>
+        <copyright>Copyright (c) Paul Louth. All rights reserved.</copyright>
+        <tags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</tags>
+        <dependencies>
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="Microsoft.CSharp" version="4.5.0" exclude="Build,Analyzers" />
+                <dependency id="System.Reflection.Emit" version="4.3.0" exclude="Build,Analyzers" />
+                <dependency id="System.ValueTuple" version="4.5.0" exclude="Build,Analyzers" />
+            </group>
+            <group targetFramework=".NETStandard2.0">
+                <dependency id="Microsoft.CSharp" version="4.5.0" exclude="Build,Analyzers" />
+                <dependency id="System.Diagnostics.Contracts" version="4.3.0" exclude="Build,Analyzers" />
+                <dependency id="System.Globalization.Extensions" version="4.3.0" exclude="Build,Analyzers" />
+                <dependency id="System.Linq" version="4.3.0" exclude="Build,Analyzers" />
+                <dependency id="System.Linq.Queryable" version="4.3.0" exclude="Build,Analyzers" />
+                <dependency id="System.Reflection.Emit" version="4.3.0" exclude="Build,Analyzers" />
+                <dependency id="System.Reflection.Emit.Lightweight" version="4.3.0" exclude="Build,Analyzers" />
+                <dependency id="System.Runtime.Serialization.Formatters" version="4.3.0" exclude="Build,Analyzers" />
+                <dependency id="System.ValueTuple" version="4.5.0" exclude="Build,Analyzers" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="lib\net45\LanguageExt.Core.dll" target="lib\net45\LanguageExt.Core.dll" />
+        <file src="lib\net45\LanguageExt.Core.xml" target="lib\net45\LanguageExt.Core.xml" />
+        <file src="lib\netstandard2.0\LanguageExt.Core.dll" target="lib\netstandard2.0\LanguageExt.Core.dll" />
+        <file src="lib\netstandard2.0\LanguageExt.Core.xml" target="lib\netstandard2.0\LanguageExt.Core.xml" />
+    </files>
+</package>
