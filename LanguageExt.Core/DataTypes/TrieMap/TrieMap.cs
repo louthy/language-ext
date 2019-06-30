@@ -16,7 +16,7 @@ namespace LanguageExt
     /// https://michael.steindorfer.name/publications/phd-thesis-efficient-immutable-collections.pdf
     /// </summary>
     /// <remarks>
-    /// Used by internally by `LanguageExt.HashMap`
+    /// Used by internally by `LanguageExt.HashMap` and `LanguageExt.HashSet`
     /// </remarks>
     internal class TrieMap<EqK, K, V> :
         IEnumerable<(K Key, V Value)>,
@@ -1074,7 +1074,6 @@ namespace LanguageExt
                             }
 
                         case Tag.Collision:
-                            var collNode = (Collision)subNode;
                             var nodeCopy2 = Clone(Nodes);
                             nodeCopy2[ind] = subNode;
                             return (cd, new Entries(EntryMap, NodeMap, Items, nodeCopy2));
