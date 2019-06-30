@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" />
+        <ProjectReference Include="..\..\LanguageExt.RoslynCodeGen\LanguageExt.CodeGen.csproj" />
         <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
         <ProjectReference Include="..\..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
         <ProjectReference Include="..\..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />
