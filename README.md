@@ -42,7 +42,7 @@ To make the reference **build and design time only** (i.e. your project doesn't 
 <PackageReference Include="LanguageExt.CodeGen" Version="3.1.24" PrivateAssets="all" />
 ```
 
-> Obviously, update the `Version` attributes to the appropriate values
+> Obviously, update the `Version` attributes to the appropriate values.  Also note that you will probably need the latest VS2019+ for this to work.  Even early versions of VS2019 seem to have problems.
 
 ## Unity
 
