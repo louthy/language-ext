@@ -133,6 +133,7 @@ namespace LanguageExt.UnitsOfMeasure
         public double Millimetres => Value * 1000.0;
         public double Micrometres => Value * 1000000.0;
         public double Nanometres  => Value * 1000000000.0;
+        public double Angstroms   => Value * 10000000000.0;
     }
 
     public static class UnitsLengthExtensions
@@ -226,5 +227,14 @@ namespace LanguageExt.UnitsOfMeasure
 
         public static Length Nanometres(this double self) =>
             new Length(self / 1000000000.0);
+
+        public static Length Angstroms(this int self) =>
+            new Length(self / 10000000000.0);
+
+        public static Length Angstroms(this float self) =>
+            new Length(self / 10000000000.0);
+
+        public static Length Angstroms(this double self) =>
+            new Length(self / 10000000000.0);
     }
 }

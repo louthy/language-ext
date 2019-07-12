@@ -508,21 +508,21 @@ namespace LanguageExt
 
 
         /// <summary>
-        /// Create an immutable queue
+        /// Create an immutable array
         /// </summary>
         [Pure]
         public static Arr<T> Array<T>() =>
             Arr<T>.Empty;
 
         /// <summary>
-        /// Create an immutable queue
+        /// Create an immutable array
         /// </summary>
         [Pure]
         public static Arr<T> Array<T>(T x, params T[] xs) =>
             new Arr<T>(x.Cons(xs).ToArray());
 
         /// <summary>
-        /// Create an immutable queue
+        /// Create an immutable array
         /// </summary>
         [Pure]
         public static Arr<T> toArray<T>(IEnumerable<T> items) =>

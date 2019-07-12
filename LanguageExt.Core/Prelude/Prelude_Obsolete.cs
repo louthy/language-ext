@@ -167,7 +167,7 @@ namespace LanguageExt
             new Lst<T>(items);
 
         /// <summary>
-        /// Create an immutable queue
+        /// Create an immutable array
         /// </summary>
         [Obsolete("Use 'Array'.  All constructor functions are renamed to have their first letter as a capital.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -175,7 +175,7 @@ namespace LanguageExt
             new T[0];
 
         /// <summary>
-        /// Create an immutable queue
+        /// Create an immutable array
         /// </summary>
         [Obsolete("Use 'Array'.  All constructor functions are renamed to have their first letter as a capital.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -183,7 +183,7 @@ namespace LanguageExt
             new T[1] {item};
 
         /// <summary>
-        /// Create an immutable queue
+        /// Create an immutable array
         /// </summary>
         [Obsolete("Use 'Array'.  All constructor functions are renamed to have their first letter as a capital.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
