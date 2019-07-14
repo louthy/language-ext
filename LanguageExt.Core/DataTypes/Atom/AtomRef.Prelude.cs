@@ -28,8 +28,8 @@ namespace LanguageExt
         /// coordinated with any other, and for which you wish to make synchronous changes.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static AtomValue<A> AtomValue<A>(A value) where A : struct =>
-            LanguageExt.AtomValue<A>.New(value);
+        public static AtomRef<A> AtomRef<A>(A value) where A : class =>
+            LanguageExt.AtomRef<A>.New(value);
 
         /// <summary>
         /// Atoms provide a way to manage shared, synchronous, independent state without 
@@ -61,8 +61,8 @@ namespace LanguageExt
         /// coordinated with any other, and for which you wish to make synchronous changes.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Option<AtomValue<A>> AtomValue<A>(A value, Func<A, bool> validator) where A : struct =>
-            LanguageExt.AtomValue<A>.New(value, validator);
+        public static Option<AtomRef<A>> AtomRef<A>(A value, Func<A, bool> validator) where A : class =>
+            LanguageExt.AtomRef<A>.New(value, validator);
 
         /// <summary>
         /// Atoms provide a way to manage shared, synchronous, independent state without 
@@ -88,8 +88,8 @@ namespace LanguageExt
         /// coordinated with any other, and for which you wish to make synchronous changes.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static AtomValue<M, A> AtomValue<M, A>(M metadata, A value) where A : struct =>
-            LanguageExt.AtomValue<M, A>.New(metadata, value);
+        public static AtomRef<M, A> AtomRef<M, A>(M metadata, A value) where A : class =>
+            LanguageExt.AtomRef<M, A>.New(metadata, value);
 
         /// <summary>
         /// Atoms provide a way to manage shared, synchronous, independent state without 
@@ -122,8 +122,8 @@ namespace LanguageExt
         /// coordinated with any other, and for which you wish to make synchronous changes.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Option<AtomValue<M, A>> AtomValue<M, A>(M metadata, A value, Func<A, bool> validator) where A : struct =>
-            LanguageExt.AtomValue<M, A>.New(metadata, value, validator);
+        public static Option<AtomRef<M, A>> AtomRef<M, A>(M metadata, A value, Func<A, bool> validator) where A : class =>
+            LanguageExt.AtomRef<M, A>.New(metadata, value, validator);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -135,7 +135,7 @@ namespace LanguageExt
         /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
         /// will only be returned if the `validator` fails.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool swap<A>(AtomValue<A> atom, Func<A, A> f) where A : struct =>
+        public static bool swap<A>(AtomRef<A> atom, Func<A, A> f) where A : class =>
             atom.Swap(f);
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace LanguageExt
         /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
         /// will only be returned if the `validator` fails.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool swap<M, A>(AtomValue<M, A> atom, Func<M, A, A> f) where A : struct => 
+        public static bool swap<M, A>(AtomRef<M, A> atom, Func<M, A, A> f) where A : class => 
             atom.Swap(f);
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace LanguageExt
         /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
         /// will only be returned if the `validator` fails.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool swap<X, A>(AtomValue<A> atom, X x, Func<X, A, A> f) where A : struct =>
+        public static bool swap<X, A>(AtomRef<A> atom, X x, Func<X, A, A> f) where A : class =>
             atom.Swap(x, f);
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace LanguageExt
         /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
         /// will only be returned if the `validator` fails.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool swap<M, X, A>(AtomValue<M, A> atom, X x, Func<M, X, A, A> f) where A : struct =>
+        public static bool swap<M, X, A>(AtomRef<M, A> atom, X x, Func<M, X, A, A> f) where A : class =>
             atom.Swap(x, f);
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace LanguageExt
         /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
         /// will only be returned if the `validator` fails.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool swap<X, Y, A>(AtomValue<A> atom, X x, Y y, Func<X, Y, A, A> f) where A : struct =>
+        public static bool swap<X, Y, A>(AtomRef<A> atom, X x, Y y, Func<X, Y, A, A> f) where A : class =>
             atom.Swap(x, y, f);
 
         /// <summary>
@@ -206,7 +206,7 @@ namespace LanguageExt
         /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
         /// will only be returned if the `validator` fails.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool swap<M, X, Y, A>(AtomValue<M, A> atom, X x, Y y, Func<M, X, Y, A, A> f) where A : struct =>
+        public static bool swap<M, X, Y, A>(AtomRef<M, A> atom, X x, Y y, Func<M, X, Y, A, A> f) where A : class =>
             atom.Swap(x, y, f);
     }
 }

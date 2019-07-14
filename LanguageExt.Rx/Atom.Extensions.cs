@@ -7,7 +7,7 @@ namespace LanguageExt
 {
     public static class AtomExtensions
     {
-        public static IObservable<A> OnChange<A>(this Atom<A> atom) where A : class =>
+        public static IObservable<A> OnChange<A>(this AtomRef<A> atom) where A : class =>
             Observable.FromEvent<A>(
                 add =>
                 {
@@ -18,7 +18,7 @@ namespace LanguageExt
                     atom.Change -= new AtomChangedEvent<A>(remove);
                 });
 
-        public static IObservable<A> OnChange<A>(this AtomValue<A> atom) where A : struct =>
+        public static IObservable<A> OnChange<A>(this Atom<A> atom) where A : struct =>
             Observable.FromEvent<A>(
                 add =>
                 {

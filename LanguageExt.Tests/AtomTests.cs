@@ -11,7 +11,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void ConstructAndSwap()
         {
-            var atom = AtomValue(Set("A", "B", "C"));
+            var atom = Atom(Set("A", "B", "C"));
 
             atom.Swap(old => old.Add("D"));
             atom.Swap(old => old.Add("E"));
