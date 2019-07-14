@@ -8,6 +8,8 @@ namespace LanguageExt.Tests
 {
     public class AtomTests
     {
+        class Env { }
+
         [Fact]
         public void ConstructAndSwap()
         {
@@ -19,5 +21,16 @@ namespace LanguageExt.Tests
 
             Debug.Assert(atom == Set("A", "B", "C", "D", "E", "F"));
         }
+
+        [Fact]
+        public void ConstructWithMetaDataAndSwap()
+        {
+            var atom = Atom(Set(1, 2, 3));
+
+            atom.Swap(4, 5, (x, y, old) => old.Add(x).Add(y));
+
+            Debug.Assert(atom == Set(1, 2, 3, 4, 5));
+        }
+
     }
 }

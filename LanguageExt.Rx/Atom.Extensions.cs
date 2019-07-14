@@ -28,5 +28,28 @@ namespace LanguageExt
                 {
                     atom.Change -= new AtomChangedEvent<A>(remove);
                 });
+
+        public static IObservable<A> OnChange<M, A>(this AtomRef<M, A> atom) where A : class =>
+            Observable.FromEvent<A>(
+                add =>
+                {
+                    atom.Change += new AtomChangedEvent<A>(add);
+                },
+                remove =>
+                {
+                    atom.Change -= new AtomChangedEvent<A>(remove);
+                });
+
+        public static IObservable<A> OnChange<M, A>(this Atom<M, A> atom) where A : struct =>
+            Observable.FromEvent<A>(
+                add =>
+                {
+                    atom.Change += new AtomChangedEvent<A>(add);
+                },
+                remove =>
+                {
+                    atom.Change -= new AtomChangedEvent<A>(remove);
+                });
+
     }
 }
