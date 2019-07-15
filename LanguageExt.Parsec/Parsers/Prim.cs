@@ -15,6 +15,14 @@ namespace LanguageExt.Parsec
     /// </summary>
     public static class Prim
     {
+        static Prim()
+        {
+            unitp = inp => EmptyOK(unit, inp);
+            getPos = (PString inp) => ConsumedOK(inp.Pos, inp);
+            getIndex = (PString inp) => ConsumedOK(inp.Index, inp);
+            eof = notFollowedBy(satisfy(_ => true)).label("end of input");
+        }
+
         /// <summary>
         /// Run the parser p with the input provided
         /// </summary>
@@ -38,8 +46,7 @@ namespace LanguageExt.Parsec
         /// makes it easier to put breakpoints on the actual first parser
         /// in an expression.  It returns unit
         /// </summary>
-        public static Parser<Unit> unitp =>
-            inp => EmptyOK(unit, inp);
+        public static Parser<Unit> unitp;
 
         /// <summary>
         /// Special parser for setting user-state that propagates 
@@ -64,14 +71,12 @@ namespace LanguageExt.Parsec
         /// Get the current position of the parser in the source as a line
         /// and column index (starting at 1 for both)
         /// </summary>
-        public static readonly Parser<Pos> getPos =
-            (PString inp) => ConsumedOK(inp.Pos, inp);
+        public static readonly Parser<Pos> getPos;
 
         /// <summary>
         /// Get the current index into the source
         /// </summary>
-        public static readonly Parser<int> getIndex =
-            (PString inp) => ConsumedOK(inp.Index, inp);
+        public static readonly Parser<int> getIndex;
 
         /// <summary>
         /// The parser unexpected(msg) always fails with an Unexpect error
@@ -706,8 +711,7 @@ namespace LanguageExt.Parsec
         /// This parser only succeeds at the end of the input. This is not a
         /// primitive parser but it is defined using 'notFollowedBy'.
         /// </summary>
-        public readonly static Parser<Unit> eof =
-            notFollowedBy(anyChar).label("end of input");
+        public readonly static Parser<Unit> eof;
 
         /// <summary>
         /// notFollowedBy(p) only succeeds when parser p fails. This parser

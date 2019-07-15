@@ -14,6 +14,32 @@ namespace LanguageExt.Parsec
     /// </summary>
     public static class Char
     {
+        static Char()
+        {
+            space = satisfy(System.Char.IsWhiteSpace).label("space");
+            spaces = skipMany(space).label("white space");
+            control = satisfy(System.Char.IsControl).label("control");
+            tab = satisfy(c => c == '\t').label("tab");
+            newline = satisfy(c => c == '\n').label("lf new-line");
+            CR = satisfy(c => c == '\r').label("cr carriage-return");
+            CRLF = (from cr in ch('\r')
+                    from nl in ch('\n')
+                    select nl)
+                   .label("crlf new-line");
+            endOfLine = either(newline, CRLF).label("new-line");
+            digit = satisfy(System.Char.IsDigit).label("digit");
+            letter = satisfy(System.Char.IsLetter).label("letter");
+            alphaNum = satisfy(System.Char.IsLetterOrDigit).label("letter or digit");
+            lower = satisfy(System.Char.IsLower).label("lowercase letter");
+            upper = satisfy(System.Char.IsUpper).label("uppercase letter");
+            punctuation = satisfy(System.Char.IsPunctuation).label("punctuation");
+            separator = satisfy(System.Char.IsSeparator).label("separator");
+            symbolchar = satisfy(System.Char.IsSymbol).label("symbolchar");
+            octDigit = satisfy(c => "01234567".Contains(c)).label("octal digit");
+            hexDigit = satisfy(c => System.Char.IsDigit(c) || "abcdefABCDEF".Contains(c)).label("hexadecimal digit");
+            anyChar = satisfy(_ => true);
+        }
+
         /// <summary>
         /// ch(c) parses a single character c
         /// </summary>
@@ -96,135 +122,111 @@ namespace LanguageExt.Parsec
         /// Parses a white space character (any character which satisfies 'System.Char.IsWhiteSpace')
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> space =
-            satisfy(System.Char.IsWhiteSpace).label("space");
+        public static readonly Parser<char> space;
 
         /// <summary>
         /// Skips zero or more white space characters. See also 'skipMany'.
         /// </summary>
-        public static readonly Parser<Unit> spaces =
-            skipMany(space).label("white space");
+        public static readonly Parser<Unit> spaces;
 
         /// <summary>
         /// Parses a control character
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> control =
-            satisfy(System.Char.IsControl).label("control");
+        public static readonly Parser<char> control;
 
         /// <summary>
         /// Parses a tab
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> tab =
-            satisfy(c => c == '\t').label("tab");
+        public static readonly Parser<char> tab;
 
         /// <summary>
         /// Parses a line-feed newline char (\n)
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> newline =
-            satisfy(c => c == '\n').label("lf new-line");
+        public static readonly Parser<char> newline;
 
         /// <summary>
         /// Parses a carriage-return char (\r)
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> CR =
-            satisfy(c => c == '\r').label("cr carriage-return");
+        public static readonly Parser<char> CR;
 
         /// <summary>
         /// Parses a carriage-return then line-feed
         /// Returns the new-line.
         /// </summary>
-        public static readonly Parser<char> CRLF =
-            (from cr in ch('\r')
-             from nl in ch('\n')
-             select nl)
-            .label("crlf new-line");
+        public static readonly Parser<char> CRLF;
 
         /// <summary>
         /// Parses a CRLF (see 'crlf') or LF (see 'newline') end-of-line.
         /// Returns a newline character(\'\\n\').
         /// </summary>
-        public static readonly Parser<char> endOfLine =
-             either(newline, CRLF).label("new-line");
+        public static readonly Parser<char> endOfLine;
 
         /// <summary>
         /// Parses a digit
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> digit =
-            satisfy(System.Char.IsDigit).label("digit");
+        public static readonly Parser<char> digit;
 
         /// <summary>
         /// Parses a letter
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> letter =
-            satisfy(System.Char.IsLetter).label("letter");
+        public static readonly Parser<char> letter;
 
         /// <summary>
         /// Parses a letter or digit
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> alphaNum =
-            satisfy(System.Char.IsLetterOrDigit).label("letter or digit");
+        public static readonly Parser<char> alphaNum;
 
         /// <summary>
         /// Parses a lowercase letter
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> lower =
-            satisfy(System.Char.IsLower).label("lowercase letter");
+        public static readonly Parser<char> lower;
 
         /// <summary>
         /// Parses a uppercase letter
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> upper =
-            satisfy(System.Char.IsUpper).label("uppercase letter");
+        public static readonly Parser<char> upper;
 
         /// <summary>
         /// Parses a punctuation character
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> punctuation =
-            satisfy(System.Char.IsPunctuation).label("punctuation");
+        public static readonly Parser<char> punctuation;
 
         /// <summary>
         /// Parses a separator character
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> separator =
-            satisfy(System.Char.IsSeparator).label("separator");
+        public static readonly Parser<char> separator;
 
         /// <summary>
         /// Parses a symbol character
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> symbolchar =
-            satisfy(System.Char.IsSymbol).label("symbolchar");
+        public static readonly Parser<char> symbolchar;
 
         /// <summary>
         /// Parses an octal digit (0-7)
         /// </summary>
-        public readonly static Parser<char> octDigit =
-            satisfy(c => "01234567".Contains(c))
-           .label("octal digit");
+        public readonly static Parser<char> octDigit;
 
         /// <summary>
         /// Parses a hex digit (0-F | 0-f)
         /// </summary>
-        public readonly static Parser<char> hexDigit =
-            satisfy(c => System.Char.IsDigit(c) || "abcdefABCDEF".Contains(c))
-           .label("hexadecimal digit");
+        public readonly static Parser<char> hexDigit;
 
         /// <summary>
         /// The parser anyChar accepts any kind of character.
         /// </summary>
-        public readonly static Parser<char> anyChar =
-            satisfy(_ => true);
+        public readonly static Parser<char> anyChar;
 
         /// <summary>
         /// Parse a string
