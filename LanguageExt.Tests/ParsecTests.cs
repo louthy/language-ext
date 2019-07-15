@@ -548,5 +548,11 @@ namespace LanguageExtTests
             Assert.True(r4.IfLeft("x") == "1234");
             Assert.True(r5.IfLeft("x") == "1234");
         }
+        
+        [Fact]
+        public void ParallelCheck()
+        {
+            Parallel.ForEach(Enumerable.Repeat("", 4), str => parse(from _ in eof select unit, str));
+        }
     }
 }
