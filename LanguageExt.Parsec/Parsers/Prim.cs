@@ -46,7 +46,7 @@ namespace LanguageExt.Parsec
         /// makes it easier to put breakpoints on the actual first parser
         /// in an expression.  It returns unit
         /// </summary>
-        public static Parser<Unit> unitp;
+        public static readonly Parser<Unit> unitp;
 
         /// <summary>
         /// Special parser for setting user-state that propagates 
