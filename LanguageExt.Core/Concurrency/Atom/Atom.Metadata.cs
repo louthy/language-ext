@@ -27,6 +27,7 @@ namespace LanguageExt
     /// </remarks>
     public sealed class Atom<M, A> where A : struct
     {
+        const int maxRetries = 500;
         Box value;
         Func<A, bool> validator;
         readonly M metadata;
@@ -78,8 +79,10 @@ namespace LanguageExt
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
-            while (true)
+            var retries = maxRetries;
+            while (retries > 0)
             {
+                retries--;
                 var current = value;
                 var newValue = Box.New(f(metadata, current.Value));
                 if (!validator(newValue.Value))
@@ -93,7 +96,10 @@ namespace LanguageExt
                     Change?.Invoke(newValue.Value);
                     return true;
                 }
+                SpinWait sw = default;
+                sw.SpinOnce();
             }
+            throw new DeadlockException();
         }
 
         /// <summary>
@@ -109,8 +115,10 @@ namespace LanguageExt
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
-            while (true)
+            var retries = maxRetries;
+            while (retries > 0)
             {
+                retries--;
                 var current = value;
                 var newValue = Box.New(f(metadata, x, current.Value));
                 if (!validator(newValue.Value))
@@ -124,7 +132,10 @@ namespace LanguageExt
                     Change?.Invoke(newValue.Value);
                     return true;
                 }
+                SpinWait sw = default;
+                sw.SpinOnce();
             }
+            throw new DeadlockException();
         }
 
         /// <summary>
@@ -141,8 +152,10 @@ namespace LanguageExt
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
-            while (true)
+            var retries = maxRetries;
+            while (retries > 0)
             {
+                retries--;
                 var current = value;
                 var newValue = Box.New(f(metadata, x, y, current.Value));
                 if (!validator(newValue.Value))
@@ -156,7 +169,10 @@ namespace LanguageExt
                     Change?.Invoke(newValue.Value);
                     return true;
                 }
+                SpinWait sw = default;
+                sw.SpinOnce();
             }
+            throw new DeadlockException();
         }
 
         /// <summary>

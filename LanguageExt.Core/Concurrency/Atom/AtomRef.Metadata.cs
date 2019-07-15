@@ -25,10 +25,12 @@ namespace LanguageExt
     /// Atoms are an efficient way to represent some state that will never need to be 
     /// coordinated with any other, and for which you wish to make synchronous changes.
     /// </remarks>
-    public sealed class AtomRef<A> where A : class
+    public sealed class AtomRef<M, A> where A : class
     {
+        const int maxRetries = 500;
         A value;
         Func<A, bool> validator;
+        readonly M metadata;
 
         public event AtomChangedEvent<A> Change;
 
@@ -36,9 +38,10 @@ namespace LanguageExt
         /// Constructor
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        AtomRef(A value, Func<A, bool> validator)
+        AtomRef(M metadata, A value, Func<A, bool> validator)
         {
             this.value = value;
+            this.metadata = metadata;
             this.validator = validator;
         }
 
@@ -49,9 +52,9 @@ namespace LanguageExt
         /// forward.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static Option<AtomRef<A>> New(A value, Func<A, bool> validator)
+        internal static Option<AtomRef<M, A>> New(M metadata, A value, Func<A, bool> validator)
         {
-            var atom = new AtomRef<A>(value, validator ?? throw new ArgumentNullException(nameof(validator)));
+            var atom = new AtomRef<M, A>(metadata, value, validator ?? throw new ArgumentNullException(nameof(validator)));
             return validator(value)
                 ? Some(atom)
                 : None;
@@ -61,8 +64,8 @@ namespace LanguageExt
         /// Internal constructor
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static AtomRef<A> New(A value) =>
-            new AtomRef<A>(value, True);
+        internal static AtomRef<M, A> New(M metadata, A value) =>
+            new AtomRef<M, A>(metadata, value, True);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -72,14 +75,16 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
         /// will only be returned if the `validator` fails.</returns>
-        public bool Swap(Func<A, A> f)
+        public bool Swap(Func<M, A, A> f)
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
-            while (true)
+            var retries = maxRetries;
+            while (retries > 0)
             {
+                retries--;
                 var current = value;
-                var newValue = f(current);
+                var newValue = f(metadata, current);
                 if (!validator(newValue))
                 {
                     return false;
@@ -89,7 +94,10 @@ namespace LanguageExt
                     Change?.Invoke(newValue);
                     return true;
                 }
+                SpinWait sw = default;
+                sw.SpinOnce();
             }
+            throw new DeadlockException();
         }
 
         /// <summary>
@@ -101,14 +109,16 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
         /// will only be returned if the `validator` fails.</returns>
-        public bool Swap<X>(X x, Func<X, A, A> f)
+        public bool Swap<X>(X x, Func<M, X, A, A> f)
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
-            while (true)
+            var retries = maxRetries;
+            while (retries > 0)
             {
+                retries--;
                 var current = value;
-                var newValue = f(x, current);
+                var newValue = f(metadata, x, current);
                 if (!validator(newValue))
                 {
                     return false;
@@ -118,7 +128,10 @@ namespace LanguageExt
                     Change?.Invoke(newValue);
                     return true;
                 }
+                SpinWait sw = default;
+                sw.SpinOnce();
             }
+            throw new DeadlockException();
         }
 
         /// <summary>
@@ -131,14 +144,16 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
         /// will only be returned if the `validator` fails.</returns>
-        public bool Swap<X, Y>(X x, Y y, Func<X, Y, A, A> f)
+        public bool Swap<X, Y>(X x, Y y, Func<M, X, Y, A, A> f)
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
-            while (true)
+            var retries = maxRetries;
+            while (retries > 0)
             {
+                retries--;
                 var current = value;
-                var newValue = f(x, y, current);
+                var newValue = f(metadata, x, y, current);
                 if (!validator(newValue))
                 {
                     return false;
@@ -148,7 +163,10 @@ namespace LanguageExt
                     Change?.Invoke(newValue);
                     return true;
                 }
+                SpinWait sw = default;
+                sw.SpinOnce();
             }
+            throw new DeadlockException();
         }
 
         /// <summary>
@@ -168,7 +186,7 @@ namespace LanguageExt
         /// Implicit conversion to `A`
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator A(AtomRef<A> atom) =>
+        public static implicit operator A(AtomRef<M, A> atom) =>
             atom.Value;
 
         /// <summary>
