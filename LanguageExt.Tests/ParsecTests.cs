@@ -552,6 +552,10 @@ namespace LanguageExtTests
         [Fact]
         public void ParallelCheck()
         {
+            // works
+            Parallel.ForEach(Enumerable.Repeat("", 4), str => parse(from _ in notFollowedBy(anyChar).label("end of input") select unit, str));
+            
+            // sometimes crashes (net461)
             Parallel.ForEach(Enumerable.Repeat("", 4), str => parse(from _ in eof select unit, str));
         }
     }
