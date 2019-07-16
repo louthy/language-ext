@@ -26,7 +26,7 @@ namespace LanguageExt
     /// Atoms are an efficient way to represent some state that will never need to be 
     /// coordinated with any other, and for which you wish to make synchronous changes.
     /// </remarks>
-    public sealed class Atom<M, A> where A : struct
+    public sealed class Atom<M, A>
     {
         const int maxRetries = 500;
         volatile Box value;

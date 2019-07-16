@@ -18,10 +18,14 @@ namespace LanguageExt
         /// <summary>
         /// Generates a new reference that can be used within a dosync transaction
         /// </summary>
-        internal static Ref<A> NewRef<A>(A value)
+        internal static Ref<A> NewRef<A>(A value, Func<A, bool> validator = null)
         {
+            var valid = validator == null
+                ? True
+                : CastPredicate(validator);
+
             var id = Interlocked.Increment(ref refIdNext);
-            var v = new RefState(0, value);
+            var v = new RefState(0, value, valid);
             state.Swap(s => s.Add(id, v));
             return new Ref<A>(id);
         }
@@ -33,15 +37,6 @@ namespace LanguageExt
         internal static R DoTransaction<R>(Func<R> op, Isolation isolation) =>
             transaction.Value == null
                 ? RunTransaction(op, isolation)
-                : op();
-
-        /// <summary>
-        /// Run the op within a new transaction
-        /// If a transaction is already running, then this becomes part of the parent transaction
-        /// </summary>
-        internal static Task<R> DoTransactionAsync<R>(Func<Task<R>> op, Isolation isolation) =>
-            transaction.Value == null
-                ? RunTransactionAsync(op, isolation)
                 : op();
 
         /// <summary>
@@ -58,49 +53,9 @@ namespace LanguageExt
                 try
                 {
                     // Try to do the operations of the transaction
-                    var result = op();
-
-                    // Attempt to apply the changes atomically
-                    if (state.Swap(s =>
-                    {
-                        if (isolation == Isolation.Serialisable)
-                        {
-                            // Check if something else wrote to what we were reading
-                            foreach (var read in t.reads)
-                            {
-                                if (s[read].Version != t.state[read].Version)
-                                {
-                                    throw new RetryException();
-                                }
-                            }
-                        }
-
-                        // Check if something else wrote to what we were writing
-                        foreach (var write in t.writes)
-                        {
-                            var newState = t.state[write];
-                            if (s[write].Version == newState.Version)
-                            {
-                                s = s.SetItem(write, new RefState(newState.Version + 1, newState.Value));
-                            }
-                            else
-                            {
-                                throw new RetryException();
-                            }
-                        }
-                        return s;
-                    }))
-                    {
-                        // Changes applied successfully
-                        return result;
-                    }
-                    else
-                    {
-                        // Failed, so retry
-                        retries--;
-                    }
+                    return ValidateAndCommit(t, isolation, op());
                 }
-                catch (RetryException)
+                catch (ConflictException)
                 {
                     // Conflict found, so retry
                     retries--;
@@ -117,77 +72,53 @@ namespace LanguageExt
             throw new DeadlockException();
         }
 
-        /// <summary>
-        /// Runs the transaction
-        /// </summary>
-        static async Task<R> RunTransactionAsync<R>(Func<Task<R>> op, Isolation isolation)
+        static R ValidateAndCommit<R>(Transaction t, Isolation isolation, R result)
         {
-            var retries = maxRetries;
-            while (retries > 0)
+            // No writing, so no validation or commit needed
+            if (t.writes.Count == 0)
             {
-                // Create a new transaction with a snapshot of the current state
-                var t = new Transaction(state.Value);
-                transaction.Value = t;
-                try
+                return result;
+            }
+
+            // Attempt to apply the changes atomically
+            state.Swap(s =>
+            {
+                if (isolation == Isolation.Serialisable)
                 {
-                    // Try to do the operations of the transaction
-                    var result = await op();
-
-                    // Attempt to apply the changes atomically
-                    if (state.Swap(s =>
+                    // Check if something else wrote to what we were reading
+                    foreach (var read in t.reads)
                     {
-                        if (isolation == Isolation.Serialisable)
+                        if (s[read].Version != t.state[read].Version)
                         {
-                            // Check if something else wrote to what we were reading
-                            foreach (var read in t.reads)
-                            {
-                                if (s[read].Version != t.state[read].Version)
-                                {
-                                    throw new RetryException();
-                                }
-                            }
+                            throw new ConflictException();
                         }
+                    }
+                }
 
-                        // Check if something else wrote to what we were writing
-                        foreach (var change in t.writes)
-                        {
-                            var newState = t.state[change];
-                            if (s[change].Version == newState.Version)
-                            {
-                                s = s.SetItem(change, new RefState(newState.Version + 1, newState.Value));
-                            }
-                            else
-                            {
-                                throw new RetryException();
-                            }
-                        }
-                        return s;
-                    }))
+                // Check if something else wrote to what we were writing
+                foreach (var write in t.writes)
+                {
+                    var newState = t.state[write];
+
+                    if(!newState.Validator(newState.Value))
                     {
-                        // Changes applied successfully
-                        return result;
+                        throw new RefValidationFailedException();
+                    }
+
+                    if (s[write].Version == newState.Version)
+                    {
+                        s = s.SetItem(write, new RefState(newState.Version + 1, newState.Value, newState.Validator));
                     }
                     else
                     {
-                        // Failed, so retry
-                        retries--;
+                        throw new ConflictException();
                     }
                 }
-                catch (RetryException)
-                {
-                    // Conflict found, so retry
-                    retries--;
-                }
-                finally
-                {
-                    // Clear the current transaction on the way out
-                    transaction.Value = null;
-                }
-                // Wait one tick before trying again
-                SpinWait sw = default;
-                sw.SpinOnce();
-            }
-            throw new DeadlockException();
+                return s;
+            });
+
+            // Changes applied successfully
+            return result;
         }
 
         /// <summary>
@@ -220,10 +151,22 @@ namespace LanguageExt
             state.Swap(s => s.Remove(id));
 
         /// <summary>
-        /// Retry exception for internal use
+        /// Conflict exception for internal use
         /// </summary>
-        class RetryException : Exception
+        class ConflictException : Exception
         { }
+
+        /// <summary>
+        /// Predicate that always returns true
+        /// </summary>
+        static readonly Func<object, bool> True =
+            _ => true;
+
+        /// <summary>
+        /// Wraps a (A -> bool) predicate as (object -> bool)
+        /// </summary>
+        static Func<object, bool> CastPredicate<A>(Func<A, bool> validator) =>
+            obj => validator((A)obj);
 
         /// <summary>
         /// Transaction snapshot
@@ -250,7 +193,7 @@ namespace LanguageExt
             public void Write(long id, object value)
             {
                 var oldState = state[id];
-                var newState = new RefState(oldState.Version, value);
+                var newState = new RefState(oldState.Version, value, oldState.Validator);
                 state = state.SetItem(id, newState);
                 writes = writes.AddOrUpdate(id);
             }
@@ -264,11 +207,13 @@ namespace LanguageExt
         {
             public readonly long Version;
             public readonly object Value;
+            public readonly Func<object, bool> Validator;
 
-            public RefState(long version, object value)
+            public RefState(long version, object value, Func<object, bool> validator)
             {
                 Version = version;
                 Value = value;
+                Validator = validator;
             }
         }
     }

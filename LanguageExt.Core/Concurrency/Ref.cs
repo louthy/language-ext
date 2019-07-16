@@ -71,5 +71,44 @@ namespace LanguageExt
         /// </summary>
         public bool Equals(A other) =>
             default(EqDefault<A>).Equals(other, Value);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `dosync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public A Swap(Func<A, A> f)
+        {
+            var v = f(Value);
+            Value = v;
+            return v;
+        }
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `dosync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public A Swap<X>(X x, Func<X, A, A> f)
+        {
+            var v = f(x, Value);
+            Value = v;
+            return v;
+        }
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `dosync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public A Swap<X, Y>(X x, Y y,Func<X, Y, A, A> f)
+        {
+            var v = f(x, y, Value);
+            Value = v;
+            return v;
+        }
     }
 }
