@@ -182,7 +182,7 @@ namespace LanguageExt
         {
             if (transaction.Value == null)
             {
-                throw new Exception("Refs can only be read from within a transaction");
+                throw new Exception("Refs can only be written to from within a transaction");
             }
             transaction.Value.Write(id, value);
         }
