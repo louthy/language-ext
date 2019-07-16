@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -25,10 +26,10 @@ namespace LanguageExt
     /// Atoms are an efficient way to represent some state that will never need to be 
     /// coordinated with any other, and for which you wish to make synchronous changes.
     /// </remarks>
-    public sealed class AtomRef<M, A> where A : class
+    public sealed class Atom<M, A> where A : struct
     {
         const int maxRetries = 500;
-        volatile A value;
+        volatile Box value;
         Func<A, bool> validator;
         readonly M metadata;
 
@@ -38,9 +39,9 @@ namespace LanguageExt
         /// Constructor
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        AtomRef(M metadata, A value, Func<A, bool> validator)
+        Atom(M metadata, A value, Func<A, bool> validator)
         {
-            this.value = value;
+            this.value = Box.New(value);
             this.metadata = metadata;
             this.validator = validator;
         }
@@ -52,9 +53,9 @@ namespace LanguageExt
         /// forward.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static Option<AtomRef<M, A>> New(M metadata, A value, Func<A, bool> validator)
+        internal static Option<Atom<M, A>> New(M metadata, A value, Func<A, bool> validator)
         {
-            var atom = new AtomRef<M, A>(metadata, value, validator ?? throw new ArgumentNullException(nameof(validator)));
+            var atom = new Atom<M, A>(metadata, value, validator ?? throw new ArgumentNullException(nameof(validator)));
             return validator(value)
                 ? Some(atom)
                 : None;
@@ -64,8 +65,8 @@ namespace LanguageExt
         /// Internal constructor
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static AtomRef<M, A> New(M metadata, A value) =>
-            new AtomRef<M, A>(metadata, value, True);
+        internal static Atom<M, A> New(M metadata, A value) =>
+            new Atom<M, A>(metadata, value, True);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -84,14 +85,47 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = f(metadata, value);
-                if (!validator(newValue))
+                var newValue = Box.New(f(metadata, value.Value));
+                if (!validator(newValue.Value))
                 {
                     return false;
                 }
                 if(Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue);
+                    Change?.Invoke(newValue.Value);
+                    return true;
+                }
+                SpinWait sw = default;
+                sw.SpinOnce();
+            }
+            throw new DeadlockException();
+        }
+
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
+        /// will only be returned if the `validator` fails.</returns>
+        public async Task<bool> SwapAsync(Func<M, A, Task<A>> f)
+        {
+            f = f ?? throw new ArgumentNullException(nameof(f));
+
+            var retries = maxRetries;
+            while (retries > 0)
+            {
+                retries--;
+                var current = value;
+                var newValue = Box.New(await f(metadata, value.Value));
+                if (!validator(newValue.Value))
+                {
+                    return false;
+                }
+                if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                {
+                    Change?.Invoke(newValue.Value);
                     return true;
                 }
                 SpinWait sw = default;
@@ -118,14 +152,48 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = f(metadata, x, value);
-                if (!validator(newValue))
+                var newValue = Box.New(f(metadata, x, value.Value));
+                if (!validator(newValue.Value))
                 {
                     return false;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue);
+                    Change?.Invoke(newValue.Value);
+                    return true;
+                }
+                SpinWait sw = default;
+                sw.SpinOnce();
+            }
+            throw new DeadlockException();
+        }
+
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
+        /// will only be returned if the `validator` fails.</returns>
+        public async Task<bool> SwapAsync<X>(X x, Func<M, X, A, Task<A>> f)
+        {
+            f = f ?? throw new ArgumentNullException(nameof(f));
+
+            var retries = maxRetries;
+            while (retries > 0)
+            {
+                retries--;
+                var current = value;
+                var newValue = Box.New(await f(metadata, x, value.Value));
+                if (!validator(newValue.Value))
+                {
+                    return false;
+                }
+                if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                {
+                    Change?.Invoke(newValue.Value);
                     return true;
                 }
                 SpinWait sw = default;
@@ -153,14 +221,49 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = f(metadata, x, y, value);
-                if (!validator(newValue))
+                var newValue = Box.New(f(metadata, x, y, value.Value));
+                if (!validator(newValue.Value))
                 {
                     return false;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue);
+                    Change?.Invoke(newValue.Value);
+                    return true;
+                }
+                SpinWait sw = default;
+                sw.SpinOnce();
+            }
+            throw new DeadlockException();
+        }
+
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
+        /// will only be returned if the `validator` fails.</returns>
+        public async Task<bool> SwapAsync<X, Y>(X x, Y y, Func<M, X, Y, A, Task<A>> f)
+        {
+            f = f ?? throw new ArgumentNullException(nameof(f));
+
+            var retries = maxRetries;
+            while (retries > 0)
+            {
+                retries--;
+                var current = value;
+                var newValue = Box.New(await f(metadata, x, y, value.Value));
+                if (!validator(newValue.Value))
+                {
+                    return false;
+                }
+                if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                {
+                    Change?.Invoke(newValue.Value);
                     return true;
                 }
                 SpinWait sw = default;
@@ -175,18 +278,18 @@ namespace LanguageExt
         public A Value
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => value;
+            get => value.Value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString() =>
-            Value?.ToString() ?? "[null]";
+            Value.ToString();
 
         /// <summary>
         /// Implicit conversion to `A`
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator A(AtomRef<M, A> atom) =>
+        public static implicit operator A(Atom<M, A> atom) =>
             atom.Value;
 
         /// <summary>
@@ -196,5 +299,21 @@ namespace LanguageExt
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool True(A _) => true;
+
+        internal class Box
+        {
+            public A Value;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public Box(A value) =>
+                Value = value;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public static Box New(A value) =>
+                new Box(value);
+
+            public void Wipe() =>
+                Value = default;
+        }
     }
 }

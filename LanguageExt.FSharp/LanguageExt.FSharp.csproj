@@ -7,7 +7,7 @@
       <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
     <PackageVersion>3.2.9-beta</PackageVersion>
     <PackageId>LanguageExt.FSharp</PackageId>
     <Title>LanguageExt.FSharp</Title>
