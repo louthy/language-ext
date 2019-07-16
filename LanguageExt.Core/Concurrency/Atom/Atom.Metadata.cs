@@ -91,8 +91,6 @@ namespace LanguageExt
                 }
                 if(Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    current.Wipe();
-                    Pool<NewBox, Box, A>.Push(current);
                     Change?.Invoke(newValue.Value);
                     return true;
                 }
@@ -127,8 +125,6 @@ namespace LanguageExt
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    current.Wipe();
-                    Pool<NewBox, Box, A>.Push(current);
                     Change?.Invoke(newValue.Value);
                     return true;
                 }
@@ -164,8 +160,6 @@ namespace LanguageExt
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    current.Wipe();
-                    Pool<NewBox, Box, A>.Push(current);
                     Change?.Invoke(newValue.Value);
                     return true;
                 }
@@ -213,7 +207,7 @@ namespace LanguageExt
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static Box New(A value) =>
-                Pool<NewBox, Box, A>.Pop(value);
+                new Box(value);
 
             public void Wipe() =>
                 Value = default;
