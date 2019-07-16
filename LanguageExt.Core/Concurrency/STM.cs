@@ -30,30 +30,30 @@ namespace LanguageExt
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
-        internal static R DoTransaction<R>(Func<R> op) =>
+        internal static R DoTransaction<R>(Func<R> op, Isolation isolation) =>
             transaction.Value == null
-                ? RunTransaction(op)
+                ? RunTransaction(op, isolation)
                 : op();
 
         /// <summary>
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
-        internal static Task<R> DoTransactionAsync<R>(Func<Task<R>> op) =>
+        internal static Task<R> DoTransactionAsync<R>(Func<Task<R>> op, Isolation isolation) =>
             transaction.Value == null
-                ? RunTransactionAsync(op)
+                ? RunTransactionAsync(op, isolation)
                 : op();
 
         /// <summary>
         /// Runs the transaction
         /// </summary>
-        static R RunTransaction<R>(Func<R> op)
+        static R RunTransaction<R>(Func<R> op, Isolation isolation)
         {
             var retries = maxRetries;
             while (retries > 0)
             {
                 // Create a new transaction with a snapshot of the current state
-                var t = new Transaction(state.Value, HashSet<long>());
+                var t = new Transaction(state.Value);
                 transaction.Value = t;
                 try
                 {
@@ -63,12 +63,25 @@ namespace LanguageExt
                     // Attempt to apply the changes atomically
                     if (state.Swap(s =>
                     {
-                        foreach (var change in t.changes)
+                        if (isolation == Isolation.Serialisable)
                         {
-                            var newState = t.state[change];
-                            if (s[change].Version == newState.Version)
+                            // Check if something else wrote to what we were reading
+                            foreach (var read in t.reads)
                             {
-                                s = s.SetItem(change, new RefState(newState.Version + 1, newState.Value));
+                                if (s[read].Version != t.state[read].Version)
+                                {
+                                    throw new RetryException();
+                                }
+                            }
+                        }
+
+                        // Check if something else wrote to what we were writing
+                        foreach (var write in t.writes)
+                        {
+                            var newState = t.state[write];
+                            if (s[write].Version == newState.Version)
+                            {
+                                s = s.SetItem(write, new RefState(newState.Version + 1, newState.Value));
                             }
                             else
                             {
@@ -101,19 +114,19 @@ namespace LanguageExt
                 SpinWait sw = default;
                 sw.SpinOnce();
             }
-            throw new Exception("dosync failed - maximum retries reached");
+            throw new DeadlockException();
         }
 
         /// <summary>
         /// Runs the transaction
         /// </summary>
-        static async Task<R> RunTransactionAsync<R>(Func<Task<R>> op)
+        static async Task<R> RunTransactionAsync<R>(Func<Task<R>> op, Isolation isolation)
         {
             var retries = maxRetries;
             while (retries > 0)
             {
                 // Create a new transaction with a snapshot of the current state
-                var t = new Transaction(state.Value, HashSet<long>());
+                var t = new Transaction(state.Value);
                 transaction.Value = t;
                 try
                 {
@@ -123,7 +136,20 @@ namespace LanguageExt
                     // Attempt to apply the changes atomically
                     if (state.Swap(s =>
                     {
-                        foreach (var change in t.changes)
+                        if (isolation == Isolation.Serialisable)
+                        {
+                            // Check if something else wrote to what we were reading
+                            foreach (var read in t.reads)
+                            {
+                                if (s[read].Version != t.state[read].Version)
+                                {
+                                    throw new RetryException();
+                                }
+                            }
+                        }
+
+                        // Check if something else wrote to what we were writing
+                        foreach (var change in t.writes)
                         {
                             var newState = t.state[change];
                             if (s[change].Version == newState.Version)
@@ -161,7 +187,7 @@ namespace LanguageExt
                 SpinWait sw = default;
                 sw.SpinOnce();
             }
-            throw new Exception("dosync failed - maximum retries reached");
+            throw new DeadlockException();
         }
 
         /// <summary>
@@ -182,7 +208,7 @@ namespace LanguageExt
         {
             if (transaction.Value == null)
             {
-                throw new Exception("Refs can only be written to from within a transaction");
+                throw new InvalidOperationException("Refs can only be written to from within a transaction");
             }
             transaction.Value.Write(id, value);
         }
@@ -205,23 +231,28 @@ namespace LanguageExt
         class Transaction
         {
             public HashMap<long, RefState> state;
-            public HashSet<long> changes;
+            public HashSet<long> reads;
+            public HashSet<long> writes;
 
-            public Transaction(HashMap<long, RefState> state, HashSet<long> changes)
+            public Transaction(HashMap<long, RefState> state)
             {
                 this.state = state;
-                this.changes = changes;
+                this.reads = HashSet<long>();
+                this.writes = HashSet<long>();
             }
 
-            public object Read(long id) =>
-                state[id].Value;
+            public object Read(long id)
+            {
+                reads = reads.AddOrUpdate(id);
+                return state[id].Value;
+            }
 
             public void Write(long id, object value)
             {
                 var oldState = state[id];
                 var newState = new RefState(oldState.Version, value);
                 state = state.SetItem(id, newState);
-                changes = changes.AddOrUpdate(id);
+                writes = writes.AddOrUpdate(id);
             }
         }
 

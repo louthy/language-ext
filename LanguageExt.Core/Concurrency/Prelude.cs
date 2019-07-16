@@ -18,16 +18,16 @@ namespace LanguageExt
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static R dosync<R>(Func<R> op) =>
-            STM.DoTransaction(op);
+        public static R dosync<R>(Func<R> op, Isolation isolation) =>
+            STM.DoTransaction(op, isolation);
 
         /// <summary>
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<R> dosync<R>(Func<Task<R>> op) =>
-            STM.DoTransactionAsync(op);
+        public static Task<R> dosync<R>(Func<Task<R>> op, Isolation isolation) =>
+            STM.DoTransactionAsync(op, isolation);
 
         /// <summary>
         /// Atoms provide a way to manage shared, synchronous, independent state without 
