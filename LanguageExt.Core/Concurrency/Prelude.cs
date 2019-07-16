@@ -18,7 +18,7 @@ namespace LanguageExt
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static R dosync<R>(Func<R> op, Isolation isolation) =>
+        public static R dosync<R>(Func<R> op, Isolation isolation = Isolation.Snapshot) =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace LanguageExt
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<R> dosync<R>(Func<Task<R>> op, Isolation isolation) =>
+        public static Task<R> dosync<R>(Func<Task<R>> op, Isolation isolation = Isolation.Snapshot) =>
             STM.DoTransactionAsync(op, isolation);
 
         /// <summary>
