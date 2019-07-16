@@ -28,7 +28,7 @@ namespace LanguageExt
     public sealed class AtomRef<M, A> where A : class
     {
         const int maxRetries = 500;
-        A value;
+        volatile A value;
         Func<A, bool> validator;
         readonly M metadata;
 
@@ -84,7 +84,7 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = f(metadata, current);
+                var newValue = f(metadata, value);
                 if (!validator(newValue))
                 {
                     return false;
@@ -118,7 +118,7 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = f(metadata, x, current);
+                var newValue = f(metadata, x, value);
                 if (!validator(newValue))
                 {
                     return false;
@@ -153,7 +153,7 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = f(metadata, x, y, current);
+                var newValue = f(metadata, x, y, value);
                 if (!validator(newValue))
                 {
                     return false;

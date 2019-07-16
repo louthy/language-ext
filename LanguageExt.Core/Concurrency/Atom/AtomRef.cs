@@ -28,7 +28,7 @@ namespace LanguageExt
     public sealed class AtomRef<A> where A : class
     {
         const int maxRetries = 500;
-        A value;
+        volatile A value;
         Func<A, bool> validator;
 
         public event AtomChangedEvent<A> Change;
@@ -82,7 +82,7 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = f(current);
+                var newValue = f(value);
                 if (!validator(newValue))
                 {
                     return false;
@@ -116,7 +116,7 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = f(x, current);
+                var newValue = f(x, value);
                 if (!validator(newValue))
                 {
                     return false;
@@ -151,7 +151,7 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = f(x, y, current);
+                var newValue = f(x, y, value);
                 if (!validator(newValue))
                 {
                     return false;

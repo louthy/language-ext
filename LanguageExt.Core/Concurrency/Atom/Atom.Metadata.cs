@@ -28,7 +28,7 @@ namespace LanguageExt
     public sealed class Atom<M, A> where A : struct
     {
         const int maxRetries = 500;
-        Box value;
+        volatile Box value;
         Func<A, bool> validator;
         readonly M metadata;
 
@@ -84,7 +84,7 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(f(metadata, current.Value));
+                var newValue = Box.New(f(metadata, value.Value));
                 if (!validator(newValue.Value))
                 {
                     return false;
@@ -120,7 +120,7 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(f(metadata, x, current.Value));
+                var newValue = Box.New(f(metadata, x, value.Value));
                 if (!validator(newValue.Value))
                 {
                     return false;
@@ -157,7 +157,7 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(f(metadata, x, y, current.Value));
+                var newValue = Box.New(f(metadata, x, y, value.Value));
                 if (!validator(newValue.Value))
                 {
                     return false;
