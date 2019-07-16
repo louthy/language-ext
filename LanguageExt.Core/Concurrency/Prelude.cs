@@ -7,7 +7,7 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
-        /// Generates a new reference that can be used within a `dosync` transaction
+        /// Generates a new reference that can be used within a `sync` transaction
         /// 
         /// `Refs` ensure safe shared use of mutable storage locations via a software transactional 
         /// memory (STM) system. `Refs` are bound to a single storage location for their lifetime, 
@@ -15,7 +15,7 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>
         /// 
-        /// Transactions (within a `dosync`) should be easy to understand if you’ve ever used database 
+        /// Transactions (within a `sync`) should be easy to understand if you’ve ever used database 
         /// transactions - they ensure that all actions on Refs are atomic, consistent, and isolated. 
         /// 
         /// * Atomic - means that every change to Refs made within a transaction occurs or none do. 
@@ -49,7 +49,7 @@ namespace LanguageExt
         ///
         /// If a constraint on the validity of a value of a Ref that is being changed depends upon the 
         /// simultaneous value of a Ref that is not being changed, that second Ref can be protected from 
-        /// modification by running the `dosync` transaction with Isolation.Serialisable.
+        /// modification by running the `sync` transaction with Isolation.Serialisable.
         ///
         /// The language-ext STM is designed to work with the persistent collections (`Map`, `HashMap`, 
         /// `Seq`, `Lst`, `Set, `HashSet` etc.), and it is strongly recommended that you use the language-ext 
@@ -62,7 +62,7 @@ namespace LanguageExt
         /// </remarks>
         /// <param name="value">Initial value of the ref</param>
         /// <param name="validator">Validator that is called on the ref value just
-        /// before any transaction is committed (within a `dosync`)</param>
+        /// before any transaction is committed (within a `sync`)</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Ref<A> Ref<A>(A value, Func<A, bool> validator = null) =>
             STM.NewRef(value);
@@ -72,7 +72,7 @@ namespace LanguageExt
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static R dosync<R>(Func<R> op, Isolation isolation = Isolation.Snapshot) =>
+        public static R sync<R>(Func<R> op, Isolation isolation = Isolation.Snapshot) =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>
@@ -80,12 +80,12 @@ namespace LanguageExt
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Unit dosync(Action op, Isolation isolation = Isolation.Snapshot) =>
+        public static Unit sync(Action op, Isolation isolation = Isolation.Snapshot) =>
             STM.DoTransaction(() => { op(); return unit; }, isolation);
 
         /// <summary>
         /// Swap the old value for the new returned by `f`
-        /// Must be run within a `dosync` transaction
+        /// Must be run within a `sync` transaction
         /// </summary>
         /// <param name="r">`Ref` to process</param>
         /// <param name="f">Function to update the `Ref`</param>
@@ -96,7 +96,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Swap the old value for the new returned by `f`
-        /// Must be run within a `dosync` transaction
+        /// Must be run within a `sync` transaction
         /// </summary>
         /// <param name="r">`Ref` to process</param>
         /// <param name="f">Function to update the `Ref`</param>
@@ -107,7 +107,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Swap the old value for the new returned by `f`
-        /// Must be run within a `dosync` transaction
+        /// Must be run within a `sync` transaction
         /// </summary>
         /// <param name="r">`Ref` to process</param>
         /// <param name="f">Function to update the `Ref`</param>
@@ -115,6 +115,72 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static A swap<A, X, Y >(Ref<A> r, X x, Y y, Func<X, Y, A, A> f) =>
             r.Swap(x, y, f);
+
+        /// <summary>
+        /// Must be called in a transaction. Sets the in-transaction-value of
+        /// ref to:  
+        /// 
+        ///     `f(in-transaction-value-of-ref)`
+        ///     
+        /// and returns the in-transaction-value when complete.
+        /// 
+        /// At the commit point of the transaction, `f` is run *AGAIN* with the
+        /// most recently committed value:
+        /// 
+        ///     `f(most-recently-committed-value-of-ref)`
+        /// 
+        /// Thus `f` should be commutative, or, failing that, you must accept
+        /// last-one-in-wins behavior.
+        /// 
+        /// Commute allows for more concurrency than just setting the Ref's value
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static A commute<A>(Ref<A> r, Func<A, A> f) =>
+            r.Commute(f);
+
+        /// <summary>
+        /// Must be called in a transaction. Sets the in-transaction-value of
+        /// ref to:  
+        /// 
+        ///     `f(in-transaction-value-of-ref)`
+        ///     
+        /// and returns the in-transaction-value when complete.
+        /// 
+        /// At the commit point of the transaction, `f` is run *AGAIN* with the
+        /// most recently committed value:
+        /// 
+        ///     `f(most-recently-committed-value-of-ref)`
+        /// 
+        /// Thus `f` should be commutative, or, failing that, you must accept
+        /// last-one-in-wins behavior.
+        /// 
+        /// Commute allows for more concurrency than just setting the Ref's value
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static A commute<A, X>(Ref<A> r, X x, Func<X, A, A> f) =>
+            r.Commute(x, f);
+
+        /// <summary>
+        /// Must be called in a transaction. Sets the in-transaction-value of
+        /// ref to:  
+        /// 
+        ///     `f(in-transaction-value-of-ref)`
+        ///     
+        /// and returns the in-transaction-value when complete.
+        /// 
+        /// At the commit point of the transaction, `f` is run *AGAIN* with the
+        /// most recently committed value:
+        /// 
+        ///     `f(most-recently-committed-value-of-ref)`
+        /// 
+        /// Thus `f` should be commutative, or, failing that, you must accept
+        /// last-one-in-wins behavior.
+        /// 
+        /// Commute allows for more concurrency than just setting the Ref's value
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static A commute<A, X, Y>(Ref<A> r, X x, Y y, Func<X, Y, A, A> f) =>
+            r.Commute(x, y, f);
 
         /// <summary>
         /// Atoms provide a way to manage shared, synchronous, independent state without 

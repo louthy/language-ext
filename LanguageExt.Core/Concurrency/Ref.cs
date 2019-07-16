@@ -10,7 +10,7 @@ namespace LanguageExt
     /// </summary>
     public class Ref<A> : IEquatable<A>
     {
-        readonly long Id;
+        internal readonly long Id;
 
         /// <summary>
         /// Internal ctor
@@ -74,7 +74,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Swap the old value for the new returned by `f`
-        /// Must be run within a `dosync` transaction
+        /// Must be run within a `sync` transaction
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
@@ -87,7 +87,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Swap the old value for the new returned by `f`
-        /// Must be run within a `dosync` transaction
+        /// Must be run within a `sync` transaction
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
@@ -100,15 +100,87 @@ namespace LanguageExt
 
         /// <summary>
         /// Swap the old value for the new returned by `f`
-        /// Must be run within a `dosync` transaction
+        /// Must be run within a `sync` transaction
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public A Swap<X, Y>(X x, Y y,Func<X, Y, A, A> f)
+        public A Swap<X, Y>(X x, Y y, Func<X, Y, A, A> f)
         {
             var v = f(x, y, Value);
             Value = v;
             return v;
+        }
+
+        /// <summary>
+        /// Must be called in a transaction. Sets the in-transaction-value of
+        /// ref to:  
+        /// 
+        ///     `f(in-transaction-value-of-ref)`
+        ///     
+        /// and returns the in-transaction-value when complete.
+        /// 
+        /// At the commit point of the transaction, `f` is run *AGAIN* with the
+        /// most recently committed value:
+        /// 
+        ///     `f(most-recently-committed-value-of-ref)`
+        /// 
+        /// Thus `f` should be commutative, or, failing that, you must accept
+        /// last-one-in-wins behavior.
+        /// 
+        /// Commute allows for more concurrency than just setting the Ref's value
+        /// </summary>
+        public CommuteRef<A> Commute(Func<A, A> f)
+        {
+            STM.Commute(Id, f);
+            return new CommuteRef<A>(this);
+        }
+
+        /// <summary>
+        /// Must be called in a transaction. Sets the in-transaction-value of
+        /// ref to:  
+        /// 
+        ///     `f(in-transaction-value-of-ref)`
+        ///     
+        /// and returns the in-transaction-value when complete.
+        /// 
+        /// At the commit point of the transaction, `f` is run *AGAIN* with the
+        /// most recently committed value:
+        /// 
+        ///     `f(most-recently-committed-value-of-ref)`
+        /// 
+        /// Thus `f` should be commutative, or, failing that, you must accept
+        /// last-one-in-wins behavior.
+        /// 
+        /// Commute allows for more concurrency than just setting the Ref's value
+        /// </summary>
+        public CommuteRef<A> Commute<X>(X x, Func<X, A, A> f)
+        {
+            STM.Commute(Id, x, f);
+            return new CommuteRef<A>(this);
+        }
+
+        /// <summary>
+        /// Must be called in a transaction. Sets the in-transaction-value of
+        /// ref to:  
+        /// 
+        ///     `f(in-transaction-value-of-ref)`
+        ///     
+        /// and returns the in-transaction-value when complete.
+        /// 
+        /// At the commit point of the transaction, `f` is run *AGAIN* with the
+        /// most recently committed value:
+        /// 
+        ///     `f(most-recently-committed-value-of-ref)`
+        /// 
+        /// Thus `f` should be commutative, or, failing that, you must accept
+        /// last-one-in-wins behavior.
+        /// 
+        /// Commute allows for more concurrency than just setting the Ref's value
+        /// </summary>
+        public CommuteRef<A> Commute<X, Y>(X x, Y y, Func<X, Y, A, A> f)
+        {
+            STM.Commute(Id, x, y, f);
+            return new CommuteRef<A>(this);
         }
     }
 }
