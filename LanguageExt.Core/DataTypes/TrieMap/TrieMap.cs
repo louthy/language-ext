@@ -515,8 +515,13 @@ namespace LanguageExt
         /// Returns the value associated with `key` then match the result
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public R Find<R>(K key, Func<V, R> Some, Func<R> None) =>
-            Find(key, Some, None);
+        public R Find<R>(K key, Func<V, R> Some, Func<R> None)
+        {
+            var (found, _, value) = FindInternal(key);
+            return found
+                ? Some(value)
+                : None();
+        }
 
         /// <summary>
         /// Tries to find the value, if not adds it and returns the update map and/or value
