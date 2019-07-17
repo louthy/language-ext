@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
     <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
         <DefineConstants>TRACE;DEBUG</DefineConstants>
     </PropertyGroup>
@@ -11,7 +11,7 @@
         <DefineConstants>COREFX20</DefineConstants>
     </PropertyGroup>
     <PropertyGroup>
-        <PackageVersion>3.2.14-beta</PackageVersion>
+        <PackageVersion>3.3.0</PackageVersion>
         <PackageId>LanguageExt.Core</PackageId>
         <Title>LanguageExt.Core</Title>
         <Authors>Paul Louth</Authors>
