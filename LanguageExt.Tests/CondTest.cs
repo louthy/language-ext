@@ -9,7 +9,7 @@ using static LanguageExt.Prelude;
 using static LanguageExt.CondExt;
 using Newtonsoft.Json;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class CondTest
     {

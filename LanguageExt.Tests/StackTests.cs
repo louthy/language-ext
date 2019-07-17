@@ -4,7 +4,7 @@ using static LanguageExt.Stack;
 using Xunit;
 using LanguageExt;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     
     public class StackTests

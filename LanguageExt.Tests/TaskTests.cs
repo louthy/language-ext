@@ -7,7 +7,7 @@ using LanguageExt;
 using System.Net.Http;
 using Nito.AsyncEx;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class TaskTests
     {

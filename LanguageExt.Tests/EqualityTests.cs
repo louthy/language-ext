@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     
     public class EqualityTests

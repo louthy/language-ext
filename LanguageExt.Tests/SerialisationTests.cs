@@ -6,7 +6,7 @@ using Xunit;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     
     public class SerialisationTests

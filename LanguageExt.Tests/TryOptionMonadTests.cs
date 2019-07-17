@@ -5,7 +5,7 @@ using static LanguageExt.Prelude;
 using System.Collections.Generic;
 using System;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     
     public class TryMonadTests

@@ -10,7 +10,7 @@ using Xunit;
 using LanguageExt.ClassInstances;
 using System;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
 
     public class OptionTTests

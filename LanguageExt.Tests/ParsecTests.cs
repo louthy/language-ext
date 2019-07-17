@@ -15,7 +15,7 @@ using static LanguageExt.Parsec.Expr;
 using static LanguageExt.Parsec.Token;
 using LanguageExt.UnitsOfMeasure;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class ParsecTests
     {
