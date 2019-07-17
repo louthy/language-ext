@@ -29,7 +29,7 @@ namespace LanguageExt
     public sealed class Atom<A>
     {
         const int maxRetries = 500;
-        volatile Box value;
+        volatile object value;
         Func<A, bool> validator;
 
         public event AtomChangedEvent<A> Change;
@@ -40,7 +40,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Atom(A value, Func<A, bool> validator)
         {
-            this.value = Box.New(value);
+            this.value = Box<A>.New(value);
             this.validator = validator;
         }
 
@@ -83,14 +83,15 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(f(value.Value));
-                if (!validator(newValue.Value))
+                var newValueA = f(Box<A>.GetValue(value));
+                var newValue = Box<A>.New(newValueA);
+                if (!validator(newValueA))
                 {
                     return false;
                 }
                 if(Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue.Value);
+                    Change?.Invoke(newValueA);
                     return true;
                 }
                 SpinWait sw = default;
@@ -116,14 +117,15 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(await f(value.Value));
-                if (!validator(newValue.Value))
+                var newValueA = await f(Box<A>.GetValue(value));
+                var newValue = Box<A>.New(newValueA);
+                if (!validator(newValueA))
                 {
                     return false;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue.Value);
+                    Change?.Invoke(newValueA);
                     return true;
                 }
                 SpinWait sw = default;
@@ -150,14 +152,15 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(f(x, value.Value));
-                if (!validator(newValue.Value))
+                var newValueA = f(x, Box<A>.GetValue(value));
+                var newValue = Box<A>.New(newValueA);
+                if (!validator(newValueA))
                 {
                     return false;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue.Value);
+                    Change?.Invoke(newValueA);
                     return true;
                 }
                 SpinWait sw = default;
@@ -184,14 +187,15 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(await f(x, value.Value));
-                if (!validator(newValue.Value))
+                var newValueA = await f(x, Box<A>.GetValue(value));
+                var newValue = Box<A>.New(newValueA);
+                if (!validator(newValueA))
                 {
                     return false;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue.Value);
+                    Change?.Invoke(newValueA);
                     return true;
                 }
                 SpinWait sw = default;
@@ -219,14 +223,15 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(f(x, y, value.Value));
-                if (!validator(newValue.Value))
+                var newValueA = f(x, y, Box<A>.GetValue(value));
+                var newValue = Box<A>.New(newValueA);
+                if (!validator(newValueA))
                 {
                     return false;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue.Value);
+                    Change?.Invoke(newValueA);
                     return true;
                 }
                 SpinWait sw = default;
@@ -254,14 +259,15 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(await f(x, y, value.Value));
-                if (!validator(newValue.Value))
+                var newValueA = await f(x, y, Box<A>.GetValue(value));
+                var newValue = Box<A>.New(newValueA);
+                if (!validator(Box<A>.GetValue(newValue)))
                 {
                     return false;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue.Value);
+                    Change?.Invoke(newValueA);
                     return true;
                 }
                 SpinWait sw = default;
@@ -276,7 +282,7 @@ namespace LanguageExt
         public A Value
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => value.Value;
+            get => Box<A>.GetValue(value);
         }
 
         /// <summary>
@@ -297,21 +303,5 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString() =>
             Value.ToString();
-
-        internal class Box
-        {
-            public A Value;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Box(A value) =>
-                Value = value;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static Box New(A value) =>
-                new Box(value);
-
-            public void Wipe() =>
-                Value = default;
-        }
     }
 }

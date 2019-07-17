@@ -29,7 +29,7 @@ namespace LanguageExt
     public sealed class Atom<M, A>
     {
         const int maxRetries = 500;
-        volatile Box value;
+        volatile object value;
         Func<A, bool> validator;
         readonly M metadata;
 
@@ -41,7 +41,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Atom(M metadata, A value, Func<A, bool> validator)
         {
-            this.value = Box.New(value);
+            this.value = Box<A>.New(value);
             this.metadata = metadata;
             this.validator = validator;
         }
@@ -85,14 +85,15 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(f(metadata, value.Value));
-                if (!validator(newValue.Value))
+                var newValueA = f(metadata, Box<A>.GetValue(value));
+                var newValue = Box<A>.New(newValueA);
+                if (!validator(newValueA))
                 {
                     return false;
                 }
                 if(Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue.Value);
+                    Change?.Invoke(newValueA);
                     return true;
                 }
                 SpinWait sw = default;
@@ -118,14 +119,15 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(await f(metadata, value.Value));
-                if (!validator(newValue.Value))
+                var newValueA = await f(metadata, Box<A>.GetValue(value));
+                var newValue = Box<A>.New(newValueA);
+                if (!validator(newValueA))
                 {
                     return false;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue.Value);
+                    Change?.Invoke(newValueA);
                     return true;
                 }
                 SpinWait sw = default;
@@ -152,14 +154,15 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(f(metadata, x, value.Value));
-                if (!validator(newValue.Value))
+                var newValueA = f(metadata, x, Box<A>.GetValue(value));
+                var newValue = Box<A>.New(newValueA);
+                if (!validator(newValueA))
                 {
                     return false;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue.Value);
+                    Change?.Invoke(newValueA);
                     return true;
                 }
                 SpinWait sw = default;
@@ -186,14 +189,15 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(await f(metadata, x, value.Value));
-                if (!validator(newValue.Value))
+                var newValueA = await f(metadata, x, Box<A>.GetValue(value));
+                var newValue = Box<A>.New(newValueA);
+                if (!validator(newValueA))
                 {
                     return false;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue.Value);
+                    Change?.Invoke(newValueA);
                     return true;
                 }
                 SpinWait sw = default;
@@ -221,14 +225,15 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(f(metadata, x, y, value.Value));
-                if (!validator(newValue.Value))
+                var newValueA = f(metadata, x, y, Box<A>.GetValue(value));
+                var newValue = Box<A>.New(newValueA);
+                if (!validator(newValueA))
                 {
                     return false;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue.Value);
+                    Change?.Invoke(newValueA);
                     return true;
                 }
                 SpinWait sw = default;
@@ -256,14 +261,15 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValue = Box.New(await f(metadata, x, y, value.Value));
-                if (!validator(newValue.Value))
+                var newValueA = await f(metadata, x, y, Box<A>.GetValue(value));
+                var newValue = Box<A>.New(newValueA);
+                if (!validator(newValueA))
                 {
                     return false;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
-                    Change?.Invoke(newValue.Value);
+                    Change?.Invoke(newValueA);
                     return true;
                 }
                 SpinWait sw = default;
@@ -278,7 +284,7 @@ namespace LanguageExt
         public A Value
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => value.Value;
+            get => Box<A>.GetValue(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -299,21 +305,5 @@ namespace LanguageExt
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool True(A _) => true;
-
-        internal class Box
-        {
-            public A Value;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Box(A value) =>
-                Value = value;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static Box New(A value) =>
-                new Box(value);
-
-            public void Wipe() =>
-                Value = default;
-        }
     }
 }
