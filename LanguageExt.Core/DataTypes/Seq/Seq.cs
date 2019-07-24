@@ -326,6 +326,13 @@ namespace LanguageExt
             Value;
 
         /// <summary>
+        /// Stream as a queryable
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IQueryable<A> AsQueryable() =>
+            Value.AsQueryable();
+
+        /// <summary>
         /// Match empty sequence, or multi-item sequence
         /// </summary>
         /// <typeparam name="B">Return value type</typeparam>

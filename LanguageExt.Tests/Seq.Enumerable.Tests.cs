@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using static LanguageExt.Prelude;
 
@@ -246,5 +247,9 @@ namespace LanguageExt.Tests
             Assert.True(fa1);
             Assert.False(fa2);
         }
+
+        [Fact]
+        public void TestQueryableCount() =>
+            Assert.True(Seq(1, 2, 3).AsQueryable().Count() == 3);
     }
 }
