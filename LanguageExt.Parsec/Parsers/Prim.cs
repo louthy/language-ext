@@ -15,6 +15,14 @@ namespace LanguageExt.Parsec
     /// </summary>
     public static class Prim
     {
+        static Prim()
+        {
+            unitp = inp => EmptyOK(unit, inp);
+            getPos = (PString inp) => ConsumedOK(inp.Pos, inp);
+            getIndex = (PString inp) => ConsumedOK(inp.Index, inp);
+            eof = notFollowedBy(satisfy(_ => true)).label("end of input");
+        }
+
         /// <summary>
         /// Run the parser p with the input provided
         /// </summary>
@@ -38,8 +46,7 @@ namespace LanguageExt.Parsec
         /// makes it easier to put breakpoints on the actual first parser
         /// in an expression.  It returns unit
         /// </summary>
-        public static Parser<Unit> unitp =>
-            inp => EmptyOK(unit, inp);
+        public static readonly Parser<Unit> unitp;
 
         /// <summary>
         /// Special parser for setting user-state that propagates 
@@ -64,14 +71,12 @@ namespace LanguageExt.Parsec
         /// Get the current position of the parser in the source as a line
         /// and column index (starting at 1 for both)
         /// </summary>
-        public static readonly Parser<Pos> getPos =
-            (PString inp) => ConsumedOK(inp.Pos, inp);
+        public static readonly Parser<Pos> getPos;
 
         /// <summary>
         /// Get the current index into the source
         /// </summary>
-        public static readonly Parser<int> getIndex =
-            (PString inp) => ConsumedOK(inp.Index, inp);
+        public static readonly Parser<int> getIndex;
 
         /// <summary>
         /// The parser unexpected(msg) always fails with an Unexpect error
@@ -166,7 +171,7 @@ namespace LanguageExt.Parsec
         /// The value of the succeeding parser.
         /// </returns>
         public static Parser<T> choice<T>(params Parser<T>[] ps) =>
-            choicei(ps);
+            choicei(Seq(ps));
 
         /// <summary>
         /// choice(ps) tries to apply the parsers in the list ps in order, until one 
@@ -175,8 +180,8 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// The value of the succeeding parser.
         /// </returns>
-        public static Parser<T> choice<T>(IEnumerable<Parser<T>> ps) =>
-            choicei(ps.ToArray());
+        public static Parser<T> choice<T>(Seq<Parser<T>> ps) =>
+            choicei(ps);
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -185,8 +190,8 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// The result of each parser as an enumerable.
         /// </returns>
-        public static Parser<IEnumerable<T>> chain<T>(params Parser<T>[] ps) =>
-            chaini(ps).Map(x => x.Freeze().AsEnumerable());
+        public static Parser<Seq<T>> chain<T>(params Parser<T>[] ps) =>
+            chaini(Seq(ps));
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -195,8 +200,8 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// The result of each parser as an enumerable.
         /// </returns>
-        public static Parser<IEnumerable<T>> chain<T>(IEnumerable<Parser<T>> ps) =>
-            chaini(ps.ToArray()).Map(x => x.Freeze().AsEnumerable());
+        public static Parser<Seq<T>> chain<T>(Seq<Parser<T>> ps) =>
+            chaini(ps);
 
         /// <summary>
         /// The parser attempt(p) behaves like parser p, except that it
@@ -285,11 +290,11 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// Enumerable of the returned values of p.
         /// </returns>
-        public static Parser<IEnumerable<T>> many<T>(Parser<T> p) =>
+        public static Parser<Seq<T>> many<T>(Parser<T> p) =>
             inp =>
             {
                 var current = inp;
-                List<T> results = new List<T>();
+                var results = new List<T>();
                 ParserError error = null;
 
                 while(true)
@@ -309,19 +314,144 @@ namespace LanguageExt.Parsec
                     if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
                     {
                         // eok, eerr
-                        return EmptyError<IEnumerable<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'many' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                        return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'many' is applied to a parser that accepts an empty string.", List.empty<string>()));
                     }
 
                     // cerr
                     if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                     {
-                        return ConsumedError<IEnumerable<T>>(mergeError(error, t.Reply.Error));
+                        return ConsumedError<Seq<T>>(mergeError(error, t.Reply.Error));
                     }
 
                     // eerr
-                    return EmptyOK<IEnumerable<T>>(results, current, mergeError(error, t.Reply.Error));
+                    return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
                 }
             };
+
+        /// <summary>
+        /// manyn(p, n) applies the parser p n times.
+        /// </summary>
+        /// <example>
+        ///     var identifier  = from c in letter
+        ///                       from cs in manyn(letterOrDigit, 4)
+        ///                       select c.Cons(cs)
+        /// </example>
+        /// <returns>
+        /// Enumerable of the returned values of p.
+        /// </returns>
+        public static Parser<Seq<T>> manyn<T>(Parser<T> p, int n) =>
+            inp =>
+            {
+                var current = inp;
+                var results = new List<T>();
+                ParserError error = null;
+
+                int count = 0;
+
+                while (true)
+                {
+                    var t = p(current);
+                    count++;
+
+                    // cok
+                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
+                    {
+                        results.Add(t.Reply.Result);
+                        current = t.Reply.State;
+                        error = t.Reply.Error;
+                        if (count == n)
+                        {
+                            return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                        }
+                        continue;
+                    }
+
+                    // eok
+                    if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
+                    {
+                        // eok, eerr
+                        return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'manyn' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                    }
+
+                    // cerr
+                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
+                    {
+                        return ConsumedError<Seq<T>>(mergeError(error, t.Reply.Error));
+                    }
+
+                    // eerr
+                    return count == n
+                        ? ConsumedError<Seq<T>>(mergeError(error, t.Reply.Error))
+                        : EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                }
+            };
+
+        /// <summary>
+        /// manyn0(p) applies the parser p zero or up to a maximum of n times.
+        /// </summary>
+        /// <example>
+        ///     var identifier  = from c in letter
+        ///                       from cs in manyn0(letterOrDigit, 4)
+        ///                       select c.Cons(cs)
+        /// </example>
+        /// <returns>
+        /// Enumerable of the returned values of p.
+        /// </returns>
+        public static Parser<Seq<T>> manyn0<T>(Parser<T> p, int n) =>
+            inp =>
+            {
+                var current = inp;
+                var results = new List<T>();
+                ParserError error = null;
+
+                int count = 0;
+
+                while (true)
+                {
+                    var t = p(current);
+                    count++;
+
+                    // cok
+                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
+                    {
+                        results.Add(t.Reply.Result);
+                        current = t.Reply.State;
+                        error = t.Reply.Error;
+                        if (count == n)
+                        {
+                            return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                        }
+                        continue;
+                    }
+
+                    // eok
+                    if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
+                    {
+                        // eok, eerr
+                        return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'manyn' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                    }
+
+                    // cerr
+                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
+                    {
+                        return ConsumedError<Seq<T>>(mergeError(error, t.Reply.Error));
+                    }
+
+                    // eerr
+                    return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                }
+            };
+
+        /// <summary>
+        /// manyn1(p) applies the parser p one or up to a maximum of n times.
+        /// </summary>
+        /// <returns>
+        /// Enumerable of the returned values of p.
+        /// </returns>
+        public static Parser<Seq<T>> manyn1<T>(Parser<T> p, int n) =>
+            from x in p
+            from xs in manyn0(p, n - 1)
+            select x.Cons(xs);
 
         /// <summary>
         /// many1(p) applies the parser p one or more times.
@@ -329,7 +459,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// Enumerable of the returned values of p.
         /// </returns>
-        public static Parser<IEnumerable<T>> many1<T>(Parser<T> p) =>
+        public static Parser<Seq<T>> many1<T>(Parser<T> p) =>
             from x in p
             from xs in many(p)
             select x.Cons(xs);
@@ -388,6 +518,21 @@ namespace LanguageExt.Parsec
             };
 
         /// <summary>
+        /// optionalSeq(p) tries to apply parser p.  If p fails without
+        /// consuming input, it return an empty IEnumerable, otherwise it returns 
+        /// a one item IEnumerable with the result of p.
+        /// </summary>
+        /// <returns>A list of 0 or 1 parsed items</returns>
+        public static Parser<Seq<T>> optionalSeq<T>(Parser<T> p) =>
+            inp =>
+            {
+                var r = p.Map(x => x.Cons())(inp);
+                return r.Reply.Tag == ReplyTag.OK
+                    ? r
+                    : EmptyOK(Seq<T>.Empty, inp);
+            };
+
+        /// <summary>
         /// optionalArray(p) tries to apply parser p.  If p fails without
         /// consuming input, it return [], otherwise it returns a one 
         /// item array with the result of p.
@@ -401,15 +546,6 @@ namespace LanguageExt.Parsec
                     ? r
                     : EmptyOK(new T [0], inp);
             };
-
-        /// <summary>
-        /// optionalSeq(p) tries to apply parser p.  If p fails without
-        /// consuming input, it return an empty IEnumerable, otherwise it returns 
-        /// a one item IEnumerable with the result of p.
-        /// </summary>
-        /// <returns>A list of 0 or 1 parsed items</returns>
-        public static Parser<IEnumerable<T>> optionalSeq<T>(Parser<T> p) =>
-            optionalList(p).Map(x => x.AsEnumerable());
 
         /// <summary>
         /// between(open,close,p) parses open, followed by p and close.
@@ -430,7 +566,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<IEnumerable<T>> sepBy1<S, T>(Parser<T> p, Parser<S> sep) =>
+        public static Parser<Seq<T>> sepBy1<S, T>(Parser<T> p, Parser<S> sep) =>
             from x in p
             from xs in many(from _ in sep
                             from y in p
@@ -444,8 +580,8 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<IEnumerable<T>> sepBy<S, T>(Parser<T> p, Parser<S> sep) =>
-            either(sepBy1(p, sep), result(new T[0].AsEnumerable()));
+        public static Parser<Seq<T>> sepBy<S, T>(Parser<T> p, Parser<S> sep) =>
+            either(sepBy1(p, sep), result(Seq<T>.Empty));
 
         /// <summary>
         /// sepEndBy1(p,sep) parses one or more occurrences of p,
@@ -454,12 +590,12 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<IEnumerable<T>> sepEndBy1<S, T>(Parser<T> p, Parser<S> sep) =>
+        public static Parser<Seq<T>> sepEndBy1<S, T>(Parser<T> p, Parser<S> sep) =>
             from x in p
             from xs in either(from _ in sep
                               from ys in sepEndBy(p, sep)
                               select ys,
-                              result(new[] { x }.AsEnumerable()))
+                              result(Seq<T>.Empty))
             select x.Cons(xs);
 
         /// <summary>
@@ -469,8 +605,8 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<IEnumerable<T>> sepEndBy<S, T>(Parser<T> p, Parser<S> sep) =>
-            either(sepEndBy1(p, sep), result(new T[0].AsEnumerable()));
+        public static Parser<Seq<T>> sepEndBy<S, T>(Parser<T> p, Parser<S> sep) =>
+            either(sepEndBy1(p, sep), result(Seq<T>.Empty));
 
         /// <summary>
         /// endBy1(p,sep) parses one or more occurrences of p, separated
@@ -479,7 +615,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<IEnumerable<T>> endBy1<S, T>(Parser<T> p, Parser<S> sep) =>
+        public static Parser<Seq<T>> endBy1<S, T>(Parser<T> p, Parser<S> sep) =>
             many1(from x in p
                   from _ in sep
                   select x);
@@ -491,7 +627,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<IEnumerable<T>> endBy<S, T>(Parser<T> p, Parser<S> sep) =>
+        public static Parser<Seq<T>> endBy<S, T>(Parser<T> p, Parser<S> sep) =>
             many(from x in p
                  from _ in sep
                  select x);
@@ -503,7 +639,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<IEnumerable<T>> count<S, T>(int n, Parser<T> p) =>
+        public static Parser<Seq<T>> count<T>(int n, Parser<T> p) =>
             counti(n, p);
 
         /// <summary>
@@ -575,8 +711,7 @@ namespace LanguageExt.Parsec
         /// This parser only succeeds at the end of the input. This is not a
         /// primitive parser but it is defined using 'notFollowedBy'.
         /// </summary>
-        public readonly static Parser<Unit> eof =
-            notFollowedBy(anyChar).label("end of input");
+        public readonly static Parser<Unit> eof;
 
         /// <summary>
         /// notFollowedBy(p) only succeeds when parser p fails. This parser
@@ -604,40 +739,40 @@ namespace LanguageExt.Parsec
         /// <summary>
         /// Parse a char list and convert into a string
         /// </summary>
-        public static Parser<string> asString(Parser<IEnumerable<char>> p) =>
+        public static Parser<string> asString(Parser<Seq<char>> p) =>
             p.Select(x => new string(x.ToArray()));
 
         /// <summary>
         /// Parse a char list and convert into an integer
         /// </summary>
-        public static Parser<Option<int>> asInteger(Parser<IEnumerable<char>> p) =>
+        public static Parser<Option<int>> asInteger(Parser<Seq<char>> p) =>
             p.Select(x => parseInt(new string(x.ToArray())));
 
         /// <summary>
         /// Parse a char list and convert into an integer
         /// </summary>
-        public static Parser<Option<int>> asInteger(Parser<IEnumerable<char>> p, int fromBase) =>
+        public static Parser<Option<int>> asInteger(Parser<Seq<char>> p, int fromBase) =>
             p.Select(x => parseInt(new string(x.ToArray()), fromBase));
 
         /// <summary>
         /// Parse a char list and convert into an double precision floating point value
         /// </summary>
-        public static Parser<Option<double>> asDouble(Parser<IEnumerable<char>> p) =>
+        public static Parser<Option<double>> asDouble(Parser<Seq<char>> p) =>
             p.Select(x => parseDouble(new string(x.ToArray())));
 
         /// <summary>
         /// Parse a char list and convert into an double precision floating point value
         /// </summary>
-        public static Parser<Option<float>> asFloat(Parser<IEnumerable<char>> p) =>
+        public static Parser<Option<float>> asFloat(Parser<Seq<char>> p) =>
             p.Select(x => parseFloat(new string(x.ToArray())));
 
-        public static Parser<IEnumerable<T>> manyUntil<T, U>(Parser<T> p, Parser<U> end)
+        public static Parser<Seq<T>> manyUntil<T, U>(Parser<T> p, Parser<U> end)
         {
-            Parser<IEnumerable<T>> scan = null;
+            Parser<Seq<T>> scan = null;
 
             scan = either(
                 from _ in end
-                select new T[0].AsEnumerable(),
+                select Seq<T>.Empty,
                 from x  in p
                 from xs in scan
                 select x.Cons(xs));

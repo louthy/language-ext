@@ -11,7 +11,7 @@ namespace LanguageExtTests
         public void MapTest()
         {
             // Generates 10,20,30,40,50
-            var input = toQuery(List(1, 2, 3, 4, 5));
+            var input = toQuery(new[] { 1, 2, 3, 4, 5 });
 
             var output1 = map(input, x => x * 10);
 
@@ -28,7 +28,7 @@ namespace LanguageExtTests
         public void ReduceTest1()
         {
             // Generates 10,20,30,40,50
-            var input = toQuery(List(1, 2, 3, 4, 5));
+            var input = toQuery(new[] { 1, 2, 3, 4, 5 });
             var output1 = map(input, (i,x) => x * 10);
 
             // Generates 30,40,50
@@ -44,7 +44,7 @@ namespace LanguageExtTests
         public void ReduceTest2()
         {
             // Generates 10,20,30,40,50
-            var input = toQuery(List(1, 2, 3, 4, 5));
+            var input = toQuery(new[] { 1, 2, 3, 4, 5 });
             var output1 = map(input, (i, x) => (i + 1) * 10);
 
             // Generates 30,40,50
@@ -59,7 +59,7 @@ namespace LanguageExtTests
         [Fact]
         public void MapTestFluent()
         {
-            var res = toQuery(List(1, 2, 3, 4, 5))
+            var res = toQuery(new[] { 1, 2, 3, 4, 5 })
                         .Map(x => x * 10)
                         .Filter(x => x > 20)
                         .Fold(0, (x, s) => s + x);
@@ -70,7 +70,7 @@ namespace LanguageExtTests
         [Fact]
         public void ReduceTestFluent()
         {
-            var res = toQuery(List(1, 2, 3, 4, 5))
+            var res = toQuery(new[] { 1, 2, 3, 4, 5 })
                         .Map(x => x * 10)
                         .Filter(x => x > 20)
                         .Reduce((x, s) => s + x);

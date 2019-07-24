@@ -1,9 +1,10 @@
 ﻿using Xunit;
 using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
-    class EitherCoalesceTests
+    public class EitherCoalesceTests
     {
         [Fact]
         public void EitherCoalesceTest1()
@@ -86,7 +87,7 @@ namespace LanguageExtTests
         [Fact]
         public void TryFun()
         {
-            TryOption<int> x = () => 100;
+            var x = TryOption(() => 100);
         }
     }
 }

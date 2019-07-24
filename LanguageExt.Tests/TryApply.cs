@@ -43,7 +43,7 @@ namespace LanguageExtTests
                 .Apply(fail)
                 .Apply(four);
 
-            comp.Iter(
+            comp.Match(
                 Succ: x  => Assert.True(false),
                 Fail: ex => Assert.True(ex.Message == "fail")
                 );
@@ -54,7 +54,7 @@ namespace LanguageExtTests
         {
             var comp = apply(apply(tryadd, fail), four);
 
-            comp.Iter(
+            comp.Match(
                 Succ: x => Assert.True(false),
                 Fail: ex => Assert.True(ex.Message == "fail")
                 );
@@ -65,7 +65,7 @@ namespace LanguageExtTests
         {
             var comp = apply(tryadd, fail, four);
 
-            comp.Iter(
+            comp.Match(
                 Succ: x => Assert.True(false),
                 Fail: ex => Assert.True(ex.Message == "fail")
                 );

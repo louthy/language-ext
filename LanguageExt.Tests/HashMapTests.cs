@@ -1,17 +1,18 @@
 ﻿using LanguageExt;
-using LanguageExt.Trans;
+//using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using static LanguageExt.HashMap;
 using Xunit;
 using System;
 using System.Linq;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExtTests
 {
     public class HashMapTests
     {
         [Fact]
-        public void MapGeneratorTest()
+        public void HashMapGeneratorTest()
         {
             var m1 = HashMap<int, string>();
             m1 = add(m1, 100, "hello");
@@ -185,8 +186,7 @@ namespace LanguageExtTests
         {
             int max = 100000;
 
-            var items = LanguageExt.List.map(Range(1, max), _ => Tuple(Guid.NewGuid(), Guid.NewGuid()))
-                                        .ToDictionary(kv => kv.Item1, kv => kv.Item2);
+            var items = Range(1, max).Map( _ => (Key: Guid.NewGuid(), Value: Guid.NewGuid())).ToSeq();
 
             var m = HashMap<Guid, Guid>().AddRange(items);
             Assert.True(m.Count == max);
@@ -202,25 +202,30 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void MapOptionTest()
+        public void HashMapSetTest()
         {
-            var m = HashMap<Option<int>, HMap<Option<int>, string>>();
+            var map = HashMap<EqStringOrdinalIgnoreCase, string, int>(("one", 1), ("two",2), ("three", 3));
+            var map2 = map.SetItem("One", -1);
+            Assert.Equal(3, map2.Count);
+            Assert.Equal(-1, map2["one"]);
+            Assert.DoesNotContain("one", map2.Keys); // make sure key got replaced, too
+            Assert.Contains("One", map2.Keys); // make sure key got replaced, too
 
-            m = m.AddOrUpdate(Some(1), Some(1), "Some Some");
-            m = m.AddOrUpdate(None, Some(1), "None Some");
-            m = m.AddOrUpdate(Some(1), None, "Some None");
-            m = m.AddOrUpdate(None, None, "None None");
+            Assert.Throws<ArgumentException>(() => map.SetItem("four", identity));
+        }
 
-            Assert.True(m[Some(1)][Some(1)] == "Some Some");
-            Assert.True(m[None][Some(1)] == "None Some");
-            Assert.True(m[Some(1)][None] == "Some None");
-            Assert.True(m[None][None] == "None None");
-
-            Assert.True(m.CountT() == 4);
-
-            m = m.FilterT(v => v.EndsWith("None", StringComparison.Ordinal));
-
-            Assert.True(m.CountT() == 2);
+        [Fact]
+        public void EqualsTest()
+        {
+            Assert.True(HashMap<int, int>().Equals(HashMap<int, int>()));
+            Assert.False(HashMap<int, int>((1, 2)).Equals(HashMap<int, int>()));
+            Assert.False(HashMap<int, int>().Equals(HashMap<int, int>((1, 2))));
+            Assert.True(HashMap<int, int>((1, 2)).Equals(HashMap<int, int>((1, 2))));
+            Assert.False(HashMap<int, int>((1, 2), (3, 4)).Equals(HashMap<int, int>((1, 2))));
+            Assert.False(HashMap<int, int>((1, 2)).Equals(HashMap<int, int>((1, 2), (3, 4))));
+            Assert.True(HashMap<int, int>((1, 2), (3, 4)).Equals(HashMap<int, int>((1, 2), (3, 4))));
+            Assert.True(HashMap<int, int>((3, 4), (1, 2)).Equals(HashMap<int, int>((1, 2), (3, 4))));
+            Assert.True(HashMap<int, int>((3, 4), (1, 2)).Equals(HashMap<int, int>((3, 4), (1, 2))));
         }
     }
 }

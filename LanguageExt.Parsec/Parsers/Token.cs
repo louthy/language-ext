@@ -20,7 +20,7 @@ namespace LanguageExt.Parsec
         ///  definitions in the language record.
         /// 
         ///  The use of this function is quite stylised - one imports the
-        ///  appropiate language definition and selects the lexical parsers that
+        ///  appropriate language definition and selects the lexical parsers that
         ///  are needed from the resulting 'GenTokenParser'.
         /// 
         ///    // The parser
@@ -137,9 +137,9 @@ namespace LanguageExt.Parsec
                                let v = parseInt(new string(x.ToArray()), 16)
                                from n in v.Match(
                                    Some: d => result(d),
-                                   None: () => failure<int>("Not a valid octal value"))
+                                   None: () => failure<int>("Not a valid hexadecimal value"))
                                select n)
-                              .label("octal number");
+                              .label("hexadecimal number");
 
             var zeroNumber = (from _ in ch('0')
                               from r in choice(hexadecimal, octal, dec, result(0))
@@ -406,7 +406,7 @@ namespace LanguageExt.Parsec
             from _ in ch(c)
             select code;
 
-        static readonly Lst<Tuple<char, char>> escMap =
-                List.zip("abfnrtv\\\"\'", "\a\b\f\n\r\t\v\\\"\'").Freeze();
+        static readonly Seq<(char, char)> escMap =
+            Seq(List.zip("abfnrtv\\\"\'", "\a\b\f\n\r\t\v\\\"\'").ToArray());
     }
 }

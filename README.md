@@ -1,65 +1,104 @@
-![lang-ext](http://www.4four.org/images/lang-ext-logo.png)
+![lang-ext](https://github.com/louthy/language-ext/blob/master/backers-images/banner.png?raw=true)
 
-C# Functional Language Extensions
-=================================
+C# Functional Programming Language Extensions
+=============================================
 
-[![Join the chat at https://gitter.im/louthy/language-ext](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/louthy/language-ext?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![git-brag-stats](https://labs.turbo.run/git-brag?user=louthy&repo=language-ext&maxn=10)](https://github.com/turbo/git-brag)
+[![Join the chat at https://gitter.im/louthy/language-ext](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/louthy/language-ext?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
-This library uses and abuses the features of C# 6 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself.  It also includes an 'Erlang like' process system (actors) that can optionally persist messages and state to Redis (note you can use it without Redis for in-app messaging).  The process system additionally supports Rx streams of messages and state allowing for a complete system of reactive events and message dispatch.
+This library uses and abuses the features of C# to provide a functional-programming 'Base class library', that, if you squint, can look like 
+extensions to the language itself.  The desire here is to make programming in C# much more reliable and to make the engineer's inertia flow 
+in the direction of declarative and functional code rather than imperative.
 
-#### [API Reference](https://louthy.github.io)
+__Author on twitter:__ 
+https://twitter.com/paullouth
+
+## Reference
+
+#### [API Reference](https://louthy.github.io/language-ext)
+
+#### [Issues that contain documentation and examples](https://github.com/louthy/language-ext/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3A%22examples%20%2F%20documentation%22%20)
+
+## Contributing & Code of Conduct
+
+If you would like to get involved with this project, please first read the [Contribution Guidelines](https://github.com/louthy/language-ext/blob/master/CONTRIBUTING.md) and the [Code of Conduct](https://github.com/louthy/language-ext/blob/master/CODE_OF_CONDUCT.md)
+
+## Nu-get
 
 Nu-get package | Description
 ---------------|-------------
 [LanguageExt.Core](https://www.nuget.org/packages/LanguageExt.Core) | All of the core types and functional 'prelude'.  __This is all that's needed to get started__.
 [LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop library.  Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
 [LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
-[LanguageExt.Process](https://www.nuget.org/packages/LanguageExt.Process) | 'Erlang like' actor system for in-app messaging and massive concurrency
-[LanguageExt.Process.Redis](https://www.nuget.org/packages/LanguageExt.Process.Redis) | Cluster support for the `LanguageExt.Process` system for cluster aware processes using Redis for queue and state persistence
-[LanguageExt.Process.FSharp](https://www.nuget.org/packages/LanguageExt.Process.FSharp) | F# API to the `LanguageExt.Process` system
-[LanguageExt.ProcessJS](https://www.nuget.org/packages/LanguageExt.ProcessJS) | Javascript API to the `LanguageExt.Process` system.  Supports running of Processes in a client browser, with hooks for two-way UI binding.
+[LanguageExt.Rx](https://www.nuget.org/packages/LanguageExt.Rx) | Reactive Extensions support for various types within the Core
+[LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) | Used to generate lenses and `With` functions automagically for record types. 
 
-__Twitter:__ 
-https://twitter.com/paullouth
+## Code-gen setup
 
+To use the code-generation features of language-ext (which are totally optional by the way), then you must include the [LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) package into your project.  
+
+To make the reference **build and design time only** (i.e. your project doesn't gain an additional dependencies because of the code-generator), open up your `csproj` and set the `PrivateAssets` attribute to `all`:
+```c#
+<DotNetCliToolReference Include="dotnet-codegen" Version="0.5.13" />
+<PackageReference Include="LanguageExt.CodeGen" Version="3.1.24" PrivateAssets="all" />
+```
+
+> Obviously, update the `Version` attributes to the appropriate values.  Also note that you will probably need the latest VS2019+ for this to work.  Even early versions of VS2019 seem to have problems.
+
+## Unity
+
+This library seems compatible on the latest (at the time of writing) Unity 2018.2 with __incremental compiler__ (which enables C# 7).
+So this library should work well once Unity has official support for C# 7 on upcoming 2018.3.
+In the meanwhile, you can install incremental compiler instead. 
+If you are concerned about writing functionally and the possible performance overheads then please take a look at [this wiki page](https://github.com/louthy/language-ext/wiki/Performance).
 
 ## Introduction
-One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names that look exactly like functions in functional languages.  i.e.
-
+One of the great features of C#6+ is that it allows us to treat static classes like namespaces.  This means that we can use static 
+methods without qualifying them first.  That instantly gives us access to single term method names that look exactly like functions 
+in functional languages.  i.e.
 ```C#
     using static System.Console;
     
     WriteLine("Hello, World");
 ```
-This library tries to bring some of the functional world into C#.  It won't always sit well with the seasoned C# OO programmer, especially the choice of camelCase names for a lot of functions and the seeming 'globalness' of a lot of the library.  
+This library tries to bring some of the functional world into C#.  It won't always sit well with the seasoned C# OO programmer, 
+especially the choice of camelCase names for a lot of functions and the seeming 'globalness' of a lot of the library.  
 
-I can understand that much of this library is non-idiomatic; But when you think of the journey C# has been on, is idiomatic necessarily right?  A lot of C#'s idioms are inherited from Java and C# 1.0.  Since then we've had generics, closures, Func, LINQ, async...  C# as a language is becoming more and more like a  functional language on every release.  In fact the bulk of the new features are either inspired by or directly taken from features in functional languages.  So perhaps it's time to move the C# idioms closer to the functional world's idioms?
+I can understand that much of this library is non-idiomatic; But when you think of the journey C# has been on, is idiomatic 
+necessarily right?  A lot of C#'s idioms are inherited from Java and C# 1.0.  Since then we've had generics, closures, Func, LINQ, 
+async...  C# as a language is becoming more and more like a  functional language on every release.  In fact the bulk of the new 
+features are either inspired by or directly taken from features in functional languages.  So perhaps it's time to move the C# 
+idioms closer to the functional world's idioms?
 
 __A note about naming__
 
-One of the areas that's likely to get seasoned C# heads worked up is my choice of naming style.  The intent is to try and make something that 'feels' like a functional language rather than follow the 'rule book' on naming conventions (mostly set out by the BCL).  
+One of the areas that's likely to get seasoned C# heads worked up is my choice of naming style.  The intent is to try and make 
+something that 'feels' like a functional language rather than follows the 'rule book' on naming conventions (mostly set out by 
+the BCL).  
 
 There is however a naming guide that will stand you in good stead whilst reading through this documentation:
 
-* Type names are PascalCase in the normal way
-* The types all have constructor functions rather than public constructors that you `new`.  They will always be PascalCase:
+* Type names are `PascalCase` in the normal way
+* The types all have constructor functions rather than public constructors that you instantiate with `new`.  They will always 
+be `PascalCase`:
 ```C#
     Option<int> x = Some(123);
     Option<int> y = None;
     List<int> items = List(1,2,3,4,5);
-    Map<int,string> dict = Map(Tuple(1, "Hello"), Tuple(2, "World"));
+    Map<int, string> dict = Map((1, "Hello"), (2, "World"));
 ```
-* Any (non-type constructor) static functions that can be used on their own by `using static LanguageExt.Prelude` are camelCase.
+* Any (non-type constructor) static function that can be used on its own by `using static LanguageExt.Prelude` are `camelCase`.
 ```C#
     var x = map(opt, v => v * 2);
 ```
-* Any extension methods, or anything 'fluent' are PascalCase in the normal way
+* Any extension methods, or anything 'fluent' are `PascalCase` in the normal way
 ```C#
     var x = opt.Map(v => v * 2);
 ```
-Even if you don't agree with this non-idiomatic approach, all of the camelCase static functions have fluent variants, so actually you never have to see the 'non-standard' stuff. 
+Even if you don't agree with this non-idiomatic approach, all of the `camelCase` static functions have fluent variants, so actually 
+you never have to see the 'non-standard' stuff. 
 
-_If you're not using C# 6 yet, then you can still use this library.  Anywhere in the docs below where you see a camelCase function it can be accessed by prefixing with `Prelude.`_
+_If you're not using C# 6 yet, then you can still use this library.  Anywhere in the docs below where you see a camelCase function 
+it can be accessed by prefixing with `Prelude.`_
 
 ### Getting started
 
@@ -69,71 +108,90 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 ```
 
-The namespace `LanguageExt` contains the types, and `LanguageExt.Prelude` contains the functions.  
-
-There is also:
-* [`LanguageExt.List`](https://louthy.github.io/languageext.core/LanguageExt/List_.htm)
-* [`LanguageExt.Map`](https://louthy.github.io/languageext.core/LanguageExt/Map_.htm)
-* [`LanguageExt.Queue`](https://louthy.github.io/languageext.core/LanguageExt/Queue_.htm)
-* [`LanguageExt.Set`](https://louthy.github.io/languageext.core/LanguageExt/Set_.htm)
-* [`LanguageExt.Stack` ](https://louthy.github.io/languageext.core/LanguageExt/Stack_.htm)
-* [`LanguageExt.Process`](https://louthy.github.io/LanguageExt.Process/LanguageExt/Process_.htm)
-* [`LanguageExt.Parsec`](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/index.htm)
-* [`LanguageExt.Parsec.Char`](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/Char_.htm)
-* `LanguageExt.Parsec.Expr`
-* [`LanguageExt.Parsec.Prim`](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/Prim_.htm)
-* `LanguageExt.Parsec.Token`
-* [`LanguageExt.Parsec.Indent`](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/Indent_.htm)
-* `LanguageExt.UnitsOfMeasure`
-
-
-_(more on those later)_
+The namespace `LanguageExt` contains the core types, and `LanguageExt.Prelude` contains the functions that you bring into scope `using static LanguageExt.Prelude`.  
 
 ### Features
 
-This library is quickly becoming a 'Base Class Library' for functional programming in C#.  The features include:
-
 Location | Feature | Description
 ---------|---------|------------
-`Core` | `Lst<T>` | [Immutable list](https://louthy.github.io/languageext.core/LanguageExt/Lst_T.htm)
-`Core` | `Map<K,V>` | [Immutable map](https://louthy.github.io/languageext.core/LanguageExt/Map_K_V.htm)
-`Core` | `Set<T>` | [Immutable set](https://louthy.github.io/languageext.core/LanguageExt/Set_T.htm)
-`Core` | `Que<T>` | [Immutable queue](https://louthy.github.io/languageext.core/LanguageExt/Que_T.htm)
-`Core` | `Stck<T>` | [Immutable stack](https://louthy.github.io/languageext.core/LanguageExt/Stck_T.htm)
-`Core` | `Option<T>` | [Option monad](https://louthy.github.io/languageext.core/LanguageExt/Option_T.htm) that can't be used with `null` values
-`Core` | `OptionUnsafe<T>` | [Option monad](https://louthy.github.io/languageext.core/LanguageExt/OptionUnsafe_T.htm) that can be used with `null` values
-`Core` | `Either<L,R>` | [Right/Left choice monad](https://louthy.github.io/languageext.core/LanguageExt/Either_L_R.htm) that won't accept `null` values
-`Core` | `EitherUnsafe<L,R>` | [Right/Left choice monad](https://louthy.github.io/languageext.core/LanguageExt/EitherUnsafe_L_R.htm) that can be used with `null` values
-`Core` | `Try<T>` | [Exception handling lazy monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#Try_T)
-`Core` | `TryOption<T>` | [Option monad with third state](https://louthy.github.io/languageext.core/LanguageExt/index.htm#TryOption_T) 'Fail' that catches exceptions
-`Core` | `Reader<E,T>` | [Reader monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#Reader_Env_T)
-`Core` | `Writer<O,T>` | [Writer monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#Writer_Out_T)
-`Core` | `State<S,T>` | [State monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#State_S_T)
-`Core` | `Rws<E,O,S,T>` | [Reader/Writer/State monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#Rws_R_W_S_T)
-`Parsec` | `Parser<T>` | [Parser monad and full parser combinators library](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/index.htm)
-`Core` | `NewType<T>` | [Haskell `newtype` equivalent](https://louthy.github.io/languageext.core/LanguageExt/NewType_T.htm) i.e: `class Hours : NewType<double> { public Hours(double value) : base(value) { } }`.  The resulting type is: equatable, comparable, foldable, a functor, monadic, appendable, subtractable, divisible, multiplicable, and iterable
-`Core` | `Nullable<T>` extensions | [Extension methods for `Nullable<T>`](https://louthy.github.io/languageext.core/LanguageExt/NullableExtensions_.htm) that make it into a functor, applicative, foldable, iterable and a monad
-`Core` | `Task<T>` extensions | [Extension methods for `Task<T>`](https://louthy.github.io/languageext.core/LanguageExt/__TaskExt_.htm) that make it into a functor, applicative, foldable, iterable and a monad
+`Core` | `Arr<A>` | [Immutable array](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Arr_A.htm)
+`Core` | `Lst<A>` | [Immutable list](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Lst_A.htm)
+`Core` | `Map<K, V>` | [Immutable map](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Map_K_V.htm)
+`Core` | `Map<OrdK, K, V>` | [Immutable map with Ord constraint on `K`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Map_OrdK_K_V.htm)
+`Core` | `HashMap<K, V>` | [Immutable hash-map](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashMap_K_V.htm)
+`Core` | `HashMap<EqK, K, V>` | [Immutable hash-map with Eq constraint on `K`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashMap_EqK_K_V.htm)
+`Core` | `Set<A>` | [Immutable set](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Set_A.htm)
+`Core` | `Set<OrdA, A>` | [Immutable set with Ord constraint on `A`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Set_OrdA_A.htm)
+`Core` | `HashSet<A>` | [Immutable hash-set](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashSet_A.htm)
+`Core` | `HashSet<EqA, A>` | [Immutable hash-set with Eq constraint on `A`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashSet_EqA_A.htm)
+`Core` | `Que<A>` | [Immutable queue](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Que_T.htm)
+`Core` | `Stck<A>` | [Immutable stack](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Stck_T.htm)
+`Core` | `Option<A>` | [Option monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Option_A.htm) that can't be used with `null` values
+`Core` | `OptionAsync<A>` | [OptionAsync monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/OptionAsync_A.htm) that can't be used with `null` values with all value realisation does asynchronously
+`Core` | `OptionUnsafe<T>` | [Option monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/OptionUnsafe_A.htm) that can be used with `null` values
+`Core` | `Either<L,R>` | [Right/Left choice monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Either_L_R.htm) that won't accept `null` values
+`Core` | `EitherUnsafe<L, R>` | [Right/Left choice monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/EitherUnsafe_L_R.htm) that can be used with `null` values
+`Core` | `EitherAsync<L, R>` | [EitherAsync monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/EitherAsync_L_R.htm) that can't be used with `null` values with all value realisation done asynchronously
+`Core` | `Try<A>` | [Exception handling lazy monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Try_A.htm)
+`Core` | `TryAsync<A>` | [Asynchronous exception handling lazy monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TryAsync_A.htm)
+`Core` | `TryOption<A>` | [Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TryOption_A.htm) 'Fail' that catches exceptions
+`Core` | `TryOptionAsync<A>` | [Asynchronous Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TryOptionAsync_A.htm) 'Fail' that catches exceptions
+`Core` | `Record<A>` | [Base type for creating record types](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Record_RECORDTYPE.htm)  with automatic structural equality, ordering, and hash code calculation.
+`Core` | `Lens<A, B>` | [Well behaved bidirectional transformations](#transformation-of-nested-immutable-types-with-lenses) - i.e. the ability to easily generate new immutable values from existing ones, even when heavily nested.
+`Core` | `Reader<E, A>` | [Reader monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Reader_Env_A.htm)
+`Core` | `Writer<MonoidW, W, T>` | [Writer monad that logs to a `W` constrained to be a Monoid](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Writer_MonoidW_W_A.htm)
+`Core` | `State<S, A>` | [State monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/State_S_A.htm)
+`Core` | `Patch<EqA, A>` | Uses patch-theory to efficiently calculate the difference (`Patch.diff(list1, list2)`) between two collections of `A` and build a patch which can be applied (`Patch.apply(patch, list)`) to one to make the other (think git diff).
+`Parsec` | `Parser<A>` | [String parser monad and full parser combinators library](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/index.htm#Parser_T)
+`Parsec` | `Parser<I, O>` | [Parser monad that can work with any input stream type](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/index.htm#Parser_I_O)
+`Core` | `NewType<SELF, A, PRED>` | [Haskell `newtype` equivalent](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/NewType_NEWTYPE_A_PRED.htm) i.e: `class Hours : NewType<Hours, double> { public Hours(double value) : base(value) { } }`.  The resulting type is: equatable, comparable, foldable, a functor, monadic, and iterable
+`Core` | `NumType<SELF, NUM, A, PRED>` | [Haskell `newtype` equivalent but for numeric types](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/NumType_NUMTYPE_NUM_A_PRED.htm) i.e: `class Hours : NumType<Hours, TDouble, double> { public Hours(double value) : base(value) { } }`.  The resulting type is: equatable, comparable, foldable, a functor, a monoid, a semigroup, monadic, iterable, and can have basic artithmetic operations performed upon it.
+`Core` | `FloatType<SELF, FLOATING, A, PRED>` | [Haskell `newtype` equivalent but for real numeric types](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/FloatType_SELF_FLOATING_A_PRED.htm) i.e: `class Hours : FloatType<Hours, TDouble, double> { public Hours(double value) : base(value) { } }`.  The resulting type is: equatable, comparable, foldable, a functor, a monoid, a semigroup, monadic, iterable, and can have complex artithmetic operations performed upon it.
+`Core` | `Nullable<T>` extensions | [Extension methods for `Nullable<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/NullableExtensions_.htm) that make it into a functor, applicative, foldable, iterable and a monad
+`Core` | `Task<T>` extensions | [Extension methods for `Task<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/TaskExtensions_.htm) that make it into a functor, applicative, foldable, iterable and a monad
+`Core` | `Validation<FAIL,SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Validation_FAIL_SUCCESS.htm) for collecting multiple errors before aborting an operation
+`Core` | `Validation<MonoidFail, FAIL, SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Validation_FAIL_SUCCESS.htm) for collecting multiple errors before aborting an operation, uses the supplied monoid in the first generic argument to collect the failure values.
 `Core` | Monad transformers | A higher kinded type (ish)
-`Process` | `Process` library | [Actor system.  The same as Erlang processes for massive concurrency with state management.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
-`Process.Redis` | Redis persistence | [Persistence of the `Process` system message-queues and state, for robustness and inter-app communication.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
-`Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#curry<T1, T2, R>)
-`Core` | Partial application | [the process of fixing a number of arguments to a function, producing another function of smaller arity](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#par<T1, T2, R>)
-`Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#memo<T, R>)
-`Core` | [Improved lambda type inference](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#fun) | `var add = fun( (int x, int y) => x + y)`
-`Core` | `IObservable<T>` extensions  |
+`Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#curry&lt;T1,%20T2,%20R&gt;)
+`Core` | Partial application | [the process of fixing a number of arguments to a function, producing another function of smaller arity](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#par&lt;T1,%20T2,%20R&gt;)
+`Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#memo&lt;T,%20R&gt;)
+`Core` | [Improved lambda type inference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#fun<R>) | `var add = fun( (int x, int y) => x + y)`
+`Core` | [`IQueryable<T>` extensions](https://louthy.github.io/language-ext/LanguageExt.Core/QueryExtensions_.htm)  |
+`Core` | [`IObservable<T>` extensions](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/ObservableExt_.htm)  |
 
 It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
 
-* Poor tuple support
-* Null reference problem
-* Lack of lambda and expression inference 
-* Void isn't a real type
-* Mutable lists and dictionaries
-* The awful 'out' parameter
+* [Poor tuple support](#poor-tuple-support)
+* [Null reference problem](#null-reference-problem)
+    * [Option](#option)
+* [Lack of lambda and expression inference](#lack-of-lambda-and-expression-inference)
+* [Void isn't a real type](#void-isnt-a-real-type)
+* [Mutable lists and dictionaries](#mutable-lists-and-dictionaries)
+   * [Lists](#lists)
+   * [List pattern matching](#list-pattern-matching)
+   * [Maps](#maps)
+* [Difficulty in creating immutable record types](#difficulty-in-creating-immutable-record-types)
+   * [Transformation of immutable types](#transformation-of-immutable-types)
+      * [`[With]`](#with)
+   * [Transformation of nested immutable types with Lenses](#transformation-of-nested-immutable-types-with-lenses)
+      * [`[WithLens]`](#withlens)
+* [The awful 'out' parameter](#the-awful-out-parameter)
+* [The lack of ad-hoc polymorphism](#ad-hoc-polymorphism)
+   * [`Num<A>`](#num<A>)
+   * [`Eq<A>`](#eq<A>)
+   * [`Ord<A>`](#ord<A>)
+   * [`Semigroup<A>`](#semigroup<A>)
+   * [`Monoid<A>`](#monoid<A>)
+   * [`Monad`](#monad)
+   * [Transformer types](#transformer-types)
+
+   
 
 ## Poor tuple support
-I've been crying out for proper tuple support for ages.  It looks like we're no closer with C# 6.  The standard way of creating them is ugly `Tuple.Create(foo,bar)` compared to functional languages where the syntax is often `(foo,bar)` and to consume them you must work with the standard properties of `Item1`...`ItemN`.  No more...
+I've been crying out for proper tuple support for ages.  When this library was created we were no closer (C# 6).  
+The standard way of creating them is ugly `Tuple.Create(foo,bar)` compared to functional languages where the syntax is often 
+`(foo,bar)` and to consume them you must work with the standard properties of `Item1`...`ItemN`.  Luckily now in C# 7
+we can use: `(foo,bar)`.  But for those that can't:
 
 ```C#
     var ab = Tuple("a","b");
@@ -145,28 +203,60 @@ Consuming the tuple is now handled using `Map`, which projects the `Item1`...`It
 
 ```C#
     var name = Tuple("Paul","Louth");
-    var res = name.Map( (first,last) => String.Format("{0} {1}", first, last) );
+    var res = name.Map( (first, last) => $"{first} {last}");
 ```
 Or, you can use a more functional approach:
 ```C#
     var name = Tuple("Paul","Louth");
-    var res = map( name, (first,last) => String.Format("{0} {1}", first, last) );
+    var res = map( name, (first, last) => $"{first} {last}");
 ```
 This allows the tuple properties to have names, and it also allows for fluent handling of functions that return tuples.
 
+If you are using C#7 then you'll know that the new `Tuple` type is `ValueTuple`.  Just like with `Tuple`, language-ext 
+adds many extensions to the standard BCL `ValueTuple`.  
+
+For example:
+
+```C#
+    var abc = ('a', 'b').Add('c');                                           // ('a', 'b', 'c')
+    var abcd = ('a', 'b').Add('c').Add('d');                                 // ('a', 'b', 'c', 'd')
+    var abcd5 = ('a', 'b').Add('c').Add('d').Add(5);                         // ('a', 'b', 'c', 'd', 5)
+
+    var sum = (1, 2, 3).Sum<TInt, int>();                                    // 6
+    var product = (2, 4, 8).Product<TInt, int>();                            // 64
+    var flag = ("one", "two", "three").Contains<TString, string>("one");     // true
+    var str = ("Hello", " ", "World").Concat<TString, string>();             // "Hello World"
+    var list = (List(1, 2, 3), List(4, 5, 6)).Concat<TLst<int>, Lst<int>>(); // [1,2,3,4,5,6]
+```
+
 ## Null reference problem
-`null` must be the biggest mistake in the whole of computer language history.  I realise the original designers of C# had to make pragmatic decisions, it's a shame this one slipped through though.  So, what to do about the 'null problem'?
+`null` must be the biggest mistake in the whole of computer language history.  I realise the original designers 
+of C# had to make pragmatic decisions, it's a shame this one slipped through though.  So, what to do about the 
+'null problem'?
 
-`null` is often used to indicate 'no value'.  i.e. the method called can't produce a value of the type it said it was going to produce, and therefore it gives you 'no value'.  The thing is that when 'no value' is passed to the consuming code, it gets assigned to a variable of type T, the same type that the function said it was going to return, except this variable now has a timebomb in it.  You must continually check if the value is `null`, if it's passed around it must be checked too.  
+`null` is often used to indicate 'no value'.  i.e. the method called can't produce a value of the type it said 
+it was going to produce, and therefore it gives you 'no value'.  The thing is that when 'no value' is passed to 
+the consuming code, it gets assigned to a variable of type T, the same type that the function said it was going 
+to return, except this variable now has a timebomb in it.  You must continually check if the value is `null`, if 
+it's passed around it must be checked too.  
 
-As we all know it's only a matter of time before a null reference bug crops up because the variable wasn't checked.  It puts C# in the realm of the dynamic languages, where you can't trust the value you're being given.
+As we all know it's only a matter of time before a null reference bug crops up because the variable wasn't 
+checked.  It puts C# in the realm of the dynamic languages, where you can't trust the value you're being given.
 
-Functional languages use what's known as an 'option type'.  In F# it's called `Option` in Haskell it's called `Maybe`.  In the next section we'll see how it's used.
+Functional languages use what's known as an 'option type'.  In F# it's called `Option` in Haskell it's called 
+`Maybe`.  In the next section we'll see how it's used.
 
 ## Option
-`Option<T>` works in a very similar way to `Nullable<T>` except it works with all types rather than just value types.  It's a `struct` and therefore can't be `null`.  An instance can be created by either calling `Some(value)`, which represents a positive 'I have a value' response;  Or `None`, which is the equivalent of returning `null`.
+`Option<T>` works in a very similar way to `Nullable<T>` except it works with all types rather than just value 
+types.  It's a `struct` and therefore can't be `null`.  An instance can be created by either calling `Some(value)`, 
+which represents a positive 'I have a value' response;  Or `None`, which is the equivalent of returning `null`.
 
-So why is it any better than returning `T` and using `null`?  It seems we can have a non-value response again right?  Yes, that's true, however you're forced to acknowledge that fact, and write code to handle both possible outcomes because you can't get to the underlying value without acknowledging the possibility of the two states that the value could be in.  This bulletproofs your code.  You're also explicitly telling any other programmers that: "This method might not return a value, make sure you deal with that".  This explicit declaration is very powerful.
+So why is it any better than returning `T` and using `null`?  It seems we can have a non-value response again 
+right?  Yes, that's true, however you're forced to acknowledge that fact, and write code to handle both possible 
+outcomes because you can't get to the underlying value without acknowledging the possibility of the two states 
+that the value could be in.  This bulletproofs your code.  You're also explicitly telling any other programmers 
+that: "This method might not return a value, make sure you deal with that".  This explicit declaration is very 
+powerful.
 
 This is how you create an `Option<int>`:
 
@@ -196,9 +286,15 @@ Yet another alternative (fluent) matching method is this:
 ```
 So choose your preferred method and stick with it.  It's probably best not to mix styles.
 
-There are also some helper functions to work with default `None` values,  You won't see a `.Value` or a `GetValueOrDefault()` anywhere in this library.  It is because `.Value` puts us right back to where we started, you may as well not use `Option<T>` in that case.  `GetValueOrDefault()` is as bad, because it can return `null` for reference types, and depending on how well defined the `struct` type is you're working with: a poorly defined value type.
+There are also some helper functions to work with default `None` values,  You won't see a `.Value` or a 
+`GetValueOrDefault()` anywhere in this library.  It is because `.Value` puts us right back to where we started, 
+you may as well not use `Option<T>` in that case.  `GetValueOrDefault()` is as bad, because it can return `null` 
+for reference types, and depending on how well defined the `struct` type is you're working with: a poorly 
+defined value type.
 
-However, clearly there will be times when you don't need to do anything with the `Some` case, because, well that's what you asked for.  Also, sometimes you just want some code to execute in the `Some` case and not the `None` case...
+However, clearly there will be times when you don't need to do anything with the `Some` case, because, well 
+that's what you asked for.  Also, sometimes you just want some code to execute in the `Some` case and not the 
+`None` case...
 
 ```C#
     // Returns the Some case 'as is' and 10 in the None case
@@ -216,7 +312,8 @@ Of course there are functional versions of the fluent version above:
     int x = ifNone(optional, () => GetAlternative());
     ifSome(optional, x => Console.WriteLine(x));
 ```
-To smooth out the process of returning `Option<T>` types from methods there are some implicit conversion operators and constructors:
+To smooth out the process of returning `Option<T>` types from methods there are some implicit conversion 
+operators and constructors:
 
 ```C#
     // Implicitly converts the integer to a Some of int
@@ -226,7 +323,7 @@ To smooth out the process of returning `Option<T>` types from methods there are 
     }
 
     // Implicitly converts to a None of int
-    Option<int> GetValue() => 
+    Option<int> GetValue()
     {
         return None;
     }
@@ -252,7 +349,8 @@ To smooth out the process of returning `Option<T>` types from methods there are 
     }
 ```
 
-It's actually nearly impossible to get a `null` out of a function, even if the `T` in `Option<T>` is a reference type and you write `Some(null)`.  Firstly it won't compile, but you might think you can do this:
+It's actually nearly impossible to get a `null` out of a function, even if the `T` in `Option<T>` is a 
+reference type and you write `Some(null)`.  Firstly it won't compile, but you might think you can do this:
 
 ```C#
     private Option<string> GetStringNone()
@@ -261,7 +359,9 @@ It's actually nearly impossible to get a `null` out of a function, even if the `
         return Some(nullStr);
     }
 ```
-That will compile, but at runtime will throw a `ValueIsNullException`.  If you do either of these (below) you'll get a `None`.  
+That will compile, but at runtime will throw a `ValueIsNullException`.  If you do either of these (below) 
+you'll get a `None`.  
+
 ```C#
     private Option<string> GetStringNone()
     {
@@ -294,7 +394,9 @@ Converts from |  Converts to
 `Optional(Nullable null)` | `None`
 `Optional(Nullable x)` | `Some(x)`
 
-As well as the protection of the internal value of `Option<T>`, there's protection for the return value of the `Some` and `None` handler functions.  You can't return `null` from those either, an exception will be thrown.
+As well as the protection of the internal value of `Option<T>`, there's protection for the return value 
+of the `Some` and `None` handler functions.  You can't return `null` from those either, an exception will 
+be thrown.
 
 ```C#
     // This will throw a ResultIsNullException exception
@@ -305,7 +407,11 @@ As well as the protection of the internal value of `Option<T>`, there's protecti
 
 So `null` goes away if you use `Option<T>`.
 
-However, there are times when you want your `Some` and `None` handlers to return `null`.  This is mostly when you need to use something in the BCL or from a third-party library, so momentarily you need to step out of your warm and cosy protected optional bubble, but you've got an `Option<T>` that will throw an exception if you try.  
+However, there are times when you want your `Some` and `None` handlers to return `null`.  This is mostly 
+when you need to use something in the BCL or from a third-party library, so momentarily you need to step 
+out of your warm and cosy protected optional bubble, but you've got an `Option<T>` that will throw an 
+exception if you try.  
+
 So you can use `matchUnsafe` and `ifNoneUnsafe`:
 
 ```C#
@@ -325,11 +431,16 @@ And fluent versions:
     string x = optional.IfNoneUnsafe((string)null);
     string x = optional.IfNoneUnsafe(() => GetNull());
 ```
-That is consistent throughout the library.  Anything that could return `null` has the `Unsafe` suffix.  That means that in those unavoidable circumstances where you need a `null`, it gives you and any other programmers working with your code the clearest possible sign that they should treat the result with care.
+That is consistent throughout the library.  Anything that could return `null` has the `Unsafe` suffix.  That 
+means that in those unavoidable circumstances where you need a `null`, it gives you and any other programmers 
+working with your code the clearest possible sign that they should treat the result with care.
 
 ### Option monad - gasp!  Not the M word!
 
-I know, it's that damn monad word again.  They're actually not scary at all, and damn useful.  But if you couldn't care less (or _could_ care less, for my American friends), it won't stop you taking advantage of the `Option<T>` type.  However, `Option<T>` type also implements `Select` and `SelectMany` and is therefore monadic.  That means it can be used in LINQ expressions, but it means much more also.  
+I know, it's that damn monad word again.  They're actually not scary at all, and damn useful.  But if you 
+couldn't care less (or _could_ care less, for my American friends), it won't stop you taking advantage of the 
+`Option<T>` type.  However, `Option<T>` type also implements `Select` and `SelectMany` and is therefore monadic.  
+That means it can be used in LINQ expressions, but it means much more also.  
 
 ```C#
     Option<int> two = Some(2);
@@ -356,7 +467,10 @@ I know, it's that damn monad word again.  They're actually not scary at all, and
                    Some: v => v * 2,
                    None: () => 0 );     // r == 0
 ```
-This can be great for avoiding the use of `if then else`, because the computation continues as long as the result is `Some` and bails otherwise.  It is also great for building blocks of computation that you can compose and reuse.  Yes, actually compose and reuse, not like OO where the promise of composability and modularity are essentially lies.  
+This can be great for avoiding the use of `if then else`, because the computation continues as long as the 
+result is `Some` and bails otherwise.  It is also great for building blocks of computation that you can compose 
+and reuse.  Yes, actually compose and reuse, not like OO where the promise of composability and modularity are 
+essentially lies.  
 
 To take this much further, all of the monads in this library implement a standard 'functional set' of functions:
 ```C#
@@ -377,27 +491,34 @@ To take this much further, all of the monads in this library implement a standar
 This makes them into what would be known in Haskell as a Type Class (although more of a catch-all type-class than a set of well-defined type-classes).  
 
 
-* [Option reference](https://louthy.github.io/languageext.core/LanguageExt/Option_T.htm)
-* [Option extensions reference](https://louthy.github.io/languageext.core/LanguageExt/OptionExtensions_.htm)
+* [Option reference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Option_A.htm)
+* [Option extensions reference](https://louthy.github.io/language-ext/LanguageExt.Core/OptionExtensions_.htm)
 
 __Monad transformers__
 
-Now the problem with C# is it can't do higher order polymorphism  (imagine saying `Monad<Option<T>>` instead of `Option<T>`, `Either<L,R>`, `Try<T>`, `IEnumerable<T>`.  And then the resulting type having all the features of the `Option` as well as the standard interface to `Monad`).
+Monad transformers allow for nested monadic types.  Imagine functionality for working with `Seq<Option<A>>` or a `Option<Task<A>>`, etc.
 
-There's a kind of cheat way to do it in C# through extension methods.  It still doesn't get you a single type called `Monad<T>`, so it has limitations in terms of passing it around.  However it makes some of the problems of dealing with nested monadic types easier.
+Now the problem with C# is it can't do higher order polymorphism  (imagine saying `Monad<M<T>>` where the `M` is polymorphic like the `T`).
 
-For example, below is a list of optional integers: `Lst<Option<int>>` (see lists later).  We want to double all of the `Some` values, leave the `None` alone and keep everything in the list:
+There's a kind of cheat way to do it in C# through extension methods.  It still doesn't get you a single type called `Monad<M<T>>` 
+(which is discussed later in the section on Ad-hoc Polymorphism), so it has limitations in that you can't write generic functions over higher-kinds.  
+However it makes some of the problems of dealing with nested monadic types easier.
+
+For example, below is a list of optional integers: `Lst<Option<int>>` (see lists later).  We want to double all of the `Some` values, leave the 
+`None` alone and keep everything in the list:
 
 ```C#
-    using LanguageExt.Trans;  // Required for all transformer extension methods
+    using LanguageExt;
+    using static LanguageExt.Prelude;
+    using LanguageExt.ClassInstances;    // Required for TInt on Sum (see ad-hoc polymorphism later)
 
     var list = List(Some(1), None, Some(2), None, Some(3));
-    
-    var presum = list.SumT();                                // 6
-    
-    list  = list.MapT( x => x * 2 );
-    
-    var postsum = list.SumT();                               // 12
+
+    var presum = list.SumT<TInt, int>();                                // 6
+
+    list = list.MapT(x => x * 2);
+
+    var postsum = list.SumT<TInt, int>();
 ```
 Notice the use of `MapT` instead of `Map` (and `SumT` instead of `Sum`).  If we used `Map` (equivalent to `Select` in `LINQ`), it would look like this:
 ```C#
@@ -409,15 +530,21 @@ Notice the use of `MapT` instead of `Map` (and `SumT` instead of `Sum`).  If we 
     
     var postsum = list.Map(x => x.Sum()).Sum();
 ```
-As you can see the intention is much clearer in the first example.  And that's the point with functional programming most of the time.  It's about declaring intent rather than the mechanics of delivery.
+As you can see the intention is much clearer in the first example.  And that's the point with functional programming most of the time.  It's about 
+declaring intent rather than the mechanics of delivery.
 
-To make this work we need extension methods for `List<Option<T>>` that define `MapT` and `SumT` [for the one  example above].  And we need one for every pair of monads in this library (for one level of nesting `A<B<T>>`), and for every function from the 'standard functional set' listed above.  So that's 13 monads * 13 monads * 14 functions.  That's a lot of extension methods.  So there's T4 template that generates 'monad transformers' that allows for nested monads.
+To make this work we need extension methods for `List<Option<T>>` that define `MapT` and `SumT` [for the one  example above].  And we need one for 
+every pair of monads in this library (for one level of nesting `A<B<T>>`), and for every function from the 'standard functional set' listed above.  
+So that's 13 monads * 13 monads * 14 functions.  That's a lot of extension methods.  So there's T4 template that generates 'monad transformers' 
+that allows for nested monads.
 
-This is super powerful, and means that most of the time you can leave your `Option<T>` or any of the monads in this library wrapped.  You rarely need to extract the value.  Mostly you only need to extract the value to pass to the BCL or Third-party libraries.  Even then you could keep them wrapped and use `Iter` or `IterT`.
+This is super powerful, and means that most of the time you can leave your `Option<T>` or any of the monads in this library wrapped.  You rarely 
+need to extract the value.  Mostly you only need to extract the value to pass to the BCL or Third-party libraries.  Even then you could keep 
+them wrapped and use `Iter` or `IterT`.
 
 
 ## if( arg == null ) throw new ArgumentNullException("arg")
-Another horrible side-effect of `null` is having to bullet-proof every function that take reference arguments.  This is truly tedious.  Instead use this:
+Another horrible side-effect of `null` is having to bullet-proof every function that takes reference arguments.  This is truly tedious.  Instead use this:
 ```C#
     public void Foo( Some<string> arg )
     {
@@ -477,7 +604,7 @@ There's no silver bullet here unfortunately.
 
 _NOTE: Since writing this library I have come to the opinion that `Some<T>` isn't that useful.  It's much better to protect 'everything else' using `Option<T>` and immutable data structures.  It doesn't fix the argument null checks unfortunately.  But perhaps using a contracts library would be better._
 
-* [Some reference](https://louthy.github.io/languageext.core/LanguageExt/Some_T.htm)
+* [Some reference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Some_A.htm)
 
 ## Lack of lambda and expression inference 
 
@@ -511,9 +638,9 @@ Note, if you're creating a `Func` or `Action` that take parameters, you must pro
     var add = fun( (int x, int y) => x + y );
 ```
 
-* [`fun` reference](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#fun)
-* [`act` reference](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#act)
-* [`expr` reference](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#expr)
+* [`fun` reference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#fun)
+* [`act` reference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#act)
+* [`expr` reference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#expr)
 
 ## Void isn't a real type
 
@@ -528,7 +655,7 @@ Functional languages have a concept of a type that has one possible value, itsel
 
 `Unit` is the type and `unit` is the value.  It is used throughout the `LanguageExt` library instead of `void`.  The primary reason is that if you want to program functionally then all functions should return a value and `void` is a type with zero possible values - and that's the type-theory reason why `void` is a pain in the arse in C#.  This can help a lot with LINQ expressions.
 
-* [Unit reference](https://louthy.github.io/languageext.core/LanguageExt/Unit_.htm)
+* [Unit reference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Unit_.htm)
 
 ## Mutable lists and dictionaries
 
@@ -693,9 +820,8 @@ The two recursive examples above for calculating the sum and product of a sequen
 ```
 `reduce` is `fold` but instead of providing an initial state value, it uses the first item in the sequence.  Therefore you don't get an initial multiply by zero (unless the first item is zero!).  Internally `fold`, `foldBack` and `reduce` use an iterative loop rather than a recursive one; so no stack blowing problems!
 
-* [List module reference](https://louthy.github.io/languageext.core/LanguageExt/List_.htm)
-* [Enumerable extensions reference](https://louthy.github.io/languageext.core/LanguageExt/EnumerableExtensions_.htm)
-* [`Lst<T>` immutable list type reference](https://louthy.github.io/languageext.core/LanguageExt/Lst_T.htm)
+* [List module reference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/List_.htm)
+* [`Lst<T>` immutable list type reference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Lst_A.htm)
 
 ### Maps
 
@@ -715,9 +841,9 @@ _`Map<K,V>` is an implementation of an AVL Tree (self balancing binary tree).  T
 Also you can pass in a list of tuples or key-value pairs:
 
 ```C#
-    var people = Map( Tuple(1, "Rod"),
-                      Tuple(2, "Jane"),
-                      Tuple(3, "Freddy") );
+    var people = Map((1, "Rod"),
+                     (2, "Jane"),
+                     (3, "Freddy"));
 ```
 To read an item call:
 ```C#
@@ -756,9 +882,9 @@ By holding onto a reference to the `Map` before and after calling `add` you esse
 
 So only store immutable items in a `Map`, or leave them alone if they're mutable.
 
-* [Map module reference](https://louthy.github.io/languageext.core/LanguageExt/Map_.htm)
-* [Map extensions reference](https://louthy.github.io/languageext.core/LanguageExt/MapExtensions_.htm)
-* [`Map<K, V>` immutable type reference](https://louthy.github.io/languageext.core/LanguageExt/Map_K_V.htm)
+* [Map module reference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Map_.htm)
+* [Map extensions reference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/MapExtensions_.htm)
+* [`Map<K, V>` immutable type reference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Map_K_V.htm)
 
 ### Map transformers
 
@@ -788,6 +914,412 @@ _Note, there are only fluent versions of the transformer functions._
 * `TrySetItemT`
 * `FoldT`
 * more coming...
+
+## Difficulty in creating immutable record types 
+
+It's no secret that implementing immutable record types, with structural equality, structural ordering, and efficient hashing solutions is a real manual head-ache of implementing `Equals`, `GetHashCode`, deriving from `IEquatable<A>`, `IComparer<A>`, and implementing the operators: `==`, `!=`, `<`, `<=`, `>`, `>=`.  It is a constant maintenance headache of making sure they're kept up to date when new fields are added to the type - with no compilation errors if you forget to do it.
+
+## `Record<A>`
+
+This can now be achieved simply by deriving your type from `Record<A>` where `A` is the type you want to have structural equality and ordering.  i.e.
+```c#
+    public class TestClass : Record<TestClass>
+    {
+        public readonly int X;
+        public readonly string Y;
+        public readonly Guid Z;
+
+        public TestClass(int x, string y, Guid z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+    }
+```
+This gives you `Equals`, `IEquatable.Equals`, `IComparer.CompareTo`, `GetHashCode`, `operator==`, `operator!=`, `operator >`, `operator >=`, `operator <`, and `operator <=` implemented by default.  It also gives you a default `ToString()` implementation and `ISerializable.GetObjectData()` with a deserialisation constructor.
+
+Note that only _fields_ or _field backed properties_ are used in the structural comparisons and hash-code building.  There are also `Attribute`s for opting fields out of the equality testing, ordering comparisons, hash-code generation, stringification (`ToString`),  and serialisation:
+
+* `Equals()` - `NonEq`
+* `CompareTo()` - `NonOrd`
+* `GetHashCode()` - `NonHash`
+* `ToString()` - `NonShow`
+* Serialization - `NonSerializable`)
+
+For example, here's a record type that opts out of various default behaviours:
+```c#
+    public class TestClass2 : Record<TestClass2>
+    {
+        [NonEq]
+        public readonly int X;
+
+        [NonHash]
+        public readonly string Y;
+
+        [NonShow]
+        public readonly Guid Z;
+
+        public TestClass2(int x, string y, Guid z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+    }
+```
+If you want your type to serialise with Json.NET or other serialisers then you will need to add an extra serialisation constructor that calls the default base implementation:
+```c#
+    public class TestClass : Record<TestClass>
+    {
+        public readonly int X;
+        public readonly string Y;
+        public readonly Guid Z;
+
+        public TestClass(int x, string y, Guid z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+        
+        TestClass(SerializationInfo info, StreamingContext context) 
+            : base(info, context) { }
+    }
+```
+This will do full structural equality as the following examples demonstrate:
+```c#
+public class Cons<A> : Record<Cons<A>>
+{
+    public readonly A Head;
+    public readonly Cons<A> Tail;
+
+    public Cons(A head, Cons<A> tail)
+    {
+        Head = head;
+        Tail = tail;
+    }
+}
+
+public void ConsTests()
+{
+    var listA = new Cons<int>(1, new Cons<int>(2, new Cons<int>(3, new Cons<int>(4, null))));
+    var listB = new Cons<int>(1, new Cons<int>(2, new Cons<int>(3, new Cons<int>(4, null))));
+    var listC = new Cons<int>(1, new Cons<int>(2, new Cons<int>(3, null)));
+
+    Assert.True(listA == listB);
+    Assert.True(listB != listC);
+    Assert.True(listA != listC);
+}
+
+public class Tree<A> : Record<Tree<A>>
+{
+    public readonly A Value;
+    public readonly Tree<A> Left;
+    public readonly Tree<A> Right;
+
+    public Tree(A value, Tree<A> left, Tree<A> right)
+    {
+        Value = value;
+        Left = left;
+        Right = right;
+    }
+}
+
+public void TreeTests()
+{
+    var treeA = new Tree<int>(5, new Tree<int>(3, null, null), new Tree<int>(7, null, new Tree<int>(9, null, null)));
+    var treeB = new Tree<int>(5, new Tree<int>(3, null, null), new Tree<int>(7, null, new Tree<int>(9, null, null)));
+    var treeC = new Tree<int>(5, new Tree<int>(3, null, null), new Tree<int>(7, null, null));
+
+    Assert.True(treeA == treeB);
+    Assert.True(treeB != treeC);
+    Assert.True(treeA != treeC);
+}
+```
+There are some [unit tests](https://github.com/louthy/language-ext/blob/master/LanguageExt.Tests/RecordTypesTest.cs) to see this in action.
+
+> Inheritance is not supported in `Record` derived types.  So, if you derive a type from a type that derives from `Record` then you won't magically inherit any equality, ordering, hash-code, etc. behaviours.  This feature is explicitly here to implement record-like functionality, which - in other functional languages - do not support inheritance.  Equality of origin is explicitly checked for also.
+
+## `RecordType<A>`
+
+You can also use the 'toolkit' that `Record<A>` uses to build this functionality in your own bespoke types (perhaps if you want to use this for `struct` comparisons or if you can't derive directly from `Record<A>`, or maybe you just want some of the functionality for ad-hoc behaviour):  
+
+The toolkit is composed of four functions:
+
+```c#
+    RecordType<A>.Hash(record);
+```
+This will provide the hash-code for the record of type `A` provided.  It can be used for your default `GetHashCode()` implementation.
+```c#
+    RecordType<A>.Equality(record, obj);
+```
+This provides structural equality with the record of type `A` and the record of type `object`.  The types must match for the equality to pass.  It can be used for your default `Equals(object)` implementation.
+```c#
+    RecordType<A>.EqualityTyped(record1, record2);
+```
+This provides structural equality with the record of type `A` and another record of type `A`.  It can be used for your default `Equals(a, b)` method for the `IEquatable<A>` implementation.
+```c#
+    RecordType<A>.Compare(this, other);
+```
+This provides a structural ordering comparison with the record of type `A` and another record the record of type `A`.  It can be used for your default `CompareTo(a, b)` method for the `IComparable<A>` implementation.
+
+Below is the toolkit in use,  it's used to build a `struct` type that has structural equality, ordering, and hash-code implementation.
+```c#
+    public class TestStruct : IEquatable<TestStruct>, IComparable<TestStruct>
+    {
+        public readonly int X;
+        public readonly string Y;
+        public readonly Guid Z;
+
+        public TestStruct(int x, string y, Guid z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+
+        public override int GetHashCode() =>
+            RecordType<TestStruct>.Hash(this);
+
+        public override bool Equals(object obj) =>
+            RecordType<TestStruct>.Equality(this, obj);
+
+        public int CompareTo(TestStruct other) =>
+            RecordType<TestStruct>.Compare(this, other);
+
+        public bool Equals(TestStruct other) =>
+            RecordType<TestStruct>.EqualityTyped(this, other);
+    }
+```
+## Transformation of immutable types
+
+If you're writing functional code you should treat your types as values.  Which means they should be immutable.  One common way to do this is to use `readonly` fields and provide a `With` function for mutation. i.e.
+
+```c#
+public class A
+{
+    public readonly X X;
+    public readonly Y Y;
+
+    public A(X x, Y y)
+    {
+        X = x;
+        Y = y;
+    }
+
+    public A With(X X = null, Y Y = null) =>
+        new A(
+            X ?? this.X,
+            Y ?? this.Y
+        );
+}
+```
+Then transformation can be achieved by using the named arguments feature of C# thus:
+
+```c#
+val = val.With(X: x);
+
+val = val.With(Y: y);
+
+val = val.With(X: x, Y: y);
+```
+### `[With]`
+It can be quite tedious to write the `With` function however.  And so, if you include the `LanguageExt.CodeGen` nu-get package in your solution you gain the ability to use the `[With]` attribtue on a type.  This will build the `With` method for you.
+
+> NOTE: The `LanguageExt.CodeGen` package and its dependencies will not be included in your final build - it is purely there to generate the code.
+
+You must however:
+* Make the `class` `partial`
+* Have a constructor that takes the fields in the order they are in the type
+* The names of the arguments should be the same as the field, but with the first character lower-case
+
+i.e.
+
+```c#
+[With]
+public partial class A
+{
+    public readonly X X;
+    public readonly Y Y;
+
+    public A(X x, Y y)
+    {
+        X = x;
+        Y = y;
+    }
+}
+```
+
+## Transformation of nested immutable types with Lenses
+
+One of the problems with immutable types is trying to transform something nested deep in several data structures.  This often requires a lot of nested `With` methods, which are not very pretty or easy to use.  
+
+Enter the `Lens<A, B>` type.
+
+Lenses encapsulate the getter and setter of a field in an immutable data structure and are composable:
+
+```c#
+[With]
+public partial class Person
+{
+    public readonly string Name;
+    public readonly string Surname;
+
+    public Person(string name, string surname)
+    {
+        Name = name;
+        Surname = surname;
+    }
+
+    public static Lens<Person, string> name =>
+        Lens<Person, string>.New(
+            Get: p => p.Name,
+            Set: x => p => p.With(Name: x));
+
+    public static Lens<Person, string> surname =>
+        Lens<Person, string>.New(
+            Get: p => p.Surname,
+            Set: x => p => p.With(Surname: x));
+}
+```
+This allows direct transformation of the value:
+```c#
+var person = new Person("Joe", "Bloggs");
+
+var name = Person.name.Get(person);
+var person2 = Person.name.Set(name + "l", person);  // Joel Bloggs
+```
+This can also be achieved using the `Update` function:
+```c#
+var person = new Person("Joe", "Bloggs");
+
+var person2 = Person.name.Update(name => name + "l", person);  // Joel Bloggs
+```
+The power of lenses really becomes apparent when using nested immutable types, because lenses can be composed.  So, let's first create a `Role` type which will be used with the `Person` type to represent an employee's job title and salary:
+```c#
+[With]
+public partial class Role
+{
+    public readonly string Title;
+    public readonly int Salary;
+
+    public Role(string title, int salary)
+    {
+        Title = title;
+        Salary = salary;
+    }
+
+    public static Lens<Role, string> title =>
+        Lens<Role, string>.New(
+            Get: p => p.Title,
+            Set: x => p => p.With(Title: x));
+
+    public static Lens<Role, int> salary =>
+        Lens<Role, int>.New(
+            Get: p => p.Salary,
+            Set: x => p => p.With(Salary: x));
+}
+
+[With]
+public partial class Person
+{
+    public readonly string Name;
+    public readonly string Surname;
+    public readonly Role Role;
+
+    public Person(string name, string surname, Role role)
+    {
+        Name = name;
+        Surname = surname;
+        Role = role;
+    }
+
+    public static Lens<Person, string> name =>
+        Lens<Person, string>.New(
+            Get: p => p.Name,
+            Set: x => p => p.With(Name: x));
+
+    public static Lens<Person, string> surname =>
+        Lens<Person, string>.New(
+            Get: p => p.Surname,
+            Set: x => p => p.With(Surname: x));
+
+    public static Lens<Person, Role> role =>
+        Lens<Person, Role>.New(
+            Get: p => p.Role,
+            Set: x => p => p.With(Role: x));
+}
+
+```
+We can now compose the lenses within the types to access the nested fields:
+```c#
+var cto = new Person("Joe", "Bloggs", new Role("CTO", 150000));
+
+var personSalary = lens(Person.role, Role.salary);
+
+var cto2 = personSalary.Set(170000, cto);
+```
+### `[WithLens]`
+
+Typing the lens fields out every time is even more tedious than writing the `With` function, and so there is code generation for that too: using the `[WithLens]` attribute.  Next, we'll use some of the built-in lenses in the `Map` type to access and mutate a `Appt` type within a map:
+```c#
+[WithLens]
+public partial class Person : Record<Person>
+{
+    public readonly string Name;
+    public readonly string Surname;
+    public readonly Map<int, Appt> Appts;
+
+    public Person(string name, string surname, Map<int, Appt> appts)
+    {
+        Name = name;
+        Surname = surname;
+        Appts = appts;
+    }
+}
+
+[WithLens]
+public partial class Appt : Record<Appt>
+{
+    public readonly int Id;
+    public readonly DateTime StartDate;
+    public readonly ApptState State;
+
+    public Appt(int id, DateTime startDate, ApptState state)
+    {
+        Id = id;
+        StartDate = startDate;
+        State = state;
+    }
+}
+
+public enum ApptState
+{
+    NotArrived,
+    Arrived,
+    DNA,
+    Cancelled
+}
+```
+So, here we have a `Person` with a map of `Appt` types.  And we want to update an appointment state to be `Arrived`:
+```c#
+// Generate a Person with three Appts in a Map
+var person = new Person("Paul", "Louth", Map(
+    (1, new Appt(1, DateTime.Parse("1/1/2010"), ApptState.NotArrived)),
+    (2, new Appt(2, DateTime.Parse("2/1/2010"), ApptState.NotArrived)),
+    (3, new Appt(3, DateTime.Parse("3/1/2010"), ApptState.NotArrived))));
+
+// Local function for composing a new lens from 3 other lenses
+Lens<Person, ApptState> setState(int id) => 
+    lens(Person.appts, Map<int, Appt>.item(id), Appt.state);
+
+// Transform
+var person2 = setState(2).Set(ApptState.Arrived, person);
+```
+Notice the local-function which takes an ID and uses that with the `item` lens in the `Map` type to mutate an `Appt`.  Very powerful stuff.
+
+There are a number of useful lenses in the collection types that can do common things like mutate by index, head, tail, last, etc.
 
 ## The awful `out` parameter
 This has to be one of the most awful patterns in C#:
@@ -847,413 +1379,552 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
 `out` method variants
 * `IDictionary<K, V>.TryGetValue`
 * `IReadOnlyDictionary<K, V>.TryGetValue`
-* `IImmutableDictionary<K, V>.TryGetValue`
-* `IImmutableSet<K, V>.TryGetValue`
-* `Int32.TryParse` becomes `parseInt`
-* `Int64.TryParse` becomes `parseLong`
-* `Int16.TryParse` becomes `parseShort`
-* `Char.TryParse` becomes `parseChar`
-* `Byte.TryParse` becomes `parseByte`
-* `UInt64.TryParse` becomes `parseULong`
-* `UInt32.TryParse` becomes `parseUInt`
-* `UInt16.TryParse` becomes `parseUShort`
+* `int.TryParse` becomes `parseInt`
+* `long.TryParse` becomes `parseLong`
+* `short.TryParse` becomes `parseShort`
+* `char.TryParse` becomes `parseChar`
+* `sbyte.TryParse` becomes `parseSByte`
+* `byte.TryParse` becomes `parseByte`
+* `ulong.TryParse` becomes `parseULong`
+* `uint.TryParse` becomes `parseUInt`
+* `ushort.TryParse` becomes `parseUShort`
 * `float.TryParse` becomes `parseFloat`
 * `double.TryParse` becomes `parseDouble`
 * `decimal.TryParse` becomes `parseDecimal`
 * `bool.TryParse` becomes `parseBool`
 * `Guid.TryParse` becomes `parseGuid`
 * `DateTime.TryParse` becomes `parseDateTime`
+* `DateTimeOffset.TryParse` becomes `parseDateTimeOffset`
+* `Enum.TryParse` becomes `parseEnum`
 
 _any others you think should be included, please get in touch_
 
-# 'Erlang like' concurrency
 
-[Docs](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
+## Ad-hoc polymorphism
 
-Another issue with working with C# is that no matter how much of this library you take on-board, you will always end up bumping into mutable state or side-effecting systems.  A way around that is to package up the side-effects into atoms of functional computation that are attached to the mutable state (in whatever form it may take).
+> _This is where things get a little crazy!  This section is taking what's possible with C# to its limits.  None of what follows is essential for 99% of the use cases for this library.  However, the seasoned C# programmer will recognise some of the issues raised (like no common numeric base-type); and experienced functional programmers will recognise the category theory creeping in...  Just remember, this is all optional, but also pretty powerful if you want to go for it_.
 
-The [Actor model](https://en.wikipedia.org/wiki/Actor_model) + functional message handling expressions are the perfect programming model for that.  Concurrent programming in C# isn't a huge amount of fun.  Yes the TPL gets you lots of stuff for free, but it doesn't magically protect you from race conditions or accessing shared state, and definitely doesn't help with accessing shared external state like a database.
-
-This does.
-
-__Getting started__
-
-Make sure you have the `LanguageExt.Process` DLL included in your project.  If you're using F# then you will also need to include `LanguageExt.Process.FSharp`.
-
-In C# you should be `using static LanguageExt.Process`, if you're not using C# 6, just prefix all functions in the examples below with `Process.`
-
-In F# you should:
+Ad-hoc polymorphism has long been believed to not be possible in C#.  However with some cunning it is.  Ad-hoc polymorphism allows programmers to add traits to a type later.  For example in C# it would be amazing if we had an interface called `INumeric` for numeric types like `int`, `long`, `double`, etc.  The reason this doesn't exist is if you write a function like:
+```c#
+    INumeric Add(INumeric x, INumeric y) => x + y;
 ```
-open LanguageExt.ProcessFs
-```
+Then it would cause boxing.  Which is slow (well, slower).  I can only assume that's why it wasn't added by the BCL team.  Anyway, it's possible to create a numeric type, very much like a type-class in Haskell, and ad-hoc _instances_ of the numeric _type-class_ that allow for generic numeric operations without boxing.  
 
-__What's the Actor model?__
+> From now on I will call them type-classes and class-instances, or just instances.  This is not exactly the same as Haskell's type-classes.  If anything it's closer to Scala's implicits.  However to make it easier to discuss them I will steal from Haskell's lexicon.
 
-* An actor is a single threaded process
-* It has its own blob of state that only it can see and update
-* It has a message queue (inbox)
-* It processes the messages one at a time (single threaded remember)
-* When a message comes in, it can change its state; when the next message arrives it gets that modified state.
-* It has a parent Actor
-* It can `spawn` child Actors
-* It can `tell` messages to other Actors
-* It can `ask` for replies from other Actors
-* They're very lightweight, you can create 10,000s of them no problem
+#### `Num<A>`
 
-So you have a little bundle of self contained computation, attached to a blob of private state, that can get messages telling it to do stuff with its private state.  Sounds like OO right?  Well, it is, but as Alan Kay envisioned it.  The slight difference with this is that it enforces execution order, and therefore there's no shared state access, and no race conditions (within the actor).  
-
-### Distributed
-
-The messages being sent to actors can also travel between machines, so now we have distributed processes too.  This is how to send a message from one process to another _on the same machine_ using `LanguageExt.Process`:
-```C#
-    tell(processId, "Hello, World!");
-```
-Now this is how to send a message from one process to another _on a different machine_:
-```C#
-    tell(processId, "Hello, World!");
-```
-It's the same. Decoupled, thread-safe, without race conditions.  What's not to like?
-
-### How? 
-
-Sometimes this stuff is just easier by example, so here's a quick example, it spawns three processes, one logging process, one that sends a 'ping' message and one that sends a 'pong' message. They schedule the delivery of messages every 100 ms. The logger is simply: `Console.WriteLine`:
-
-```C#
-    // Log process
-    var logger = spawn<string>("logger", Console.WriteLine);
-
-    // Ping process
-    ping = spawn<string>("ping", msg =>
+So for example, this is how to create a number type-class:
+```c#
+    public interface Num<A>
     {
-        tell(logger, msg);
-        tell(pong, "ping", TimeSpan.FromMilliseconds(100));
-    });
-
-    // Pong process
-    pong = spawn<string>("pong", msg =>
-    {
-        tell(logger, msg);
-        tell(ping, "pong", TimeSpan.FromMilliseconds(100));
-    });
-
-    // Trigger
-    tell(pong, "start");
-```
-
-Purely functional programming without the actor model at some point needs to deal with the world, and therefore needs statefullness.  So you end up with imperative semantics in your functional expressions (unless you use Haskell).  
-
-Now you could go the Haskell route, but I think there's something quite perfect about having a bag of state that you run expressions on as messages come in.  Essentially it's a fold over a stream.
-
-There are lots of Actor systems out there, so what makes this any different?  Obviously I wanted to create some familiarity, so the differences aren't huge, but they exist.  The things that I felt I was missing from other Actor systems was that they didn't seem to acknowledge anything outside of their system.  Now I know that the Actor model is supposed to be a self contained thing, and that's where its power lies, but in the real world you often need to get information out of it and you need to interact with existing code: declaring another class to receive a message was getting a little tedious.  So what I've done is:
-
-* Remove the need to declare new classes for processes (actors)
-* Added a publish system to the processes
-* Made process discovery simple
-* Made a 'functional first' API
-
-### Functions if you want them
-If your process is stateless then you just provide an `Action<TMsg>` to handle the messages, if your process is stateful then you provide a `Func<TState>` setup function, and a `Func<TState,TMsg, TState>` to handle the messages (any seasoned functional programmer will notice that is the signature of a fold).  This makes it  easy to create new processes and reduces the cognitive overload of having loads of classes for what should be small packets of computation.
-
-You still need to create classes for messages and the like, that's unavoidable (Use F# to create a 'messages' project, it's much quicker and easier).  But also, it's desirable, because it's the messages that define the interface and the interaction, not the processing class.
-
-Creating something to log `string` messages to the console is as easy as:
-```C#
-    ProcessId log = spawn<string>("logger", Console.WriteLine);
-
-    tell(log, "Hello, World");
-```
-Or if you want a stateful, thread-safe cache:
-```C#
-static class Cache
-{
-    enum Tag
-    {
-        Add,
-        Remove,
-        Get,
-        Flush
+        A Add(A x, A y);
+        A Subtract(A x, A y);
+        ...
     }
-
-    class Msg
-    {
-        public Tag Tag;
-        public string Key;
-        public ExpiringValue Value;
-    }
-
-    class ExpiringValue
-    {
-        public DateTime Expiry;
-        public string Value;
-    }
-
-    public static Unit Add(ProcessId pid, string key, string value) =>
-        tell(pid, new Msg { Tag = Tag.Add, Key = key, Value = new ExpiringValue { Value = value, Expiry = DateTime.UtcNow.AddMinutes(1) }});
-
-    public static Unit Remove(ProcessId pid, string key) =>
-        tell(pid, new Msg { Tag = Tag.Remove, Key = key });
-
-    public static string Get(ProcessId pid, string key) =>
-        ask<string>(pid, new Msg { Tag = Tag.Get, Key = key });
-
-    public static Unit Flush(ProcessId pid) =>
-        tell(pid, new Msg { Tag = Tag.Flush });
-
-    public static ProcessId Spawn(ProcessName name) =>
-        // Argument 1 is the name of the process
-        // Argument 2 is the setup function: returns a new empty cache (Map)
-        // Argument 3 checks the message type and updates the state except when
-        //            it's a 'Get' in which case it Finds the cache item and if
-        //            it exists, calls 'reply', and then returns the state 
-        //            untouched.
-        spawn<Map<string, ExpiringValue>, Msg>(
-            name,
-            () => Map<string, ExpiringValue>(),
-            (state, msg) => 
-                match(msg.Tag,
-                    with(Tag.Add,    _ => state.AddOrUpdate(msg.Key, msg.Value)),
-                    with(Tag.Remove, _ => state.Remove(msg.Key)),
-                    with(Tag.Get,    _ => state.Find(msg.Key).Map(v => v.Value).IfSome(reply).Return(state)),
-                    with(Tag.Flush,  _ => state.Filter(s => s.Expiry < DateTime.UtcNow))));
-}
-
 ```
-The `ProcessId` is just a wrapped string path, so you can serialise it and pass it around, then anything can find and communicate with your cache:
-```C#
-    var pid = Cache.Spawn("my-cache");
-    
-    // Add a new item to the cache
-    Cache.Add(pid, "test", "hello, world");
-    
-    // Get an item from the cache
-    var thing = Cache.Get(pid, "test");
-
-    // Remove an item from the cache
-    Cache.Remove(pid, "test");
-```
-Periodically you will probably want to flush the cache contents.  Just fire up another process, they're basically free (and by using functions rather than classes, very easy to put into little worker modules):
-```C#
-    public void SpawnCacheFlush(ProcessId cache)
+Notice how there are two arguments to `Add` and `Subtract`.  Normally if I was going to implement this `interface` the left-hand-side of the `Add` and `Subtract` would be `this`.  I will implement the _ad-hoc_ class-instance to demonstrate why that is:
+```c#
+    public struct TInt : Num<int>
     {
-        // Spawns a process that tells the cache process to flush, and then sends
-        // itself a message in 10 minutes which causes it to run again.
-        
-        var flush = spawn<Unit>(
-            "cache-flush", _ =>
+        public int Add(int x, int y) => x + y;
+        public int Subtract(int x, int y) => x - y;
+        ...
+    }
+```
+See how `TInt` is a `struct`?  Structs have a useful property in C# in that they can't be `null`.  So we can invoke the operations like so:
+```c#
+    int r = default(TInt).Add(10, 20);
+```
+The important thing to note is that `default(TInt)` gets optimisied out in a release build, so there's no cost to the invocation of `Add`.  The `Add` and `Subtract` methods both take `int` and return `int`.  So therefore there's no boxing at all.
+
+If we now implement `TFloat`:
+```c#
+    public struct TFloat : Num<float>
+    {
+        public float Add(float x, float y) => x + y;
+        public float Subtract(float x, float y) => x - y;
+        ...
+    }
+```
+Then we can see how a general function could be written to take any numeric type:
+```c#
+    public A DoubleIt<NumA, A>(A x) where NumA : struct, Num<A> =>
+        default(NumA).Add(x, x);
+```
+The important bit is the `NumA` generic argument, and the constraint of `struct, Num<A>`.  That allows us to call `default(NumA)` to get the type-class instance and invoke `Add`.
+
+And so this can now be called by:
+```c#
+    int a   = DoubleIt<TInt, int>(5);        // 10
+    float b = DoubleIt<TFloat, float>(5.25); // 10.5
+```
+By expanding the amount of operations that the `Num<A>` type-class can do, you can perform any numeric operation you like.  If you like you can add new numeric types (say for complex numbers, or whatever), where the rules of the type are kept in the _ad-hoc_ instance.
+
+Luckily you don't need to do that, because I have created the `Num<A>` type (in the `LanguageExt.TypeClasses` namespace), as well as `Floating<A>` (with all of the operations from `Math`; like `Sin`, `Cos`, `Exp`, etc.).  `Num<A>` also has a base-type of `Arithmetic<A>` which supports `Plus`, `Subtract`, `Product`, `Negate`.  This is for types which don't need the full spec of the `Num<A>` type.  I have also mapped all of the core numeric types to instances: `TInt`, `TShort`, `TLong`, `TFloat`, `TDouble`, `TDecimal`, `TBigInt`, etc.  So it's possible to write truly generic numeric code once.
+
+> There's no getting around the fact that providing the class-instance in the generic arguments list is annoying (and later you'll see how annoying).  The Roslyn team are looking into a type-classes like feature for a future version of C# (variously named: 'Concepts' or 'Shapes').  So this will I'm sure be rectified, and when it is, it will be implemented exactly as I am using them here.  
+> 
+> Until then the pain of providing the generic arguments must continue.  You do however get a _super-powered C#_ in the mean-time.  
+> 
+> The need to write this kind of super-generic code is rare; but when you need it, _you need it_ - and right now this is simply the most powerful way.
+
+#### `Eq<A>`
+
+Next up is `Eq<A>`.  Equality testing in C# is an absolute nightmare.  From the different semantics of `Equals` and `==`, to `IEqualityComparer`, and the enormous hack which is `EqualityComparer.Default` (which doesn't blow up at compile-time if your code is wrong).
+
+The `Eq<A>` type-class looks like this:
+```c#
+    public interface Eq<A>
+    {
+        bool Equals(A x, A y);
+        int GetHashCode(A x);
+    }
+```
+There are `Eq` prefixed instances for all common types (`EqInt`, `EqString`, `EqGuid` etc.), as well as for all of the types in this library (`EqLst`, `EqSet`, `EqTry`, etc).  All of the numeric types (`TInt`, `TDouble`, etc.) also implement `Eq<A>`.
+
+To make it slightly prettier to use in code, you can use the `Prelude` `equals` function:
+```c#
+    bool x = equals<EqInt>(1, 1); // True
+```
+Or use `default` as shown before:
+```c#
+    bool x = default(EqInt).Equals(1, 1); // True
+```
+One final way is:
+```c#
+    bool x = EqInt.Inst.Equals(1, 1);
+```
+`Inst` is defined on all of the instances in lang-ext, but it's not an 'official feature'.  Anybody could implement an ad-hoc implementation of `Eq<A>` and not provide an `Inst`. 
+
+For example you may call this directly:
+```c#
+    bool x = EqLst.Inst.Equals(List(1,2,3), List(1,2,3)); // true
+```
+Because you may be concerned about calling:
+```c#
+    bool x = List(1,2,3) == List(1,2,3); // ?
+```
+... as all C# programmers are at some point, because we have no idea most of the time whether `==` does what we think it should.  
+
+> Just FYI `List(1,2,3) == List(1,2,3)` does work properly!  As do all types in language-ext.
+
+There are two variants of the immutable `HashSet` in language-ext:
+```c#
+    HashSet<A>
+    HashSet<EqA, A> where EqA : struct, Eq<A>
+```
+What's interesting about the second one is that the equality _definition_ is baked into the type.  So this:
+```c#
+    HashSet<EqString, string> 
+```
+Is not compatible with:
+```c#
+    HashSet<EqStringOrdinalIgnoreCase, string> 
+```
+And if you think about that, it's right.  The strings that are used as keys in the `HashSet<EqString, string>` do not have the same properties as the strings in `HashSet<EqStringOrdinalIgnoreCase, string>`.  So even though they're both strings, they have different semantics (which cause wildly different behaviour for things like set intersection, unions, etc.)
+
+Now compare that to `HashSet<T>` in the BCL, or `ImmutableHashSet<T>` in `System.Collections.Immutable`, where two different sets with different `IEqualityComparer` types injected will cause undefined results when used together.
+
+> That's hopefully a small glimpse into the potential for improving type-safeness in C#.
+
+#### `Ord<A>`
+
+`Ord` is for ordering.  i.e. a `IComparable` replacement.  By the way, these names `Eq`, `Ord`, `Num`, are all lifted from Haskell.  I much prefer the short concise names that still convey meaning than the bulky and often clumsy names of the BCL.
+
+This is `Ord<A>`, it derives from `Eq<A>`
+```c#
+    public interface Ord<A> : Eq<A>
+    {
+        int Compare(A x, A y);
+    }
+```
+Usage should be self-explanatory now, but the important thing to note here is that because 'type classes' are just interfaces, they can also have an inheritance hierarchy.
+
+This is a slightly more complex example:
+```c#
+    public struct OrdArray<ORD, A> : Ord<A[]>
+        where ORD : struct, Ord<A>
+    {
+        public int Compare(A[] mx, A[] my)
+        {
+            if (ReferenceEquals(mx, my)) return 0;
+            if (ReferenceEquals(mx, null)) return -1;
+            if (ReferenceEquals(my, null)) return 1;
+
+            var cmp = mx.Length.CompareTo(my.Length);
+            if (cmp == 0)
             {
-                Cache.Flush(cache);
-                tellSelf(unit, TimeSpan.FromMinutes(10));
-            });
+                for(var i = 0; i < mx.Length; i++)
+                {
+                    cmp = default(ORD).Compare(mx[i], my[i]);
+                    if (cmp != 0) return cmp;
+                }
+                return 0;
+            }
+            else
+            {
+                return cmp;
+            }
+        }
 
-        // Start the process running
-        tell(flush, unit); 
+        public bool Equals(A[] x, A[] y) =>
+            default(EqArray<ORD, A>).Equals(x, y);
+
+        public int GetHashCode(A[] x) =>
+            hash(x);
     }
 ```
+The `OrdArray` which is an `Ord<A[]>`, does itself also take an `ORD` generic argument, which allows the contents of the array to be compared:
+```c#
+    int x = OrdArray<TInt, int>.Inst.Compare(new [] {1,2}, new [] {1,2}); // 0
+```
 
-### Classes if you want them
+#### `Semigroup<A>`
 
-For those that actually prefer the class based approach - or would at least prefer the class based approach for the larger/more-complex processes then there is an interface proxy system.  The previous `Cache` example where there's quite bit of boiler-plate because of C#'s lack of discriminated unions and pattern-matching could be implemented thus:
-
-```C#
-    public interface ICache
+This is where we start going a little more abstract.  Semigroups are a feature of category theory, which is soooo not important for this discussion.  They represent an associative binary operation, which can be invoked by calling `Append`.
+```c#
+    public interface Semigroup<A>
     {
-        void Add(string key, string value);
-        void Remove(string key);
-        string Get(string key);
-        void Flush();
+        A Append(A x, A y);
     }
+```
+Positive numbers (for example) form a semigroup.  I won't dwell on it too long, because although the `Append` function is super-useful, nearly everything that falls into the `Semigroup` category is also a `Monoid`...
 
-    public class Cache : ICache
+#### `Monoid<A>`
+
+A monoid has something that a semigroup doesn't, and that's the concept of identity (often meaning 'empty' or 'zero').  It looks like this:
+
+```c#
+    public interface Monoid<A> : Semigroup<A>
     {
-        Map<string, ExpiringValue> state = Map.empty<string, ExpiringValue>();
-        
-        public void Add(string key, string value, DateTime expires)
-        {
-            state = state.Add(key, new ExpiringValue(value, expires));
-        }
-        
-        public void Remove(string key)
-        {
-            state = state.Remove(key);
-        }
-        
-        public string Get(string key)
-        {
-            return state[key];
-        }
-        
-        public void Flush()
-        {
-            state = state.Filter(s => s.Expiry < DateTime.UtcNow);
-        }
+        A Empty();
     }
 ```
+This comes with some helper functions in `LanguageExt.TypeClass`:
+```c#
+    public static partial class TypeClass
+    {
+        public static A mempty<MONOID, A>() where MONOID : struct, Monoid<A> =>
+            default(MONOID).Empty();
 
-Use it like so:
-```C#
-    // Spawn the Cache process with a state-type of Cache - it accepts the ProxyMsg
-    // type for messages which are auto-unpacked and used to invoke methods on the
-    // Cache state object.
-    ProcessId pid = spawn<Cache>("cache");
-    
-    // Generate an ICache proxy for calling the methods on Cache.  The proxy function
-    // maps the interface onto tell and ask calls, and packs up the method dispatch
-    // requests into ProxyMsgs.  It also does a type-check to make sure the Process
-    // actually has a state-type of ICache.
-    ICache cache = proxy<ICache>(pid);
+        public static A mconcat<MONOID, A>(IEnumerable<A> xs) where MONOID : struct, Monoid<A> =>
+            xs.Fold(mempty<MONOID, A>(), (s, x) => append<MONOID, A>(s, x));
 
-    // Call the ICache.Add method.  This is translated into a Process.tell 
-    cache.Add("test", "hello, world", DateTime.UtcNow.AddMinutes(10));
-    
-    // Get an item from the cache.  This is translated into a Process.ask
-    var thing = cache.Get("test");
+        public static A mconcat<MONOID, A>(params A[] xs) where MONOID : struct, Monoid<A> =>
+            xs.Fold(mempty<MONOID, A>(), (s, x) => append<MONOID, A>(s, x));
+    }
+```
+Now the semigroup `Append` comes to life.  Examples of monoids are: `TInt`, `MLst`, `TString`, etc.  i.e.
+```c#
+    var x = mconcat<TString, string>("Hello", " ", "World");   // "Hello World"
+    var y = mconcat<TLst<int>, Lst<int>>(List(1), List(2, 3)); // [1,2,3]
+    var z = mconcat<TInt, int>(1, 2, 3, 4, 5);                 // 15
+```
+The `Empty()` function is what provides the _identity value_ for the concat operations.  So for `string` it's `""`, for `Lst<T>` it's `[]` and for `int` it's `0`.  So a monoid is a semigroup with a _zero_.
 
-    // Remove an item from the cache
-    cache.Remove("test");
-```
-You could continue to use a stand-alone flush process, but it would need to use the proxy to communicate:
-```C#
-    var flush = spawn<Unit>(
-        "cache-flush", _ =>
-        {
-            proxy<ICache>(pid).Flush();
-            tellSelf(unit, TimeSpan.FromMinutes(10));
-        });
-```
-The proxy can be built from anywhere, the Process system will auto-generate a concrete implementation for the interface that will dispatch to the `Process` specified.  It also type checks your interface against what the actual `Process` is running adding an extra bit of type-safety to the procedure. 
+It's surprising how much _stuff_ just starts working when you know your type is a monoid.  For example in language-ext version 1 there is a monadic type called `Writer<W, T>`.  The writer monad collects a _log_ as well as returning the bound value.  In version 1 the log had to be an `IEnumerable<W>`, which isn't super flexible.  In language-ext version 2 the type looks like this:
 
-If you only need to work with the `Process` locally, then you can short-cut and go straight to the proxy:
-```C#
-    ICache cache = spawn<ICache>("cache", () => new Cache());
+```c#
+    public class Writer<MonoidW, W, A> where MonoidW : struct, Monoid<W>
+    {
+        ...
+    }
 ```
-With the proxy approach we are back in the imperative world.  But in some circumstances it is more valuable.  If you imagine that each method on ICache is actually an inbox handler, you'll realise we still have the protection of single-threaded access and so the mutable nature of the `Process` state isn't the concern it would be if it was a regular class.
+So now it can be a running numeric total, or a `Lst<W>`, or a `Set<W>`, or whatever monoid _you_ dream up.  
 
-As you can see that's a pretty powerful technique.  Remember the process could be running on another machine, and as long as the messages serialise you can talk to them by process ID or via proxy.
+### Higher-kinds
 
-### Publish system
+Higher-order polymorphism would allow us to define a type like so:
+```c#
+    public interface MyType<M<A>>
+    {
+        M<B> Foo<B>(M<A> ma);
+    }
+```
+Where not only is the `A` parametric, but so it `M`.  So for example if I wanted to implement `MyType` for `Option<A>` I could do:
+```c#
+    public class MyOptionType<A> : MyType<Option<A>>
+    {
+        public Option<B> Foo<B>(Option<A> ma) => ...;
+    }
+```
+It would be soooo nice if C# (well, the _immutable_ CLR) would support this.  But it doesn't.  So we need to find ways around it.  The way I am using for language-ext is:
+```c#
+    public interface MyType<MA, A>
+    {
+        MB Foo<MB, B>(MA ma);
+    }
 
-Most other actor systems expect you to `tell` all messages directly to other actors.  If you want a pub-sub model then you're required to create a publisher actor that can take subscription messages from other actors; the publisher actor then manages a 'registry' of subscribers to deliver messages to.  It's all a bit bulky and unnecessary.
+    public class MyOptionType<A> : MyType<Option<A>, A>
+    {
+        public MB Foo<MB, B>(Option<A> ma) => ...;
+    }
+```
+#### `Monad`
+This is where some of the difficulties come in.  How do we return an `MB` if we don't know what it is?  This is a problem for the `Monad` type.  This is a simplified version:
+```c#
+    public interface Monad<MA, A>
+    {
+        MB Bind<MB, B>(MA ma, Func<A, MB> bind);
+        MA Return(A a);
+        MA Fail(Exception e = null);
+    }
+```
+Looking at the prototype for `Bind` it seems at first glance that the `bind` argument will give us the `MB` value we want.  But an `Option` might be in a `None` state, in which case it shouldn't run `bind`.
+```c#
+    public MB Bind<MB, B>(Option<A> ma, Func<A, MB> bind) =>
+        ma.IsSome
+            ? bind(ma.Value)
+            : ??? ; // What do we return here?
+```
+The key is to use constraints.  But it also requires an extra generic paramter for `Bind`:
+```c#
+    public interface Monad<MA, A>
+    {
+        MB Bind<MonadB, MB, B>(MA ma, Func<A, MB> bind) 
+            where MonadB : struct, Monad<MB, B>;
 
-So with `LanguageExt.Process` each process manages its own internal subscriber list.  If a process needs to announce something it calls:
+        MA Return(A a);
+        MA Fail(Exception e = null);
+    }
+```
+So we now know that `MonadB` is a class-instance of the `Monad<MB, B>` type-class.  So we can now do this:
+```c#
+    public MB Bind<MB, B>(Option<A> ma, Func<A, MB> f) 
+        where MonadB : struct, Monad<MB, B> =>
+            ma.IsSome
+                ? f(ma.Value)
+                : default(MonadB).Fail();
+```
+The eagle eyed reader will notice that this actually allows binding to any resulting monad (not just `Option<B>`).  I'm sure some may consider labelling this a monad as incorrect, but it works, it's type-safe, it's efficient, and performs the exact same function and so I am happy to use the term. 
 
-```C#
-    // Publish a message for anyone listening
-    publish(msg);
-```
-Another process can subscribe to that by calling:
-```C#
-    subscribe(processId);
-```
-_(The subscriber can do this in its setup phase, and the process system will auto-unsub when the process dies, and auto-resub when it restarts)_
+[The actual definition of `Monad`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.TypeClasses/Monad_Env_Out_MA_A.htm) is more complex than this, in order to unify monadic types that take arguments (`Reader` and `State`) and monads that carry internal state (`Writer` and `State`), as well as to support asynchronous monads (`TryAsync` and `TryOption`).  I won't muddy the waters too much right now, but unified and type-safe they are.  There are no hacks.
 
-This means the messages that are published by one process can be consumed by any number of others (via their inbox in the normal way).
+You should see that the `Return` and `Fail` functions are trivial to implement:
+```c#
+    public Option<A> Return(A a) =>
+        Optional(a);
 
-However, sometimes you want to jump outside of that system.  For example, if your code is outside of the process system, it can get an `IObservable` stream instead:
-```C#
-    var sub = observe<Thing>(processId).Subscribe(msg => ...);
+    public Option<A> Fail(Exception e = null) =>
+        None;
 ```
-A good example of this is the 'Dead Letters' process, it gets all the messages that failed for one reason or another (serialisation problems, the process doesn't exist, the process crashed, etc.).  All it does is call `publish(msg)`, which allows you to subscribe to it for logging purposes.  This is how it's defined:
-```C#
-    var deadLetters = spawn<DeadLetter>("dead-letters",publish);
+What that means is that any function that has been constrained by a monad instance can create new instances of them:
+```c#
+    public M CreateNewIntegerMonad<MonadInt, M, int>(int x) 
+        where MonadInt : struct, Monad<M, int> =>
+            default(MonadInt).Return(x);
 ```
-That's it!  For a key piece of infrastructure.  So it's then possible to easily listen and log issues, or hook it up to a process that persists the dead letter messages.
+This is one of the key breakthroughs.  Imagine trying to create a `Monad` type the _old way_:
+```c#
+    public interface Monad<A>
+    {
+        Monad<B> Bind<B>(Func<A, Monad<B>> bind);
+    }
 
-### 'Discoverability'
-Being able to find other Processes in a cluster (or within the same AppDomain) and dispatch or route to them is essential.  There's a supervision hierarchy, where you have a `root` process, then a child `user` process under which you create your processes, and in turn they create child processes creating a tree structure with which you can use to route messages locally.  
+    public class Option<A> : Monad<A>
+    {
+        public Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> bind) =>
+            IsSome
+                ? bind(Value)
+                : None;
+    }
 
-There's also `system` process under `root` that handles stuff like dead-letters and various other housekeeping tasks.  
-```C#
-    /root/user/...
-    /root/system/dead-letters
-    etc.
+    public Monad<int> CreateNewIntegerMonad(int x) =>
+        ????; // How?
 ```
-When you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the name of the app/service/website, whatever it is).  The third argument is the _role_ of the node in the cluster (see `Role.Broadcast`, `Role.LeastBusy`, `Role.Random`, `Role.RoundRobin`, `Role.First` - for cluster dispatch methods).  There is a static property `Process.ClusterNodes` that allows you to interrogate the nodes are online and what their role is.
-```C#
-    RedisCluster.register();
-    ProcessConfig.initialise("sys", "web-front-end", "web-front-end-1", "localhost", "0");
+Maybe we could parameterise it?
+```c#
+    public Monad<int> CreateNewIntegerMonad<M>(int x) where M : Monad<int> =>
+        ????; // We still can't call new M(x)
 ```
-* `"sys"` is the 'system name', but easier to think of it as the name of the cluster as a whole.  That means you can call it with a different value and point it at another Redis db for multiple clusters.  But for now it's easier to call it `sys` and leave it.
-* `"web-front-end"` is the role, you can have multiple nodes in a role and the role based dispatchers allow you to implement high-availability and load balancing strategies.
-* `"web-front-end-1"` is the name of this node, and should be unique in the cluster
-* `"localhost"` is the Redis connection (can be comma separated for multiple Redis nodes)
-* `"0"` is the Redis catalogue to use (`"0" - "15"`)
+But that doesn't work either because we still can't call `new M(x)`.  Being able to paramterise generic functions at the point where you know the concrete types (and therefore know the concrete class-instance) means that the generic functions can invoke the instance functions to create the concrete types.
 
-Then instead of having `root` as the top level Process in your hierarchy, you have `my-stuff`:
-```C#
-    /web-front-end-1/user/...
-    /web-front-end-1/system/dead-letters
+Here's a super generic example of a function that takes two monad arguments, they're both of the same type, and their bound values are `Num<A>`.
+```c#
+    public static MA Add<MonadA, MA, NumA, A>(MA ma, MA mb)
+        where MonadA  : struct, Monad<MA, A>
+        where NumA    : struct, Num<A> =>
+            default(MonadA).Bind<MonadA, MA, A>(ma, a =>
+            default(MonadA).Bind<MonadA, MA, A>(mb, b =>
+            default(MonadA).Return(default(NumA).Plus(a, b))));
 ```
-Therefore you know where things are, and what they're called, and they're easily addressable.  You can just 'tell' the address:
-```C#
-    tell("/web-front-end-1/user/hello", "Hello!");
+You may notice that the two `Bind` calls followed by the `Return` are basically a much less attractive version of this:
+```c#
+        from a in ma
+        from b in mb
+        select default(NumA).Plus(a, b);
 ```
-Or you can use the `ProcessId` API to build the path:
-```C#
-   ProcessId a = "/web-front-end-1/user/hello";
-   ProcessId b = ProcessId.Top["web-front-end-1"]["user"]["hello"];
-   // a == b
-```
-Even that isn't great if you don't know what the name of the 'app' that is running a Process.  So processes can register by a single name, that goes into a 'shared namespace'.  It's a kind of DNS for processes:
-```
-    /disp/reg/<name>
-```
-To register:
-```C#
-    register(myProcessId, "hello-world");
-```
-This goes in:
-```
-    /disp/reg/hello-world
-```
-Your process now has two addresses, the `/web-front-end-1/user/hello-world` address and the `/disp/reg/hello-world` address that anyone can find by calling `find("hello-world")`.  This makes it very simple to bootstrap processes and get messages to them even if you don't know what system is actually dealing with it:
-```C#
-    tell(find("hello-world"), "Hi!");
-```
-Along with routers, dispatchers and roles the ability to find, route and dispatch to other nodes in the cluster is trivial.  For a full discussion on routing, roles and dispatchers [see here](https://github.com/louthy/language-ext/wiki/Process-system-message-dispatch)
+And so I can now add two options:
+```c#
+    var x = Some(10);
+    var y = Some(20);
+    var z = Option<int>.None;
 
-### Persistence
-There is an `ICluster` interface that you can use the implement your own persistence layer.  However out of the box there is persistence to Redis (using `LanguageExt.Process.Redis`).  
+    var r1 = Add<MOption<int>, Option<int>, TInt, int>(x, y); // Some(30)
+    var r2 = Add<MOption<int>, Option<int>, TInt, int>(x, z); // None
 
-You can optionally persist:
-
-* Inbox messages
-* Process state
-
-Here's an example of persisting the inbox:
-```C#
-    var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistInbox);
+    Assert.True(r1 == Some(30));
+    Assert.True(r2 == None);
 ```
-Here's an example of persisting the state:
-```C#
-    var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistState);
-```
-Here's an example of persisting both:
-```C#
-    var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistAll);
-```
+Or two lists:
+```c#
+    var x = List(1, 2, 3);
+    var y = List(4, 5, 6);
+    var z = List<int>();
 
-[Process system documentation](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md) 
+    var r1 = Add<MLst<int>, Lst<int>, TInt, int>(x, y);
+    var r2 = Add<MLst<int>, Lst<int>, TInt, int>(x, z);
+
+    Assert.True(r1 == List(5, 6, 7,  6, 7, 8,  7, 8, 9));
+    Assert.True(r2 == z);
+```
+Or any two monads.  They will follow the built in rules for the type, and produce concrete values efficiently and without any boxing or dynamic casting. 
+
+### Transformer types
+
+Often you'll find yourself with nested monadic types `Option<Lst<A>>`, `Seq<Either<L, R>>`, `Try<Validation<Fail, Success>>`, ..., and you want to work with the bound value(s) of `A` without having to unwrap/match the values away.  And so there are around 100,000 lines of generated code for working with 'transformer types'. 
+
+There is a new [`MonadTrans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt.TypeClasses/MonadTrans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm) type-class and a default instance called [`Trans`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Trans_OuterMonad_OuterType_InnerMonad_InnerType_A.htm).  It does all the heavy lifting, and it is what the generated code uses (it's also what you'd need to use if you create your own monadic types and you want to build transformers for the various pairs of monadic types).
+
+For every pair of nested monads: `Lst<Option<A>>`, `Try<Either<L, A>>`, etc.  there are the following extension methods (this is for `Arr<Lst<A>>`):
+```c#
+
+// Sums all the bound value(s)
+A SumT<NumA, A>(this Arr<Lst<A>> ma);
+
+// Counds all the bound value(s)
+int CountT<A>(this Arr<Lst<A>> ma);
+
+// Monadic bind on the inner monad
+Arr<Lst<B>> BindT<A, B>(this Arr<Lst<A>> ma, Func<A, Lst<B>> f);
+
+// Flips the inner and outer monads (using the rules of the inner and outer 
+// monads to compose the result) and performs a map operation on the bound values
+Lst<Arr<B>> Traverse<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+
+// Flips the inner and outer monads (using the rules of the inner and outer 
+// monads to compose the result) 
+Lst<Arr<A>> Sequence<A>(this Arr<Lst<A>> ma);
+
+// Maps the bound value(s)
+Arr<Lst<B>> MapT<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+
+// Folds the bound value(s)
+S FoldT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
+
+// Reverse folds the bound value(s)
+S FoldBackT<S, A>(this Arr<Lst<A>> ma, S state, Func<S, A, S> f);
+
+// Returns true if f(x) returns true for any of the bound value(s)
+bool ExistsT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
+
+// Returns true if f(x) returns true for all of the bound value(s)
+bool ForAllT<A>(this Arr<Lst<A>> ma, Func<A, bool> f);
+
+// Iterates all of the bound values
+Unit IterT<A>(this Arr<Lst<A>> ma, Action<A> f);
+
+// Filters the bound value(s) with the predicate
+Arr<Lst<A>> FilterT< A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
+
+// Filters the bound value(s) with the predicate
+Arr<Lst<A>> Where<A>(this Arr<Lst<A>> ma, Func<A, bool> pred);
+
+// Maps the bound value(s)
+Arr<Lst<A>> Select<A, B>(this Arr<Lst<A>> ma, Func<A, B> f);
+
+// LINQ monadic bind and project on the bound value(s)
+Arr<Lst<C>> SelectMany<A, B, C>(
+        this Arr<Lst<A>> ma,
+        Func<A, Lst<B>> bind,
+        Func<A, B, C> project);
+
+// Plus operation on the bound value(s)
+Arr<Lst<A>> PlusT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+
+// Subtraction operation on the bound value(s)
+Arr<Lst<A>> SubtractT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+
+// Product operation on the bound value(s)
+Arr<Lst<A>> ProductT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A> =>
+        ApplyT(default(NUM).Product, x, y);
+
+// Divide operation on the bound value(s)
+Arr<Lst<A>> DivideT<NUM, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A>;
+
+// Semigroup append operation on the bound value(s)
+AppendT<SEMI, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where SEMI : struct, Semigroup<A>;
+
+// Comparison operation on the bound value(s)
+int CompareT<ORD, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where ORD : struct, Ord<A>;
+
+// Equality operation on the bound value(s)
+bool EqualsT<EQ, A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where EQ : struct, Eq<A>;
+
+// Applicative apply operation on the bound value(s)
+Arr<Lst<A>> ApplyT<A, B>(this Func<A, B> fab, Arr<Lst<A>> fa);
+
+// Application apply operation on the bound value(s)
+Arr<Lst<C>> ApplyT<A, B, C>(this Func<A, B, C> fabc, Arr<Lst<A>> fa, Arr<Lst<A>> fb);
+```
+The number of functions has increased dramatically.  Some of the special ones are `Traverse` and `Sequence` which flips the inner and outer types.  So for example:
+```c#
+    Lst<Option<int>> x = List(Some(1), Some(2), Some(3), Some(4), Some(5));
+    Option<Lst<int>> y = x.Sequence();
+
+    Assert.True(y == Some(List(1, 2, 3, 4, 5)));
+```
+As you can see, the list is now inside the option.
+```c#
+    Lst<Option<int>> x = List(Some(1), Some(2), Some(3), None, Some(5));
+    Option<Lst<int>> y = x.Sequence();
+
+    Assert.True(y == None);
+```
+In this case there is a `None` in the `Lst` so when the `Lst<Option<>>` becomes a `Option<Lst<>>` the rules of the `Option` take over, and one `None` means all `None`.
+
+This can be quite useful for `Either`:
+```c#
+    var x = List<Either<string, int>>(1, 2, 3, 4, "error");
+
+    var y = x.Sequence();
+
+    Assert.True(y.IsLeft && y == "error");
+```
+This collects the first error it finds, or returns `Right` if there is no error. 
+
+`Traverse` is the same as `Sequence` except it applies a mapping function to each bound value as it's transforming the types.  Here's an example that runs 6 tasks in parallel, and collects their results:
+
+```c#
+    var start = DateTime.UtcNow;
+
+    var f1 = Task.Run(() => { Thread.Sleep(3000); return 1; });
+    var f2 = Task.Run(() => { Thread.Sleep(3000); return 2; });
+    var f3 = Task.Run(() => { Thread.Sleep(3000); return 3; });
+    var f4 = Task.Run(() => { Thread.Sleep(3000); return 4; });
+    var f5 = Task.Run(() => { Thread.Sleep(3000); return 5; });
+    var f6 = Task.Run(() => { Thread.Sleep(3000); return 6; });
+
+    var res = await List(f1, f2, f3, f4, f5, f6).Traverse(x => x * 2);
+
+    Assert.True(toSet(res) == Set(2, 4, 6, 8, 10, 12));
+
+    var ms = (int)(DateTime.UtcNow - start).TotalMilliseconds;
+    Assert.True(ms < 3500, $"Took {ms} ticks");
+```
+So there is a List of Tasks that becomes a single awaitable Task of List.
+
+As well as the extensions, there are also static classes for the transformer types.  There is one for each type of monad.  So for example, `Option` has a `LanguageExt.OptionT` type.  Whenever you have a pair of nested monads, and `Option` is the inner monad, then you would use `OptionT`:
+```c#
+    var ma = List(Some(1),Some(2),Some(3),Some(4),Some(5));
+
+    var total = OptionT.foldT(ma, 0, (s, x) => s + x); // 15
+    var total = OptionT.sumT<TInt, int>(ma); // 15
+    var mb    = OptionT.filterT(ma, x > 3); // List(Some(3), Some(4))
+```
 
 
 ### The rest
-I haven't had time to document everything, so here's a quick list of what was missed:
 
-Type or function | Description
------------------|------------
-`TryOption<T>` | The same as `Option<T>` except it also handles exceptions.  It has a third state called `Fail`.
-`Either<Left,Right>` | Like `Option<T>`, however the `None` in `Option<T>` is called `Left` in `Either`, and `Some` is called `Right`.  Just remember: `Right` is right, `Left` is wrong.  Both `Right` and `Left` can hold values.  And they can be different types.  See the [ConfigSample](https://github.com/louthy/language-ext/blob/master/Samples/ConfigSample) for a demo.  Supports all the same functionality as `Option<T>`.
-`SomeUnsafe()`, `RightUnsafe()`, `LeftUnsafe()` | These methods accept that sometimes `null` is a valid result, but you still want an option of saying `None`.  They allow `null` to propagate through, and it removes the `null` checks from the return value of `match`
-`Set<T>()` | Creates a `Set<T>`, an immutable set (AVL tree).
-`Stack<T>()` | Creates a `Stck<T>`, an immutable stack
-`Queue<T>()` | Creates a `Que<T>`, an immutable queue
-`freeze<T>(list)` | Converts an `IEnumerable<T>` to an Lst<T>
-`memo<T>(fn)` | Caches a function's result the first time it's called
-`memo<T,R>(fn)` | Caches a result of a function once for each unique parameter passed to it
-`ignore` | Takes one argument which it ignores and returns `unit` instead.
-`Nullable<T>.ToOption()` | Converts a `Nullable<T>` to an `Option<T>`
-`raise(exception)` | Throws the exception passed as an argument.  Useful in lambda's where a return value is needed.
-`failwith(message)` | Throws an `Exception` with the message provided.  Useful in lambda's where a return value is needed.
-`identity<T>()` | Identity function.  Returns the same value it was passed.
-
-### Future
-There's more to come with this library.  Feel free to get in touch with any suggestions.
+This README.md is a basic introduction to the library.  It is however full of many, many useful types, so do check the [API Reference](https://louthy.github.io/language-ext/index.htm) for more info.

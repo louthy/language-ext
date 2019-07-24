@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using System;
+using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
@@ -71,12 +72,14 @@ namespace LanguageExtTests
             var four = Some(4);
             var six = Some(6);
 
-            match(from x in two
-                  from y in four
-                  from z in six
-                  select x + y + z,
-                   Some: v => Assert.True(v == 12),
-                   None: failwith("Shouldn't get here"));
+            var expr = from x in two
+                       from y in four
+                       from z in six
+                       select x + y + z;
+
+            match(expr,
+                Some: v => Assert.True(v == 12),
+                None: failwith("Shouldn't get here"));
         }
 
         [Fact]
@@ -99,8 +102,7 @@ namespace LanguageExtTests
         [Fact]
         public void NullIsNotSomeTest()
         {
-            Assert.Throws(
-                typeof(ValueIsNullException),
+            Assert.Throws<ValueIsNullException>(
                 () =>
                 {
                     GetStringNone();
@@ -132,8 +134,7 @@ namespace LanguageExtTests
         [Fact]
         public void NullInSomeOrNoneTest()
         {
-            Assert.Throws(
-                typeof(ResultIsNullException),
+            Assert.Throws<ResultIsNullException>(
                 () =>
                 {
                     GetValue(true)
@@ -142,8 +143,7 @@ namespace LanguageExtTests
                 }
             );
 
-            Assert.Throws(
-                typeof(ResultIsNullException),
+            Assert.Throws<ResultIsNullException>(
                 () =>
                 {
                     GetValue(false)
@@ -166,8 +166,7 @@ namespace LanguageExtTests
         [Fact]
         public void NullableDenySomeNullTest()
         {
-            Assert.Throws(
-                    typeof(ValueIsNullException),
+            Assert.Throws<ValueIsNullException>(
                     () =>
                     {
                         var res = GetNullable(false)
@@ -175,6 +174,31 @@ namespace LanguageExtTests
                                     .None(() => 0);
                     }
                 );
+        }
+
+        [Fact]
+        public void BiIterSomeTest()
+        {
+            var x = Some(3);
+            int way = 0;
+            var dummy = x.BiIter(_ => way = 1, () => way = 2);
+            Assert.Equal(1, way);
+        }
+
+        [Fact]
+        public void BiIterNoneTest()
+        {
+            var x = Option<int>.None;
+            int way = 0;
+            var dummy = x.BiIter(_ => way = 1, () => way = 2);
+            Assert.Equal(2, way);
+        }
+
+        [Fact]
+        public void OptionMap_ToNull_ThrowsValueIsNullException()
+        {
+            var option = Some(new object());
+            Assert.Throws<ValueIsNullException>(() => option.Map(_ => (object)null));
         }
 
         private Option<string> GetStringNone()

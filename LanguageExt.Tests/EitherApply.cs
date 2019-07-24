@@ -1,6 +1,10 @@
 ﻿using System;
 using Xunit;
+using LanguageExt;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExtTests
 {
@@ -11,7 +15,7 @@ namespace LanguageExtTests
         [Fact]
         public void ApplyRightArgs()
         {
-            var either = Right<string,Func<int,int,int>>(add)
+            var either = Right<string, Func<int,int,int>>(add)
                 .Apply(Right<string, int>(3))
                 .Apply(Right<string, int>(4));
 
@@ -45,11 +49,13 @@ namespace LanguageExtTests
         [Fact]
         public void ApplyLeftArgs()
         {
-            var opt = Some(add)
-                .Apply(None)
-                .Apply(Some(4));
+            var opt  = Some(add);
+            var none = Option<int>.None;
+            var four = Some(4); 
 
-            Assert.Equal(None, opt);
+            var res = apply(opt, none, four);
+
+            Assert.Equal(None, res);
 
             var either = Right<string, Func<int, int, int>>(add)
                 .Apply(Left<string, int>("left"))

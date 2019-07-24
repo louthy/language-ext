@@ -70,10 +70,10 @@ namespace LanguageExt.Parsec
             Parser<T> term
             )
         {
-            var e3 = List.empty<Parser<Func<T,T,T>>>();
-            var e2 = List.empty<Parser<Func<T,T>>>();
+            var e3 = Seq.empty<Parser<Func<T,T,T>>>();
+            var e2 = Seq.empty<Parser<Func<T,T>>>();
 
-            return ops.Fold(Tuple(e3, e3, e3, e2, e2), (state, op) => op.SplitOp(state))
+            return ops.Fold((e3, e3, e3, e2, e2), (state, op) => op.SplitOp(state))
                .Map((rassoc, lassoc, nassoc, prefix, postfix) =>
                {
                    var rassocOp = choice(rassoc);

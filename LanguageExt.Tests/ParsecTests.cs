@@ -13,7 +13,6 @@ using static LanguageExt.Parsec.Prim;
 using static LanguageExt.Parsec.Char;
 using static LanguageExt.Parsec.Expr;
 using static LanguageExt.Parsec.Token;
-using LanguageExt.Config;
 using LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExtTests
@@ -483,99 +482,81 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void ProcessesSettingsParserTest()
+        public void ParseNTimes()
         {
-            lock (ProcessTests.sync)
-            {
-                Process.shutdownAll();
+            var p = asString(manyn(digit, 4));
 
-                var text = @"
+            var r = parse(p, "12345678").ToEither();
 
-                bool  transactional-io: true
-                let   default-retries : 3
-                let   strSetting      : ""testing 123""
-                float dblSetting      : 1.25
+            Assert.True(r.IfLeft("") == "1234");
+        }
 
-                strategy testStrat1: 
-	                one-for-one:
-		                retries: count = default-retries + 2, duration = 10 seconds
-		                backoff: 1 seconds
+        [Fact]
+        public void ParseNTimesFail()
+        {
+            var p = asString(manyn(digit, 4));
 
-                        always: restart
+            var r = parse(p, "123").ToEither();
 
-                        redirect when
-                         | restart  -> forward-to-self
-		                 | stop     -> forward-to-dead-letters
+            Assert.True(r.IsLeft);
+        }
 
-                strategy testStrat2: 
-                    all-for-one:
-                        retries: 5
-		                backoff: min = 1 seconds, max = 100 seconds, step = 2 second
-                        
-                        match
-                         | LanguageExt.ProcessSetupException -> restart
+        [Fact]
+        public void ParseN1Times()
+        {
+            var p = asString(manyn1(digit, 4));
 
-                        redirect when
-                         | restart  -> forward-to-self
+            var r1 = parse(p, "1").ToEither();
+            var r2 = parse(p, "12").ToEither();
+            var r3 = parse(p, "123").ToEither();
+            var r4 = parse(p, "1234").ToEither();
+            var r5 = parse(p, "12345").ToEither();
 
-                process test1Supervisor:
-	                pid:          /root/user/test1-supervisor
-                    strategy:     testStrat1
-                    string hello: ""world""
+            Assert.True(r1.IfLeft("") == "1");
+            Assert.True(r2.IfLeft("") == "12");
+            Assert.True(r3.IfLeft("") == "123");
+            Assert.True(r4.IfLeft("") == "1234");
+            Assert.True(r5.IfLeft("") == "1234");
+        }
 
-                process test2Supervisor:
-                    pid:          /root/user/test2-supervisor
-                    strategy:     testStrat2
-                ";
+        [Fact]
+        public void ParseN1TimesFail()
+        {
+            var p = asString(manyn1(digit, 4));
 
-                var config = ProcessConfig.initialise(text, None);
+            var r = parse(p, "").ToEither();
 
-                // TODO: Restore tests
+            Assert.True(r.IsLeft);
+        }
 
-                //var res = parse(config.Parser, text);
+        [Fact]
+        public void ParseN0Times()
+        {
+            var p = asString(manyn0(digit, 4));
 
-                //Assert.False(res.IsFaulted);
+            var r0 = parse(p, "").ToEither();
+            var r1 = parse(p, "1").ToEither();
+            var r2 = parse(p, "12").ToEither();
+            var r3 = parse(p, "123").ToEither();
+            var r4 = parse(p, "1234").ToEither();
+            var r5 = parse(p, "12345").ToEither();
 
-                //var result = res.Reply.Result;
-
-                //Assert.True(result.Count == 7);
-
-                //var timeout = result["timeout"];
-                //var session = result["session-timeout"];
-                //var mailbox= result["mailbox-size"];
-
-                // Load process settings
-                //var processes = M.createRange(from val in result.Values
-                //                              where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Process
-                //                              let p = (ProcessToken)val.Values.Values.First().Value
-                //                              where p.ProcessId.IsSome
-                //                              let id = p.ProcessId.IfNone(ProcessId.None)
-                //                              select Tuple(id, p));
-
-                //var strats = M.createRange(from val in result.Values
-                //                           where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Strategy
-                //                           let s = (StrategyToken)val.Values.Values.First().Value
-                //                           select Tuple(val.Name, s));
-
-
-                //Assert.True(timeout.Name == "timeout");
-                //Assert.True(timeout.Attributes.Count == 1);
-                //Assert.True(timeout.Attributes["value"].Type.Tag == ArgumentTypeTag.Time);
-                //Assert.True((Time)timeout.Attributes["value"].Value == 30*seconds);
-
-                //Assert.True(session.Name == "session-timeout");
-                //Assert.True(session.Attributes.Count == 1);
-                //Assert.True(session.Attributes["value"].Type.Tag == ArgumentTypeTag.Time);
-                //Assert.True((Time)session.Attributes["value"].Value == 60 * seconds);
-
-                //Assert.True(mailbox.Name == "mailbox-size");
-                //Assert.True(mailbox.Attributes.Count == 1);
-                //Assert.True(mailbox.Attributes["value"].Type.Tag == ArgumentTypeTag.Int);
-                //Assert.True((int)mailbox.Attributes["value"].Value == 10000);
-
-                //Assert.True(strats.Count == 2);
-                //Assert.True(processes.Count == 2);
-            }
+            Assert.True(r0.IfLeft("x") == "");
+            Assert.True(r1.IfLeft("x") == "1");
+            Assert.True(r2.IfLeft("x") == "12");
+            Assert.True(r3.IfLeft("x") == "123");
+            Assert.True(r4.IfLeft("x") == "1234");
+            Assert.True(r5.IfLeft("x") == "1234");
+        }
+        
+        [Fact]
+        public void ParallelCheck()
+        {
+            // works
+            Parallel.ForEach(Enumerable.Repeat("", 4), str => parse(from _ in notFollowedBy(anyChar).label("end of input") select unit, str));
+            
+            // sometimes crashes (net461)
+            Parallel.ForEach(Enumerable.Repeat("", 4), str => parse(from _ in eof select unit, str));
         }
     }
 }

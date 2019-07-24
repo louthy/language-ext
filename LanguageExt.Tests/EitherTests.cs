@@ -9,7 +9,7 @@ namespace LanguageExtTests
     {
         [Fact] public void RightGeneratorTestsObject()
         {
-            var either = Right<string, int>(123);
+            Either<string, int> either = Right(123);
 
             either.Match( Right: i => Assert.True(i == 123),
                           Left:  _ => Assert.False(true,"Shouldn't get here") );
@@ -59,7 +59,8 @@ namespace LanguageExtTests
             Assert.True(c == 0);
         }
 
-        [Fact] public void SomeLinqTest()
+        [Fact]
+        public void SomeLinqTest()
         {
            (from x in Two
             from y in Four
@@ -102,8 +103,7 @@ namespace LanguageExtTests
         [Fact]
         public void NullInRightOrLeftTest()
         {
-            Assert.Throws(
-                typeof(ResultIsNullException),
+            Assert.Throws<ResultIsNullException>(
                 () =>
                 {
                     GetValue(true)
@@ -112,8 +112,7 @@ namespace LanguageExtTests
                 }
             );
 
-            Assert.Throws(
-                typeof(ResultIsNullException),
+            Assert.Throws<ResultIsNullException>(
                 () =>
                 {
                     GetValue(false)
@@ -135,6 +134,56 @@ namespace LanguageExtTests
                 return "Left";
             }
         }
+
+        [Fact]
+        public void EitherLinqTest1()
+        {
+            (from x in Right(2)
+             from y in Left("error").Bind<int>()
+             from z in Right(5)
+             select x + y + z)
+            .Match(
+              Right: r => Assert.True(false, "Shouldn't get here"),
+              Left: l => Assert.True(true)
+            );
+        }
+
+        [Fact]
+        public void EitherLinqTest2()
+        {
+            (from x in Right(2)
+             from y in Right<string, int>(123)
+             from z in Right(5)
+             select x + y + z)
+            .Match(
+              Right: r => Assert.True(r == 130),
+              Left: l => Assert.True(false)
+            );
+        }
+
+        [Fact]
+        public void EitherCoalesce()
+        {
+            var x = Right(1) || Right(2) || Left("error").Bind<int>();
+        }
+
+        [Fact]
+        public void EitherInfer1()
+        {
+            AddEithers(Right(10), Left("error"));
+        }
+
+        void EitherInfer2(bool v)
+        {
+            var x = v
+                ? Right(10)
+                : Left("error").Bind<int>();
+        }
+
+        public Either<string, int> AddEithers(Either<string, int> x, Either<string, int> y) =>
+            from a in x
+            from b in y
+            select a + b;
 
         private Either<string, int> ImplicitConversion() => 1000;
         private Either<string, int> ItsLeft => "Left";

@@ -1,6 +1,9 @@
 ﻿using System;
 using Xunit;
+using LanguageExt;
+using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
 
 namespace LanguageExtTests
 {
@@ -28,8 +31,9 @@ namespace LanguageExtTests
         [Fact]
         public void ApplySomeArgsF2()
         {
-            var opt = apply(Some(add), Some(3), Some(4));
-            Assert.Equal(Some(7), opt);
+            var opt = Some(add).Apply(Some(3), Some(4));
+
+            Assert.True(equals<EqInt, int>(Some(7), opt));
         }
 
         [Fact]
@@ -52,8 +56,9 @@ namespace LanguageExtTests
         [Fact]
         public void ApplyNoneArgsF2()
         {
-            var opt = apply(Some(add), None, Some(4));
-            Assert.Equal(None, opt);
+            var opt = Some(add).Apply(Option<int>.None, Some(4));
+
+            Assert.True(equals<EqInt, int>(Option<int>.None, opt));
         }
 
         [Fact]
@@ -82,10 +87,11 @@ namespace LanguageExtTests
         [Fact]
         public void ApplicativeLawHoldsF2()
         {
-            var first = apply(Some(add), Some(3), Some(4));
-            var second = apply(parmap(Some(3), add), Some(4));
+            var first = Some(add).Apply(Some(3), Some(4));
 
-            Assert.Equal(first, second);
+            var second = parmap(Some(3), add).Apply(Some(4));
+
+            Assert.True(equals<EqInt, int>(first, second));
         }
     }
 }

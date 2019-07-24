@@ -1,0 +1,47 @@
+﻿        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`OUTER_C` which is the result of performing bind then project</returns>
+        [Pure]
+        public static OUTER_C SelectMany<GENS, A, B, C>(
+            this OUTER_A ma,
+            Func<A, OUTER_B> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(M_INNER_C).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OUTER_A` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OUTER_A Where<GENS, A>(this OUTER_A ma, Func<A, bool> f)
+        {
+            OUTER_A Do(INNER_A a) => default(M_OUTER_A).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OUTER_B` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OUTER_B Select<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
+            ma.BindT(a => default(M_OUTER_B).ReturnAsync(_ => default(M_INNER_B).Return(f(a)).AsTask()));
+

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.Parsec
 {
-    public static class ___StringAndCollectionExt
+    public static class StringAndCollectionExtensions
     {
         public static PString ToPString(this string value) =>
             PString.Zero.SetValue(value);

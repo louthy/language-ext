@@ -48,7 +48,7 @@ namespace LanguageExtTests
             Deq5(test);
         }
 
-        public void Deq5(Que<int> test)
+        void Deq5(Que<int> test)
         {
             test = map(deq(test), (queue, value) => { Assert.True(value.IsSome); return queue; });
             test = map(deq(test), (queue, value) => { Assert.True(value.IsSome); return queue; });

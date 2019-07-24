@@ -1,0 +1,7 @@
+﻿    /// <summary>
+    /// Monad transformer for INNER_CLASS_NAME, provides functionality for working 
+    /// with the inner value of the nested type.
+    /// </summary>
+    /// <typeparam name="A">The inner bound value type</typeparam>
+    public static partial class INNER_CLASS_NAMET_Extensions
+    {

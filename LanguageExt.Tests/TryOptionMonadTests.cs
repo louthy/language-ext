@@ -10,6 +10,7 @@ namespace LanguageExtTests
     
     public class TryMonadTests
     {
+        [Fact]
         public void TryOptionListTest()
         {
             var x = from a in List(1,2,3)
@@ -63,7 +64,7 @@ namespace LanguageExtTests
         public void FuncFailureTryMatchSuccessTest1()
         {
             Assert.True(
-                ifNone(GetValue(true), "failed") == "Hello, World"
+                ifNoneOrFail(GetValue(true), "failed") == "Hello, World"
                 );
         }
 
@@ -71,7 +72,7 @@ namespace LanguageExtTests
         public void FuncFailureTryMatchFailTest1()
         {
             Assert.True(
-                ifNone(GetValue(false), "failed") == "failed"
+                ifNoneOrFail(GetValue(false), "failed") == "failed"
                 );
         }
 

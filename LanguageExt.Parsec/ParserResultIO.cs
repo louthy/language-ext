@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LanguageExt;
 using static LanguageExt.Prelude;
-using System.Diagnostics;
 
 namespace LanguageExt.Parsec
 {
@@ -18,19 +12,19 @@ namespace LanguageExt.Parsec
             new ParserResult<I, O>(ResultTag.Empty, reply);
 
         public static ParserResult<I, O> EmptyOK<I, O>(O value, PString<I> input, ParserError error = null) =>
-            new ParserResult<I, O>(ResultTag.Empty, ReplyIO.OK(value, input, error));
+            new ParserResult<I, O>(ResultTag.Empty, Reply.OK(value, input, error));
 
         public static ParserResult<I, O> EmptyError<I, O>(ParserError error) =>
-            new ParserResult<I, O>(ResultTag.Empty, ReplyIO.Error<I, O>(error));
+            new ParserResult<I, O>(ResultTag.Empty, Reply.Error<I, O>(error));
 
         public static ParserResult<I, O> ConsumedOK<I, O>(O value, PString<I> input) =>
-            new ParserResult<I, O>(ResultTag.Consumed, ReplyIO.OK(value, input));
+            new ParserResult<I, O>(ResultTag.Consumed, Reply.OK(value, input));
 
         public static ParserResult<I, O> ConsumedOK<I, O>(O value, PString<I> input, ParserError error) =>
-            new ParserResult<I, O>(ResultTag.Consumed, ReplyIO.OK(value, input, error));
+            new ParserResult<I, O>(ResultTag.Consumed, Reply.OK(value, input, error));
 
         public static ParserResult<I, O> ConsumedError<I, O>(ParserError error) =>
-            new ParserResult<I, O>(ResultTag.Consumed, ReplyIO.Error<I, O>(error));
+            new ParserResult<I, O>(ResultTag.Consumed, Reply.Error<I, O>(error));
 
     }
 
@@ -136,5 +130,21 @@ namespace LanguageExt.Parsec
 
         public ParserResult<I, U> Select<U>(Func<O, U> map) =>
             new ParserResult<I, U>(Tag, Reply.Select(map));
+
+        public Either<string, O> ToEither() =>
+            IsFaulted
+                ? Left<string, O>(ToString())
+                : Right(Reply.Result);
+
+        public Either<ERROR, O> ToEither<ERROR>(Func<string, ERROR> f) =>
+            IsFaulted
+                ? Left<ERROR, O>(f(ToString()))
+                : Right(Reply.Result);
+
+        public Option<O> ToOption() =>
+            IsFaulted
+                ? None
+                : Some(Reply.Result);
+
     }
 }

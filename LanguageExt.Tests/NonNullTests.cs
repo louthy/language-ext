@@ -5,22 +5,19 @@ using Xunit;
 
 namespace LanguageExtTests
 {
-    
     public class NonNullTests
     {
         [Fact]
         public void ValueCastTest1()
         {
-            Assert.Throws(
-                typeof(ValueIsNullException),
+            Assert.Throws<ValueIsNullException>(
                 () =>
                 {
                     Foo(null);
                 }
             );
 
-            Assert.Throws(
-                typeof(ValueIsNullException),
+            Assert.Throws<ValueIsNullException>(
                 () =>
                 {
                     string isnull = null;
@@ -41,8 +38,7 @@ namespace LanguageExtTests
         [Fact]
         public void NotNullReferenceTypeTest()
         {
-            Assert.Throws(
-                typeof(ValueIsNullException),
+            Assert.Throws<ValueIsNullException>(
                 () =>
                 {
                     Some<string> str = null;
@@ -64,7 +60,7 @@ namespace LanguageExtTests
                 ? Some("Hello")
                 : None;
 
-        public void Foo( Some<string> value )
+        void Foo( Some<string> value )
         {
             if (value.Value == null)
             {
@@ -74,7 +70,7 @@ namespace LanguageExtTests
             string doesItImplicitlyCastBackToAString = value;
         }
 
-        public void Greet(Some<string> arg)
+        void Greet(Some<string> arg)
         {
             Console.WriteLine(arg);
         }
@@ -110,8 +106,7 @@ namespace LanguageExtTests
                 Left: l => Console.WriteLine(l)
             );
 
-            Assert.Throws(
-                typeof(BottomException),
+            Assert.Throws<BottomException>(
                 () => {
 
                     match(obj.EitherOtherValue,
@@ -127,8 +122,7 @@ namespace LanguageExtTests
         public void AccessUninitialisedSomeMember()
         {
             var obj = new SomeClass();
-            Assert.Throws(
-                typeof(SomeNotInitialisedException),
+            Assert.Throws<SomeNotInitialisedException>(
                 () => {
                     Greet(obj.SomeOtherValue);
                 }

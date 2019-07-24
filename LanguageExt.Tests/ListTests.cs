@@ -240,13 +240,11 @@ namespace LanguageExtTests
         {
             var goodOnes = List(
                 Tuple(List(1, 2, 3), List(1, 2, 3)),
-                Tuple(Lst<int>.Empty, Lst<int>.Empty),
-                Tuple((Lst<int>)null, (Lst<int>)null)
+                Tuple(Lst<int>.Empty, Lst<int>.Empty)
             );
             var badOnes = List(
                 Tuple(List(1, 2, 3), List(1, 2, 4)),
-                Tuple(List(1, 2, 3), Lst<int>.Empty),
-                Tuple(List(1, 2, 3), (Lst<int>)null)
+                Tuple(List(1, 2, 3), Lst<int>.Empty)
             );
 
             goodOnes.Iter(t => t.Iter((fst, snd) =>
@@ -260,6 +258,267 @@ namespace LanguageExtTests
                 Assert.True(fst != snd, $"'{fst}' != '{snd}'");
                 Assert.False(fst == snd, $"'{fst}' == '{snd}'");
             }));
+        }
+
+        [Fact]
+        public void SkipLastTest1()
+        {
+            var list = List(1, 2, 3, 4, 5);
+
+            var skipped = list.SkipLast().Freeze();
+
+            Assert.True(skipped == List(1, 2, 3, 4));
+        }
+
+        [Fact]
+        public void SkipLastTest2()
+        {
+            var list = List<int>();
+
+            var skipped = list.SkipLast().Freeze();
+
+            Assert.True(skipped == list);
+        }
+
+        [Fact]
+        public void SkipLastTest3()
+        {
+            var list = List(1, 2, 3, 4, 5);
+
+            var skipped = list.SkipLast(2).Freeze();
+
+            Assert.True(skipped == List(1, 2, 3));
+        }
+
+        [Fact]
+        public void SkipLastTest4()
+        {
+            var list = List<int>();
+
+            var skipped = list.SkipLast(2).Freeze();
+
+            Assert.True(skipped == list);
+        }
+
+        [Fact]
+        public void SetItemTest()
+        {
+            Lst<int> lint = new Lst<int>();
+            lint = lint.Insert(0, 0).Insert(1, 1).Insert(2, 2).Insert(3, 3);
+
+            Assert.True(lint[0] == 0);
+            Assert.True(lint[1] == 1);
+            Assert.True(lint[2] == 2);
+            Assert.True(lint[3] == 3);
+
+            lint = lint.SetItem(2, 500);
+
+            Assert.True(lint[0] == 0);
+            Assert.True(lint[1] == 1);
+            Assert.True(lint[2] == 500);
+            Assert.True(lint[3] == 3);
+        }
+
+        [Fact]
+        public void RemoveAllTest()
+        {
+            var test = List(1, 2, 3, 4, 5);
+            Assert.True(test.RemoveAll(x => x % 2 == 0) == List(1, 3, 5));
+        }
+
+        [Fact]
+        public void RemoveAtInsertTest()
+        {
+            Lst<int> lint = new Lst<int>();
+            lint = lint.Insert(0, 0).Insert(1, 1).Insert(2, 2).Insert(3, 3);
+
+            Assert.True(lint[0] == 0);
+            Assert.True(lint[1] == 1);
+            Assert.True(lint[2] == 2);
+            Assert.True(lint[3] == 3);
+
+            lint = lint.RemoveAt(2);
+
+            Assert.True(lint[0] == 0);
+            Assert.True(lint[1] == 1);
+            Assert.True(lint[2] == 3);
+
+            lint = lint.Insert(2, 500);
+
+            Assert.True(lint[0] == 0);
+            Assert.True(lint[1] == 1);
+            Assert.True(lint[2] == 500);
+            Assert.True(lint[3] == 3);
+        }
+
+        [Fact]
+        public void SetItemManyTest()
+        {
+            var range = Range(0, 100).Freeze();
+            for (int i = 0; i < 100; i++)
+            {
+                range = range.SetItem(i, i * 2);
+                Assert.True(range[i] == i * 2);
+                for(var b = 0; b < i; b++)
+                {
+                    Assert.True(range[b] == b * 2);
+                }
+                for (var a = i + 1; a < 100; a++)
+                {
+                    Assert.True(range[a] == a);
+                }
+            }
+        }
+
+        [Fact]
+        public void RemoveAtInsertManyTest()
+        {
+            var range = Range(0, 100).Freeze();
+            for (int i = 0; i < 100; i++)
+            {
+                range = range.RemoveAt(i);
+                Assert.True(range.Count == 99);
+                range = range.Insert(i, i * 2);
+                Assert.True(range[i] == i * 2);
+                for (var b = 0; b < i; b++)
+                {
+                    Assert.True(range[b] == b * 2);
+                }
+                for (var a = i + 1; a < 100; a++)
+                {
+                    Assert.True(range[a] == a);
+                }
+            }
+        }
+
+        [Fact]
+        public void EqualsTest()
+        {
+            Assert.False(List(1, 2, 3).Equals(List<int>()));
+            Assert.False(List<int>().Equals(List<int>(1, 2, 3)));
+            Assert.True(List<int>().Equals(List<int>()));
+            Assert.True(List<int>(1).Equals(List<int>(1)));
+            Assert.True(List<int>(1, 2).Equals(List<int>(1, 2)));
+            Assert.False(List<int>(1, 2).Equals(List<int>(1, 2, 3)));
+            Assert.False(List<int>(1, 2, 3).Equals(List<int>(1, 2)));
+        }
+
+        [Fact]
+        public void ListShouldRemoveByReference()
+        {
+            var o0 = new Object();
+            var o1 = new Object();
+            var o2 = new Object();
+            var l = List(o0, o1);
+            l = l.Remove(o2);
+            Assert.Equal(2, l.Count);
+            l = l.Remove(o0);
+            Assert.Equal(1, l.Count);
+            l = l.Remove(o1);
+            Assert.Equal(0, l.Count);
+        }
+
+        [Fact]
+        public void ListShouldRemoveByReferenceForReverseLists()
+        {
+            var o0 = new Object();
+            var o1 = new Object();
+            var o2 = new Object();
+            var l = List(o0, o1).Reverse();
+            l = l.Remove(o2);
+            Assert.Equal(2, l.Count);
+            l = l.Remove(o0);
+            Assert.Equal(1, l.Count);
+            l = l.Remove(o1);
+            Assert.Equal(0, l.Count);
+        }
+
+        [Fact]
+        public void FoldTest()
+        {
+            var input = List(1, 2, 3, 4, 5);
+            var output1 = fold(input, "", (s, x) => s + x.ToString());
+            Assert.Equal("12345", output1);
+        }
+
+        [Fact]
+        public void FoldBackTest()
+        {
+            var input = List(1, 2, 3, 4, 5);
+            var output1 = foldBack(input, "", (s, x) => s + x.ToString());
+            Assert.Equal("54321", output1);
+        }
+
+        [Fact]
+        public void FoldWhileTest()
+        {
+            var input = List(10, 20, 30, 40, 50);
+
+            var output1 = foldWhile(input, "", (s, x) => s + x.ToString(), x => x < 40);
+            Assert.Equal("102030", output1);
+
+            var output2 = foldWhile(input, "", (s, x) => s + x.ToString(), (string s) => s.Length < 6);
+            Assert.Equal("102030", output2);
+
+            var output3 = foldWhile(input, 0, (s, x) => s + x, preditem: x => x < 40);
+            Assert.Equal(60, output3);
+
+            var output4 = foldWhile(input, 0, (s, x) => s + x, predstate: s => s < 60);
+            Assert.Equal(60, output4);
+        }
+
+        [Fact]
+        public void FoldBackWhileTest()
+        {
+            var input = List(10, 20, 30, 40, 50);
+
+            var output1 = foldBackWhile(input, "", (s, x) => s + x.ToString(), x => x >= 40);
+            Assert.Equal("5040", output1);
+
+            var output2 = foldBackWhile(input, "", (s, x) => s + x.ToString(), (string s) => s.Length < 4);
+            Assert.Equal("5040", output2);
+
+            var output3 = foldBackWhile(input, 0, (s, x) => s + x, preditem: x => x >= 40);
+            Assert.Equal(90, output3);
+
+            var output4 = foldBackWhile(input, 0, (s, x) => s + x, predstate: s => s < 90);
+            Assert.Equal(90, output4);
+        }
+
+        [Fact]
+        public void FoldUntilTest()
+        {
+            var input = List(10, 20, 30, 40, 50);
+
+            var output1 = foldUntil(input, "", (s, x) => s + x.ToString(), x => x >= 40);
+            Assert.Equal("102030", output1);
+
+            var output2 = foldUntil(input, "", (s, x) => s + x.ToString(), (string s) => s.Length >= 6);
+            Assert.Equal("102030", output2);
+
+            var output3 = foldUntil(input, 0, (s, x) => s + x, preditem: x => x >= 40);
+            Assert.Equal(60, output3);
+
+            var output4 = foldUntil(input, 0, (s, x) => s + x, predstate: s => s >= 60);
+            Assert.Equal(60, output4);
+        }
+
+        [Fact]
+        public void FoldBackUntilTest()
+        {
+            var input = List(10, 20, 30, 40, 50);
+
+            var output1 = foldBackUntil(input, "", (s, x) => s + x.ToString(), x => x < 40);
+            Assert.Equal("5040", output1);
+
+            var output2 = foldBackUntil(input, "", (s, x) => s + x.ToString(), (string s) => s.Length >= 4);
+            Assert.Equal("5040", output2);
+
+            var output3 = foldBackUntil(input, 0, (s, x) => s + x, preditem: x => x < 40);
+            Assert.Equal(90, output3);
+
+            var output4 = foldBackUntil(input, 0, (s, x) => s + x, predstate: s => s >= 90);
+            Assert.Equal(90, output4);
         }
     }
 }

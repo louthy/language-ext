@@ -1,13 +1,14 @@
 ﻿using LanguageExt;
-using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using static LanguageExt.Map;
 using Xunit;
 using System;
 using System.Linq;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExtTests
 {
+    
     public class MapTests
     {
         [Fact]
@@ -15,17 +16,21 @@ namespace LanguageExtTests
         {
             var m1 = Map<int, string>();
             m1 = add(m1, 100, "hello");
-            Assert.True(m1.Count == 1 && containsKey(m1, 100));
+            Assert.True(m1.Count == 1 && containsKey(m1,100));
         }
 
         [Fact]
         public void MapGeneratorAndMatchTest()
         {
-            var m2 = Map(Tuple(1, "a"), Tuple(2, "b"), Tuple(3, "c"));
+            Map<int, string> m2 = ((1, "a"), (2, "b"), (3, "c"));
 
             m2 = add(m2, 100, "world");
 
-            var res = match(m2, 100, v => v, () => "failed");
+            var res = match(
+                m2, 100,
+                v  => v,
+                () => "failed"
+            );
 
             Assert.True(res == "world");
         }
@@ -33,13 +38,46 @@ namespace LanguageExtTests
         [Fact]
         public void MapSetTest()
         {
-            var m1 = Map(Tuple(1, "a"), Tuple(2, "b"), Tuple(3, "c"));
+            var m1 = Map( Tuple(1, "a"),
+                          Tuple(2, "b"),
+                          Tuple(3, "c") );
 
             var m2 = setItem(m1, 1, "x");
 
-            match(m1, 1, Some: v => Assert.True(v == "a"), None: () => Assert.False(true));
+            match( 
+                m1, 1, 
+                Some: v => Assert.True(v == "a"), 
+                None: () => Assert.False(true) 
+                );
 
-            match(find(m2, 1), Some: v => Assert.True(v == "x"), None: () => Assert.False(true));
+            match(
+                find(m2, 1),
+                Some: v => Assert.True(v == "x"),
+                None: () => Assert.False(true)
+                );
+
+            Assert.Throws<ArgumentException>(() => setItem(m1, 4, "y"));
+        }
+
+        
+        [Fact]
+        public void MapOrdSetTest()
+        {
+            var m1 = Map<OrdStringOrdinalIgnoreCase, string, int>(("one", 1), ("two",2), ("three", 3));
+            var m2 = m1.SetItem("One", -1);
+            
+            Assert.Equal(3, m2.Count);
+            Assert.Equal(-1, m2["one"]);
+            Assert.DoesNotContain("one", m2.Keys); // make sure key got replaced, too
+            Assert.Contains("One", m2.Keys); // make sure key got replaced, too
+
+            Assert.Throws<ArgumentException>(() => m1.SetItem("four", identity));
+
+            var m3 = m1.TrySetItem("four", 0).Add("five", 0).TrySetItem("Five", 5);
+            Assert.Equal(5, m3["fiVe"]);
+            Assert.DoesNotContain("four", m3.Keys);
+            Assert.DoesNotContain("five", m3.Keys);
+            Assert.Contains("Five", m3.Keys);
         }
 
         [Fact]
@@ -115,10 +153,15 @@ namespace LanguageExtTests
             m.Find(5).IfNone(() => failwith<int>("Broken"));
         }
 
+
         [Fact]
         public void MapRemoveTest()
         {
-            var m = Map(Tuple(1, "a"), Tuple(2, "b"), Tuple(3, "c"), Tuple(4, "d"), Tuple(5, "e"));
+            var m = Map(Tuple(1, "a"),
+                        Tuple(2, "b"),
+                        Tuple(3, "c"),
+                        Tuple(4, "d"),
+                        Tuple(5, "e"));
 
             m.Find(1).IfNone(() => failwith<string>("Broken 1"));
             m.Find(2).IfNone(() => failwith<string>("Broken 2"));
@@ -128,7 +171,7 @@ namespace LanguageExtTests
 
             Assert.True(m.Count == 5);
 
-            m = remove(m, 4);
+            m = remove(m,4);
             Assert.True(m.Count == 4);
             Assert.True(m.Find(4).IsNone);
             m.Find(1).IfNone(() => failwith<string>("Broken 1"));
@@ -164,9 +207,8 @@ namespace LanguageExtTests
         {
             int max = 100000;
 
-            var items =
-                LanguageExt.List.map(Range(1, max), _ => Tuple(Guid.NewGuid(), Guid.NewGuid()))
-                    .ToDictionary(kv => kv.Item1, kv => kv.Item2);
+            var items = LanguageExt.List.map(Range(1, max), _ => Tuple(Guid.NewGuid(), Guid.NewGuid()))
+                                        .ToDictionary(kv => kv.Item1, kv => kv.Item2);
 
             var m = Map<Guid, Guid>().AddRange(items);
             Assert.True(m.Count == max);
@@ -204,37 +246,120 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void ChooseTest()
+        public void MapValuesTest()
         {
-            var m = Map<int, string>();
+            var m = Map((1, 1), (2, 2), (3, 3), (4, 4), (5, 5));
 
-            m = m.AddOrUpdate(1, "One");
-            m = m.AddOrUpdate(2, "Two");
-            m = m.AddOrUpdate(3, "Three");
-            m = m.AddOrUpdate(4, "Four");
+            var vs = Seq(m.Values);
 
-            var actual = m.Choose((v) => v.StartsWith("T") ? Some(v.ToUpper()) : None);
-
-            Assert.True(actual.Count == 2);
-            Assert.Equal(actual[2], "TWO");
-            Assert.Equal(actual[3], "THREE");
+            Assert.True(vs.Head == 1);
+            Assert.True(vs.Tail.Head == 2);
+            Assert.True(vs.Tail.Tail.Head == 3);
+            Assert.True(vs.Tail.Tail.Tail.Head == 4);
+            Assert.True(vs.Tail.Tail.Tail.Tail.Head == 5);
+            Assert.True(vs.Count == 5);
         }
 
         [Fact]
-        public void ChooseTestWithKey()
+        public void MapKeysTest()
         {
-            var m = Map<int, string>();
+            var m = Map((1, 1), (2, 2), (3, 3), (4, 4), (5, 5));
 
-            m = m.AddOrUpdate(1, "One");
-            m = m.AddOrUpdate(2, "Two");
-            m = m.AddOrUpdate(3, "Three");
-            m = m.AddOrUpdate(4, "Four");
+            var vs = Seq(m.Keys);
 
-            var actual = m.Choose((k, v) => v.StartsWith("T") ? Some($"{k} => {v.ToUpper()}") : None);
-
-            Assert.True(actual.Count == 2);
-            Assert.Equal(actual[2], "2 => TWO");
-            Assert.Equal(actual[3], "3 => THREE");
+            Assert.True(vs.Head == 1);
+            Assert.True(vs.Tail.Head == 2);
+            Assert.True(vs.Tail.Tail.Head == 3);
+            Assert.True(vs.Tail.Tail.Tail.Head == 4);
+            Assert.True(vs.Tail.Tail.Tail.Tail.Head == 5);
+            Assert.True(vs.Count == 5);
         }
+
+        [Fact]
+        public void MapUnionTest1()
+        {
+            var x = Map((1, 1), (2, 2), (3, 3));
+            var y = Map((1, 1), (2, 2), (3, 3));
+
+            var z = union(x, y, (k, l, r) => l + r);
+
+            Assert.True(z == Map((1, 2), (2, 4), (3, 6)));
+        }
+
+        [Fact]
+        public void MapUnionTest2()
+        {
+            var x = Map((1, 1), (2, 2), (3, 3));
+            var y = Map((4, 4), (5, 5), (6, 6));
+
+            var z = union(x, y, (k, l, r) => l + r);
+
+            Assert.True(z == Map((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6)));
+        }
+
+        [Fact]
+        public void MapIntesectTest1()
+        {
+            var x = Map(        (2, 2), (3, 3));
+            var y = Map((1, 1), (2, 2)        );
+
+            var z = intersect(x, y, (k, l, r) => l + r);
+
+            Assert.True(z == Map((2, 4)));
+        }
+
+        [Fact]
+        public void MapExceptTest()
+        {
+            var x = Map((1, 1), (2, 2), (3, 3));
+            var y = Map((1, 1));
+
+            var z = except(x, y);
+
+            Assert.True(z == Map((2, 2), (3, 3)));
+        }
+
+        [Fact]
+        public void MapSymmetricExceptTest()
+        {
+            var x = Map((1, 1), (2, 2), (3, 3));
+            var y = Map((1, 1),         (3, 3));
+
+            var z = symmetricExcept(x, y);
+
+            Assert.True(z == Map((2, 2)));
+        }
+
+        [Fact]
+        public void EqualsTest()
+        {
+            var emp = Map<int, int>();
+
+            Assert.True(emp.Equals(emp));
+            Assert.False(Map((1, 2)).Equals(emp));
+            Assert.False(emp.Equals(Map((1, 2))));
+            Assert.True(Map((1, 2)).Equals(Map((1, 2))));
+            Assert.False(Map((1, 2), (3, 4)).Equals(Map((1, 2))));
+            Assert.False(Map((1, 2)).Equals(Map((1, 2), (3, 4))));
+            Assert.True(Map((1, 2), (3, 4)).Equals(Map((1, 2), (3, 4))));
+            Assert.True(Map((3, 4), (1, 2)).Equals(Map((1, 2), (3, 4))));
+            Assert.True(Map((3, 4), (1, 2)).Equals(Map((3, 4), (1, 2))));
+        }
+
+        // Exponential test - takes too long to run
+        //[Fact]
+        //public void Issue_454()
+        //{
+        //    var tmp = "".PadLeft(30000, 'x'); // something big enough (one Referral object = 20-40kb)
+        //    var map = Map<int, string>();
+
+        //    for (int i = 0; i < 30000; i++) // for our real system it is only 3000 items, but with string it needs more
+        //    {
+        //        map = map.AddOrUpdate(i, tmp);
+        //        map = map.Filter(_ => true);
+        //    }
+
+        //    map.Filter(_ => false);
+        //}
     }
 }

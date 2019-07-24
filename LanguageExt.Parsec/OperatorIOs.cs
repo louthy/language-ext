@@ -1,40 +1,38 @@
 ﻿using System;
-using LanguageExt;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Parsec
 {
-    public static class OperatorIO
+    public static partial class Operator
     {
-        public static OperatorIO<T> Infix<T>(Assoc assoc, Parser<char, Func<T, T, T>> p) =>
-            new InfixOpIO<T>(assoc, p);
+        public static Operator<I, O> Infix<I, O>(Assoc assoc, Parser<I, Func<O, O, O>> p) =>
+            new InfixOp<I, O>(assoc, p);
 
-        public static OperatorIO<T> Prefix<T>(Parser<char, Func<T, T>> p) =>
-            new PrefixOpIO<T>(p);
+        public static Operator<I, O> Prefix<I, O>(Parser<I, Func<O, O>> p) =>
+            new PrefixOp<I, O>(p);
 
-        public static OperatorIO<T> Postfix<T>(Parser<char, Func<T, T>> p) =>
-            new PostfixOpIO<T>(p);
+        public static Operator<I, O> Postfix<I, O>(Parser<I, Func<O, O>> p) =>
+            new PostfixOp<I, O>(p);
     }
 
-    public abstract class OperatorIO<T>
+    public abstract class Operator<I, O>
     {
         public readonly OperatorTag Tag;
 
-        public OperatorIO(OperatorTag tag)
+        public Operator(OperatorTag tag)
         {
             Tag = tag;
         }
 
-        public abstract Tuple<Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T>>>, Lst<Parser<char, Func<T, T>>>> SplitOp(
-            Tuple<Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T>>>, Lst<Parser<char, Func<T, T>>>> state);
+        public abstract (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) SplitOp(
+            (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) state);
     }
 
-    public class InfixOpIO<T> : OperatorIO<T>
+    public class InfixOp<I, O> : Operator<I, O>
     {
         public readonly Assoc Assoc;
-        public readonly Parser<char, Func<T, T, T>> Op;
+        public readonly Parser<I, Func<O, O, O>> Op;
 
-        internal InfixOpIO(Assoc assoc, Parser<char, Func<T, T, T>> p)
+        internal InfixOp(Assoc assoc, Parser<I, Func<O, O, O>> p)
             :
             base(OperatorTag.Infix)
         {
@@ -42,49 +40,49 @@ namespace LanguageExt.Parsec
             Op = p;
         }
 
-        public override Tuple<Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T>>>, Lst<Parser<char, Func<T, T>>>> SplitOp(
-            Tuple<Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T>>>, Lst<Parser<char, Func<T, T>>>> state) =>
+        public override (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) SplitOp(
+            (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) state) =>
             state.Map(
                 (rassoc, lassoc, nassoc, prefix, postfix) =>
-                    Assoc == Assoc.None ? Tuple(rassoc, lassoc, Op.Cons(nassoc), prefix, postfix)
-                  : Assoc == Assoc.Left ? Tuple(rassoc, Op.Cons(lassoc), nassoc, prefix, postfix)
-                  : Tuple(Op.Cons(rassoc), lassoc, nassoc, prefix, postfix));
+                    Assoc == Assoc.None ? (rassoc, lassoc, Op.Cons(nassoc), prefix, postfix)
+                  : Assoc == Assoc.Left ? (rassoc, Op.Cons(lassoc), nassoc, prefix, postfix)
+                  : (Op.Cons(rassoc), lassoc, nassoc, prefix, postfix));
     }
 
-    public class PrefixOpIO<T> : OperatorIO<T>
+    public class PrefixOp<I, O> : Operator<I, O>
     {
-        public readonly Parser<char, Func<T, T>> Op;
+        public readonly Parser<I, Func<O, O>> Op;
 
-        internal PrefixOpIO(Parser<char, Func<T, T>> p)
+        internal PrefixOp(Parser<I, Func<O, O>> p)
             :
             base(OperatorTag.Prefix)
         {
             Op = p;
         }
 
-        public override Tuple<Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T>>>, Lst<Parser<char, Func<T, T>>>> SplitOp(
-            Tuple<Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T>>>, Lst<Parser<char, Func<T, T>>>> state) =>
+        public override (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) SplitOp(
+            (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) state) =>
             state.Map(
                 (rassoc, lassoc, nassoc, prefix, postfix) =>
-                    Tuple(rassoc, lassoc, nassoc, Op.Cons(prefix), postfix));
+                    (rassoc, lassoc, nassoc, Op.Cons(prefix), postfix));
 
     }
 
-    public class PostfixOpIO<T> : OperatorIO<T>
+    public class PostfixOp<I, O> : Operator<I, O>
     {
-        public readonly Parser<char, Func<T, T>> Op;
+        public readonly Parser<I, Func<O, O>> Op;
 
-        internal PostfixOpIO(Parser<char, Func<T, T>> p)
+        internal PostfixOp(Parser<I, Func<O, O>> p)
             :
             base(OperatorTag.Postfix)
         {
             Op = p;
         }
 
-        public override Tuple<Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T>>>, Lst<Parser<char, Func<T, T>>>> SplitOp(
-            Tuple<Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T>>>, Lst<Parser<char, Func<T, T>>>> state) =>
+        public override (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) SplitOp(
+            (Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O, O>>>, Seq<Parser<I, Func<O, O>>>, Seq<Parser<I, Func<O, O>>>) state) =>
             state.Map(
                 (rassoc, lassoc, nassoc, prefix, postfix) =>
-                    Tuple(rassoc, lassoc, nassoc, prefix, Op.Cons(postfix)));
+                    (rassoc, lassoc, nassoc, prefix, Op.Cons(postfix)));
     }
 }

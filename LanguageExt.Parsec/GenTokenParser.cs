@@ -220,80 +220,80 @@ namespace LanguageExt.Parsec
         /// separated by semi. Returns a list of values returned by
         /// p.
         /// </summary>
-        public Parser<Lst<T>> SemiSep<T>(Parser<T> p) =>
-            sepBy(p, Semi).Map(x => List.createRange(x));
+        public Parser<Seq<T>> SemiSep<T>(Parser<T> p) =>
+            sepBy(p, Semi);
 
         /// <summary>
         /// Lexeme parser semiSep1(p) parses /one/ or more occurrences of p
         /// separated by 'semi'. Returns a list of values returned by p. 
         /// </summary>
-        public Parser<Lst<T>> SemiSep1<T>(Parser<T> p) =>
-            sepBy1(p, Semi).Map(x => List.createRange(x));
+        public Parser<Seq<T>> SemiSep1<T>(Parser<T> p) =>
+            sepBy1(p, Semi);
 
         /// <summary>
         /// Lexeme parser commaSep(p) parses /zero/ or more occurrences of
         /// p separated by 'comma'. Returns a list of values returned
         /// by p. 
         /// </summary>
-        public Parser<Lst<T>> CommaSep<T>(Parser<T> p) =>
-            sepBy(p, Comma).Map(x => List.createRange(x));
+        public Parser<Seq<T>> CommaSep<T>(Parser<T> p) =>
+            sepBy(p, Comma);
 
         /// <summary>
         /// Lexeme parser commaSep1(p) parses /one/ or more occurrences of
         /// p separated by 'comma'. Returns a list of values returned
         /// by p. 
         /// </summary>
-        public Parser<Lst<T>> CommaSep1<T>(Parser<T> p) =>
-            sepBy1(p, Comma).Map(x => List.createRange(x));
+        public Parser<Seq<T>> CommaSep1<T>(Parser<T> p) =>
+            sepBy1(p, Comma);
 
-        public Parser<Lst<T>> BracketsCommaSep1<T>(Parser<T> p) =>
-            Brackets(sepBy1(p, Comma).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> BracketsCommaSep1<T>(Parser<T> p) =>
+            Brackets(sepBy1(p, Comma));
 
-        public Parser<Lst<T>> BracketsCommaSep<T>(Parser<T> p) =>
-            Brackets(sepBy(p, Comma).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> BracketsCommaSep<T>(Parser<T> p) =>
+            Brackets(sepBy(p, Comma));
 
-        public Parser<Lst<T>> ParensCommaSep1<T>(Parser<T> p) =>
-            Parens(sepBy1(p, Comma).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> ParensCommaSep1<T>(Parser<T> p) =>
+            Parens(sepBy1(p, Comma));
 
-        public Parser<Lst<T>> ParensCommaSep<T>(Parser<T> p) =>
-            Parens(sepBy(p, Comma).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> ParensCommaSep<T>(Parser<T> p) =>
+            Parens(sepBy(p, Comma));
 
-        public Parser<Lst<T>> AnglesCommaSep1<T>(Parser<T> p) =>
-            Angles(sepBy1(p, Comma).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> AnglesCommaSep1<T>(Parser<T> p) =>
+            Angles(sepBy1(p, Comma));
 
-        public Parser<Lst<T>> AnglesCommaSep<T>(Parser<T> p) =>
-            Angles(sepBy(p, Comma).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> AnglesCommaSep<T>(Parser<T> p) =>
+            Angles(sepBy(p, Comma));
 
-        public Parser<Lst<T>> BracesCommaSep1<T>(Parser<T> p) =>
-            Braces(sepBy1(p, Comma).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> BracesCommaSep1<T>(Parser<T> p) =>
+            Braces(sepBy1(p, Comma));
 
-        public Parser<Lst<T>> BracesCommaSep<T>(Parser<T> p) =>
-            Braces(sepBy(p, Comma).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> BracesCommaSep<T>(Parser<T> p) =>
+            Braces(sepBy(p, Comma));
 
 
-        public Parser<Lst<T>> BracketsSemiSep1<T>(Parser<T> p) =>
-            Brackets(sepBy1(p, Semi).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> BracketsSemiSep1<T>(Parser<T> p) =>
+            Brackets(sepBy1(p, Semi));
 
-        public Parser<Lst<T>> BracketsSemiSep<T>(Parser<T> p) =>
-            Brackets(sepBy(p, Semi).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> BracketsSemiSep<T>(Parser<T> p) =>
+            Brackets(sepBy(p, Semi));
 
-        public Parser<Lst<T>> ParensSemiSep1<T>(Parser<T> p) =>
-            Parens(sepBy1(p, Semi).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> ParensSemiSep1<T>(Parser<T> p) =>
+            Parens(sepBy1(p, Semi));
 
-        public Parser<Lst<T>> ParensSemiSep<T>(Parser<T> p) =>
-            Parens(sepBy(p, Semi).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> ParensSemiSep<T>(Parser<T> p) =>
+            Parens(sepBy(p, Semi));
 
-        public Parser<Lst<T>> AnglesSemiSep1<T>(Parser<T> p) =>
-            Angles(sepBy1(p, Semi).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> AnglesSemiSep1<T>(Parser<T> p) =>
+            Angles(sepBy1(p, Semi));
 
-        public Parser<Lst<T>> AnglesSemiSep<T>(Parser<T> p) =>
-            Angles(sepBy(p, Semi).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> AnglesSemiSep<T>(Parser<T> p) =>
+            Angles(sepBy(p, Semi));
 
-        public Parser<Lst<T>> BracesSemiSep1<T>(Parser<T> p) =>
-            Braces(sepBy1(p, Semi).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> BracesSemiSep1<T>(Parser<T> p) =>
+            Braces(sepBy1(p, Semi));
 
-        public Parser<Lst<T>> BracesSemiSep<T>(Parser<T> p) =>
-            Braces(sepBy(p, Semi).Map(x => List.createRange(x)));
+        public Parser<Seq<T>> BracesSemiSep<T>(Parser<T> p) =>
+            Braces(sepBy(p, Semi));
 
         internal GenTokenParser(
             Parser<string> indentifier,

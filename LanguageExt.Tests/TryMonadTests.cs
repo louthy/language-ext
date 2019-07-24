@@ -1,11 +1,9 @@
 ﻿using Xunit;
 using LanguageExt;
-using System.IO;
-using System.Collections.Generic;
 using static LanguageExt.Prelude;
-using LanguageExt.Trans;
+using LanguageExt.ClassInstances;
 using System;
-using System.Net;
+using System.Net.Http;
 
 namespace LanguageExtTests
 {
@@ -131,8 +129,8 @@ namespace LanguageExtTests
                 );
         }
 
-        public Try<string> GetValue(bool select) =>
-            () => select
+        public Try<string> GetValue(bool select) => () => 
+            select
                 ? "Hello, World"
                 : failwith<string>("Failed!");
 
@@ -154,11 +152,11 @@ namespace LanguageExtTests
         Try<Uri> parseUri(string uri) => () =>
             new Uri(uri);
 
-        Try<WebClient> getClient() => () =>
-            new WebClient();
+        Try<HttpClient> getClient() => () =>
+            new HttpClient();
 
-        Try<string> getContent(Uri uri, WebClient client) => () =>
-            client.DownloadString(uri);
+        Try<string> getContent(Uri uri, HttpClient client) => () =>
+            client.GetStringAsync(uri).Result;
 
         Try<Lst<string>> getLines(string text) => () =>
             text.Split('\n').Freeze();
@@ -184,7 +182,7 @@ namespace LanguageExtTests
             // Maps the lines to line-lengths, then sums them
             int totalSize = getURLContent("http://www.google.com")
                                 .MapT(x => x.Length)
-                                .SumT();
+                                .SumT<TInt, int>();
         }
     }
 }

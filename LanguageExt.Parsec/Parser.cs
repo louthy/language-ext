@@ -18,7 +18,7 @@ namespace LanguageExt.Parsec
     public delegate ParserResult<T> Parser<T>(PString input);
 }
 
-public static class ___ParserExt
+public static class ParserExtensions
 {
     public static Parser<char, T> ToParserIO<T>(this Parser<T> self) =>
         inp =>

@@ -11,10 +11,10 @@ namespace LanguageExtTests
         [Fact]
         public void ExTest1()
         {
-            string x = match( Number<SystemException>(10),
+            string x = match( Number<InvalidOperationException>(10),
                               Succ: v  => "Worked",
                               Fail: ex => ex.Match<string>()
-                                            .With<SystemException>(e => "It's a system exception")
+                                            .With<InvalidOperationException>(e => "It's an invalid operation exception")
                                             .With<ArgumentNullException>(e => "Arg null")
                                             .Otherwise("Not handled") );
 
@@ -24,14 +24,14 @@ namespace LanguageExtTests
         [Fact]
         public void ExTest2()
         {
-            string x = match( Number<SystemException>(9),
+            string x = match( Number<InvalidOperationException>(9),
                               Succ: v  => "Worked",
                               Fail: ex => ex.Match<string>()
-                                            .With<SystemException>(e => "It's a system exception")
+                                            .With<InvalidOperationException>(e => "It's an invalid operation exception")
                                             .With<ArgumentNullException>(e => "Arg null")
                                             .Otherwise("Not handled") );
 
-            Assert.True(x == "It's a system exception");
+            Assert.True(x == "It's an invalid operation exception");
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace LanguageExtTests
             string x = match( Number<ArgumentNullException>(9),
                               Succ: v  => "Worked",
                               Fail: ex => ex.Match<string>()
-                                            .With<SystemException>(e => "It's a system exception")
+                                            .With<InvalidOperationException>(e => "It's an invalid operation exception")
                                             .With<ArgumentNullException>(e => "Arg null")
                                             .Otherwise("Not handled") );
 
@@ -53,7 +53,7 @@ namespace LanguageExtTests
             string x = match( Number<Exception>(9),
                               Succ: v  => "Worked",
                               Fail: ex => ex.Match<string>()
-                                            .With<SystemException>(e => "It's a system exception")
+                                            .With<InvalidOperationException>(e => "It's an invalid operation exception")
                                             .With<ArgumentNullException>(e => "Arg null")
                                             .Otherwise("Not handled") );
 

@@ -7,7 +7,8 @@ namespace LanguageExtTests
 {
     public class TrySimpleTests
     {
-        private Try<Uri> CreateUri(string uri) => () => new Uri(uri);
+        private Try<Uri> CreateUri(string uri) => () => 
+        new Uri(uri);
 
         [Fact]
         void SuccessfulTry()
@@ -36,10 +37,11 @@ namespace LanguageExtTests
         {
             bool tried = false;
 
-            Func<string, Try<Uri>> createUri = (uri) => Try(() => {
+            Func<string, Try<Uri>> createUri = (uri) => () => 
+            {
                 tried = true;
                 return new Uri(uri);
-            });
+            };
 
             var uriTry = createUri("http://github.com");
             Assert.False(tried, "creating a Try should not run it");
