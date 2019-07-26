@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Contoso.Core.Domain
+﻿namespace Contoso.Core.Domain
 {
     public class CourseAssignment
     {
+        public int InstructorID { get; set; }
+        public int CourseID { get; set; }
+        public Instructor Instructor { get; set; }
+        public Course Course { get; set; }
     }
 }
