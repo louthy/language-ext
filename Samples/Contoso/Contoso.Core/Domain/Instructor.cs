@@ -11,6 +11,5 @@ namespace Contoso.Core.Domain
         public string FullName => LastName + ", " + FirstName;
         public DateTime HireDate { get; set; }
         public List<CourseAssignment> CourseAssignments { get; set; }
-        public OfficeAssignment OfficeAssignment { get; set; }
     }
 }

@@ -8,6 +8,10 @@ namespace Contoso.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Course> builder)
         {
+            builder.HasOne(c => c.Department)
+                .WithMany(d => d.Courses)
+                .OnDelete(DeleteBehavior.SetNull);
+
             builder.Property(b => b.Title)
                 .HasMaxLength(50);
         }
