@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Infrastructure", "C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Core", "Contoso.Core\Contoso.Core.csproj", "{DD861080-814A-4045-802F-2FD388FEE727}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contoso.Application", "Contoso.Application\Contoso.Application.csproj", "{2F114C86-3169-4D11-A69F-1DE53E76BBC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Application", "Contoso.Application\Contoso.Application.csproj", "{2F114C86-3169-4D11-A69F-1DE53E76BBC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contoso.Application.Test", "Contoso.Application.Test\Contoso.Application.Test.csproj", "{17C05B9F-78CA-4C15-ACC3-667CA107B066}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +39,10 @@ Global
 		{2F114C86-3169-4D11-A69F-1DE53E76BBC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F114C86-3169-4D11-A69F-1DE53E76BBC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F114C86-3169-4D11-A69F-1DE53E76BBC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17C05B9F-78CA-4C15-ACC3-667CA107B066}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17C05B9F-78CA-4C15-ACC3-667CA107B066}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17C05B9F-78CA-4C15-ACC3-667CA107B066}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17C05B9F-78CA-4C15-ACC3-667CA107B066}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,6 +52,7 @@ Global
 		{CC7B7F54-FD97-43F7-8CC1-A6DF576926B8} = {0EA9357E-CDD4-415B-A4B1-C82921612C96}
 		{DD861080-814A-4045-802F-2FD388FEE727} = {0EA9357E-CDD4-415B-A4B1-C82921612C96}
 		{2F114C86-3169-4D11-A69F-1DE53E76BBC8} = {0EA9357E-CDD4-415B-A4B1-C82921612C96}
+		{17C05B9F-78CA-4C15-ACC3-667CA107B066} = {4DAC1349-6187-4502-97C7-7F5E9B6B6376}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6A998E8-D0B2-4499-9A9F-B0882AD36143}
