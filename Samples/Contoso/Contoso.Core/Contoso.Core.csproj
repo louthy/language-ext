@@ -5,9 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="UseCases\**" />
+    <EmbeddedResource Remove="UseCases\**" />
+    <None Remove="UseCases\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Interfaces\" />
-    <Folder Include="UseCases\Students\Commands\" />
-    <Folder Include="UseCases\Students\Queries\" />
   </ItemGroup>
 
   <ItemGroup>
