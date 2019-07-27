@@ -6,7 +6,13 @@
 
   <ItemGroup>
     <Folder Include="Interfaces\" />
-    <Folder Include="UseCases\" />
+    <Folder Include="UseCases\Students\Commands\" />
+    <Folder Include="UseCases\Students\Queries\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LanguageExt.Core" Version="3.3.3" />
+    <PackageReference Include="MediatR" Version="7.0.0" />
   </ItemGroup>
 
 </Project>
