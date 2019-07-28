@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Linq;
 using Contoso.Core.Domain;
+using LanguageExt;
 
 namespace Contoso.Infrastructure.Data
 {
     public static class DbInitializer
     {
-        public static void Initialize(ContosoDbContext context)
+        public static Unit Initialize(ContosoDbContext context)
         {
             // Look for any students.
             if (context.Students.Any())
             {
-                return;   // DB has been seeded
+                return Unit.Default;   // DB has been seeded
             }
 
             var students = new Student[]
@@ -244,7 +245,7 @@ namespace Contoso.Infrastructure.Data
                 }
             }
             context.SaveChanges();
-
+            return Unit.Default;
         }
     }
 }

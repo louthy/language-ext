@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Contoso.Web.Extensions;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Contoso.Web
 {
@@ -13,7 +8,9 @@ namespace Contoso.Web
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build()
+                .SeedDatabase()
+                .Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
