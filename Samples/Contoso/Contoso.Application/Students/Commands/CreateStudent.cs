@@ -8,9 +8,7 @@ namespace Contoso.Application.Students.Commands
     public class CreateStudent : IRequest<Either<Error, int>>
     {
         public CreateStudent()
-        {
-
-        }
+        { }
 
         public CreateStudent(string firstName, string lastName, DateTime enrollmentDate)
         {
