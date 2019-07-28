@@ -20,12 +20,7 @@ namespace Contoso.Application.Test.Students
         public async Task CreateStudent_ValidStudent_CreateSuccessfully()
         {
             // Arrange
-            var student = new CreateStudent
-            {
-                FirstName = "James",
-                LastName = "Test",
-                EnrollmentDate = DateTime.Now
-            };
+            var student = new CreateStudent("James", "Test", DateTime.Now);
 
             studentRepository.Setup(s => s.Add(It.IsAny<Student>())).ReturnsAsync(1);
             var handler = new CreateStudentHandler(studentRepository.Object);
@@ -44,12 +39,7 @@ namespace Contoso.Application.Test.Students
         public async Task CreateStudent_InvalidStudent_Fails()
         {
             // Arrange
-            var student = new CreateStudent
-            {
-                FirstName = "",
-                LastName = "",
-                EnrollmentDate = DateTime.Now
-            };
+            var student = new CreateStudent("", "", DateTime.Now);
 
             studentRepository.Setup(s => s.Add(It.IsAny<Student>())).ReturnsAsync(1);
             var handler = new CreateStudentHandler(studentRepository.Object);
