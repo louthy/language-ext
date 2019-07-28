@@ -12,24 +12,24 @@ namespace Contoso.Web.Extensions
     {
         public static IHost SeedDatabase(this IHost host)
         {
-            use(host.Services.CreateScope(), Seed);
+            var test = use(() => host.Services.CreateScope(), Seed);
             return host;
         }
 
-        static readonly Func<IServiceScope, Unit> Seed = (scope) =>
+        static Func<IServiceScope, Unit> Seed = (scope) =>
         {
             var services = scope.ServiceProvider;
-            TryGetDbContext(services).Bind(ctx => TryInitializeDb(ctx))
+            Try(GetDbContext(services)).Bind(ctx => Try(InitializeDb(ctx)))
                 .Match(
                     Succ: a => { },
                     Fail: ex => LogException(ex, services));
             return Unit.Default;
         };
 
-        private static Try<ContosoDbContext> TryGetDbContext(IServiceProvider provider) => () =>
+        static Func<IServiceProvider, ContosoDbContext> GetDbContext = (provider) =>
             provider.GetRequiredService<ContosoDbContext>();
 
-        private static Try<Unit> TryInitializeDb(ContosoDbContext context) => () =>
+        static Func<ContosoDbContext, Unit> InitializeDb = (context) =>
             DbInitializer.Initialize(context);
 
         private static void LogException(Exception ex, IServiceProvider provider) =>
