@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Contoso.Web.Controllers
 {
+    [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
     public class StudentsController : ControllerBase
@@ -24,7 +25,7 @@ namespace Contoso.Web.Controllers
                 .ToActionResult();
 
         [HttpPost]
-        public Task<IActionResult> Create(CreateStudent createStudent) => 
+        public Task<IActionResult> Create([FromBody]CreateStudent createStudent) => 
             _mediator.Send(createStudent).ToActionResult();
     }
 }

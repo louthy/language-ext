@@ -7,6 +7,11 @@ namespace Contoso.Application.Students.Commands
 {
     public class CreateStudent : IRequest<Either<Error, int>>
     {
+        public CreateStudent()
+        {
+
+        }
+
         public CreateStudent(string firstName, string lastName, DateTime enrollmentDate)
         {
             FirstName = firstName;
@@ -14,8 +19,8 @@ namespace Contoso.Application.Students.Commands
             EnrollmentDate = enrollmentDate;
         }
 
-        public string FirstName { get; }
-        public string LastName { get; }
-        public DateTime EnrollmentDate { get; }
+        public string FirstName { get; set;  }
+        public string LastName { get; set; }
+        public DateTime EnrollmentDate { get; set; }
     }
 }
