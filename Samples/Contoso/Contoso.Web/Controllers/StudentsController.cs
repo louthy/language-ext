@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Contoso.Application.Students.Commands;
 using Contoso.Application.Students.Queries;
 using Contoso.Web.Extensions;
 using MediatR;
@@ -21,5 +22,9 @@ namespace Contoso.Web.Controllers
         public Task<IActionResult> Get(int studentId) => 
             _mediator.Send(new GetStudentById(studentId))
                 .ToActionResult();
+
+        [HttpPost]
+        public Task<IActionResult> Create(CreateStudent createStudent) => 
+            _mediator.Send(createStudent).ToActionResult();
     }
 }
