@@ -7,5 +7,6 @@ namespace Contoso.Core.Interfaces.Repositories
     public interface IStudentRepository
     {
         Task<Option<Student>> Get(int Id);
+        Task<int> Add(Student student);
     }
 }
