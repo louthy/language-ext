@@ -47,7 +47,7 @@ namespace LanguageExt
         /// <summary>
         /// Internal value accessor - protects against `default`
         /// </summary>
-        ISeqInternal<A> Value
+        internal ISeqInternal<A> Value
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => value ?? SeqEmptyInternal<A>.Default;
@@ -324,13 +324,6 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<A> AsEnumerable() => 
             Value;
-
-        /// <summary>
-        /// Stream as a queryable
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IQueryable<A> AsQueryable() =>
-            Value.AsQueryable();
 
         /// <summary>
         /// Match empty sequence, or multi-item sequence

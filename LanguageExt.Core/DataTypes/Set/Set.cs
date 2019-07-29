@@ -29,7 +29,7 @@ namespace LanguageExt
 
         readonly SetInternal<OrdDefault<A>, A> value;
 
-        SetInternal<OrdDefault<A>, A> Value => value ?? Empty.Value;
+        internal SetInternal<OrdDefault<A>, A> Value => value ?? Empty.Value;
 
         /// <summary>
         /// Ctor from an enumerable 
