@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class Metres : NumType<Metres, TInt, int>
     {

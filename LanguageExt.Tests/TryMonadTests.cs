@@ -5,7 +5,7 @@ using LanguageExt.ClassInstances;
 using System;
 using System.Net.Http;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
 
     public class TryOptionMonadTests

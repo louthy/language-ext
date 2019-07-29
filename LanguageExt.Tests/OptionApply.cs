@@ -5,7 +5,7 @@ using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class OptionApply
     {

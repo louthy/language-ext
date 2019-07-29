@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using LanguageExt.ClassInstances;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class HashMapTests
     {
