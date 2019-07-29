@@ -13,6 +13,6 @@ namespace Contoso.Core
 
     public static class ErrorExtensions
     {
-        public static Error Join(this Seq<Error> errors) => string.Join("\n", errors);
+        public static Error Join(this Seq<Error> errors) => string.Join("; ", errors);
     }
 }

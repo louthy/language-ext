@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Contoso.Core;
@@ -20,18 +21,18 @@ namespace Contoso.Application.Students.Commands
         }
 
         public Task<Either<Error, int>> Handle(CreateStudent request, CancellationToken cancellationToken) =>
-            (ValidateFirstName(request) | ValidateLastName(request))
-                .MatchAsync<Either<Error, int>>(
-                    SuccAsync: async _ => Right(await Persist(request)),
-                    Fail: failures => Left(failures.Join()));
+            Validate(request).MatchAsync<Either<Error, int>>(
+                SuccAsync: async s => Right(await _studentRepository.Add(s)),
+                Fail: failures => Left(failures.Join()));
 
-        private Task<int> Persist(CreateStudent createStudent) => 
-            _studentRepository.Add(new Student
-                {
-                    FirstName = createStudent.FirstName,
-                    LastName = createStudent.LastName,
-                    EnrollmentDate = createStudent.EnrollmentDate
-                });
+        private Validation<Error, Student> Validate(CreateStudent request) => 
+            (ValidateFirstName(request), ValidateLastName(request), ValidateEnrollmentDate(request))
+                .Apply((first, last, enrollment) => new Student
+                    {
+                        FirstName = first,
+                        LastName = last,
+                        EnrollmentDate = enrollment
+                    });
 
         private Validation<Error, string> ValidateFirstName(CreateStudent createStudent) =>
             NotEmpty(createStudent.FirstName)
@@ -40,6 +41,11 @@ namespace Contoso.Application.Students.Commands
         private Validation<Error, string> ValidateLastName(CreateStudent createStudent) =>
             NotEmpty(createStudent.LastName)
                 .Bind(lastName => MaxStringLength(50, lastName));
+
+        private Validation<Error, DateTime> ValidateEnrollmentDate(CreateStudent createStudent) =>
+            createStudent.EnrollmentDate > DateTime.Now.AddYears(5)
+                ? Fail<Error, DateTime>($"The enrollment date is too far in the future")
+                : Success<Error, DateTime>(createStudent.EnrollmentDate);
 
         private Validation<Error, string> MaxStringLength(int maxLength, string str) =>
             str.Length > maxLength
