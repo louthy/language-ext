@@ -14,10 +14,7 @@ namespace Contoso.Web.Controllers
     {
         private readonly IMediator _mediator;
 
-        public StudentsController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        public StudentsController(IMediator mediator) => _mediator = mediator;
 
         [HttpGet("{studentId}")]
         public Task<IActionResult> Get(int studentId) => 
@@ -26,6 +23,12 @@ namespace Contoso.Web.Controllers
 
         [HttpPost]
         public Task<IActionResult> Create([FromBody]CreateStudent createStudent) => 
-            _mediator.Send(createStudent).ToActionResult();
+            _mediator.Send(createStudent)
+                .ToActionResult();
+
+        [HttpPut]
+        public Task<IActionResult> Update([FromBody] UpdateStudent updateStudent) => 
+            _mediator.Send(updateStudent)
+                .ToActionResult();
     }
 }

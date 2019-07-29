@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Contoso.Core;
 using LanguageExt;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,5 +14,10 @@ namespace Contoso.Web.Extensions
 
         public static async Task<IActionResult> ToActionResult<L, R>(this Task<Either<L, R>> either) =>
             (await either).ToActionResult();
+
+        public static async Task<IActionResult> ToActionResult(this Task<Either<Error, Task>> either) =>
+            await (await either).MatchAsync<IActionResult>(
+                Left: err => new BadRequestObjectResult(err),
+                RightAsync: async t => { await t; return new OkResult(); });
     }
 }

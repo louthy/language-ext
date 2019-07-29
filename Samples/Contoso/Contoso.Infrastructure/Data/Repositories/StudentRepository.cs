@@ -23,5 +23,11 @@ namespace Contoso.Infrastructure.Data.Repositories
 
         public async Task<Option<Student>> Get(int Id) => 
             await _contosoDbContext.Students.FindAsync(Id);
+
+        public async Task Update(Student student)
+        {
+            _contosoDbContext.Students.Update(student);
+            await _contosoDbContext.SaveChangesAsync();
+        }
     }
 }

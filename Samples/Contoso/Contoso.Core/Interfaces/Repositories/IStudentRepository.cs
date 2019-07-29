@@ -8,5 +8,6 @@ namespace Contoso.Core.Interfaces.Repositories
     {
         Task<Option<Student>> Get(int Id);
         Task<int> Add(Student student);
+        Task Update(Student student);
     }
 }
