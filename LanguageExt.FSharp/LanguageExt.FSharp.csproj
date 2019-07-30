@@ -8,7 +8,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
-    <PackageVersion>3.3.3</PackageVersion>
+    <PackageVersion>3.3.4</PackageVersion>
     <PackageId>LanguageExt.FSharp</PackageId>
     <Title>LanguageExt.FSharp</Title>
     <Authors>Paul Louth</Authors>
