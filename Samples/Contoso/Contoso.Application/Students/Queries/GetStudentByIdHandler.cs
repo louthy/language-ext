@@ -19,9 +19,9 @@ namespace Contoso.Application.Students.Queries
 
         private static StudentViewModel Project(Student student) =>
             new StudentViewModel(student.StudentId, student.FirstName, student.LastName,
-                student.EnrollmentDate, new Lst<CourseViewModel>(student.Enrollments.Map(c => Project(c.Course))));
+                student.EnrollmentDate, new Lst<CourseViewModel>(student.Enrollments.Map(c => Project(c.Course, c.Grade))));
 
-        private static CourseViewModel Project(Course course) =>
-            new CourseViewModel(course.CourseId, course.Title, course.Credits, course.DepartmentId);
+        private static CourseViewModel Project(Course course, Grade? grade) =>
+            new CourseViewModel(course.CourseId, course.Title, course.Credits, course.DepartmentId, grade);
     }
 }
