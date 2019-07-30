@@ -23,8 +23,11 @@ namespace Contoso.Infrastructure.Data.Repositories
             return student.StudentId;
         }
 
-        public async Task<Option<Student>> Get(int Id) => 
-            await _contosoDbContext.Students.FindAsync(Id);
+        public async Task<Option<Student>> Get(int Id) =>
+            await _contosoDbContext.Students
+                .Include(s => s.Enrollments)
+                    .ThenInclude(e => e.Course)
+                .SingleOrDefaultAsync(s => s.StudentId == Id);
 
         public Task<List<Student>> GetAll() => 
             _contosoDbContext.Students.ToListAsync();

@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Contoso.Application.Students.Queries
 {
-    public class GetStudentById : IRequest<Option<Student>>
+    public class GetStudentById : IRequest<Option<StudentViewModel>>
     {
         public GetStudentById(int id)
         {
