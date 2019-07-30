@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Contoso.Application.Courses;
 using Contoso.Core.Domain;
 using Contoso.Core.Interfaces.Repositories;
 using LanguageExt;
@@ -19,9 +18,9 @@ namespace Contoso.Application.Students.Queries
 
         private static StudentViewModel Project(Student student) =>
             new StudentViewModel(student.StudentId, student.FirstName, student.LastName,
-                student.EnrollmentDate, new Lst<CourseViewModel>(student.Enrollments.Map(c => Project(c.Course, c.Grade))));
+                student.EnrollmentDate, new Lst<StudentEnrollmentViewModel>(student.Enrollments.Map(c => Project(c.Course, c.Grade))));
 
-        private static CourseViewModel Project(Course course, Grade? grade) =>
-            new CourseViewModel(course.CourseId, course.Title, course.Credits, course.DepartmentId, grade);
+        private static StudentEnrollmentViewModel Project(Course course, Grade? grade) =>
+            new StudentEnrollmentViewModel(course.CourseId, course.Title, course.Credits, course.DepartmentId, grade);
     }
 }

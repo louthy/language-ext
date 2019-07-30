@@ -1,11 +1,11 @@
 ﻿using Contoso.Core.Domain;
 using LanguageExt;
 
-namespace Contoso.Application.Courses
+namespace Contoso.Application.Students
 {
-    public class CourseViewModel : Record<CourseViewModel>
+    public class StudentEnrollmentViewModel : Record<StudentEnrollmentViewModel>
     {
-        public CourseViewModel(int courseId, string title, int credits, int? departmentId, Grade? grade)
+        public StudentEnrollmentViewModel(int courseId, string title, int credits, int? departmentId, Grade? grade)
         {
             CourseId = courseId;
             Title = title;

@@ -1,5 +1,4 @@
 ﻿using System;
-using Contoso.Application.Courses;
 using LanguageExt;
 
 namespace Contoso.Application.Students
@@ -10,7 +9,7 @@ namespace Contoso.Application.Students
             string firstName, 
             string lastName, 
             DateTime enrollmentDate, 
-            Lst<CourseViewModel> enrollments)
+            Lst<StudentEnrollmentViewModel> enrollments)
         {
             StudentId = studentId;
             FirstName = firstName;
@@ -25,6 +24,6 @@ namespace Contoso.Application.Students
         public string FullName => LastName + ", " + FirstName;
         public DateTime EnrollmentDate { get; }
 
-        public Lst<CourseViewModel> Enrollments { get; }
+        public Lst<StudentEnrollmentViewModel> Enrollments { get; }
     }
 }

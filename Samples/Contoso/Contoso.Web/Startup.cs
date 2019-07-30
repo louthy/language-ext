@@ -72,6 +72,7 @@ namespace Contoso.Web
         private void CustomServices(IServiceCollection services)
         {
             services.AddScoped<IStudentRepository, StudentRepository>();
+            services.AddScoped<IInstructorRepository, InstructorRepository>();
         }
     }
 }
