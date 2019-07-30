@@ -21,6 +21,10 @@ namespace Contoso.Web.Controllers
             _mediator.Send(new GetStudentById(studentId))
                 .ToActionResult();
 
+        [HttpGet]
+        public async Task<IActionResult> Index() =>
+            Ok(await _mediator.Send(new GetAllStudents()));
+
         [HttpPost]
         public Task<IActionResult> Create([FromBody]CreateStudent createStudent) => 
             _mediator.Send(createStudent)

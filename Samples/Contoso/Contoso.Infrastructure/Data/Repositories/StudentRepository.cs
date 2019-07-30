@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Contoso.Core.Domain;
 using Contoso.Core.Interfaces.Repositories;
 using LanguageExt;
+using Microsoft.EntityFrameworkCore;
 
 namespace Contoso.Infrastructure.Data.Repositories
 {
@@ -23,6 +25,9 @@ namespace Contoso.Infrastructure.Data.Repositories
 
         public async Task<Option<Student>> Get(int Id) => 
             await _contosoDbContext.Students.FindAsync(Id);
+
+        public Task<List<Student>> GetAll() => 
+            _contosoDbContext.Students.ToListAsync();
 
         public async Task Update(Student student)
         {
