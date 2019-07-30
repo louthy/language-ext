@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build">
+﻿<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build">
 
     <PropertyGroup>
         <PackageVersion>3.3.3</PackageVersion>
         <PackageId>LanguageExt.CodeGen</PackageId>
-        <Title>LanguageExtCodeGenCore</Title>
+        <Title>LanguageExt.CodeGen</Title>
         <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
         <LangVersion>7.3</LangVersion>
         <Authors>Paul Louth</Authors>
@@ -23,11 +23,7 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="CodeGeneration.Roslyn" Version="0.5.13" />
-        <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.5.13">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
+        <PackageReference Include="CodeGeneration.Roslyn" Version="0.6.1" />
     </ItemGroup>
 
     <ItemGroup>
