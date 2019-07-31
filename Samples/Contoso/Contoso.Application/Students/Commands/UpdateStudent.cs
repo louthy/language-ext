@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Contoso.Application.Students.Commands
 {
-    public class UpdateStudent : IRequest<Either<Error, Task>>
+    public class UpdateStudent : Record<UpdateStudent>, IRequest<Either<Error, Task>>
     {
         public UpdateStudent(int studentId, string firstName, string lastName)
         {

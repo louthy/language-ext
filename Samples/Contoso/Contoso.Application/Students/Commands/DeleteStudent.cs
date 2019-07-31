@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Contoso.Application.Students.Commands
 {
-    public class DeleteStudent : IRequest<Either<Error, Task>>
+    public class DeleteStudent : Record<DeleteStudent>, IRequest<Either<Error, Task>>
     {
         public DeleteStudent(int studentId) => StudentId = studentId;
 

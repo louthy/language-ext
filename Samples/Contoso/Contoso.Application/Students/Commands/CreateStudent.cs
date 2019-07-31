@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Contoso.Application.Students.Commands
 {
-    public class CreateStudent : IRequest<Either<Error, int>>
+    public class CreateStudent : Record<CreateStudent>, IRequest<Either<Error, int>>
     {
         public CreateStudent(string firstName, string lastName, DateTime enrollmentDate)
         {

@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Contoso.Application.Instructors.Commands
 {
-    public class CreateInstructor : IRequest<Either<Error, int>>
+    public class CreateInstructor : Record<CreateInstructor>, IRequest<Either<Error, int>>
     {
         public CreateInstructor(string firstName, string lastName, DateTime hireDate)
         {
