@@ -40,5 +40,12 @@ namespace Contoso.Infrastructure.Data.Repositories
             _contosoDbContext.Students.Update(student);
             await _contosoDbContext.SaveChangesAsync();
         }
+
+        public async Task Delete(int studentId)
+        {
+            var student = await _contosoDbContext.Students.FindAsync(studentId);
+            _contosoDbContext.Students.Remove(student);
+            await _contosoDbContext.SaveChangesAsync();
+        }
     }
 }

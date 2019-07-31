@@ -34,5 +34,10 @@ namespace Contoso.Web.Controllers
         public Task<IActionResult> Update([FromBody] UpdateStudent updateStudent) => 
             _mediator.Send(updateStudent)
                 .ToActionResult();
+
+        [HttpDelete]
+        public Task<IActionResult> Delete([FromBody] DeleteStudent deleteStudent) =>
+            _mediator.Send(deleteStudent)
+                .ToActionResult();
     }
 }
