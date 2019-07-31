@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Contoso.Application.Instructors.Commands;
 using Contoso.Application.Instructors.Queries;
 using Contoso.Web.Extensions;
 using MediatR;
@@ -21,5 +22,9 @@ namespace Contoso.Web.Controllers
         public Task<IActionResult> Get(int instructorId) =>
             _mediator.Send(new GetInstructorById(instructorId))
                 .ToActionResult();
+
+        [HttpPost]
+        public Task<IActionResult> Create([FromBody] CreateInstructor createInstructor) =>
+            _mediator.Send(createInstructor).ToActionResult();
     }
 }

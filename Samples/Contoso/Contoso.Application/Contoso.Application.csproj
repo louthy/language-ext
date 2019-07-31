@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <Folder Include="Courses\" />
-    <Folder Include="Instructors\Commands\" />
   </ItemGroup>
 
 </Project>
