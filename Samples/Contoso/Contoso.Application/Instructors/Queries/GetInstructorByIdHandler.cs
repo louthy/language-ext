@@ -12,7 +12,7 @@ namespace Contoso.Application.Instructors.Queries
         private readonly IInstructorRepository _instructorRepository;
         public GetInstructorByIdHandler(IInstructorRepository instructorRepository) => _instructorRepository = instructorRepository;
 
-        public async Task<Option<InstructorViewModel>> Handle(GetInstructorById request, CancellationToken cancellationToken) => 
-            (await _instructorRepository.Get(request.InstructorId)).Map(Project);
+        public Task<Option<InstructorViewModel>> Handle(GetInstructorById request, CancellationToken cancellationToken) => 
+            _instructorRepository.Get(request.InstructorId).MapT(Project);
     }
 }

@@ -14,7 +14,8 @@ namespace Contoso.Application.Students.Queries
         public GetStudentByIdHandler(IStudentRepository studentRepository) => 
             _studentRepository = studentRepository;
 
-        public async Task<Option<StudentViewModel>> Handle(GetStudentById request, CancellationToken cancellationToken) =>
-            (await _studentRepository.Get(request.StudentId)).Map(ProjectToViewModel);
+        public Task<Option<StudentViewModel>> Handle(GetStudentById request, CancellationToken cancellationToken) =>
+            _studentRepository.Get(request.StudentId)
+                .MapT(ProjectToViewModel);
     }
 }
