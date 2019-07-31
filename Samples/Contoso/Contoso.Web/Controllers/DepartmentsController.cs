@@ -1,0 +1,22 @@
+﻿using System.Threading.Tasks;
+using Contoso.Application.Departments.Queries;
+using Contoso.Web.Extensions;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Contoso.Web.Controllers
+{
+    [Produces("application/json")]
+    [Route("api/[controller]")]
+    [ApiController]
+    public class DepartmentsController : ControllerBase
+    {
+        private readonly IMediator _mediator;
+        public DepartmentsController(IMediator mediatr) => _mediator = mediatr;
+
+        [HttpGet("{departmentId}")]
+        public Task<IActionResult> Get(int departmentId) => 
+            _mediator.Send(new GetDepartmentById(departmentId))
+                .ToActionResult();
+    }
+}
