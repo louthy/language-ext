@@ -4,6 +4,7 @@ using Contoso.Core.Domain;
 using Contoso.Core.Interfaces.Repositories;
 using LanguageExt;
 using MediatR;
+using static Contoso.Application.Students.Mapper;
 
 namespace Contoso.Application.Students.Queries
 {
@@ -14,13 +15,6 @@ namespace Contoso.Application.Students.Queries
             _studentRepository = studentRepository;
 
         public async Task<Option<StudentViewModel>> Handle(GetStudentById request, CancellationToken cancellationToken) =>
-            (await _studentRepository.Get(request.StudentId)).Map(Project);
-
-        private static StudentViewModel Project(Student student) =>
-            new StudentViewModel(student.StudentId, student.FirstName, student.LastName,
-                student.EnrollmentDate, new Lst<StudentEnrollmentViewModel>(student.Enrollments.Map(c => Project(c.Course, c.Grade))));
-
-        private static StudentEnrollmentViewModel Project(Course course, Grade? grade) =>
-            new StudentEnrollmentViewModel(course.CourseId, course.Title, course.Credits, course.DepartmentId, grade);
+            (await _studentRepository.Get(request.StudentId)).Map(ProjectToViewModel);
     }
 }

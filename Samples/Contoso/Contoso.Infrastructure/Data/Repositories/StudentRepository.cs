@@ -30,7 +30,10 @@ namespace Contoso.Infrastructure.Data.Repositories
                 .SingleOrDefaultAsync(s => s.StudentId == Id);
 
         public Task<List<Student>> GetAll() => 
-            _contosoDbContext.Students.ToListAsync();
+            _contosoDbContext.Students
+                .Include(s => s.Enrollments)
+                    .ThenInclude(e => e.Course)
+                .ToListAsync();
 
         public async Task Update(Student student)
         {

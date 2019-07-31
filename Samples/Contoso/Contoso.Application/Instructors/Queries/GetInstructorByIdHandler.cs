@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Contoso.Core.Domain;
 using Contoso.Core.Interfaces.Repositories;
 using LanguageExt;
 using MediatR;
+using static Contoso.Application.Instructors.Mapper;
 
 namespace Contoso.Application.Instructors.Queries
 {
@@ -15,16 +14,5 @@ namespace Contoso.Application.Instructors.Queries
 
         public async Task<Option<InstructorViewModel>> Handle(GetInstructorById request, CancellationToken cancellationToken) => 
             (await _instructorRepository.Get(request.InstructorId)).Map(Project);
-
-        private static InstructorViewModel Project(Instructor instructor) =>
-            new InstructorViewModel(instructor.InstructorId, instructor.FirstName, 
-                instructor.LastName, instructor.HireDate, 
-                new Lst<CourseAssignmentViewModel>(ToViewModel(instructor.CourseAssignments)));
-
-        private static IEnumerable<CourseAssignmentViewModel> ToViewModel(IEnumerable<CourseAssignment> courseAssignments) =>
-            courseAssignments.Map(ca => Project(ca.Course));
-
-        private static CourseAssignmentViewModel Project(Course course) =>
-            new CourseAssignmentViewModel(course.CourseId, course.Title, course.Credits, course.DepartmentId);
     }
 }

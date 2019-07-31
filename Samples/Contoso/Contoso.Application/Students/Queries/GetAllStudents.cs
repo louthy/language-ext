@@ -4,6 +4,6 @@ using MediatR;
 
 namespace Contoso.Application.Students.Queries
 {
-    public class GetAllStudents : IRequest<List<Student>>
+    public class GetAllStudents : IRequest<List<StudentViewModel>>
     { }
 }
