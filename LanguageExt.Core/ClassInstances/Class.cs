@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using GSet = System.Collections.Generic.HashSet<System.Type>;
 using System.Reflection;
 
 namespace LanguageExt.ClassInstances
@@ -13,7 +14,7 @@ namespace LanguageExt.ClassInstances
     public static class Class<A>
     {
         public readonly static string Name;
-        public readonly static Set<OrdTypeInfo, TypeInfo> All;
+        public readonly static GSet All;
         public readonly static Option<string> Error;
 
         /// <summary>
@@ -26,13 +27,13 @@ namespace LanguageExt.ClassInstances
         {
             var genParams = typeof(A).GetTypeInfo().GenericTypeArguments.Map(x => x.Name);
 
-            All = ClassInstancesAssembly.ClassInstances
-                                        .Find(typeof(A).GetTypeInfo())
-                                        .IfNone(Set.empty<OrdTypeInfo, TypeInfo>());
+            All = ClassInstancesAssembly.ClassInstances.ContainsKey(typeof(A))
+                      ? ClassInstancesAssembly.ClassInstances[typeof(A)]
+                      : new GSet();
 
             if (All.Count == 1)
             {
-                Default = (A)Activator.CreateInstance(All.Head().AsType());
+                Default = (A)Activator.CreateInstance(All.Head());
                 return;
             }
 
@@ -65,7 +66,7 @@ namespace LanguageExt.ClassInstances
             }
 
             // Create the class instance
-            Default = (A)Activator.CreateInstance(defaultTypes.Head().AsType());
+            Default = (A)Activator.CreateInstance(defaultTypes.Head());
         }
 
         static A TryHigherKind()
@@ -95,14 +96,14 @@ namespace LanguageExt.ClassInstances
                         .ToArray()
                         );
 
-                var all = ClassInstancesAssembly.ClassInstances
-                                                .Find(hkType.GetTypeInfo())
-                                                .IfNone(Set.empty<OrdTypeInfo, TypeInfo>());
+                var all = ClassInstancesAssembly.ClassInstances.ContainsKey(hkType)
+                            ? ClassInstancesAssembly.ClassInstances[hkType]
+                            : new GSet();
 
 
-                if (all.Count == 1 && all.Head().GenericTypeParameters.Length == 1)
+                if (all.Count == 1 && all.Head().GetTypeInfo().GenericTypeParameters.Length == 1)
                 {
-                    return (A)Activator.CreateInstance(all.Head().AsType().MakeGenericType(last));
+                    return (A)Activator.CreateInstance(all.Head().MakeGenericType(last));
                 }
                 else
                 {

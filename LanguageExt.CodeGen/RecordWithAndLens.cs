@@ -24,37 +24,12 @@ namespace LanguageExt.CodeGen
 
         public Task<SyntaxList<MemberDeclarationSyntax>> GenerateAsync(TransformationContext context, IProgress<Diagnostic> progress, CancellationToken cancellationToken)
         {
-            var results = SyntaxFactory.List<MemberDeclarationSyntax>();
+            var (partialClass, returnType, fields) = CodeGenUtil.GetState(context);
 
-            // Our generator is applied to any class that our attribute is applied to.
-            if (context.ProcessingNode is ClassDeclarationSyntax applyToClass)
-            {
+            partialClass = CodeGenUtil.AddWith(context, partialClass, returnType, fields);
+            partialClass = CodeGenUtil.AddLenses(partialClass, returnType, fields);
 
-                // Apply a suffix to the name of a copy of the class.
-                var partialClass = SyntaxFactory.ClassDeclaration($"{applyToClass.Identifier}")
-                                            .WithModifiers(
-                                                 SyntaxFactory.TokenList(
-                                                     SyntaxFactory.Token(SyntaxKind.PublicKeyword),
-                                                     SyntaxFactory.Token(SyntaxKind.PartialKeyword)));
-
-                var returnType = CodeGenUtil.TypeFromClass(applyToClass);
-
-                var fields = applyToClass.Members.Where(m => m is FieldDeclarationSyntax)
-                                                 .Select(m => m as FieldDeclarationSyntax)
-                                                 .Where(m => m.Modifiers.Any(SyntaxKind.PublicKeyword))
-                                                 .Where(m => m.Modifiers.Any(SyntaxKind.ReadOnlyKeyword))
-                                                 .Where(m => !m.Modifiers.Any(SyntaxKind.StaticKeyword))
-                                                 .ToList();
-
-                partialClass = CodeGenUtil.AddWith(partialClass, returnType, fields);
-                partialClass = CodeGenUtil.AddLenses(partialClass, returnType, fields);
-
-                return Task.FromResult<SyntaxList<MemberDeclarationSyntax>>(results.Add(partialClass));
-            }
-            else
-            {
-                return Task.FromResult<SyntaxList<MemberDeclarationSyntax>>(results);
-            }
+            return Task.FromResult(SyntaxFactory.List<MemberDeclarationSyntax>().Add(partialClass));
         }
     }
 }

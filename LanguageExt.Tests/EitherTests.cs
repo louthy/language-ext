@@ -2,7 +2,7 @@
 using LanguageExt;
 using static LanguageExt.Prelude;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     
     public class EitherTests

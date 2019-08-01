@@ -195,9 +195,11 @@ namespace LanguageExt.Tests
 
             var results = tasks.Map(t => t.Result).ToArray();
 
+            seq.Iter((i, x) => Assert.True(x != 0, $"Invalid value in the sequence at index {i}"));
+
             foreach (var task in tasks)
             {
-                Assert.True(task.Result == sum);
+                Assert.True(task.Result == sum, $"Result is {task.Result}, should be: {sum}");
             }
         }
     }

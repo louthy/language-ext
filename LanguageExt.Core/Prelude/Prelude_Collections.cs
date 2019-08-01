@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
+using LSeq = LanguageExt.Seq;
 using System.Threading.Tasks;
 
 namespace LanguageExt
@@ -22,7 +23,7 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public static Seq<A> Cons<A>(this A head) =>
-            new Seq<A>(new[] { head }, 0, 1, 0, 0, null);
+            LSeq.FromSingleValue(head);
 
         /// <summary>
         /// Construct a sequence from any value
@@ -32,7 +33,7 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public static Seq<A> Cons<A>(this A head, SeqEmpty empty) =>
-            new Seq<A>(new[] { head }, 0, 1, 0, 0, null);
+            LSeq.FromSingleValue(head);
 
         /// <summary>
         /// Construct a list from head and tail; head becomes the first item in 
@@ -59,14 +60,14 @@ namespace LanguageExt
         {
             if (tail == null || tail.Length == 0)
             {
-                return new Seq<A>(new A[] { head }, 0, 1, 0, 0, null);
+                return LSeq.FromSingleValue(head);
             }
             else
             {
                 var data = new A[tail.Length + 1];
                 System.Array.Copy(tail, 0, data, 1, tail.Length);
                 data[0] = head;
-                return new Seq<A>(data, 0, data.Length, 0, 0, null);
+                return LSeq.FromArray(data);
             }
         }
 
@@ -92,7 +93,7 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public static Seq<A> Cons<A>(this A head, IEnumerable<A> tail) =>
-            tail == null       ? new Seq<A>(new A[1] { head }, 0, 1, 0, 0, null)
+            tail == null       ? LSeq.FromSingleValue(head)
           : tail is Seq<A> seq ? head.Cons(seq)
           : new Seq<A>(tail).Cons(head);
 
@@ -507,21 +508,21 @@ namespace LanguageExt
 
 
         /// <summary>
-        /// Create an immutable queue
+        /// Create an immutable array
         /// </summary>
         [Pure]
         public static Arr<T> Array<T>() =>
             Arr<T>.Empty;
 
         /// <summary>
-        /// Create an immutable queue
+        /// Create an immutable array
         /// </summary>
         [Pure]
         public static Arr<T> Array<T>(T x, params T[] xs) =>
             new Arr<T>(x.Cons(xs).ToArray());
 
         /// <summary>
-        /// Create an immutable queue
+        /// Create an immutable array
         /// </summary>
         [Pure]
         public static Arr<T> toArray<T>(IEnumerable<T> items) =>
@@ -801,7 +802,7 @@ namespace LanguageExt
         public static Seq<A> SeqOne<A>(A value) =>
             value.IsNull()
                 ? Empty
-                : new Seq<A>(new A[] { value }, 0, 1, 0, 0, null);
+                : LSeq.FromSingleValue(value);
 
         /// <summary>
         /// Construct a sequence from any value
@@ -812,7 +813,7 @@ namespace LanguageExt
         public static Seq<A> Seq1<A>(A value) =>
             value.IsNull() 
                 ? Empty 
-                : new Seq<A>(new A[] { value }, 0, 1, 0, 0, null);
+                : LSeq.FromSingleValue(value);
 
         /// <summary>
         /// Construct an empty Seq
@@ -830,7 +831,7 @@ namespace LanguageExt
         public static Seq<A> Seq<A>(A? value) where A : struct =>
             value == null 
                 ? Empty 
-                : new Seq<A>(new A[] { value.Value }, 0, 1, 0, 0, null);
+                : LSeq.FromSingleValue(value.Value);
 
         /// <summary>
         /// Construct a sequence from an Enumerable
@@ -839,8 +840,12 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(IEnumerable<A> value) =>
-            value == null        ? Empty
-          : value is Seq<A> seq  ? seq
+            value == null                ? Empty
+          : value is Seq<A> seq          ? seq
+          : value is Arr<A> arr          ? LSeq.FromArray(arr.Value)
+          : value is A[] array           ? Seq(array)
+          : value is IList<A> list       ? Seq(list)
+          : value is ICollection<A> coll ? Seq(coll)
           : new Seq<A>(value);
 
         /// <summary>
@@ -858,7 +863,7 @@ namespace LanguageExt
                 var length = value.Length;
                 var data = new A[length];
                 System.Array.Copy(value, data, length);
-                return new Seq<A>(data, 0, length, 0, 0, null);
+                return LSeq.FromArray(data);
             }
         }
 
@@ -867,7 +872,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(A a, A b) =>
-            new Seq<A>(new[] { default, a, b, default}, 1, 2, 0, 0, null);
+            LSeq.FromArray(new[] { a, b });
 
         /// <summary>
         /// Construct a sequence from an array
@@ -880,7 +885,7 @@ namespace LanguageExt
             data[0] = a;
             data[1] = b;
             data[2] = c;
-            return new Seq<A>(data, 0, data.Length, 0, 0, null);
+            return LSeq.FromArray(data);
         }
 
         /// <summary>
@@ -897,6 +902,12 @@ namespace LanguageExt
         public static Seq<A> Seq<A>(IList<A> value) =>
             Seq(value.ToArray());
 
+        /// <summary>
+        /// Construct a sequence from a list
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(ICollection<A> value) =>
+            Seq(value.ToArray());
 
         /// <summary>
         /// Construct a sequence from an either
@@ -906,7 +917,7 @@ namespace LanguageExt
         [Pure]
         public static Seq<R> Seq<L, R>(Either<L, R> value) =>
             value.IsRight
-                ? new Seq<R>(new[] { value.RightValue }, 0, 1, 0, 0, null)
+                ? LSeq.FromSingleValue(value.RightValue)
                 : Empty;
 
         /// <summary>
@@ -917,7 +928,7 @@ namespace LanguageExt
         [Pure]
         public static Seq<R> Seq<L, R>(EitherUnsafe<L, R> value) =>
             value.IsRight
-                ? new Seq<R>(new[] { value.RightValue }, 0, 1, 0, 0, null)
+                ? LSeq.FromSingleValue(value.RightValue)
                 : Empty;
 
         /// <summary>
@@ -970,7 +981,7 @@ namespace LanguageExt
         public static Seq<A> Seq<A>(Tuple<A> tup) =>
             tup == null
                 ? Empty
-                : new Seq<A>(new A[] { tup.Item1 }, 0, 1, 0, 0, null);
+                : LSeq.FromSingleValue(tup.Item1);
 
         /// <summary>
         /// Construct a sequence from a tuple
@@ -979,7 +990,7 @@ namespace LanguageExt
         public static Seq<A> Seq<A>(Tuple<A, A> tup) =>
             tup == null
                 ? Empty
-                : new Seq<A>(new A[] { tup.Item1, tup.Item2 }, 0, 2, 0, 0, null);
+                : LSeq.FromArray(new [] { tup.Item1, tup.Item2 });
 
         /// <summary>
         /// Construct a sequence from a tuple
@@ -988,7 +999,7 @@ namespace LanguageExt
         public static Seq<A> Seq<A>(Tuple<A, A, A> tup) =>
             tup == null
                 ? Empty
-                : new Seq<A>(new A[] { tup.Item1, tup.Item2, tup.Item3 }, 0, 3, 0, 0, null);
+                : LSeq.FromArray(new [] { tup.Item1, tup.Item2, tup.Item3 });
 
         /// <summary>
         /// Construct a sequence from a tuple
@@ -997,7 +1008,7 @@ namespace LanguageExt
         public static Seq<A> Seq<A>(Tuple<A, A, A, A> tup) =>
             tup == null
                 ? Empty
-                : new Seq<A>(new A[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4 }, 0, 4, 0, 0, null);
+                : LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4 });
 
         /// <summary>
         /// Construct a sequence from a tuple
@@ -1006,7 +1017,7 @@ namespace LanguageExt
         public static Seq<A> Seq<A>(Tuple<A, A, A, A, A> tup) =>
             tup == null
                 ? Empty
-                : new Seq<A>(new A[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5 }, 0, 5, 0, 0, null);
+                : LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5 });
 
         /// <summary>
         /// Construct a sequence from a tuple
@@ -1015,7 +1026,7 @@ namespace LanguageExt
         public static Seq<A> Seq<A>(Tuple<A, A, A, A, A, A> tup) =>
             tup == null
                 ? Empty
-                : new Seq<A>(new A[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6 }, 0, 6, 0, 0, null);
+                : LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6 });
 
         /// <summary>
         /// Construct a sequence from a tuple
@@ -1024,56 +1035,56 @@ namespace LanguageExt
         public static Seq<A> Seq<A>(Tuple<A, A, A, A, A, A, A> tup) =>
             tup == null
                 ? Empty
-                : new Seq<A>(new A[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 }, 0, 7, 0, 0, null);
+                : LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 });
 
         /// <summary>
         /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(ValueTuple<A> tup) =>
-            new Seq<A>(new A[] { tup.Item1 }, 0, 1, 0, 0, null);
+            LSeq.FromSingleValue(tup.Item1);
 
         /// <summary>
         /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(ValueTuple<A, A> tup) =>
-            new Seq<A>(new A[] { tup.Item1, tup.Item2 }, 0, 2, 0, 0, null);
+            LSeq.FromArray(new[] { tup.Item1, tup.Item2 });
 
         /// <summary>
         /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(ValueTuple<A, A, A> tup) =>
-            new Seq<A>(new A[] { tup.Item1, tup.Item2, tup.Item3 }, 0, 3, 0, 0, null);
+            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3 });
 
         /// <summary>
         /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(ValueTuple<A, A, A, A> tup) =>
-            new Seq<A>(new A[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4 }, 0, 4, 0, 0, null);
+            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4 });
 
         /// <summary>
         /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(ValueTuple<A, A, A, A, A> tup) =>
-            new Seq<A>(new A[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5 }, 0, 5, 0, 0, null);
+            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5 });
 
         /// <summary>
         /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(ValueTuple<A, A, A, A, A, A> tup) =>
-            new Seq<A>(new A[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6 }, 0, 6, 0, 0, null);
+            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6 });
 
         /// <summary>
         /// Construct a sequence from a tuple
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(ValueTuple<A, A, A, A, A, A, A> tup) =>
-            new Seq<A>(new A[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 }, 0, 7, 0, 0, null);
+            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 });
 
         /// <summary>
         /// Compute the difference between two documents, using the Wagner-Fischer algorithm. 

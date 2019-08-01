@@ -1437,8 +1437,15 @@ public static class TryOptionAsyncExtensions
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    public static TryOptionAsync<A> Do<A>(this TryOptionAsync<A> ma, Action<A> f) =>
-        ma.Map(x => { f(x); return x; });
+    public static TryOptionAsync<A> Do<A>(this TryOptionAsync<A> ma, Action<A> f) => new TryOptionAsync<A>(async () =>
+    {
+        var r = await ma.Try();
+        if (!r.IsFaultedOrNone)
+        {
+            f(r.Value.Value);
+        }
+        return r;
+    });
 
     /// <summary>
     /// Maps the bound value

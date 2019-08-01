@@ -6,9 +6,14 @@ namespace LanguageExt
 {
     class MapEnumerator<K, V> : IEnumerator<(K Key, V Value)>
     {
-        static ObjectPool<Stack<MapItem<K, V>>> pool = new ObjectPool<Stack<MapItem<K, V>>>(32, () => new Stack<MapItem<K, V>>(32));
+        internal struct NewStack : New<MapItem<K, V>[]>
+        {
+            public MapItem<K, V>[] New() =>
+                new MapItem<K, V>[32];
+        }
 
-        Stack<MapItem<K, V>> stack;
+        int stackDepth;
+        MapItem<K, V>[] stack;
         MapItem<K, V> map;
         int left;
         bool rev;
@@ -19,7 +24,7 @@ namespace LanguageExt
             this.rev = rev;
             this.start = start;
             map = root;
-            stack = pool.GetItem();
+            stack = Pool<NewStack, MapItem<K, V>[]>.Pop();
             Reset();
         }
 
@@ -36,7 +41,7 @@ namespace LanguageExt
         {
             if (stack != null)
             {
-                pool.Release(stack);
+                Pool<NewStack, MapItem<K, V>[]>.Push(stack);
                 stack = null;
             }
         }
@@ -51,16 +56,18 @@ namespace LanguageExt
         {
             while (!node.IsEmpty)
             {
-                stack.Push(node);
+                stack[stackDepth] = node;
+                stackDepth++;
                 node = Prev(node);
             }
         }
 
         public bool MoveNext()
         {
-            if (left > 0 && stack.Count > 0)
+            if (left > 0 && stackDepth > 0)
             {
-                NodeCurrent = stack.Pop();
+                stackDepth--;
+                NodeCurrent = stack[stackDepth];
                 Push(Next(NodeCurrent));
                 left--;
                 return true;
@@ -74,7 +81,7 @@ namespace LanguageExt
         {
             var skip = rev ? map.Count - start - 1 : start;
 
-            stack.Clear();
+            stackDepth = 0;
             NodeCurrent = map;
             left = map.Count;
 
@@ -82,7 +89,8 @@ namespace LanguageExt
             {
                 if (skip < Prev(NodeCurrent).Count)
                 {
-                    stack.Push(NodeCurrent);
+                    stack[stackDepth] = NodeCurrent;
+                    stackDepth++;
                     NodeCurrent = Prev(NodeCurrent);
                 }
                 else
@@ -94,7 +102,8 @@ namespace LanguageExt
 
             if (!NodeCurrent.IsEmpty)
             {
-                stack.Push(NodeCurrent);
+                stack[stackDepth] = NodeCurrent;
+                stackDepth++;
             }
         }
     }

@@ -90,10 +90,10 @@ namespace LanguageExt
         public static OptionAsync<B> toOptionAsync<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, ChoiceAsync<CH, A, B>
         {
-            async Task<OptionData<B>> Do(CH mma) =>
-                await (await default(CHOICE).Match(mma,
-                    Left: _ => OptionAsync<B>.None,
-                    Right: OptionAsync<B>.Some)).data;
+            async Task<(bool IsSome, B Value)> Do(CH mma) =>
+                await default(CHOICE).Match(mma,
+                    Left: _ => (false, default),
+                    Right: x => (true, x));
 
             return new OptionAsync<B>(Do(ma));
         }

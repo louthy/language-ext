@@ -34,22 +34,22 @@ Nu-get package | Description
 
 ## Code-gen setup
 
-To use the code-generation features of language-ext (which are totally optional by the way), then you must include the [LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) package into your project.  You must also include
+To use the code-generation features of language-ext (which are totally optional by the way), then you must include the [LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) package into your project.  
 
 To make the reference **build and design time only** (i.e. your project doesn't gain an additional dependencies because of the code-generator), open up your `csproj` and set the `PrivateAssets` attribute to `all`:
 ```c#
-  <PackageReference Include="LanguageExt.CodeGen" Version="..." PrivateAssets="all" />
+<DotNetCliToolReference Include="dotnet-codegen" Version="0.5.13" />
+<PackageReference Include="LanguageExt.CodeGen" Version="3.1.24" PrivateAssets="all" />
 ```
+
+> Obviously, update the `Version` attributes to the appropriate values.  Also note that you will probably need the latest VS2019+ for this to work.  Even early versions of VS2019 seem to have problems.
 
 ## Unity
 
 This library seems compatible on the latest (at the time of writing) Unity 2018.2 with __incremental compiler__ (which enables C# 7).
 So this library should work well once Unity has official support for C# 7 on upcoming 2018.3.
 In the meanwhile, you can install incremental compiler instead. 
-
-## Supporting language-ext
-
-language-ext is an MIT-licensed open source project. Its ongoing development is made possible thanks to the support by these awesome [backers](/BACKERS.md). If you'd like to join them, check out the [language-ext Patreon campaign](https://www.patreon.com/louthy).  Or if you'd just like to help support the coffee fund, [that is very welcome too!](http://ko-fi.com/louthy).
+If you are concerned about writing functionally and the possible performance overheads then please take a look at [this wiki page](https://github.com/louthy/language-ext/wiki/Performance).
 
 ## Introduction
 One of the great features of C#6+ is that it allows us to treat static classes like namespaces.  This means that we can use static 
@@ -112,8 +112,6 @@ The namespace `LanguageExt` contains the core types, and `LanguageExt.Prelude` c
 
 ### Features
 
-This library is quickly becoming a 'Base Class Library' for functional programming in C#.  The features include:
-
 Location | Feature | Description
 ---------|---------|------------
 `Core` | `Arr<A>` | [Immutable array](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Arr_A.htm)
@@ -167,7 +165,7 @@ It started out trying to deal with issues in C#, that after using Haskell and F#
 * [Null reference problem](#null-reference-problem)
     * [Option](#option)
 * [Lack of lambda and expression inference](#lack-of-lambda-and-expression-inference)
-* [Void isn't a real type](#void-isn't-a-real-type)
+* [Void isn't a real type](#void-isnt-a-real-type)
 * [Mutable lists and dictionaries](#mutable-lists-and-dictionaries)
    * [Lists](#lists)
    * [List pattern matching](#list-pattern-matching)
@@ -224,8 +222,8 @@ For example:
     var abcd = ('a', 'b').Add('c').Add('d');                                 // ('a', 'b', 'c', 'd')
     var abcd5 = ('a', 'b').Add('c').Add('d').Add(5);                         // ('a', 'b', 'c', 'd', 5)
 
-    var sumA = (1, 2, 3).Sum<TInt, int>();                                   // 6
-    var sumB = (2, 4, 8).Product<TInt, int>();                               // 64
+    var sum = (1, 2, 3).Sum<TInt, int>();                                    // 6
+    var product = (2, 4, 8).Product<TInt, int>();                            // 64
     var flag = ("one", "two", "three").Contains<TString, string>("one");     // true
     var str = ("Hello", " ", "World").Concat<TString, string>();             // "Hello World"
     var list = (List(1, 2, 3), List(4, 5, 6)).Concat<TLst<int>, Lst<int>>(); // [1,2,3,4,5,6]

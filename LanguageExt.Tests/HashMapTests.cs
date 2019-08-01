@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using LanguageExt.ClassInstances;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class HashMapTests
     {
@@ -186,8 +186,7 @@ namespace LanguageExtTests
         {
             int max = 100000;
 
-            var items = LanguageExt.List.map(Range(1, max), _ => Tuple(Guid.NewGuid(), Guid.NewGuid()))
-                                        .ToDictionary(kv => kv.Item1, kv => kv.Item2);
+            var items = Range(1, max).Map( _ => (Key: Guid.NewGuid(), Value: Guid.NewGuid())).ToSeq();
 
             var m = HashMap<Guid, Guid>().AddRange(items);
             Assert.True(m.Count == max);

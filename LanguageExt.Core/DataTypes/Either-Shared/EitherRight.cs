@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
 using System.Runtime.Serialization;
+using System.Collections.Generic;
 
 namespace LanguageExt
 {
@@ -131,11 +132,11 @@ namespace LanguageExt
 
         [Pure]
         public Seq<R> ToSeq() =>
-            AsEnumerable();
+            Seq1(Value);
 
         [Pure]
-        public Seq<R> AsEnumerable() =>
-            Seq1(Value);
+        public IEnumerable<R> AsEnumerable() =>
+            new[] { Value };
 
         [Pure]
         public Option<R> ToOption() =>

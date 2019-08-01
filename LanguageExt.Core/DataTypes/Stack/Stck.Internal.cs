@@ -116,7 +116,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>IEnumerable of T</returns>
         [Pure]
-        public Seq<T> AsEnumerable()
+        public IEnumerable<T> AsEnumerable()
         {
             IEnumerable<T> Yield()
             {

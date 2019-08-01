@@ -2,7 +2,7 @@
 using static LanguageExt.Prelude;
 using static LanguageExt.Query;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     
     public class QueryTests

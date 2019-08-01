@@ -30,12 +30,12 @@ namespace LanguageExt
     public struct OptionAsync<A> :
         IOptionalAsync
     {
-        internal readonly Task<OptionData<A>> data;
+        internal readonly Task<(bool IsSome, A Value)> data;
 
         /// <summary>
         /// None
         /// </summary>
-        public static readonly OptionAsync<A> None = new OptionAsync<A>(OptionData<A>.None.AsTask());
+        public static readonly OptionAsync<A> None = new OptionAsync<A>((false, default(A)).AsTask());
 
         /// <summary>
         /// Construct an OptionAsync of A in a Some state
@@ -44,7 +44,9 @@ namespace LanguageExt
         /// <returns>OptionAsync of A</returns>
         [Pure]
         public static OptionAsync<A> Some(A value) =>
-            new OptionAsync<A>(OptionData<A>.Some(value).AsTask());
+            isnull(value)
+                ? throw new ValueIsNullException()
+                : new OptionAsync<A>((true, value).AsTask());
 
         /// <summary>
         /// Construct an OptionAsync of A in a Some state
@@ -53,7 +55,9 @@ namespace LanguageExt
         /// <returns>OptionAsync of A</returns>
         [Pure]
         public static OptionAsync<A> SomeAsync(Task<A> value) =>
-            new OptionAsync<A>(value.Map(a => OptionData<A>.Some(a)));
+            new OptionAsync<A>(value.Map(v => isnull(v)
+                ? throw new ValueIsNullException()
+                : (true, v)));
 
         /// <summary>
         /// Construct an OptionAsync of A in a Some state
@@ -62,7 +66,7 @@ namespace LanguageExt
         /// <returns>OptionAsync of A</returns>
         [Pure]
         public static OptionAsync<A> Optional(A value) =>
-            new OptionAsync<A>(OptionData<A>.Optional(value).AsTask());
+             new OptionAsync<A>((notnull(value), value).AsTask());
 
         /// <summary>
         /// Construct an OptionAsync of A in a Some state
@@ -71,12 +75,18 @@ namespace LanguageExt
         /// <returns>OptionAsync of A</returns>
         [Pure]
         public static OptionAsync<A> OptionalAsync(Task<A> value) =>
-            new OptionAsync<A>(value.Map(a => OptionData<A>.Optional(a)));
+            new OptionAsync<A>(value.Map(v => (notnull(v), v)));
+
+        /// <summary>
+        /// Data accessor
+        /// </summary>
+        internal Task<(bool IsSome, A Value)> Data => 
+            data ?? None.data;
 
         /// <summary>
         /// Takes the value-type OptionV<A>
         /// </summary>
-        internal OptionAsync(Task<OptionData<A>> data) =>
+        internal OptionAsync(Task<(bool IsSome, A Value)> data) =>
             this.data = data;
 
         /// <summary>
@@ -88,8 +98,8 @@ namespace LanguageExt
         {
             var first = option.Take(1).ToArray();
             this.data = first.Length == 0
-                ? OptionData<A>.None.AsTask()
-                : OptionData<A>.Optional(first[0]).AsTask();
+                ? (false, default(A)).AsTask()
+                : (true, first[0]).AsTask();
         }
 
         /// <summary>
@@ -98,7 +108,7 @@ namespace LanguageExt
         /// <param name="a">Unit value</param>
         [Pure]
         public static implicit operator OptionAsync<A>(A a) =>
-            OptionalAsync(a.AsTask());
+            Optional(a);
 
         /// <summary>
         /// Implicit conversion operator from A to Option<A>
@@ -113,7 +123,7 @@ namespace LanguageExt
         /// <param name="a">None value</param>
         [Pure]
         public static implicit operator OptionAsync<A>(OptionNone a) =>
-            None;
+            default;
 
         /// <summary>
         /// Coalescing operator
@@ -143,7 +153,7 @@ namespace LanguageExt
         /// state, in which case the hash-code will be 0</returns>
         [Pure]
         public Task<int> GetHashCodeAsync() =>
-            data.Map(a => a.GetHashCode());
+            data?.Map(a => a.GetHashCode()) ?? 0.AsTask();
 
         /// <summary>
         /// Get a string representation of the Option
@@ -159,27 +169,27 @@ namespace LanguageExt
         /// <returns>String representation of the Option</returns>
         [Pure]
         public Task<string> ToStringAsync() =>
-            data.Map(toString);
+            data?.Map(toString) ?? "".AsTask();
 
         /// <summary>
         /// Is the option in a Some state
         /// </summary>
         [Pure]
         public Task<bool> IsSome =>
-            data.Map(a => a.IsSome);
+            Data.Map(a => a.IsSome);
 
         /// <summary>
         /// Is the option in a None state
         /// </summary>
         [Pure]
         public Task<bool> IsNone =>
-            data.Map(a => a.IsNone);
+            Data.Map(a => !a.IsSome);
 
         /// <summary>
         /// Helper accessor for the bound value
         /// </summary>
         internal Task<A> Value =>
-            data.Map(a => a.Value);
+            Data.Map(a => a.Value);
 
         /// <summary>
         /// Impure iteration of the bound value in the structure
@@ -333,7 +343,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public Task<Seq<A>> AsEnumerable() =>
+        public Task<IEnumerable<A>> AsEnumerable() =>
             asEnumerableAsync<MOptionAsync<A>, OptionAsync<A>, A>(this);
 
         /// <summary>

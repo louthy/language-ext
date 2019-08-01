@@ -39,12 +39,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionAsync<B> Apply(OptionAsync<Func<A, B>> fab, OptionAsync<A> fa)
         {
-            async Task<OptionData<B>> Do()
+            async Task<(bool IsSome, B Value)> Do()
             {
-                await Task.WhenAll(fab.data, fa.data);
-                return fab.data.Result.IsSome && fa.data.Result.IsSome
-                    ? OptionData<B>.Optional(fab.data.Result.Value(fa.data.Result.Value))
-                    : OptionData<B>.None;
+                await Task.WhenAll(fab.Data, fa.Data);
+                return fab.Data.Result.IsSome && fa.Data.Result.IsSome
+                    ? (true, fab.Data.Result.Value(fa.Data.Result.Value))
+                    : (false, default);
             }
             return new OptionAsync<B>(Do());
         }
@@ -52,12 +52,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionAsync<B> Apply(Func<A, B> fab, OptionAsync<A> fa)
         {
-            async Task<OptionData<B>> Do()
+            async Task<(bool IsSome, B Value)> Do()
             {
-                var adata = await fa.data;
+                var adata = await fa.Data;
                 return adata.IsSome
-                    ? OptionData<B>.Optional(fab(adata.Value))
-                    : OptionData<B>.None;
+                    ? (true, fab(adata.Value))
+                    : (false, default);
             }
             return new OptionAsync<B>(Do());
         }
@@ -65,12 +65,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionAsync<B> Apply(Func<A, A, B> fab, OptionAsync<A> fa, OptionAsync<A> fb)
         {
-            async Task<OptionData<B>> Do()
+            async Task<(bool IsSome, B Value)> Do()
             {
-                await Task.WhenAll(fa.data, fb.data);
-                return fa.data.Result.IsSome && fb.data.Result.IsSome
-                    ? OptionData<B>.Optional(fab(fa.data.Result.Value, fb.data.Result.Value))
-                    : OptionData<B>.None;
+                await Task.WhenAll(fa.Data, fb.Data);
+                return fa.Data.Result.IsSome && fb.Data.Result.IsSome
+                    ? (true, fab(fa.Data.Result.Value, fb.Data.Result.Value))
+                    : (false, default);
             }
             return new OptionAsync<B>(Do());
         }
@@ -94,12 +94,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionAsync<Func<B, C>> Apply(OptionAsync<Func<A, Func<B, C>>> fab, OptionAsync<A> fa)
         {
-            async Task<OptionData<Func<B, C>>> Do()
+            async Task<(bool IsSome, Func<B, C> Value)> Do()
             {
-                await Task.WhenAll(fab.data, fa.data);
-                return fab.data.Result.IsSome && fa.data.Result.IsSome
-                    ? OptionData<Func<B, C>>.Optional(fab.data.Result.Value(fa.data.Result.Value))
-                    : OptionData<Func<B, C>>.None;
+                await Task.WhenAll(fab.Data, fa.Data);
+                return fab.Data.Result.IsSome && fa.Data.Result.IsSome
+                    ? (true, fab.Data.Result.Value(fa.Data.Result.Value))
+                    : (false, default);
             }
             return new OptionAsync<Func<B, C>>(Do());
         }
@@ -107,12 +107,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionAsync<C> Apply(OptionAsync<Func<A, Func<B, C>>> fab, OptionAsync<A> fa, OptionAsync<B> fb)
         {
-            async Task<OptionData<C>> Do()
+            async Task<(bool IsSome, C Value)> Do()
             {
-                await Task.WhenAll(fab.data, fa.data, fb.data);
-                return fab.data.Result.IsSome && fa.data.Result.IsSome && fb.data.Result.IsSome
-                    ? OptionData<C>.Optional(fab.data.Result.Value(fa.data.Result.Value)(fb.data.Result.Value))
-                    : OptionData<C>.None;
+                await Task.WhenAll(fab.Data, fa.Data, fb.Data);
+                return fab.Data.Result.IsSome && fa.Data.Result.IsSome && fb.Data.Result.IsSome
+                    ? (true, fab.Data.Result.Value(fa.Data.Result.Value)(fb.Data.Result.Value))
+                    : (false, default);
             }
             return new OptionAsync<C>(Do());
         }
@@ -121,12 +121,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionAsync<Func<B, C>> Apply(Func<A, Func<B, C>> fab, OptionAsync<A> fa)
         {
-            async Task<OptionData<Func<B, C>>> Do()
+            async Task<(bool IsSome, Func<B, C> Value)> Do()
             {
-                var adata = await fa.data;
+                var adata = await fa.Data;
                 return adata.IsSome
-                    ? OptionData<Func<B, C>>.Optional(fab(adata.Value))
-                    : OptionData<Func<B, C>>.None;
+                    ? (true, fab(adata.Value))
+                    : (false, default);
             }
             return new OptionAsync<Func<B, C>>(Do());
         }
@@ -134,12 +134,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionAsync<C> Apply(Func<A, Func<B, C>> fab, OptionAsync<A> fa, OptionAsync<B> fb)
         {
-            async Task<OptionData<C>> Do()
+            async Task<(bool IsSome, C Value)> Do()
             {
-                await Task.WhenAll(fa.data, fb.data);
-                return fa.data.Result.IsSome && fb.data.Result.IsSome
-                    ? OptionData<C>.Optional(fab(fa.data.Result.Value)(fb.data.Result.Value))
-                    : OptionData<C>.None;
+                await Task.WhenAll(fa.Data, fb.Data);
+                return fa.Data.Result.IsSome && fb.Data.Result.IsSome
+                    ? (true, fab(fa.Data.Result.Value)(fb.Data.Result.Value))
+                    : (false, default);
             }
             return new OptionAsync<C>(Do());
         }

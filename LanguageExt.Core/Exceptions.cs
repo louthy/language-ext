@@ -265,4 +265,20 @@ namespace LanguageExt
         {
         }
     }
+
+    [Serializable]
+    public class RefValidationFailedException : Exception
+    {
+        public RefValidationFailedException() :
+            base("Ref validation failed")
+        {
+        }
+    }
+
+    [Serializable]
+    public class DeadlockException : Exception
+    {
+        public DeadlockException() : base("Deadlock occured during atomic update") { }
+    }
+
 }

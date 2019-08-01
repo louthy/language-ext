@@ -12,7 +12,7 @@ namespace LanguageExt.ClassInstances
     /// <param name="x">The left hand side of the equality operation</param>
     /// <param name="y">The right hand side of the equality operation</param>
     /// <returns>True if x and y are equal</returns>
-    public struct EqSeq<EqA, A> : Eq<ISeq<A>>
+    public struct EqSeq<EqA, A> : Eq<Seq<A>>
         where EqA : struct, Eq<A>
     {
         public static readonly EqSeq<EqA, A> Inst = default(EqSeq<EqA, A>);
@@ -21,7 +21,7 @@ namespace LanguageExt.ClassInstances
         /// Equality check
         /// </summary>
         [Pure]
-        public bool Equals(ISeq<A> x, ISeq<A> y)
+        public bool Equals(Seq<A> x, Seq<A> y)
         {
             if (x == null) return y == null;
             if (y == null) return false;
@@ -46,7 +46,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         [Pure]
-        public int GetHashCode(ISeq<A> x) =>
+        public int GetHashCode(Seq<A> x) =>
             hash(x);
     }
 
@@ -56,7 +56,7 @@ namespace LanguageExt.ClassInstances
     /// <param name="x">The left hand side of the equality operation</param>
     /// <param name="y">The right hand side of the equality operation</param>
     /// <returns>True if x and y are equal</returns>
-    public struct EqSeq<A> : Eq<ISeq<A>>
+    public struct EqSeq<A> : Eq<Seq<A>>
     {
         public static readonly EqSeq<A> Inst = default(EqSeq<A>);
 
@@ -64,7 +64,7 @@ namespace LanguageExt.ClassInstances
         /// Equality check
         /// </summary>
         [Pure]
-        public bool Equals(ISeq<A> x, ISeq<A> y) =>
+        public bool Equals(Seq<A> x, Seq<A> y) =>
             default(EqSeq<EqDefault<A>, A>).Equals(x, y);
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         [Pure]
-        public int GetHashCode(ISeq<A> x) =>
+        public int GetHashCode(Seq<A> x) =>
             default(EqSeq<EqDefault<A>, A>).GetHashCode(x);
     }
 }

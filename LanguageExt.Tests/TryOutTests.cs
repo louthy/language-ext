@@ -4,7 +4,7 @@ using Xunit;
 using static LanguageExt.Prelude;
 using LanguageExt;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     
     public class TryOutTests

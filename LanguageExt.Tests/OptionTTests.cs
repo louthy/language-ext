@@ -10,7 +10,7 @@ using Xunit;
 using LanguageExt.ClassInstances;
 using System;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
 
     public class OptionTTests
@@ -197,7 +197,9 @@ namespace LanguageExtTests
                   from y in x
                   select y * 2;
 
-            Assert.True(res.Map(x => x == 1).IfNone(true));
+            var bopt = res.Map(x => x == 1);
+
+            Assert.True(bopt.IfNone(true));
         }
 
         [Fact]

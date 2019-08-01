@@ -15,7 +15,7 @@ using static LanguageExt.Parsec.Expr;
 using static LanguageExt.Parsec.Token;
 using LanguageExt.UnitsOfMeasure;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class ParsecTests
     {
@@ -547,6 +547,16 @@ namespace LanguageExtTests
             Assert.True(r3.IfLeft("x") == "123");
             Assert.True(r4.IfLeft("x") == "1234");
             Assert.True(r5.IfLeft("x") == "1234");
+        }
+        
+        [Fact]
+        public void ParallelCheck()
+        {
+            // works
+            Parallel.ForEach(Enumerable.Repeat("", 4), str => parse(from _ in notFollowedBy(anyChar).label("end of input") select unit, str));
+            
+            // sometimes crashes (net461)
+            Parallel.ForEach(Enumerable.Repeat("", 4), str => parse(from _ in eof select unit, str));
         }
     }
 }

@@ -600,8 +600,15 @@ public static class TryAsyncExtensions
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    public static TryAsync<A> Do<A>(this TryAsync<A> ma, Action<A> f) =>
-        ma.Map(x => { f(x); return x; });
+    public static TryAsync<A> Do<A>(this TryAsync<A> ma, Action<A> f) => new TryAsync<A>(async () =>
+    {
+        var r = await ma.Try();
+        if (!r.IsFaulted)
+        {
+            f(r.Value);
+        }
+        return r;
+    });
 
     /// <summary>
     /// Maps the bound value

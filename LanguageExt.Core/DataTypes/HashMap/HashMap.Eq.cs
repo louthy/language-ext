@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System.Linq;
 
 namespace LanguageExt
 {
@@ -18,14 +19,14 @@ namespace LanguageExt
         IEquatable<HashMap<EqK, K, V>>
         where EqK : struct, Eq<K>
     {
-        public static readonly HashMap<EqK, K, V> Empty = new HashMap<EqK, K, V>(HashMapInternal<EqK, K, V>.Empty);
+        public static readonly HashMap<EqK, K, V> Empty = new HashMap<EqK, K, V>(TrieMap<EqK, K, V>.Empty);
 
-        readonly HashMapInternal<EqK, K, V> value;
+        readonly TrieMap<EqK, K, V> value;
 
-        internal HashMapInternal<EqK, K, V> Value => 
-            value ?? HashMapInternal<EqK, K, V>.Empty;
+        internal TrieMap<EqK, K, V> Value => 
+            value ?? TrieMap<EqK, K, V>.Empty;
 
-        internal HashMap(HashMapInternal<EqK, K, V> value)
+        internal HashMap(TrieMap<EqK, K, V> value)
         {
             this.value = value;
         }
@@ -53,10 +54,10 @@ namespace LanguageExt
             this.value = map.value;
         }
 
-        static HashMap<EqK, K, V> Wrap(HashMapInternal<EqK, K, V> value) =>
+        static HashMap<EqK, K, V> Wrap(TrieMap<EqK, K, V> value) =>
             new HashMap<EqK, K, V>(value);
 
-        static HashMap<EqK, K, U> Wrap<U>(HashMapInternal<EqK, K, U> value) =>
+        static HashMap<EqK, K, U> Wrap<U>(TrieMap<EqK, K, U> value) =>
             new HashMap<EqK, K, U>(value);
 
         /// <summary>
@@ -555,7 +556,7 @@ namespace LanguageExt
         /// <returns>True if exists, false otherwise</returns>
         [Pure]
         public bool Contains(KeyValuePair<K, V> pair) =>
-            Value.Contains(pair);
+            Value.Contains(pair.Key, pair.Value);
 
         /// <summary>
         /// Returns true if a Key/Value pair exists in the map
@@ -564,7 +565,7 @@ namespace LanguageExt
         /// <returns>True if exists, false otherwise</returns>
         [Pure]
         public bool Contains<EqV>(KeyValuePair<K, V> pair) where EqV : struct, Eq<V> =>
-            Value.Contains<EqV>(pair);
+            Value.Contains<EqV>(pair.Key, pair.Value);
 
         /// <summary>
         /// Enumerable of map keys
@@ -586,14 +587,14 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public IReadOnlyDictionary<K, V> ToDictionary() =>
-            Value.ToDictionary();
+            Value;
 
         /// <summary>
         /// Map the map the a dictionary
         /// </summary>
         [Pure]
         public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K Key, V Value), KR> keySelector, Func<(K Key, V Value), VR> valueSelector) =>
-            Value.ToDictionary(keySelector, valueSelector);
+            Value.AsEnumerable().ToDictionary(keySelector, valueSelector);
 
         #region IEnumerable interface
         /// <summary>
@@ -641,6 +642,140 @@ namespace LanguageExt
         [Pure]
         public HashMap<EqK, K, V> Subtract(HashMap<EqK, K, V> rhs) =>
             Wrap(Value.Subtract(rhs.Value));
+
+        /// <summary>
+        /// Returns True if 'other' is a proper subset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a proper subset of this set</returns>
+        [Pure]
+        public bool IsProperSubsetOf(IEnumerable<(K Key, V Value)> other) =>
+            Value.IsProperSubsetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a proper subset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a proper subset of this set</returns>
+        [Pure]
+        public bool IsProperSubsetOf(IEnumerable<K> other) =>
+            Value.IsProperSubsetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a proper superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a proper superset of this set</returns>
+        [Pure]
+        public bool IsProperSupersetOf(IEnumerable<(K Key, V Value)> other) =>
+            Value.IsProperSupersetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a proper superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a proper superset of this set</returns>
+        [Pure]
+        public bool IsProperSupersetOf(IEnumerable<K> other) =>
+            Value.IsProperSupersetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
+        [Pure]
+        public bool IsSubsetOf(IEnumerable<(K Key, V Value)> other) =>
+            Value.IsSubsetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
+        [Pure]
+        public bool IsSubsetOf(IEnumerable<K> other) =>
+            Value.IsSubsetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
+        [Pure]
+        public bool IsSupersetOf(IEnumerable<(K Key, V Value)> other) =>
+            Value.IsSupersetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
+        [Pure]
+        public bool IsSupersetOf(IEnumerable<K> rhs) =>
+            Value.IsSupersetOf(rhs);
+
+        /// <summary>
+        /// Returns True if other overlaps this set
+        /// </summary>
+        [Pure]
+        public bool Overlaps(IEnumerable<(K Key, V Value)> other) =>
+            Overlaps(other);
+
+        /// <summary>
+        /// Returns True if other overlaps this set
+        /// </summary>
+        [Pure]
+        public bool Overlaps(IEnumerable<K> other) =>
+            Value.Overlaps(other);
+
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        [Pure]
+        public HashMap<EqK, K, V> Intersect(IEnumerable<K> rhs) =>
+            Wrap(Value.Intersect(rhs));
+
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        [Pure]
+        public HashMap<EqK, K, V> Intersect(IEnumerable<(K Key, V Value)> rhs) =>
+            Wrap(Value.Intersect(rhs));
+
+        /// <summary>
+        /// Returns this - other.  Only the items in this that are not in 
+        /// other will be returned.
+        /// </summary>
+        [Pure]
+        public HashMap<EqK, K, V> Except(IEnumerable<K> rhs) =>
+            Wrap(Value.Except(rhs));
+
+        /// <summary>
+        /// Returns this - other.  Only the items in this that are not in 
+        /// other will be returned.
+        /// </summary>
+        [Pure]
+        public HashMap<EqK, K, V> Except(IEnumerable<(K Key, V Value)> rhs) =>
+            Wrap(Value.Except(rhs));
+
+        /// <summary>
+        /// Only items that are in one set or the other will be returned.
+        /// If an item is in both, it is dropped.
+        /// </summary>
+        [Pure]
+        public HashMap<EqK, K, V> SymmetricExcept(HashMap<EqK, K, V> rhs) =>
+            Wrap(Value.SymmetricExcept(rhs.Value));
+
+        /// <summary>
+        /// Only items that are in one set or the other will be returned.
+        /// If an item is in both, it is dropped.
+        /// </summary>
+        [Pure]
+        public HashMap<EqK, K, V> SymmetricExcept(IEnumerable<(K Key, V Value)> rhs) =>
+            Wrap(Value.SymmetricExcept(rhs));
+
+        /// <summary>
+        /// Finds the union of two sets and produces a new set with 
+        /// the results
+        /// </summary>
+        /// <param name="other">Other set to union with</param>
+        /// <returns>A set which contains all items from both sets</returns>
+        [Pure]
+        public HashMap<EqK, K, V> Union(IEnumerable<(K, V)> rhs) =>
+            this.TryAddRange(rhs);
 
         [Pure]
         public override bool Equals(object obj) =>

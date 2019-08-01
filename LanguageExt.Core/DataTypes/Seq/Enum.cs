@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 
 namespace LanguageExt
 {
@@ -12,79 +14,115 @@ namespace LanguageExt
     /// </summary>
     internal class Enum<A>
     {
+        const int DefaultCapacity = 32;
+        A[] data = new A[DefaultCapacity];
+        int count;
+        int ncount = -1;
         IEnumerator<A> iter;
-        List<A> list;
-        public Enum(IEnumerable<A> seq)
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Enum(IEnumerable<A> ma) =>
+            iter = ma.GetEnumerator();
+
+        public int Count
         {
-            this.iter = seq.GetEnumerator();
-            this.list = new List<A>();
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => count;
         }
 
-        public Enum(IEnumerator<A> iter)
+        public A[] Data
         {
-            this.iter = iter;
-            this.list = new List<A>();
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => data;
         }
 
         public (bool Success, A Value) Get(int index)
         {
-            if (index < list.Count)
+            while (true)
             {
-                return (true, list[index]);
-            }
-            if (iter == null)
-            {
-                return (false, default(A));
-            }
-            else
-            {
-                bool theresMore = true;
-                while (index >= list.Count && theresMore)
+                // Early out if the data has already been streamed
+                if (index < count)
                 {
-                    lock (list)
+                    return (true, data[index]);
+                }
+
+                // If there's nothing left to stream, we must be done
+                var liter = iter;
+                if (liter == null)
+                {
+                    // Check the index against the count again, just in case another
+                    // thread has streamed something in 
+                    return index < count
+                        ? (true, data[index])
+                        : (false, default);
+                }
+
+                var lcount = index - 1;
+
+                // lindex is a lagging counter that gets moved on by 1 here.  It's the 
+                // gatekeeper to moving along the iterator.  
+                if (Interlocked.CompareExchange(ref ncount, index, lcount) == lcount)
+                {
+                    if (liter.MoveNext())
                     {
-                        if (iter == null)
+                        // Get the next value
+                        var value = liter.Current;
+
+                        // If we've run out of space, double it and copy.  
+                        // Note, this operation is atomic 
+                        if (index >= data.Length)
                         {
-                            theresMore = false;
+                            var ndata = new A[data.Length << 1];
+                            Array.Copy(data, ndata, data.Length);
+                            data = ndata;
                         }
-                        else
-                        {
-                            theresMore = iter.MoveNext();
-                            if (theresMore)
-                            {
-                                list.Add(iter.Current);
-                            }
-                            else
-                            {
-                                iter.Dispose();
-                                iter = null;
-                            }
-                        }
+
+                        // Store the value 
+                        data[index] = value;
+
+                        // Now, by updating the actual `count` we have essentially done an 
+                        // atomic operation to get the value from the iterator and store it
+                        // in our internal memory.
+                        count = index + 1;
+
+                        return (true, value);
+                    }
+                    else
+                    {
+                        // End of the iterator, so let's dispose
+                        liter.Dispose();
+                        iter = null;
+                        ncount = count - 1;
+                        return (false, default);
                     }
                 }
-                return index < list.Count
-                    ? (true, list[index])
-                    : (false, default(A));
             }
         }
 
-        public void Strict()
-        {
-            if (iter != null)
-            {
-                lock (list)
-                {
-                    if (iter != null)
-                    {
-                        while (iter.MoveNext())
-                        {
-                            list.Add(iter.Current);
-                        }
-                        iter.Dispose();
-                        iter = null;
-                    }
-                }
-            }
-        }
+        //public (int Taken, bool IsMore, A[] Data) GetRange(A[] data, int dataIndex, int index, int count)
+        //{
+        //    int taken = 0;
+        //    while(taken < count)
+        //    {
+        //        var (succ, val) = Get(index);
+        //        if (succ)
+        //        {
+        //            if (dataIndex >= data.Length)
+        //            {
+        //                var ndata = new A[data.Length << 1];
+        //                Array.Copy(data, ndata, data.Length);
+        //                data = ndata;
+        //            }
+        //            data[dataIndex++] = val;
+        //            taken++;
+        //            index++;
+        //        }
+        //        else
+        //        {
+        //            return (taken, false, data);
+        //        }
+        //    }
+        //    return (taken, true, data);
+        //}
     }
 }

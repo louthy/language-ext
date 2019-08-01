@@ -10,7 +10,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Equality and ordering
     /// </summary>
-    public struct OrdSeq<OrdA, A> : Ord<ISeq<A>>
+    public struct OrdSeq<OrdA, A> : Ord<Seq<A>>
         where OrdA : struct, Ord<A>
     {
         public static readonly OrdSeq<OrdA, A> Inst = default(OrdSeq<OrdA, A>);
@@ -22,7 +22,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public bool Equals(ISeq<A> x, ISeq<A> y) =>
+        public bool Equals(Seq<A> x, Seq<A> y) =>
             default(EqSeq<OrdA, A>).Equals(x, y);
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace LanguageExt.ClassInstances
         /// if x equals y       : 0
         /// </returns>
         [Pure]
-        public int Compare(ISeq<A> x, ISeq<A> y)
+        public int Compare(Seq<A> x, Seq<A> y)
         {
             if (ReferenceEquals(x, y)) return 0;
             if (ReferenceEquals(x, null)) return -1;
@@ -63,14 +63,14 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <returns>Hash code of x</returns>
         [Pure]
-        public int GetHashCode(ISeq<A> x) =>
+        public int GetHashCode(Seq<A> x) =>
             hash(x);
     }
 
     /// <summary>
     /// Equality and ordering
     /// </summary>
-    public struct OrdSeq<A> : Ord<ISeq<A>>
+    public struct OrdSeq<A> : Ord<Seq<A>>
     {
         public static readonly OrdSeq<A> Inst = default(OrdSeq<A>);
 
@@ -81,7 +81,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public bool Equals(ISeq<A> x, ISeq<A> y) =>
+        public bool Equals(Seq<A> x, Seq<A> y) =>
             default(OrdSeq<OrdDefault<A>, A>).Equals(x, y);
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace LanguageExt.ClassInstances
         /// if x equals y       : 0
         /// </returns>
         [Pure]
-        public int Compare(ISeq<A> x, ISeq<A> y) =>
+        public int Compare(Seq<A> x, Seq<A> y) =>
             default(OrdSeq<OrdDefault<A>, A>).Compare(x, y);
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <returns>Hash code of x</returns>
         [Pure]
-        public int GetHashCode(ISeq<A> x) =>
+        public int GetHashCode(Seq<A> x) =>
             default(OrdSeq<OrdDefault<A>, A>).GetHashCode(x);
     }
 

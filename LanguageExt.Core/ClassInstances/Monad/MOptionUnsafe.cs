@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -24,25 +20,15 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public MB Bind<MONADB, MB, B>(OptionUnsafe<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
-            ma.IsLazy
-                ? default(MONADB).Run(_ =>
-                    ma.IsSome && f != null
-                        ? f(ma.Value)
-                        : default(MONADB).Fail(ValueIsNoneException.Default))
-                : ma.IsSome && f != null
-                    ? f(ma.Value)
-                    : default(MONADB).Fail(ValueIsNoneException.Default);
+            ma.IsSome
+                ? (f ?? throw new ArgumentNullException(nameof(f)))(ma.Value)
+                : default(MONADB).Fail(ValueIsNoneException.Default);
 
         [Pure]
         public MB BindAsync<MONADB, MB, B>(OptionUnsafe<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
-            ma.IsLazy
-                ? default(MONADB).RunAsync(_ =>
-                    (ma.IsSome && f != null
-                        ? f(ma.Value)
-                        : default(MONADB).Fail(ValueIsNoneException.Default)).AsTask())
-                : ma.IsSome && f != null
-                    ? f(ma.Value)
-                    : default(MONADB).Fail(ValueIsNoneException.Default);
+            ma.IsSome 
+                ? (f ?? throw new ArgumentNullException(nameof(f)))(ma.Value)
+                : default(MONADB).Fail(ValueIsNoneException.Default);
 
         [Pure]
         public OptionUnsafe<A> Fail(object err = null) =>
@@ -50,22 +36,17 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<A> Plus(OptionUnsafe<A> a, OptionUnsafe<A> b) =>
-            a.IsLazy
-                ? Run(_ =>
-                      a.IsSome
-                          ? a
-                          : b)
-                : a.IsSome
-                    ? a
-                    : b;
+            a.IsSome
+                ? a
+                : b;
 
         [Pure]
         public OptionUnsafe<A> Return(Func<Unit, A> f) =>
-            new OptionUnsafe<A>(OptionData.Lazy(() => (true, f(unit))));
+            OptionUnsafe<A>.Some(f(unit));
 
         [Pure]
         public OptionUnsafe<A> Zero() =>
-            OptionUnsafe<A>.None;
+            default;
 
         [Pure]
         public bool IsNone(OptionUnsafe<A> opt) =>
@@ -76,75 +57,32 @@ namespace LanguageExt.ClassInstances
             opt.IsSome;
 
         [Pure]
-        public B MatchUnsafe<B>(OptionUnsafe<A> opt, Func<A, B> Some, Func<B> None)
-        {
-            if (Some == null) throw new ArgumentNullException(nameof(Some));
-            if (None == null) throw new ArgumentNullException(nameof(None));
-            return opt.IsSome
-                ? Some(opt.Value)
-                : None();
-        }
+        public B MatchUnsafe<B>(OptionUnsafe<A> opt, Func<A, B> Some, Func<B> None) =>
+            opt.MatchUnsafe(Some, None);
 
         [Pure]
-        public B MatchUnsafe<B>(OptionUnsafe<A> opt, Func<A, B> Some, B None)
-        {
-            if (Some == null) throw new ArgumentNullException(nameof(Some));
-            return opt.IsSome
-                ? Some(opt.Value)
-                : None;
-        }
+        public B MatchUnsafe<B>(OptionUnsafe<A> opt, Func<A, B> Some, B None) =>
+            opt.MatchUnsafe(Some, None);
 
         [Pure]
-        public Unit Match(OptionUnsafe<A> opt, Action<A> Some, Action None)
-        {
-            if (Some == null) throw new ArgumentNullException(nameof(Some));
-            if (None == null) throw new ArgumentNullException(nameof(None));
-            if (opt.IsSome) Some(opt.Value);
-            None();
-            return unit;
-        }
+        public Unit Match(OptionUnsafe<A> opt, Action<A> Some, Action None) =>
+            opt.MatchUnsafe(Some, None);
 
         [Pure]
         public Func<Unit, S> Fold<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> f) => _ =>
-        {
-            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
-            if (f == null) throw new ArgumentNullException(nameof(f));
-            return ma.IsSome
-                ? f(state, ma.Value)
-                : state;
-        };
+            ma.Fold(state, f);
 
         [Pure]
         public Func<Unit, S> FoldBack<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> f) => _ =>
-        {
-            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
-            if (f == null) throw new ArgumentNullException(nameof(f));
-            return ma.IsSome
-                ? f(state, ma.Value)
-                : state;
-        };
+            ma.FoldBack(state, f);
 
         [Pure]
-        public S BiFold<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb)
-        {
-            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
-            if (fa == null) throw new ArgumentNullException(nameof(fa));
-            if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return ma.IsSome
-                ? fa(state, ma.Value)
-                : fb(state, unit);
-        }
+        public S BiFold<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
+            ma.BiFold(state, fa, fb);
 
         [Pure]
-        public S BiFoldBack<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb)
-        {
-            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
-            if (fa == null) throw new ArgumentNullException(nameof(fa));
-            if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return ma.IsSome
-                ? fa(state, ma.Value)
-                : fb(state, unit);
-        }
+        public S BiFoldBack<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> fa, Func<S, Unit, S> fb) =>
+            ma.BiFold(state, fa, fb);
 
         [Pure]
         public Func<Unit, int> Count(OptionUnsafe<A> ma) => _ =>
@@ -154,19 +92,15 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<A> Some(A x) =>
-            new OptionUnsafe<A>(OptionData.Some(x));
+            OptionUnsafe<A>.Some(x);
 
         [Pure]
         public OptionUnsafe<A> Optional(A x) =>
-            new OptionUnsafe<A>(OptionData.Some(x));
+            OptionUnsafe<A>.Some(x);
 
         [Pure]
         public OptionUnsafe<A> Run(Func<Unit, OptionUnsafe<A>> ma) =>
-            new OptionUnsafe<A>(OptionData.Lazy(() =>
-            {
-                var a = ma(unit);
-                return (a.IsSome, a.Value);
-            }));
+            ma(unit);
 
         [Pure]
         public OptionUnsafe<A> BindReturn(Unit _, OptionUnsafe<A> mb) =>
@@ -174,11 +108,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionUnsafe<A> Return(A x) =>
-            Optional(x);
+            OptionUnsafe<A>.Some(x);
 
         [Pure]
         public OptionUnsafe<A> Empty() =>
-            OptionUnsafe<A>.None;
+            default;
 
         [Pure]
         public OptionUnsafe<A> Append(OptionUnsafe<A> x, OptionUnsafe<A> y) =>
@@ -186,16 +120,16 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public bool Equals(OptionUnsafe<A> x, OptionUnsafe<A> y) =>
-            default(EqOptionalUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A>).Equals(x, y);
+            x.Equals(y);
 
         [Pure]
         public int GetHashCode(OptionUnsafe<A> x) =>
-            default(EqOptionalUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A>).GetHashCode(x);
+            x.GetHashCode();
 
         [Pure]
         public OptionUnsafe<A> Apply(Func<A, A, A> f, OptionUnsafe<A> fa, OptionUnsafe<A> fb) =>
-            from a in fa
-            from b in fb
-            select f(a, b);
+            fa.IsSome && fb.IsSome
+                ? Some(f(fa.Value, fb.Value))
+                : default;
     }
 }

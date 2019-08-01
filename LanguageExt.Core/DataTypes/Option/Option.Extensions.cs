@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Linq;
 using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.ComponentModel;
 using LanguageExt.ClassInstances;
+using System.Runtime.CompilerServices;
 
 /// <summary>
 /// Extension methods for Option
@@ -19,6 +17,7 @@ public static class OptionExtensions
     /// Monadic join
     /// </summary>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<A> Flatten<A>(this Option<Option<A>> ma) =>
         ma.Bind(identity);
 
@@ -27,6 +26,7 @@ public static class OptionExtensions
     /// All the `Some` elements are extracted in order.
     /// </summary>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<A> Somes<A>(this IEnumerable<Option<A>> self)
     {
         foreach (var item in self)
@@ -43,6 +43,7 @@ public static class OptionExtensions
     /// All the `Some` elements are extracted in order.
     /// </summary>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<A> Somes<A>(this Seq<Option<A>> self)
     {
         IEnumerable<A> ToSequence(Seq<Option<A>> items)
@@ -68,6 +69,7 @@ public static class OptionExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<A> Add<NUM, A>(this Option<A> x, Option<A> y) where NUM : struct, Num<A> =>
         from a in x
         from b in y
@@ -83,6 +85,7 @@ public static class OptionExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with the subtract between x and y</returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<A> Subtract<NUM, A>(this Option<A> x, Option<A> y) where NUM : struct, Num<A> =>
         from a in x
         from b in y
@@ -98,6 +101,7 @@ public static class OptionExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with the product of x and y</returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<A> Product<NUM, A>(this Option<A> x, Option<A> y) where NUM : struct, Num<A> =>
         from a in x
         from b in y
@@ -113,6 +117,7 @@ public static class OptionExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option x / y</returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<A> Divide<NUM, A>(this Option<A> x, Option<A> y) where NUM : struct, Num<A> =>
         from a in x
         from b in y
@@ -125,6 +130,7 @@ public static class OptionExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<B> Apply<A, B>(this Option<Func<A, B>> fab, Option<A> fa) =>
         ApplOption<A, B>.Inst.Apply(fab, fa);
 
@@ -135,6 +141,7 @@ public static class OptionExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<B> Apply<A, B>(this Func<A, B> fab, Option<A> fa) =>
         ApplOption<A, B>.Inst.Apply(fab, fa);
 
@@ -146,6 +153,7 @@ public static class OptionExtensions
     /// <param name="fb">Applicative b to apply</param>
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<C> Apply<A, B, C>(this Option<Func<A, B, C>> fabc, Option<A> fa, Option<B> fb) =>
         from x in fabc
         from y in ApplOption<A, B, C>.Inst.Apply(curry(x), fa, fb)
@@ -159,6 +167,7 @@ public static class OptionExtensions
     /// <param name="fb">Applicative b to apply</param>
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<C> Apply<A, B, C>(this Func<A, B, C> fabc, Option<A> fa, Option<B> fb) =>
         ApplOption<A, B, C>.Inst.Apply(curry(fabc), fa, fb);
 
@@ -169,6 +178,7 @@ public static class OptionExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, B, C>> fabc, Option<A> fa) =>
         from x in fabc
         from y in ApplOption<A, B, C>.Inst.Apply(curry(x), fa)
@@ -181,6 +191,7 @@ public static class OptionExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, Option<A> fa) =>
         ApplOption<A, B, C>.Inst.Apply(curry(fabc), fa);
 
@@ -191,6 +202,7 @@ public static class OptionExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, Func<B, C>>> fabc, Option<A> fa) =>
         ApplOption<A, B, C>.Inst.Apply(fabc, fa);
 
@@ -201,6 +213,7 @@ public static class OptionExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, Option<A> fa) =>
         ApplOption<A, B, C>.Inst.Apply(fabc, fa);
 
@@ -211,6 +224,7 @@ public static class OptionExtensions
     /// <param name="fb">Applicative to evaluate second and then return</param>
     /// <returns>Applicative of type Option<B></returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<B> Action<A, B>(this Option<A> fa, Option<B> fb) =>
         ApplOption<A, B>.Inst.Action(fa, fb);
 
@@ -221,6 +235,7 @@ public static class OptionExtensions
     /// <param name="ma">Option to convert</param>
     /// <returns>Nullable of A</returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static A? ToNullable<A>(this Option<A> ma) where A : struct =>
         ma.IsNone
             ? (A?)null
@@ -236,6 +251,7 @@ public static class OptionExtensions
     /// <param name="None">Operation to perform when an Option is in the None state</param>
     /// <returns>An enumerable of results of the match operations</returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<R> Match<T, R>(this IEnumerable<Option<T>> list,
         Func<T, IEnumerable<R>> Some,
         Func<IEnumerable<R>> None
@@ -252,6 +268,7 @@ public static class OptionExtensions
     /// <param name="None">Default if the list is empty</param>
     /// <returns>An enumerable of results of the match operations</returns>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<R> Match<T, R>(this IEnumerable<Option<T>> list,
         Func<T, IEnumerable<R>> Some,
         IEnumerable<R> None) =>
@@ -263,8 +280,9 @@ public static class OptionExtensions
     /// <remarks>This is a legacy method for backwards compatibility</remarks>
     /// <param name="a">Option of int</param>
     /// <returns>The bound value or 0 if None</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Sum(this Option<int> a) =>
-        a.IfNone(0);
+        (int)a;
 
     /// <summary>
     /// Sum the bound value
@@ -272,21 +290,25 @@ public static class OptionExtensions
     /// <remarks>This is a legacy method for backwards compatibility</remarks>
     /// <param name="self">Option of A that is from the type-class NUM</param>
     /// <returns>The bound value or 0 if None</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static A Sum<NUM, A>(this Option<A> self)
         where NUM : struct, Num<A> =>
         sum<NUM, MOption<A>, Option<A>, A>(self);
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static U CheckNullReturn<U>(U value, string location) =>
         isnull(value)
             ? throw new ResultIsNullException($"'{location}' result is null.  Not allowed.")
             : value;
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static U CheckNullNoneReturn<U>(U value) =>
         CheckNullReturn(value, "None");
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static U CheckNullSomeReturn<U>(U value) =>
         CheckNullReturn(value, "Some");
 }

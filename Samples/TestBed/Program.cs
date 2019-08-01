@@ -37,6 +37,11 @@ class Program
 {
     static void Main(string[] args)
     {
+        SeqPerf.Broken1();
+        return;
+        HashMapPerf.Run();
+        SeqPerf.Run();
+
         Test533();
 
         IEnumerableOptionBindT_NotEnumerabled_NotEvaluated();
@@ -52,6 +57,18 @@ class Program
 
 
         var xyz = new TestWith("Paul", "Louth");
+        var xyz2 = new TestWith2("Paul", "Louth");
+        var xyz3 = new TestWith3<string>("Test", "Paul", "Louth");
+        var xyz4 = new TestWith4("", "", "", "");
+
+        //TestWith4.@new.Set
+
+        xyz3 = xyz3.With(Value: "Another");
+
+        xyz2 = xyz2.With();
+        xyz2 = xyz2.With(Name: Some("P"));
+        xyz2 = xyz2.With(Surname: Some("L"));
+        xyz2 = xyz2.With(Name: None, Surname: None);
 
         xyz = xyz.With(Name: "Test1");
         xyz = TestWith.surname.Set("Test2", xyz);

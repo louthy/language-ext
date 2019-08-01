@@ -19,7 +19,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Asynchronous Try</returns>
     [Pure]
     public static OptionAsync<A> ToAsync<A>(this Option<A> self) =>
-        new OptionAsync<A>(self.data.AsTask());
+        self.IsSome ? OptionAsync<A>.Some(self.Value) : default;
 
     /// <summary>
     /// Projection from one value to another 
@@ -132,7 +132,7 @@ public static partial class OptionAsyncExtensions
     /// </summary>
     /// <returns>An enumerable of zero or one items</returns>
     [Pure]
-    public static Task<Seq<A>> AsEnumerableAsync<A>(this Option<A> self) =>
+    public static Task<IEnumerable<A>> AsEnumerableAsync<A>(this Option<A> self) =>
         asEnumerableAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync());
 
     /// <summary>

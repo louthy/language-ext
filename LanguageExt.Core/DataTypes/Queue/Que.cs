@@ -81,11 +81,11 @@ namespace LanguageExt
 
         [Pure]
         public Seq<A> ToSeq() =>
-            Seq(Value);
+            Value.ToSeq();
 
         [Pure]
         public IEnumerable<A> AsEnumerable() =>
-            Value;
+            Value.AsEnumerable();
 
         [Pure]
         public IEnumerator<A> GetEnumerator() =>
