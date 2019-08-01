@@ -15,7 +15,7 @@
         <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+        <DocumentationFile></DocumentationFile>
         <OutputType>library</OutputType>
         <AssemblyVersion>3.0.0.0</AssemblyVersion>
         <FileVersion>3.0.0.0</FileVersion>

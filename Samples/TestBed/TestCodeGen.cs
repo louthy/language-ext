@@ -17,4 +17,16 @@ namespace TestBed
             Surname = surname;
         }
     }
+
+    public interface IO
+    {
+        Seq<string> ReadAllLines(string fileName);
+        Unit WriteAllLines(string fileName, Seq<string> lines);
+    }
+
+    [Reader(typeof(IO))]
+    public partial struct Subsystem<A>
+    {
+
+    }
 }
