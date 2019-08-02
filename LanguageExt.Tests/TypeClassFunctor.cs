@@ -7,7 +7,7 @@ using static LanguageExt.TypeClass;
 using LanguageExt;
 using System;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class TypeClassFunctor
     {

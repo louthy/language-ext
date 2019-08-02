@@ -4,7 +4,7 @@ using static LanguageExt.Queue;
 using Xunit;
 using LanguageExt;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     
     public class QueueTests

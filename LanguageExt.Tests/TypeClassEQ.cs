@@ -3,7 +3,7 @@ using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using static LanguageExt.TypeClass;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class TypeClassEQ
     {

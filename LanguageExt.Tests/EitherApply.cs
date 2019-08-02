@@ -6,7 +6,7 @@ using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using LanguageExt.ClassInstances;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class EitherApply
     {

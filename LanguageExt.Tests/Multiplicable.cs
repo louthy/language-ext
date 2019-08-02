@@ -8,7 +8,7 @@ using static LanguageExt.Prelude;
 using LanguageExt;
 using LanguageExt.ClassInstances;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class Multiplicable
     {

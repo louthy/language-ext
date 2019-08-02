@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
     <FileVersion>3.0.0.0</FileVersion>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
   </PropertyGroup>
@@ -11,14 +11,14 @@
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-     <DotNetCliToolReference Include="dotnet-codegen" Version="0.5.13" />
+     <DotNetCliToolReference Include="dotnet-codegen" Version="0.6.1" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="LanguageExt.Tests.nuget.props" />
     <None Remove="LanguageExt.Tests.project.lock.json" />
   </ItemGroup>
   <ItemGroup>
-      <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.5.13">
+      <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.6.1">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       </PackageReference>
@@ -37,10 +37,10 @@
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" />
     <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
     <ProjectReference Include="..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
     <ProjectReference Include="..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />
-    <ProjectReference Include="..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" />
     <ProjectReference Include="..\LanguageExt.Rx\LanguageExt.Rx.csproj" />
   </ItemGroup>
   <ItemGroup>

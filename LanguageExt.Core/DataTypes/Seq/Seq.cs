@@ -47,7 +47,7 @@ namespace LanguageExt
         /// <summary>
         /// Internal value accessor - protects against `default`
         /// </summary>
-        ISeqInternal<A> Value
+        internal ISeqInternal<A> Value
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => value ?? SeqEmptyInternal<A>.Default;

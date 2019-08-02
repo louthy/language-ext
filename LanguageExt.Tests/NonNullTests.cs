@@ -3,7 +3,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using Xunit;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class NonNullTests
     {

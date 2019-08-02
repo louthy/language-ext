@@ -5,7 +5,7 @@ using LanguageExt;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     
     public class MemoTests

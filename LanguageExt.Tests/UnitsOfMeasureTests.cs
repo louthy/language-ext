@@ -9,7 +9,7 @@ using LanguageExt;
 using LanguageExt.UnitsOfMeasure;
 using static LanguageExt.Prelude;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class UnitsOfMeasureTests
     {

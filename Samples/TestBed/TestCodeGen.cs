@@ -18,6 +18,18 @@ namespace TestBed
         }
     }
 
+    public interface IO
+    {
+        Seq<string> ReadAllLines(string fileName);
+        Unit WriteAllLines(string fileName, Seq<string> lines);
+    }
+
+    [Reader(typeof(IO))]
+    public partial struct Subsystem<A>
+    {
+
+    }
+
     [WithLens]
     public partial class TestWith2 : Record<TestWith2>
     {

@@ -7,7 +7,7 @@ using System.Threading;
 
 using Xunit;
 
-namespace LanguageExtTests
+namespace LanguageExt.Tests
 {
     public class DelayTests
     {
