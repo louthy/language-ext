@@ -6,7 +6,7 @@ using Contoso.Core.Domain;
 using Contoso.Core.Interfaces.Repositories;
 using LanguageExt;
 using MediatR;
-using static Contoso.Application.Validators.StringValidation;
+using static Contoso.Validators;
 using static LanguageExt.Prelude;
 
 namespace Contoso.Application.Instructors.Commands
@@ -29,11 +29,11 @@ namespace Contoso.Application.Instructors.Commands
 
         private Validation<Error, string> ValidateFirstName(CreateInstructor createStudent) =>
             NotEmpty(createStudent.FirstName)
-                .Bind(firstName => MaxStringLength(50)(firstName));
+                .Bind(firstName => NotLongerThan(50)(firstName));
 
         private Validation<Error, string> ValidateLastName(CreateInstructor createStudent) =>
             NotEmpty(createStudent.LastName)
-                .Bind(lastName => MaxStringLength(50)(lastName));
+                .Bind(lastName => NotLongerThan(50)(lastName));
 
         private Validation<Error, DateTime> ValidateHireDate(CreateInstructor createStudent) =>
             createStudent.HireDate > DateTime.Now.AddYears(5)

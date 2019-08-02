@@ -8,7 +8,7 @@ using Contoso.Core.Interfaces.Repositories;
 using LanguageExt;
 using MediatR;
 using static LanguageExt.Prelude;
-using static Contoso.Application.Validators.StringValidation;
+using static Contoso.Validators;
 
 namespace Contoso.Application.Students.Commands
 {
@@ -31,11 +31,11 @@ namespace Contoso.Application.Students.Commands
 
         private Validation<Error, string> ValidateFirstName(CreateStudent createStudent) =>
             NotEmpty(createStudent.FirstName)
-                .Bind(firstName => MaxStringLength(50)(firstName));
+                .Bind(firstName => NotLongerThan(50)(firstName));
 
         private Validation<Error, string> ValidateLastName(CreateStudent createStudent) =>
             NotEmpty(createStudent.LastName)
-                .Bind(lastName => MaxStringLength(50)(lastName));
+                .Bind(lastName => NotLongerThan(50)(lastName));
 
         private Validation<Error, DateTime> ValidateEnrollmentDate(CreateStudent createStudent) =>
             createStudent.EnrollmentDate > DateTime.Now.AddYears(5)
