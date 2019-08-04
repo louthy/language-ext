@@ -37,7 +37,7 @@ Nu-get package | Description
 To use the code-generation features of language-ext (which are totally optional by the way), then you must include the [LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) package into your project.  
 
 To make the reference **build and design time only** (i.e. your project doesn't gain an additional dependencies because of the code-generator), open up your `csproj` and set the `PrivateAssets` attribute to `all`:
-```c#
+```xml
 <ItemGroup>
   <PackageReference Include="LanguageExt.CodeGen" Version="3.3.4" PrivateAssets="all" />
   <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.6.1" PrivateAssets="all" />
