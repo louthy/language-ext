@@ -38,8 +38,11 @@ To use the code-generation features of language-ext (which are totally optional 
 
 To make the reference **build and design time only** (i.e. your project doesn't gain an additional dependencies because of the code-generator), open up your `csproj` and set the `PrivateAssets` attribute to `all`:
 ```c#
-<PackageReference Include="LanguageExt.CodeGen" Version="3.3.4" PrivateAssets="all" />
-<PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.6.1" PrivateAssets="all" />
+<ItemGroup>
+  <PackageReference Include="LanguageExt.CodeGen" Version="3.3.4" PrivateAssets="all" />
+  <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.6.1" PrivateAssets="all" />
+  <DotNetCliToolReference Include="dotnet-codegen" Version="0.6.1" />
+</ItemGroup>
 ```
 
 > Obviously, update the `Version` attributes to the appropriate values.  Also note that you will probably need the latest VS2019+ for this to work.  Even early versions of VS2019 seem to have problems.
