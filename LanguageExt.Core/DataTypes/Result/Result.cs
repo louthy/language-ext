@@ -146,12 +146,12 @@ namespace LanguageExt
         [Pure]
         public A IfFail(Func<Exception, A> f) =>
             IsFaulted
-                ? f(exception ?? BottomException.Default)
+                ? f(Exception)
                 : Value;
 
         public Unit IfFail(Action<Exception> f)
         {
-            if (IsFaulted) f(exception ?? BottomException.Default);
+            if (IsFaulted) f(Exception);
             return unit;
         }
 
