@@ -43,7 +43,7 @@ namespace Contoso.Application.Departments.Commands
                 Some: s => s.InstructorId,
                 None: () => Fail<Error, int>($"Administrator Id {createDepartment.AdministratorId} does not exist"));
 
-        private Validation<Error, DateTime> MustStartInFuture(CreateDepartment createDepartment) =>
+        private static Validation<Error, DateTime> MustStartInFuture(CreateDepartment createDepartment) =>
             createDepartment.StartDate > DateTime.UtcNow
                 ? Success<Error, DateTime>(createDepartment.StartDate)
                 : Fail<Error, DateTime>($"Start date must not be in the past");
