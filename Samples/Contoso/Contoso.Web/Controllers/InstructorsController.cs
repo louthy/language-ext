@@ -23,5 +23,9 @@ namespace Contoso.Web.Controllers
         [HttpPost]
         public Task<IActionResult> Create([FromBody] CreateInstructor createInstructor) =>
             _mediator.Send(createInstructor).ToActionResult();
+
+        [HttpPut]
+        public Task<IActionResult> Update([FromBody] UpdateInstructor updateInstructor) =>
+            _mediator.Send(updateInstructor).ToActionResult();
     }
 }

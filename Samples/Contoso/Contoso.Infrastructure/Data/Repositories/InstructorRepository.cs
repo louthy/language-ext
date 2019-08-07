@@ -23,5 +23,11 @@ namespace Contoso.Infrastructure.Data.Repositories
                 .Include(i => i.CourseAssignments)
                     .ThenInclude(c => c.Course)
                 .SingleOrDefaultAsync(i => i.InstructorId == id);
+
+        public async Task Update(Instructor instructor)
+        {
+            contosoDbContext.Instructors.Update(instructor);
+            await contosoDbContext.SaveChangesAsync();
+        }
     }
 }
