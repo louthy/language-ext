@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace TestBed
 {
@@ -24,10 +26,32 @@ namespace TestBed
         Unit WriteAllLines(string fileName, Seq<string> lines);
     }
 
+    public class RealIO : IO
+    {
+        public Seq<string> ReadAllLines(string path) => File.ReadAllLines(path).ToSeq();
+        public Unit WriteAllLines(string path, Seq<string> lines)
+        {
+            File.WriteAllLines(path, lines);
+            return unit;
+        }
+    }
+
+    public static class TestSubs
+    {
+        public static void Test()
+        {
+            var comp = from io in Subsystem.ask
+                       let ls = io.ReadAllLines("c:/test.txt")
+                       let _  = io.WriteAllLines("c:/test-copy.txt", ls)
+                       select ls.Count;
+
+            var res = comp.Run(new RealIO());
+        }
+    }
+
     [Reader(typeof(IO))]
     public partial struct Subsystem<A>
     {
-
     }
 
     [WithLens]
