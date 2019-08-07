@@ -16,12 +16,15 @@ namespace Contoso.Application.Instructors.Commands
         private readonly IInstructorRepository _instructorRepository;
         public CreateInstructorHandler(IInstructorRepository instructorRepository) => _instructorRepository = instructorRepository;
 
-        public Task<Either<Error, int>> Handle(CreateInstructor request, CancellationToken cancellationToken) => 
+        public Task<Either<Error, int>> Handle(CreateInstructor request, CancellationToken cancellationToken) =>
             Validate(request)
-                .Map(i => _instructorRepository.Add(i))
-                .MatchAsync<Either<Error, int>>(
-                    SuccAsync: async id => Right(await id),
-                    Fail: err => Left(err.Join()));
+                .Map(PersistInstructor)
+                .ToEither()
+                .MapLeft(errors => errors.Join())
+                .Traverse(t => t);
+
+        private Task<int> PersistInstructor(Instructor instructor) =>
+            _instructorRepository.Add(instructor);
 
         private Validation<Error, Instructor> Validate(CreateInstructor command) =>
             (ValidateFirstName(command), ValidateLastName(command), ValidateHireDate(command))
