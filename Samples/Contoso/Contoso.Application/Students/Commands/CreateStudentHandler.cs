@@ -18,12 +18,12 @@ namespace Contoso.Application.Students.Commands
 
         public CreateStudentHandler(IStudentRepository studentRepository) => _studentRepository = studentRepository;
 
-        public Task<Either<Error, int>> Handle(CreateStudent request, CancellationToken cancellationToken) =>
-            Validate(request)
+        public async Task<Either<Error, int>> Handle(CreateStudent request, CancellationToken cancellationToken) =>
+            await Validate(request)
                 .Map(s => _studentRepository.Add(s))
-                .MatchAsync<Either<Error, int>>(
-                    SuccAsync: async studentId => Right(await studentId),
-                    Fail: failures => Left(failures.Join()));
+                .ToEither()
+                .MapLeft(s => s.Join())
+                .Traverse(s => s);
 
         private Validation<Error, Student> Validate(CreateStudent request) => 
             (ValidateFirstName(request), ValidateLastName(request), ValidateEnrollmentDate(request))

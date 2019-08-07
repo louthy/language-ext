@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Contoso.Core;
 using Contoso.Core.Domain;
@@ -18,12 +15,11 @@ namespace Contoso.Application.Students.Commands
         public UpdateStudentHandler(IStudentRepository studentRepository) => 
             _studentRepository = studentRepository;
 
-        public async Task<Either<Error, Task>> Handle(UpdateStudent request, CancellationToken cancellationToken) => 
+        public async Task<Either<Error, Task>> Handle(UpdateStudent request, CancellationToken cancellationToken) =>
             (await Validate(request))
                 .Map(s => ApplyUpdateRequest(s, request))
-                .Match<Either<Error, Task>>(
-                    Succ: t => t,
-                    Fail: errors => errors.Join());
+                .ToEither()
+                .MapLeft(errors => errors.Join());
 
         private async Task ApplyUpdateRequest(Student s, UpdateStudent update)
         {

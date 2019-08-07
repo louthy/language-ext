@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Contoso.Core;
 using Contoso.Core.Interfaces.Repositories;
 using LanguageExt;
-using static LanguageExt.Prelude;
 using MediatR;
+using static LanguageExt.Prelude;
 
 namespace Contoso.Application.Students.Commands
 {
@@ -16,16 +13,18 @@ namespace Contoso.Application.Students.Commands
         private readonly IStudentRepository _studentRepository;
         public DeleteStudentHandler(IStudentRepository studentRepository) => _studentRepository = studentRepository;
 
-        public async Task<Either<Error, Task>> Handle(DeleteStudent request, CancellationToken cancellationToken) => 
+        public async Task<Either<Error, Task>> Handle(DeleteStudent request, CancellationToken cancellationToken) =>
             (await StudentMustExist(request))
-                .Map(d => _studentRepository.Delete(d.StudentId))
-                .Match<Either<Error, Task>>(
-                    Succ: t => Right(t),
-                    Fail: errors => Left(errors.Join()));
+                .Map(DoDeletion)
+                .ToEither()
+                .MapLeft(errors => errors.Join());
 
-        private async Task<Validation<Error, DeleteStudent>> StudentMustExist(DeleteStudent deleteStudent) => 
+        private Task DoDeletion(int studentId) =>
+            _studentRepository.Delete(studentId);
+
+        private async Task<Validation<Error, int>> StudentMustExist(DeleteStudent deleteStudent) => 
             (await _studentRepository.Get(deleteStudent.StudentId)).Match(
-                Some: _ => Success<Error, DeleteStudent>(deleteStudent),
-                None: () => Fail<Error, DeleteStudent>($"Student {deleteStudent.StudentId} does not exist."));
+                Some: _ => Success<Error, int>(deleteStudent.StudentId),
+                None: () => Fail<Error, int>($"Student {deleteStudent.StudentId} does not exist."));
     }
 }
