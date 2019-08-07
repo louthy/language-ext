@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Contoso.Core;
+using Contoso.Core.Domain;
 using Contoso.Core.Interfaces.Repositories;
 using LanguageExt;
-using static LanguageExt.Prelude;
 using MediatR;
 using static Contoso.Validators;
-using Contoso.Core.Domain;
+using static LanguageExt.Prelude;
 
 namespace Contoso.Application.Departments.Commands
 {
