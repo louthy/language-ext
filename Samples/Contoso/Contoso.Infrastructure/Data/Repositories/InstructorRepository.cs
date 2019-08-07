@@ -18,6 +18,13 @@ namespace Contoso.Infrastructure.Data.Repositories
             return instructor.InstructorId;
         }
 
+        public async Task Delete(int id)    
+        {
+            var instructor = await contosoDbContext.Instructors.FindAsync(id);
+            contosoDbContext.Instructors.Remove(instructor);
+            await contosoDbContext.SaveChangesAsync();
+        }
+
         public async Task<Option<Instructor>> Get(int id) => 
             await contosoDbContext.Instructors
                 .Include(i => i.CourseAssignments)

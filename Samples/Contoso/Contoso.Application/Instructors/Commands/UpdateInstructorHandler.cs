@@ -17,15 +17,14 @@ namespace Contoso.Application.Instructors.Commands
         public UpdateInstructorHandler(IInstructorRepository instructorRepository) => 
             _instructorRepository = instructorRepository;
 
-        public async Task<Either<Error, Task>> Handle(UpdateInstructor request, CancellationToken cancellationToken) => 
+        public async Task<Either<Error, Task>> Handle(UpdateInstructor request, CancellationToken cancellationToken) =>
             (await Validate(request))
                 .Map(i => ApplyUpdate(i, request))
-                .Match<Either<Error, Task>>(
-                    Succ: t => t,
-                    Fail: errors => Left(errors.Join()));
+                .ToEither()
+                .MapLeft(errors => errors.Join());
 
         private Task ApplyUpdate(Instructor instructor, UpdateInstructor update)
-        {
+        {                
             instructor.FirstName = update.FirstName;
             instructor.LastName = update.LastName;
             return _instructorRepository.Update(instructor);
