@@ -24,9 +24,9 @@ namespace Contoso.Application.Instructors.Commands
         private Task DoDeletion(int instructorId) =>
             _instructorRepository.Delete(instructorId);
 
-        private async Task<Validation<Error, int>> InstructorMustExist(DeleteInstructor request) => 
-            (await _instructorRepository.Get(request.InstructorId)).Match(
-                Some: instructor => instructor.InstructorId,
-                None: () => Fail<Error, int>($"Instructor with id {request.InstructorId} does not exist"));
+        private async Task<Validation<Error, int>> InstructorMustExist(DeleteInstructor request) =>
+            (await _instructorRepository.Get(request.InstructorId))
+                .Map(i => i.InstructorId)
+                .ToValidation<Error>($"Instructor with id {request.InstructorId} does not exist");
     }
 }

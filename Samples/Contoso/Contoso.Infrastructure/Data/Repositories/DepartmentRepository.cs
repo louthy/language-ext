@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Contoso.Core.Domain;
 using Contoso.Core.Interfaces.Repositories;
 using LanguageExt;
@@ -20,6 +16,13 @@ namespace Contoso.Infrastructure.Data.Repositories
             await contosoDbContext.Departments.AddAsync(department);
             await contosoDbContext.SaveChangesAsync();
             return department.DepartmentId;
+        }
+
+        public async Task Delete(int departmentId)
+        {
+            var department = await contosoDbContext.Departments.FindAsync(departmentId);
+            contosoDbContext.Departments.Remove(department);
+            await contosoDbContext.SaveChangesAsync();
         }
 
         public async Task<Option<Department>> Get(int id) => 
