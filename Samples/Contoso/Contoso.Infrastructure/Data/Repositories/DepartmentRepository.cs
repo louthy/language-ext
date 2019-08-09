@@ -25,5 +25,11 @@ namespace Contoso.Infrastructure.Data.Repositories
         public async Task<Option<Department>> Get(int id) => 
             await contosoDbContext.Departments
                 .SingleOrDefaultAsync(d => d.DepartmentId == id);
+
+        public async Task Update(Department department)
+        {
+            contosoDbContext.Departments.Update(department);
+            await contosoDbContext.SaveChangesAsync();
+        }
     }
 }

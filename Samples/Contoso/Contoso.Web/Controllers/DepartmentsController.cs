@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Contoso.Application.Departments.Commands;
 using Contoso.Application.Departments.Queries;
 using Contoso.Web.Extensions;
 using MediatR;
@@ -18,5 +19,13 @@ namespace Contoso.Web.Controllers
         public Task<IActionResult> Get(int departmentId) => 
             _mediator.Send(new GetDepartmentById(departmentId))
                 .ToActionResult();
+
+        [HttpPost]
+        public Task<IActionResult> Create([FromBody] CreateDepartment createDepartment) =>
+            _mediator.Send(createDepartment).ToActionResult();
+
+        [HttpPut]
+        public Task<IActionResult> Update([FromBody] UpdateDepartment updateDepartment) =>
+            _mediator.Send(updateDepartment).ToActionResult();
     }
 }
