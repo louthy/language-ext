@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Contoso.Application.Instructors.Queries;
 using Contoso.Core;
 using Contoso.Core.Domain;
 using Contoso.Core.Interfaces.Repositories;
@@ -15,13 +16,13 @@ namespace Contoso.Application.Departments.Commands
     {
 
         private readonly IDepartmentRepository _departmentRepository;
-        private readonly IInstructorRepository _instructorRepository;
+        private readonly IMediator _mediator;
 
         public CreateDepartmentHandler(IDepartmentRepository departmentRepository,
-            IInstructorRepository instructorRepository)
+            IMediator mediator)
         {
             _departmentRepository = departmentRepository;
-            _instructorRepository = instructorRepository;
+            _mediator = mediator;
         }
 
         public Task<Either<Error, int>> Handle(CreateDepartment request, CancellationToken cancellationToken) =>
@@ -35,10 +36,10 @@ namespace Contoso.Application.Departments.Commands
                 MustStartInFuture(create), await InstructorIdMustExist(create))
                 .Apply((n, b, s, i) => new Department { Name = n, Budget = b, StartDate = s, AdministratorId = i });
 
-        private Task<Validation<Error, int>> InstructorIdMustExist(CreateDepartment createDepartment) =>
-            _instructorRepository.Get(createDepartment.AdministratorId).Match(
-                Some: s => s.InstructorId,
-                None: () => Fail<Error, int>($"Administrator Id {createDepartment.AdministratorId} does not exist"));
+        private async Task<Validation<Error, int>> InstructorIdMustExist(CreateDepartment createDepartment) =>
+            (await _mediator.Send(new GetInstructorById(createDepartment.AdministratorId)))
+                .ToValidation<Error>($"Administrator Id {createDepartment.AdministratorId} does not exist")
+                .Map(i => i.InstructorId);
 
         private static Validation<Error, DateTime> MustStartInFuture(CreateDepartment createDepartment) =>
             createDepartment.StartDate > DateTime.UtcNow
