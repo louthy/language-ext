@@ -42,7 +42,9 @@ namespace LanguageExt
 
         internal readonly ResultState State;
         internal readonly A Value;
-        internal Exception Exception;
+        Exception exception;
+
+        internal Exception Exception => exception ?? BottomException.Default;
 
         /// <summary>
         /// Constructor of a concrete value
@@ -53,7 +55,7 @@ namespace LanguageExt
         {
             State = ResultState.Success;
             Value = value;
-            Exception = null;
+            exception = null;
         }
 
         /// <summary>
@@ -64,7 +66,7 @@ namespace LanguageExt
         public Result(Exception e)
         {
             State = ResultState.Faulted;
-            Exception = e;
+            exception = e;
             Value = default(A);
         }
 
@@ -88,7 +90,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool IsBottom => 
-            State == ResultState.Faulted && (Exception == null || Exception is BottomException);
+            State == ResultState.Faulted && (exception == null || exception is BottomException);
 
         /// <summary>
         /// True if the struct is in an success
@@ -103,7 +105,7 @@ namespace LanguageExt
         [Pure]
         public override string ToString() =>
             IsFaulted
-                ? Exception?.ToString() ?? "(Bottom)"
+                ? exception?.ToString() ?? "(Bottom)"
                 : Value?.ToString() ?? "(null)";
 
         /// <summary>
@@ -144,12 +146,12 @@ namespace LanguageExt
         [Pure]
         public A IfFail(Func<Exception, A> f) =>
             IsFaulted
-                ? f(Exception ?? BottomException.Default)
+                ? f(Exception)
                 : Value;
 
         public Unit IfFail(Action<Exception> f)
         {
-            if (IsFaulted) f(Exception ?? BottomException.Default);
+            if (IsFaulted) f(Exception);
             return unit;
         }
 
@@ -161,11 +163,9 @@ namespace LanguageExt
 
         [Pure]
         public R Match<R>(Func<A, R> Succ, Func<Exception, R> Fail) =>
-            IsBottom
-                ? Fail(BottomException.Default)
-                : IsFaulted
-                    ? Fail(Exception)
-                    : Succ(Value);
+            IsFaulted
+                ? Fail(Exception)
+                : Succ(Value);
 
         [Pure]
         internal OptionalResult<A> ToOptional() =>
@@ -175,19 +175,15 @@ namespace LanguageExt
 
         [Pure]
         public Result<B> Map<B>(Func<A, B> f) =>
-            IsBottom
-                ? Result<B>.Bottom
-                : IsFaulted 
-                    ? new Result<B>(Exception)
-                    : new Result<B>(f(Value));
+            IsFaulted 
+                ? new Result<B>(Exception)
+                : new Result<B>(f(Value));
 
         [Pure]
         public async Task<Result<B>> MapAsync<B>(Func<A, Task<B>> f) =>
-            IsBottom
-                ? Result<B>.Bottom
-                : IsFaulted
-                    ? new Result<B>(Exception)
-                    : new Result<B>(await f(Value));
+            IsFaulted
+                ? new Result<B>(Exception)
+                : new Result<B>(await f(Value));
 
         [Pure]
         public int CompareTo(Result<A> other) =>

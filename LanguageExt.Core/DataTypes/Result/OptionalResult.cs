@@ -44,7 +44,9 @@ namespace LanguageExt
 
         internal readonly OptionalResultState State;
         internal readonly Option<A> Value;
-        internal Exception Exception;
+        Exception exception;
+
+        internal Exception Exception => exception ?? BottomException.Default;
 
         /// <summary>
         /// Constructor of a concrete value
@@ -55,7 +57,7 @@ namespace LanguageExt
         {
             State = OptionalResultState.Success;
             Value = value;
-            Exception = null;
+            exception = null;
         }
 
         /// <summary>
@@ -66,7 +68,7 @@ namespace LanguageExt
         public OptionalResult(Exception e)
         {
             State = OptionalResultState.Faulted;
-            Exception = e;
+            exception = e;
             Value = Option<A>.None;
         }
 
@@ -99,7 +101,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool IsBottom =>
-            State == OptionalResultState.Faulted && (Exception == null || Exception is BottomException);
+            State == OptionalResultState.Faulted && (exception == null || exception is BottomException);
 
         /// <summary>
         /// True if the result is faulted
@@ -136,7 +138,7 @@ namespace LanguageExt
         [Pure]
         public override string ToString() =>
             IsFaulted
-                ? Exception?.ToString() ?? "(Bottom)"
+                ? exception?.ToString() ?? "(Bottom)"
                 : Value.ToString();
 
         /// <summary>
@@ -177,7 +179,7 @@ namespace LanguageExt
         [Pure]
         public Option<A> IfFail(Func<Exception, A> f) =>
             IsFaulted
-                ? f(Exception ?? BottomException.Default)
+                ? f(Exception)
                 : Value;
 
         public Unit IfFailOrNone(Action f)
@@ -188,7 +190,7 @@ namespace LanguageExt
 
         public Unit IfFail(Action<Exception> f)
         {
-            if (IsFaulted) f(Exception ?? BottomException.Default);
+            if (IsFaulted) f(Exception);
             return unit;
         }
 
@@ -201,35 +203,31 @@ namespace LanguageExt
         [Pure]
         public R Match<R>(Func<A, R> Some, Func<R> None, Func<Exception, R> Fail) =>
             IsFaulted
-                ? Fail(Exception ?? BottomException.Default)
+                ? Fail(Exception)
                 : Value.Match(Some, None);
 
         internal Result<A> ToResult() =>
             IsFaulted
-                ? new Result<A>(Exception ?? BottomException.Default)
+                ? new Result<A>(Exception)
                 : Value.IsSome
                     ? new Result<A>(Value.Value)
                     : new Result<A>(default(A));
 
         [Pure]
         public OptionalResult<B> Map<B>(Func<A, B> f) =>
-            IsBottom
-                ? OptionalResult<B>.Bottom
-                : IsFaulted
-                    ? new OptionalResult<B>(Exception)
-                    : Value.IsNone
-                        ? new OptionalResult<B>(Option<B>.None)
-                        : new OptionalResult<B>(f(Value.Value));
+            IsFaulted
+                ? new OptionalResult<B>(Exception)
+                : Value.IsNone
+                    ? new OptionalResult<B>(Option<B>.None)
+                    : new OptionalResult<B>(f(Value.Value));
 
         [Pure]
         public async Task<OptionalResult<B>> MapAsync<B>(Func<A, Task<B>> f) =>
-            IsBottom
-                ? OptionalResult<B>.Bottom
-                : IsFaulted
-                    ? new OptionalResult<B>(Exception)
-                    : Value.IsNone
-                        ? new OptionalResult<B>(Option<B>.None)
-                        : new OptionalResult<B>(await f(Value.Value));
+            IsFaulted
+                ? new OptionalResult<B>(Exception)
+                : Value.IsNone
+                    ? new OptionalResult<B>(Option<B>.None)
+                    : new OptionalResult<B>(await f(Value.Value));
 
         [Pure]
         public int CompareTo(OptionalResult<A> other) =>

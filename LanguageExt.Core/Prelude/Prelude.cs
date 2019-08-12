@@ -352,5 +352,5 @@ namespace LanguageExt
         [Pure]
         public static string toString<A>(A value) =>
             value?.ToString() ?? "";
-   }
+    }
 }

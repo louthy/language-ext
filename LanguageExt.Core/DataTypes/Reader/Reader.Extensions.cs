@@ -162,16 +162,6 @@ public static class ReaderExt
             default(MReader<Env, C>).Return(_ => project(a, b))));
 
     [Pure]
-    public static Reader<Env, S> Fold<Env, A, S>(this Reader<Env, A> self, S initialState, Func<S, A, S> f) =>
-        env =>
-        {
-            var (x, b) = self(env);
-            return b
-                ? (default(S), true)
-                : (f(initialState, x), false);
-        };
-
-    [Pure]
     public static Reader<Env, Env> Fold<Env, A>(this Reader<Env, A> self, Func<Env, A, Env> f) =>
         env =>
         {

@@ -154,9 +154,7 @@ public static class TryOptionExtensions
         Func<Exception, A> Fail)
     {
         var res = TryOptionExtensions.Try(self);
-        if (res.IsBottom)
-            return Fail(res.Exception ?? new BottomException());
-        else if (res.IsFaulted)
+        if (res.IsFaulted)
             return Fail(res.Exception);
         else if (res.Value.IsNone)
             return None();
@@ -207,10 +205,9 @@ public static class TryOptionExtensions
     public static R Match<A, R>(this TryOption<A> self, Func<A, R> Some, Func<R> None, Func<Exception, R> Fail)
     {
         var res = TryOptionExtensions.Try(self);
-        return res.IsBottom ? Fail(res.Exception ?? new BottomException())
-            : res.IsFaulted ? Fail(res.Exception)
-            : res.Value.IsSome ? Some(res.Value.Value)
-            : None();
+        return res.IsFaulted ? Fail(res.Exception)
+             : res.Value.IsSome ? Some(res.Value.Value)
+             : None();
     }
 
     /// <summary>
@@ -726,10 +723,9 @@ public static class TryOptionExtensions
         await self.ContinueWith(trySelf =>
         {
             var res = trySelf.Result.Try();
-            return res.IsBottom ? Fail(res.Exception ?? new BottomException())
-                : res.IsFaulted ? Fail(res.Exception)
-                : res.Value.IsSome ? Some(res.Value.Value)
-                : None();
+            return res.IsFaulted ? Fail(res.Exception)
+                 : res.Value.IsSome ? Some(res.Value.Value)
+                 : None();
         });
 
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, R> Some, Func<R> Fail) =>
