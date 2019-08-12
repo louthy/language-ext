@@ -24,12 +24,11 @@ namespace Contoso.Application.Departments.Commands
             _instructorRepository = instructorRepository;
         }
 
-        public async Task<Either<Error, int>> Handle(CreateDepartment request, CancellationToken cancellationToken) => 
-            await (await Validate(request))
-                .Map(_departmentRepository.Add)
-                .MatchAsync<Either<Error, int>>(
-                    SuccAsync: async d => Right(await d),
-                    Fail: errors => errors.Join());
+        public Task<Either<Error, int>> Handle(CreateDepartment request, CancellationToken cancellationToken) =>
+            Validate(request)
+                .Bind(v => v.Map(PersistDepartment).ToEitherAsync());
+
+        private Task<int> PersistDepartment(Department d) => _departmentRepository.Add(d);
 
         private async Task<Validation<Error, Department>> Validate(CreateDepartment create) => 
             (ValidateDepartmentName(create), ValidateBudget(create), 

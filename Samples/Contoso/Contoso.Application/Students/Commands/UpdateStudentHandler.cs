@@ -18,8 +18,7 @@ namespace Contoso.Application.Students.Commands
         public async Task<Either<Error, Task>> Handle(UpdateStudent request, CancellationToken cancellationToken) =>
             (await Validate(request))
                 .Map(s => ApplyUpdateRequest(s, request))
-                .ToEither()
-                .MapLeft(errors => errors.Join());
+                .ToEither<Task>();
 
         private async Task ApplyUpdateRequest(Student s, UpdateStudent update)
         {

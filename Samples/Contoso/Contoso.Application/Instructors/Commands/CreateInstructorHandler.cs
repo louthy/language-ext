@@ -19,9 +19,7 @@ namespace Contoso.Application.Instructors.Commands
         public Task<Either<Error, int>> Handle(CreateInstructor request, CancellationToken cancellationToken) =>
             Validate(request)
                 .Map(PersistInstructor)
-                .ToEither()
-                .MapLeft(errors => errors.Join())
-                .Traverse(t => t);
+                .ToEitherAsync();
 
         private Task<int> PersistInstructor(Instructor instructor) =>
             _instructorRepository.Add(instructor);

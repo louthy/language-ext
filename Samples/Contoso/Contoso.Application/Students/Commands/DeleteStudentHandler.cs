@@ -16,8 +16,7 @@ namespace Contoso.Application.Students.Commands
         public async Task<Either<Error, Task>> Handle(DeleteStudent request, CancellationToken cancellationToken) =>
             (await StudentMustExist(request))
                 .Map(DoDeletion)
-                .ToEither()
-                .MapLeft(errors => errors.Join());
+                .ToEither<Task>();
 
         private Task DoDeletion(int studentId) =>
             _studentRepository.Delete(studentId);

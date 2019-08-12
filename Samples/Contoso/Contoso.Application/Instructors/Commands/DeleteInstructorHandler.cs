@@ -15,11 +15,10 @@ namespace Contoso.Application.Instructors.Commands
         public DeleteInstructorHandler(IInstructorRepository instructorRepository) => 
             _instructorRepository = instructorRepository;
 
-        public async Task<Either<Error, Task>> Handle(DeleteInstructor request, CancellationToken cancellationToken) => 
+        public async Task<Either<Error, Task>> Handle(DeleteInstructor request, CancellationToken cancellationToken) =>
             (await InstructorMustExist(request))
                 .Map(DoDeletion)
-                .ToEither()
-                .MapLeft(errors => errors.Join());
+                .ToEither<Task>();
 
         private Task DoDeletion(int instructorId) =>
             _instructorRepository.Delete(instructorId);
