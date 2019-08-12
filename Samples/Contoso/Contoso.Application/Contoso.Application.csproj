@@ -12,8 +12,4 @@
     <ProjectReference Include="..\Contoso.Core\Contoso.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Courses\Commands\" />
-  </ItemGroup>
-
 </Project>

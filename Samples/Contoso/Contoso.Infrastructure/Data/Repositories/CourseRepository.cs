@@ -17,9 +17,11 @@ namespace Contoso.Infrastructure.Data.Repositories
         public CourseRepository(ContosoDbContext contosoDbContext) => 
             this.contosoDbContext = contosoDbContext;
 
-        public Task<int> Create(Course course)
+        public async Task<int> Add(Course course)
         {
-            throw new NotImplementedException();
+            await contosoDbContext.Courses.AddAsync(course);
+            await contosoDbContext.SaveChangesAsync();
+            return course.CourseId;
         }
 
         public Task Delete(int id)
