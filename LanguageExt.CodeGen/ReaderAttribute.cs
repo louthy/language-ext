@@ -11,8 +11,14 @@ namespace LanguageExt
     public class ReaderAttribute : Attribute
     {
         readonly Type type;
+        readonly string constructor;
+        readonly string fail;
 
-        public ReaderAttribute(Type type) => 
-            this.type = type;
+        public ReaderAttribute(Type Env, string Constructor = "Return", string Fail = "Fail")
+        {
+            this.type = Env;
+            this.constructor = Constructor;
+            this.fail = Fail;
+        }
     }
 }

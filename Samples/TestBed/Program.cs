@@ -32,11 +32,11 @@ public interface IRepository
 }
 
 
-
 class Program
 {
     static void Main(string[] args)
     {
+        TestSubs.Test();
 
         SeqPerf.Broken1();
         return;

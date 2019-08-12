@@ -24,6 +24,7 @@ namespace TestBed
     {
         Seq<string> ReadAllLines(string fileName);
         Unit WriteAllLines(string fileName, Seq<string> lines);
+        int Zero { get; }
     }
 
     public class RealIO : IO
@@ -34,23 +35,28 @@ namespace TestBed
             File.WriteAllLines(path, lines);
             return unit;
         }
+        public int Zero => 0;
     }
 
     public static class TestSubs
     {
         public static void Test()
         {
-            var comp = from io in Subsystem.ask
-                       let ls = io.ReadAllLines("c:/test.txt")
-                       let _  = io.WriteAllLines("c:/test-copy.txt", ls)
+            var comp = from ze in Subsystem.Zero
+                       from ls in Subsystem.ReadAllLines("c:/test.txt")
+                       from _  in Subsystem.WriteAllLines("c:/test-copy.txt", ls)
                        select ls.Count;
 
-            var res = comp.Run(new RealIO());
+            var res = comp.Run(new RealIO()).IfNoneOrFail(0);
         }
     }
 
-    [Reader(typeof(IO))]
+    [Reader(Env: typeof(IO), Constructor: "Pure")]
     public partial struct Subsystem<A>
+    {
+    }
+
+    public partial class Subsystem
     {
     }
 
