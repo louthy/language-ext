@@ -74,6 +74,7 @@ namespace Contoso.Web
             services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<IInstructorRepository, InstructorRepository>();
             services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+            services.AddScoped<ICourseRepository, CourseRepository>();
         }
     }
 }
