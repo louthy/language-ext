@@ -13,16 +13,8 @@ namespace Contoso.Application.Instructors.Queries
 
         public GetOfficeAssignmentHandler(IOfficeAssignmentRepository officeAssignmentRepository) => _officeAssignmentRepository = officeAssignmentRepository;
 
-        public Task<Option<OfficeAssignment>> Handle(GetOfficeAssignment request, CancellationToken cancellationToken) => 
-            Fetch(request.InstructorId).Map(Project);
-
-        private Option<OfficeAssignment> Project(Option<OfficeAssignment> o) =>
-            o.Map(oa => new OfficeAssignment
-                {
-                    OfficeAssignmentId = oa.OfficeAssignmentId,
-                    InstructorId = oa.InstructorId,
-                    Location = oa.Location
-                });
+        public Task<Option<OfficeAssignment>> Handle(GetOfficeAssignment request, CancellationToken cancellationToken) =>
+            Fetch(request.InstructorId);
 
         private Task<Option<OfficeAssignment>> Fetch(int id) => 
             _officeAssignmentRepository.GetByInstructorId(id);
