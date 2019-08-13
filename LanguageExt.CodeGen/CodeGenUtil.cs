@@ -247,5 +247,9 @@ namespace LanguageExt.CodeGen
 
         public static SyntaxToken MakeCamelCaseId(SyntaxToken identifier) =>
             SyntaxFactory.Identifier(MakeCamelCaseId(identifier.ToString()));
+
+        public static string NextGenName(string gen) =>
+            $"{gen.Substring(0, gen.Length - 1)}{(char)((gen[gen.Length - 1] + 1))}";
+
     }
 }

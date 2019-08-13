@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using LanguageExt;
+using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 
 namespace TestBed
@@ -56,7 +57,8 @@ namespace TestBed
     {
     }
 
-    public partial class Subsystem
+    [RWS(WriterMonoid: typeof(MSeq<string>), Env: typeof(IO), Constructor: "LiftSub", Fail: "FailSub")]
+    public partial struct Subsystem2<X, STATE, T>
     {
     }
 
@@ -105,3 +107,5 @@ namespace TestBed
         }
     }
 }
+
+

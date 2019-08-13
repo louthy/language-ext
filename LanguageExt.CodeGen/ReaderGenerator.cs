@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.IO;
 
 namespace LanguageExt.CodeGen
 {
@@ -40,24 +38,24 @@ namespace LanguageExt.CodeGen
         {
             var results = SyntaxFactory.List<MemberDeclarationSyntax>();
 
-            if (context.ProcessingNode is StructDeclarationSyntax applyToStruct)
+            if (context.ProcessingNode is StructDeclarationSyntax applyToStruct && applyToStruct.TypeParameterList.Parameters.Count >= 1)
             {
                 // Apply a suffix to the name of a copy of the struct.
-                var partialStruct = SyntaxFactory.StructDeclaration($"{applyToStruct.Identifier}")
-                                                 .WithModifiers(applyToStruct.Modifiers)
-                                                 .WithTypeParameterList(applyToStruct.TypeParameterList);
+                var partialStruct = StructDeclaration($"{applyToStruct.Identifier}")
+                                        .WithModifiers(applyToStruct.Modifiers)
+                                        .WithTypeParameterList(applyToStruct.TypeParameterList);
 
                 var structName = applyToStruct.Identifier;
                 var genA = applyToStruct.TypeParameterList.Parameters.Last().ToString();
-                var genB = $"{genA.Substring(0, genA.Length - 1)}{(char)((genA[genA.Length - 1] + 1))}";
-                var genC = $"{genA.Substring(0, genA.Length - 1)}{(char)((genA[genA.Length - 1] + 2))}";
-                var structA = SyntaxFactory.ParseTypeName($"{applyToStruct.Identifier}<{applyToStruct.TypeParameterList.Parameters}>");
+                var genB = CodeGenUtil.NextGenName(genA);
+                var genC = CodeGenUtil.NextGenName(genB);
+                var structA = ParseTypeName($"{applyToStruct.Identifier}<{applyToStruct.TypeParameterList.Parameters}>");
                 var structB = MakeGenericStruct(applyToStruct, genB);
                 var structC = MakeGenericStruct(applyToStruct, genC);
                 var structEnv = MakeGenericStruct(applyToStruct, envType);
                 var structUnit = MakeGenericStruct(applyToStruct, "LanguageExt.Unit");
 
-                var compType = SyntaxFactory.ParseTypeName($"LanguageExt.Reader<{envType}, {applyToStruct.TypeParameterList.Parameters.Last()}>");
+                var compType = ParseTypeName($"LanguageExt.Reader<{envType}, {applyToStruct.TypeParameterList.Parameters.Last()}>");
 
                 // Internal field used to store the reader monad
                 var compField = FieldDeclaration(
@@ -530,20 +528,10 @@ namespace LanguageExt.CodeGen
                                     .WithModifiers(
                                         TokenList(
                                             Token(SyntaxKind.PublicKeyword)))
-                                    .WithTypeParameterList(
-                                        TypeParameterList(
-                                            SingletonSeparatedList<TypeParameterSyntax>(
-                                                TypeParameter(
-                                                    Identifier("S")))))
                                     .WithParameterList(
                                         ParameterList(
                                             SeparatedList<ParameterSyntax>(
                                                 new SyntaxNodeOrToken[]{
-                                                    Parameter(
-                                                        Identifier("state"))
-                                                    .WithType(
-                                                        IdentifierName("S")),
-                                                    Token(SyntaxKind.CommaToken),
                                                     Parameter(
                                                         Identifier("f"))
                                                     .WithType(
@@ -621,20 +609,10 @@ namespace LanguageExt.CodeGen
                                         .WithModifiers(
                                             TokenList(
                                                 Token(SyntaxKind.PublicKeyword)))
-                                        .WithTypeParameterList(
-                                            TypeParameterList(
-                                                SingletonSeparatedList<TypeParameterSyntax>(
-                                                    TypeParameter(
-                                                        Identifier("S")))))
                                         .WithParameterList(
                                             ParameterList(
                                                 SeparatedList<ParameterSyntax>(
                                                     new SyntaxNodeOrToken[]{
-                                                        Parameter(
-                                                            Identifier("state"))
-                                                        .WithType(
-                                                            IdentifierName("S")),
-                                                        Token(SyntaxKind.CommaToken),
                                                         Parameter(
                                                             Identifier("f"))
                                                         .WithType(
@@ -972,7 +950,7 @@ namespace LanguageExt.CodeGen
                                         Token(SyntaxKind.SemicolonToken));
 
                 // ask :: M Env
-                MemberDeclarationSyntax askFunc = applyToStruct.TypeParameterList.Parameters.Count == 1
+                var askFunc = applyToStruct.TypeParameterList.Parameters.Count == 1
                     ? FieldDeclaration(
                             VariableDeclaration(structEnv)
                             .WithVariables(
