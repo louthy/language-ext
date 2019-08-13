@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Contoso.Core.Domain;
 using Contoso.Core.Interfaces.Repositories;
 using LanguageExt;
@@ -24,9 +20,11 @@ namespace Contoso.Infrastructure.Data.Repositories
             return course.CourseId;
         }
 
-        public Task Delete(int id)
+        public async Task Delete(int id)
         {
-            throw new NotImplementedException();
+            var course = await contosoDbContext.Courses.FindAsync(id);
+            contosoDbContext.Courses.Remove(course);
+            await contosoDbContext.SaveChangesAsync();
         }
 
         public async Task<Option<Course>> Get(int id) => 
@@ -34,7 +32,8 @@ namespace Contoso.Infrastructure.Data.Repositories
 
         public Task Update(Course course)
         {
-            throw new NotImplementedException();
+            contosoDbContext.Courses.Update(course);
+            return contosoDbContext.SaveChangesAsync();
         }
     }
 }

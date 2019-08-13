@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Contoso.Application.Courses.Commands;
-using Contoso.Application.Students.Queries;
+using Contoso.Application.Courses.Queries;
 using Contoso.Web.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +17,7 @@ namespace Contoso.Web.Controllers
 
         [HttpGet("{courseId}")]
         public Task<IActionResult> Get(int courseId) =>
-            _mediator.Send(new GetStudentById(courseId))
+            _mediator.Send(new GetCourseById(courseId))
                 .ToActionResult();
 
         [HttpPost]
