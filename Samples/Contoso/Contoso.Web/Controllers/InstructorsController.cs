@@ -31,5 +31,9 @@ namespace Contoso.Web.Controllers
         [HttpDelete]
         public Task<IActionResult> Delete([FromBody] DeleteInstructor deleteInstructor) =>
             _mediator.Send(deleteInstructor).ToActionResult();
+
+        [HttpGet("officeassignment/{instructorId}")]
+        public Task<IActionResult> GetOfficeAssignment(int instructorId) =>
+            _mediator.Send(new GetOfficeAssignment(instructorId)).ToActionResult();
     }
 }
