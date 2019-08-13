@@ -1,4 +1,10 @@
-﻿using System;
+﻿////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                    //
+//     NOTE: This is just my scratch pad for quickly testing stuff, not for human consumption         //
+//                                                                                                    //
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+using System;
 using System.Linq;
 using System.Reflection;
 using LanguageExt;

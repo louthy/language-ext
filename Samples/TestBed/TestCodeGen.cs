@@ -1,4 +1,10 @@
-﻿using System;
+﻿////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                    //
+//     NOTE: This is just my scratch pad for quickly testing stuff, not for human consumption         //
+//                                                                                                    //
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -57,8 +63,8 @@ namespace TestBed
     {
     }
 
-    [RWS(WriterMonoid: typeof(MSeq<string>), Env: typeof(IO), Constructor: "LiftSub", Fail: "FailSub")]
-    public partial struct Subsystem2<X, STATE, T>
+    [RWS(WriterMonoid: typeof(MSeq<string>), Env: typeof(IO), State: typeof(string),  Constructor: "LiftSub", Fail: "FailSub")]
+    public partial struct Subsystem2<T>
     {
     }
 

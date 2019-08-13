@@ -18,31 +18,41 @@ namespace LanguageExt.CodeGen
     public class RWSGenerator : ICodeGenerator
     {
         readonly string monoidWType;
-        readonly INamedTypeSymbol monoidWTypeConst;
-
         readonly string rType;
-        readonly INamedTypeSymbol rTypeConst;
-
         readonly string wType;
-
+        readonly string sType;
         readonly string ctorName;
         readonly string failName;
-
+        readonly bool fixedState;
+ 
         /// <summary>
         /// Provides a With function for record types
         /// </summary>
         public RWSGenerator(AttributeData attributeData)
         {
-            monoidWTypeConst = (INamedTypeSymbol)attributeData.ConstructorArguments[0].Value;
+            var monoidWTypeConst = (INamedTypeSymbol)attributeData.ConstructorArguments[0].Value;
             monoidWType = monoidWTypeConst.ToString();
 
             wType = monoidWTypeConst.AllInterfaces.Where(interf => interf.Name == "Monoid").Take(1).Select(interf => interf.TypeArguments[0].ToString()).FirstOrDefault();
 
-            rTypeConst = (INamedTypeSymbol)attributeData.ConstructorArguments[1].Value;
+            var rTypeConst = (INamedTypeSymbol)attributeData.ConstructorArguments[1].Value;
             rType = rTypeConst.ToString();
 
-            ctorName = attributeData.ConstructorArguments[2].Value?.ToString() ?? "Return";
-            failName = attributeData.ConstructorArguments[3].Value?.ToString() ?? "Fail";
+            if (attributeData.ConstructorArguments.Length == 4)
+            {
+                ctorName = attributeData.ConstructorArguments[2].Value?.ToString() ?? "Return";
+                failName = attributeData.ConstructorArguments[3].Value?.ToString() ?? "Fail";
+            }
+            else
+            {
+                fixedState = true;
+
+                var sTypeConst = (INamedTypeSymbol)attributeData.ConstructorArguments[2].Value;
+                sType = sTypeConst.ToString();
+
+                ctorName = attributeData.ConstructorArguments[3].Value?.ToString() ?? "Return";
+                failName = attributeData.ConstructorArguments[4].Value?.ToString() ?? "Fail";
+            }
         }
 
         public Task<SyntaxList<MemberDeclarationSyntax>> GenerateAsync(
@@ -53,7 +63,9 @@ namespace LanguageExt.CodeGen
 
             var results = SyntaxFactory.List<MemberDeclarationSyntax>();
 
-            if (context.ProcessingNode is StructDeclarationSyntax applyToStruct && applyToStruct.TypeParameterList.Parameters.Count >= 2)
+            if (context.ProcessingNode is StructDeclarationSyntax applyToStruct && 
+                ((fixedState == false && applyToStruct.TypeParameterList.Parameters.Count >= 2) ||
+                 (fixedState == true && applyToStruct.TypeParameterList.Parameters.Count >= 1)))
             {
                 // Apply a suffix to the name of a copy of the struct.
                 var partialStruct = SyntaxFactory.StructDeclaration($"{applyToStruct.Identifier}")
@@ -65,7 +77,7 @@ namespace LanguageExt.CodeGen
                 var genA = applyToStruct.TypeParameterList.Parameters.Last().ToString();
                 var genB = CodeGenUtil.NextGenName(genA);
                 var genC = CodeGenUtil.NextGenName(genB);
-                var genS = applyToStruct.TypeParameterList.Parameters[applyToStruct.TypeParameterList.Parameters.Count - 2].ToString();
+                var genS = fixedState ? sType : applyToStruct.TypeParameterList.Parameters[applyToStruct.TypeParameterList.Parameters.Count - 2].ToString();
                 var genW = wType;
 
                 var structA = SyntaxFactory.ParseTypeName($"{applyToStruct.Identifier}<{applyToStruct.TypeParameterList.Parameters}>");
@@ -78,6 +90,10 @@ namespace LanguageExt.CodeGen
                 var structUnit = MakeGenericStruct(applyToStruct, "LanguageExt.Unit");
 
                 var structPass = MakeGenericStruct(applyToStruct, $"({genA}, Func<{wType}, {wType}>)");
+
+                var noAGenNeeded = fixedState
+                    ? TypeParameterList(applyToStruct.TypeParameterList.Parameters.RemoveAt(applyToStruct.TypeParameterList.Parameters.Count - 1))
+                    : applyToStruct.TypeParameterList;
 
                 var compType = SyntaxFactory.ParseTypeName($"LanguageExt.RWS<{monoidWType}, {rType}, {wType}, {genS}, {genA}>");
 
@@ -1256,7 +1272,6 @@ namespace LanguageExt.CodeGen
                                             new[]{
                                                 Token(SyntaxKind.PublicKeyword),
                                                 Token(SyntaxKind.StaticKeyword)}))
-                                    .WithTypeParameterList(applyToStruct.TypeParameterList)
                                     .WithExpressionBody(
                                         ArrowExpressionClause(
                                             ObjectCreationExpression(structR)
@@ -1294,6 +1309,11 @@ namespace LanguageExt.CodeGen
                                     .WithSemicolonToken(
                                         Token(SyntaxKind.SemicolonToken));
 
+                if (noAGenNeeded.Parameters.Count != 0)
+                {
+                    askFunc = askFunc.WithTypeParameterList(noAGenNeeded);
+                }
+
                 var getFunc = MethodDeclaration(
                                         structS,
                                         Identifier("get"))
@@ -1302,7 +1322,6 @@ namespace LanguageExt.CodeGen
                                             new[]{
                                                 Token(SyntaxKind.PublicKeyword),
                                                 Token(SyntaxKind.StaticKeyword)}))
-                                    .WithTypeParameterList(applyToStruct.TypeParameterList)
                                     .WithExpressionBody(
                                         ArrowExpressionClause(
                                             ObjectCreationExpression(structS)
@@ -1339,6 +1358,11 @@ namespace LanguageExt.CodeGen
                                                                                 Identifier("state"))})))))))))
                                     .WithSemicolonToken(
                                         Token(SyntaxKind.SemicolonToken));
+
+                if (noAGenNeeded.Parameters.Count != 0)
+                {
+                    getFunc = getFunc.WithTypeParameterList(noAGenNeeded);
+                }
 
                 var getsFunc = MethodDeclaration(
                                             structA,
@@ -1415,7 +1439,6 @@ namespace LanguageExt.CodeGen
                                                 new[]{
                                                     Token(SyntaxKind.PublicKeyword),
                                                     Token(SyntaxKind.StaticKeyword)}))
-                                        .WithTypeParameterList(applyToStruct.TypeParameterList)
                                         .WithParameterList(
                                             ParameterList(
                                                 SingletonSeparatedList<ParameterSyntax>(
@@ -1461,6 +1484,11 @@ namespace LanguageExt.CodeGen
                                                                                     Identifier("state"))})))))))))
                                         .WithSemicolonToken(
                                             Token(SyntaxKind.SemicolonToken));
+
+                if(noAGenNeeded.Parameters.Count != 0)
+                {
+                    putFunc = putFunc.WithTypeParameterList(noAGenNeeded);
+                }
 
                 var modifyFunc = MethodDeclaration(
                                             structUnit,
@@ -1743,7 +1771,6 @@ namespace LanguageExt.CodeGen
                                             new[]{
                                                 Token(SyntaxKind.PublicKeyword),
                                                 Token(SyntaxKind.StaticKeyword)}))
-                                    .WithTypeParameterList(applyToStruct.TypeParameterList)
                                     .WithParameterList(
                                         ParameterList(
                                             SingletonSeparatedList<ParameterSyntax>(
@@ -1772,7 +1799,7 @@ namespace LanguageExt.CodeGen
                                                                                 Token(SyntaxKind.CommaToken),
                                                                                 IdentifierName(genS),
                                                                                 Token(SyntaxKind.CommaToken),
-                                                                                IdentifierName(genA)}))))
+                                                                                ParseTypeName("LanguageExt.Unit")}))))
                                                             .WithArgumentList(
                                                                 ArgumentList(
                                                                     SingletonSeparatedList<ArgumentSyntax>(
@@ -1780,6 +1807,11 @@ namespace LanguageExt.CodeGen
                                                                             IdentifierName("what")))))))))))
                                     .WithSemicolonToken(
                                         Token(SyntaxKind.SemicolonToken));
+
+                if (noAGenNeeded.Parameters.Count != 0)
+                {
+                    tellFunc = tellFunc.WithTypeParameterList(noAGenNeeded);
+                }
 
                 var prelude = ClassDeclaration(structName)
                         .WithModifiers(
