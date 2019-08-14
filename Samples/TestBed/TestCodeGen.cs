@@ -63,7 +63,9 @@ namespace TestBed
     {
     }
 
-    [RWS(WriterMonoid: typeof(MSeq<string>), Env: typeof(IO), State: typeof(string),  Constructor: "LiftSub", Fail: "FailSub")]
+
+    [RWS(WriterMonoid: typeof(MSeq<string>), Env: typeof(IO), State: typeof(string), 
+         Constructor: "LiftSub",             Fail: "FailSub")]
     public partial struct Subsystem2<T>
     {
     }

@@ -50,10 +50,10 @@ namespace LanguageExt.CodeGen
                 var genB = CodeGenUtil.NextGenName(genA);
                 var genC = CodeGenUtil.NextGenName(genB);
                 var structA = ParseTypeName($"{applyToStruct.Identifier}<{applyToStruct.TypeParameterList.Parameters}>");
-                var structB = MakeGenericStruct(applyToStruct, genB);
-                var structC = MakeGenericStruct(applyToStruct, genC);
-                var structEnv = MakeGenericStruct(applyToStruct, envType);
-                var structUnit = MakeGenericStruct(applyToStruct, "LanguageExt.Unit");
+                var structB = CodeGenUtil.MakeGenericStruct(applyToStruct, genB);
+                var structC = CodeGenUtil.MakeGenericStruct(applyToStruct, genC);
+                var structEnv = CodeGenUtil.MakeGenericStruct(applyToStruct, envType);
+                var structUnit = CodeGenUtil.MakeGenericStruct(applyToStruct, "LanguageExt.Unit");
 
                 var compType = ParseTypeName($"LanguageExt.Reader<{envType}, {applyToStruct.TypeParameterList.Parameters.Last()}>");
 
@@ -675,6 +675,48 @@ namespace LanguageExt.CodeGen
                                                                         LiteralExpression(
                                                                             SyntaxKind.FalseLiteralExpression)))))))));
 
+                var localMethod = MethodDeclaration(structA, Identifier("Local"))
+                                      .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+                                      .WithParameterList(
+                                          ParameterList(
+                                              SingletonSeparatedList<ParameterSyntax>(
+                                                  Parameter(Identifier("f"))
+                                                    .WithType(GenericName(Identifier("Func"))
+                                                    .WithTypeArgumentList(
+                                                        TypeArgumentList(
+                                                            SeparatedList<TypeSyntax>(
+                                                                new SyntaxNodeOrToken[]{
+                                                                    ParseTypeName(envType),
+                                                                    Token(SyntaxKind.CommaToken),
+                                                                    ParseTypeName(envType)
+                                                                })))))))
+                                        .WithExpressionBody(
+                                            ArrowExpressionClause(
+                                                ObjectCreationExpression(structA)
+                                                .WithArgumentList(
+                                                    ArgumentList(
+                                                        SingletonSeparatedList<ArgumentSyntax>(
+                                                            Argument(
+                                                                InvocationExpression(
+                                                                    MemberAccessExpression(
+                                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                                        MemberAccessExpression(
+                                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                                            IdentifierName("LanguageExt"),
+                                                                            IdentifierName("Prelude")),
+                                                                        IdentifierName("local")))
+                                                                .WithArgumentList(
+                                                                    ArgumentList(
+                                                                        SeparatedList<ArgumentSyntax>(
+                                                                            new SyntaxNodeOrToken[]{
+                                                                                Argument(
+                                                                                    IdentifierName("__comp")),
+                                                                                Token(SyntaxKind.CommaToken),
+                                                                                Argument(
+                                                                                    IdentifierName("f"))})))))))))
+                                        .WithSemicolonToken(
+                                            Token(SyntaxKind.SemicolonToken));
+
                 // [name] :: MA -> (A -> B) -> MB
                 MethodDeclarationSyntax MapMethod(string name) => 
                     MethodDeclaration(structB, Identifier(name))
@@ -843,7 +885,8 @@ namespace LanguageExt.CodeGen
                             iterMethod,
                             foldMethod,
                             forAllMethod,
-                            existsMethod }));
+                            existsMethod,
+                            localMethod }));
 
                 // Return :: A -> MA
                 var returnFunc = MethodDeclaration(
@@ -1016,6 +1059,42 @@ namespace LanguageExt.CodeGen
                         .WithSemicolonToken(
                             Token(SyntaxKind.SemicolonToken));
 
+                var localFunc = MethodDeclaration(structA, Identifier("local"))
+                                    .WithModifiers(TokenList(new[] { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword) }))
+                                    .WithTypeParameterList(applyToStruct.TypeParameterList)
+                                    .WithParameterList(
+                                        ParameterList(
+                                            SeparatedList<ParameterSyntax>(
+                                                new SyntaxNodeOrToken[]{
+                                                    Parameter(Identifier("ma")).WithType(structA),
+                                                    Token(SyntaxKind.CommaToken),
+                                                    Parameter(Identifier("f"))
+                                                        .WithType(
+                                                            GenericName(
+                                                                Identifier("Func"))
+                                                            .WithTypeArgumentList(
+                                                                TypeArgumentList(
+                                                                    SeparatedList<TypeSyntax>(
+                                                                        new SyntaxNodeOrToken[]{
+                                                                            ParseTypeName(envType),
+                                                                            Token(SyntaxKind.CommaToken),
+                                                                            ParseTypeName(envType)
+                                                                        }))))})))
+                                    .WithExpressionBody(
+                                        ArrowExpressionClause(
+                                            InvocationExpression(
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    IdentifierName("ma"),
+                                                    IdentifierName("Local")))
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SingletonSeparatedList<ArgumentSyntax>(
+                                                        Argument(
+                                                            IdentifierName("f")))))))
+                                    .WithSemicolonToken(
+                                        Token(SyntaxKind.SemicolonToken));
+
                 var prelude = ClassDeclaration(structName)
                         .WithModifiers(
                             TokenList(
@@ -1029,7 +1108,8 @@ namespace LanguageExt.CodeGen
                                     returnFunc,
                                     failFunc,
                                     asksFunc,
-                                    askFunc
+                                    askFunc,
+                                    localFunc
                                 }));
 
                 // Ask
@@ -1052,93 +1132,7 @@ namespace LanguageExt.CodeGen
                                        IdentifierName("Map"));
 
 
-                foreach (var member in ((ITypeSymbol)envTypeConst).GetMembers())
-                {
-                    switch(member.Kind)
-                    {
-                        case SymbolKind.Field:
-                            if (applyToStruct.TypeParameterList.Parameters.Count < 2)
-                            {
-                                var field = (IFieldSymbol)member;
-                                var fdecl = CreateFieldOrProperty(applyToStruct, field.Name, field.Type);
-                                prelude = prelude.AddMembers(fdecl);
-                            }
-                            break;
-
-                        case SymbolKind.Property:
-                            if (applyToStruct.TypeParameterList.Parameters.Count < 2)
-                            {
-                                var prop = (IPropertySymbol)member;
-                                var fdecl = CreateFieldOrProperty(applyToStruct, prop.Name, prop.Type);
-                                prelude = prelude.AddMembers(fdecl);
-                            }
-                            break;
-
-                        case SymbolKind.Method:
-                            var method = (IMethodSymbol)member;
-
-                            if (!method.Name.StartsWith("get_") && !method.Name.StartsWith("set_"))
-                            {
-                                // Method generics
-                                var generics = TypeParameterList(SeparatedList<TypeParameterSyntax>(method.TypeParameters.Select(a => TypeParameter(a.Name))));
-
-                                var sparams = applyToStruct.TypeParameterList.Parameters.Count > 0
-                                    ? applyToStruct.TypeParameterList.Parameters.Take(applyToStruct.TypeParameterList.Parameters.Count - 1).ToList()
-                                    : applyToStruct.TypeParameterList.Parameters.ToList();
-
-                                sparams.AddRange(generics.Parameters);
-
-                                // Method args
-                                var args = ParameterList(SeparatedList<ParameterSyntax>(
-                                                method.Parameters.Select(a => Parameter(Identifier(a.Name)).WithType(SyntaxFactory.ParseTypeName(a.Type.ToString())))));
-
-                                // Return type
-                                var returnType = MakeGenericStruct(applyToStruct, method.ReturnType.ToString());
-
-                                // Invocation
-                                var invoke = generics.Parameters.Count == 0
-                                    ? MemberAccessExpression(
-                                          SyntaxKind.SimpleMemberAccessExpression,
-                                          IdentifierName("__env"),
-                                          IdentifierName(method.Name))
-                                    : MemberAccessExpression(
-                                          SyntaxKind.SimpleMemberAccessExpression,
-                                          IdentifierName("__env"),
-                                              GenericName(Identifier(method.Name))
-                                                  .WithTypeArgumentList(
-                                                      TypeArgumentList(SeparatedList<TypeSyntax>(method.TypeParameters.Select(a => IdentifierName(a.Name))))));
-
-                                var decl = MethodDeclaration(returnType, method.Name)
-                                               .WithModifiers(TokenList(new[] { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword) }))
-                                               .WithParameterList(args)
-                                               .WithExpressionBody(
-                                                    ArrowExpressionClause(
-                                                        InvocationExpression(ask)
-                                                        .WithArgumentList(
-                                                            ArgumentList(
-                                                                SingletonSeparatedList<ArgumentSyntax>(
-                                                                    Argument(
-                                                                        SimpleLambdaExpression(
-                                                                            Parameter(Identifier("__env")),
-                                                                            InvocationExpression(invoke)
-                                                                            .WithArgumentList(
-                                                                                ArgumentList(
-                                                                                    SeparatedList<ArgumentSyntax>(
-                                                                                        method.Parameters.Select(a => Argument(IdentifierName(a.Name)))))))))))))
-                                                .WithSemicolonToken(
-                                                    Token(SyntaxKind.SemicolonToken));
-
-                                decl = sparams.Count == 0
-                                    ? decl
-                                    : decl.WithTypeParameterList(TypeParameterList(SeparatedList<TypeParameterSyntax>(sparams)));
-
-                                prelude = prelude.AddMembers(decl);
-                            }
-
-                            break;
-                    }
-
-                }
+                prelude = CodeGenUtil.AddMembersToPrelude(prelude, applyToStruct, "ask", (ITypeSymbol)envTypeConst);
 
                 return Task.FromResult<SyntaxList<MemberDeclarationSyntax>>(results.Add(partialStruct).Add(prelude));
             }
@@ -1146,42 +1140,6 @@ namespace LanguageExt.CodeGen
             {
                 return Task.FromResult<SyntaxList<MemberDeclarationSyntax>>(results);
             }
-        }
-
-        static PropertyDeclarationSyntax CreateFieldOrProperty(StructDeclarationSyntax applyToStruct, string name, ITypeSymbol type)
-        {
-            var fdecl = PropertyDeclaration(
-                            MakeGenericStruct(applyToStruct, type.ToString()),
-                            Identifier(name))
-                        .WithModifiers(TokenList(new[] { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword) }))
-                        .WithExpressionBody(
-                            ArrowExpressionClause(
-                                InvocationExpression(
-                                    MemberAccessExpression(
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        IdentifierName("ask"),
-                                        IdentifierName("Map")))
-                                    .WithArgumentList(
-                                        ArgumentList(
-                                            SingletonSeparatedList<ArgumentSyntax>(
-                                                Argument(
-                                                    SimpleLambdaExpression(
-                                                        Parameter(
-                                                            Identifier("__env")),
-                                                        MemberAccessExpression(
-                                                            SyntaxKind.SimpleMemberAccessExpression,
-                                                                IdentifierName("__env"),
-                                                                IdentifierName(name)))))))))
-                        .WithSemicolonToken(
-                            Token(SyntaxKind.SemicolonToken)); ;
-            return fdecl;
-        }
-
-        static TypeSyntax MakeGenericStruct(StructDeclarationSyntax s, params string[] genAdd)
-        {
-            var nolast = s.TypeParameterList.Parameters.RemoveAt(s.TypeParameterList.Parameters.Count - 1);
-            var gens = nolast.AddRange(genAdd.Select(gen => TypeParameter(gen)));
-            return SyntaxFactory.ParseTypeName($"{s.Identifier}<{gens}>");
         }
     }
 }

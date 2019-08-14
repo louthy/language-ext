@@ -5,6 +5,7 @@ using CodeGeneration.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace LanguageExt.CodeGen
 {
@@ -251,5 +252,166 @@ namespace LanguageExt.CodeGen
         public static string NextGenName(string gen) =>
             $"{gen.Substring(0, gen.Length - 1)}{(char)((gen[gen.Length - 1] + 1))}";
 
+        public static ClassDeclarationSyntax AddMembersToPrelude(ClassDeclarationSyntax prelude, StructDeclarationSyntax applyToStruct, string getter, ITypeSymbol symbol)
+        {
+            var ask = MakeAsk(applyToStruct, getter);
+
+            foreach (var member in symbol.GetMembers())
+            {
+                switch (member.Kind)
+                {
+                    case SymbolKind.Field:
+                        var field = (IFieldSymbol)member;
+                        if (applyToStruct.TypeParameterList.Parameters.Count < 2 && !field.IsStatic)
+                        {
+                            var fdecl = CreateFieldOrProperty(applyToStruct, getter, field.Name, field.Type);
+                            prelude = prelude.AddMembers(fdecl);
+                        }
+                        break;
+
+                    case SymbolKind.Property:
+                        var prop = (IPropertySymbol)member;
+                        if (applyToStruct.TypeParameterList.Parameters.Count < 2 && !prop.IsStatic && prop.Name != "this[]")
+                        {
+                            var fdecl = CreateFieldOrProperty(applyToStruct, getter, prop.Name, prop.Type);
+                            prelude = prelude.AddMembers(fdecl);
+                        }
+                        break;
+
+                    case SymbolKind.Method:
+                        var method = (IMethodSymbol)member;
+
+                        if (method.MethodKind == MethodKind.Ordinary &&
+                            method.ReturnType.Name != "Void" &&
+                            !method.IsStatic &&
+                            method.Name != "GetHashCode" &&
+                            method.Name != "Equals" &&
+                            method.Name != "CompareTo" &&
+                            method.Name != "ToString" &&
+                            method.Name != "this" &&
+                            method.Name != "GetEnumerator"
+                            )
+                        {
+                            // Method generics
+                            var generics = TypeParameterList(SeparatedList<TypeParameterSyntax>(method.TypeParameters.Select(a => TypeParameter(a.Name))));
+
+                            var sparams = applyToStruct.TypeParameterList.Parameters.Count > 0
+                                ? applyToStruct.TypeParameterList.Parameters.Take(applyToStruct.TypeParameterList.Parameters.Count - 1).ToList()
+                                : applyToStruct.TypeParameterList.Parameters.ToList();
+
+                            sparams.AddRange(generics.Parameters);
+
+                            // Method args
+                            var args = ParameterList(SeparatedList<ParameterSyntax>(
+                                            method.Parameters.Select(a => Parameter(Identifier(a.Name)).WithType(SyntaxFactory.ParseTypeName(a.Type.ToString())))));
+
+                            // Return type
+                            var returnType = MakeGenericStruct(applyToStruct, method.ReturnType.ToString());
+
+                            // Invocation
+                            var invoke = generics.Parameters.Count == 0
+                                ? MemberAccessExpression(
+                                      SyntaxKind.SimpleMemberAccessExpression,
+                                      IdentifierName("__env"),
+                                      IdentifierName(method.Name))
+                                : MemberAccessExpression(
+                                      SyntaxKind.SimpleMemberAccessExpression,
+                                      IdentifierName("__env"),
+                                          GenericName(Identifier(method.Name))
+                                              .WithTypeArgumentList(
+                                                  TypeArgumentList(SeparatedList<TypeSyntax>(method.TypeParameters.Select(a => IdentifierName(a.Name))))));
+
+                            var decl = MethodDeclaration(returnType, method.Name)
+                                           .WithModifiers(TokenList(new[] { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword) }))
+                                           .WithParameterList(args)
+                                           .WithExpressionBody(
+                                                ArrowExpressionClause(
+                                                    InvocationExpression(ask)
+                                                    .WithArgumentList(
+                                                        ArgumentList(
+                                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                                Argument(
+                                                                    SimpleLambdaExpression(
+                                                                        Parameter(Identifier("__env")),
+                                                                        InvocationExpression(invoke)
+                                                                        .WithArgumentList(
+                                                                            ArgumentList(
+                                                                                SeparatedList<ArgumentSyntax>(
+                                                                                    method.Parameters.Select(a => Argument(IdentifierName(a.Name)))))))))))))
+                                            .WithSemicolonToken(
+                                                Token(SyntaxKind.SemicolonToken));
+
+                            decl = sparams.Count == 0
+                                ? decl
+                                : decl.WithTypeParameterList(TypeParameterList(SeparatedList<TypeParameterSyntax>(sparams)));
+
+                            prelude = prelude.AddMembers(decl);
+                        }
+
+                        break;
+                }
+
+            }
+
+            return prelude;
+        }
+
+        static MemberAccessExpressionSyntax MakeAsk(StructDeclarationSyntax applyToStruct, string name)
+        {
+            // Ask
+            return applyToStruct.TypeParameterList.Parameters.Count > 1
+                        ? MemberAccessExpression(
+                              SyntaxKind.SimpleMemberAccessExpression,
+                              InvocationExpression(
+                                  GenericName(Identifier(name))
+                                      .WithTypeArgumentList(
+                                            TypeArgumentList(
+                                                 SeparatedList<TypeSyntax>(
+                                                     applyToStruct.TypeParameterList
+                                                                  .Parameters
+                                                                  .Take(applyToStruct.TypeParameterList.Parameters.Count - 1)
+                                                                  .Select(p => IdentifierName(p.Identifier.ToString())))))),
+                              IdentifierName("Map"))
+                        : MemberAccessExpression(
+                              SyntaxKind.SimpleMemberAccessExpression,
+                                   IdentifierName(name),
+                                   IdentifierName("Map"));
+        }
+
+        static PropertyDeclarationSyntax CreateFieldOrProperty(StructDeclarationSyntax applyToStruct, string getter, string name, ITypeSymbol type)
+        {
+            var fdecl = PropertyDeclaration(
+                            MakeGenericStruct(applyToStruct, type.ToString()),
+                            Identifier(name))
+                        .WithModifiers(TokenList(new[] { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword) }))
+                        .WithExpressionBody(
+                            ArrowExpressionClause(
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName(getter),
+                                        IdentifierName("Map")))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                Argument(
+                                                    SimpleLambdaExpression(
+                                                        Parameter(
+                                                            Identifier("__env")),
+                                                        MemberAccessExpression(
+                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                                IdentifierName("__env"),
+                                                                IdentifierName(name)))))))))
+                        .WithSemicolonToken(
+                            Token(SyntaxKind.SemicolonToken)); ;
+            return fdecl;
+        }
+
+        public static TypeSyntax MakeGenericStruct(StructDeclarationSyntax s, params string[] genAdd)
+        {
+            var nolast = s.TypeParameterList.Parameters.RemoveAt(s.TypeParameterList.Parameters.Count - 1);
+            var gens = nolast.AddRange(genAdd.Select(gen => TypeParameter(gen)));
+            return SyntaxFactory.ParseTypeName($"{s.Identifier}<{gens}>");
+        }
     }
 }

@@ -19,8 +19,10 @@ namespace LanguageExt.CodeGen
     {
         readonly string monoidWType;
         readonly string rType;
+        readonly object rTypeConst;
         readonly string wType;
         readonly string sType;
+        readonly object sTypeConst;
         readonly string ctorName;
         readonly string failName;
         readonly bool fixedState;
@@ -35,7 +37,7 @@ namespace LanguageExt.CodeGen
 
             wType = monoidWTypeConst.AllInterfaces.Where(interf => interf.Name == "Monoid").Take(1).Select(interf => interf.TypeArguments[0].ToString()).FirstOrDefault();
 
-            var rTypeConst = (INamedTypeSymbol)attributeData.ConstructorArguments[1].Value;
+            rTypeConst = (INamedTypeSymbol)attributeData.ConstructorArguments[1].Value;
             rType = rTypeConst.ToString();
 
             if (attributeData.ConstructorArguments.Length == 4)
@@ -47,7 +49,7 @@ namespace LanguageExt.CodeGen
             {
                 fixedState = true;
 
-                var sTypeConst = (INamedTypeSymbol)attributeData.ConstructorArguments[2].Value;
+                sTypeConst = (INamedTypeSymbol)attributeData.ConstructorArguments[2].Value;
                 sType = sTypeConst.ToString();
 
                 ctorName = attributeData.ConstructorArguments[3].Value?.ToString() ?? "Return";
@@ -81,15 +83,14 @@ namespace LanguageExt.CodeGen
                 var genW = wType;
 
                 var structA = SyntaxFactory.ParseTypeName($"{applyToStruct.Identifier}<{applyToStruct.TypeParameterList.Parameters}>");
-                var structB = MakeGenericStruct(applyToStruct, genB);
-                var structC = MakeGenericStruct(applyToStruct, genC);
-                var structR = MakeGenericStruct(applyToStruct, rType);
-                var structW = MakeGenericStruct(applyToStruct, wType);
-                var structS = MakeGenericStruct(applyToStruct, genS);
-                var structAB = MakeGenericStruct(applyToStruct, $"({genA}, {genB})");
-                var structUnit = MakeGenericStruct(applyToStruct, "LanguageExt.Unit");
-
-                var structPass = MakeGenericStruct(applyToStruct, $"({genA}, Func<{wType}, {wType}>)");
+                var structB = CodeGenUtil.MakeGenericStruct(applyToStruct, genB);
+                var structC = CodeGenUtil.MakeGenericStruct(applyToStruct, genC);
+                var structR = CodeGenUtil.MakeGenericStruct(applyToStruct, rType);
+                var structW = CodeGenUtil.MakeGenericStruct(applyToStruct, wType);
+                var structS = CodeGenUtil.MakeGenericStruct(applyToStruct, genS);
+                var structAB = CodeGenUtil.MakeGenericStruct(applyToStruct, $"({genA}, {genB})");
+                var structUnit = CodeGenUtil.MakeGenericStruct(applyToStruct, "LanguageExt.Unit");
+                var structPass = CodeGenUtil.MakeGenericStruct(applyToStruct, $"({genA}, Func<{wType}, {wType}>)");
 
                 var noAGenNeeded = fixedState
                     ? TypeParameterList(applyToStruct.TypeParameterList.Parameters.RemoveAt(applyToStruct.TypeParameterList.Parameters.Count - 1))
@@ -224,7 +225,7 @@ namespace LanguageExt.CodeGen
                                 .WithSemicolonToken(
                                     Token(SyntaxKind.SemicolonToken));
 
-                MethodDeclarationSyntax MapMethod(string name) => 
+                MethodDeclarationSyntax MapMethod(string name) =>
                     MethodDeclaration(
                             structB,
                             Identifier(name))
@@ -1264,16 +1265,8 @@ namespace LanguageExt.CodeGen
                                     .WithSemicolonToken(
                                         Token(SyntaxKind.SemicolonToken));
 
-                var askFunc = MethodDeclaration(
-                                        structR,
-                                        Identifier("ask"))
-                                    .WithModifiers(
-                                        TokenList(
-                                            new[]{
-                                                Token(SyntaxKind.PublicKeyword),
-                                                Token(SyntaxKind.StaticKeyword)}))
-                                    .WithExpressionBody(
-                                        ArrowExpressionClause(
+
+                var askFuncBody = ArrowExpressionClause(
                                             ObjectCreationExpression(structR)
                                             .WithArgumentList(
                                                 ArgumentList(
@@ -1305,63 +1298,82 @@ namespace LanguageExt.CodeGen
                                                                                 Identifier("env")),
                                                                             Token(SyntaxKind.CommaToken),
                                                                             Parameter(
-                                                                                Identifier("state"))})))))))))
+                                                                                Identifier("state"))}))))))));
+
+                var askFunc = applyToStruct.TypeParameterList.Parameters.Count == 1
+                              ? PropertyDeclaration(structR, Identifier("ask"))
+                                    .WithModifiers(TokenList(new[] { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword) }))
+                                    .WithExpressionBody(askFuncBody)
                                     .WithSemicolonToken(
-                                        Token(SyntaxKind.SemicolonToken));
-
-                if (noAGenNeeded.Parameters.Count != 0)
-                {
-                    askFunc = askFunc.WithTypeParameterList(noAGenNeeded);
-                }
-
-                var getFunc = MethodDeclaration(
-                                        structS,
-                                        Identifier("get"))
-                                    .WithModifiers(
+                                        Token(SyntaxKind.SemicolonToken)) as MemberDeclarationSyntax
+                              : MethodDeclaration(
+                                        structR,
+                                        Identifier("ask"))
+                                  .WithModifiers(
                                         TokenList(
                                             new[]{
                                                 Token(SyntaxKind.PublicKeyword),
                                                 Token(SyntaxKind.StaticKeyword)}))
-                                    .WithExpressionBody(
-                                        ArrowExpressionClause(
-                                            ObjectCreationExpression(structS)
-                                            .WithArgumentList(
-                                                ArgumentList(
-                                                    SingletonSeparatedList<ArgumentSyntax>(
-                                                        Argument(
-                                                            ParenthesizedLambdaExpression(
-                                                                TupleExpression(
-                                                                    SeparatedList<ArgumentSyntax>(
-                                                                        new SyntaxNodeOrToken[]{
-                                                                            Argument(
-                                                                                IdentifierName("state")),
-                                                                            Token(SyntaxKind.CommaToken),
-                                                                            Argument(
-                                                                                LiteralExpression(
-                                                                                    SyntaxKind.DefaultLiteralExpression,
-                                                                                    Token(SyntaxKind.DefaultKeyword))),
-                                                                            Token(SyntaxKind.CommaToken),
-                                                                            Argument(
-                                                                                IdentifierName("state")),
-                                                                            Token(SyntaxKind.CommaToken),
-                                                                            Argument(
-                                                                                LiteralExpression(
-                                                                                    SyntaxKind.FalseLiteralExpression))})))
-                                                            .WithParameterList(
-                                                                ParameterList(
-                                                                    SeparatedList<ParameterSyntax>(
-                                                                        new SyntaxNodeOrToken[]{
-                                                                            Parameter(
-                                                                                Identifier("env")),
-                                                                            Token(SyntaxKind.CommaToken),
-                                                                            Parameter(
-                                                                                Identifier("state"))})))))))))
-                                    .WithSemicolonToken(
+                                  .WithExpressionBody(askFuncBody)
+                                  .WithSemicolonToken(
                                         Token(SyntaxKind.SemicolonToken));
 
-                if (noAGenNeeded.Parameters.Count != 0)
+                if (noAGenNeeded.Parameters.Count != 0 && askFunc is MethodDeclarationSyntax askFuncMethod)
                 {
-                    getFunc = getFunc.WithTypeParameterList(noAGenNeeded);
+                    askFunc = askFuncMethod.WithTypeParameterList(noAGenNeeded);
+                }
+
+                var getFuncBody = ArrowExpressionClause(
+                                     ObjectCreationExpression(structS)
+                                        .WithArgumentList(
+                                            ArgumentList(
+                                                SingletonSeparatedList<ArgumentSyntax>(
+                                                    Argument(
+                                                        ParenthesizedLambdaExpression(
+                                                            TupleExpression(
+                                                                SeparatedList<ArgumentSyntax>(
+                                                                    new SyntaxNodeOrToken[]{
+                                                                        Argument(
+                                                                            IdentifierName("state")),
+                                                                        Token(SyntaxKind.CommaToken),
+                                                                        Argument(
+                                                                            LiteralExpression(
+                                                                                SyntaxKind.DefaultLiteralExpression,
+                                                                                Token(SyntaxKind.DefaultKeyword))),
+                                                                        Token(SyntaxKind.CommaToken),
+                                                                        Argument(
+                                                                            IdentifierName("state")),
+                                                                        Token(SyntaxKind.CommaToken),
+                                                                        Argument(
+                                                                            LiteralExpression(
+                                                                                SyntaxKind.FalseLiteralExpression))})))
+                                                        .WithParameterList(
+                                                            ParameterList(
+                                                                SeparatedList<ParameterSyntax>(
+                                                                    new SyntaxNodeOrToken[]{
+                                                                        Parameter(
+                                                                            Identifier("env")),
+                                                                        Token(SyntaxKind.CommaToken),
+                                                                        Parameter(
+                                                                            Identifier("state"))}))))))));
+
+                var getFunc = applyToStruct.TypeParameterList.Parameters.Count == 1
+                              ? PropertyDeclaration(structS, Identifier("get"))
+                                    .WithModifiers(TokenList(new[] { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword) }))
+                                    .WithExpressionBody(getFuncBody)
+                                    .WithSemicolonToken(
+                                        Token(SyntaxKind.SemicolonToken)) as MemberDeclarationSyntax
+                              : MethodDeclaration(
+                                        structS,
+                                        Identifier("get"))
+                                  .WithModifiers(TokenList(new[] { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword) }))
+                                  .WithExpressionBody(getFuncBody)
+                                  .WithSemicolonToken(
+                                        Token(SyntaxKind.SemicolonToken));
+
+                if (noAGenNeeded.Parameters.Count != 0 && getFunc is MethodDeclarationSyntax getFuncMethod)
+                {
+                    getFunc = getFuncMethod.WithTypeParameterList(noAGenNeeded);
                 }
 
                 var getsFunc = MethodDeclaration(
@@ -1485,7 +1497,7 @@ namespace LanguageExt.CodeGen
                                         .WithSemicolonToken(
                                             Token(SyntaxKind.SemicolonToken));
 
-                if(noAGenNeeded.Parameters.Count != 0)
+                if (noAGenNeeded.Parameters.Count != 0)
                 {
                     putFunc = putFunc.WithTypeParameterList(noAGenNeeded);
                 }
@@ -1839,6 +1851,8 @@ namespace LanguageExt.CodeGen
                                     tellFunc
                                 }));
 
+                prelude = CodeGenUtil.AddMembersToPrelude(prelude, applyToStruct, "ask", (ITypeSymbol)rTypeConst);
+                prelude = CodeGenUtil.AddMembersToPrelude(prelude, applyToStruct, "get", (ITypeSymbol)sTypeConst);
 
                 return Task.FromResult(results.Add(partialStruct).Add(prelude));
             }
@@ -1846,13 +1860,6 @@ namespace LanguageExt.CodeGen
             {
                 return Task.FromResult(results);
             }
-        }
-
-        static TypeSyntax MakeGenericStruct(StructDeclarationSyntax s, params string[] genAdd)
-        {
-            var nolast = s.TypeParameterList.Parameters.RemoveAt(s.TypeParameterList.Parameters.Count - 1);
-            var gens = nolast.AddRange(genAdd.Select(gen => TypeParameter(gen)));
-            return SyntaxFactory.ParseTypeName($"{s.Identifier}<{gens}>");
         }
     }
 }
