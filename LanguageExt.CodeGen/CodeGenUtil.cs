@@ -254,6 +254,8 @@ namespace LanguageExt.CodeGen
 
         public static ClassDeclarationSyntax AddMembersToPrelude(ClassDeclarationSyntax prelude, StructDeclarationSyntax applyToStruct, string getter, ITypeSymbol symbol)
         {
+            if (symbol == null) return prelude;
+
             var ask = MakeAsk(applyToStruct, getter);
 
             foreach (var member in symbol.GetMembers())

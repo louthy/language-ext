@@ -5,6 +5,6 @@ using System.Text;
 
 namespace LanguageExt
 {
-    public delegate (A Value, W Output, S State, bool IsFaulted) RWS<MonoidW,R,W,S,A>(R env, S state)
+    public delegate (A Value, W Output, S State, bool IsFaulted) RWS<MonoidW, R, W, S, A>(R env, S state)
         where MonoidW : struct, Monoid<W>;
 }
