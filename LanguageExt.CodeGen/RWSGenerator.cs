@@ -92,8 +92,10 @@ namespace LanguageExt.CodeGen
                 var structUnit = CodeGenUtil.MakeGenericStruct(applyToStruct, "LanguageExt.Unit");
                 var structPass = CodeGenUtil.MakeGenericStruct(applyToStruct, $"({genA}, Func<{wType}, {wType}>)");
 
+                var noAGen = TypeParameterList(applyToStruct.TypeParameterList.Parameters.RemoveAt(applyToStruct.TypeParameterList.Parameters.Count - 1));
+
                 var noAGenNeeded = fixedState
-                    ? TypeParameterList(applyToStruct.TypeParameterList.Parameters.RemoveAt(applyToStruct.TypeParameterList.Parameters.Count - 1))
+                    ? noAGen
                     : applyToStruct.TypeParameterList;
 
                 var compType = SyntaxFactory.ParseTypeName($"LanguageExt.RWS<{monoidWType}, {rType}, {wType}, {genS}, {genA}>");
@@ -1318,9 +1320,9 @@ namespace LanguageExt.CodeGen
                                   .WithSemicolonToken(
                                         Token(SyntaxKind.SemicolonToken));
 
-                if (noAGenNeeded.Parameters.Count != 0 && askFunc is MethodDeclarationSyntax askFuncMethod)
+                if (noAGen.Parameters.Count != 0 && askFunc is MethodDeclarationSyntax askFuncMethod)
                 {
-                    askFunc = askFuncMethod.WithTypeParameterList(noAGenNeeded);
+                    askFunc = askFuncMethod.WithTypeParameterList(noAGen);
                 }
 
                 var getFuncBody = ArrowExpressionClause(
@@ -1371,9 +1373,9 @@ namespace LanguageExt.CodeGen
                                   .WithSemicolonToken(
                                         Token(SyntaxKind.SemicolonToken));
 
-                if (noAGenNeeded.Parameters.Count != 0 && getFunc is MethodDeclarationSyntax getFuncMethod)
+                if (noAGen.Parameters.Count != 0 && getFunc is MethodDeclarationSyntax getFuncMethod)
                 {
-                    getFunc = getFuncMethod.WithTypeParameterList(noAGenNeeded);
+                    getFunc = getFuncMethod.WithTypeParameterList(noAGen);
                 }
 
                 var getsFunc = MethodDeclaration(
@@ -1497,9 +1499,9 @@ namespace LanguageExt.CodeGen
                                         .WithSemicolonToken(
                                             Token(SyntaxKind.SemicolonToken));
 
-                if (noAGenNeeded.Parameters.Count != 0)
+                if (noAGen.Parameters.Count != 0)
                 {
-                    putFunc = putFunc.WithTypeParameterList(noAGenNeeded);
+                    putFunc = putFunc.WithTypeParameterList(noAGen);
                 }
 
                 var modifyFunc = MethodDeclaration(
@@ -1820,9 +1822,9 @@ namespace LanguageExt.CodeGen
                                     .WithSemicolonToken(
                                         Token(SyntaxKind.SemicolonToken));
 
-                if (noAGenNeeded.Parameters.Count != 0)
+                if (noAGen.Parameters.Count != 0)
                 {
-                    tellFunc = tellFunc.WithTypeParameterList(noAGenNeeded);
+                    tellFunc = tellFunc.WithTypeParameterList(noAGen);
                 }
 
                 var prelude = ClassDeclaration(structName)

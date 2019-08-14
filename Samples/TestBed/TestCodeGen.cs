@@ -70,8 +70,20 @@ namespace TestBed
     //{
     //}
 
-    [RWS(WriterMonoid: typeof(MSeq<string>), Env: typeof(IO))]
-    public partial struct Subsystem2<S, T>
+    public class Person
+    {
+        public readonly string Name;
+        public readonly string Surname;
+
+        public Person(string name, string surname)
+        {
+            Name = name;
+            Surname = surname;
+        }
+    }
+
+    [RWS(WriterMonoid: typeof(MSeq<string>), Env: typeof(IO), State: typeof(Person), Constructor: "Pure", Fail: "Error")]
+    public partial struct Subsys<T>
     {
     }
 
