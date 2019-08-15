@@ -1111,6 +1111,13 @@ namespace LanguageExt
                     }
                     else
                     {
+                        foreach (var item in Items)
+                        {
+                            if (default(EqK).Equals(item.Key, key))
+                            {
+                                return (true, item.Key, item.Value);
+                            }
+                        }
                         return default;
                     }
                 }
@@ -1123,6 +1130,13 @@ namespace LanguageExt
                 }
                 else
                 {
+                    foreach(var item in Items)
+                    {
+                        if(default(EqK).Equals(item.Key, key))
+                        {
+                            return (true, item.Key, item.Value);
+                        }
+                    }
                     return default;
                 }
             }

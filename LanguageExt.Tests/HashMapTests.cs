@@ -235,6 +235,11 @@ namespace LanguageExt.Tests
             var rmv = Seq1(69);
 
             var map = toHashMap(init.Zip(Enumerable.Repeat(1, int.MaxValue)));
+
+            Assert.True(map.ContainsKey(1477)); // false
+            Assert.True(map.Find(1477).IsSome); // false
+
+
             var minus = map.RemoveRange(rmv);
 
             Assert.True(minus.Keys.Find(i => i == 1477).IsSome); // true
