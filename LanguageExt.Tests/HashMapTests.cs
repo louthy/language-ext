@@ -227,5 +227,22 @@ namespace LanguageExt.Tests
             Assert.True(HashMap<int, int>((3, 4), (1, 2)).Equals(HashMap<int, int>((1, 2), (3, 4))));
             Assert.True(HashMap<int, int>((3, 4), (1, 2)).Equals(HashMap<int, int>((3, 4), (1, 2))));
         }
+        
+        [Fact]
+        public void FetchBack()
+        {
+            var init = Seq(69, 1477);
+            var rmv = Seq1(69);
+
+            var map = toHashMap(init.Zip(Enumerable.Repeat(1, int.MaxValue)));
+            var minus = map.RemoveRange(rmv);
+
+            Assert.True(minus.Keys.Find(i => i == 1477).IsSome); // true
+            
+            Assert.True(minus.ContainsKey(1477)); // false
+            Assert.True(minus.Find(1477).IsSome); // false
+
+            var boom = minus[1477]; // throws
+        }
     }
 }
