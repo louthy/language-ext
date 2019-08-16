@@ -70,7 +70,7 @@ namespace TestBed
     //{
     //}
 
-    public class Person
+    public partial class Person
     {
         public readonly string Name;
         public readonly string Surname;

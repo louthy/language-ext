@@ -1512,7 +1512,6 @@ namespace LanguageExt.CodeGen
                                                 new[]{
                                                     Token(SyntaxKind.PublicKeyword),
                                                     Token(SyntaxKind.StaticKeyword)}))
-                                        .WithTypeParameterList(applyToStruct.TypeParameterList)
                                         .WithParameterList(
                                             ParameterList(
                                                 SingletonSeparatedList<ParameterSyntax>(
@@ -1572,6 +1571,11 @@ namespace LanguageExt.CodeGen
                                                                                     Identifier("state"))})))))))))
                                         .WithSemicolonToken(
                                             Token(SyntaxKind.SemicolonToken));
+
+                if (noAGen.Parameters.Count != 0)
+                {
+                    modifyFunc = modifyFunc.WithTypeParameterList(noAGen);
+                }
 
                 var localFunc = MethodDeclaration(
                                         structA,
