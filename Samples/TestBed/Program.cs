@@ -148,7 +148,7 @@ class Program
                 }
 
                 // Add something else to make sure add works after remove
-                if (rnd.Next() % 1000 < 100)
+                if (Math.Abs(rnd.Next() % 1000) < 100)
                 {
                     var n = rnd.Next();
                     if (!hm.ContainsKey(n))
