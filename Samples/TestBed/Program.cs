@@ -118,12 +118,13 @@ class Program
 
     static void HashMapRemoveTest()
     {
-        var cnt = 10000;
         var rnd = new Random();
         var tries = 1;
         while(true)
         {
-            Console.WriteLine("Try: " + tries);
+            var cnt = 1 + Math.Abs(rnd.Next() % 100000);
+
+            Console.WriteLine($"Try: {tries} - {cnt} items");
 
             Seq<int> xs = default;
             HashMap<int, int> hm = default;
@@ -140,12 +141,20 @@ class Program
 
             foreach(var x in xs)
             {
-                if (!hm.ContainsKey(x)) continue;
-
                 hm = hm.Remove(x);
                 if(hm.ContainsKey(x))
                 {
                     throw new Exception();
+                }
+
+                // Add something else to make sure add works after remove
+                if (rnd.Next() % 1000 < 100)
+                {
+                    var n = rnd.Next();
+                    if (!hm.ContainsKey(n))
+                    {
+                        hm = hm.Add(n, n);
+                    }
                 }
             }
             tries++;
