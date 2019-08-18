@@ -338,7 +338,7 @@ namespace LanguageExt.Tests
 
             var res = AsyncHelper.CompletesImmediately(() =>
                 from a in ma
-                from b in mb.ToTry()
+                from b in mb.ToTry(None: () => 0)
                 select a + b);
 
             var ab = await AsyncHelper.TakesRoughly(2000, () => res.IfFail(0));

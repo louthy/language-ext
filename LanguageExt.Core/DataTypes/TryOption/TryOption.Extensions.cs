@@ -337,8 +337,18 @@ public static class TryOptionExtensions
     }
 
     [Pure]
-    public static Try<A> ToTry<A>(this TryOption<A> self) => () => 
-        self.IfFailThrow();
+    public static Try<Option<A>> ToTry<A>(this TryOption<A> self) => () =>
+        self.Match(
+            Some: x  => new Result<Option<A>>(Option<A>.Some(x)),
+            None: () => new Result<Option<A>>(Option<A>.None),
+            Fail: ex => new Result<Option<A>>(ex));
+
+    [Pure]
+    public static Try<A> ToTry<A>(this TryOption<A> self, Func<A> None) => () =>
+        self.Match(
+            Some: x => new Result<A>(x),
+            None: () => new Result<A>(None()),
+            Fail: ex => new Result<A>(ex));
 
     [Pure]
     public static A IfFailThrow<A>(this TryOption<A> self)
