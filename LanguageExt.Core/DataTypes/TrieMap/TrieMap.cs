@@ -1089,6 +1089,21 @@ namespace LanguageExt
                 }
                 else
                 {
+                    var ind = 0;
+                    foreach (var item in Items)
+                    {
+                        if (default(EqK).Equals(item.Key, key))
+                        {
+                            return (-1,
+                                new Entries(
+                                    Bit.Set(EntryMap, mask, false),
+                                    NodeMap,
+                                    RemoveAt(Items, ind),
+                                    Nodes));
+                        }
+                        ind++;
+                    }
+
                     return (0, this);
                 }
             }

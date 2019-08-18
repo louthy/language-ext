@@ -42,6 +42,9 @@ class Program
 {
     static void Main(string[] args)
     {
+        HashMapRemoveTest();
+
+
         TestSubs.Test();
 
         SeqPerf.Broken1();
@@ -111,6 +114,42 @@ class Program
 
 
         Console.WriteLine("Coming soon");
+    }
+
+    static void HashMapRemoveTest()
+    {
+        var cnt = 10000;
+        var rnd = new Random();
+        var tries = 1;
+        while(true)
+        {
+            Console.WriteLine("Try: " + tries);
+
+            Seq<int> xs = default;
+            HashMap<int, int> hm = default;
+
+            for(var i = 0; i < cnt; i++)
+            {
+                var n = rnd.Next();
+                if(!hm.ContainsKey(n))
+                {
+                    hm = hm.Add(n, n);
+                    xs = xs.Add(n);
+                }
+            }
+
+            foreach(var x in xs)
+            {
+                if (!hm.ContainsKey(x)) continue;
+
+                hm = hm.Remove(x);
+                if(hm.ContainsKey(x))
+                {
+                    throw new Exception();
+                }
+            }
+            tries++;
+        }
     }
 
     public static void Test533()

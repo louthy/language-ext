@@ -249,5 +249,21 @@ namespace LanguageExt.Tests
 
             var boom = minus[1477]; // throws
         }
+
+        [Fact]
+        public void HashMapRemoveTest()
+        {
+            var values = new[] { 1175691501, 613261927, 178639586, 745392133,
+                                 1071314707, 464997766, 746033505, 2055266377,
+                                 9321519, 2085595311 };
+
+            var items = toHashMap(values.Zip(values));
+
+            foreach(var value in values)
+            {
+                items = items.Remove(value);
+                Assert.True(!items.Contains(value));
+            }
+        }
     }
 }
