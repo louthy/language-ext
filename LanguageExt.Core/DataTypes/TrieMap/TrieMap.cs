@@ -1048,6 +1048,8 @@ namespace LanguageExt
                     //If key lies in a sub-node
                     var ind = Index(NodeMap, mask);
                     var (cd, subNode) = Nodes[ind].Remove(key, hash, section.Next());
+                    if (cd == 0) return (0, this);
+
                     switch (subNode.Type)
                     {
                         case Tag.Entries:
@@ -1059,7 +1061,13 @@ namespace LanguageExt
                                 // If the node only has one subnode, make that subnode the new node
                                 if (Items.Length == 0 && Nodes.Length == 1)
                                 {
-                                    return (cd, subEntries);
+                                    // Build a new Entries for this level with the sublevel mask fixed
+                                    return (cd, new Entries(
+                                        Mask(Bit.Get((uint)default(EqK).GetHashCode(subEntries.Items[0].Key), section)),
+                                        0,
+                                        Clone(subEntries.Items),
+                                        new Node[0]
+                                        ));
                                 }
                                 else
                                 {
@@ -1089,21 +1097,6 @@ namespace LanguageExt
                 }
                 else
                 {
-                    var ind = 0;
-                    foreach (var item in Items)
-                    {
-                        if (default(EqK).Equals(item.Key, key))
-                        {
-                            return (-1,
-                                new Entries(
-                                    Bit.Set(EntryMap, mask, false),
-                                    NodeMap,
-                                    RemoveAt(Items, ind),
-                                    Nodes));
-                        }
-                        ind++;
-                    }
-
                     return (0, this);
                 }
             }
@@ -1126,13 +1119,6 @@ namespace LanguageExt
                     }
                     else
                     {
-                        foreach (var item in Items)
-                        {
-                            if (default(EqK).Equals(item.Key, key))
-                            {
-                                return (true, item.Key, item.Value);
-                            }
-                        }
                         return default;
                     }
                 }
@@ -1145,13 +1131,6 @@ namespace LanguageExt
                 }
                 else
                 {
-                    foreach(var item in Items)
-                    {
-                        if(default(EqK).Equals(item.Key, key))
-                        {
-                            return (true, item.Key, item.Value);
-                        }
-                    }
                     return default;
                 }
             }

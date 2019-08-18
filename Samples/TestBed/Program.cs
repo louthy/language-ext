@@ -43,6 +43,7 @@ class Program
     static void Main(string[] args)
     {
         HashMapRemoveTest();
+        HashMapRemoveTest2();
 
 
         TestSubs.Test();
@@ -159,6 +160,22 @@ class Program
             }
             tries++;
         }
+    }
+
+    static void HashMapRemoveTest2()
+    {
+        var values = new[] { 9321519, 2085595311 };
+
+        var items = toHashMap(values.Zip(values));
+
+        foreach (var value in values.Take(values.Length - 1))
+        {
+            items = items.Remove(value);
+        }
+
+        items = items.Add(2085595311, 2085595311);
+        items = items.Remove(2085595311);
+
     }
 
     public static void Test533()
