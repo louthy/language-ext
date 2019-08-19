@@ -38,39 +38,45 @@ namespace LanguageExt.CodeGen
 
             var returnType = CodeGenUtil.TypeFromClass(applyToClass);
 
-            var variables = applyToClass.Members
-                                        .Where(m => m is FieldDeclarationSyntax)
-                                        .Select(m => m as FieldDeclarationSyntax)
-                                        .Where(f => f.Declaration.Variables.Count > 0)
-                                        .Where(f => FirstCharIsUpper(f.Declaration.Variables[0].Identifier.ToString()))
-                                        .Where(f => f.Modifiers.Any(SyntaxKind.PublicKeyword))
-                                        .Where(f => f.Modifiers.Any(SyntaxKind.ReadOnlyKeyword))
-                                        .Where(f => !f.Modifiers.Any(SyntaxKind.StaticKeyword))
-                                        .Select(f => ( 
-                                            f.Declaration.Variables[0].Identifier,
-                                            f.Declaration.Type,
-                                            f.Modifiers
-                                        ));
+            var indexedMembers = applyToClass.Members.Select((m, i) => (m, i));
+
+            var fields = indexedMembers.Where(m => m.m is FieldDeclarationSyntax)
+                                       .Select(m => (f: m.m as FieldDeclarationSyntax, m.i))
+                                       .Where(m => m.f.Declaration.Variables.Count > 0)
+                                       .Where(m => FirstCharIsUpper(m.f.Declaration.Variables[0].Identifier.ToString()))
+                                       .Where(m => m.f.Modifiers.Any(SyntaxKind.PublicKeyword))
+                                       .Where(m => m.f.Modifiers.Any(SyntaxKind.ReadOnlyKeyword))
+                                       .Where(m => !m.f.Modifiers.Any(SyntaxKind.StaticKeyword))
+                                       .Select(m => ( 
+                                           m.f.Declaration.Variables[0].Identifier,
+                                           m.f.Declaration.Type,
+                                           m.f.Modifiers,
+                                           m.i
+                                       ));
    
-            var properties = applyToClass.Members
-                                         .Where(m => m is PropertyDeclarationSyntax)
-                                         .Select(m => m as PropertyDeclarationSyntax)
-                                         .Where(p => FirstCharIsUpper(p.Identifier.ToString()))
-                                         .Where(p => p.Modifiers.Any(SyntaxKind.PublicKeyword))
-                                         .Where(p => !p.Modifiers.Any(SyntaxKind.StaticKeyword))
-                                         .Where(p => p.AccessorList.Accessors.Count == 1)
-                                         .Where(p => p.AccessorList.Accessors[0].Kind() == SyntaxKind.GetAccessorDeclaration)
-                                         .Where(p => p.AccessorList.Accessors[0].ExpressionBody == null)
-                                         .Where(p => p.AccessorList.Accessors[0].Body == null)
-                                         .Where(p => p.Initializer == null)
-                                         .Select(p => (
-                                             p.Identifier,
-                                             p.Type,
-                                             p.Modifiers
-                                         ));
+            var properties = indexedMembers.Where(m => m.m is PropertyDeclarationSyntax)
+                                           .Select(m => (p: m.m as PropertyDeclarationSyntax, m.i))
+                                           .Where(m => FirstCharIsUpper(m.p.Identifier.ToString()))
+                                           .Where(m => m.p.Modifiers.Any(SyntaxKind.PublicKeyword))
+                                           .Where(m => !m.p.Modifiers.Any(SyntaxKind.StaticKeyword))
+                                           .Where(m => m.p.AccessorList.Accessors.Count == 1)
+                                           .Where(m => m.p.AccessorList.Accessors[0].Kind() == SyntaxKind.GetAccessorDeclaration)
+                                           .Where(m => m.p.AccessorList.Accessors[0].ExpressionBody == null)
+                                           .Where(m => m.p.AccessorList.Accessors[0].Body == null)
+                                           .Where(m => m.p.Initializer == null)
+                                           .Select(m => (
+                                               m.p.Identifier,
+                                               m.p.Type,
+                                               m.p.Modifiers,
+                                               m.i
+                                           ));
  
-            var fields = variables.Concat(properties).ToList();
-            return (partialClass, returnType, fields);
+            var members = fields.Concat(properties)
+                .OrderBy(m => m.i) // Preserve the order between properties and fields.
+                .Select(m => (m.Identifier, m.Type, m.Modifiers))
+                .ToList();
+
+            return (partialClass, returnType, members);
         }
 
         internal static bool ForAll<A>(this IEnumerable<A> ma, Func<A, bool> f)
@@ -91,25 +97,25 @@ namespace LanguageExt.CodeGen
             return false;
         }
 
-        public static ClassDeclarationSyntax AddLenses(ClassDeclarationSyntax partialClass, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> fields)
+        public static ClassDeclarationSyntax AddLenses(ClassDeclarationSyntax partialClass, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
         {
-            foreach (var field in fields)
+            foreach (var member in members)
             {
-                partialClass = AddLens(partialClass, returnType, field);
+                partialClass = AddLens(partialClass, returnType, member);
             }
             return partialClass;
         }
 
-        public static ClassDeclarationSyntax AddLens(ClassDeclarationSyntax partialClass, TypeSyntax returnType, (SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers) field)
+        public static ClassDeclarationSyntax AddLens(ClassDeclarationSyntax partialClass, TypeSyntax returnType, (SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers) member)
         {
             var lfield = SyntaxFactory.FieldDeclaration(
                 SyntaxFactory.VariableDeclaration(
                     SyntaxFactory.GenericName(SyntaxFactory.Identifier("Lens"))
                                  .WithTypeArgumentList(
-                                    SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList<TypeSyntax>(new[] { returnType, field.Type }))))
+                                    SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList<TypeSyntax>(new[] { returnType, member.Type }))))
                              .WithVariables(
                                 SyntaxFactory.SingletonSeparatedList<VariableDeclaratorSyntax>(
-                                    SyntaxFactory.VariableDeclarator(MakeCamelCaseId(field.Identifier))
+                                    SyntaxFactory.VariableDeclarator(MakeCamelCaseId(member.Identifier))
                                                  .WithInitializer(
                                                     SyntaxFactory.EqualsValueClause(
                                                         SyntaxFactory.InvocationExpression(
@@ -118,7 +124,7 @@ namespace LanguageExt.CodeGen
                                                                                 SyntaxFactory.GenericName("Lens")
                                                                                     .WithTypeArgumentList(
                                                                                         SyntaxFactory.TypeArgumentList(
-                                                                                            SyntaxFactory.SeparatedList<TypeSyntax>(new[] { returnType, field.Type }))),
+                                                                                            SyntaxFactory.SeparatedList<TypeSyntax>(new[] { returnType, member.Type }))),
                                                                                     SyntaxFactory.IdentifierName("New")))
                                                                      .WithArgumentList(
                                                                         SyntaxFactory.ArgumentList(
@@ -131,7 +137,7 @@ namespace LanguageExt.CodeGen
                                                                                             SyntaxFactory.MemberAccessExpression(
                                                                                                 SyntaxKind.SimpleMemberAccessExpression,
                                                                                                 SyntaxFactory.IdentifierName("_x"),
-                                                                                                SyntaxFactory.IdentifierName(field.Identifier.ToString())))),
+                                                                                                SyntaxFactory.IdentifierName(member.Identifier.ToString())))),
                                                                                     SyntaxFactory.Token(SyntaxKind.CommaToken),
                                                                                     SyntaxFactory.Argument(
                                                                                         SyntaxFactory.SimpleLambdaExpression(
@@ -151,39 +157,39 @@ namespace LanguageExt.CodeGen
                                                                                                                         SyntaxFactory.Argument(
                                                                                                                             SyntaxFactory.IdentifierName("_x"))
                                                                                                                             .WithNameColon(
-                                                                                                                                SyntaxFactory.NameColon(field.Identifier.ToString()))))))))
+                                                                                                                                SyntaxFactory.NameColon(member.Identifier.ToString()))))))))
 
                                                                                 }))))))));
 
             lfield = lfield.WithModifiers(
                 SyntaxFactory.TokenList(
                     Enumerable.Concat(
-                        field.Modifiers.Where(m => m.IsKind(SyntaxKind.PublicKeyword) || m.IsKind(SyntaxKind.PrivateKeyword) || m.IsKind(SyntaxKind.ProtectedKeyword)),
+                        member.Modifiers.Where(m => m.IsKind(SyntaxKind.PublicKeyword) || m.IsKind(SyntaxKind.PrivateKeyword) || m.IsKind(SyntaxKind.ProtectedKeyword)),
                         new[] { SyntaxFactory.Token(SyntaxKind.StaticKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword) })));
 
             return partialClass.AddMembers(lfield);
         }
 
-        public static ClassDeclarationSyntax AddWith(TransformationContext context, ClassDeclarationSyntax partialClass, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> fields)
+        public static ClassDeclarationSyntax AddWith(TransformationContext context, ClassDeclarationSyntax partialClass, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
         {
-            var withParms = fields.Select(f => (Id: f.Identifier,
-                                                Type: f.Type,
-                                                Info: context.SemanticModel.GetTypeInfo(f.Type)))
-                                  .Select(f => (f.Id,
-                                                f.Type,
-                                                f.Info,
-                                                IsGeneric: !f.Info.Type.IsValueType && !f.Info.Type.IsReferenceType,
-                                                ParamType: f.Info.Type.IsValueType
-                                                    ? SyntaxFactory.NullableType(f.Type)
-                                                    : f.Type))
-                                  .Select(f =>
-                                       SyntaxFactory.Parameter(MakeFirstCharUpper(f.Id))
-                                                    .WithType(f.ParamType)
-                                                    .WithDefault(
-                                                        f.IsGeneric
-                                                            ? SyntaxFactory.EqualsValueClause(SyntaxFactory.DefaultExpression(f.Type))
-                                                            : SyntaxFactory.EqualsValueClause(SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression))))
-                                  .ToArray();
+            var withParms = members.Select(m => (Id: m.Identifier,
+                                                Type: m.Type,
+                                                Info: context.SemanticModel.GetTypeInfo(m.Type)))
+                                   .Select(m => (m.Id,
+                                                 m.Type,
+                                                 m.Info,
+                                                 IsGeneric: !m.Info.Type.IsValueType && !m.Info.Type.IsReferenceType,
+                                                 ParamType: m.Info.Type.IsValueType
+                                                     ? SyntaxFactory.NullableType(m.Type)
+                                                     : m.Type))
+                                   .Select(m =>
+                                        SyntaxFactory.Parameter(MakeFirstCharUpper(m.Id))
+                                                     .WithType(m.ParamType)
+                                                     .WithDefault(
+                                                         m.IsGeneric
+                                                             ? SyntaxFactory.EqualsValueClause(SyntaxFactory.DefaultExpression(m.Type))
+                                                             : SyntaxFactory.EqualsValueClause(SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression))))
+                                   .ToArray();
 
             var withMethod = SyntaxFactory.MethodDeclaration(returnType, "With")
                                           .WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList<ParameterSyntax>(withParms)))
