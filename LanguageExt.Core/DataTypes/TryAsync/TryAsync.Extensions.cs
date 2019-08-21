@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 
 /// <summary>
 /// Extension methods for the TryAsync monad

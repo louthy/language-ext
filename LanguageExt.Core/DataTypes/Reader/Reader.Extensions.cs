@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Linq;
 using LanguageExt;
-using LanguageExt.TypeClasses;
+using LanguageExt.Common;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.ComponentModel;
 using LanguageExt.ClassInstances;
 
 /// <summary>

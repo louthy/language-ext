@@ -2,6 +2,7 @@
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 
 namespace LanguageExt.ClassInstances
 {

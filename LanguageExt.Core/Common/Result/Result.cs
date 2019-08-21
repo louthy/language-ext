@@ -5,7 +5,7 @@ using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 using System.Threading.Tasks;
 
-namespace LanguageExt
+namespace LanguageExt.Common
 {
     public enum ResultState : byte
     {

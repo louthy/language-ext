@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
+using LanguageExt.Common;
 
 namespace LanguageExt
 {

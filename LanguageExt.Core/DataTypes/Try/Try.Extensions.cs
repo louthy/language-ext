@@ -7,6 +7,7 @@ using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
+using LanguageExt.Common;
 
 /// <summary>
 /// Extension methods for the Try monad

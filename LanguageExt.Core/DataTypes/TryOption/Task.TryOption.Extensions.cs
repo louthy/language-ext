@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Linq;
 using LanguageExt;
-using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
-using LanguageExt.ClassInstances;
-using System.ComponentModel;
-using System.Collections.Generic;
+using LanguageExt.Common;
 
 public static class TaskTryOptionExtensions
 {

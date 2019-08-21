@@ -9,6 +9,7 @@ using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using System.ComponentModel;
 using System.Collections.Generic;
+using LanguageExt.Common;
 
 /// <summary>
 /// Extension methods for the Try monad

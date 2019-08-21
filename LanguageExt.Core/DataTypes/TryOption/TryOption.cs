@@ -1,4 +1,5 @@
-﻿
+﻿using LanguageExt.Common;
+
 namespace LanguageExt
 {
     /// <summary>

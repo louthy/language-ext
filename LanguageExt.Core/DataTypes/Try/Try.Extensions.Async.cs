@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Linq;
-using System.ComponentModel;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
-using System.Collections.Generic;
-using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 
 /// <summary>
 /// Extension methods for the Try monad

@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.Common;
 
 using Xunit;
 

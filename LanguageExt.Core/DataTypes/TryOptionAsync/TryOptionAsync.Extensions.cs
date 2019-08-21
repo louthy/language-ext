@@ -9,6 +9,7 @@ using LanguageExt.TypeClasses;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using LanguageExt.DataTypes.Serialisation;
+using LanguageExt.Common;
 
 /// <summary>
 /// Extension methods for the TryOptionAsync monad

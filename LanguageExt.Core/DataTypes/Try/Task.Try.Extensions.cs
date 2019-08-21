@@ -3,7 +3,7 @@ using LanguageExt;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
-using System.Collections.Generic;
+using LanguageExt.Common;
 
 public static class TaskTryExtensions
 {

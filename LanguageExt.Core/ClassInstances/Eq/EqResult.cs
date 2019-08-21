@@ -1,6 +1,6 @@
-﻿
-using LanguageExt.TypeClasses;
+﻿using LanguageExt.TypeClasses;
 using System.Reflection;
+using LanguageExt.Common;
 
 namespace LanguageExt.ClassInstances
 {

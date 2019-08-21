@@ -6,7 +6,7 @@ using static LanguageExt.TypeClass;
 using LanguageExt.ClassInstances;
 using System.Threading.Tasks;
 
-namespace LanguageExt
+namespace LanguageExt.Common
 {
     internal enum OptionalResultState : byte
     {

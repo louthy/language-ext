@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 
 /// <summary>
 /// Extension methods for State

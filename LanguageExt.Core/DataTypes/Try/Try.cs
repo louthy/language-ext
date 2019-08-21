@@ -1,4 +1,6 @@
-﻿namespace LanguageExt
+﻿using LanguageExt.Common;
+
+namespace LanguageExt
 {
     /// <summary>
     /// The Try monad captures exceptions and uses them to cancel the
