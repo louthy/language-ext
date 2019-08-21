@@ -93,11 +93,11 @@ namespace LanguageExt
             var values = new List<A>();
             foreach (var item in ma)
             {
-                var (a, bottom) = item(env);
-                if (bottom) return (Value: new List<A>(), IsFaulted: true);
-                values.Add(a);
+                var resA = item(env);
+                if (resA.IsFaulted) return ReaderResult<List<A>>.New(resA.ErrorInt);
+                values.Add(resA.Value);
             }
-            return (Value: values, IsFaulted: false);
+            return ReaderResult<List<A>>.New(values);
         };
 
         internal static Reader<Env, List<B>> TraverseFast<Env, A, B>(this IEnumerable<Reader<Env, A>> ma, Func<A, B> f) => env =>
@@ -105,11 +105,11 @@ namespace LanguageExt
             var values = new List<B>();
             foreach (var item in ma)
             {
-                var (a, bottom) = item(env);
-                if (bottom) return (Value: new List<B>(), IsFaulted: true);
-                values.Add(f(a));
+                var resA = item(env);
+                if (resA.IsFaulted) return ReaderResult<List<B>>.New(resA.ErrorInt);
+                values.Add(f(resA.Value));
             }
-            return (Value: values, IsFaulted: false);
+            return ReaderResult<List<B>>.New(values);
         };
 
         public static Reader<Env, Seq<A>> Sequence<Env, A>(this Seq<Reader<Env, A>> ma) =>

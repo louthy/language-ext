@@ -106,28 +106,44 @@ namespace LanguageExt.CodeGen
                                                 ArgumentList(
                                                     SingletonSeparatedList<ArgumentSyntax>(
                                                         Argument(
-                                                            SimpleLambdaExpression(
-                                                                Parameter(
-                                                                    Identifier("env")),
-                                                                TupleExpression(
-                                                                    SeparatedList<ArgumentSyntax>(
-                                                                        new SyntaxNodeOrToken[]{
-                                                                            Argument(
-                                                                                IdentifierName("value")),
-                                                                            Token(SyntaxKind.CommaToken),
-                                                                            Argument(
-                                                                                LiteralExpression(
-                                                                                    SyntaxKind.FalseLiteralExpression))})))))))))
+                                                            InvocationExpression(
+                                                                MemberAccessExpression(
+                                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                                    IdentifierName("Prelude"),
+                                                                    GenericName(
+                                                                        Identifier("Reader"))
+                                                                    .WithTypeArgumentList(
+                                                                        TypeArgumentList(
+                                                                            SeparatedList<TypeSyntax>(
+                                                                                new SyntaxNodeOrToken[]{
+                                                                                    ParseTypeName(envType),
+                                                                                    Token(SyntaxKind.CommaToken),
+                                                                                    IdentifierName(genA)})))))
+                                                            .WithArgumentList(
+                                                                ArgumentList(
+                                                                    SingletonSeparatedList<ArgumentSyntax>(
+                                                                        Argument(
+                                                                            IdentifierName("value")))))))))))
                                     .WithSemicolonToken(
                                         Token(SyntaxKind.SemicolonToken));
 
-                // Fail :: Unit -> MA
-                var failMethod = PropertyDeclaration(structA, Identifier(failName))
+                // Fail :: string -> MA
+                var failMethod1 = MethodDeclaration(
+                                        structA,
+                                        Identifier(failName))
                                     .WithModifiers(
                                         TokenList(
                                             new[]{
                                                 Token(SyntaxKind.PublicKeyword),
                                                 Token(SyntaxKind.StaticKeyword)}))
+                                    .WithParameterList(
+                                        ParameterList(
+                                            SingletonSeparatedList<ParameterSyntax>(
+                                                Parameter(
+                                                    Identifier("message"))
+                                                .WithType(
+                                                    PredefinedType(
+                                                        Token(SyntaxKind.StringKeyword))))))
                                     .WithExpressionBody(
                                         ArrowExpressionClause(
                                             ObjectCreationExpression(structA)
@@ -135,20 +151,120 @@ namespace LanguageExt.CodeGen
                                                 ArgumentList(
                                                     SingletonSeparatedList<ArgumentSyntax>(
                                                         Argument(
-                                                            SimpleLambdaExpression(
-                                                                Parameter(
-                                                                    Identifier("env")),
-                                                                TupleExpression(
+                                                            InvocationExpression(
+                                                                MemberAccessExpression(
+                                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                                    IdentifierName("Prelude"),
+                                                                    GenericName(
+                                                                        Identifier("ReaderFail"))
+                                                                    .WithTypeArgumentList(
+                                                                        TypeArgumentList(
+                                                                            SeparatedList<TypeSyntax>(
+                                                                                new SyntaxNodeOrToken[]{
+                                                                                    ParseTypeName(envType),
+                                                                                    Token(SyntaxKind.CommaToken),
+                                                                                    IdentifierName(genA)})))))
+                                                            .WithArgumentList(
+                                                                ArgumentList(
+                                                                    SingletonSeparatedList<ArgumentSyntax>(
+                                                                        Argument(
+                                                                            IdentifierName("message")))))))))))
+                                    .WithSemicolonToken(
+                                        Token(SyntaxKind.SemicolonToken));
+
+                // Fail :: Exception -> MA
+                var failMethod2 = MethodDeclaration(
+                                        structA,
+                                        Identifier(failName))
+                                    .WithModifiers(
+                                        TokenList(
+                                            new[]{
+                                                Token(SyntaxKind.PublicKeyword),
+                                                Token(SyntaxKind.StaticKeyword)}))
+                                    .WithParameterList(
+                                        ParameterList(
+                                            SingletonSeparatedList<ParameterSyntax>(Parameter(Identifier("exception")).WithType(IdentifierName("Exception")))))
+                                    .WithExpressionBody(
+                                        ArrowExpressionClause(
+                                            ObjectCreationExpression(structA)
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SingletonSeparatedList<ArgumentSyntax>(
+                                                        Argument(
+                                                            InvocationExpression(
+                                                                MemberAccessExpression(
+                                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                                    IdentifierName("Prelude"),
+                                                                    GenericName(
+                                                                        Identifier("ReaderFail"))
+                                                                    .WithTypeArgumentList(
+                                                                        TypeArgumentList(
+                                                                            SeparatedList<TypeSyntax>(
+                                                                                new SyntaxNodeOrToken[]{
+                                                                                    ParseTypeName(envType),
+                                                                                    Token(SyntaxKind.CommaToken),
+                                                                                    IdentifierName(genA)})))))
+                                                            .WithArgumentList(
+                                                                ArgumentList(
+                                                                    SingletonSeparatedList<ArgumentSyntax>(
+                                                                        Argument(
+                                                                            IdentifierName("exception")))))))))))
+                                    .WithSemicolonToken(
+                                        Token(SyntaxKind.SemicolonToken));
+
+
+                // Fail :: String -> Exception -> MA
+                var failMethod3 = MethodDeclaration(
+                                        structA,
+                                        Identifier(failName))
+                                    .WithModifiers(
+                                        TokenList(
+                                            new[]{
+                                                Token(SyntaxKind.PublicKeyword),
+                                                Token(SyntaxKind.StaticKeyword)}))
+                                    .WithParameterList(
+                                        ParameterList(
+                                            SeparatedList<ParameterSyntax>(
+                                                new SyntaxNodeOrToken[]{
+                                                    Parameter(
+                                                        Identifier("message"))
+                                                    .WithType(
+                                                        PredefinedType(
+                                                            Token(SyntaxKind.StringKeyword))),
+                                                    Token(SyntaxKind.CommaToken),
+                                                    Parameter(
+                                                        Identifier("exception"))
+                                                    .WithType(
+                                                        IdentifierName("Exception"))})))
+                                    .WithExpressionBody(
+                                        ArrowExpressionClause(
+                                            ObjectCreationExpression(structA)
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SingletonSeparatedList<ArgumentSyntax>(
+                                                        Argument(
+                                                            InvocationExpression(
+                                                                MemberAccessExpression(
+                                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                                    IdentifierName("Prelude"),
+                                                                    GenericName(
+                                                                        Identifier("ReaderFail"))
+                                                                    .WithTypeArgumentList(
+                                                                        TypeArgumentList(
+                                                                            SeparatedList<TypeSyntax>(
+                                                                                new SyntaxNodeOrToken[]{
+                                                                                    ParseTypeName(envType),
+                                                                                    Token(SyntaxKind.CommaToken),
+                                                                                    IdentifierName(genA)})))))
+                                                            .WithArgumentList(
+                                                                ArgumentList(
                                                                     SeparatedList<ArgumentSyntax>(
                                                                         new SyntaxNodeOrToken[]{
                                                                             Argument(
-                                                                                LiteralExpression(
-                                                                                    SyntaxKind.DefaultLiteralExpression,
-                                                                                    Token(SyntaxKind.DefaultKeyword))),
+                                                                                IdentifierName("message")),
                                                                             Token(SyntaxKind.CommaToken),
                                                                             Argument(
-                                                                                LiteralExpression(
-                                                                                    SyntaxKind.TrueLiteralExpression))})))))))))
+                                                                                IdentifierName("exception"))})))))))))
                                     .WithSemicolonToken(
                                         Token(SyntaxKind.SemicolonToken));
 
@@ -255,7 +371,7 @@ namespace LanguageExt.CodeGen
                 // Run :: MA -> Env -> TryOption A
                 var runMethod = MethodDeclaration(
                                     GenericName(
-                                        Identifier("TryOption"))
+                                        Identifier("ReaderResult"))
                                     .WithTypeArgumentList(
                                             TypeArgumentList(
                                                 SingletonSeparatedList<TypeSyntax>(
@@ -506,7 +622,7 @@ namespace LanguageExt.CodeGen
                                                                     SingletonSeparatedList<ArgumentSyntax>(
                                                                         Argument(
                                                                             IdentifierName("env"))))),
-                                                            IdentifierName("IfNoneOrFail")))
+                                                            IdentifierName("IfFail")))
                                                     .WithArgumentList(
                                                         ArgumentList(
                                                             SingletonSeparatedList<ArgumentSyntax>(
@@ -586,7 +702,7 @@ namespace LanguageExt.CodeGen
                                                                     SingletonSeparatedList<ArgumentSyntax>(
                                                                         Argument(
                                                                             IdentifierName("env"))))),
-                                                            IdentifierName("IfNoneOrFail")))
+                                                            IdentifierName("IfFail")))
                                                     .WithArgumentList(
                                                         ArgumentList(
                                                             SingletonSeparatedList<ArgumentSyntax>(
@@ -667,7 +783,7 @@ namespace LanguageExt.CodeGen
                                                                         SingletonSeparatedList<ArgumentSyntax>(
                                                                             Argument(
                                                                                 IdentifierName("env"))))),
-                                                                IdentifierName("IfNoneOrFail")))
+                                                                IdentifierName("IfFail")))
                                                         .WithArgumentList(
                                                             ArgumentList(
                                                                 SingletonSeparatedList<ArgumentSyntax>(
@@ -821,48 +937,6 @@ namespace LanguageExt.CodeGen
                             .WithSemicolonToken(
                                 Token(SyntaxKind.SemicolonToken));
 
-                // [name] :: MA -> (A -> bool) -> MA
-                MethodDeclarationSyntax FilterMethod(string name) =>
-                    MethodDeclaration(structA, Identifier(name))
-                        .WithModifiers(
-                            TokenList(
-                                Token(SyntaxKind.PublicKeyword)))
-                        .WithParameterList(
-                            ParameterList(
-                                SingletonSeparatedList<ParameterSyntax>(
-                                    Parameter(
-                                        Identifier("f"))
-                                    .WithType(
-                                        GenericName(
-                                            Identifier("Func"))
-                                        .WithTypeArgumentList(
-                                            TypeArgumentList(
-                                                SeparatedList<TypeSyntax>(
-                                                    new SyntaxNodeOrToken[]{
-                                                        IdentifierName(genA),
-                                                        Token(SyntaxKind.CommaToken),
-                                                        PredefinedType(
-                                                            Token(SyntaxKind.BoolKeyword))})))))))
-                        .WithExpressionBody(
-                            ArrowExpressionClause(
-                                ObjectCreationExpression(structA)
-                                .WithArgumentList(
-                                    ArgumentList(
-                                        SingletonSeparatedList<ArgumentSyntax>(
-                                            Argument(
-                                                InvocationExpression(
-                                                    MemberAccessExpression(
-                                                        SyntaxKind.SimpleMemberAccessExpression,
-                                                        IdentifierName("__comp"),
-                                                        IdentifierName("Where")))
-                                                .WithArgumentList(
-                                                    ArgumentList(
-                                                        SingletonSeparatedList<ArgumentSyntax>(
-                                                            Argument(
-                                                                IdentifierName("f")))))))))))
-                        .WithSemicolonToken(
-                            Token(SyntaxKind.SemicolonToken));
-
 
                 partialStruct = partialStruct.WithMembers(
                     List(
@@ -870,15 +944,15 @@ namespace LanguageExt.CodeGen
                             compField,
                             ctor,
                             returnMethod,
-                            failMethod,
+                            failMethod1,
+                            failMethod2,
+                            failMethod3,
                             MapMethod("Map"),
                             MapMethod("Select"),
                             BindMethod("Bind"),
                             BindMethod("SelectMany"),
                             selectManyMethod,
                             runMethod,
-                            FilterMethod("Filter"),
-                            FilterMethod("Where"),
                             doMethod,
                             strictMethod,
                             toSeqMethod,
@@ -920,8 +994,8 @@ namespace LanguageExt.CodeGen
                                     .WithSemicolonToken(
                                         Token(SyntaxKind.SemicolonToken));
 
-                // Fail :: Unit -> MA
-                var failFunc = MethodDeclaration(
+                // Fail :: String -> MA
+                var failFunc1 = MethodDeclaration(
                                         structA,
                                         Identifier(failName))
                                     .WithModifiers(
@@ -930,12 +1004,100 @@ namespace LanguageExt.CodeGen
                                                 Token(SyntaxKind.PublicKeyword),
                                                 Token(SyntaxKind.StaticKeyword)}))
                                     .WithTypeParameterList(applyToStruct.TypeParameterList)
+                                    .WithParameterList(
+                                        ParameterList(
+                                            SingletonSeparatedList<ParameterSyntax>(
+                                                Parameter(
+                                                    Identifier("message"))
+                                                .WithType(
+                                                    PredefinedType(
+                                                        Token(SyntaxKind.StringKeyword))))))
                                     .WithExpressionBody(
                                         ArrowExpressionClause(
-                                            MemberAccessExpression(
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                structA,
-                                                IdentifierName(failName))))
+                                           InvocationExpression(
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    structA,
+                                                    IdentifierName("Fail")))
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SingletonSeparatedList<ArgumentSyntax>(
+                                                        Argument(
+                                                            IdentifierName("message")))))))
+                                    .WithSemicolonToken(
+                                        Token(SyntaxKind.SemicolonToken));
+
+                var failFunc2 = MethodDeclaration(
+                                        structA,
+                                        Identifier(failName))
+                                    .WithModifiers(
+                                        TokenList(
+                                            new[]{
+                                                Token(SyntaxKind.PublicKeyword),
+                                                Token(SyntaxKind.StaticKeyword)}))
+                                    .WithTypeParameterList(applyToStruct.TypeParameterList)
+                                    .WithParameterList(
+                                        ParameterList(
+                                            SingletonSeparatedList<ParameterSyntax>(
+                                                Parameter(
+                                                    Identifier("exception"))
+                                                .WithType(
+                                                    IdentifierName("Exception")))))
+                                    .WithExpressionBody(
+                                        ArrowExpressionClause(
+                                           InvocationExpression(
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    structA,
+                                                    IdentifierName("Fail")))
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SingletonSeparatedList<ArgumentSyntax>(
+                                                        Argument(
+                                                            IdentifierName("exception")))))))
+                                    .WithSemicolonToken(
+                                        Token(SyntaxKind.SemicolonToken));
+
+                var failFunc3 = MethodDeclaration(
+                                        structA,
+                                        Identifier(failName))
+                                    .WithModifiers(
+                                        TokenList(
+                                            new[]{
+                                                Token(SyntaxKind.PublicKeyword),
+                                                Token(SyntaxKind.StaticKeyword)}))
+                                    .WithTypeParameterList(applyToStruct.TypeParameterList)
+                                    .WithParameterList(
+                                        ParameterList(
+                                            SeparatedList<ParameterSyntax>(
+                                                new SyntaxNodeOrToken[]{
+                                                    Parameter(
+                                                        Identifier("message"))
+                                                    .WithType(
+                                                        PredefinedType(
+                                                            Token(SyntaxKind.StringKeyword))),
+                                                    Token(SyntaxKind.CommaToken),
+                                                    Parameter(
+                                                        Identifier("exception"))
+                                                    .WithType(
+                                                        IdentifierName("Exception"))})))
+                                    .WithExpressionBody(
+                                        ArrowExpressionClause(
+                                           InvocationExpression(
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    structA,
+                                                    IdentifierName("Fail")))
+
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SeparatedList<ArgumentSyntax>(
+                                                new SyntaxNodeOrToken[]{
+                                                    Argument(
+                                                        IdentifierName("message")),
+                                                    Token(SyntaxKind.CommaToken),
+                                                    Argument(
+                                                        IdentifierName("exception"))})))))
                                     .WithSemicolonToken(
                                         Token(SyntaxKind.SemicolonToken));
 
@@ -966,31 +1128,59 @@ namespace LanguageExt.CodeGen
                                                                     IdentifierName(genA)})))))))
                                     .WithExpressionBody(
                                         ArrowExpressionClause(
-                                            ObjectCreationExpression(structA)
-                                            .WithArgumentList(
-                                                ArgumentList(
-                                                    SingletonSeparatedList<ArgumentSyntax>(
-                                                        Argument(
-                                                            SimpleLambdaExpression(
-                                                                Parameter(
-                                                                    Identifier("env")),
-                                                                TupleExpression(
-                                                                    SeparatedList<ArgumentSyntax>(
-                                                                        new SyntaxNodeOrToken[]{
-                                                                            Argument(
-                                                                                InvocationExpression(
-                                                                                    IdentifierName("f"))
-                                                                                .WithArgumentList(
-                                                                                    ArgumentList(
-                                                                                        SingletonSeparatedList<ArgumentSyntax>(
-                                                                                            Argument(
-                                                                                                IdentifierName("env")))))),
-                                                                            Token(SyntaxKind.CommaToken),
-                                                                            Argument(
-                                                                                LiteralExpression(
-                                                                                    SyntaxKind.FalseLiteralExpression))})))))))))
+                                        ObjectCreationExpression(structA)
+                                        .WithArgumentList(
+                                            ArgumentList(
+                                                SingletonSeparatedList<ArgumentSyntax>(
+                                                    Argument(
+                                                        SimpleLambdaExpression(
+                                                            Parameter(
+                                                                Identifier("__env")),
+                                                            InvocationExpression(
+                                                                MemberAccessExpression(
+                                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                                    GenericName(
+                                                                        Identifier("ReaderResult"))
+                                                                    .WithTypeArgumentList(
+                                                                        TypeArgumentList(
+                                                                            SingletonSeparatedList<TypeSyntax>(
+                                                                                IdentifierName(genA)))),
+                                                                    IdentifierName("New")))
+                                                            .WithArgumentList(
+                                                                ArgumentList(
+                                                                    SingletonSeparatedList<ArgumentSyntax>(
+                                                                        Argument(
+                                                                            InvocationExpression(
+                                                                                IdentifierName("f"))
+                                                                            .WithArgumentList(
+                                                                                ArgumentList(
+                                                                                    SingletonSeparatedList<ArgumentSyntax>(
+                                                                                        Argument(
+                                                                                            IdentifierName("__env"))))))))))))))))
                                     .WithSemicolonToken(
                                         Token(SyntaxKind.SemicolonToken));
+
+                var askInner = ObjectCreationExpression(structEnv)
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SingletonSeparatedList<ArgumentSyntax>(
+                                            Argument(
+                                                SimpleLambdaExpression(
+                                                    Parameter(
+                                                        Identifier("__env")),
+                                                    InvocationExpression(
+                                                        MemberAccessExpression(
+                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                            GenericName(
+                                                                Identifier("ReaderResult"))
+                                                            .WithTypeArgumentList(
+                                                                TypeArgumentList(SingletonSeparatedList<TypeSyntax>(ParseTypeName(envType)))),
+                                                            IdentifierName("New")))
+                                                    .WithArgumentList(
+                                                        ArgumentList(
+                                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                                Argument(
+                                                                    IdentifierName("__env"))))))))));
 
                 // ask :: M Env
                 var askFunc = applyToStruct.TypeParameterList.Parameters.Count == 1
@@ -1002,23 +1192,10 @@ namespace LanguageExt.CodeGen
                                         Identifier("ask"))
                                     .WithInitializer(
                                         EqualsValueClause(
-                                            ObjectCreationExpression(structEnv)
-                                            .WithArgumentList(
-                                                ArgumentList(
-                                                    SingletonSeparatedList<ArgumentSyntax>(
-                                                        Argument(
-                                                            SimpleLambdaExpression(
-                                                                Parameter(
-                                                                    Identifier("env")),
-                                                                TupleExpression(
-                                                                    SeparatedList<ArgumentSyntax>(
-                                                                        new SyntaxNodeOrToken[]{
-                                                                            Argument(
-                                                                                IdentifierName("env")),
-                                                                            Token(SyntaxKind.CommaToken),
-                                                                            Argument(
-                                                                                LiteralExpression(
-                                                                                    SyntaxKind.FalseLiteralExpression))}))))))))))))
+                                            
+                                            askInner
+                                            
+                                            )))))
                         .WithModifiers(
                             TokenList(
                                 new[]{
@@ -1039,23 +1216,10 @@ namespace LanguageExt.CodeGen
                                     applyToStruct.TypeParameterList.Parameters.Take(applyToStruct.TypeParameterList.Parameters.Count - 1))))
                         .WithExpressionBody(
                             ArrowExpressionClause(
-                                ObjectCreationExpression(structEnv)
-                                .WithArgumentList(
-                                    ArgumentList(
-                                        SingletonSeparatedList<ArgumentSyntax>(
-                                            Argument(
-                                                SimpleLambdaExpression(
-                                                    Parameter(
-                                                        Identifier("env")),
-                                                    TupleExpression(
-                                                        SeparatedList<ArgumentSyntax>(
-                                                            new SyntaxNodeOrToken[]{
-                                                                Argument(
-                                                                    IdentifierName("env")),
-                                                                Token(SyntaxKind.CommaToken),
-                                                                Argument(
-                                                                    LiteralExpression(
-                                                                        SyntaxKind.FalseLiteralExpression))})))))))))
+
+                                askInner
+
+                                ))
                         .WithSemicolonToken(
                             Token(SyntaxKind.SemicolonToken));
 
@@ -1106,7 +1270,9 @@ namespace LanguageExt.CodeGen
                             List(
                                 new MemberDeclarationSyntax[]{
                                     returnFunc,
-                                    failFunc,
+                                    failFunc1,
+                                    failFunc2,
+                                    failFunc3,
                                     asksFunc,
                                     askFunc,
                                     localFunc

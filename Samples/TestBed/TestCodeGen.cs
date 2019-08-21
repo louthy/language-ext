@@ -54,7 +54,7 @@ namespace TestBed
                        from _  in Subsystem.WriteAllLines("c:/test-copy.txt", ls)
                        select ls.Count;
 
-            var res = comp.Run(new RealIO()).IfNoneOrFail(0);
+            var res = comp.Run(new RealIO()).IfFail(0);
         }
     }
 

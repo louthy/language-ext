@@ -37,6 +37,34 @@ namespace LanguageExt
             default(MReader<Env, A>).Return(f);
 
         /// <summary>
+        /// Reader failure
+        /// </summary>
+        [Pure]
+        public static Reader<Env, A> ReaderFail<Env, A>(string error) => env =>
+            ReaderResult<A>.New(Common.Error.New(error));
+
+        /// <summary>
+        /// Reader failure
+        /// </summary>
+        [Pure]
+        public static Reader<Env, A> ReaderFail<Env, A>(int code, string error) => env =>
+            ReaderResult<A>.New(Common.Error.New(code, error));
+
+        /// <summary>
+        /// Reader failure
+        /// </summary>
+        [Pure]
+        public static Reader<Env, A> ReaderFail<Env, A>(string error, Exception exception) => env =>
+            ReaderResult<A>.New(Common.Error.New(error, exception));
+
+        /// <summary>
+        /// Reader failure
+        /// </summary>
+        [Pure]
+        public static Reader<Env, A> ReaderFail<Env, A>(Exception exception) => env =>
+            ReaderResult<A>.New(Common.Error.New(exception));
+
+        /// <summary>
         /// Retrieves the reader monad environment.
         /// </summary>
         /// <typeparam name="Env">Environment</typeparam>
@@ -74,13 +102,13 @@ namespace LanguageExt
             {
                 foreach (var monad in monads)
                 {
-                    var (x, bottom) = monad(state);
-                    if (!bottom && x.IsSome)
+                    var resA = monad(state);
+                    if (!resA.IsFaulted)
                     {
-                        return (x, bottom);
+                        return resA;
                     }
                 }
-                return (default(A), true);
+                return ReaderResult<Option<A>>.Bottom;
             };
 
         /// <summary>
@@ -94,9 +122,9 @@ namespace LanguageExt
                 {
                     return m(state);
                 }
-                catch
+                catch(Exception e)
                 {
-                    return (default(A), true);
+                    return ReaderResult<A>.New(Common.Error.New(e));
                 }
             };
 
