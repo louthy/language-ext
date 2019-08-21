@@ -8,7 +8,6 @@ using LanguageExt.ClassInstances;
 
 namespace LanguageExt.Tests
 {
-    
     public class MonadTests
     {
         [Fact]
@@ -80,7 +79,7 @@ namespace LanguageExt.Tests
                                     Tuple("b", 2)
                                     );
 
-            bool res = calcIsCountCorrect.Run(sampleBindings).IfNoneOrFail(false);
+            bool res = calcIsCountCorrect.Run(sampleBindings).IfFail(false);
 
             Assert.True(res);
         }
@@ -94,8 +93,8 @@ namespace LanguageExt.Tests
             var calculateModifiedContentLen = local(calculateContentLen, content => "Prefix " + content);
 
             var s = "12345";
-            var modifiedLen = calculateModifiedContentLen.Run(s).IfNoneOrFail(0);
-            var len = calculateContentLen.Run(s).IfNoneOrFail(0);
+            var modifiedLen = calculateModifiedContentLen.Run(s).IfFail(0);
+            var len = calculateContentLen.Run(s).IfFail(0);
 
             Assert.True(modifiedLen == 12);
             Assert.True(len == 5);
@@ -110,11 +109,13 @@ namespace LanguageExt.Tests
             var rdr = from x in v1
                       from y in v2
                       from c in ask<int>()
-                      where x * c > 50 && y * c > 50
+                      from _ in x * c > 50 && y * c > 50
+                        ? Reader<int, Unit>(unit)
+                        : ReaderFail<int, Unit>("Error")
                       select (x + y) * c;
 
-            Assert.True(rdr.Run(10).IfNoneOrFail(0) == 200);
-            Assert.True(rdr.Run(2).IfNoneOrFail(0) == 0);
+            Assert.True(rdr.Run(10).IfFail(0) == 200);
+            Assert.True(rdr.Run(2).IfFail(0) == 0);
         }
 
         [Fact]

@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build">
+<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build">
 
     <PropertyGroup>
-        <PackageVersion>3.3.18</PackageVersion>
+        <PackageVersion>3.3.19</PackageVersion>
         <PackageId>LanguageExt.CodeGen</PackageId>
         <Title>LanguageExt.CodeGen</Title>
         <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
