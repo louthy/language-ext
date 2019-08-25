@@ -18,5 +18,12 @@ namespace Contoso.Infrastructure.Data.Repositories
                 .Include(c => c.Course)
                 .Include(c => c.Instructor)
                 .ToListAsync();
+
+        public async Task<int> Add(CourseAssignment courseAssignment)
+        {
+            await _contosoDbContext.CourseAssignments.AddAsync(courseAssignment);
+            await _contosoDbContext.SaveChangesAsync();
+            return courseAssignment.CourseAssignmentId;
+        }
     }
 }

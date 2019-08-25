@@ -38,5 +38,9 @@ namespace Contoso.Web.Controllers
         [HttpGet("courseassignments/{courseId}")]
         public async Task<IActionResult> GetCourseAssignments(int courseId) => 
             Ok(await _mediator.Send(new GetCourseAssignments(courseId)));
+
+        [HttpPost("courseassignments")]
+        public Task<IActionResult> CreateCourseAssignment(CreateCourseAssignment createCourseAssignment) =>
+            _mediator.Send(createCourseAssignment).ToActionResult();
     }
 }

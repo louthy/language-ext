@@ -9,5 +9,6 @@ namespace Contoso.Core.Interfaces.Repositories
     public interface ICourseAssignmentRepository
     {
         Task<List<CourseAssignment>> GetByCourseId(int courseId);
+        Task<int> Add(CourseAssignment courseAssignment);
     }
 }
