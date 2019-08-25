@@ -4,7 +4,6 @@ using Contoso.Core;
 using Contoso.Core.Interfaces.Repositories;
 using LanguageExt;
 using MediatR;
-using static LanguageExt.Prelude;
 
 namespace Contoso.Application.Instructors.Commands
 {

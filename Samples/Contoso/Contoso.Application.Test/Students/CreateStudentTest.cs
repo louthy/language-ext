@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit;
-using Moq;
+using System.Threading;
 using System.Threading.Tasks;
-using Contoso.Core.Interfaces.Repositories;
 using Contoso.Application.Students.Commands;
 using Contoso.Core.Domain;
-using System.Threading;
+using Contoso.Core.Interfaces.Repositories;
+using Moq;
 using NUnit.Framework;
 
 namespace Contoso.Application.Test.Students
