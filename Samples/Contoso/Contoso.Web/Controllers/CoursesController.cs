@@ -20,8 +20,7 @@ namespace Contoso.Web.Controllers
 
         [HttpGet("{courseId}")]
         public Task<IActionResult> Get(int courseId) =>
-            _mediator.Send(new GetCourseById(courseId))
-                .ToActionResult();
+            _mediator.Send(new GetCourseById(courseId)).ToActionResult();
 
         [HttpPost]
         public Task<IActionResult> Create(CreateCourse createCourse) =>

@@ -17,8 +17,7 @@ namespace Contoso.Web.Controllers
 
         [HttpGet("{instructorId}")]
         public Task<IActionResult> Get(int instructorId) =>
-            _mediator.Send(new GetInstructorById(instructorId))
-                .ToActionResult();
+            _mediator.Send(new GetInstructorById(instructorId)).ToActionResult();
 
         [HttpPost]
         public Task<IActionResult> Create([FromBody] CreateInstructor createInstructor) =>

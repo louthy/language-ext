@@ -17,8 +17,7 @@ namespace Contoso.Web.Controllers
 
         [HttpGet("{departmentId}")]
         public Task<IActionResult> Get(int departmentId) => 
-            _mediator.Send(new GetDepartmentById(departmentId))
-                .ToActionResult();
+            _mediator.Send(new GetDepartmentById(departmentId)).ToActionResult();
 
         [HttpPost]
         public Task<IActionResult> Create([FromBody] CreateDepartment createDepartment) =>
