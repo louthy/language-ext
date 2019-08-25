@@ -16,9 +16,6 @@ namespace Contoso.Web.Extensions
             either.Map(ToActionResult);
 
         public static Task<IActionResult> ToActionResult(this Task<Either<Error, Task>> either) =>
-            either.Bind(e =>
-                e.MapLeft(l => new BadRequestObjectResult(l))
-                .MapAsync(_ => new OkResult().AsTask())
-                .Map(ToActionResult));
+            either.Map(ToActionResult);
     }
 }
