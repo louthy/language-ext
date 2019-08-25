@@ -1,7 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Contoso.Application.Courses;
 using Contoso.Application.Courses.Commands;
 using Contoso.Application.Courses.Queries;
 using Contoso.Web.Extensions;
+using LanguageExt;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,5 +34,9 @@ namespace Contoso.Web.Controllers
         [HttpDelete]
         public Task<IActionResult> Delete(DeleteCourse deleteCourse) =>
             _mediator.Send(deleteCourse).ToActionResult();
+
+        [HttpGet("courseassignments/{courseId}")]
+        public async Task<IActionResult> GetCourseAssignments(int courseId) => 
+            Ok(await _mediator.Send(new GetCourseAssignments(courseId)));
     }
 }

@@ -12,12 +12,13 @@ namespace Contoso.Web.Extensions
                 Left: l => new BadRequestObjectResult(l),
                 Right: r => new OkObjectResult(r));
 
-        public static async Task<IActionResult> ToActionResult<L, R>(this Task<Either<L, R>> either) =>
-            (await either).ToActionResult();
+        public static Task<IActionResult> ToActionResult<L, R>(this Task<Either<L, R>> either) =>
+            either.Map(ToActionResult);
 
-        public static async Task<IActionResult> ToActionResult(this Task<Either<Error, Task>> either) =>
-            await (await either).MatchAsync<IActionResult>(
-                Left: err => new BadRequestObjectResult(err),
-                RightAsync: async t => { await t; return new OkResult(); });
+        public static Task<IActionResult> ToActionResult(this Task<Either<Error, Task>> either) =>
+            either.Bind(e =>
+                e.MapLeft(l => new BadRequestObjectResult(l))
+                .MapAsync(_ => new OkResult().AsTask())
+                .Map(ToActionResult));
     }
 }
