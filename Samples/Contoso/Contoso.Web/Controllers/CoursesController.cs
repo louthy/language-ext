@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Contoso.Application.Courses;
+﻿using System.Threading.Tasks;
 using Contoso.Application.Courses.Commands;
 using Contoso.Application.Courses.Queries;
 using Contoso.Web.Extensions;
-using LanguageExt;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

@@ -77,6 +77,7 @@ namespace Contoso.Web
             services.AddScoped<ICourseRepository, CourseRepository>();
             services.AddScoped<IOfficeAssignmentRepository, OfficeAssignmentRepository>();
             services.AddScoped<ICourseAssignmentRepository, CourseAssignmentRepository>();
+            services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
         }
     }
 }
