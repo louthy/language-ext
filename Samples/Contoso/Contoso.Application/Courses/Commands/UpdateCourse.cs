@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Contoso.Application.Courses.Commands
 {
-    public class UpdateCourse : Record<UpdateCourse>, IRequest<Either<Error, Task>>
+    public class UpdateCourse : Record<UpdateCourse>, IRequest<Validation<Error, Task>>
     {
         public UpdateCourse(int courseId, string title, int credits, int departmentId)
         {

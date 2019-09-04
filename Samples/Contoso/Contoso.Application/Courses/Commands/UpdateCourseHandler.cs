@@ -11,7 +11,7 @@ using static LanguageExt.Prelude;
 
 namespace Contoso.Application.Courses.Commands
 {
-    public class UpdateCourseHandler : IRequestHandler<UpdateCourse, Either<Error, Task>>
+    public class UpdateCourseHandler : IRequestHandler<UpdateCourse, Validation<Error, Task>>
     {
         private readonly IMediator _mediator;
         private readonly ICourseRepository _courseRepository;
@@ -22,10 +22,9 @@ namespace Contoso.Application.Courses.Commands
             _courseRepository = courseRepository;
         }
 
-        public async Task<Either<Error, Task>> Handle(UpdateCourse request, CancellationToken cancellationToken) =>
-            (await Validate(request))
-                .Map(c => ApplyUpdate(c, request))
-                .ToEither<Task>();
+        public Task<Validation<Error, Task>> Handle(UpdateCourse request, CancellationToken cancellationToken) =>
+            Validate(request)
+                .MapT(c => ApplyUpdate(c, request));
 
         private Task ApplyUpdate(Course c, UpdateCourse request)
         {
