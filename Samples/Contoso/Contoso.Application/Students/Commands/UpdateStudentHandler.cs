@@ -15,7 +15,7 @@ namespace Contoso.Application.Students.Commands
         public UpdateStudentHandler(IStudentRepository studentRepository) => 
             _studentRepository = studentRepository;
 
-        public async Task<Either<Error, Task>> Handle(UpdateStudent request, CancellationToken cancellationToken) =>
+        public async Task<Either<Error, Task>> Handle(UpdateStudent request, CancellationToken cancellationToken) => 
             (await Validate(request))
                 .Map(s => ApplyUpdateRequest(s, request))
                 .ToEither<Task>();
@@ -32,9 +32,8 @@ namespace Contoso.Application.Students.Commands
                 .Apply((first, last, studentToUpdate) => studentToUpdate);
 
         private async Task<Validation<Error, Student>> StudentMustExist(UpdateStudent updateStudent) =>
-            (await _studentRepository.Get(updateStudent.StudentId)).Match(
-                Some: student => Success<Error, Student>(student),
-                None: () => Fail<Error, Student>($"Student does not exist."));
+            (await _studentRepository.Get(updateStudent.StudentId))
+                .ToValidation<Error>("Student does not exist.");
 
         private Validation<Error, string> ValidateFirstName(UpdateStudent updateStudent) =>
             NotEmpty(updateStudent.FirstName)
