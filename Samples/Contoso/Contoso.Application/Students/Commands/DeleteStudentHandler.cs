@@ -22,8 +22,8 @@ namespace Contoso.Application.Students.Commands
             _studentRepository.Delete(studentId);
 
         private async Task<Validation<Error, int>> StudentMustExist(DeleteStudent deleteStudent) => 
-            (await _studentRepository.Get(deleteStudent.StudentId)).Match(
-                Some: _ => Success<Error, int>(deleteStudent.StudentId),
-                None: () => Fail<Error, int>($"Student {deleteStudent.StudentId} does not exist."));
+            (await _studentRepository.Get(deleteStudent.StudentId))
+                .ToValidation<Error>($"Student {deleteStudent.StudentId} does not exist.")
+                .Map(s => s.StudentId);
     }
 }

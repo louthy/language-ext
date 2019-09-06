@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Contoso.Application.Enrollments.Commands;
 using Contoso.Application.Enrollments.Queries;
 using Contoso.Web.Extensions;
 using MediatR;
@@ -18,5 +19,9 @@ namespace Contoso.Web.Controllers
         [HttpGet("{enrollmentId}")]
         public Task<IActionResult> Get(int enrollmentId) => 
             _mediator.Send(new GetEnrollmentById(enrollmentId)).ToActionResult();
+        
+        [HttpPost]
+        public Task<IActionResult> Create(CreateEnrollment create) =>
+            _mediator.Send(create).ToActionResult();
     }
 }
