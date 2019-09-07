@@ -46,8 +46,8 @@ namespace LanguageExt
 
         public B Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
             IsFaulted
-                ? Succ(Value)
-                : Fail(ErrorInt);
+                ? Fail(ErrorInt)
+                : Succ(Value);
 
         public A IfFail(A value) =>
             IsFaulted
