@@ -23,20 +23,24 @@ namespace LanguageExt.ClassInstances
         public Try<A> None => none;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Try<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B>
-        {
-            var mr = ma.Try();
-            if (mr.IsFaulted) return default(MONADB).Fail(mr.Exception);
-            return f(mr.Value);
-        }
+        public MB Bind<MONADB, MB, B>(Try<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>
+            default(MONADB).Run(_ =>
+            {
+                var mr = ma.Try();
+                return mr.IsFaulted
+                    ? default(MONADB).Fail(mr.Exception)
+                    : default(MONADB).BindReturn(unit, f(mr.Value));
+            });
 
         [Pure]
-        public MB BindAsync<MONADB, MB, B>(Try<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B>
-        {
-            var mr = ma.Try();
-            if (mr.IsFaulted) return default(MONADB).Fail(mr.Exception);
-            return f(mr.Value);
-        }
+        public MB BindAsync<MONADB, MB, B>(Try<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+            default(MONADB).RunAsync(_ =>
+            {
+                var mr = ma.Try();
+                return mr.IsFaulted
+                    ? default(MONADB).Fail(mr.Exception).AsTask()
+                    : default(MONADB).BindReturn(unit, f(mr.Value)).AsTask();
+            });
 
         [Pure]
         public Try<A> Fail(object err = null) =>
@@ -177,8 +181,8 @@ namespace LanguageExt.ClassInstances
             Return(value);
 
         [Pure]
-        public Try<A> Run(Func<Unit, Try<A>> ma) =>
-            ma(unit);
+        public Try<A> Run(Func<Unit, Try<A>> ma) => () =>
+            ma(unit)();
 
         [Pure]
         public Try<A> BindReturn(Unit _, Try<A> mb) =>

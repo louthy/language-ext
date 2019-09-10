@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests
@@ -411,8 +414,266 @@ namespace LanguageExt.Tests
         private class FakeDisposable : IDisposable
         {
             public bool DisposedCalled { get; private set; }
+            public string Label { get; }
 
-            public void Dispose() => DisposedCalled = true;
+            public FakeDisposable(string label = "") => Label = label;
+            public void Dispose() =>
+                DisposedCalled = DisposedCalled ? failwith<bool>($"Can't dispose {Label}; already disposed") : true;
+            public string UseDisposable() =>
+                DisposedCalled ? failwith<string>($"Can't use {Label}; already disposed") : $"Now it's {DateTime.Now}";
+            public IEnumerable<string> Read()
+            {
+                yield return UseDisposable();
+            }
+        }
+
+        [Fact]
+        public void ResourceTryWorks()
+        {
+            Use(() => new FakeDisposable())
+                .Select(r => r.Read())
+                .Select(s => s.First())
+                .ToTry()
+                .IfFailThrow();
+        }
+
+        [Fact]
+        public void ResourceWorksWithDeferred()
+        {
+            Lst<FakeDisposable> disposables;
+            FakeDisposable getFake()
+            {
+                var d = new FakeDisposable("1");
+                disposables = disposables.Add(d);
+                return d;
+            }
+            var read = Use(getFake).Select(d => d.Read());
+            var getFirst = from r in read select r.First();
+            
+            var first = getFirst.Run();
+            Assert.True(disposables.All(d => d.DisposedCalled));
+        }
+
+        [Fact]
+        public void ResourceComposes()
+        {
+            Lst<FakeDisposable> disposables;
+            var fake2 = new FakeDisposable("2");
+            FakeDisposable getFake()
+            {
+                var d = new FakeDisposable("1");
+                disposables = disposables.Add(d);
+                return d;
+            }
+            FakeDisposable getFake2()
+            {
+                disposables = disposables.Add(fake2);
+                return fake2;
+            }
+
+            var reader =
+                from a in Use(getFake2)
+                select a.Read();
+            var getFirst =
+                from a in reader
+                from b in Use(getFake)
+                let combined = a.First() + b.Read().First()
+                from _ in release(b)
+                select $"{fake2.DisposedCalled}|{b.Label}";
+            var str = getFirst.Run();
+            
+            Assert.True(disposables.All(d => d.DisposedCalled));
+        }
+
+        [Fact]
+        public void ResourceTransforms()
+        {
+            var resources = List(Use(() => new FakeDisposable("1")), Use(() => new FakeDisposable("2")));
+            var resource = resources.Traverse(r => r.Read().First());
+
+            resource.ToTry().IfFailThrow();
+        }
+
+        [Fact]
+        public void ResourceMapDisposesAll()
+        {
+            Lst<FakeDisposable> disposables;
+            FakeDisposable getFake()
+            {
+                var d = new FakeDisposable("1");
+                disposables = disposables.Add(d);
+                return d;
+            }
+
+            var map =
+                from a in Use(getFake)
+                select 1;
+            
+            Assert.False(disposables.Any());
+            map.Run();
+            Assert.True(disposables.All(d => d.DisposedCalled));
+        }
+
+        [Fact]
+        public void ResourceBindDisposesAll()
+        {
+            Lst<FakeDisposable> disposables;
+            var fake2 = new FakeDisposable("2");
+            FakeDisposable getFake()
+            {
+                var d = new FakeDisposable("1");
+                disposables = disposables.Add(d);
+                return d;
+            }
+            FakeDisposable getFake2()
+            {
+                disposables = disposables.Add(fake2);
+                return fake2;
+            }
+
+            var useBoth =
+                from a in Use(getFake)
+                from b in Use(getFake2)
+                select 1;
+            
+            Assert.False(disposables.Any());
+            useBoth.Run();
+            Assert.True(disposables.All(d => d.DisposedCalled));
+        }
+
+        [Fact]
+        public void ResourceMapDisposesAllWhenProjectionFails()
+        {
+            Lst<FakeDisposable> disposables;
+            FakeDisposable getFake()
+            {
+                var d = new FakeDisposable("1");
+                disposables = disposables.Add(d);
+                return d;
+            }
+
+            var map =
+                from a in Use(getFake)
+                select failwith<int>("I was setup to fail");
+            
+            Assert.False(disposables.Any());
+            Assert.ThrowsAny<Exception>(() => map.Run());
+            Assert.True(disposables.All(d => d.DisposedCalled));
+        }
+
+        [Fact]
+        public void ResourceBindDisposesAllWhenProjectionFails()
+        {
+            Lst<FakeDisposable> disposables;
+            var fake2 = new FakeDisposable("2");
+            FakeDisposable getFake()
+            {
+                var d = new FakeDisposable("1");
+                disposables = disposables.Add(d);
+                return d;
+            }
+            FakeDisposable getFake2()
+            {
+                disposables = disposables.Add(fake2);
+                return fake2;
+            }
+
+            var useBoth =
+                from a in Use(getFake)
+                from b in Use(getFake2)
+                select failwith<int>("I was setup to fail");
+            
+            Assert.False(disposables.Any());
+            Assert.ThrowsAny<Exception>(() => useBoth.Run());
+            Assert.True(disposables.All(d => d.DisposedCalled));
+        }
+
+        [Fact]
+        public void ResourceBindDisposesAllWhenFirstSourceFails()
+        {
+            Lst<FakeDisposable> disposables;
+            var fake2 = new FakeDisposable("2");
+            FakeDisposable getFake() => throw new Exception("I was setup to fail");
+            FakeDisposable getFake2()
+            {
+                disposables = disposables.Add(fake2);
+                return fake2;
+            }
+
+            var useBoth =
+                from a in Use(getFake)
+                from b in Use(getFake2)
+                select 1;
+            
+            Assert.False(disposables.Any());
+            Assert.ThrowsAny<Exception>(() => useBoth.Run());
+            Assert.True(disposables.All(d => d.DisposedCalled));
+        }
+
+        [Fact]
+        public void ResourceBindDisposesAllWhenSecondSourceFails()
+        {
+            Lst<FakeDisposable> disposables;
+            FakeDisposable getFake()
+            {
+                var d = new FakeDisposable("1");
+                disposables = disposables.Add(d);
+                return d;
+            }
+            FakeDisposable getFake2() => throw new Exception("I was setup to fail");
+
+            var useBoth =
+                from a in Use(getFake)
+                from b in Use(getFake2)
+                select 1;
+            
+            Assert.False(disposables.Any());
+            Assert.ThrowsAny<Exception>(() => useBoth.Run());
+            Assert.True(disposables.All(d => d.DisposedCalled));
+        }
+
+        [Fact]
+        public void ResourceBindDisposesAllWhenFirstIsNull()
+        {
+            Lst<FakeDisposable> disposables;
+            var fake2 = new FakeDisposable("2");
+            FakeDisposable getFake() => null;
+            FakeDisposable getFake2()
+            {
+                disposables = disposables.Add(fake2);
+                return fake2;
+            }
+
+            var useBoth =
+                from a in Use(getFake)
+                from b in Use(getFake2)
+                select 1;
+            
+            Assert.False(disposables.Any());
+            Assert.ThrowsAny<Exception>(() => useBoth.Run());
+            Assert.True(disposables.All(d => d.DisposedCalled));
+        }
+
+        [Fact]
+        public void ResourceBindDisposesAllWhenSecondIsNull()
+        {
+            Lst<FakeDisposable> disposables;
+            FakeDisposable getFake()
+            {
+                var d = new FakeDisposable("1");
+                disposables = disposables.Add(d);
+                return d;
+            }
+            FakeDisposable getFake2() => null;
+
+            var useBoth =
+                from a in Use(getFake)
+                from b in Use(getFake2)
+                select 1;
+            
+            Assert.False(disposables.Any());
+            Assert.ThrowsAny<Exception>(() => useBoth.Run());
+            Assert.True(disposables.All(d => d.DisposedCalled));
         }
 
     }

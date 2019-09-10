@@ -12,12 +12,12 @@
         public static OUTER_C SelectMany<GENS, A, B, C>(
             this OUTER_A ma,
             Func<A, OUTER_B> bind,
-            Func<A, B, C> project) =>
-            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
-                .Inst.Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(ma, a =>
-                    TRANS<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>
-                        .Inst.Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C>(bind(a), b =>
-                            default(M_INNER_C).Return(project(a, b))));
+            Func<A, B, C> project) WHERE_ARGS =>
+            TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_A, OUTER_A, M_INNER_ENV, M_INNER_OUT, M_INNER_A, INNER_A, A>
+                .Inst.Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C, MI_O_OUTER_C, I_O_OUTER_C, MO_OUTER_C, O_OUTER_C, MI_OUTER_C, I_OUTER_C, MO_I_INNER_C, O_I_INNER_C, MI_INNER_C, I_INNER_C>(ma, a =>
+                    TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_B, OUTER_B, M_INNER_ENV, M_INNER_OUT, M_INNER_B, INNER_B, B>
+                        .Inst.Bind<M_OUTER_C, OUTER_C, M_INNER_C, INNER_C, C, MI_O_OUTER_C, I_O_OUTER_C, MO_OUTER_C, O_OUTER_C, MI_OUTER_C, I_OUTER_C, MO_I_INNER_C, O_I_INNER_C, MI_INNER_C, I_INNER_C>(bind(a), b =>
+                            default(M_OUTER_C).Return(_ => default(M_INNER_C).Return(__ => project(a, b)))));
 
         /// <summary>
         /// Filter operation.  Applies the bound value to the predicate `f`. If
@@ -28,11 +28,11 @@
         /// <param name="f">The predicate function</param>
         /// <returns>`OUTER_A` with the predicate `f(a)` applied</returns>
         [Pure]
-        public static OUTER_A Where<GENS, A>(this OUTER_A ma, Func<A, bool> pred) =>
-            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+        public static OUTER_A Where<GENS, A>(this OUTER_A ma, Func<A, bool> pred) WHERE_ARGS =>
+            TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_A, OUTER_A, M_INNER_ENV, M_INNER_OUT, M_INNER_A, INNER_A, A>
                 .Inst.Bind<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
                     a => pred(a)
-                        ? default(M_INNER_A).Return(a)
+                        ? default(M_INNER_A).Return(_ => a)
                         : default(M_INNER_A).Zero());
 
         /// <summary>
@@ -45,6 +45,6 @@
         /// <param name="f">The mapping function to apply</param>
         /// <returns>`OUTER_B` which is the result of performing `f(a)`</returns>
         [Pure]
-        public static OUTER_B Select<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
-            TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
+        public static OUTER_B Select<GENS, A, B>(this OUTER_A ma, Func<A, B> f) WHERE_ARGS =>
+            TRANS<M_OUTER_ENV, M_OUTER_OUT, M_OUTER_A, OUTER_A, M_INNER_ENV, M_INNER_OUT, M_INNER_A, INNER_A, A>
                 .Inst.Map<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
