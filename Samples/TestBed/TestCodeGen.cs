@@ -84,8 +84,12 @@ namespace TestBed
         }
     }
 
-    [RWS(WriterMonoid: typeof(MSeq<string>), Env: typeof(IO), State: typeof(Person), Constructor: "PureIO", Fail: "Err1")]
-    public partial struct Subsys<X, Y, T>
+    [RWS(WriterMonoid: typeof(MSeq<string>), 
+         Env:          typeof(IO), 
+         State:        typeof(Person), 
+         Constructor:  "Pure", 
+         Fail:         "Error" )]
+    public partial struct Subsys<T>
     {
     }
 
