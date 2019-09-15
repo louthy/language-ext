@@ -8,23 +8,13 @@ namespace Contoso
     public static partial class Validators
     {
         public static Func<string, Validation<Error, string>> NotLongerThan(int maxLength) =>
-            str =>
-                str.Length > maxLength
-                    ? StringHelper.Fail($"{str} must not be longer than {maxLength}")
-                    : StringHelper.Succ(str);
+            str => Optional(str)
+                .Where(s => s.Length <= maxLength)
+                .ToValidation<Error>($"{str} must not be longer than {maxLength}");
 
         public static Validation<Error, string> NotEmpty(string str) =>
-            string.IsNullOrEmpty(str)
-                ? StringHelper.Fail("Must not be empty")
-                : StringHelper.Succ(str);
-
-        private static class StringHelper
-        {
-            public static Validation<Error, string> Fail(string error) =>
-                Fail<Error, string>(error);
-
-            public static Validation<Error, string> Succ(string str) =>
-                Success<Error, string>(str);
-        }
+            Optional(str)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .ToValidation<Error>("Empty string");
     }
 }
