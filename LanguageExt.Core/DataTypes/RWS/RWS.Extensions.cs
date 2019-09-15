@@ -31,14 +31,14 @@ public static class RWSExtensions
         {
             if (self == null) return (() => Option<A>.None, default(MonoidW).Empty(), state);
             if (state == null) return (() => Option<A>.None, default(MonoidW).Empty(), state);
-            var (a, w, s, faulted) = self(env, state);
-            if (faulted)
+            var res = self(env, state);
+            if (res.IsFaulted)
             {
                 return (() => Option<A>.None, default(MonoidW).Empty(), state);
             }
             else
             {
-                return (() => Optional(a), w, s);
+                return (() => Optional(res.Value), res.Output, res.State);
             }
         }
         catch (Exception e)
@@ -65,10 +65,10 @@ public static class RWSExtensions
     {
         IEnumerable<A> Yield()
         {
-            var (a, w, s, faulted) = self(env, state);
-            if (!faulted)
+            var res = self(env, state);
+            if (!res.IsFaulted)
             {
-                yield return a;
+                yield return res.Value;
             }
         }
         return Seq(Yield());
@@ -82,20 +82,20 @@ public static class RWSExtensions
     public static RWS<MonoidW, R, W, S, int> Count<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self)
         where MonoidW : struct, Monoid<W> => (env, state) =>
         {
-            var (a, w, s, faulted) = self(env, state);
-            return faulted
-                ? (0, default(MonoidW).Empty(), state, false)
-                : (1, w, s, false);
+            var res = self(env, state);
+            return res.IsFaulted
+                ? RWSResult<MonoidW, R, W, S, int>.New(res.Output, state, res.Error)
+                : RWSResult<MonoidW, R, W, S, int>.New(res.Output, res.State, 1);
         };
 
     [Pure]
     public static RWS<MonoidW, R, W, S, bool> Exists<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, Func<A, bool> pred)
         where MonoidW : struct, Monoid<W> => (env, state) =>
         {
-            var (a, w, s, faulted) = self(env, state);
-            return faulted
-                ? (false, default(MonoidW).Empty(), state, false)
-                : (pred(a), w, s, false);
+            var res = self(env, state);
+            return res.IsFaulted
+                ? RWSResult<MonoidW, R, W, S, bool>.New(res.Output, state, false)
+                : RWSResult<MonoidW, R, W, S, bool>.New(res.Output, res.State, pred(res.Value));
         };
 
     [Pure]
@@ -106,20 +106,20 @@ public static class RWSExtensions
     public static RWS<MonoidW, R, W, S, B> Fold<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A> self, B initialValue, Func<B, A, B> f)
         where MonoidW : struct, Monoid<W> => (env, state) =>
         {
-            var (a, w, s, faulted) = self(env, state);
-            return faulted
-                ? (default(B), default(MonoidW).Empty(), state, faulted)
-                : (f(initialValue, a), w, s, faulted);
+            var res = self(env, state);
+            return res.IsFaulted
+                ? RWSResult<MonoidW, R, W, S, B>.New(res.Output, state, res.Error)
+                : RWSResult<MonoidW, R, W, S, B>.New(res.Output, res.State, f(initialValue, res.Value));
         };
 
     [Pure]
     public static RWS<MonoidW, R, W, S, R> Fold<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, Func<R, A, R> f)
         where MonoidW : struct, Monoid<W> => (env, state) =>
         {
-            var (a, w, s, faulted) = self(env, state);
-            return faulted
-                ? (default(R), default(MonoidW).Empty(), state, faulted)
-                : (f(env, a), w, s, faulted);
+            var res = self(env, state);
+            return res.IsFaulted
+                ? RWSResult<MonoidW, R, W, S, R>.New(res.Output, state, res.Error)
+                : RWSResult<MonoidW, R, W, S, R>.New(res.Output, res.State, f(env, res.Value));
         };
 
     /// <summary>
@@ -128,7 +128,7 @@ public static class RWSExtensions
     [Pure]
     public static RWS<MonoidW, R, W, S, A> Strict<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> ma) where MonoidW : struct, Monoid<W>
     {
-        Option<(A, W, S, bool)> cache = default;
+        Option<RWSResult<MonoidW, R, W, S, A>> cache = default;
         object sync = new object();
         return (env, state) =>
         {
@@ -166,7 +166,8 @@ public static class RWSExtensions
     [Pure]
     public static RWS<MonoidW, R, W, S, Unit> Modify<MonoidW, R, W, S, A>(RWS<MonoidW, R, W, S, A> self, Func<S, S> f)
         where MonoidW : struct, Monoid<W> => (env, state) =>
-            (unit, default(MonoidW).Empty(), f(state), false);
+            RWSResult<MonoidW, R, W, S, Unit>.New(default(MonoidW).Empty(), f(state), unit);
+
     [Pure]
     public static RWS<MonoidW, R, W, S, B> Map<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A> self, Func<A, B> project)
         where MonoidW: struct, Monoid<W> => self.Select(project);
@@ -180,10 +181,10 @@ public static class RWSExtensions
     public static RWS<MonoidW, R, W, S, A> Pass<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, (A, Func<W, W>)> self)
         where MonoidW : struct, Monoid<W> => (env, state) =>
         {
-            var ((a, f), w, s, faulted) = self(env, state);
-            return faulted
-                ? (default(A), default(MonoidW).Empty(), state, faulted)
-                : (a, f(w), s, faulted);
+            var res = self(env, state);
+            return res.IsFaulted
+                ? RWSResult<MonoidW, R, W, S, A>.New(res.Output, state, res.Error)
+                : RWSResult<MonoidW, R, W, S, A>.New(res.Value.Item2(res.Output), res.State, res.Value.Item1);
         };
 
     /// <summary>
@@ -233,10 +234,11 @@ public static class RWSExtensions
     public static RWS<MonoidW, R, W, S, A> Filter<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, Func<A, bool> pred)
         where MonoidW : struct, Monoid<W> => (env, state) =>
         {
-            var (a, w, s, faulted) = self(env, state);
-            return (!pred(a) || faulted)
-                ? (default(A), default(MonoidW).Empty(), state, true)
-                : (a, w, s, faulted);
+            var res = self(env, state);
+            if (res.IsFaulted) return res;
+            return pred(res.Value)
+                ? res
+                : RWSResult<MonoidW, R, W, S, A>.New(res.Output, state, Error.Bottom);
         };
 
     [Pure]
@@ -246,9 +248,9 @@ public static class RWSExtensions
     public static RWS<MonoidW, R, W, S, Unit> Iter<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, Action<A> action)
         where MonoidW : struct, Monoid<W> => (env, state) =>
         {
-            var (a, w, s, faulted) = self(env, state);
-            return faulted
-                ? (unit, default(MonoidW).Empty(), state, false)
-                : (fun(action)(a), w, s, false);
+            var res = self(env, state);
+            return res.IsFaulted
+                ? RWSResult<MonoidW, R, W, S, Unit>.New(res.Output, state, res.Error)
+                : RWSResult<MonoidW, R, W, S, Unit>.New(res.Output, res.State, fun(action)(res.Value));
         };
 }

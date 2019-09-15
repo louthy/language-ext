@@ -41,9 +41,20 @@ namespace LanguageExt.Common
         public static Error New(int code, string message) =>
             new Error(code, message, None);
 
+        public static Error FromObject(object value) =>
+            value is Error err    ? err
+          : value is Exception ex ? New(ex)
+          : value is string str   ? New(str)
+          : Bottom;
+
         internal Exception ToException() =>
             Exception.IsSome
                 ? (Exception)Exception
                 : new Exception(Message);
+
+        public override string ToString() =>
+            code == 0 
+                ? message
+                : $"{code}: {message}";
     }
 }

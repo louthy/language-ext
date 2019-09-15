@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
@@ -7,7 +8,7 @@ namespace LanguageExt
 {
     public delegate ReaderResult<A> Reader<Env, A>(Env env);
 
-    public struct ReaderResult<A>
+    public struct ReaderResult<A> : IEquatable<ReaderResult<A>>, IEquatable<A>
     {
         public static readonly ReaderResult<A> Bottom = new ReaderResult<A>();
 
@@ -28,7 +29,7 @@ namespace LanguageExt
             Init = State.Top;
         }
 
-        internal Error ErrorInt => Init == State.Bottom
+        internal Error ErrorInt => Init == State.Bottom || Error.IsNone
             ? Common.Error.Bottom
             : (Error)Error;
 
@@ -118,5 +119,36 @@ namespace LanguageExt
             IsFaulted
                 ? TryAsync<A>((ErrorInt).ToException())
                 : TryAsync(Value);
+
+        public override bool Equals(object obj) =>
+            obj is ReaderResult<A> res && Equals(res);
+
+        public override int GetHashCode() =>
+            IsFaulted ? 0 : Value?.GetHashCode() ?? 0;
+
+        public bool Equals(ReaderResult<A> right) =>
+            IsFaulted == right.IsFaulted &&
+            (IsFaulted || default(EqDefault<A>).Equals(Value, right.Value));
+
+        public bool Equals(A right) =>
+            !IsFaulted && default(EqDefault<A>).Equals(Value, right);
+
+        public static bool operator ==(ReaderResult<A> left, A right) =>
+            left.Equals(right);
+
+        public static bool operator !=(ReaderResult<A> left, A right) =>
+            !(left == right);
+
+        public static bool operator ==(ReaderResult<A> left, ReaderResult<A> right) =>
+            left.Equals(right);
+
+        public static bool operator !=(ReaderResult<A> left, ReaderResult<A> right) =>
+            !(left == right);
+
+        public void Deconstruct(out A Value, out Option<Error> Error)
+        {
+            Value = this.Value;
+            Error = IsFaulted ? default : ErrorInt;
+        }
     }
 }

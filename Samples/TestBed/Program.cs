@@ -1,6 +1,8 @@
 ﻿////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                    //
+//                                                                                                    //
 //     NOTE: This is just my scratch pad for quickly testing stuff, not for human consumption         //
+//                                                                                                    //
 //                                                                                                    //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -390,62 +392,62 @@ class Program
 }
 
 
-public partial struct Subs<S, A>
-{
-    internal readonly LanguageExt.RWS<TInt, TestBed.IO, int, S, A> __comp;
-    internal Subs(LanguageExt.RWS<TInt, TestBed.IO, int, S, A> comp) => __comp = comp;
-    public static Subs<S, A> Pure(A value) => new Subs<S, A>((env, state) => (value, default, state, false));
-    public static Subs<S, A> Fail => new Subs<S, A>((env, state) => (default, default, default, true));
-    public Subs<S, B> Map<B>(Func<A, B> f) => new Subs<S, B>(__comp.Map(f));
-    public Subs<S, B> Select<B>(Func<A, B> f) => new Subs<S, B>(__comp.Map(f));
-    public Subs<S, B> Bind<B>(Func<A, Subs<S, B>> f) => new Subs<S, B>(__comp.Bind(a => f(a).__comp));
-    public Subs<S, B> SelectMany<B>(Func<A, Subs<S, B>> f) => new Subs<S, B>(__comp.Bind(a => f(a).__comp));
-    public Subs<S, C> SelectMany<B, C>(Func<A, Subs<S, B>> bind, Func<A, B, C> project) => new Subs<S, C>(__comp.Bind(a => bind(a).__comp.Map(b => project(a, b))));
-    public (TryOption<A> Value, int Output, S State) Run(TestBed.IO env, S state) => __comp.Run(env, state);
-    public Subs<S, A> Filter(Func<A, bool> f) => new Subs<S, A>(__comp.Where(f));
-    public Subs<S, A> Where(Func<A, bool> f) => new Subs<S, A>(__comp.Where(f));
-    public Subs<S, A> Do(Action<A> f) => new Subs<S, A>(__comp.Do(f));
-    public Subs<S, A> Strict() => new Subs<S, A>(__comp.Strict());
-    public Seq<A> ToSeq(TestBed.IO env, S state) => __comp.ToSeq(env, state);
-    public Subs<S, LanguageExt.Unit> Iter(Action<A> f) => new Subs<S, LanguageExt.Unit>(__comp.Iter(f));
-    public Func<TestBed.IO, S, State> Fold<State>(State state, Func<State, A, State> f)
-    {
-        var self = this;
-        return (env, s) => self.__comp.Fold(state, f).Run(env, s).Value.IfNoneOrFail(state);
-    }
+//public partial struct Subs<S, A>
+//{
+//    internal readonly LanguageExt.RWS<TInt, TestBed.IO, int, S, A> __comp;
+//    internal Subs(LanguageExt.RWS<TInt, TestBed.IO, int, S, A> comp) => __comp = comp;
+//    public static Subs<S, A> Pure(A value) => new Subs<S, A>((env, state) => (value, default, state, false));
+//    public static Subs<S, A> Fail => new Subs<S, A>((env, state) => (default, default, default, true));
+//    public Subs<S, B> Map<B>(Func<A, B> f) => new Subs<S, B>(__comp.Map(f));
+//    public Subs<S, B> Select<B>(Func<A, B> f) => new Subs<S, B>(__comp.Map(f));
+//    public Subs<S, B> Bind<B>(Func<A, Subs<S, B>> f) => new Subs<S, B>(__comp.Bind(a => f(a).__comp));
+//    public Subs<S, B> SelectMany<B>(Func<A, Subs<S, B>> f) => new Subs<S, B>(__comp.Bind(a => f(a).__comp));
+//    public Subs<S, C> SelectMany<B, C>(Func<A, Subs<S, B>> bind, Func<A, B, C> project) => new Subs<S, C>(__comp.Bind(a => bind(a).__comp.Map(b => project(a, b))));
+//    public (TryOption<A> Value, int Output, S State) Run(TestBed.IO env, S state) => __comp.Run(env, state);
+//    public Subs<S, A> Filter(Func<A, bool> f) => new Subs<S, A>(__comp.Where(f));
+//    public Subs<S, A> Where(Func<A, bool> f) => new Subs<S, A>(__comp.Where(f));
+//    public Subs<S, A> Do(Action<A> f) => new Subs<S, A>(__comp.Do(f));
+//    public Subs<S, A> Strict() => new Subs<S, A>(__comp.Strict());
+//    public Seq<A> ToSeq(TestBed.IO env, S state) => __comp.ToSeq(env, state);
+//    public Subs<S, LanguageExt.Unit> Iter(Action<A> f) => new Subs<S, LanguageExt.Unit>(__comp.Iter(f));
+//    public Func<TestBed.IO, S, State> Fold<State>(State state, Func<State, A, State> f)
+//    {
+//        var self = this;
+//        return (env, s) => self.__comp.Fold(state, f).Run(env, s).Value.IfNoneOrFail(state);
+//    }
 
-    public Func<TestBed.IO, S, bool> ForAll(Func<A, bool> f)
-    {
-        var self = this;
-        return (env, s) => self.__comp.ForAll(f).Run(env, s).Value.IfNoneOrFail(false);
-    }
+//    public Func<TestBed.IO, S, bool> ForAll(Func<A, bool> f)
+//    {
+//        var self = this;
+//        return (env, s) => self.__comp.ForAll(f).Run(env, s).Value.IfNoneOrFail(false);
+//    }
 
-    public Func<TestBed.IO, S, bool> Exists(Func<A, bool> f)
-    {
-        var self = this;
-        return (env, s) => self.__comp.Exists(f).Run(env, s).Value.IfNoneOrFail(false);
-    }
-    public Subs<S, A> Local(Func<TestBed.IO, TestBed.IO> f) =>
-        new Subs<S, A>(LanguageExt.Prelude.local<TInt, TestBed.IO, int, S, A>(__comp, f));
+//    public Func<TestBed.IO, S, bool> Exists(Func<A, bool> f)
+//    {
+//        var self = this;
+//        return (env, s) => self.__comp.Exists(f).Run(env, s).Value.IfNoneOrFail(false);
+//    }
+//    public Subs<S, A> Local(Func<TestBed.IO, TestBed.IO> f) =>
+//        new Subs<S, A>(LanguageExt.Prelude.local<TInt, TestBed.IO, int, S, A>(__comp, f));
 
-    public Subs<S, (A, B)> Listen<B>(Func<int, B> f) => new Subs<S, (A, B)>(__comp.Listen(f));
-    public Subs<S, A> Censor(Func<int, int> f) => new Subs<S, A>(__comp.Censor(f));
-}
+//    public Subs<S, (A, B)> Listen<B>(Func<int, B> f) => new Subs<S, (A, B)>(__comp.Listen(f));
+//    public Subs<S, A> Censor(Func<int, int> f) => new Subs<S, A>(__comp.Censor(f));
+//}
 
-public static partial class Subs
-{
-    public static Subs<S, A> Pure<S, A>(A value) => Subs<S, A>.Pure(value);
-    public static Subs<S, A> Fail<S, A>() => Subs<S, A>.Fail;
-    public static Subs<S, A> asks<S, A>(Func<TestBed.IO, A> f) => new Subs<S, A>((env, state) => (f(env), default, state, false));
-    public static Subs<S, TestBed.IO> ask<S>() => new Subs<S, TestBed.IO>((env, state) => (env, default, state, false));
-    public static Subs<S, S> get<S>() => new Subs<S, S>((env, state) => (state, default, state, false));
-    public static Subs<S, A> gets<S, A>(Func<S, A> f) => new Subs<S, A>((env, state) => (f(state), default, state, false));
-    public static Subs<S, Unit> put<S>(S value) => new Subs<S, Unit>((env, state) => (default, default, value, false));
-    public static Subs<S, Unit> modify<S>(Func<S, S> f) => new Subs<S, Unit>((env, state) => (default, default, f(state), false));
-    public static Subs<S, A> local<S, A>(Subs<S, A> ma, Func<TestBed.IO, TestBed.IO> f) => ma.Local(f);
-    public static Subs<S, A> Pass<S, A>(this Subs<S, (A, Func<int, int>)> ma) => new Subs<S, A>(ma.__comp.Pass());
-    public static Subs<S, A> pass<S, A>(Subs<S, (A, Func<int, int>)> ma) => new Subs<S, A>(ma.__comp.Pass());
-    public static Subs<S, (A, B)> listen<S, A, B>(Subs<S, A> ma, Func<int, B> f) => ma.Listen(f);
-    public static Subs<S, A> censor<S, A>(Subs<S, A> ma, Func<int, int> f) => ma.Censor(f);
-    public static Subs<S, Unit> tell<S, A>(int what) => new Subs<S, Unit>(tell<TInt, TestBed.IO, int, S, A>(what));
-}
+//public static partial class Subs
+//{
+//    public static Subs<S, A> Pure<S, A>(A value) => Subs<S, A>.Pure(value);
+//    public static Subs<S, A> Fail<S, A>() => Subs<S, A>.Fail;
+//    public static Subs<S, A> asks<S, A>(Func<TestBed.IO, A> f) => new Subs<S, A>((env, state) => (f(env), default, state, false));
+//    public static Subs<S, TestBed.IO> ask<S>() => new Subs<S, TestBed.IO>((env, state) => (env, default, state, false));
+//    public static Subs<S, S> get<S>() => new Subs<S, S>((env, state) => (state, default, state, false));
+//    public static Subs<S, A> gets<S, A>(Func<S, A> f) => new Subs<S, A>((env, state) => (f(state), default, state, false));
+//    public static Subs<S, Unit> put<S>(S value) => new Subs<S, Unit>((env, state) => (default, default, value, false));
+//    public static Subs<S, Unit> modify<S>(Func<S, S> f) => new Subs<S, Unit>((env, state) => (default, default, f(state), false));
+//    public static Subs<S, A> local<S, A>(Subs<S, A> ma, Func<TestBed.IO, TestBed.IO> f) => ma.Local(f);
+//    public static Subs<S, A> Pass<S, A>(this Subs<S, (A, Func<int, int>)> ma) => new Subs<S, A>(ma.__comp.Pass());
+//    public static Subs<S, A> pass<S, A>(Subs<S, (A, Func<int, int>)> ma) => new Subs<S, A>(ma.__comp.Pass());
+//    public static Subs<S, (A, B)> listen<S, A, B>(Subs<S, A> ma, Func<int, B> f) => ma.Listen(f);
+//    public static Subs<S, A> censor<S, A>(Subs<S, A> ma, Func<int, int> f) => ma.Censor(f);
+//    public static Subs<S, Unit> tell<S, A>(int what) => new Subs<S, Unit>(tell<TInt, TestBed.IO, int, S, A>(what));
+//}

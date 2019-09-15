@@ -1,9 +1,8 @@
 ﻿using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 using LanguageExt.TypeClasses;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Text;
 
 namespace LanguageExt
 {
@@ -21,14 +20,14 @@ namespace LanguageExt
         /// RWS monad constructor
         /// </summary>
         /// <typeparam name="R">Environment type</typeparam>
-        /// <typeparam name="w">Writer type</typeparam>
+        /// <typeparam name="W">Writer type</typeparam>
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <param name="value">Value</param>
         /// <returns>RWS monad</returns>
         [Pure]
-        public static RWS<MonoidW, R, W, S, A> RWS<MonoidW, R, W, S, A>(A value) where MonoidW : struct, Monoid<W> =>
-            default(MRWS<MonoidW, R, W, S, A>).Return(_ => value);
+        public static RWS<MonoidW, R, W, S, A> RWS<MonoidW, R, W, S, A>(A value) where MonoidW : struct, Monoid<W> => (_, state) =>
+            RWSResult<MonoidW, R, W, S, A>.New(state, value);
 
         /// <summary>
         /// RWS monad constructor
@@ -40,8 +39,103 @@ namespace LanguageExt
         /// <param name="value">Value</param>
         /// <returns>RWS monad</returns>
         [Pure]
-        public static RWS<MonoidW, R, W, S, A> RWS<MonoidW, R, W, S, A>(Func<R, S, (A, W, S)> f) where MonoidW : struct, Monoid<W>
-            => (env, state) => f(env, state).Add(false);
+        public static RWS<MonoidW, R, W, S, A> RWS<MonoidW, R, W, S, A>(S state, A value) where MonoidW : struct, Monoid<W> => (_, __) =>
+            RWSResult<MonoidW, R, W, S, A>.New(state, value);
+
+        /// <summary>
+        /// RWS monad constructor
+        /// </summary>
+        /// <typeparam name="R">Environment type</typeparam>
+        /// <typeparam name="W">Writer type</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="value">Value</param>
+        /// <returns>RWS monad</returns>
+        [Pure]
+        public static RWS<MonoidW, R, W, S, A> RWS<MonoidW, R, W, S, A>(W output, S state, A value) where MonoidW : struct, Monoid<W> => (_, __) =>
+            RWSResult<MonoidW, R, W, S, A>.New(output, state, value);
+
+        /// <summary>
+        /// RWS monad constructor
+        /// </summary>
+        /// <typeparam name="R">Environment type</typeparam>
+        /// <typeparam name="W">Writer type</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="value">Value</param>
+        /// <returns>RWS monad</returns>
+        [Pure]
+        public static RWS<MonoidW, R, W, S, A> RWS<MonoidW, R, W, S, A>(W output, A value) where MonoidW : struct, Monoid<W> => (_, state) =>
+            RWSResult<MonoidW, R, W, S, A>.New(output, state, value);
+
+        /// <summary>
+        /// RWS monad constructor
+        /// </summary>
+        /// <typeparam name="R">Environment type</typeparam>
+        /// <typeparam name="W">Writer type</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="value">Value</param>
+        /// <returns>RWS monad</returns>
+        [Pure]
+        public static RWS<MonoidW, R, W, S, A> RWS<MonoidW, R, W, S, A>(Func<R, S, (A, W, S)> f) where MonoidW : struct, Monoid<W> =>
+            (env, state) =>
+            {
+                var (a, w, s) = f(env, state);
+                return RWSResult<MonoidW, R, W, S, A>.New(w, s, a);
+            };
+
+        /// <summary>
+        /// RWS failure constructor
+        /// </summary>
+        /// <typeparam name="R">Environment type</typeparam>
+        /// <typeparam name="W">Writer type</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="value">Value</param>
+        /// <returns>RWS monad</returns>
+        [Pure]
+        public static RWS<MonoidW, R, W, S, A> RWSFail<MonoidW, R, W, S, A>(Error error) where MonoidW : struct, Monoid<W> => (_, state) =>
+            RWSResult<MonoidW, R, W, S, A>.New(state, error);
+
+        /// <summary>
+        /// RWS failure constructor
+        /// </summary>
+        /// <typeparam name="R">Environment type</typeparam>
+        /// <typeparam name="W">Writer type</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="value">Value</param>
+        /// <returns>RWS monad</returns>
+        [Pure]
+        public static RWS<MonoidW, R, W, S, A> RWSFail<MonoidW, R, W, S, A>(Exception exception) where MonoidW : struct, Monoid<W> =>
+            RWSFail<MonoidW, R, W, S, A>(Error.New(exception));
+
+        /// <summary>
+        /// RWS failure constructor
+        /// </summary>
+        /// <typeparam name="R">Environment type</typeparam>
+        /// <typeparam name="W">Writer type</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="value">Value</param>
+        /// <returns>RWS monad</returns>
+        [Pure]
+        public static RWS<MonoidW, R, W, S, A> RWSFail<MonoidW, R, W, S, A>(string message, Exception exception) where MonoidW : struct, Monoid<W> =>
+            RWSFail<MonoidW, R, W, S, A>(Error.New(message, exception));
+
+        /// <summary>
+        /// RWS failure constructor
+        /// </summary>
+        /// <typeparam name="R">Environment type</typeparam>
+        /// <typeparam name="W">Writer type</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="value">Value</param>
+        /// <returns>RWS monad</returns>
+        [Pure]
+        public static RWS<MonoidW, R, W, S, A> RWSFail<MonoidW, R, W, S, A>(string message) where MonoidW : struct, Monoid<W> =>
+            RWSFail<MonoidW, R, W, S, A>(Error.New(message));
 
         /// <summary>
         /// Get the state from monad into its wrapped value
@@ -80,8 +174,8 @@ namespace LanguageExt
         /// <returns>RWS monad with state set and with Unit value</returns>
         [Pure]
         public static RWS<MonoidW, R, W, S, Unit> modify<MonoidW, R, W, S, A>(Func<S, S> f)
-           where MonoidW : struct, Monoid<W> => (env, state) =>
-           (unit, default(MonoidW).Empty(), f(state), false);
+        where MonoidW : struct, Monoid<W> => (env, state) =>
+            RWSResult<MonoidW, R, W, S, Unit>.New(default(MonoidW).Empty(), f(state), unit);
 
         /// <summary>
         /// Gets a projection of the state
@@ -147,13 +241,13 @@ namespace LanguageExt
             {
                 foreach (var monad in monads)
                 {
-                    var (a, w, s, faulted) = monad(env, state);
-                    if (a.IsSome && !faulted)
+                    var res = monad(env, state);
+                    if (res.Value.IsSome && !res.IsFaulted)
                     {
-                        return (a, w, s, faulted);
+                        return res;
                     }
                 }
-                return (default(A), default(MonoidW).Empty(), state, true);
+                return RWSResult<MonoidW, R, W, S, Option<A>>.New(default(MonoidW).Empty(), state, Option<A>.None);
             };
 
         /// <summary>
@@ -172,9 +266,9 @@ namespace LanguageExt
                 {
                     return m(env, state);
                 }
-                catch
+                catch(Exception e)
                 {
-                    return (default(A), default(MonoidW).Empty(), state, true);
+                    return RWSResult<MonoidW, R, W, S, A>.New(default(MonoidW).Empty(), state, Error.New(e));
                 }
             };
 
@@ -294,6 +388,5 @@ namespace LanguageExt
         public static RWS<MonoidW, R, W, S, Unit> iter<MonoidW, R, W, S, A>(RWS<MonoidW, R, W, S, A> self, Action<A> action)
             where MonoidW : struct, Monoid<W> =>
                 self.Iter(action);
-
     }
 }

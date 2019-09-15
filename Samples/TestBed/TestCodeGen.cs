@@ -1,6 +1,8 @@
 ﻿////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                    //
+//                                                                                                    //
 //     NOTE: This is just my scratch pad for quickly testing stuff, not for human consumption         //
+//                                                                                                    //
 //                                                                                                    //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -82,8 +84,8 @@ namespace TestBed
         }
     }
 
-    [RWS(WriterMonoid: typeof(MSeq<string>), Env: typeof(IO), State: typeof(Person), Constructor: "Pure", Fail: "Error")]
-    public partial struct Subsys<T>
+    [RWS(WriterMonoid: typeof(MSeq<string>), Env: typeof(IO), State: typeof(Person), Constructor: "PureIO", Fail: "Err1")]
+    public partial struct Subsys<X, Y, T>
     {
     }
 
