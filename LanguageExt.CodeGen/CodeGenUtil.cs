@@ -441,5 +441,72 @@ namespace LanguageExt.CodeGen
             var gens = nolast.AddRange(genAdd.Select(gen => TypeParameter(gen)));
             return SyntaxFactory.ParseTypeName($"{s.Identifier}<{gens}>");
         }
+
+        public static TypeSyntax ExceptionType = SystemType("Exception");
+
+        public static TypeSyntax FuncType(params SyntaxNodeOrToken[] gens) =>
+            SystemType("Func", gens);
+
+        public static TypeSyntax FuncType(string gen, params SyntaxNodeOrToken[] gens)
+        {
+            var ngens = new SyntaxNodeOrToken[gens.Length + 1];
+            ngens[0] = IdentifierName(gen);
+            gens.CopyTo(ngens, 1);
+            return FuncType(ngens);
+        }
+
+        public static TypeSyntax FuncType(string gen) =>
+            SystemType("Func", gen);
+
+        public static TypeSyntax FuncType(string genA, string genB) =>
+            SystemType("Func", IdentifierName(genA), IdentifierName(genB));
+
+        public static TypeSyntax FuncType(string genA, string genB, string genC) =>
+            SystemType("Func", IdentifierName(genA), IdentifierName(genB), IdentifierName(genC));
+
+        public static TypeSyntax ActionType(params SyntaxNodeOrToken[] gens) =>
+            SystemType("Action", gens);
+
+        public static TypeSyntax ActionType(string gen) =>
+            SystemType("Action", gen);
+
+        public static TypeSyntax SystemType(string name, params SyntaxNodeOrToken[] gens) =>
+            gens.Length == 0
+                ? QualifiedName(IdentifierName("System"), IdentifierName(name))
+                : QualifiedName(
+                      IdentifierName("System"),
+                      GenericName(Identifier(name))
+                        .WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(Interleave(gens, Token(SyntaxKind.CommaToken))))));
+
+        public static TypeSyntax SystemType(string name, string gen) =>
+            QualifiedName(
+                IdentifierName("System"), GenericName(
+                Identifier(name))
+            .WithTypeArgumentList(
+                TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName(gen)))));
+
+        public static A[] Interleave<A>(A[] xs, A sep)
+        {
+            // Ugly, but fast
+
+            if (xs.Length == 0) return new A[0];
+            var nxs = new A[xs.Length * 2 - 1];
+            for(int i = 0; i < nxs.Length; i++)
+            {
+                nxs[i] = i % 2 == 0
+                    ? xs[i >> 1]
+                    : sep;
+            }
+            return nxs;
+        }
+
+        public static MemberAccessExpressionSyntax PreludeMember(SimpleNameSyntax name) =>
+            MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName("LanguageExt"),
+                    IdentifierName("Prelude")),
+                name);
     }
 }

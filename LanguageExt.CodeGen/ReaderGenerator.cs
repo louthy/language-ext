@@ -55,6 +55,8 @@ namespace LanguageExt.CodeGen
                 var structEnv = CodeGenUtil.MakeGenericStruct(applyToStruct, envType);
                 var structUnit = CodeGenUtil.MakeGenericStruct(applyToStruct, "LanguageExt.Unit");
 
+                var envTypeSyntax = ParseTypeName(envType);
+
                 var compType = ParseTypeName($"LanguageExt.Reader<{envType}, {applyToStruct.TypeParameterList.Parameters.Last()}>");
 
                 // Internal field used to store the reader monad
@@ -116,7 +118,7 @@ namespace LanguageExt.CodeGen
                                                                         TypeArgumentList(
                                                                             SeparatedList<TypeSyntax>(
                                                                                 new SyntaxNodeOrToken[]{
-                                                                                    ParseTypeName(envType),
+                                                                                    envTypeSyntax,
                                                                                     Token(SyntaxKind.CommaToken),
                                                                                     IdentifierName(genA)})))))
                                                             .WithArgumentList(
@@ -161,7 +163,7 @@ namespace LanguageExt.CodeGen
                                                                         TypeArgumentList(
                                                                             SeparatedList<TypeSyntax>(
                                                                                 new SyntaxNodeOrToken[]{
-                                                                                    ParseTypeName(envType),
+                                                                                    envTypeSyntax,
                                                                                     Token(SyntaxKind.CommaToken),
                                                                                     IdentifierName(genA)})))))
                                                             .WithArgumentList(
@@ -183,7 +185,7 @@ namespace LanguageExt.CodeGen
                                                 Token(SyntaxKind.StaticKeyword)}))
                                     .WithParameterList(
                                         ParameterList(
-                                            SingletonSeparatedList<ParameterSyntax>(Parameter(Identifier("exception")).WithType(IdentifierName("Exception")))))
+                                            SingletonSeparatedList<ParameterSyntax>(Parameter(Identifier("exception")).WithType(CodeGenUtil.ExceptionType))))
                                     .WithExpressionBody(
                                         ArrowExpressionClause(
                                             ObjectCreationExpression(structA)
@@ -201,7 +203,7 @@ namespace LanguageExt.CodeGen
                                                                         TypeArgumentList(
                                                                             SeparatedList<TypeSyntax>(
                                                                                 new SyntaxNodeOrToken[]{
-                                                                                    ParseTypeName(envType),
+                                                                                    envTypeSyntax,
                                                                                     Token(SyntaxKind.CommaToken),
                                                                                     IdentifierName(genA)})))))
                                                             .WithArgumentList(
@@ -234,8 +236,7 @@ namespace LanguageExt.CodeGen
                                                     Token(SyntaxKind.CommaToken),
                                                     Parameter(
                                                         Identifier("exception"))
-                                                    .WithType(
-                                                        IdentifierName("Exception"))})))
+                                                    .WithType(CodeGenUtil.ExceptionType)})))
                                     .WithExpressionBody(
                                         ArrowExpressionClause(
                                             ObjectCreationExpression(structA)
@@ -253,7 +254,7 @@ namespace LanguageExt.CodeGen
                                                                         TypeArgumentList(
                                                                             SeparatedList<TypeSyntax>(
                                                                                 new SyntaxNodeOrToken[]{
-                                                                                    ParseTypeName(envType),
+                                                                                    envTypeSyntax,
                                                                                     Token(SyntaxKind.CommaToken),
                                                                                     IdentifierName(genA)})))))
                                                             .WithArgumentList(
@@ -289,31 +290,13 @@ namespace LanguageExt.CodeGen
                                         new SyntaxNodeOrToken[]{
                                             Parameter(
                                                 Identifier("bind"))
-                                            .WithType(
-                                                GenericName(
-                                                    Identifier("Func"))
-                                                .WithTypeArgumentList(
-                                                    TypeArgumentList(
-                                                        SeparatedList<TypeSyntax>(
-                                                            new SyntaxNodeOrToken[]{
-                                                                IdentifierName(genA),
-                                                                Token(SyntaxKind.CommaToken),
-                                                                structB})))),
+                                            .WithType(CodeGenUtil.FuncType(genA, structB)),
                                             Token(SyntaxKind.CommaToken),
                                             Parameter(
                                                 Identifier("project"))
                                             .WithType(
-                                                GenericName(
-                                                    Identifier("Func"))
-                                                .WithTypeArgumentList(
-                                                    TypeArgumentList(
-                                                        SeparatedList<TypeSyntax>(
-                                                            new SyntaxNodeOrToken[]{
-                                                                IdentifierName(genA),
-                                                                Token(SyntaxKind.CommaToken),
-                                                                IdentifierName(genB),
-                                                                Token(SyntaxKind.CommaToken),
-                                                                IdentifierName(genC)}))))})))
+                                                CodeGenUtil.FuncType(genA, genB, genC)
+                                                )})))
                             .WithExpressionBody(
                                 ArrowExpressionClause(
                                     ObjectCreationExpression(structC)
@@ -414,13 +397,7 @@ namespace LanguageExt.CodeGen
                                         SingletonSeparatedList<ParameterSyntax>(
                                             Parameter(
                                                 Identifier("f"))
-                                            .WithType(
-                                                GenericName(
-                                                    Identifier("Action"))
-                                                .WithTypeArgumentList(
-                                                    TypeArgumentList(
-                                                        SingletonSeparatedList<TypeSyntax>(
-                                                            IdentifierName(genA))))))))
+                                            .WithType(CodeGenUtil.ActionType(genA)))))
                                 .WithExpressionBody(
                                     ArrowExpressionClause(
                                         ObjectCreationExpression(structA)
@@ -508,13 +485,7 @@ namespace LanguageExt.CodeGen
                                             SingletonSeparatedList<ParameterSyntax>(
                                                 Parameter(
                                                     Identifier("f"))
-                                                .WithType(
-                                                    GenericName(
-                                                        Identifier("Action"))
-                                                    .WithTypeArgumentList(
-                                                        TypeArgumentList(
-                                                            SingletonSeparatedList<TypeSyntax>(
-                                                                IdentifierName(genA))))))))
+                                                .WithType(CodeGenUtil.ActionType(genA)))))
                                     .WithExpressionBody(
                                         ArrowExpressionClause(
                                             ObjectCreationExpression(structUnit)
@@ -536,15 +507,7 @@ namespace LanguageExt.CodeGen
                                         Token(SyntaxKind.SemicolonToken));
 
                 var foldMethod = MethodDeclaration(
-                                        GenericName(
-                                            Identifier("Func"))
-                                        .WithTypeArgumentList(
-                                            TypeArgumentList(
-                                                SeparatedList<TypeSyntax>(
-                                                    new SyntaxNodeOrToken[]{
-                                                        IdentifierName(envType),
-                                                        Token(SyntaxKind.CommaToken),
-                                                        IdentifierName("S")}))),
+                                        CodeGenUtil.FuncType(envType, "S"),
                                         Identifier("Fold"))
                                     .WithModifiers(
                                         TokenList(
@@ -566,17 +529,8 @@ namespace LanguageExt.CodeGen
                                                     Parameter(
                                                         Identifier("f"))
                                                     .WithType(
-                                                        GenericName(
-                                                            Identifier("Func"))
-                                                        .WithTypeArgumentList(
-                                                            TypeArgumentList(
-                                                                SeparatedList<TypeSyntax>(
-                                                                    new SyntaxNodeOrToken[]{
-                                                                        IdentifierName("S"),
-                                                                        Token(SyntaxKind.CommaToken),
-                                                                        IdentifierName(genA),
-                                                                        Token(SyntaxKind.CommaToken),
-                                                                        IdentifierName("S")}))))})))
+                                                        CodeGenUtil.FuncType("S", genA, "S")
+                                                        )})))
                                     .WithBody(
                                         Block(
                                             LocalDeclarationStatement(
@@ -630,16 +584,7 @@ namespace LanguageExt.CodeGen
                                                                     IdentifierName("state")))))))));
 
                 var forAllMethod = MethodDeclaration(
-                                        GenericName(
-                                            Identifier("Func"))
-                                        .WithTypeArgumentList(
-                                            TypeArgumentList(
-                                                SeparatedList<TypeSyntax>(
-                                                    new SyntaxNodeOrToken[]{
-                                                        IdentifierName(envType),
-                                                        Token(SyntaxKind.CommaToken),
-                                                        PredefinedType(
-                                                            Token(SyntaxKind.BoolKeyword))}))),
+                                        CodeGenUtil.FuncType(envTypeSyntax, PredefinedType(Token(SyntaxKind.BoolKeyword))),
                                         Identifier("ForAll"))
                                     .WithModifiers(
                                         TokenList(
@@ -651,16 +596,8 @@ namespace LanguageExt.CodeGen
                                                     Parameter(
                                                         Identifier("f"))
                                                     .WithType(
-                                                        GenericName(
-                                                            Identifier("Func"))
-                                                        .WithTypeArgumentList(
-                                                            TypeArgumentList(
-                                                                SeparatedList<TypeSyntax>(
-                                                                    new SyntaxNodeOrToken[]{
-                                                                        IdentifierName(genA),
-                                                                        Token(SyntaxKind.CommaToken),
-                                                                        PredefinedType(
-                                                                            Token(SyntaxKind.BoolKeyword))}))))})))
+                                                        CodeGenUtil.FuncType(genA, PredefinedType(Token(SyntaxKind.BoolKeyword)))
+                                                        )})))
                                     .WithBody(
                                         Block(
                                             LocalDeclarationStatement(
@@ -711,16 +648,7 @@ namespace LanguageExt.CodeGen
                                                                         SyntaxKind.FalseLiteralExpression)))))))));
 
                 var existsMethod = MethodDeclaration(
-                                        GenericName(
-                                            Identifier("Func"))
-                                        .WithTypeArgumentList(
-                                            TypeArgumentList(
-                                                SeparatedList<TypeSyntax>(
-                                                    new SyntaxNodeOrToken[]{
-                                                        IdentifierName(envType),
-                                                        Token(SyntaxKind.CommaToken),
-                                                        PredefinedType(
-                                                            Token(SyntaxKind.BoolKeyword))}))),
+                                        CodeGenUtil.FuncType(envTypeSyntax, PredefinedType(Token(SyntaxKind.BoolKeyword))),
                                         Identifier("Exists"))
                                         .WithModifiers(
                                             TokenList(
@@ -732,16 +660,8 @@ namespace LanguageExt.CodeGen
                                                         Parameter(
                                                             Identifier("f"))
                                                         .WithType(
-                                                            GenericName(
-                                                                Identifier("Func"))
-                                                            .WithTypeArgumentList(
-                                                                TypeArgumentList(
-                                                                    SeparatedList<TypeSyntax>(
-                                                                        new SyntaxNodeOrToken[]{
-                                                                            IdentifierName(genA),
-                                                                            Token(SyntaxKind.CommaToken),
-                                                                            PredefinedType(
-                                                                                Token(SyntaxKind.BoolKeyword))}))))})))
+                                                            CodeGenUtil.FuncType(genA, PredefinedType(Token(SyntaxKind.BoolKeyword)))
+                                                            )})))
                                         .WithBody(
                                             Block(
                                                 LocalDeclarationStatement(
@@ -797,15 +717,7 @@ namespace LanguageExt.CodeGen
                                           ParameterList(
                                               SingletonSeparatedList<ParameterSyntax>(
                                                   Parameter(Identifier("f"))
-                                                    .WithType(GenericName(Identifier("Func"))
-                                                    .WithTypeArgumentList(
-                                                        TypeArgumentList(
-                                                            SeparatedList<TypeSyntax>(
-                                                                new SyntaxNodeOrToken[]{
-                                                                    ParseTypeName(envType),
-                                                                    Token(SyntaxKind.CommaToken),
-                                                                    ParseTypeName(envType)
-                                                                })))))))
+                                                    .WithType(CodeGenUtil.FuncType(envTypeSyntax, envTypeSyntax)))))
                                         .WithExpressionBody(
                                             ArrowExpressionClause(
                                                 ObjectCreationExpression(structA)
@@ -813,14 +725,7 @@ namespace LanguageExt.CodeGen
                                                     ArgumentList(
                                                         SingletonSeparatedList<ArgumentSyntax>(
                                                             Argument(
-                                                                InvocationExpression(
-                                                                    MemberAccessExpression(
-                                                                        SyntaxKind.SimpleMemberAccessExpression,
-                                                                        MemberAccessExpression(
-                                                                            SyntaxKind.SimpleMemberAccessExpression,
-                                                                            IdentifierName("LanguageExt"),
-                                                                            IdentifierName("Prelude")),
-                                                                        IdentifierName("local")))
+                                                                InvocationExpression(CodeGenUtil.PreludeMember(IdentifierName("local")))
                                                                 .WithArgumentList(
                                                                     ArgumentList(
                                                                         SeparatedList<ArgumentSyntax>(
@@ -850,15 +755,8 @@ namespace LanguageExt.CodeGen
                                     Parameter(
                                         Identifier("f"))
                                     .WithType(
-                                        GenericName(
-                                            Identifier("Func"))
-                                        .WithTypeArgumentList(
-                                            TypeArgumentList(
-                                                SeparatedList<TypeSyntax>(
-                                                    new SyntaxNodeOrToken[]{
-                                                        IdentifierName(genA),
-                                                        Token(SyntaxKind.CommaToken),
-                                                        IdentifierName(genB)})))))))
+                                        CodeGenUtil.FuncType(genA, genB)
+                                        ))))
                         .WithExpressionBody(
                             ArrowExpressionClause(
                                 ObjectCreationExpression(structB)
@@ -896,15 +794,7 @@ namespace LanguageExt.CodeGen
                                         Parameter(
                                             Identifier("f"))
                                         .WithType(
-                                            GenericName(
-                                                Identifier("Func"))
-                                            .WithTypeArgumentList(
-                                                TypeArgumentList(
-                                                    SeparatedList<TypeSyntax>(
-                                                        new SyntaxNodeOrToken[]{
-                                                            IdentifierName(genA),
-                                                            Token(SyntaxKind.CommaToken),
-                                                            structB })))))))
+                                            CodeGenUtil.FuncType(genA, structB)))))
                             .WithExpressionBody(
                                 ArrowExpressionClause(
                                     ObjectCreationExpression(structB)
@@ -1042,7 +932,7 @@ namespace LanguageExt.CodeGen
                                                 Parameter(
                                                     Identifier("exception"))
                                                 .WithType(
-                                                    IdentifierName("Exception")))))
+                                                    CodeGenUtil.ExceptionType))))
                                     .WithExpressionBody(
                                         ArrowExpressionClause(
                                            InvocationExpression(
@@ -1080,7 +970,7 @@ namespace LanguageExt.CodeGen
                                                     Parameter(
                                                         Identifier("exception"))
                                                     .WithType(
-                                                        IdentifierName("Exception"))})))
+                                                        CodeGenUtil.ExceptionType)})))
                                     .WithExpressionBody(
                                         ArrowExpressionClause(
                                            InvocationExpression(
@@ -1117,15 +1007,8 @@ namespace LanguageExt.CodeGen
                                                 Parameter(
                                                     Identifier("f"))
                                                 .WithType(
-                                                    GenericName(
-                                                        Identifier("Func"))
-                                                    .WithTypeArgumentList(
-                                                        TypeArgumentList(
-                                                            SeparatedList<TypeSyntax>(
-                                                                new SyntaxNodeOrToken[]{
-                                                                    IdentifierName(envType),
-                                                                    Token(SyntaxKind.CommaToken),
-                                                                    IdentifierName(genA)})))))))
+                                                    CodeGenUtil.FuncType(envType, genA)
+                                                    ))))
                                     .WithExpressionBody(
                                         ArrowExpressionClause(
                                         ObjectCreationExpression(structA)
@@ -1174,7 +1057,7 @@ namespace LanguageExt.CodeGen
                                                             GenericName(
                                                                 Identifier("ReaderResult"))
                                                             .WithTypeArgumentList(
-                                                                TypeArgumentList(SingletonSeparatedList<TypeSyntax>(ParseTypeName(envType)))),
+                                                                TypeArgumentList(SingletonSeparatedList<TypeSyntax>(envTypeSyntax))),
                                                             IdentifierName("New")))
                                                     .WithArgumentList(
                                                         ArgumentList(
@@ -1234,16 +1117,8 @@ namespace LanguageExt.CodeGen
                                                     Token(SyntaxKind.CommaToken),
                                                     Parameter(Identifier("f"))
                                                         .WithType(
-                                                            GenericName(
-                                                                Identifier("Func"))
-                                                            .WithTypeArgumentList(
-                                                                TypeArgumentList(
-                                                                    SeparatedList<TypeSyntax>(
-                                                                        new SyntaxNodeOrToken[]{
-                                                                            ParseTypeName(envType),
-                                                                            Token(SyntaxKind.CommaToken),
-                                                                            ParseTypeName(envType)
-                                                                        }))))})))
+                                                            CodeGenUtil.FuncType(envTypeSyntax, envTypeSyntax)
+                                                            )})))
                                     .WithExpressionBody(
                                         ArrowExpressionClause(
                                             InvocationExpression(
