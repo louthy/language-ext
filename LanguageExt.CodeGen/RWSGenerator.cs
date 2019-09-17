@@ -90,7 +90,7 @@ namespace LanguageExt.CodeGen
                 var structS = CodeGenUtil.MakeGenericStruct(applyToStruct, genS);
                 var structAB = CodeGenUtil.MakeGenericStruct(applyToStruct, $"({genA}, {genB})");
                 var structUnit = CodeGenUtil.MakeGenericStruct(applyToStruct, "LanguageExt.Unit");
-                var structPass = CodeGenUtil.MakeGenericStruct(applyToStruct, $"({genA}, Func<{wType}, {wType}>)");
+                var structPass = CodeGenUtil.MakeGenericStruct(applyToStruct, $"({genA}, System.Func<{wType}, {wType}>)");
 
                 var noAGen = TypeParameterList(applyToStruct.TypeParameterList.Parameters.RemoveAt(applyToStruct.TypeParameterList.Parameters.Count - 1));
 
