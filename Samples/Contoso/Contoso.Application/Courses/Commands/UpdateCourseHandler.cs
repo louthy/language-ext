@@ -24,15 +24,19 @@ namespace Contoso.Application.Courses.Commands
 
         public Task<Validation<Error, Task>> Handle(UpdateCourse request, CancellationToken cancellationToken) =>
             Validate(request)
-                .MapT(c => ApplyUpdate(c, request));
+                .MapT(c => ApplyUpdate(c, request))
+                .MapT(Persist);
 
-        private Task ApplyUpdate(Course c, UpdateCourse request)
-        {
-            c.Title = request.Title;
-            c.Credits = request.Credits;
-            c.DepartmentId = request.DepartmentId;
-            return _courseRepository.Update(c);
-        }
+        private Course ApplyUpdate(Course c, UpdateCourse request) => 
+            new Course
+            {
+                CourseId = c.CourseId,
+                DepartmentId = request.DepartmentId,
+                Credits = request.Credits,
+                Title = request.Title
+            };
+
+        private Task Persist(Course c) => _courseRepository.Update(c);
 
         private async Task<Validation<Error, Course>> Validate(UpdateCourse updateCourse) => 
             (ValidateTitle(updateCourse), await DepartmentMustExist(updateCourse),
