@@ -27,5 +27,9 @@ namespace Contoso.Web.Controllers
         [HttpPut]
         public Task<IActionResult> Update(UpdateEnrollment update) =>
             _mediator.Send(update).ToActionResult();
+
+        [HttpDelete]
+        public Task<IActionResult> Delete(DeleteEnrollment delete) =>
+            _mediator.Send(delete).ToActionResult();
     }
 }

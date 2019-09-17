@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Contoso.Core.Domain;
 using Contoso.Core.Interfaces.Repositories;
 using LanguageExt;
@@ -13,14 +12,18 @@ namespace Contoso.Infrastructure.Data.Repositories
 
         public EnrollmentRepository(ContosoDbContext contosoDbContext) => _contosoDbContext = contosoDbContext;
 
-        public Task<int> Add(Enrollment enrollment)
+        public async Task<int> Add(Enrollment enrollment)
         {
-            throw new NotImplementedException();
+            _contosoDbContext.Enrollments.Add(enrollment);
+            await _contosoDbContext.SaveChangesAsync();
+            return enrollment.EnrollmentId;
         }
 
-        public Task Delete(int id)
+        public async Task Delete(int id)
         {
-            throw new NotImplementedException();
+            var enrollment = await _contosoDbContext.Enrollments.FindAsync(id);
+            _contosoDbContext.Enrollments.Remove(enrollment);
+            await _contosoDbContext.SaveChangesAsync();
         }
 
         public async Task<Option<Enrollment>> Get(int id) => 
@@ -29,9 +32,10 @@ namespace Contoso.Infrastructure.Data.Repositories
                 .Include(e => e.Course)
                 .SingleOrDefaultAsync(e => e.EnrollmentId == id);
 
-        public Task Update(Enrollment enrollment)
+        public async Task Update(Enrollment enrollment)
         {
-            throw new NotImplementedException();
+            _contosoDbContext.Enrollments.Update(enrollment);
+            await _contosoDbContext.SaveChangesAsync();
         }
     }
 }
