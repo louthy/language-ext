@@ -283,9 +283,7 @@ namespace LanguageExt
         /// <returns>Concatenated sequence</returns>
         [Pure]
         public static Seq<T> append<T>(Seq<T> lhs, Seq<T> rhs) =>
-            lhs.IsEmpty      ? rhs
-          : lhs.Tail.IsEmpty ? lhs.Head.Cons(rhs)
-          : Seq(lhs.ConcatFast(rhs));
+            lhs.Concat(rhs);
 
         /// <summary>
         /// Concatenate a sequence and a sequence of sequences
