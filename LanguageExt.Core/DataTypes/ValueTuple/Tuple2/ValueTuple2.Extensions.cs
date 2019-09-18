@@ -526,7 +526,7 @@ public static class ValueTuple2Extensions
         apply((a, b) => f(a, b), tuple.ma, tuple.mb);
 
     /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
+    /// Flip the tuads from inside the tuple to outside and apply a transformation function
     /// </summary>
     [Pure]
     public static Task<(A, B)> Sequence<A, B>(this (Task<A> ma, Task<B> mb) tuple) =>
