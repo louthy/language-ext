@@ -161,6 +161,90 @@ namespace LanguageExt
                     xs.Head,
                     SomeAsync: async x  => await xs.Head,
                     NoneAsync: async () => await choice(xs.Tail));
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type FB derived from Applicative of B</returns>
+        [Pure]
+        public static Task<B> apply<A, B>(Task<Func<A, B>> fab, Task<A> fa) =>
+            ApplTask<A, B>.Inst.Apply(fab, fa);
 
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type FB derived from Applicative of B</returns>
+        [Pure]
+        public static Task<B> apply<A, B>(Func<A, B> fab, Task<A> fa) =>
+            ApplTask<A, B>.Inst.Apply(fab.AsTask(), fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative a to apply</param>
+        /// <param name="fb">Applicative b to apply</param>
+        /// <returns>Applicative of type FC derived from Applicative of C</returns>
+        [Pure]
+        public static Task<C> apply<A, B, C>(Task<Func<A, B, C>> fabc, Task<A> fa, Task<B> fb) =>
+            from x in fabc
+            from y in ApplTask<A, B, C>.Inst.Apply(curry(x).AsTask(), fa, fb)
+            select y;
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative a to apply</param>
+        /// <param name="fb">Applicative b to apply</param>
+        /// <returns>Applicative of type FC derived from Applicative of C</returns>
+        [Pure]
+        public static Task<C> apply<A, B, C>(Func<A, B, C> fabc, Task<A> fa, Task<B> fb) =>
+            ApplTask<A, B, C>.Inst.Apply(curry(fabc).AsTask(), fa, fb);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+        [Pure]
+        public static Task<Func<B, C>> apply<A, B, C>(Task<Func<A, B, C>> fabc, Task<A> fa) =>
+            from x in fabc
+            from y in ApplTask<A, B, C>.Inst.Apply(curry(x).AsTask(), fa)
+            select y;
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+        [Pure]
+        public static Task<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, Task<A> fa) =>
+            ApplTask<A, B, C>.Inst.Apply(curry(fabc).AsTask(), fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+        [Pure]
+        public static Task<Func<B, C>> apply<A, B, C>(Task<Func<A, Func<B, C>>> fabc, Task<A> fa) =>
+            ApplTask<A, B, C>.Inst.Apply(fabc, fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+        [Pure]
+        public static Task<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, Task<A> fa) =>
+            ApplTask<A, B, C>.Inst.Apply(fabc.AsTask(), fa);
     }
 }
