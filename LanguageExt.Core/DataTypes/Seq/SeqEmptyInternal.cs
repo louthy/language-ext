@@ -73,5 +73,6 @@ namespace LanguageExt
         public bool ForAll(Func<A, bool> f) =>
             true;
 
+        public SeqType Type => SeqType.Empty;
     }
 }

@@ -14,17 +14,17 @@ namespace LanguageExt
         /// <summary>
         /// Backing data
         /// </summary>
-        readonly A[] data;
+        internal readonly A[] data;
 
         /// <summary>
         /// Index into data where the Head is
         /// </summary>
-        readonly int start;
+        internal readonly int start;
 
         /// <summary>
         /// Known size of the sequence
         /// </summary>
-        readonly int count;
+        internal readonly int count;
 
         /// <summary>
         /// 1 if no more consing is allowed
@@ -449,6 +449,32 @@ namespace LanguageExt
                 }
             }
             return true;
+        }
+
+        public SeqType Type => SeqType.Strict;
+
+        public SeqStrict<A> Append(SeqStrict<A> right)
+        {
+            var end = start + count + right.count;
+            if (end > data.Length || 1 == Interlocked.Exchange(ref addDisallowed, 1))
+            {
+                // Clone
+                var nsize = 8;
+                while(nsize < end)
+                {
+                    nsize = nsize << 1;
+                }
+
+                var ndata = new A[nsize];
+                Array.Copy(data, start, ndata, start, count);
+                Array.Copy(right.data, right.start, ndata, start + count, right.count);
+                return new SeqStrict<A>(ndata, start, count + right.count, 0, 0);
+            }
+            else
+            {
+                Array.Copy(right.data, right.start, data, start + count, right.count);
+                return new SeqStrict<A>(data, start, count + right.count, NoCons, 0);
+            }
         }
     }
 }

@@ -470,5 +470,7 @@ namespace LanguageExt
             }
             return true;
         }
+
+        public SeqType Type => SeqType.Lazy;
     }
 }

@@ -4,8 +4,17 @@ using System.Text;
 
 namespace LanguageExt
 {
+    internal enum SeqType
+    {
+        Empty,
+        Lazy,
+        Strict,
+        Concat
+    }
+
     internal interface ISeqInternal<A> : IEnumerable<A>
     {
+        SeqType Type { get; }
         A this[int index] { get; }
         ISeqInternal<A> Add(A value);
         ISeqInternal<A> Cons(A value);

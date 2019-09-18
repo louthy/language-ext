@@ -33,6 +33,7 @@ namespace TestBed
     {
         Seq<string> ReadAllLines(string fileName);
         Unit WriteAllLines(string fileName, Seq<string> lines);
+        Person ReadFromDB();
         int Zero { get; }
     }
 
@@ -44,6 +45,7 @@ namespace TestBed
             File.WriteAllLines(path, lines);
             return unit;
         }
+        public Person ReadFromDB() => new Person("Spider", "Man");
         public int Zero => 0;
     }
 
@@ -72,14 +74,14 @@ namespace TestBed
     //{
     //}
 
-    public partial class Person
+    public class Person
     {
-        public readonly string Name;
+        public readonly string Forename;
         public readonly string Surname;
 
-        public Person(string name, string surname)
+        public Person(string forename, string surname)
         {
-            Name = name;
+            Forename = forename;
             Surname = surname;
         }
     }

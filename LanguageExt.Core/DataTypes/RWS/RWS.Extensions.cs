@@ -34,7 +34,7 @@ public static class RWSExtensions
             var res = self(env, state);
             if (res.IsFaulted)
             {
-                return (() => Option<A>.None, default(MonoidW).Empty(), state);
+                return (() => Option<A>.None, res.Output, state);
             }
             else
             {
@@ -192,43 +192,68 @@ public static class RWSExtensions
     /// its output to the value of the computation.
     /// </summary>
     [Pure]
-    public static RWS<MonoidW, R, W, S, (A, B)> Listen<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A> self, Func<W, B> f)
-        where MonoidW : struct, Monoid<W> =>
-            default(MRWS<MonoidW, R, W, S, A>).Listen(self, f);
+    public static RWS<MonoidW, R, W, S, (A, B)> Listen<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A> ma, Func<W, B> f)
+        where MonoidW : struct, Monoid<W> => (env, state) =>
+    {
+        var res = ma(env, state);
+        return res.IsFaulted
+            ? RWSResult<MonoidW, R, W, S, (A, B)>.New(res.State, res.Error)
+            : RWSResult<MonoidW, R, W, S, (A, B)>.New(res.Output, res.State, (res.Value, f(res.Output)));
+    };
 
     /// <summary>
     /// Censor is an action that executes the monad and applies the function f 
     /// to its output,  leaving the return value unchanged.
     /// </summary>
     [Pure]
-    public static RWS<MonoidW, R, W, S, A> Censor<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, Func<W, W> f)
+    public static RWS<MonoidW, R, W, S, A> Censor<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> ma, Func<W, W> f)
         where MonoidW : struct, Monoid<W> =>
-            Pass(
-                default(MRWS<MonoidW, R, W, S, A>)
-                    .Bind<MRWS<MonoidW, R, W, S, (A, Func<W, W>)>, RWS<MonoidW, R, W, S, (A, Func<W, W>)>, (A, Func<W, W>)>(
-                    self, a =>
-                        default(MRWS<MonoidW, R, W, S, (A, Func<W, W>)>)
-                            .Return(_ => (a, f))));
-    [Pure]
-    public static RWS<MonoidW, R, W, S, B> Bind<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A> self, Func<A, RWS<MonoidW, R, W, S, B>> f)
-        where MonoidW : struct, Monoid<W> =>
-        default(MRWS<MonoidW, R, W, S, A>).Bind<MRWS<MonoidW, R, W, S, B>, RWS<MonoidW, R, W, S, B>, B>(self, f); 
+            Pass(ma.Bind(a => RWS<MonoidW, R, W, S, (A, Func<W, W>)>((a, f))));
 
     [Pure]
-    public static RWS<MonoidW, R, W, S, B> Select<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A> self, Func<A, B> f)
-        where MonoidW : struct, Monoid<W> =>
-        default(MRWS<MonoidW, R, W, S, A>).Bind<MRWS<MonoidW, R, W, S, B>, RWS<MonoidW, R, W, S, B>, B>(self, a =>
-        default(MRWS<MonoidW, R, W, S, B>).Return(_ => f(a)));
+    public static RWS<MonoidW, R, W, S, B> Bind<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A> ma, Func<A, RWS<MonoidW, R, W, S, B>> f)
+        where MonoidW : struct, Monoid<W> => (env, state) =>
+    {
+        var ra = ma(env, state);
+        if (ra.IsFaulted) return RWSResult<MonoidW, R, W, S, B>.New(ra.Output, ra.State, ra.Error);
+
+        var rb = f(ra.Value)(env, ra.State);
+
+        var noutput = default(MonoidW).Append(ra.Output, rb.Output);
+
+        return rb.IsFaulted
+            ? RWSResult<MonoidW, R, W, S, B>.New(noutput, state, rb.Error)
+            : RWSResult<MonoidW, R, W, S, B>.New(noutput, rb.State, rb.Value);
+    };
+
+    [Pure]
+    public static RWS<MonoidW, R, W, S, B> Select<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A> ma, Func<A, B> f)
+        where MonoidW : struct, Monoid<W> => (env, state) =>
+        {
+            var ra = ma(env, state);
+            return ra.IsFaulted
+                ? RWSResult<MonoidW, R, W, S, B>.New(ra.Output, state, ra.Error)
+                : RWSResult<MonoidW, R, W, S, B>.New(ra.Output, ra.State, f(ra.Value));
+        };
 
     [Pure]
     public static RWS<MonoidW, R, W, S, C> SelectMany<MonoidW, R, W, S, A, B, C>(
-        this RWS<MonoidW, R, W, S, A> self,
+        this RWS<MonoidW, R, W, S, A> ma,
         Func<A, RWS<MonoidW, R, W, S, B>> bind,
         Func<A, B, C> project)
-        where MonoidW : struct, Monoid<W> =>
-            default(MRWS<MonoidW, R, W, S, A>).Bind<MRWS<MonoidW, R, W, S, C>, RWS<MonoidW, R, W, S, C>, C>(self, a =>
-            default(MRWS<MonoidW, R, W, S, B>).Bind<MRWS<MonoidW, R, W, S, C>, RWS<MonoidW, R, W, S, C>, C>(bind(a), b =>
-            default(MRWS<MonoidW, R, W, S, C>).Return(_ => project(a, b))));
+        where MonoidW : struct, Monoid<W> => (env, state) =>
+        {
+            var ra = ma(env, state);
+            if (ra.IsFaulted) return RWSResult<MonoidW, R, W, S, C>.New(ra.Output, ra.State, ra.Error);
+
+            var rb = bind(ra.Value)(env, ra.State);
+
+            var noutput = default(MonoidW).Append(ra.Output, rb.Output);
+
+            return rb.IsFaulted
+                ? RWSResult<MonoidW, R, W, S, C>.New(noutput, state, rb.Error)
+                : RWSResult<MonoidW, R, W, S, C>.New(noutput, rb.State, project(ra.Value, rb.Value));
+        };
 
     [Pure]
     public static RWS<MonoidW, R, W, S, A> Filter<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, Func<A, bool> pred)

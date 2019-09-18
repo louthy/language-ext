@@ -44,7 +44,7 @@ namespace LanguageExt
                 ? (IEnumerable<B>)(new B[0])
                 : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
 
-        class ConcatEnum<A> : IEnumerable<A>
+        internal class ConcatEnum<A> : IEnumerable<A>
         {
             internal readonly Seq<IEnumerable<A>> ms;
 
@@ -63,7 +63,7 @@ namespace LanguageExt
                 new ConcatIter<A>(ms);
         }
 
-        class BindEnum<A, B> : IEnumerable<B>
+        internal class BindEnum<A, B> : IEnumerable<B>
         {
             readonly IEnumerable<A> ma;
             readonly Func<A, IEnumerable<B>> f;

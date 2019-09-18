@@ -156,6 +156,99 @@ namespace LanguageExt
             new Seq<A>(EnumerableOptimal.ConcatFast(this, items));
 
         /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Concat(Seq<A> rhs)
+        {
+            switch(Value.Type)
+            {
+                case SeqType.Empty:
+                    // lhs is empty, so just return rhs
+                    return rhs;
+
+                case SeqType.Lazy:
+
+                    switch (rhs.Value.Type)
+                    {
+                        // lhs lazy, rhs empty
+                        // return lhs
+                        case SeqType.Empty:
+                            return this;
+
+                        // lhs lazy, rhs lazy
+                        // return SeqConcat
+                        case SeqType.Lazy:
+                            return new Seq<A>(new SeqConcat<A>(Seq(value, rhs.Value)));
+
+                        // lhs lazy, rhs strict
+                        // force lhs to be strict and concat the two 
+                        case SeqType.Strict:
+                            return new Seq<A>(((SeqStrict<A>)value.Strict()).Append((SeqStrict<A>)rhs.Value));
+
+                        // lhs lazy, rhs concat
+                        // prepend rhs with lhs
+                        case SeqType.Concat:
+                            return new Seq<A>(((SeqConcat<A>)rhs.value).ConsSeq(Value));
+                    }
+                    break;
+
+                case SeqType.Strict:
+
+                    switch (rhs.Value.Type)
+                    {
+                        // lhs strict, rhs empty
+                        // return lhs
+                        case SeqType.Empty:
+                            return this;
+
+                        // lhs strict, rhs lazy
+                        // return SeqConcat
+                        case SeqType.Lazy:
+                            return new Seq<A>(new SeqConcat<A>(Seq(value, rhs.Value)));
+
+                        // lhs strict, rhs strict
+                        // append the two
+                        case SeqType.Strict:
+                            return new Seq<A>(((SeqStrict<A>)value).Append((SeqStrict<A>)rhs.Value));
+
+                        // lhs strict, rhs concat
+                        // prepend rhs with lhs
+                        case SeqType.Concat:
+                            return new Seq<A>(((SeqConcat<A>)rhs.value).ConsSeq(Value));
+                    }
+                    break;
+
+                case SeqType.Concat:
+
+                    switch (rhs.Value.Type)
+                    {
+                        // lhs concat, rhs empty
+                        // return lhs
+                        case SeqType.Empty:
+                            return this;
+
+                        // lhs concat, rhs lazy || lhs concat, rhs strict
+                        // add rhs to concat
+                        case SeqType.Lazy:
+                        case SeqType.Strict:
+                            return new Seq<A>(((SeqConcat<A>)value).AddSeq(Value));
+
+                        // lhs concat, rhs concat
+                        // add rhs to concat
+                        case SeqType.Concat:
+                            return new Seq<A>(((SeqConcat<A>)value).AddSeqRange(((SeqConcat<A>)Value).ms));
+                    }
+                    break;
+            }
+            throw new NotSupportedException();
+        }
+
+        /// <summary>
         /// Prepend an item to the sequence
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

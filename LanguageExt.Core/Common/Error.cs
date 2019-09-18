@@ -42,9 +42,10 @@ namespace LanguageExt.Common
             new Error(code, message, None);
 
         public static Error FromObject(object value) =>
-            value is Error err    ? err
-          : value is Exception ex ? New(ex)
-          : value is string str   ? New(str)
+            value is Error err          ? err
+          : value is Exception ex       ? New(ex)
+          : value is string str         ? New(str)
+          : value is Option<Error> oerr ? oerr.IfNone(Bottom)
           : Bottom;
 
         internal Exception ToException() =>

@@ -45,6 +45,8 @@ class Program
 {
     static void Main(string[] args)
     {
+        Issue634();
+
         HashMapRemoveTest();
         HashMapRemoveTest2();
 
@@ -118,6 +120,36 @@ class Program
 
 
         Console.WriteLine("Coming soon");
+    }
+
+    static void Issue634()
+    {
+        var makeName =
+                     from _1  in Subsys.tell(Seq1("Started"))
+                     from x   in Subsys.ReadFromDB()
+                     from _2  in Subsys.tell(Seq1("Got from DB"))
+                     from g   in x.Forename == "Tom"
+                                  ? Subsys.Pure(unit)
+                                  : Subsys.Error<Unit>("Not Me!!", new Exception("NOT ME"))
+                     from y   in Subsys.put(x)
+                     from _3  in Subsys.tell(Seq1("Updated state"))
+                     from a   in Subsys.Forename
+                     from b   in Subsys.Surname
+                     from _4  in Subsys.tell(Seq1("Got name parts"))
+                     select $"{a} {b}";
+
+        var result = makeName.Run(new RealIO(), new Person("Foo", "Bar"));
+
+        Console.WriteLine("Logs:");
+        result.Output.Iter(x => Console.WriteLine(x));
+
+        Console.WriteLine("Name:");
+        result.Value.Match(
+            Some: x => Console.WriteLine(x),
+            None: () => Console.WriteLine("NOTHING"),
+            Fail: x => Console.WriteLine(x.Message));
+
+        Console.ReadLine();
     }
 
     static void HashMapRemoveTest()

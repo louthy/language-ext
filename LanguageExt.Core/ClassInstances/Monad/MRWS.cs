@@ -44,18 +44,31 @@ namespace LanguageExt.ClassInstances
             default(MONADB).RunAsync(initial =>
             {
                 var next = ma(initial.Env, initial.State);
-                return next.IsFaulted
-                    ? default(MONADB).Fail(default(MRWS<MonoidW, R, W, S, A>).Fail()).AsTask()
-                    : default(MONADB).BindReturn(next.ToRwsState(), f(next.Value)).AsTask();
+                if (next.IsFaulted)
+                {
+                    return default(MONADB).Fail(next.Error).AsTask();
+                }
+                else
+                {
+                    var b = f(next.Value);
+                    return default(MONADB).BindReturn(next.ToRwsState(), b).AsTask();
+                }
             });
 
         [Pure]
         public RWS<MonoidW, R, W, S, A> BindReturn(RWSState<W, S> previous, RWS<MonoidW, R, W, S, A> mb) => (env, state) =>
         {
-            var next = mb(env, previous.State);
-            return previous.IsFaulted
-                ? RWSResult<MonoidW, R, W, S, A>.New(default(MonoidW).Append(previous.Output, next.Output), state, previous.Error)
-                : RWSResult<MonoidW, R, W, S, A>.New(default(MonoidW).Append(previous.Output, next.Output), next.State, next.Value);
+            if (previous.IsFaulted)
+            {
+                return RWSResult<MonoidW, R, W, S, A>.New(previous.Output, previous.State, previous.Error);
+            }
+            else
+            {
+                var next = mb(env, previous.State);
+                return next.IsFaulted
+                    ? RWSResult<MonoidW, R, W, S, A>.New(default(MonoidW).Append(previous.Output, next.Output), state, next.Error)
+                    : RWSResult<MonoidW, R, W, S, A>.New(default(MonoidW).Append(previous.Output, next.Output), next.State, next.Value);
+            }
         };
 
         [Pure]

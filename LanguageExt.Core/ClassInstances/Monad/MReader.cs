@@ -33,9 +33,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Reader<Env, A> Fail(object err = null) => _ =>
-            err is Common.Error error  ? ReaderResult<A>.New(error)
-          : err is Exception exception ? ReaderResult<A>.New(Common.Error.New(exception))
-          : ReaderResult<A>.Bottom;
+            ReaderResult<A>.New(Common.Error.FromObject(err));
 
         [Pure]
         public Reader<Env, A> Reader(Func<Env, A> f) => env =>
