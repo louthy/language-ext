@@ -76,7 +76,7 @@ namespace LanguageExt
         /// Add an item to the end of the sequence
         /// </summary>
         /// <remarks>
-        /// Forces evaluation of the entire lazy sequence so the item
+        /// Forces evaluation of the entire lazy sequence so the item 
         /// can be appended
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -145,7 +145,7 @@ namespace LanguageExt
                 // value
                 System.Array.Copy(data, 0, ndata, data.Length, data.Length);
 
-                // The new head position will be 1 cell to to left of the
+                // The new head position will be 1 cell to to left of the 
                 // middle of the newly allocated block.
                 var nstart = data.Length == 0
                                 ? 0
@@ -157,13 +157,13 @@ namespace LanguageExt
                 // Set the value in the new data block
                 ndata[nstart] = value;
 
-                // Return everything
+                // Return everything 
                 return new SeqStrict<A>(ndata, nstart, ncount, 0, 0);
             }
             else
             {
                 // We're cloning because there are multiple cons operations
-                // from the same Seq.  We can't keep walking along the same
+                // from the same Seq.  We can't keep walking along the same 
                 // array, so we clone with the exact same settings and insert
 
                 var ndata = new A[data.Length];
@@ -197,7 +197,7 @@ namespace LanguageExt
             // Set the value in the new data block
             ndata[end] = value;
 
-            // Return everything
+            // Return everything 
             return new SeqStrict<A>(ndata, start, count + 1, 0, 0);
         }
 
@@ -219,7 +219,7 @@ namespace LanguageExt
             // Set the value in the new data block
             System.Array.Copy(values, valuesStart, ndata, end, valuesCount);
 
-            // Return everything
+            // Return everything 
             return new SeqStrict<A>(ndata, start, count + valuesCount, 0, 0);
         }
 
@@ -250,7 +250,7 @@ namespace LanguageExt
         /// Returns true if the sequence is empty
         /// </summary>
         /// <remarks>
-        /// For lazy streams this will have to peek at the first
+        /// For lazy streams this will have to peek at the first 
         /// item.  So, the first item will be consumed.
         /// </summary>
         public bool IsEmpty
@@ -302,7 +302,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Fold the sequence from the last item to the first.  For
+        /// Fold the sequence from the last item to the first.  For 
         /// sequences that are not lazy and are less than 5000 items
         /// long, FoldBackRec is called instead, because it is faster.
         /// </summary>
