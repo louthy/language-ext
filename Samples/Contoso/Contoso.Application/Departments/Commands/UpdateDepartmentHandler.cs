@@ -24,10 +24,10 @@ namespace Contoso.Application.Departments.Commands
             _instructorRepository = instructorRepository;
         }
 
-        public async Task<Either<Error, Task>> Handle(UpdateDepartment request, CancellationToken cancellationToken) =>
-            (await Validate(request))
-                .Map(d => ApplyUpdateRequest(d, request))
-                .ToEither<Task>();
+        public Task<Either<Error, Task>> Handle(UpdateDepartment request, CancellationToken cancellationToken) =>
+            Validate(request)
+                .MapT(d => ApplyUpdateRequest(d, request))
+                .Map(v => v.ToEither<Task>());
 
         private Task ApplyUpdateRequest(Department d, UpdateDepartment update)
         {

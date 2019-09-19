@@ -27,7 +27,8 @@ namespace Contoso.Application.Departments.Commands
 
         public Task<Either<Error, int>> Handle(CreateDepartment request, CancellationToken cancellationToken) =>
             Validate(request)
-                .Bind(v => v.Map(PersistDepartment).ToEitherAsync());
+                .MapT(PersistDepartment)
+                .Bind(v => v.ToEitherAsync());
 
         private Task<int> PersistDepartment(Department d) => _departmentRepository.Add(d);
 

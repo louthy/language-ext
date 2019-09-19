@@ -16,7 +16,7 @@ namespace Contoso.Application.Courses.Queries
 
         public Task<Option<CourseViewModel>> Handle(GetCourseById request, CancellationToken cancellationToken) => 
             Fetch(request.CourseId)
-                .Map(c => c.Map(Project));
+                .MapT(Project);
 
         private Task<Option<Course>> Fetch(int id) => _courseRepository.Get(id);
 

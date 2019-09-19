@@ -16,7 +16,8 @@ namespace Contoso.Application.Departments.Commands
 
         public Task<Either<Error, Task>> Handle(DeleteDepartment request, CancellationToken cancellationToken) =>
             DepartmentMustExist(request)
-                .Map(v => v.Map(DoDeletion).ToEither<Task>());
+                .MapT(DoDeletion)
+                .Map(v => v.ToEither<Task>());
 
         private Task DoDeletion(int departmentId) =>
             _departmentRepository.Delete(departmentId);

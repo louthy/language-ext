@@ -17,12 +17,15 @@ namespace Contoso.Application.Enrollments.Commands
 
         public DeleteEnrollmentHandler(IEnrollmentRepository enrollmentRepository) => _enrollmentRepository = enrollmentRepository;
 
-        public async Task<Validation<Error, Task>> Handle(DeleteEnrollment request, CancellationToken cancellationToken) => 
-            (await Find(request.EnrollmentId))
-                .ToValidation<Error>($"Enrollment Id {request.EnrollmentId} does not exist")
-                .Map(Delete);
+        public async Task<Validation<Error, Task>> Handle(DeleteEnrollment request, CancellationToken cancellationToken) =>
+            EnrollmentMustExist(request)
+                .MapT(Delete);
 
         private Task Delete(Enrollment e) => _enrollmentRepository.Delete(e.EnrollmentId);
+
+        private async Task<Validation<Error, Enrollment>> EnrollmentMustExist(DeleteEnrollment delete) =>
+            (await Find(delete.EnrollmentId))
+                .ToValidation<Error>($"Enrollment Id {delete.EnrollmentId} does not exist");
 
         private Task<Option<Enrollment>> Find(int id) => _enrollmentRepository.Get(id);
     }

@@ -26,9 +26,10 @@ namespace Contoso.Application.Courses.Commands
             _mediator = mediator;
         }
 
-        public Task<Either<Error, int>> Handle(CreateCourse request, CancellationToken cancellationToken) => 
+        public Task<Either<Error, int>> Handle(CreateCourse request, CancellationToken cancellationToken) =>
             Validate(request)
-                .Bind(v => v.Map(PersistCourse).ToEitherAsync());
+                .MapT(PersistCourse)
+                .Bind(v => v.ToEitherAsync());
 
         private Task<int> PersistCourse(Course c) => _courseRepository.Add(c);
 
