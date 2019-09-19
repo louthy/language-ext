@@ -239,5 +239,20 @@ namespace LanguageExt.Tests
 
             Assert.True(eq);
         }
+
+        [Fact]
+        public void AddTest()
+        {
+            var a = Seq1("a");
+
+            var b = a.Add("b");
+
+            var c = a.Add("c");
+
+            Assert.Equal("a", string.Join("|", a));
+            Assert.Equal("a|b", string.Join("|", b));
+            Assert.Equal("a|c", string.Join("|", c));
+
+        }
     }
 }
