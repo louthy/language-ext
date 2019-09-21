@@ -179,8 +179,12 @@ namespace LanguageExt
 
         SeqStrict<A> CloneAdd(A value)
         {
+            var end = start + count;
+
             // Find the new size of the data array
-            var nlength = Math.Max(data.Length << 1, 1);
+            var nlength = data.Length == end
+                ? Math.Max(data.Length << 1, 1)
+                : data.Length;
 
             // Allocate it
             var ndata = new A[nlength];
@@ -191,7 +195,7 @@ namespace LanguageExt
             System.Array.Copy(data, 0, ndata, 0, data.Length);
 
             // Set the value in the new data block
-            ndata[data.Length] = value;
+            ndata[end] = value;
 
             // Return everything 
             return new SeqStrict<A>(ndata, start, count + 1, 0, 0);
@@ -220,7 +224,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Head item in the sequence.  NOTE:  If `IsEmpty` is true then Head 
+        /// Head item in the sequence.  NOTE:  If `IsEmpty` is true then Head
         /// is undefined.  Call HeadOrNone() if for maximum safety.
         /// </summary>
         public A Head
