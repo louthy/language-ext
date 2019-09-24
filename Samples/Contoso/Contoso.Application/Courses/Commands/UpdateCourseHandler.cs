@@ -8,10 +8,11 @@ using LanguageExt;
 using MediatR;
 using static Contoso.Validators;
 using static LanguageExt.Prelude;
+using Unit = LanguageExt.Unit;
 
 namespace Contoso.Application.Courses.Commands
 {
-    public class UpdateCourseHandler : IRequestHandler<UpdateCourse, Validation<Error, Task>>
+    public class UpdateCourseHandler : IRequestHandler<UpdateCourse, Validation<Error, Task<Unit>>>
     {
         private readonly IMediator _mediator;
         private readonly ICourseRepository _courseRepository;
@@ -22,7 +23,7 @@ namespace Contoso.Application.Courses.Commands
             _courseRepository = courseRepository;
         }
 
-        public Task<Validation<Error, Task>> Handle(UpdateCourse request, CancellationToken cancellationToken) =>
+        public Task<Validation<Error, Task<Unit>>> Handle(UpdateCourse request, CancellationToken cancellationToken) =>
             Validate(request)
                 .MapT(c => ApplyUpdate(c, request))
                 .MapT(Persist);
@@ -36,7 +37,7 @@ namespace Contoso.Application.Courses.Commands
                 Title = request.Title
             };
 
-        private Task Persist(Course c) => _courseRepository.Update(c);
+        private Task<Unit> Persist(Course c) => _courseRepository.Update(c);
 
         private async Task<Validation<Error, Course>> Validate(UpdateCourse updateCourse) => 
             (ValidateTitle(updateCourse), await DepartmentMustExist(updateCourse),

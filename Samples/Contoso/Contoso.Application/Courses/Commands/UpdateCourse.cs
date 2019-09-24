@@ -2,10 +2,11 @@
 using Contoso.Core;
 using LanguageExt;
 using MediatR;
+using Unit = LanguageExt.Unit;
 
 namespace Contoso.Application.Courses.Commands
 {
-    public class UpdateCourse : Record<UpdateCourse>, IRequest<Validation<Error, Task>>
+    public class UpdateCourse : Record<UpdateCourse>, IRequest<Validation<Error, Task<Unit>>>
     {
         public UpdateCourse(int courseId, string title, int credits, int departmentId)
         {

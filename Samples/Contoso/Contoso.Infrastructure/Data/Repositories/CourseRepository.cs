@@ -20,20 +20,23 @@ namespace Contoso.Infrastructure.Data.Repositories
             return course.CourseId;
         }
 
-        public async Task Delete(int id)
+        public async Task<Unit> Delete(int id)
         {
             var course = await contosoDbContext.Courses.FindAsync(id);
             contosoDbContext.Courses.Remove(course);
-            await contosoDbContext.SaveChangesAsync();
+            return await contosoDbContext
+                .SaveChangesAsync()
+                .Map(_ => Unit.Default);
         }
 
         public async Task<Option<Course>> Get(int id) => 
             await contosoDbContext.Courses.SingleOrDefaultAsync(c => c.CourseId == id);
 
-        public Task Update(Course course)
+        public Task<Unit> Update(Course course)
         {
             contosoDbContext.Courses.Update(course);
-            return contosoDbContext.SaveChangesAsync();
+            return contosoDbContext.SaveChangesAsync()
+                .Map(_ => Unit.Default);
         }
     }
 }

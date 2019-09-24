@@ -4,20 +4,21 @@ using Contoso.Core;
 using Contoso.Core.Interfaces.Repositories;
 using LanguageExt;
 using MediatR;
+using Unit = LanguageExt.Unit;
 
 namespace Contoso.Application.Courses.Commands
 {
-    public class DeleteCourseHandler : IRequestHandler<DeleteCourse, Either<Error, Task>>
+    public class DeleteCourseHandler : IRequestHandler<DeleteCourse, Either<Error, Task<Unit>>>
     {
         private ICourseRepository _courseRepository;
         public DeleteCourseHandler(ICourseRepository courseRepository) => _courseRepository = courseRepository;
 
-        public async Task<Either<Error, Task>> Handle(DeleteCourse request, CancellationToken cancellationToken) =>
-            (await CourseMustExist(request))
-                .Map(DoDeletion)
-                .ToEither<Task>();
+        public Task<Either<Error, Task<Unit>>> Handle(DeleteCourse request, CancellationToken cancellationToken) =>
+            CourseMustExist(request)
+                .MapT(DoDeletion)
+                .ToEither();
 
-        private Task DoDeletion(int courseId) => _courseRepository.Delete(courseId);
+        private Task<Unit> DoDeletion(int courseId) => _courseRepository.Delete(courseId);
 
         private async Task<Validation<Error, int>> CourseMustExist(DeleteCourse course) =>
             (await _courseRepository.Get(course.CourseId))

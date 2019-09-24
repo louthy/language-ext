@@ -8,7 +8,7 @@ namespace Contoso.Core.Interfaces.Repositories
     {
         Task<Option<Course>> Get(int id);
         Task<int> Add(Course course);
-        Task Update(Course course);
-        Task Delete(int id);
+        Task<Unit> Update(Course course);
+        Task<Unit> Delete(int id);
     }
 }
