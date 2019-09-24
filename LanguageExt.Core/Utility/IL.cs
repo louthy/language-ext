@@ -373,8 +373,8 @@ namespace LanguageExt
                 typeof(NonRecordAttribute));
 
             var self = Expression.Parameter(typeof(A));
-            var hash = Expression.Constant(-2128831035);
-            var add = Expression.Constant(16777619);
+            var FNV_offset_basis = Expression.Constant(0x811c9dc5);
+            var FNV_prime = Expression.Constant(16777619);
             var zero = Expression.Constant(0);
 
             var Null = Expression.Constant(null, typeof(A));
@@ -443,11 +443,12 @@ namespace LanguageExt
                 }
             }
 
-            var expr = Fields().Fold(hash as Expression, (state, field) =>
-                Expression.ExclusiveOr(
-                    state,
-                    Expression.Add(
-                        add,
+            // Implement FNV 1a hashing algoritm - https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
+            var expr = Fields().Fold(FNV_offset_basis as Expression, (state, field) =>
+                Expression.Multiply(
+                    FNV_prime,
+                    Expression.ExclusiveOr(
+                        state,
                         field)));
 
             var lambda = Expression.Lambda<Func<A, int>>(

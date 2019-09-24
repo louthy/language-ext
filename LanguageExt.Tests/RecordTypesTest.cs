@@ -26,6 +26,18 @@ namespace LanguageExt.Tests
             : base(info, context) { }
     }
 
+    public class TestRecord : Record<TestRecord>
+    {
+        public readonly Option<int> Opt1;
+        public readonly Option<int> Opt2;
+
+        public TestRecord(Option<int> opt1, Option<int> opt2)
+        {
+            Opt1 = opt1;
+            Opt2 = opt2;
+        }
+    }
+
     public class DerivedTestClass : TestClass
     {
         public readonly int Extra;
@@ -355,6 +367,21 @@ namespace LanguageExt.Tests
             var y = new TestClass2(1, "Hello", Guid.NewGuid());
 
             Assert.True(x.ToString() == y.ToString());
+        }
+
+        [Fact]
+        // https://github.com/louthy/language-ext/issues/560
+        public void EnsureHashingIsNotOnlyXoring()
+        {
+            var testRecord1 = new TestRecord(Option<int>.None, 2);
+            var testRecord2 = new TestRecord(2, Option<int>.None);
+
+            Assert.False(testRecord1.GetHashCode() == testRecord2.GetHashCode());
+
+            testRecord1 = new TestRecord(Option<int>.None, Option<int>.None);
+            testRecord2 = new TestRecord(1, 1);
+
+            Assert.False(testRecord1.GetHashCode() == testRecord2.GetHashCode());
         }
     }
 }
