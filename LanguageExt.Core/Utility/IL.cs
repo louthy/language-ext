@@ -373,7 +373,9 @@ namespace LanguageExt
                 typeof(NonRecordAttribute));
 
             var self = Expression.Parameter(typeof(A));
-            var FNV_offset_basis = Expression.Constant(0x811c9dc5);
+
+            // Use 32-bit FNV hash parameters as signed values since .net GetHashCode returns a signed 32-bit integer.
+            var FNV_offset_basis = Expression.Constant(-2128831035);
             var FNV_prime = Expression.Constant(16777619);
             var zero = Expression.Constant(0);
 
