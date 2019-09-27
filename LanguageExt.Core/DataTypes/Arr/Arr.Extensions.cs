@@ -1149,7 +1149,7 @@ public static class ArrExtensions
                 mb.Add(a);
             }
         }
-        return new Arr<A>(ma);
+        return new Arr<A>(mb);
     }
 
     [Pure]
