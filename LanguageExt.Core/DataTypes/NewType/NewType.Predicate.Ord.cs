@@ -90,12 +90,11 @@ namespace LanguageExt
 
         [Pure]
         public virtual int CompareTo(NEWTYPE other) =>
-             OrdNewType<NEWTYPE, ORD, A, PRED>.Inst.Compare(this, other);
+             default(OrdNewType<NEWTYPE, ORD, A, PRED>).Compare(this, other);
 
         [Pure]
         public virtual bool Equals(NEWTYPE other) =>
-            !ReferenceEquals(other, null) &&
-             (Class<Eq<A>>.Default?.Equals(Value, other.Value) ?? EqDefault<A>.Inst.Equals(Value, other.Value));
+            default(OrdNewType<NEWTYPE, ORD, A, PRED>).Equals(this, other);
 
         [Pure]
         public override bool Equals(object obj) =>
@@ -103,31 +102,31 @@ namespace LanguageExt
 
         [Pure]
         public override int GetHashCode() =>
-            OrdNewType<NEWTYPE, ORD, A, PRED>.Inst.GetHashCode(this);
+            default(OrdNewType<NEWTYPE, ORD, A, PRED>).GetHashCode(this);
 
         [Pure]
         public static bool operator ==(NewType<NEWTYPE, A, PRED, ORD> lhs, NewType<NEWTYPE, A, PRED, ORD> rhs) =>
-            OrdNewType<NEWTYPE, ORD, A, PRED>.Inst.Equals(lhs, rhs);
+            default(OrdNewType<NEWTYPE, ORD, A, PRED>).Equals(lhs, rhs);
 
         [Pure]
         public static bool operator !=(NewType<NEWTYPE, A, PRED, ORD> lhs, NewType<NEWTYPE, A, PRED, ORD> rhs) =>
-            !OrdNewType<NEWTYPE, ORD, A, PRED>.Inst.Equals(lhs, rhs);
+            !default(OrdNewType<NEWTYPE, ORD, A, PRED>).Equals(lhs, rhs);
 
         [Pure]
         public static bool operator >(NewType<NEWTYPE, A, PRED, ORD> lhs, NewType<NEWTYPE, A, PRED, ORD> rhs) =>
-            OrdNewType<NEWTYPE, ORD, A, PRED>.Inst.Compare(lhs, rhs) > 0;
+            default(OrdNewType<NEWTYPE, ORD, A, PRED>).Compare(lhs, rhs) > 0;
 
         [Pure]
         public static bool operator >=(NewType<NEWTYPE, A, PRED, ORD> lhs, NewType<NEWTYPE, A, PRED, ORD> rhs) =>
-            OrdNewType<NEWTYPE, ORD, A, PRED>.Inst.Compare(lhs, rhs) >= 0;
+            default(OrdNewType<NEWTYPE, ORD, A, PRED>).Compare(lhs, rhs) >= 0;
 
         [Pure]
         public static bool operator <(NewType<NEWTYPE, A, PRED, ORD> lhs, NewType<NEWTYPE, A, PRED, ORD> rhs) =>
-            OrdNewType<NEWTYPE, ORD, A, PRED>.Inst.Compare(lhs, rhs) < 0;
+            default(OrdNewType<NEWTYPE, ORD, A, PRED>).Compare(lhs, rhs) < 0;
 
         [Pure]
         public static bool operator <=(NewType<NEWTYPE, A, PRED, ORD> lhs, NewType<NEWTYPE, A, PRED, ORD> rhs) =>
-            OrdNewType<NEWTYPE, ORD, A, PRED>.Inst.Compare(lhs, rhs) <= 0;
+            default(OrdNewType<NEWTYPE, ORD, A, PRED>).Compare(lhs, rhs) <= 0;
 
         /// <summary>
         /// Monadic bind of the bound value to a new value of the same type
