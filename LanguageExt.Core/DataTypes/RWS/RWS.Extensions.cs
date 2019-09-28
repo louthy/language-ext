@@ -24,26 +24,18 @@ public static class RWSExtensions
     /// Runs the RWS monad and memoizes the result in a TryOption monad.  Use
     /// Match, IfSucc, IfNone, etc to extract.
     /// </summary>
-    public static (TryOption<A> Value, W Output, S State) Run<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, R env, S state)
+    public static RWSResult<MonoidW, R, W, S, A> Run<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, R env, S state)
         where MonoidW : struct, Monoid<W>
     {
+        if (self == null) throw new ArgumentNullException(nameof(self));
+        if (state == null) throw new ArgumentNullException(nameof(state));
         try
         {
-            if (self == null) return (() => Option<A>.None, default(MonoidW).Empty(), state);
-            if (state == null) return (() => Option<A>.None, default(MonoidW).Empty(), state);
-            var res = self(env, state);
-            if (res.IsFaulted)
-            {
-                return (() => Option<A>.None, res.Output, state);
-            }
-            else
-            {
-                return (() => Optional(res.Value), res.Output, res.State);
-            }
+            return self(env, state);
         }
         catch (Exception e)
         {
-            return (() => new OptionalResult<A>(e), default(MonoidW).Empty(), state);
+            return RWSResult<MonoidW, R, W, S, A>.New(state, Error.New(e));
         }
     }
 
