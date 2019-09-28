@@ -170,6 +170,16 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        public void WhereArrayTest()
+        {
+            var res1 = from v in Array(1, 2, 3, 4, 5)
+                       where v < 3
+                       select v;
+
+            Assert.True(res1.Count == 2);
+        }
+
+        [Fact]
         public void WhereOptionTest()
         {
             var res1 = from v in GetOptionValue(true)
