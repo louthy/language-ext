@@ -114,6 +114,11 @@ namespace LanguageExt
                 ? value
                 : Value;
 
+        public A IfFailThrow() =>
+            IsFaulted
+                ? throw new InnerException(ErrorInt.ToException())
+                : Value;
+
         public Option<A> ToOption() =>
             IsFaulted
                 ? None

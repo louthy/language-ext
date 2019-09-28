@@ -191,7 +191,7 @@ namespace LanguageExt.Tests
                 from _ in modify<MLst<string>, bool, Lst<string>, Map<int, string>, int>(_ => failwith<Map<int,string>>(""))
                 select val + 2;
 
-            Assert.ThrowsAny<Exception>(act(comp.Run(false, Map((1, "a"))).Value.IfFailThrow));
+            Assert.ThrowsAny<Exception>(act(comp.Run(false, Map((1, "a"))).IfFailThrow));
         }
 
         [Fact]
@@ -203,7 +203,7 @@ namespace LanguageExt.Tests
                 where false
                 select val + 3;
 
-            Assert.ThrowsAny<Exception>(act(comp.Run(false, Map((1, "a"))).Value.IfFailThrow));
+            Assert.ThrowsAny<Exception>(act(comp.Run(false, Map((1, "a"))).IfFailThrow));
         }
 
         // TODO: Restore when type-classes are complete
