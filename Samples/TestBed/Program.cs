@@ -144,9 +144,8 @@ class Program
         result.Output.Iter(x => Console.WriteLine(x));
 
         Console.WriteLine("Name:");
-        result.Value.Match(
-            Some: x => Console.WriteLine(x),
-            None: () => Console.WriteLine("NOTHING"),
+        result.Match(
+            Succ: x => Console.WriteLine(x),
             Fail: x => Console.WriteLine(x.Message));
 
         Console.ReadLine();

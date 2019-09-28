@@ -508,5 +508,22 @@ namespace LanguageExt.CodeGen
                     IdentifierName("LanguageExt"),
                     IdentifierName("Prelude")),
                 name);
+
+        public static HashSet<string> MemberNames(SyntaxList<MemberDeclarationSyntax> list) =>
+            new HashSet<string>(
+                list.Select(MemberName)
+                    .Where(m => !String.IsNullOrWhiteSpace(m))
+                    .Distinct());
+
+        static string MemberName(MemberDeclarationSyntax decl) =>
+            decl is PropertyDeclarationSyntax p ? p.Identifier.Text
+          : decl is MethodDeclarationSyntax m   ? m.Identifier.Text
+          : "";
+
+        public static MemberDeclarationSyntax NullIfExists(HashSet<string> members, MemberDeclarationSyntax member) =>
+            members.Contains(MemberName(member))
+                ? null
+                : member;
+
     }
 }

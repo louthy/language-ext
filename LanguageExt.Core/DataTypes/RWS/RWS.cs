@@ -96,6 +96,19 @@ namespace LanguageExt
                 ? Fail(ErrorInt)
                 : Succ(Value);
 
+        public Unit Match(Action<A> Succ, Action<Error> Fail)
+        {
+            if (IsFaulted)
+            {
+                Fail(ErrorInt);
+            }
+            else
+            {
+                Succ(Value);
+            }
+            return default;
+        }
+
         public A IfFail(A value) =>
             IsFaulted
                 ? value

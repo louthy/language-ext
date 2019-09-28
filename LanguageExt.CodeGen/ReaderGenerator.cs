@@ -40,6 +40,8 @@ namespace LanguageExt.CodeGen
 
             if (context.ProcessingNode is StructDeclarationSyntax applyToStruct && applyToStruct.TypeParameterList.Parameters.Count >= 1)
             {
+                var members = CodeGenUtil.MemberNames(applyToStruct.Members);
+
                 // Apply a suffix to the name of a copy of the struct.
                 var partialStruct = StructDeclaration($"{applyToStruct.Identifier}")
                                         .WithModifiers(applyToStruct.Modifiers)
@@ -59,13 +61,15 @@ namespace LanguageExt.CodeGen
 
                 var compType = ParseTypeName($"LanguageExt.Reader<{envType}, {applyToStruct.TypeParameterList.Parameters.Last()}>");
 
+                const string compName = "computation";
+
                 // Internal field used to store the reader monad
                 var compField = FieldDeclaration(
                                 VariableDeclaration(compType)
                                 .WithVariables(
                                     SingletonSeparatedList<VariableDeclaratorSyntax>(
                                         VariableDeclarator(
-                                            Identifier("__comp")))))
+                                            Identifier(compName)))))
                             .WithModifiers(TokenList(new[] { Token(SyntaxKind.ReadOnlyKeyword) }));
 
                 // Constructor
@@ -80,7 +84,7 @@ namespace LanguageExt.CodeGen
                                 ArrowExpressionClause(
                                     AssignmentExpression(
                                         SyntaxKind.SimpleAssignmentExpression,
-                                        IdentifierName("__comp"),
+                                        IdentifierName(compName),
                                         IdentifierName("comp"))))
                             .WithSemicolonToken(
                                 Token(SyntaxKind.SemicolonToken));
@@ -270,7 +274,7 @@ namespace LanguageExt.CodeGen
                                         Token(SyntaxKind.SemicolonToken));
 
                 // SelectMany :: MA -> (A -> MB) -> (A -> B -> C) -> MC
-                var selectManyMethod = 
+                var selectManyMethod2 = 
                     MethodDeclaration(structC, Identifier("SelectMany"))
                             .WithModifiers(
                                 TokenList(
@@ -299,55 +303,44 @@ namespace LanguageExt.CodeGen
                                                 )})))
                             .WithExpressionBody(
                                 ArrowExpressionClause(
-                                    ObjectCreationExpression(structC)
+                                    InvocationExpression(
+                                        IdentifierName("Bind"))
                                     .WithArgumentList(
                                         ArgumentList(
                                             SingletonSeparatedList<ArgumentSyntax>(
                                                 Argument(
-                                                    InvocationExpression(
-                                                        MemberAccessExpression(
-                                                            SyntaxKind.SimpleMemberAccessExpression,
-                                                            IdentifierName("__comp"),
-                                                            IdentifierName("Bind")))
-                                                    .WithArgumentList(
-                                                        ArgumentList(
-                                                            SingletonSeparatedList<ArgumentSyntax>(
-                                                                Argument(
-                                                                    SimpleLambdaExpression(
-                                                                        Parameter(
-                                                                            Identifier("a")),
-                                                                        InvocationExpression(
-                                                                            MemberAccessExpression(
-                                                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                                                MemberAccessExpression(
-                                                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                                                    InvocationExpression(
-                                                                                        IdentifierName("bind"))
-                                                                                    .WithArgumentList(
-                                                                                        ArgumentList(
-                                                                                            SingletonSeparatedList<ArgumentSyntax>(
-                                                                                                Argument(
-                                                                                                    IdentifierName("a"))))),
-                                                                                    IdentifierName("__comp")),
-                                                                                IdentifierName("Map")))
-                                                                        .WithArgumentList(
-                                                                            ArgumentList(
-                                                                                SingletonSeparatedList<ArgumentSyntax>(
-                                                                                    Argument(
-                                                                                        SimpleLambdaExpression(
-                                                                                            Parameter(
-                                                                                                Identifier("b")),
-                                                                                            InvocationExpression(
-                                                                                                IdentifierName("project"))
-                                                                                            .WithArgumentList(
-                                                                                                ArgumentList(
-                                                                                                    SeparatedList<ArgumentSyntax>(
-                                                                                                        new SyntaxNodeOrToken[]{
-                                                                                                            Argument(
-                                                                                                                IdentifierName("a")),
-                                                                                                            Token(SyntaxKind.CommaToken),
-                                                                                                            Argument(
-                                                                                                                IdentifierName("b"))})))))))))))))))))))
+                                                    SimpleLambdaExpression(
+                                                        Parameter(
+                                                            Identifier("a")),
+                                                        InvocationExpression(
+                                                            MemberAccessExpression(
+                                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                                InvocationExpression(
+                                                                    IdentifierName("bind"))
+                                                                .WithArgumentList(
+                                                                    ArgumentList(
+                                                                        SingletonSeparatedList<ArgumentSyntax>(
+                                                                            Argument(
+                                                                                IdentifierName("a"))))),
+                                                                IdentifierName("Map")))
+                                                        .WithArgumentList(
+                                                            ArgumentList(
+                                                                SingletonSeparatedList<ArgumentSyntax>(
+                                                                    Argument(
+                                                                        SimpleLambdaExpression(
+                                                                            Parameter(
+                                                                                Identifier("b")),
+                                                                            InvocationExpression(
+                                                                                IdentifierName("project"))
+                                                                            .WithArgumentList(
+                                                                                ArgumentList(
+                                                                                    SeparatedList<ArgumentSyntax>(
+                                                                                        new SyntaxNodeOrToken[]{
+                                                                                            Argument(
+                                                                                                IdentifierName("a")),
+                                                                                            Token(SyntaxKind.CommaToken),
+                                                                                            Argument(
+                                                                                                IdentifierName("b"))})))))))))))))))
                             .WithSemicolonToken(
                                 Token(SyntaxKind.SemicolonToken));
 
@@ -375,7 +368,7 @@ namespace LanguageExt.CodeGen
                                                 InvocationExpression(
                                                     MemberAccessExpression(
                                                         SyntaxKind.SimpleMemberAccessExpression,
-                                                        IdentifierName("__comp"),
+                                                        IdentifierName(compName),
                                                         IdentifierName("Run")))
                                                 .WithArgumentList(
                                                     ArgumentList(
@@ -408,7 +401,7 @@ namespace LanguageExt.CodeGen
                                                         InvocationExpression(
                                                             MemberAccessExpression(
                                                                 SyntaxKind.SimpleMemberAccessExpression,
-                                                                IdentifierName("__comp"),
+                                                                IdentifierName(compName),
                                                                 IdentifierName("Do")))
                                                         .WithArgumentList(
                                                             ArgumentList(
@@ -433,7 +426,7 @@ namespace LanguageExt.CodeGen
                                                                 InvocationExpression(
                                                                     MemberAccessExpression(
                                                                         SyntaxKind.SimpleMemberAccessExpression,
-                                                                        IdentifierName("__comp"),
+                                                                        IdentifierName(compName),
                                                                         IdentifierName("Strict")))))))))
                                         .WithSemicolonToken(
                                             Token(SyntaxKind.SemicolonToken));
@@ -463,7 +456,7 @@ namespace LanguageExt.CodeGen
                                             InvocationExpression(
                                                 MemberAccessExpression(
                                                     SyntaxKind.SimpleMemberAccessExpression,
-                                                    IdentifierName("__comp"),
+                                                    IdentifierName(compName),
                                                     IdentifierName("ToSeq")))
                                             .WithArgumentList(
                                                 ArgumentList(
@@ -496,7 +489,7 @@ namespace LanguageExt.CodeGen
                                                             InvocationExpression(
                                                                 MemberAccessExpression(
                                                                     SyntaxKind.SimpleMemberAccessExpression,
-                                                                    IdentifierName("__comp"),
+                                                                    IdentifierName(compName),
                                                                     IdentifierName("Iter")))
                                                             .WithArgumentList(
                                                                 ArgumentList(
@@ -559,7 +552,7 @@ namespace LanguageExt.CodeGen
                                                                             MemberAccessExpression(
                                                                                 SyntaxKind.SimpleMemberAccessExpression,
                                                                                 IdentifierName("self"),
-                                                                                IdentifierName("__comp")),
+                                                                                IdentifierName(compName)),
                                                                             IdentifierName("Fold")))
                                                                     .WithArgumentList(
                                                                         ArgumentList(
@@ -626,7 +619,7 @@ namespace LanguageExt.CodeGen
                                                                             MemberAccessExpression(
                                                                                 SyntaxKind.SimpleMemberAccessExpression,
                                                                                 IdentifierName("self"),
-                                                                                IdentifierName("__comp")),
+                                                                                IdentifierName(compName)),
                                                                             IdentifierName("ForAll")))
                                                                     .WithArgumentList(
                                                                         ArgumentList(
@@ -690,7 +683,7 @@ namespace LanguageExt.CodeGen
                                                                                 MemberAccessExpression(
                                                                                     SyntaxKind.SimpleMemberAccessExpression,
                                                                                     IdentifierName("self"),
-                                                                                    IdentifierName("__comp")),
+                                                                                    IdentifierName(compName)),
                                                                                 IdentifierName("Exists")))
                                                                         .WithArgumentList(
                                                                             ArgumentList(
@@ -731,7 +724,7 @@ namespace LanguageExt.CodeGen
                                                                         SeparatedList<ArgumentSyntax>(
                                                                             new SyntaxNodeOrToken[]{
                                                                                 Argument(
-                                                                                    IdentifierName("__comp")),
+                                                                                    IdentifierName(compName)),
                                                                                 Token(SyntaxKind.CommaToken),
                                                                                 Argument(
                                                                                     IdentifierName("f"))})))))))))
@@ -739,8 +732,8 @@ namespace LanguageExt.CodeGen
                                             Token(SyntaxKind.SemicolonToken));
 
                 // [name] :: MA -> (A -> B) -> MB
-                MethodDeclarationSyntax MapMethod(string name) => 
-                    MethodDeclaration(structB, Identifier(name))
+                var mapMethod =
+                    MethodDeclaration(structB, Identifier("Map"))
                         .WithModifiers(
                             TokenList(
                                 Token(SyntaxKind.PublicKeyword)))
@@ -759,27 +752,67 @@ namespace LanguageExt.CodeGen
                                         ))))
                         .WithExpressionBody(
                             ArrowExpressionClause(
-                                ObjectCreationExpression(structB)
+                                InvocationExpression(
+                                    IdentifierName("Bind"))
                                 .WithArgumentList(
                                     ArgumentList(
                                         SingletonSeparatedList<ArgumentSyntax>(
                                             Argument(
-                                                InvocationExpression(
-                                                    MemberAccessExpression(
-                                                        SyntaxKind.SimpleMemberAccessExpression,
-                                                        IdentifierName("__comp"),
-                                                        IdentifierName("Map")))
-                                                .WithArgumentList(
-                                                    ArgumentList(
-                                                        SingletonSeparatedList<ArgumentSyntax>(
-                                                            Argument(
-                                                                IdentifierName("f")))))))))))
+                                                SimpleLambdaExpression(
+                                                    Parameter(
+                                                        Identifier("a")),
+                                                    InvocationExpression(
+                                                        MemberAccessExpression(
+                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                            structB,
+                                                            IdentifierName("Pure")))
+                                                    .WithArgumentList(
+                                                        ArgumentList(
+                                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                                Argument(
+                                                                    InvocationExpression(
+                                                                        IdentifierName("f"))
+                                                                    .WithArgumentList(
+                                                                        ArgumentList(
+                                                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                                                Argument(
+                                                                                    IdentifierName("a"))))))))))))))))
                         .WithSemicolonToken(
                             Token(SyntaxKind.SemicolonToken));
 
-                // [name] :: MA -> (A -> MB) -> MB
-                MethodDeclarationSyntax BindMethod(string name) =>
-                    MethodDeclaration(structB, Identifier(name))
+                var selectMethod =
+                    MethodDeclaration(structB, Identifier("Select"))
+                        .WithModifiers(
+                            TokenList(
+                                Token(SyntaxKind.PublicKeyword)))
+                        .WithTypeParameterList(
+                            TypeParameterList(
+                                SingletonSeparatedList<TypeParameterSyntax>(
+                                    TypeParameter(
+                                        Identifier(genB)))))
+                        .WithParameterList(
+                            ParameterList(
+                                SingletonSeparatedList<ParameterSyntax>(
+                                    Parameter(
+                                        Identifier("f"))
+                                    .WithType(
+                                        CodeGenUtil.FuncType(genA, genB)
+                                        ))))
+                        .WithExpressionBody(
+                            ArrowExpressionClause(
+                                InvocationExpression(
+                                    IdentifierName("Map"))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SingletonSeparatedList<ArgumentSyntax>(
+                                            Argument(
+                                                IdentifierName("f")))))))
+                        .WithSemicolonToken(
+                            Token(SyntaxKind.SemicolonToken));
+
+                // Bind :: MA -> (A -> MB) -> MB
+                var bindMethod = 
+                    MethodDeclaration(structB, Identifier("Bind"))
                             .WithModifiers(
                                 TokenList(
                                     Token(SyntaxKind.PublicKeyword)))
@@ -805,7 +838,7 @@ namespace LanguageExt.CodeGen
                                                     InvocationExpression(
                                                         MemberAccessExpression(
                                                             SyntaxKind.SimpleMemberAccessExpression,
-                                                            IdentifierName("__comp"),
+                                                            IdentifierName(compName),
                                                             IdentifierName("Bind")))
                                                     .WithArgumentList(
                                                         ArgumentList(
@@ -823,34 +856,64 @@ namespace LanguageExt.CodeGen
                                                                                     SingletonSeparatedList<ArgumentSyntax>(
                                                                                         Argument(
                                                                                             IdentifierName("a"))))),
-                                                                            IdentifierName("__comp")))))))))))))
+                                                                            IdentifierName(compName)))))))))))))
                             .WithSemicolonToken(
                                 Token(SyntaxKind.SemicolonToken));
 
+                // SelectMany :: MA -> (A -> MB) -> MB
+                var selectManyMethod1 =
+                    MethodDeclaration(structB, Identifier("SelectMany"))
+                            .WithModifiers(
+                                TokenList(
+                                    Token(SyntaxKind.PublicKeyword)))
+                            .WithTypeParameterList(
+                                TypeParameterList(
+                                    SingletonSeparatedList<TypeParameterSyntax>(
+                                        TypeParameter(
+                                            Identifier(genB)))))
+                            .WithParameterList(
+                                ParameterList(
+                                    SingletonSeparatedList<ParameterSyntax>(
+                                        Parameter(
+                                            Identifier("f"))
+                                        .WithType(
+                                            CodeGenUtil.FuncType(genA, structB)))))
+                            .WithExpressionBody(
+                                ArrowExpressionClause(
+                                    InvocationExpression(
+                                        IdentifierName("Bind"))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                Argument(
+                                                    IdentifierName("f")))))))
+                            .WithSemicolonToken(
+                                Token(SyntaxKind.SemicolonToken));
 
-                partialStruct = partialStruct.WithMembers(
-                    List(
-                        new MemberDeclarationSyntax[]{
+                var memberDecls = new MemberDeclarationSyntax[]{
                             compField,
                             ctor,
-                            returnMethod,
-                            failMethod1,
-                            failMethod2,
-                            failMethod3,
-                            MapMethod("Map"),
-                            MapMethod("Select"),
-                            BindMethod("Bind"),
-                            BindMethod("SelectMany"),
-                            selectManyMethod,
-                            runMethod,
-                            doMethod,
-                            strictMethod,
-                            toSeqMethod,
-                            iterMethod,
-                            foldMethod,
-                            forAllMethod,
-                            existsMethod,
-                            localMethod }));
+                            CodeGenUtil.NullIfExists(members, returnMethod),
+                            CodeGenUtil.NullIfExists(members, failMethod1),
+                            CodeGenUtil.NullIfExists(members, failMethod2),
+                            CodeGenUtil.NullIfExists(members, failMethod3),
+                            CodeGenUtil.NullIfExists(members, mapMethod),
+                            CodeGenUtil.NullIfExists(members, selectMethod),
+                            CodeGenUtil.NullIfExists(members, bindMethod),
+                            CodeGenUtil.NullIfExists(members, selectManyMethod1),
+                            CodeGenUtil.NullIfExists(members, selectManyMethod2),
+                            CodeGenUtil.NullIfExists(members, runMethod),
+                            CodeGenUtil.NullIfExists(members, doMethod),
+                            CodeGenUtil.NullIfExists(members, strictMethod),
+                            CodeGenUtil.NullIfExists(members, toSeqMethod),
+                            CodeGenUtil.NullIfExists(members, iterMethod),
+                            CodeGenUtil.NullIfExists(members, foldMethod),
+                            CodeGenUtil.NullIfExists(members, forAllMethod),
+                            CodeGenUtil.NullIfExists(members, existsMethod),
+                            CodeGenUtil.NullIfExists(members, localMethod) };
+
+                memberDecls = memberDecls.Where(m => m != null).ToArray();
+                partialStruct = partialStruct.WithMembers(List(memberDecls));
 
                 // Return :: A -> MA
                 var returnFunc = MethodDeclaration(
