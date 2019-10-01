@@ -550,6 +550,13 @@ namespace LanguageExt.Tests
         }
         
         [Fact]
+        public void ParseN0TimesZeroNegative()
+        {
+            Assert.True(parse(asString(manyn0(digit, 0)), "123").ToEither().IfLeft("x") == "");
+            Assert.True(parse(asString(manyn0(digit, -1)), "123").ToEither().IfLeft("x") == "");
+        }
+        
+        [Fact]
         public void ParallelCheck()
         {
             // works
