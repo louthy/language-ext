@@ -261,6 +261,56 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        public void IterSimpleTest()
+        {
+            var embeddedSideEffectResult = 0;
+            var expression = from dummy in Some(unit)
+                from i in List(2, 3, 5)
+                let _ = fun(() => embeddedSideEffectResult += i)()
+                select i;
+
+            Assert.Equal(0, embeddedSideEffectResult);
+
+            var sideEffectByAction = 0;
+
+            expression.Iter(i => sideEffectByAction += i * i);
+            Assert.Equal(2 + 3 + 5, embeddedSideEffectResult);
+            Assert.Equal(2 * 2 + 3 * 3 + 5 * 5, sideEffectByAction);
+        }
+
+        [Fact]
+        public void IterPositionalTest()
+        {
+            var embeddedSideEffectResult = 0;
+            var expression = from dummy in Some(unit)
+                from i in List(2, 3, 5)
+                let _ = fun(() => embeddedSideEffectResult += i)()
+                select i;
+
+            Assert.Equal(0, embeddedSideEffectResult);
+
+            var sideEffectByAction = 0;
+
+            expression.Iter((pos, i) => sideEffectByAction += i * pos);
+            Assert.Equal(2 + 3 + 5, embeddedSideEffectResult);
+            Assert.Equal(2 * 0 + 3 * 1 + 5 * 2, sideEffectByAction);
+        }
+
+        [Fact]
+        public void IterNoopTest()
+        {
+            var embeddedSideEffectResult = 0;
+            var expression = from dummy in Some(unit)
+                from i in List(2, 3, 5)
+                let _ = fun(() => embeddedSideEffectResult += i)()
+                select i;
+
+            Assert.Equal(0, embeddedSideEffectResult);
+            expression.Iter();
+            Assert.Equal(2 + 3+ 5, embeddedSideEffectResult);
+        }
+        
+        [Fact]
         public void SkipLastTest1()
         {
             var list = List(1, 2, 3, 4, 5);
