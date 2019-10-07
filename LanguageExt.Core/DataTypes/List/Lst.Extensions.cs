@@ -757,10 +757,10 @@ public static class ListExtensions
     /// Iterate each item in the enumerable in order (consume items)
     /// </summary>
     /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to iterate</param>
+    /// <param name="list">Enumerable to consume</param>
     /// <returns>Unit</returns>
-    public static Unit Iter<T>(this IEnumerable<T> list) =>
-        LanguageExt.List.iter(list);
+    public static Unit Consume<T>(this IEnumerable<T> list) =>
+        LanguageExt.List.consume(list);
 
     /// <summary>
     /// Returns true if all items in the enumerable match a predicate (Any in LINQ)

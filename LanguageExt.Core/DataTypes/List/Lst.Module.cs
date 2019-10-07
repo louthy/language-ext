@@ -891,9 +891,9 @@ namespace LanguageExt
         /// Iterate each item in the enumerable in order (consume items)
         /// </summary>
         /// <typeparam name="T">Enumerable item type</typeparam>
-        /// <param name="list">Enumerable to iterate</param>
+        /// <param name="list">Enumerable to consume</param>
         /// <returns>Unit</returns>
-        public static Unit iter<T>(IEnumerable<T> list)
+        public static Unit consume<T>(IEnumerable<T> list)
         {
             foreach (var item in list)
             {

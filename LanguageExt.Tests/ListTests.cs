@@ -297,16 +297,16 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void IterNoopTest()
+        public void ConsumeTest()
         {
             var embeddedSideEffectResult = 0;
-            var expression = from dummy in Some(unit)
+            System.Collections.Generic.IEnumerable<int> expression = from dummy in Some(unit)
                 from i in List(2, 3, 5)
                 let _ = fun(() => embeddedSideEffectResult += i)()
                 select i;
 
             Assert.Equal(0, embeddedSideEffectResult);
-            expression.Iter();
+            expression.Consume();
             Assert.Equal(2 + 3+ 5, embeddedSideEffectResult);
         }
         
