@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt;
 using LanguageExt.Parsec;
 using static LanguageExt.Prelude;
 using static LanguageExt.Parsec.Prim;
@@ -174,4 +175,16 @@ public static class ParserExtensions
                 // eerr
                 return EmptyError<V>(t.Reply.Error);
             };
+
+    public static Parser<T> Flatten<T>(this Parser<Option<T>> p, Func<string> failureText) =>
+        from value in p
+        from returnValue in value.Match(result, compose(failureText, failure<T>))
+        select returnValue;
+
+    public static Parser<R> Flatten<L, R>(this Parser<Either<L, R>> p, Func<L, string> failureText) =>
+        from value in p
+        from returnValue in value.Match(result, compose(failureText, failure<R>))
+        select returnValue;
+    
+    public static Parser<R> Flatten<R>(this Parser<Either<string,R>> p) => Flatten(p, identity);
 }
