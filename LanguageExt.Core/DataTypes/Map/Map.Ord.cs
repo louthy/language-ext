@@ -1053,5 +1053,17 @@ namespace LanguageExt
         [Pure]
         public Map<OrdK, K, V> Slice(K keyFrom, K keyTo) =>
             new Map<OrdK, K, V>(FindRangePairs(keyFrom, keyTo));
+
+        /// <summary>
+        /// Find the lowest ordered item in the map
+        /// </summary>
+        [Pure]
+        public Option<(K Key, V Value)> Min => Value.Min;
+
+        /// <summary>
+        /// Find the lowest ordered item in the map
+        /// </summary>
+        [Pure]
+        public Option<(K Key, V Value)> Max => Value.Max;
     }
 }

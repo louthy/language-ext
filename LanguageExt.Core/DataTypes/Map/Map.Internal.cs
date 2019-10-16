@@ -113,6 +113,18 @@ namespace LanguageExt
         public int Length =>
             Count;
 
+        [Pure]
+        public Option<(K, V)> Min => 
+            Root.IsEmpty
+                ? None
+                : MapModule.Min(Root);
+
+        [Pure]
+        public Option<(K, V)> Max => 
+            Root.IsEmpty
+                ? None
+                : MapModule.Max(Root);
+
         /// <summary>
         /// Get the hash code of all items in the map
         /// </summary>
@@ -1999,5 +2011,15 @@ namespace LanguageExt
             node.IsEmpty || node.Right.IsEmpty
                 ? node
                 : RotLeft(Make(node.KeyValue, node.Left, RotRight(node.Right)));
+
+        internal static Option<(K, V)> Max<K, V>(MapItem<K, V> node) =>
+            node.Right.IsEmpty
+                ? node.Right.KeyValue
+                : Max(node.Right);
+
+        internal static Option<(K, V)> Min<K, V>(MapItem<K, V> node) =>
+            node.Left.IsEmpty
+                ? node.Left.KeyValue
+                : Max(node.Left);
     }
 }

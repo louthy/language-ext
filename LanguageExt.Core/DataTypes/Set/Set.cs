@@ -182,6 +182,16 @@ namespace LanguageExt
             Value.Find(value);
 
         /// <summary>
+        /// Retrieve a range of values 
+        /// </summary>
+        /// <param name="keyFrom">Range start (inclusive)</param>
+        /// <param name="keyTo">Range to (inclusive)</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
+        /// <returns>Range of values</returns>
+        [Pure]
+        public IEnumerable<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
+
+        /// <summary>
         /// Returns the elements that are in both this and other
         /// </summary>
         [Pure]
@@ -599,7 +609,30 @@ namespace LanguageExt
         /// <summary>
         /// Implicit conversion from an untyped empty list
         /// </summary>
+        [Pure]
         public static implicit operator Set<A>(SeqEmpty _) =>
             Empty;
+
+        /// <summary>
+        /// Creates a new map from a range/slice of this map
+        /// </summary>
+        /// <param name="keyFrom">Range start (inclusive)</param>
+        /// <param name="keyTo">Range to (inclusive)</param>
+        /// <returns></returns>
+        [Pure]
+        public Set<A> Slice(A keyFrom, A keyTo) =>
+            new Set<A>(FindRange(keyFrom, keyTo));
+
+        /// <summary>
+        /// Find the lowest ordered item in the set
+        /// </summary>
+        [Pure]
+        public Option<A> Min => Value.Min;
+
+        /// <summary>
+        /// Find the lowest ordered item in the set
+        /// </summary>
+        [Pure]
+        public Option<A> Max => Value.Max;
     }
 }

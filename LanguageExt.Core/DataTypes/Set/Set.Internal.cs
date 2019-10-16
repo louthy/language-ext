@@ -99,6 +99,18 @@ namespace LanguageExt
         public int Count =>
             set.Count;
 
+        [Pure]
+        public Option<A> Min => 
+            set.IsEmpty
+                ? None
+                : SetModule.Min(set);
+
+        [Pure]
+        public Option<A> Max =>
+            set.IsEmpty
+                ? None
+                : SetModule.Max(set);
+
         /// <summary>
         /// Add an item to the set
         /// </summary>
@@ -209,6 +221,24 @@ namespace LanguageExt
         [Pure]
         public Option<A> Find(A value) =>
             SetModule.TryFind<OrdA, A>(set, value);
+
+        /// <summary>
+        /// Retrieve a range of values 
+        /// </summary>
+        /// <param name="keyFrom">Range start (inclusive)</param>
+        /// <param name="keyTo">Range to (inclusive)</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
+        /// <returns>Range of values</returns>
+        [Pure]
+        public IEnumerable<A> FindRange(A keyFrom, A keyTo)
+        {
+            if (isnull(keyFrom)) throw new ArgumentNullException(nameof(keyFrom));
+            if (isnull(keyTo)) throw new ArgumentNullException(nameof(keyTo));
+            return default(OrdA).Compare(keyFrom, keyTo) > 0
+                ? SetModule.FindRange<OrdA, A>(set, keyTo, keyFrom)
+                : SetModule.FindRange<OrdA, A>(set, keyFrom, keyTo);
+        }
+
 
         /// <summary>
         /// Returns the elements that are in both this and other
@@ -1194,6 +1224,16 @@ namespace LanguageExt
             node.IsEmpty
                 ? SetItem<B>.Empty
                 : new SetItem<B>(node.Height, node.Count, f(node.Key), Map(node.Left, f), Map(node.Right, f));
+
+        internal static Option<A> Max<A>(SetItem<A> node) =>
+            node.Right.IsEmpty
+                ? node.Right.Key
+                : Max(node.Right);
+
+        internal static Option<A> Min<A>(SetItem<A> node) =>
+            node.Left.IsEmpty
+                ? node.Left.Key
+                : Max(node.Left);
 
         public class SetEnumerator<K> : IEnumerator<K>
         {
