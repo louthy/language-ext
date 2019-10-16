@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
@@ -8,7 +8,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
-    <PackageVersion>3.3.26</PackageVersion>
+    <PackageVersion>3.3.28</PackageVersion>
     <PackageId>LanguageExt.Parsec</PackageId>
     <Title>LanguageExt.Parsec</Title>
     <Authors>Paul Louth</Authors>
