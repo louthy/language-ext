@@ -101,6 +101,10 @@ namespace LanguageExt
         [Pure]
         public static Option<DateTimeOffset> parseDateTimeOffset(string value) =>
             Parse<DateTimeOffset>(DateTimeOffset.TryParse, value);
+        
+        [Pure]
+        public static Option<TimeSpan> parseTimeSpan(string value) =>
+            Parse<TimeSpan>(TimeSpan.TryParse, value);
 
         [Pure]
         public static Option<TEnum> parseEnum<TEnum>(string value)
