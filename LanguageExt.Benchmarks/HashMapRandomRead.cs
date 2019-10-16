@@ -1,0 +1,84 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using BenchmarkDotNet.Attributes;
+using LanguageExt.ClassInstances;
+using static LanguageExt.Prelude;
+
+namespace LanguageExt.Benchmarks
+{
+    [RPlotExporter, RankColumn]
+    public class HashMapRandomReadBenchmark
+    {
+        [Params(100, 1000, 10000, 100000)]
+        public int N;
+
+        ImmutableDictionary<int, int> immutableMap;
+        Dictionary<int, int> dictionary;
+        HashMap<EqInt, int, int> hashMap;
+        int[] results;
+
+        [IterationSetup]
+        public void Setup()
+        {
+            results = new int[N];
+            SysColImmutableDictionarySetup();
+            SysColDictionarySetup();
+            LangExtHashMapSetup();
+        }
+
+        [Benchmark]
+        public void SysColImmutableDictionary()
+        {
+            for (int j = 0; j < N; j++)
+            {
+                results[j] = immutableMap[j];
+            }
+        }
+
+        [Benchmark]
+        public void SysColDictionary()
+        {
+            for (int j = 0; j < N; j++)
+            {
+                results[j] = dictionary[j];
+            }
+        }
+
+        [Benchmark]
+        public void LangExtHashMap()
+        {
+            for (int j = 0; j < N; j++)
+            {
+                results[j] = hashMap[j];
+            }
+        }
+
+        public void SysColImmutableDictionarySetup()
+        {
+            immutableMap = ImmutableDictionary.Create<int, int>();
+            for (int j = 0; j < N; j++)
+            {
+                immutableMap = immutableMap.Add(j, j);
+            }
+        }
+
+        public void SysColDictionarySetup()
+        {
+            dictionary = new Dictionary<int, int>();
+            for (int j = 0; j < N; j++)
+            {
+                dictionary.Add(j, j);
+            }
+        }
+
+        public void LangExtHashMapSetup()
+        {
+            hashMap = HashMap<EqInt, int, int>();
+            for (int j = 0; j < N; j++)
+            {
+                hashMap = hashMap.Add(j, j);
+            }
+        }
+    }
+}
