@@ -375,8 +375,8 @@ namespace LanguageExt
             var self = Expression.Parameter(typeof(A));
 
             // Use 32-bit FNV hash parameters as signed values since .net GetHashCode returns a signed 32-bit integer.
-            var FNV_offset_basis = Expression.Constant(-2128831035);
-            var FNV_prime = Expression.Constant(16777619);
+            var fnvOffsetBasis = Expression.Constant(-2128831035);
+            var fnvPrime = Expression.Constant(16777619);
             var zero = Expression.Constant(0);
 
             var Null = Expression.Constant(null, typeof(A));
@@ -446,9 +446,9 @@ namespace LanguageExt
             }
 
             // Implement FNV 1a hashing algoritm - https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
-            var expr = Fields().Fold(FNV_offset_basis as Expression, (state, field) =>
+            var expr = Fields().Fold(fnvOffsetBasis as Expression, (state, field) =>
                 Expression.Multiply(
-                    FNV_prime,
+                    fnvPrime,
                     Expression.ExclusiveOr(
                         state,
                         field)));
