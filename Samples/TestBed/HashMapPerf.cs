@@ -269,7 +269,6 @@ namespace TestBed
                 {
                     map = map.Add(j, j);
                     results[j] = j;
-                    j++;
                 }
 
                 listSW.Stop();
@@ -301,7 +300,6 @@ namespace TestBed
                 {
                     map.Add(j, j);
                     results[j] = j;
-                    j++;
                 }
 
                 listSW.Stop();
@@ -333,7 +331,6 @@ namespace TestBed
                 {
                     map = map.Add(j, j);
                     results[j] = j;
-                    j++;
                 }
 
                 listSW.Stop();

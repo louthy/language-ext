@@ -420,6 +420,16 @@ namespace LanguageExt
         public IEnumerable<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
 
         /// <summary>
+        /// Retrieve a range of values 
+        /// </summary>
+        /// <param name="keyFrom">Range start (inclusive)</param>
+        /// <param name="keyTo">Range to (inclusive)</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
+        /// <returns>Range of key, values</returns>
+        [Pure]
+        public IEnumerable<(K, V)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
+
+        /// <summary>
         /// Skips 'amount' values and returns a new tree without the 
         /// skipped values.
         /// </summary>
@@ -1072,5 +1082,10 @@ namespace LanguageExt
         /// </summary>
         public static implicit operator Map<K, V>(SeqEmpty _) =>
             Empty;
+
+        public Map<K, V> Range(K keyFrom, K keyTo) =>
+            new Map<K, V>(FindRange(keyFrom, keyTo));
+
+
     }
 }

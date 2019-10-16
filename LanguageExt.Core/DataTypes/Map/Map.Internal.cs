@@ -670,6 +670,23 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Retrieve a range of values 
+        /// </summary>
+        /// <param name="keyFrom">Range start (inclusive)</param>
+        /// <param name="keyTo">Range to (inclusive)</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
+        /// <returns>Range of values</returns>
+        [Pure]
+        public IEnumerable<(K, V)> FindRangePairs(K keyFrom, K keyTo)
+        {
+            if (isnull(keyFrom)) throw new ArgumentNullException(nameof(keyFrom));
+            if (isnull(keyTo)) throw new ArgumentNullException(nameof(keyTo));
+            return default(OrdK).Compare(keyFrom, keyTo) > 0
+                ? MapModule.FindRangePairs<OrdK, K, V>(Root, keyTo, keyFrom)
+                : MapModule.FindRangePairs<OrdK, K, V>(Root, keyFrom, keyTo);
+        }
+
+        /// <summary>
         /// Skips 'amount' values and returns a new tree without the 
         /// skipped values.
         /// </summary>
@@ -1844,6 +1861,45 @@ namespace LanguageExt
                 }
                 yield return node.KeyValue.Value;
                 foreach (var item in FindRange<OrdK, K, V>(node.Right, a, b))
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        /// <summary>
+        /// TODO: I suspect this is suboptimal, it would be better with a custom Enumerator 
+        /// that maintains a stack of nodes to retrace.
+        /// </summary>
+        public static IEnumerable<(K, V)> FindRangePairs<OrdK, K, V>(MapItem<K, V> node, K a, K b)
+            where OrdK : struct, Ord<K>
+        {
+            if (node.IsEmpty)
+            {
+                yield break;
+            }
+            if (default(OrdK).Compare(node.KeyValue.Key, a) < 0)
+            {
+                foreach (var item in FindRangePairs<OrdK, K, V>(node.Right, a, b))
+                {
+                    yield return item;
+                }
+            }
+            else if (default(OrdK).Compare(node.KeyValue.Key, b) > 0)
+            {
+                foreach (var item in FindRangePairs<OrdK, K, V>(node.Left, a, b))
+                {
+                    yield return item;
+                }
+            }
+            else
+            {
+                foreach (var item in FindRangePairs<OrdK, K, V>(node.Left, a, b))
+                {
+                    yield return item;
+                }
+                yield return node.KeyValue;
+                foreach (var item in FindRangePairs<OrdK, K, V>(node.Right, a, b))
                 {
                     yield return item;
                 }
