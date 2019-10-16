@@ -427,7 +427,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
         /// <returns>Range of key, values</returns>
         [Pure]
-        public IEnumerable<(K, V)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
+        public IEnumerable<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
 
         /// <summary>
         /// Skips 'amount' values and returns a new tree without the 
@@ -1080,12 +1080,18 @@ namespace LanguageExt
         /// <summary>
         /// Implicit conversion from an untyped empty list
         /// </summary>
+        [Pure]
         public static implicit operator Map<K, V>(SeqEmpty _) =>
             Empty;
 
-        public Map<K, V> Range(K keyFrom, K keyTo) =>
-            new Map<K, V>(FindRange(keyFrom, keyTo));
-
-
+        /// <summary>
+        /// Creates a new map from a range/slice of this map
+        /// </summary>
+        /// <param name="keyFrom">Range start (inclusive)</param>
+        /// <param name="keyTo">Range to (inclusive)</param>
+        /// <returns></returns>
+        [Pure]
+        public Map<K, V> Slice(K keyFrom, K keyTo) =>
+            new Map<K, V>(FindRangePairs(keyFrom, keyTo));
     }
 }
