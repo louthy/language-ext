@@ -241,5 +241,221 @@ namespace LanguageExt.Tests
 
             Assert.True(z == Set((2, 2)));
         }
+
+
+        [Fact]
+        public void SliceTest()
+        {
+            var m = Set(1, 2, 3, 4, 5);
+
+            var x = m.Slice(1, 2);
+
+            Assert.True(x.Count == 2);
+            Assert.True(x.Contains(1));
+            Assert.True(x.Contains(2));
+
+            var y = m.Slice(2, 4);
+
+            Assert.True(y.Count == 3);
+            Assert.True(y.Contains(2));
+            Assert.True(y.Contains(3));
+            Assert.True(y.Contains(4));
+
+            var z = m.Slice(4, 5);
+
+            Assert.True(z.Count == 2);
+            Assert.True(z.Contains(4));
+            Assert.True(z.Contains(5));
+        }
+
+        [Fact]
+        public void MinMaxTest()
+        {
+            var m = Set(1, 2, 3, 4, 5);
+
+            Assert.True(m.Min == 1);
+            Assert.True(m.Max == 5);
+
+            var me = Set<int>();
+
+            Assert.True(me.Min == None);
+            Assert.True(me.Max == None);
+        }
+
+        [Fact]
+        public void FindPredecessorWhenKeyExistsTest()
+        {
+            var m = Set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+
+            Assert.True(m.FindPredecessor(1) == None);
+            Assert.True(m.FindPredecessor(2) == 1);
+            Assert.True(m.FindPredecessor(3) == 2);
+            Assert.True(m.FindPredecessor(4) == 3);
+            Assert.True(m.FindPredecessor(5) == 4);
+            Assert.True(m.FindPredecessor(6) == 5);
+            Assert.True(m.FindPredecessor(7) == 6);
+            Assert.True(m.FindPredecessor(8) == 7);
+            Assert.True(m.FindPredecessor(9) == 8);
+            Assert.True(m.FindPredecessor(10) == 9);
+            Assert.True(m.FindPredecessor(11) == 10);
+            Assert.True(m.FindPredecessor(12) == 11);
+            Assert.True(m.FindPredecessor(13) == 12);
+            Assert.True(m.FindPredecessor(14) == 13);
+            Assert.True(m.FindPredecessor(15) == 14);
+        }
+
+        [Fact]
+        public void FindPredecessorWhenKeyNotExistsTest()
+        {
+            var m = Set(1, 3, 5, 7, 9, 11, 13, 15);
+
+            Assert.True(m.FindPredecessor(1) == None);
+            Assert.True(m.FindPredecessor(2) == 1);
+            Assert.True(m.FindPredecessor(3) == 1);
+            Assert.True(m.FindPredecessor(4) == 3);
+            Assert.True(m.FindPredecessor(5) == 3);
+            Assert.True(m.FindPredecessor(6) == 5);
+            Assert.True(m.FindPredecessor(7) == 5);
+            Assert.True(m.FindPredecessor(8) == 7);
+            Assert.True(m.FindPredecessor(9) == 7);
+            Assert.True(m.FindPredecessor(10) == 9);
+            Assert.True(m.FindPredecessor(11) == 9);
+            Assert.True(m.FindPredecessor(12) == 11);
+            Assert.True(m.FindPredecessor(13) == 11);
+            Assert.True(m.FindPredecessor(14) == 13);
+            Assert.True(m.FindPredecessor(15) == 13);
+        }
+
+        [Fact]
+        public void FindExactOrPredecessorWhenKeyExistsTest()
+        {
+            var m = Set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+
+            Assert.True(m.FindExactOrPredecessor(1) == 1);
+            Assert.True(m.FindExactOrPredecessor(2) == 2);
+            Assert.True(m.FindExactOrPredecessor(3) == 3);
+            Assert.True(m.FindExactOrPredecessor(4) == 4);
+            Assert.True(m.FindExactOrPredecessor(5) == 5);
+            Assert.True(m.FindExactOrPredecessor(6) == 6);
+            Assert.True(m.FindExactOrPredecessor(7) == 7);
+            Assert.True(m.FindExactOrPredecessor(8) == 8);
+            Assert.True(m.FindExactOrPredecessor(9) == 9);
+            Assert.True(m.FindExactOrPredecessor(10) == 10);
+            Assert.True(m.FindExactOrPredecessor(11) == 11);
+            Assert.True(m.FindExactOrPredecessor(12) == 12);
+            Assert.True(m.FindExactOrPredecessor(13) == 13);
+            Assert.True(m.FindExactOrPredecessor(14) == 14);
+            Assert.True(m.FindExactOrPredecessor(15) == 15);
+        }
+
+        [Fact]
+        public void FindExactOrPredecessorWhenKeySometimesExistsTest()
+        {
+            var m = Set(1, 3, 5, 7, 9, 11, 13, 15);
+
+            Assert.True(m.FindExactOrPredecessor(1) == 1);
+            Assert.True(m.FindExactOrPredecessor(2) == 1);
+            Assert.True(m.FindExactOrPredecessor(3) == 3);
+            Assert.True(m.FindExactOrPredecessor(4) == 3);
+            Assert.True(m.FindExactOrPredecessor(5) == 5);
+            Assert.True(m.FindExactOrPredecessor(6) == 5);
+            Assert.True(m.FindExactOrPredecessor(7) == 7);
+            Assert.True(m.FindExactOrPredecessor(8) == 7);
+            Assert.True(m.FindExactOrPredecessor(9) == 9);
+            Assert.True(m.FindExactOrPredecessor(10) == 9);
+            Assert.True(m.FindExactOrPredecessor(11) == 11);
+            Assert.True(m.FindExactOrPredecessor(12) == 11);
+            Assert.True(m.FindExactOrPredecessor(13) == 13);
+            Assert.True(m.FindExactOrPredecessor(14) == 13);
+            Assert.True(m.FindExactOrPredecessor(15) == 15);
+        }
+
+        [Fact]
+        public void FindSuccessorWhenKeyExistsTest()
+        {
+            var m = Set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+
+            Assert.True(m.FindSuccessor(1) == 2);
+            Assert.True(m.FindSuccessor(2) == 3);
+            Assert.True(m.FindSuccessor(3) == 4);
+            Assert.True(m.FindSuccessor(4) == 5);
+            Assert.True(m.FindSuccessor(5) == 6);
+            Assert.True(m.FindSuccessor(6) == 7);
+            Assert.True(m.FindSuccessor(7) == 8);
+            Assert.True(m.FindSuccessor(8) == 9);
+            Assert.True(m.FindSuccessor(9) == 10);
+            Assert.True(m.FindSuccessor(10) == 11);
+            Assert.True(m.FindSuccessor(11) == 12);
+            Assert.True(m.FindSuccessor(12) == 13);
+            Assert.True(m.FindSuccessor(13) == 14);
+            Assert.True(m.FindSuccessor(14) == 15);
+            Assert.True(m.FindSuccessor(15) == None);
+        }
+
+        [Fact]
+        public void FindSuccessorWhenKeyNotExistsTest()
+        {
+            var m = Set(1, 3, 5, 7, 9, 11, 13, 15);
+
+            Assert.True(m.FindSuccessor(1) == 3);
+            Assert.True(m.FindSuccessor(2) == 3);
+            Assert.True(m.FindSuccessor(3) == 5);
+            Assert.True(m.FindSuccessor(4) == 5);
+            Assert.True(m.FindSuccessor(5) == 7);
+            Assert.True(m.FindSuccessor(6) == 7);
+            Assert.True(m.FindSuccessor(7) == 9);
+            Assert.True(m.FindSuccessor(8) == 9);
+            Assert.True(m.FindSuccessor(9) == 11);
+            Assert.True(m.FindSuccessor(10) == 11);
+            Assert.True(m.FindSuccessor(11) == 13);
+            Assert.True(m.FindSuccessor(12) == 13);
+            Assert.True(m.FindSuccessor(13) == 15);
+            Assert.True(m.FindSuccessor(14) == 15);
+            Assert.True(m.FindSuccessor(15) == None);
+        }
+
+        [Fact]
+        public void FindExactOrSuccessorWhenKeyExistsTest()
+        {
+            var m = Set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+
+            Assert.True(m.FindExactOrSuccessor(1) == 1);
+            Assert.True(m.FindExactOrSuccessor(2) == 2);
+            Assert.True(m.FindExactOrSuccessor(3) == 3);
+            Assert.True(m.FindExactOrSuccessor(4) == 4);
+            Assert.True(m.FindExactOrSuccessor(5) == 5);
+            Assert.True(m.FindExactOrSuccessor(6) == 6);
+            Assert.True(m.FindExactOrSuccessor(7) == 7);
+            Assert.True(m.FindExactOrSuccessor(8) == 8);
+            Assert.True(m.FindExactOrSuccessor(9) == 9);
+            Assert.True(m.FindExactOrSuccessor(10) == 10);
+            Assert.True(m.FindExactOrSuccessor(11) == 11);
+            Assert.True(m.FindExactOrSuccessor(12) == 12);
+            Assert.True(m.FindExactOrSuccessor(13) == 13);
+            Assert.True(m.FindExactOrSuccessor(14) == 14);
+            Assert.True(m.FindExactOrSuccessor(15) == 15);
+        }
+
+        [Fact]
+        public void FindExactOrSuccessorWhenKeySometimesExistsTest()
+        {
+            var m = Set(1, 3, 5, 7, 9, 11, 13, 15);
+
+            Assert.True(m.FindExactOrSuccessor(1) == 1);
+            Assert.True(m.FindExactOrSuccessor(2) == 3);
+            Assert.True(m.FindExactOrSuccessor(3) == 3);
+            Assert.True(m.FindExactOrSuccessor(4) == 5);
+            Assert.True(m.FindExactOrSuccessor(5) == 5);
+            Assert.True(m.FindExactOrSuccessor(6) == 7);
+            Assert.True(m.FindExactOrSuccessor(7) == 7);
+            Assert.True(m.FindExactOrSuccessor(8) == 9);
+            Assert.True(m.FindExactOrSuccessor(9) == 9);
+            Assert.True(m.FindExactOrSuccessor(10) == 11);
+            Assert.True(m.FindExactOrSuccessor(11) == 11);
+            Assert.True(m.FindExactOrSuccessor(12) == 13);
+            Assert.True(m.FindExactOrSuccessor(13) == 13);
+            Assert.True(m.FindExactOrSuccessor(14) == 15);
+            Assert.True(m.FindExactOrSuccessor(15) == 15);
+        }
     }
 }

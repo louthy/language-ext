@@ -192,6 +192,38 @@ namespace LanguageExt
         public IEnumerable<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
 
         /// <summary>
+        /// Retrieve the value from previous item to specified key
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindPredecessor(A key) => Value.FindPredecessor(key);
+
+        /// <summary>
+        /// Retrieve the value from exact key, or if not found, the previous item 
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindExactOrPredecessor(A key) => Value.FindOrPredecessor(key);
+
+        /// <summary>
+        /// Retrieve the value from next item to specified key
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindSuccessor(A key) => Value.FindSuccessor(key);
+
+        /// <summary>
+        /// Retrieve the value from exact key, or if not found, the next item 
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindExactOrSuccessor(A key) => Value.FindOrSuccessor(key);
+
+        /// <summary>
         /// Returns the elements that are in both this and other
         /// </summary>
         [Pure]
@@ -630,7 +662,7 @@ namespace LanguageExt
         public Option<A> Min => Value.Min;
 
         /// <summary>
-        /// Find the lowest ordered item in the set
+        /// Find the highest ordered item in the set
         /// </summary>
         [Pure]
         public Option<A> Max => Value.Max;

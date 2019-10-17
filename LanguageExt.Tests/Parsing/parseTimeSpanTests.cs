@@ -9,7 +9,7 @@ namespace LanguageExt.Tests.Parsing
 
         [Fact]
         public void parseTimeSpan_valid() =>
-            Assert.Equal(Prelude.Some(new TimeSpan(0, 0, 0, 19, 12)), Prelude.parseTimeSpan("00:00:19.1200000"));
+            Assert.Equal(Prelude.Some(new TimeSpan(0, 0, 0, 19, 12)), Prelude.parseTimeSpan("00:00:19.0120000"));
 
         [Theory]
         [InlineData("00:00:19.1200000")]

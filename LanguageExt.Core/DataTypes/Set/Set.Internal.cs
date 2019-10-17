@@ -223,6 +223,38 @@ namespace LanguageExt
             SetModule.TryFind<OrdA, A>(set, value);
 
         /// <summary>
+        /// Retrieve the value from predecessor item to specified key
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindPredecessor(A key) => SetModule.TryFindPredecessor<OrdA, A>(set, key);
+
+        /// <summary>
+        /// Retrieve the value from exact key, or if not found, the predecessor item 
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindOrPredecessor(A key) => SetModule.TryFindOrPredecessor<OrdA, A>(set, key);
+
+        /// <summary>
+        /// Retrieve the value from next item to specified key
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindSuccessor(A key) => SetModule.TryFindSuccessor<OrdA, A>(set, key);
+
+        /// <summary>
+        /// Retrieve the value from exact key, or if not found, the next item 
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindOrSuccessor(A key) => SetModule.TryFindOrSuccessor<OrdA, A>(set, key);
+
+        /// <summary>
         /// Retrieve a range of values 
         /// </summary>
         /// <param name="keyFrom">Range start (inclusive)</param>
@@ -1227,13 +1259,161 @@ namespace LanguageExt
 
         internal static Option<A> Max<A>(SetItem<A> node) =>
             node.Right.IsEmpty
-                ? node.Right.Key
+                ? node.Key
                 : Max(node.Right);
 
         internal static Option<A> Min<A>(SetItem<A> node) =>
             node.Left.IsEmpty
-                ? node.Left.Key
-                : Max(node.Left);
+                ? node.Key
+                : Min(node.Left);
+
+        internal static Option<A> TryFindPredecessor<OrdA, A>(SetItem<A> root, A key) where OrdA : struct, Ord<A>
+        {
+            Option<A> predecessor = None;
+            var current = root;
+
+            if (root.IsEmpty)
+            {
+                return None;
+            }
+
+            do
+            {
+                var cmp = default(OrdA).Compare(key, current.Key);
+                if (cmp < 0)
+                {
+                    current = current.Left;
+                }
+                else if (cmp > 0)
+                {
+                    predecessor = current.Key;
+                    current = current.Right;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            while (!current.IsEmpty);
+
+            if(!current.IsEmpty && !current.Left.IsEmpty)
+            {
+                predecessor = Max(current.Left);
+            }
+
+            return predecessor;
+        }
+
+        internal static Option<A> TryFindOrPredecessor<OrdA, A>(SetItem<A> root, A key) where OrdA : struct, Ord<A>
+        {
+            Option<A> predecessor = None;
+            var current = root;
+
+            if (root.IsEmpty)
+            {
+                return None;
+            }
+
+            do
+            {
+                var cmp = default(OrdA).Compare(key, current.Key);
+                if (cmp < 0)
+                {
+                    current = current.Left;
+                }
+                else if (cmp > 0)
+                {
+                    predecessor = current.Key;
+                    current = current.Right;
+                }
+                else
+                {
+                    return current.Key;
+                }
+            }
+            while (!current.IsEmpty);
+
+            if (!current.IsEmpty && !current.Left.IsEmpty)
+            {
+                predecessor = Max(current.Left);
+            }
+
+            return predecessor;
+        }
+
+        internal static Option<A> TryFindSuccessor<OrdA, A>(SetItem<A> root, A key) where OrdA : struct, Ord<A>
+        {
+            Option<A> successor = None;
+            var current = root;
+
+            if (root.IsEmpty)
+            {
+                return None;
+            }
+
+            do
+            {
+                var cmp = default(OrdA).Compare(key, current.Key);
+                if (cmp < 0)
+                {
+                    successor = current.Key;
+                    current = current.Left;
+                }
+                else if (cmp > 0)
+                {
+                    current = current.Right;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            while (!current.IsEmpty);
+
+            if (!current.IsEmpty && !current.Right.IsEmpty)
+            {
+                successor = Min(current.Right);
+            }
+
+            return successor;
+        }
+
+        internal static Option<A> TryFindOrSuccessor<OrdA, A>(SetItem<A> root, A key) where OrdA : struct, Ord<A>
+        {
+            Option<A> successor = None;
+            var current = root;
+
+            if (root.IsEmpty)
+            {
+                return None;
+            }
+
+            do
+            {
+                var cmp = default(OrdA).Compare(key, current.Key);
+                if (cmp < 0)
+                {
+                    successor = current.Key;
+                    current = current.Left;
+                }
+                else if (cmp > 0)
+                {
+                    current = current.Right;
+                }
+                else
+                {
+                    return current.Key;
+                }
+            }
+            while (!current.IsEmpty);
+
+            if (!current.IsEmpty && !current.Right.IsEmpty)
+            {
+                successor = Min(current.Right);
+            }
+
+            return successor;
+        }
 
         public class SetEnumerator<K> : IEnumerator<K>
         {

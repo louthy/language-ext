@@ -253,7 +253,7 @@ namespace LanguageExt
         /// <returns>Found value</returns>
         [Pure]
         public Option<V> Find(K key) => Value.Find(key);
-        
+
         /// <summary>
         /// Retrieve a value from the map by key as an enumerable
         /// </summary>
@@ -270,6 +270,38 @@ namespace LanguageExt
         /// <returns>Found value</returns>
         [Pure]
         public R Find<R>(K key, Func<V, R> Some, Func<R> None) => Value.Find(key, Some, None);
+
+        /// <summary>
+        /// Retrieve the value from previous item to specified key
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key/value</returns>
+        [Pure]
+        public Option<(K Key, V Value)> FindPredecessor(K key) => Value.FindPredecessor(key);
+
+        /// <summary>
+        /// Retrieve the value from exact key, or if not found, the previous item 
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key/value</returns>
+        [Pure]
+        public Option<(K Key, V Value)> FindExactOrPredecessor(K key) => Value.FindOrPredecessor(key);
+
+        /// <summary>
+        /// Retrieve the value from next item to specified key
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key/value</returns>
+        [Pure]
+        public Option<(K Key, V Value)> FindSuccessor(K key) => Value.FindSuccessor(key);
+
+        /// <summary>
+        /// Retrieve the value from exact key, or if not found, the next item 
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key/value</returns>
+        [Pure]
+        public Option<(K Key, V Value)> FindExactOrSuccessor(K key) => Value.FindOrSuccessor(key);
 
         /// <summary>
         /// Try to find the key in the map, if it doesn't exist, add a new 
@@ -1101,7 +1133,7 @@ namespace LanguageExt
         public Option<(K Key, V Value)> Min => Value.Min;
 
         /// <summary>
-        /// Find the lowest ordered item in the map
+        /// Find the highest ordered item in the map
         /// </summary>
         [Pure]
         public Option<(K Key, V Value)> Max => Value.Max;
