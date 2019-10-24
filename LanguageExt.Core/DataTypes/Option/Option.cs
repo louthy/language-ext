@@ -737,6 +737,17 @@ namespace LanguageExt
                 ? Value
                 : Check.NullReturn(None());
 
+
+        /// <summary>
+        /// Invokes the action if Option is in the None state, otherwise nothing happens.
+        /// </summary>
+        /// <param name="f">Action to invoke if Option is in the None state</param>
+        public Unit IfNone(Action None)
+        {
+            if (IsNone) None();
+            return unit;
+        }
+        
         /// <summary>
         /// Returns the noneValue if the optional is in a None state, otherwise
         /// the bound Some(x) value is returned.
