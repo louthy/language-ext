@@ -74,7 +74,7 @@ namespace LanguageExt.ClassInstances.Const
     public struct I67 : Const<int> { public int Value => 67; }
     public struct I68 : Const<int> { public int Value => 68; }
     public struct I69 : Const<int> { public int Value => 69; }
-    public struct I70 : Const<int> { public int Value => 60; }
+    public struct I70 : Const<int> { public int Value => 70; }
     public struct I71 : Const<int> { public int Value => 71; }
     public struct I72 : Const<int> { public int Value => 72; }
     public struct I73 : Const<int> { public int Value => 73; }
