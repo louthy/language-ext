@@ -45,6 +45,16 @@ namespace LanguageExt.ClassInstances.Const
     public struct I38 : Const<int> { public int Value => 38; }
     public struct I39 : Const<int> { public int Value => 39; }
     public struct I40 : Const<int> { public int Value => 40; }
+    public struct I41 : Const<int> { public int Value => 41; }
+    public struct I42 : Const<int> { public int Value => 42; }
+    public struct I43 : Const<int> { public int Value => 43; }
+    public struct I44 : Const<int> { public int Value => 44; }
+    public struct I45 : Const<int> { public int Value => 45; }
+    public struct I46 : Const<int> { public int Value => 46; }
+    public struct I47 : Const<int> { public int Value => 47; }
+    public struct I48 : Const<int> { public int Value => 48; }
+    public struct I49 : Const<int> { public int Value => 49; }
+    public struct I50 : Const<int> { public int Value => 50; }
     public struct I51 : Const<int> { public int Value => 51; }
     public struct I52 : Const<int> { public int Value => 52; }
     public struct I53 : Const<int> { public int Value => 53; }
