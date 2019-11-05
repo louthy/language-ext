@@ -284,7 +284,7 @@ namespace LanguageExt.ClassInstances.Const
     public struct I536870912 : Const<int> { public int Value => 536870912; }
     public struct I1073741824 : Const<int> { public int Value => 1073741824; }
     public struct IMax : Const<int> { public int Value => Int32.MaxValue; }
-    public struct IMin : Const<int> { public int Value => Int32.MaxValue; }
+    public struct IMin : Const<int> { public int Value => Int32.MinValue; }
 
     // 100s up to 10,000
     public struct I300 : Const<int> { public int Value => 300; }
