@@ -226,11 +226,25 @@ namespace LanguageExt.CodeGen
             return SyntaxFactory.Identifier(id2);
         }
 
+        public static string MakeFirstCharUpper(string identifier)
+        {
+            var id = identifier;
+            var id2 = $"{Char.ToUpper(id[0])}{id.Substring(1)}";
+            return id2;
+        }
+
         public static SyntaxToken MakeFirstCharLower(SyntaxToken identifier)
         {
             var id = identifier.ToString();
             var id2 = $"{Char.ToLower(id[0])}{id.Substring(1)}";
             return SyntaxFactory.Identifier(id2);
+        }
+
+        public static string MakeFirstCharLower(string identifier)
+        {
+            var id = identifier;
+            var id2 = $"{Char.ToLower(id[0])}{id.Substring(1)}";
+            return id2;
         }
 
         static bool FirstCharIsUpper(string name) =>
@@ -509,11 +523,20 @@ namespace LanguageExt.CodeGen
                     IdentifierName("Prelude")),
                 name);
 
+        public static HashSet<string> MethodNames(SyntaxList<MemberDeclarationSyntax> list) =>
+            new HashSet<string>(
+                list.Select(MethodName)
+                    .Where(m => !String.IsNullOrWhiteSpace(m))
+                    .Distinct());
+
         public static HashSet<string> MemberNames(SyntaxList<MemberDeclarationSyntax> list) =>
             new HashSet<string>(
                 list.Select(MemberName)
                     .Where(m => !String.IsNullOrWhiteSpace(m))
                     .Distinct());
+
+        static string MethodName(MemberDeclarationSyntax decl) =>
+          decl is MethodDeclarationSyntax m ? m.Identifier.Text : "";
 
         static string MemberName(MemberDeclarationSyntax decl) =>
             decl is PropertyDeclarationSyntax p ? p.Identifier.Text

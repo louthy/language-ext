@@ -139,6 +139,13 @@ namespace TestBed
             While = @while;
         }
     }
+
+    [Union]
+    public interface Maybe<A>
+    {
+        Maybe<A> Just(A value);
+        Maybe<A> Nothing();
+    }
 }
 
 
