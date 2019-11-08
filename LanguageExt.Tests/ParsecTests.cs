@@ -565,5 +565,130 @@ namespace LanguageExt.Tests
             // sometimes crashes (net461)
             Parallel.ForEach(Enumerable.Repeat("", 4), str => parse(from _ in eof select unit, str));
         }
+
+        [Fact]
+        public void ExpressionResultShouldBeSixDueToMultiplicationOperationPriority()
+        {
+            // Arrange
+            var tokenParser = makeTokenParser(Language.JavaStyle);
+            var reservedOp = tokenParser.ReservedOp;
+
+            // Natural parser
+            var natural = from n in tokenParser.Natural
+                          select Expr.Natural(n);
+
+            // Binary operator expression factory
+            Func<Expr, Expr, Expr> binaryOp(string op) =>
+                (Expr lhs, Expr rhs) =>
+                    op == "+" ? Expr.Add(lhs, rhs)
+                  : op == "-" ? Expr.Sub(lhs, rhs)
+                  : op == "/" ? Expr.Div(lhs, rhs)
+                  : op == "*" ? Expr.Mul(lhs, rhs)
+                  : throw new NotSupportedException();
+
+            // Binary operator parser builder
+            Operator<Expr> binary(string op, Assoc assoc) =>
+                Operator.Infix(assoc,
+                    from x in reservedOp(op)
+                    select binaryOp(op));
+
+            // Operator table
+            Operator<Expr>[][] table =
+            {
+                new[] { binary("+", Assoc.Left), binary("-", Assoc.Left) },
+                new[] { binary("*", Assoc.Left), binary("/", Assoc.Left) }
+            };
+
+            // Null because it will be not null later and can be used by the lazyp parser
+            Parser<Expr> expr = null; 
+
+            // Build up the expression term
+            var term = either(
+                            attempt(natural), 
+                            tokenParser.Parens(lazyp(() => expr)));
+
+            // Build the expression parser
+            expr = buildExpressionParser(table, term).label("expression");
+
+
+            var expression = "2 + 2 * 2";
+            var exprectedResult = 6;
+
+            // Act
+            var actualResult = parse(expr, expression)
+                                  .ToOption()
+                                  .Map(ex => ex.Eval())
+                                  .IfNone(0);
+
+            // Assert
+            Assert.Equal(exprectedResult, actualResult);
+        }
+
+        public abstract class Expr
+        {
+            public abstract int Eval();
+
+            public static Expr Natural(int x) => new NaturalExpr(x);
+            public static Expr Add(Expr left, Expr right) => new AddExpr(left, right);
+            public static Expr Sub(Expr left, Expr right) => new SubExpr(left, right);
+            public static Expr Mul(Expr left, Expr right) => new MulExpr(left, right);
+            public static Expr Div(Expr left, Expr right) => new DivExpr(left, right);
+
+            public class NaturalExpr : Expr
+            {
+                public int Value;
+                public NaturalExpr(int value) => Value = value;
+                public override int Eval() => Value;
+            }
+
+            public class AddExpr : Expr
+            {
+                public readonly Expr Left;
+                public readonly Expr Right;
+                public AddExpr(Expr left, Expr right)
+                {
+                    Left = left;
+                    Right = right;
+                }
+                public override int Eval() =>
+                    Left.Eval() + Right.Eval();
+            }
+            public class SubExpr : Expr
+            {
+                public readonly Expr Left;
+                public readonly Expr Right;
+                public SubExpr(Expr left, Expr right)
+                {
+                    Left = left;
+                    Right = right;
+                }
+                public override int Eval() =>
+                    Left.Eval() - Right.Eval();
+            }
+            public class MulExpr : Expr
+            {
+                public readonly Expr Left;
+                public readonly Expr Right;
+                public MulExpr(Expr left, Expr right)
+                {
+                    Left = left;
+                    Right = right;
+                }
+                public override int Eval() =>
+                    Left.Eval() * Right.Eval();
+            }
+            public class DivExpr : Expr
+            {
+                public readonly Expr Left;
+                public readonly Expr Right;
+                public DivExpr(Expr left, Expr right)
+                {
+                    Left = left;
+                    Right = right;
+                }
+                public override int Eval() =>
+                    Left.Eval() / Right.Eval();
+            }
+        }
     }
 }
