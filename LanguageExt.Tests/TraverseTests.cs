@@ -129,20 +129,17 @@ namespace LanguageExt.Tests
         public static async void TraverseAsync()
         {
             var start = DateTime.UtcNow;
-
-            var f1 = Task.Run(() => { Thread.Sleep(3000); return 1; });
-            var f2 = Task.Run(() => { Thread.Sleep(3000); return 2; });
-            var f3 = Task.Run(() => { Thread.Sleep(3000); return 3; });
-            var f4 = Task.Run(() => { Thread.Sleep(3000); return 4; });
-            var f5 = Task.Run(() => { Thread.Sleep(3000); return 5; });
-            var f6 = Task.Run(() => { Thread.Sleep(3000); return 6; });
-
-            var res = await List(f1, f2, f3, f4, f5, f6).Traverse(x => x * 2);
-
-            Assert.True(Set.createRange(res) == Set(2, 4, 6, 8, 10, 12));
-
+            var fs = Range(1, Environment.ProcessorCount).Map(x => Task.Run(() =>
+            {
+                Thread.Sleep(3000);
+                return x;
+            }));
+ 
+            var res = await fs.Freeze().Traverse(x => x * 2);
             var ms = (int)(DateTime.UtcNow - start).TotalMilliseconds;
-            Assert.True(ms < 3500, $"Took {ms} ticks");
+
+            Assert.True(Set.createRange(res) == toSet(Range(2, Environment.ProcessorCount, 2)));
+            Assert.True(ms < 4000, $"Took {ms} ticks");
         }
 
         [Fact]

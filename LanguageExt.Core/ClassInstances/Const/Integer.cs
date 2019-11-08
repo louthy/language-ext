@@ -45,6 +45,16 @@ namespace LanguageExt.ClassInstances.Const
     public struct I38 : Const<int> { public int Value => 38; }
     public struct I39 : Const<int> { public int Value => 39; }
     public struct I40 : Const<int> { public int Value => 40; }
+    public struct I41 : Const<int> { public int Value => 41; }
+    public struct I42 : Const<int> { public int Value => 42; }
+    public struct I43 : Const<int> { public int Value => 43; }
+    public struct I44 : Const<int> { public int Value => 44; }
+    public struct I45 : Const<int> { public int Value => 45; }
+    public struct I46 : Const<int> { public int Value => 46; }
+    public struct I47 : Const<int> { public int Value => 47; }
+    public struct I48 : Const<int> { public int Value => 48; }
+    public struct I49 : Const<int> { public int Value => 49; }
+    public struct I50 : Const<int> { public int Value => 50; }
     public struct I51 : Const<int> { public int Value => 51; }
     public struct I52 : Const<int> { public int Value => 52; }
     public struct I53 : Const<int> { public int Value => 53; }
@@ -64,7 +74,7 @@ namespace LanguageExt.ClassInstances.Const
     public struct I67 : Const<int> { public int Value => 67; }
     public struct I68 : Const<int> { public int Value => 68; }
     public struct I69 : Const<int> { public int Value => 69; }
-    public struct I70 : Const<int> { public int Value => 60; }
+    public struct I70 : Const<int> { public int Value => 70; }
     public struct I71 : Const<int> { public int Value => 71; }
     public struct I72 : Const<int> { public int Value => 72; }
     public struct I73 : Const<int> { public int Value => 73; }
@@ -284,7 +294,7 @@ namespace LanguageExt.ClassInstances.Const
     public struct I536870912 : Const<int> { public int Value => 536870912; }
     public struct I1073741824 : Const<int> { public int Value => 1073741824; }
     public struct IMax : Const<int> { public int Value => Int32.MaxValue; }
-    public struct IMin : Const<int> { public int Value => Int32.MaxValue; }
+    public struct IMin : Const<int> { public int Value => Int32.MinValue; }
 
     // 100s up to 10,000
     public struct I300 : Const<int> { public int Value => 300; }
