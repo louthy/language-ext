@@ -7,13 +7,19 @@ namespace LanguageExt
 {
     public static class CollectionFormat
     {
-        public static string ToShortString<A>(IEnumerable<A> ma, int length = -1, string separator = ", ")
+        public static string ToShortString<A>(IEnumerable<A> ma, string separator = ", ")
         {
             var items = ma.Take(50).ToList();
 
-            return items.Count < length || length == -1
-                ? $"{String.Join(separator, items)}"
-                : $"{String.Join(separator, items)}...";
+            if(items.Count < 50)
+            {
+                return $"{String.Join(separator, items)}";
+            }
+            else
+            {
+                items.RemoveAt(49);
+                return $"{String.Join(separator, items)}...";
+            }
         }
     }
 }
