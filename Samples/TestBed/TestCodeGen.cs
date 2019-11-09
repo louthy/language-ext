@@ -146,6 +146,14 @@ namespace TestBed
         Maybe<A> Just(A value);
         Maybe<A> Nothing();
     }
+
+    [Union]
+    public interface Shape
+    {
+        Shape Rectangle(float width, float length);
+        Shape Circle(float radius);
+        Shape Prism(float width, float height);
+    }
 }
 
 

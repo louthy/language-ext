@@ -44,7 +44,13 @@ namespace LanguageExt.CodeGen
 
         ClassDeclarationSyntax MakeStaticConstructorClass(InterfaceDeclarationSyntax applyTo)
         {
-            var @class = ClassDeclaration(applyTo.Identifier)
+            var name = applyTo.Identifier;
+            if(applyTo.TypeParameterList == null)
+            {
+                name = Identifier($"{name}Con");
+            }
+
+            var @class = ClassDeclaration(name)
                             .WithModifiers(
                                 TokenList(new[] { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.PartialKeyword) }));
 
