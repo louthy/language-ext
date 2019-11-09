@@ -38,7 +38,9 @@ namespace LanguageExt.CodeGen
         {
             var results = SyntaxFactory.List<MemberDeclarationSyntax>();
 
-            if (context.ProcessingNode is StructDeclarationSyntax applyToStruct && applyToStruct.TypeParameterList.Parameters.Count >= 1)
+            if (context.ProcessingNode is StructDeclarationSyntax applyToStruct && 
+                applyToStruct.TypeParameterList != null &&
+                applyToStruct.TypeParameterList.Parameters.Count >= 1)
             {
                 var members = CodeGenUtil.MemberNames(applyToStruct.Members);
 
@@ -1242,6 +1244,7 @@ namespace LanguageExt.CodeGen
             }
             else
             {
+                CodeGenUtil.ReportError($"Type can't be made into a Reader.  It must be a partial struct with one or more generic parameters.", "Reader Code-Gen", context.ProcessingNode, progress);
                 return Task.FromResult<SyntaxList<MemberDeclarationSyntax>>(results);
             }
         }

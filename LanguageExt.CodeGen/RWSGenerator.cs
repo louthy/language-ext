@@ -2116,6 +2116,15 @@ namespace LanguageExt.CodeGen
             }
             else
             {
+                if (fixedState)
+                {
+                    CodeGenUtil.ReportError($"Type can't be made into a RWS monad.  It must be a partial struct with one or more generic parameters.", "RWS Code-Gen", context.ProcessingNode, progress);
+                }
+                else
+                {
+                    CodeGenUtil.ReportError($"Type can't be made into a RWS monad.  It must be a partial struct with two or more generic parameters, the first generic parameter being the state, the second being the bound value type.", "RWS Code-Gen", context.ProcessingNode, progress);
+                }
+
                 return Task.FromResult(results);
             }
         }

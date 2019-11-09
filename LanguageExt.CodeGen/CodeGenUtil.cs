@@ -11,6 +11,29 @@ namespace LanguageExt.CodeGen
 {
     internal static class CodeGenUtil
     {
+        public static void ReportInfo(string message, string codeGenCategory, SyntaxNode node, IProgress<Diagnostic> progress) =>
+            Report(message, codeGenCategory, DiagnosticSeverity.Info, node, progress);
+
+        public static void ReportWarning(string message, string codeGenCategory, SyntaxNode node, IProgress<Diagnostic> progress) =>
+            Report(message, codeGenCategory, DiagnosticSeverity.Warning, node, progress);
+
+        public static void ReportError(string message, string codeGenCategory, SyntaxNode node, IProgress<Diagnostic> progress) =>
+            Report(message, codeGenCategory, DiagnosticSeverity.Error, node, progress);
+
+        public static void Report(string message, string codeGenCategory, DiagnosticSeverity severity, SyntaxNode node, IProgress<Diagnostic> progress)
+        {
+            progress.Report(Diagnostic.Create(
+                new DiagnosticDescriptor(
+                    $"CG{Math.Abs(message.GetHashCode()>>16)}",
+                    message,
+                    message,
+                    codeGenCategory,
+                    severity,
+                    true,
+                    message),
+                node.GetLocation()));
+        }
+
         public static (ClassDeclarationSyntax PartialClass, TypeSyntax ReturnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> Fields) GetState(TransformationContext context)
         {
             // Our generator is applied to any class that our attribute is applied to.

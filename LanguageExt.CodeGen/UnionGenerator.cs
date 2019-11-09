@@ -26,6 +26,11 @@ namespace LanguageExt.CodeGen
         {
             if (context.ProcessingNode is InterfaceDeclarationSyntax applyTo)
             {
+                if(!AllMembersReturnInterface(applyTo, context, progress))
+                {
+                    return Task.FromResult(SyntaxFactory.List<MemberDeclarationSyntax>());
+                }
+
                 var cases = applyTo.Members
                                    .Where(m => m is MethodDeclarationSyntax)
                                    .Select(m => m as MethodDeclarationSyntax)
@@ -38,11 +43,44 @@ namespace LanguageExt.CodeGen
             }
             else
             {
+                CodeGenUtil.ReportError($"Type can't be made into a union.  It must be an interface/abstract class", "Union Code-Gen", context.ProcessingNode, progress);
                 return Task.FromResult(SyntaxFactory.List<MemberDeclarationSyntax>());
             }
         }
 
-        ClassDeclarationSyntax MakeStaticConstructorClass(InterfaceDeclarationSyntax applyTo)
+        static bool AllMembersReturnInterface(
+            InterfaceDeclarationSyntax applyTo,
+            TransformationContext context,
+            IProgress<Diagnostic> progress
+            )
+        {
+            bool allMethods = true;
+            foreach(var nonMethod in applyTo.Members.Where(m => !(m is MethodDeclarationSyntax)))
+            {
+                allMethods = false;
+                CodeGenUtil.ReportError($"Type can't contain anything other than methods if you want to make it into a union type.", "Union Code-Gen", nonMethod, progress);
+            }
+
+            if(!allMethods)
+            {
+                return false;
+            }
+
+            var returnType = $"{applyTo.Identifier}{applyTo.TypeParameterList}";
+
+            bool returnsTypesOk = true;
+            foreach(var method in applyTo.Members.Select(m => m as MethodDeclarationSyntax))
+            {
+                if(method.ReturnType.ToString() != returnType)
+                {
+                    CodeGenUtil.ReportError($"Methods in union types must return the same type as the interface/abstract class they're defined in. ({method.ReturnType} != {returnType})", "Union Code-Gen", method, progress);
+                    returnsTypesOk = false;
+                }
+            }
+            return returnsTypesOk;
+        }
+
+        static ClassDeclarationSyntax MakeStaticConstructorClass(InterfaceDeclarationSyntax applyTo)
         {
             var name = applyTo.Identifier;
             if(applyTo.TypeParameterList == null)
@@ -65,7 +103,7 @@ namespace LanguageExt.CodeGen
             return @class.WithMembers(List(cases));
         }
 
-        MemberDeclarationSyntax MakeCaseCtorFunction(InterfaceDeclarationSyntax applyTo, TypeSyntax returnType, MethodDeclarationSyntax method)
+        static MemberDeclarationSyntax MakeCaseCtorFunction(InterfaceDeclarationSyntax applyTo, TypeSyntax returnType, MethodDeclarationSyntax method)
         {
             var typeParamList = applyTo.TypeParameterList;
             if (method.TypeParameterList != null)
@@ -107,7 +145,7 @@ namespace LanguageExt.CodeGen
 
         static ClassDeclarationSyntax MakeCaseClass(InterfaceDeclarationSyntax applyTo, MethodDeclarationSyntax method)
         {
-            var modifiers = SyntaxFactory.TokenList(
+            var modifiers = TokenList(
                     Enumerable.Concat(
                         applyTo.Modifiers.Where(t => !t.IsKind(SyntaxKind.PartialKeyword)).AsEnumerable(),
                         new[] { SyntaxFactory.Token(SyntaxKind.PartialKeyword) }));
@@ -135,7 +173,8 @@ namespace LanguageExt.CodeGen
             var thisType =       ParseTypeName($"{method.Identifier.Text}{typeParamList}");
             var thisRecordType = ParseTypeName($"LanguageExt.Record<{method.Identifier.Text}{typeParamList}>");
 
-            var ctor = MakeConstructor(@class, returnType, method);
+            var ctor = MakeConstructor(method);
+            var dtor = MakeDeconstructor(method);
 
             var fields = method.ParameterList
                                .Parameters
@@ -148,8 +187,10 @@ namespace LanguageExt.CodeGen
                               .Select(m => MakeExplicitInterfaceImpl(returnType, m))
                               .ToList();
 
-            fields.AddRange(impl);
+
             fields.Add(ctor);
+            fields.Add(dtor);
+            fields.AddRange(impl);
 
             @class = @class.WithMembers(List(fields));
 
@@ -188,7 +229,29 @@ namespace LanguageExt.CodeGen
             return method;
         }
 
-        static MemberDeclarationSyntax MakeConstructor(ClassDeclarationSyntax @class, TypeSyntax returnType, MethodDeclarationSyntax method)
+        static MemberDeclarationSyntax MakeConstructor(MethodDeclarationSyntax method)
+        {
+            var assignments = method.ParameterList
+                                    .Parameters
+                                    .Select(p =>
+                                        ExpressionStatement(
+                                            AssignmentExpression(
+                                                SyntaxKind.SimpleAssignmentExpression,
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    ThisExpression(),
+                                                    IdentifierName(CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text))),
+                                                IdentifierName(p.Identifier.Text))));
+
+
+            return ConstructorDeclaration(Identifier(method.Identifier.Text))
+                        .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+                        .WithParameterList(method.ParameterList)
+                        .WithBody(Block(List(assignments)));
+        }
+
+
+        static MethodDeclarationSyntax MakeDeconstructor(MethodDeclarationSyntax method)
         {
             var assignments = method.ParameterList
                                     .Parameters
@@ -197,12 +260,24 @@ namespace LanguageExt.CodeGen
                                             AssignmentExpression(
                                                 SyntaxKind.SimpleAssignmentExpression,
                                                 IdentifierName(CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text)),
-                                                IdentifierName(p.Identifier.Text))));
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    ThisExpression(),
+                                                    IdentifierName(CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text)))
+                                                )))
+                                    .ToArray();
 
-            return ConstructorDeclaration(Identifier(method.Identifier.Text))
-                        .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-                        .WithParameterList(method.ParameterList)
-                        .WithBody(Block(List(assignments)));
+            // Make the parameters start with an upper case letter and have the out modifier
+            var parameters = method.ParameterList
+                                   .Parameters
+                                   .Select(p => p.WithIdentifier(Identifier(CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text)))
+                                                 .WithModifiers(TokenList(Token(SyntaxKind.OutKeyword))))
+                                   .ToArray();
+
+            return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier("Deconstruct"))
+                       .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+                       .WithParameterList(ParameterList(SeparatedList(parameters)))
+                       .WithBody(Block(assignments));
         }
 
         static MemberDeclarationSyntax MakeField(TypeSyntax returnType, ParameterSyntax p)
