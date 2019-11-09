@@ -34,7 +34,7 @@ namespace LanguageExt.CodeGen
                 var cases = applyTo.Members
                                    .Where(m => m is MethodDeclarationSyntax)
                                    .Select(m => m as MethodDeclarationSyntax)
-                                   .Select(m => MakeCaseClass(applyTo, m))
+                                   .Select(m => MakeCaseClass(context, applyTo, m))
                                    .ToList();
 
                 var staticCtorClass = MakeStaticConstructorClass(applyTo);
@@ -143,7 +143,10 @@ namespace LanguageExt.CodeGen
             return @case;
         }
 
-        static ClassDeclarationSyntax MakeCaseClass(InterfaceDeclarationSyntax applyTo, MethodDeclarationSyntax method)
+        static ClassDeclarationSyntax MakeCaseClass(
+            TransformationContext context, 
+            InterfaceDeclarationSyntax applyTo, 
+            MethodDeclarationSyntax method)
         {
             var modifiers = TokenList(
                     Enumerable.Concat(
@@ -194,6 +197,7 @@ namespace LanguageExt.CodeGen
 
             @class = @class.WithMembers(List(fields));
 
+            // Derive from Record<UnionBaseType> and UnionBaseType
             @class = @class.WithBaseList(
                 BaseList(
                     SeparatedList<BaseTypeSyntax>(
@@ -202,6 +206,16 @@ namespace LanguageExt.CodeGen
                             Token(SyntaxKind.CommaToken),
                             SimpleBaseType(returnType)
                         })));
+
+            var publicMod = TokenList(Token(SyntaxKind.PublicKeyword));
+
+            var fieldList = method.ParameterList
+                                  .Parameters
+                                  .Select(p => (Identifier(CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text)), p.Type, publicMod))
+                                  .ToList();
+
+            @class = CodeGenUtil.AddWith(context, @class, thisType, fieldList);
+            @class = CodeGenUtil.AddLenses(@class, thisType, fieldList);
 
             return @class;
         }
