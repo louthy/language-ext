@@ -571,5 +571,936 @@ namespace LanguageExt.CodeGen
                 ? null
                 : member;
 
+        public static MemberDeclarationSyntax[] MakeDataTypeMembers(string typeName, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
+        {
+            var nmembers = new List<MemberDeclarationSyntax>();
+            nmembers.AddRange(MakeSerialisationMembers(typeName, members));
+            nmembers.AddRange(MakeOperatorMembers(returnType));
+            nmembers.AddRange(MakeEqualityMembers(returnType, members));
+            nmembers.AddRange(MakeOrderingMembers(returnType, members));
+            nmembers.Add(MakeGetHashCode(members));
+            nmembers.Add(MakeToString(typeName, members));
+            return nmembers.ToArray();
+        }
+
+        static MemberDeclarationSyntax MakeToString(string typeName, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
+        {
+            var statements = new List<StatementSyntax>();
+
+            if (members.Count == 0)
+            {
+                statements.Add(ReturnStatement(
+                                LiteralExpression(
+                                    SyntaxKind.StringLiteralExpression,
+                                    Literal(typeName))));
+            }
+            else
+            {
+                var comma = ExpressionStatement(
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("sb"),
+                                        IdentifierName("Append")))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SingletonSeparatedList(
+                                            Argument(
+                                                InterpolatedStringExpression(
+                                                    Token(SyntaxKind.InterpolatedStringStartToken))
+                                                .WithContents(
+                                                    SingletonList<InterpolatedStringContentSyntax>(
+                                                        InterpolatedStringText()
+                                                        .WithTextToken(
+                                                            Token(
+                                                                TriviaList(),
+                                                                SyntaxKind.InterpolatedStringTextToken,
+                                                                ", ",
+                                                                ", ",
+                                                                TriviaList())))))))));
+
+
+
+                statements.Add(
+                    LocalDeclarationStatement(
+                        VariableDeclaration(
+                            IdentifierName("var"))
+                        .WithVariables(
+                            SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                VariableDeclarator(
+                                    Identifier("sb"))
+                                .WithInitializer(
+                                    EqualsValueClause(
+                                        ObjectCreationExpression(
+                                            IdentifierName("StringBuilder"))
+                                        .WithArgumentList(
+                                            ArgumentList())))))));
+
+                statements.Add(
+                        ExpressionStatement(
+                            InvocationExpression(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("sb"),
+                                    IdentifierName("Append")))
+                            .WithArgumentList(
+                                ArgumentList(
+                                    SingletonSeparatedList<ArgumentSyntax>(
+                                        Argument(
+                                            LiteralExpression(
+                                                SyntaxKind.StringLiteralExpression,
+                                                members.Count == 0 ? Literal($"{typeName}") : Literal($"{typeName}("))))))));
+
+                statements.AddRange(members.SelectMany(m =>
+                                new StatementSyntax[] {
+                            ExpressionStatement(
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("sb"),
+                                        IdentifierName("Append")))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SingletonSeparatedList<ArgumentSyntax>(
+                                            Argument(
+                                                ConditionalExpression(
+                                                    InvocationExpression(
+                                                    MemberAccessExpression(
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        MemberAccessExpression(
+                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                            IdentifierName("LanguageExt"),
+                                                            IdentifierName("Prelude")),
+                                                        IdentifierName("isnull")))
+                                                    .WithArgumentList(
+                                                        ArgumentList(
+                                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                                Argument(
+                                                                    IdentifierName(m.Identifier.Text))))),
+                                                    InterpolatedStringExpression(
+                                                        Token(SyntaxKind.InterpolatedStringStartToken))
+                                                    .WithContents(
+                                                        SingletonList<InterpolatedStringContentSyntax>(
+                                                            InterpolatedStringText()
+                                                            .WithTextToken(
+                                                                Token(
+                                                                    TriviaList(),
+                                                                    SyntaxKind.InterpolatedStringTextToken,
+                                                                    $"{m.Identifier.Text}: [null]",
+                                                                    $"{m.Identifier.Text}: [null]",
+                                                                    TriviaList())))),
+                                                    InterpolatedStringExpression(
+                                                        Token(SyntaxKind.InterpolatedStringStartToken))
+                                                    .WithContents(
+                                                        List<InterpolatedStringContentSyntax>(
+                                                            new InterpolatedStringContentSyntax[]{
+                                                                InterpolatedStringText()
+                                                                .WithTextToken(
+                                                                    Token(
+                                                                        TriviaList(),
+                                                                        SyntaxKind.InterpolatedStringTextToken,
+                                                                        $"{m.Identifier.Text}: ",
+                                                                        $"{m.Identifier.Text}: ",
+                                                                        TriviaList())),
+                                                                Interpolation(
+                                                                    IdentifierName(m.Identifier.Text))})))))))),
+                            comma }));
+
+                // Remove last comma
+                statements.RemoveAt(statements.Count - 1);
+
+                statements.Add(
+                    ExpressionStatement(
+                        InvocationExpression(
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("sb"),
+                                IdentifierName("Append")))
+                        .WithArgumentList(
+                            ArgumentList(
+                                SingletonSeparatedList<ArgumentSyntax>(
+                                    Argument(
+                                        LiteralExpression(
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal(")"))))))));
+
+                statements.Add(
+                    ReturnStatement(
+                        InvocationExpression(
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("sb"),
+                                IdentifierName("ToString")))));
+
+            }
+
+            return MethodDeclaration(
+                        PredefinedType(
+                            Token(SyntaxKind.StringKeyword)),
+                        Identifier("ToString"))
+                    .WithModifiers(TokenList( new[]{ Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword)}))
+                    .WithBody(
+                        Block(statements));
+        }
+
+        static MemberDeclarationSyntax MakeGetHashCode(List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
+        {
+            BlockSyntax block = null;
+
+            if (members.Count == 0)
+            {
+                block = Block(
+                        SingletonList<StatementSyntax>(
+                            ReturnStatement(
+                                LiteralExpression(
+                                    SyntaxKind.NumericLiteralExpression,
+                                    Literal(0)))));
+            }
+            else
+            {
+                var statements = new List<StatementSyntax>();
+                statements.AddRange(members.Select(m =>
+                                ExpressionStatement(
+                                    AssignmentExpression(
+                                        SyntaxKind.SimpleAssignmentExpression,
+                                        IdentifierName("state"),
+                                        BinaryExpression(
+                                            SyntaxKind.MultiplyExpression,
+                                            ParenthesizedExpression(
+                                                BinaryExpression(
+                                                    SyntaxKind.ExclusiveOrExpression,
+                                                    InvocationExpression(
+                                                        MemberAccessExpression(
+                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                            DefaultExpression(
+                                                                GenericName(
+                                                                    Identifier("EqDefault"))
+                                                                .WithTypeArgumentList(
+                                                                    TypeArgumentList(
+                                                                        SingletonSeparatedList<TypeSyntax>(
+                                                                            m.Type)))),
+                                                            IdentifierName("GetHashCode")))
+                                                    .WithArgumentList(
+                                                        ArgumentList(
+                                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                                Argument(
+                                                                    IdentifierName(m.Identifier.Text))))),
+                                                    IdentifierName("state"))),
+                                            IdentifierName("fnvPrime"))))));
+
+                block = Block(
+                            LocalDeclarationStatement(
+                                VariableDeclaration(
+                                    PredefinedType(
+                                        Token(SyntaxKind.IntKeyword)))
+                                .WithVariables(
+                                    SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                        VariableDeclarator(
+                                            Identifier("fnvOffsetBasis"))
+                                        .WithInitializer(
+                                            EqualsValueClause(
+                                                PrefixUnaryExpression(
+                                                    SyntaxKind.UnaryMinusExpression,
+                                                    LiteralExpression(
+                                                        SyntaxKind.NumericLiteralExpression,
+                                                        Literal(2128831035))))))))
+                            .WithModifiers(
+                                TokenList(
+                                    Token(SyntaxKind.ConstKeyword))),
+                            LocalDeclarationStatement(
+                                VariableDeclaration(
+                                    PredefinedType(
+                                        Token(SyntaxKind.IntKeyword)))
+                                .WithVariables(
+                                    SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                        VariableDeclarator(
+                                            Identifier("fnvPrime"))
+                                        .WithInitializer(
+                                            EqualsValueClause(
+                                                LiteralExpression(
+                                                    SyntaxKind.NumericLiteralExpression,
+                                                    Literal(16777619)))))))
+                            .WithModifiers(
+                                TokenList(
+                                    Token(SyntaxKind.ConstKeyword))),
+                            LocalDeclarationStatement(
+                                VariableDeclaration(
+                                    PredefinedType(
+                                        Token(SyntaxKind.IntKeyword)))
+                                .WithVariables(
+                                    SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                        VariableDeclarator(
+                                            Identifier("state"))
+                                        .WithInitializer(
+                                            EqualsValueClause(
+                                                IdentifierName("fnvOffsetBasis")))))),
+                            CheckedStatement(
+                                SyntaxKind.UncheckedStatement,
+                                Block(statements)),
+                            ReturnStatement(
+                                IdentifierName("state")));
+            }
+
+            return MethodDeclaration(
+                            PredefinedType(
+                                Token(SyntaxKind.IntKeyword)),
+                            Identifier("GetHashCode"))
+                        .WithModifiers(
+                            TokenList(
+                                new[]{
+                                        Token(SyntaxKind.PublicKeyword),
+                                        Token(SyntaxKind.OverrideKeyword)}))
+                        .WithBody(block);
+            }
+
+        static IEnumerable<MemberDeclarationSyntax> MakeOrderingMembers(TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
+        {
+            var ordUntyped = MethodDeclaration(
+                                    PredefinedType(
+                                        Token(SyntaxKind.IntKeyword)),
+                                    Identifier("CompareTo"))
+                                .WithModifiers(
+                                    TokenList(
+                                        Token(SyntaxKind.PublicKeyword)))
+                                .WithParameterList(
+                                    ParameterList(
+                                        SingletonSeparatedList<ParameterSyntax>(
+                                            Parameter(
+                                                Identifier("obj"))
+                                            .WithType(
+                                                PredefinedType(
+                                                    Token(SyntaxKind.ObjectKeyword))))))
+                                .WithExpressionBody(
+                                    ArrowExpressionClause(
+                                        ConditionalExpression(
+                                            IsPatternExpression(
+                                                IdentifierName("obj"),
+                                                DeclarationPattern(
+                                                    returnType,
+                                                    SingleVariableDesignation(
+                                                        Identifier("p")))),
+                                            InvocationExpression(
+                                                IdentifierName("CompareTo"))
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SingletonSeparatedList<ArgumentSyntax>(
+                                                        Argument(
+                                                            IdentifierName("p"))))),
+                                            LiteralExpression(
+                                                SyntaxKind.NumericLiteralExpression,
+                                                Literal(1)))))
+                                .WithSemicolonToken(
+                                    Token(SyntaxKind.SemicolonToken));
+
+            if (members.Count == 0)
+            {
+                var ordTyped = MethodDeclaration(
+                                        PredefinedType(
+                                            Token(SyntaxKind.IntKeyword)),
+                                        Identifier("CompareTo"))
+                                    .WithModifiers(
+                                        TokenList(
+                                            Token(SyntaxKind.PublicKeyword)))
+                                    .WithParameterList(
+                                        ParameterList(
+                                            SingletonSeparatedList(
+                                                Parameter(
+                                                    Identifier("other"))
+                                                .WithType(returnType))))
+                                    .WithBody(
+                                        Block(
+                                            IfStatement(
+                                                InvocationExpression(
+                                                    MemberAccessExpression(
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        MemberAccessExpression(
+                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                            IdentifierName("LanguageExt"),
+                                                            IdentifierName("Prelude")),
+                                                        IdentifierName("isnull")))
+                                                .WithArgumentList(
+                                                    ArgumentList(
+                                                        SingletonSeparatedList<ArgumentSyntax>(
+                                                            Argument(
+                                                                IdentifierName("other"))))),
+                                                ReturnStatement(
+                                                    LiteralExpression(
+                                                        SyntaxKind.NumericLiteralExpression,
+                                                        Literal(1)))),
+                                            ReturnStatement(
+                                                LiteralExpression(
+                                                    SyntaxKind.NumericLiteralExpression,
+                                                    Literal(0)))));
+
+                return new[] { ordTyped, ordUntyped };
+            }
+            else
+            {
+                var statements = new List<StatementSyntax>();
+
+                statements.Add(
+                    IfStatement(
+                        InvocationExpression(
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("LanguageExt"),
+                                    IdentifierName("Prelude")),
+                                IdentifierName("isnull")))
+                            .WithArgumentList(
+                                ArgumentList(
+                                    SingletonSeparatedList<ArgumentSyntax>(
+                                        Argument(
+                                            IdentifierName("other"))))),
+                        ReturnStatement(
+                            LiteralExpression(
+                                SyntaxKind.NumericLiteralExpression,
+                                Literal(1)))));
+
+                statements.Add(
+                    LocalDeclarationStatement(
+                        VariableDeclaration(
+                            PredefinedType(
+                                Token(SyntaxKind.IntKeyword)))
+                        .WithVariables(
+                            SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                VariableDeclarator(
+                                    Identifier("cmp"))
+                                .WithInitializer(
+                                    EqualsValueClause(
+                                        LiteralExpression(
+                                            SyntaxKind.NumericLiteralExpression,
+                                            Literal(0))))))));
+
+                statements.AddRange(
+                    members.SelectMany(m =>
+                        new StatementSyntax[] {
+                            ExpressionStatement(
+                                AssignmentExpression(
+                                    SyntaxKind.SimpleAssignmentExpression,
+                                    IdentifierName("cmp"),
+                                    InvocationExpression(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            DefaultExpression(
+                                                GenericName(
+                                                    Identifier("OrdDefault"))
+                                                .WithTypeArgumentList(
+                                                    TypeArgumentList(
+                                                        SingletonSeparatedList(m.Type)))),
+                                            IdentifierName("Compare")))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SeparatedList<ArgumentSyntax>(
+                                                new SyntaxNodeOrToken[]{
+                                                    Argument(
+                                                        IdentifierName(m.Identifier.Text)),
+                                                    Token(SyntaxKind.CommaToken),
+                                                    Argument(
+                                                        MemberAccessExpression(
+                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                            IdentifierName("other"),
+                                                            IdentifierName(m.Identifier.Text)))}))))),
+                            IfStatement(
+                                BinaryExpression(
+                                    SyntaxKind.NotEqualsExpression,
+                                    IdentifierName("cmp"),
+                                    LiteralExpression(
+                                        SyntaxKind.NumericLiteralExpression,
+                                        Literal(0))),
+                                ReturnStatement(
+                                    IdentifierName("cmp")))
+                                }));
+
+                statements.Add(ReturnStatement(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(0))));
+
+                var ordTyped = MethodDeclaration(
+                                    PredefinedType(
+                                        Token(SyntaxKind.IntKeyword)),
+                                    Identifier("CompareTo"))
+                                .WithModifiers(
+                                    TokenList(
+                                        Token(SyntaxKind.PublicKeyword)))
+                                .WithParameterList(
+                                    ParameterList(
+                                        SingletonSeparatedList(
+                                            Parameter(
+                                                Identifier("other"))
+                                            .WithType(returnType))))
+                                .WithBody(Block(statements));
+
+                return new[] { ordTyped, ordUntyped };
+            }
+        }
+
+        static IEnumerable<MemberDeclarationSyntax> MakeEqualityMembers(TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
+        {
+            var statements = new List<StatementSyntax>();
+
+            statements.Add(
+                IfStatement(
+                    InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("LanguageExt"),
+                                IdentifierName("Prelude")),
+                            IdentifierName("isnull")))
+                        .WithArgumentList(
+                            ArgumentList(
+                                SingletonSeparatedList<ArgumentSyntax>(
+                                    Argument(
+                                        IdentifierName("other"))))),
+                    ReturnStatement(
+                        LiteralExpression(
+                            SyntaxKind.FalseLiteralExpression))));
+
+            statements.AddRange(
+                members.Select(m =>
+                    IfStatement(
+                        PrefixUnaryExpression(
+                            SyntaxKind.LogicalNotExpression,
+                            InvocationExpression(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    DefaultExpression(
+                                        GenericName(
+                                            Identifier("EqDefault"))
+                                        .WithTypeArgumentList(
+                                            TypeArgumentList(
+                                                SingletonSeparatedList(m.Type)))),
+                                    IdentifierName("Equals")))
+                            .WithArgumentList(
+                                ArgumentList(
+                                    SeparatedList<ArgumentSyntax>(
+                                        new SyntaxNodeOrToken[]{
+                                            Argument(
+                                                IdentifierName(m.Identifier.Text)),
+                                            Token(SyntaxKind.CommaToken),
+                                            Argument(
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    IdentifierName("other"),
+                                                    IdentifierName(m.Identifier.Text)))})))),
+                        ReturnStatement(
+                            LiteralExpression(
+                                SyntaxKind.FalseLiteralExpression)))));
+
+            statements.Add(ReturnStatement(LiteralExpression(SyntaxKind.TrueLiteralExpression)));
+
+            var eqTyped = MethodDeclaration(
+                                PredefinedType(
+                                    Token(SyntaxKind.BoolKeyword)),
+                                Identifier("Equals"))
+                            .WithModifiers(
+                                TokenList(
+                                    Token(SyntaxKind.PublicKeyword)))
+                            .WithParameterList(
+                                ParameterList(
+                                    SingletonSeparatedList(Parameter(Identifier("other")).WithType(returnType))))
+                            .WithBody(
+                                Block(statements));
+
+            var eqUntyped = MethodDeclaration(
+                                    PredefinedType(
+                                        Token(SyntaxKind.BoolKeyword)),
+                                    Identifier("Equals"))
+                                .WithModifiers(
+                                    TokenList(
+                                        new[]{
+                                            Token(SyntaxKind.PublicKeyword),
+                                            Token(SyntaxKind.OverrideKeyword)}))
+                                .WithParameterList(
+                                    ParameterList(
+                                        SingletonSeparatedList<ParameterSyntax>(
+                                            Parameter(
+                                                Identifier("obj"))
+                                            .WithType(
+                                                PredefinedType(
+                                                    Token(SyntaxKind.ObjectKeyword))))))
+                                .WithExpressionBody(
+                                    ArrowExpressionClause(
+                                        BinaryExpression(
+                                            SyntaxKind.LogicalAndExpression,
+                                            IsPatternExpression(
+                                                IdentifierName("obj"),
+                                                DeclarationPattern(
+                                                    returnType,
+                                                    SingleVariableDesignation(
+                                                        Identifier("tobj")))),
+                                            InvocationExpression(
+                                                IdentifierName("Equals"))
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SingletonSeparatedList(
+                                                        Argument(
+                                                            IdentifierName("tobj"))))))))
+                                .WithSemicolonToken(
+                                    Token(SyntaxKind.SemicolonToken));
+
+            return new[] { eqTyped, eqUntyped };
+        }
+
+        static IEnumerable<MemberDeclarationSyntax> MakeOperatorMembers(TypeSyntax returnType)
+        {
+            var eqeq = OperatorDeclaration(
+                            PredefinedType(
+                                Token(SyntaxKind.BoolKeyword)),
+                            Token(SyntaxKind.EqualsEqualsToken))
+                        .WithModifiers(
+                            TokenList(
+                                new[]{
+                                    Token(SyntaxKind.PublicKeyword),
+                                    Token(SyntaxKind.StaticKeyword)}))
+                        .WithParameterList(
+                            ParameterList(
+                                SeparatedList<ParameterSyntax>(
+                                    new SyntaxNodeOrToken[]{
+                                                Parameter(
+                                                    Identifier("x"))
+                                                .WithType(
+                                                    returnType),
+                                                Token(SyntaxKind.CommaToken),
+                                                Parameter(
+                                                    Identifier("y"))
+                                                .WithType(
+                                                    returnType)})))
+                        .WithExpressionBody(
+                            ArrowExpressionClause(
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("x"),
+                                        IdentifierName("Equals")))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SingletonSeparatedList<ArgumentSyntax>(
+                                            Argument(
+                                                IdentifierName("y")))))))
+                        .WithSemicolonToken(
+                            Token(SyntaxKind.SemicolonToken));
+
+            var noteq = OperatorDeclaration(
+                                PredefinedType(
+                                    Token(SyntaxKind.BoolKeyword)),
+                                Token(SyntaxKind.ExclamationEqualsToken))
+                            .WithModifiers(
+                                TokenList(
+                                    new[]{
+                                        Token(SyntaxKind.PublicKeyword),
+                                        Token(SyntaxKind.StaticKeyword)}))
+                            .WithParameterList(
+                                ParameterList(
+                                    SeparatedList<ParameterSyntax>(
+                                        new SyntaxNodeOrToken[]{
+                                            Parameter(
+                                                Identifier("x"))
+                                            .WithType(
+                                                returnType),
+                                            Token(SyntaxKind.CommaToken),
+                                            Parameter(
+                                                Identifier("y"))
+                                            .WithType(
+                                                returnType)})))
+                            .WithExpressionBody(
+                                ArrowExpressionClause(
+                                    PrefixUnaryExpression(
+                                        SyntaxKind.LogicalNotExpression,
+                                        ParenthesizedExpression(
+                                            BinaryExpression(
+                                                SyntaxKind.EqualsExpression,
+                                                IdentifierName("x"),
+                                                IdentifierName("y"))))))
+                            .WithSemicolonToken(
+                                Token(SyntaxKind.SemicolonToken));
+
+            var gt = OperatorDeclaration(
+                            PredefinedType(
+                                Token(SyntaxKind.BoolKeyword)),
+                            Token(SyntaxKind.GreaterThanToken))
+                        .WithModifiers(
+                            TokenList(
+                                new[]{
+                                    Token(SyntaxKind.PublicKeyword),
+                                    Token(SyntaxKind.StaticKeyword)}))
+                        .WithParameterList(
+                            ParameterList(
+                                SeparatedList<ParameterSyntax>(
+                                    new SyntaxNodeOrToken[]{
+                                        Parameter(
+                                            Identifier("x"))
+                                        .WithType(
+                                            returnType),
+                                        Token(SyntaxKind.CommaToken),
+                                        Parameter(
+                                            Identifier("y"))
+                                        .WithType(
+                                            returnType)})))
+                        .WithExpressionBody(
+                            ArrowExpressionClause(
+                                BinaryExpression(
+                                    SyntaxKind.GreaterThanExpression,
+                                    InvocationExpression(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName("x"),
+                                            IdentifierName("CompareTo")))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                Argument(
+                                                    IdentifierName("y"))))),
+                                    LiteralExpression(
+                                        SyntaxKind.NumericLiteralExpression,
+                                        Literal(0)))))
+                        .WithSemicolonToken(
+                            Token(SyntaxKind.SemicolonToken));
+
+            var gte = OperatorDeclaration(
+                            PredefinedType(
+                                Token(SyntaxKind.BoolKeyword)),
+                            Token(SyntaxKind.GreaterThanEqualsToken))
+                        .WithModifiers(
+                            TokenList(
+                                new[]{
+                                    Token(SyntaxKind.PublicKeyword),
+                                    Token(SyntaxKind.StaticKeyword)}))
+                        .WithParameterList(
+                            ParameterList(
+                                SeparatedList<ParameterSyntax>(
+                                    new SyntaxNodeOrToken[]{
+                                        Parameter(
+                                            Identifier("x"))
+                                        .WithType(
+                                            returnType),
+                                        Token(SyntaxKind.CommaToken),
+                                        Parameter(
+                                            Identifier("y"))
+                                        .WithType(
+                                            returnType)})))
+                        .WithExpressionBody(
+                            ArrowExpressionClause(
+                                BinaryExpression(
+                                    SyntaxKind.GreaterThanOrEqualExpression,
+                                    InvocationExpression(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName("x"),
+                                            IdentifierName("CompareTo")))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                Argument(
+                                                    IdentifierName("y"))))),
+                                    LiteralExpression(
+                                        SyntaxKind.NumericLiteralExpression,
+                                        Literal(0)))))
+                        .WithSemicolonToken(
+                            Token(SyntaxKind.SemicolonToken));
+
+            var lt = OperatorDeclaration(
+                            PredefinedType(
+                                Token(SyntaxKind.BoolKeyword)),
+                            Token(SyntaxKind.LessThanToken))
+                        .WithModifiers(
+                            TokenList(
+                                new[]{
+                                    Token(SyntaxKind.PublicKeyword),
+                                    Token(SyntaxKind.StaticKeyword)}))
+                        .WithParameterList(
+                            ParameterList(
+                                SeparatedList<ParameterSyntax>(
+                                    new SyntaxNodeOrToken[]{
+                                        Parameter(
+                                            Identifier("x"))
+                                        .WithType(
+                                            returnType),
+                                        Token(SyntaxKind.CommaToken),
+                                        Parameter(
+                                            Identifier("y"))
+                                        .WithType(
+                                            returnType)})))
+                        .WithExpressionBody(
+                            ArrowExpressionClause(
+                                BinaryExpression(
+                                    SyntaxKind.LessThanExpression,
+                                    InvocationExpression(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName("x"),
+                                            IdentifierName("CompareTo")))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                Argument(
+                                                    IdentifierName("y"))))),
+                                    LiteralExpression(
+                                        SyntaxKind.NumericLiteralExpression,
+                                        Literal(0)))))
+                        .WithSemicolonToken(
+                            Token(SyntaxKind.SemicolonToken));
+
+            var lte = OperatorDeclaration(
+                            PredefinedType(
+                                Token(SyntaxKind.BoolKeyword)),
+                            Token(SyntaxKind.LessThanEqualsToken))
+                        .WithModifiers(
+                            TokenList(
+                                new[] {
+                                    Token(SyntaxKind.PublicKeyword),
+                                    Token(SyntaxKind.StaticKeyword) }))
+                        .WithParameterList(
+                            ParameterList(
+                                SeparatedList<ParameterSyntax>(
+                                    new SyntaxNodeOrToken[] {
+                                        Parameter(
+                                            Identifier("x"))
+                                        .WithType(
+                                            returnType),
+                                        Token(SyntaxKind.CommaToken),
+                                        Parameter(
+                                            Identifier("y"))
+                                        .WithType(
+                                            returnType) })))
+                        .WithExpressionBody(
+                            ArrowExpressionClause(
+                                BinaryExpression(
+                                    SyntaxKind.LessThanOrEqualExpression,
+                                    InvocationExpression(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName("x"),
+                                            IdentifierName("CompareTo")))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                Argument(
+                                                    IdentifierName("y"))))),
+                                    LiteralExpression(
+                                        SyntaxKind.NumericLiteralExpression,
+                                        Literal(0)))))
+                        .WithSemicolonToken(
+                            Token(SyntaxKind.SemicolonToken));
+
+            return new[] { eqeq, noteq, gt, lt, gte, lte };
+        }
+
+        static MemberDeclarationSyntax[] MakeSerialisationMembers(string typeName, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
+        {
+            var gets = members.Select(m =>
+                        ExpressionStatement(
+                            AssignmentExpression(
+                                SyntaxKind.SimpleAssignmentExpression,
+                                IdentifierName(m.Identifier.Text),
+                                CastExpression(
+                                    m.Type,
+                                    InvocationExpression(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName("info"),
+                                            IdentifierName("GetValue")))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SeparatedList<ArgumentSyntax>(
+                                                new SyntaxNodeOrToken[]{
+                                                    Argument(
+                                                        LiteralExpression(
+                                                            SyntaxKind.StringLiteralExpression,
+                                                            Literal(m.Identifier.Text))),
+                                                    Token(SyntaxKind.CommaToken),
+                                                    Argument(
+                                                        TypeOfExpression(m.Type))})))))));
+
+            var sets = members.Select(m =>
+                        ExpressionStatement(
+                            InvocationExpression(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("info"),
+                                    IdentifierName("AddValue")))
+                            .WithArgumentList(
+                                ArgumentList(
+                                    SeparatedList<ArgumentSyntax>(
+                                        new SyntaxNodeOrToken[]{
+                                            Argument(
+                                                LiteralExpression(
+                                                    SyntaxKind.StringLiteralExpression,
+                                                    Literal(m.Identifier.Text))),
+                                            Token(SyntaxKind.CommaToken),
+                                            Argument(
+                                                IdentifierName(m.Identifier.Text))})))));
+
+            var ctor = ConstructorDeclaration(
+                            Identifier(typeName))
+                        .WithModifiers(
+                            TokenList(
+                                Token(SyntaxKind.PublicKeyword)))
+                        .WithParameterList(
+                            ParameterList(
+                                SeparatedList<ParameterSyntax>(
+                                    new SyntaxNodeOrToken[]{
+                                                Parameter(
+                                                    Identifier("info"))
+                                                .WithType(
+                                                    QualifiedName(
+                                                        QualifiedName(
+                                                            QualifiedName(
+                                                                IdentifierName("System"),
+                                                                IdentifierName("Runtime")),
+                                                            IdentifierName("Serialization")),
+                                                        IdentifierName("SerializationInfo"))),
+                                                Token(SyntaxKind.CommaToken),
+                                                Parameter(
+                                                    Identifier("context"))
+                                                .WithType(
+                                                    QualifiedName(
+                                                        QualifiedName(
+                                                            QualifiedName(
+                                                                IdentifierName("System"),
+                                                                IdentifierName("Runtime")),
+                                                            IdentifierName("Serialization")),
+                                                        IdentifierName("StreamingContext")))})))
+                        .WithBody(
+                            Block(gets));
+
+            var getObjData = MethodDeclaration(
+                                 PredefinedType(
+                                     Token(SyntaxKind.VoidKeyword)),
+                                 Identifier("GetObjectData"))
+                             .WithModifiers(
+                                 TokenList(
+                                     Token(SyntaxKind.PublicKeyword)))
+                             .WithParameterList(
+                                 ParameterList(
+                                     SeparatedList<ParameterSyntax>(
+                                         new SyntaxNodeOrToken[]{
+                                             Parameter(
+                                                 Identifier("info"))
+                                             .WithType(
+                                                 QualifiedName(
+                                                     QualifiedName(
+                                                         QualifiedName(
+                                                             IdentifierName("System"),
+                                                             IdentifierName("Runtime")),
+                                                         IdentifierName("Serialization")),
+                                                     IdentifierName("SerializationInfo"))),
+                                             Token(SyntaxKind.CommaToken),
+                                             Parameter(
+                                                 Identifier("context"))
+                                             .WithType(
+                                                 QualifiedName(
+                                                     QualifiedName(
+                                                         QualifiedName(
+                                                             IdentifierName("System"),
+                                                             IdentifierName("Runtime")),
+                                                         IdentifierName("Serialization")),
+                                                     IdentifierName("StreamingContext")))})))
+                             .WithBody(
+                                 Block(sets));
+
+            return new MemberDeclarationSyntax[] { ctor, getObjData };
+        }
     }
 }

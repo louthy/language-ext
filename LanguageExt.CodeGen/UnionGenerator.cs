@@ -148,13 +148,18 @@ namespace LanguageExt.CodeGen
             InterfaceDeclarationSyntax applyTo, 
             MethodDeclarationSyntax method)
         {
-            var modifiers = TokenList(
-                    Enumerable.Concat(
-                        applyTo.Modifiers.Where(t => !t.IsKind(SyntaxKind.PartialKeyword)).AsEnumerable(),
-                        new[] { SyntaxFactory.Token(SyntaxKind.PartialKeyword) }));
+            var modifiers = applyTo.Modifiers.Add(Token(SyntaxKind.SealedKeyword));
 
-
-            var @class = ClassDeclaration(method.Identifier.Text).WithModifiers(modifiers);
+            var @class = ClassDeclaration(method.Identifier.Text)
+                            .WithModifiers(modifiers)
+                            .WithAttributeLists(
+                                SingletonList(
+                                    AttributeList(
+                                        SingletonSeparatedList(
+                                            Attribute(
+                                                QualifiedName(
+                                                    IdentifierName("System"),
+                                                    IdentifierName("Serializable")))))));
 
             var typeParamList = applyTo.TypeParameterList;
             if(method.TypeParameterList != null)
@@ -175,6 +180,9 @@ namespace LanguageExt.CodeGen
             var returnType =     ParseTypeName($"{applyTo.Identifier}{applyTo.TypeParameterList}");
             var thisType =       ParseTypeName($"{method.Identifier.Text}{typeParamList}");
             var thisRecordType = ParseTypeName($"LanguageExt.Record<{method.Identifier.Text}{typeParamList}>");
+            var thisEquatableType = ParseTypeName($"System.IEquatable<{method.Identifier.Text}{typeParamList}>");
+            var thisComparable1Type = ParseTypeName($"System.IComparable<{method.Identifier.Text}{typeParamList}>");
+            var thisComparable2Type = ParseTypeName($"System.IComparable");
 
             var ctor = MakeConstructor(method);
             var dtor = MakeDeconstructor(method);
@@ -184,15 +192,24 @@ namespace LanguageExt.CodeGen
                                .Select(p => MakeField(returnType, p))
                                .ToList();
 
+            var publicMod = TokenList(Token(SyntaxKind.PublicKeyword));
+
+            var fieldList = method.ParameterList
+                                  .Parameters
+                                  .Select(p => (Identifier(CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text)), p.Type, publicMod))
+                                  .ToList();
+
             var impl = applyTo.Members
                               .Where(m => m is MethodDeclarationSyntax)
                               .Select(m => m as MethodDeclarationSyntax)
                               .Select(m => MakeExplicitInterfaceImpl(returnType, m))
                               .ToList();
 
+            var dtype = CodeGenUtil.MakeDataTypeMembers(method.Identifier.Text, thisType, fieldList);
 
             fields.Add(ctor);
             fields.Add(dtor);
+            fields.AddRange(dtype);
             fields.AddRange(impl);
 
             @class = @class.WithMembers(List(fields));
@@ -202,17 +219,14 @@ namespace LanguageExt.CodeGen
                 BaseList(
                     SeparatedList<BaseTypeSyntax>(
                         new SyntaxNodeOrToken[]{
-                            SimpleBaseType(thisRecordType),
+                            SimpleBaseType(thisEquatableType),
+                            Token(SyntaxKind.CommaToken),
+                            SimpleBaseType(thisComparable1Type),
+                            Token(SyntaxKind.CommaToken),
+                            SimpleBaseType(thisComparable2Type),
                             Token(SyntaxKind.CommaToken),
                             SimpleBaseType(returnType)
                         })));
-
-            var publicMod = TokenList(Token(SyntaxKind.PublicKeyword));
-
-            var fieldList = method.ParameterList
-                                  .Parameters
-                                  .Select(p => (Identifier(CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text)), p.Type, publicMod))
-                                  .ToList();
 
             @class = CodeGenUtil.AddWith(context, @class, thisType, fieldList);
             @class = CodeGenUtil.AddLenses(@class, thisType, fieldList);
