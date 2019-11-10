@@ -16,12 +16,10 @@ namespace LanguageExt.Benchmarks
         ImmutableDictionary<int, int> immutableMap;
         Dictionary<int, int> dictionary;
         HashMap<EqInt, int, int> hashMap;
-        int[] results;
 
         [IterationSetup]
         public void Setup()
         {
-            results = new int[N];
             SysColImmutableDictionarySetup();
             SysColDictionarySetup();
             LangExtHashMapSetup();
@@ -30,27 +28,30 @@ namespace LanguageExt.Benchmarks
         [Benchmark]
         public void SysColImmutableDictionary()
         {
+            int result = default;
             for (int j = 0; j < N; j++)
             {
-                results[j] = immutableMap[j];
+                result ^= immutableMap[j];
             }
         }
 
         [Benchmark]
         public void SysColDictionary()
         {
+            int result = default;
             for (int j = 0; j < N; j++)
             {
-                results[j] = dictionary[j];
+                result ^= dictionary[j];
             }
         }
 
         [Benchmark]
         public void LangExtHashMap()
         {
+            int result = default;
             for (int j = 0; j < N; j++)
             {
-                results[j] = hashMap[j];
+                result ^= hashMap[j];
             }
         }
 
