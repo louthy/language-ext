@@ -234,10 +234,10 @@ namespace LanguageExt.CodeGen
             var abstractBaseType = ParseTypeName($"_{applyToIdentifier}Base{applyToTypeParams}");
             var returnType =     ParseTypeName($"{applyToIdentifier}{applyToTypeParams}");
             var thisType =       ParseTypeName($"{method.Identifier.Text}{typeParamList}");
-            var thisRecordType = ParseTypeName($"LanguageExt.Record<{method.Identifier.Text}{typeParamList}>");
             var thisEquatableType = ParseTypeName($"System.IEquatable<{method.Identifier.Text}{typeParamList}>");
-            var thisComparable1Type = ParseTypeName($"System.IComparable<{method.Identifier.Text}{typeParamList}>");
-            var thisComparable2Type = ParseTypeName($"System.IComparable");
+            var thisComparableType = ParseTypeName($"System.IComparable<{method.Identifier.Text}{typeParamList}>");
+            var comparableType = ParseTypeName($"System.IComparable");
+            var serializableType = ParseTypeName($"System.Runtime.Serialization.ISerializable");
 
             var ctor = MakeConstructor(method);
             var dtor = MakeDeconstructor(method);
@@ -305,9 +305,11 @@ namespace LanguageExt.CodeGen
                             Token(SyntaxKind.CommaToken),
                             SimpleBaseType(thisEquatableType),
                             Token(SyntaxKind.CommaToken),
-                            SimpleBaseType(thisComparable1Type),
+                            SimpleBaseType(thisComparableType),
                             Token(SyntaxKind.CommaToken),
-                            SimpleBaseType(thisComparable2Type),
+                            SimpleBaseType(comparableType),
+                            Token(SyntaxKind.CommaToken),
+                            SimpleBaseType(serializableType)
                         })));
 
             @class = CodeGenUtil.AddWith(context, @class, thisType, fieldList);
@@ -410,6 +412,10 @@ namespace LanguageExt.CodeGen
         static ClassDeclarationSyntax MakeAbstractClass(ClassDeclarationSyntax applyTo)
         {
             var returnType = ParseTypeName($"{applyTo.Identifier}{applyTo.TypeParameterList}");
+            var thisEquatableType = ParseTypeName($"System.IEquatable<{applyTo.Identifier}{applyTo.TypeParameterList}>");
+            var thisComparableType = ParseTypeName($"System.IComparable<{applyTo.Identifier}{applyTo.TypeParameterList}>");
+            var comparableType = ParseTypeName($"System.IComparable");
+            //var serializableType = ParseTypeName($"System.Runtime.Serialization.ISerializable");
 
             return ClassDeclaration(applyTo.Identifier)
                             .WithAttributeLists(
@@ -431,20 +437,11 @@ namespace LanguageExt.CodeGen
                                 BaseList(
                                     SeparatedList<BaseTypeSyntax>(
                                         new SyntaxNodeOrToken[]{
-                                        SimpleBaseType(
-                                            GenericName(
-                                                Identifier("IEquatable"))
-                                            .WithTypeArgumentList(
-                                                TypeArgumentList(SingletonSeparatedList(returnType)))),
+                                        SimpleBaseType(thisEquatableType),
                                         Token(SyntaxKind.CommaToken),
-                                        SimpleBaseType(
-                                            GenericName(
-                                                Identifier("IComparable"))
-                                            .WithTypeArgumentList(
-                                                TypeArgumentList(SingletonSeparatedList(returnType)))),
+                                        SimpleBaseType(thisComparableType),
                                         Token(SyntaxKind.CommaToken),
-                                        SimpleBaseType(
-                                            IdentifierName("IComparable"))})))
+                                        SimpleBaseType(comparableType)})))
                             .WithMembers(
                                 List<MemberDeclarationSyntax>(
                                     new MemberDeclarationSyntax[]{
@@ -1000,7 +997,9 @@ namespace LanguageExt.CodeGen
                                                 ArrowExpressionClause(
                                                     ThrowExpression(
                                                         ObjectCreationExpression(
-                                                            IdentifierName("NotSupportedException"))
+                                                            QualifiedName(
+                                                                IdentifierName("System"),
+                                                                IdentifierName("NotSupportedException")))
                                                         .WithArgumentList(
                                                             ArgumentList()))))
                                             .WithSemicolonToken(
