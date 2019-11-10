@@ -11,7 +11,7 @@
         <DefineConstants>COREFX20</DefineConstants>
     </PropertyGroup>
     <PropertyGroup>
-        <PackageVersion>3.3.34</PackageVersion>
+        <PackageVersion>3.3.35</PackageVersion>
         <PackageId>LanguageExt.Core</PackageId>
         <Title>LanguageExt.Core</Title>
         <Authors>Paul Louth</Authors>

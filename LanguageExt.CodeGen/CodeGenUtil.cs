@@ -879,7 +879,7 @@ namespace LanguageExt.CodeGen
                                     IsPatternExpression(
                                         IdentifierName("obj"),
                                         DeclarationPattern(
-                                            thisType,
+                                            baseType,
                                             SingleVariableDesignation(
                                                 Identifier("p")))),
                                     InvocationExpression(
@@ -919,17 +919,36 @@ namespace LanguageExt.CodeGen
                                             DeclarationPattern(
                                                 thisType,
                                                 SingleVariableDesignation(
-                                                    Identifier("p")))),
+                                                    Identifier("tobj")))),
                                         InvocationExpression(
                                             IdentifierName("CompareTo"))
                                         .WithArgumentList(
                                             ArgumentList(
                                                 SingletonSeparatedList<ArgumentSyntax>(
                                                     Argument(
-                                                        IdentifierName("p"))))),
-                                        LiteralExpression(
-                                            SyntaxKind.NumericLiteralExpression,
-                                            Literal(1)))))
+                                                        IdentifierName("tobj"))))),
+                                        ConditionalExpression(
+                                            IsPatternExpression(
+                                                IdentifierName("obj"),
+                                                ConstantPattern(
+                                                    LiteralExpression(
+                                                        SyntaxKind.NullLiteralExpression))),
+                                            LiteralExpression(
+                                                SyntaxKind.NumericLiteralExpression,
+                                                Literal(1)),
+                                            InvocationExpression(
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    IdentifierName("_Tag"),
+                                                    IdentifierName("CompareTo")))
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SingletonSeparatedList<ArgumentSyntax>(
+                                                        Argument(
+                                                            MemberAccessExpression(
+                                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                                IdentifierName("obj"),
+                                                                IdentifierName("_Tag"))))))))))
                             .WithSemicolonToken(
                                 Token(SyntaxKind.SemicolonToken)));
             }

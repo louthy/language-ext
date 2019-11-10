@@ -34,7 +34,8 @@ namespace LanguageExt.CodeGen
                 var cases = applyTo.Members
                                    .Where(m => m is MethodDeclarationSyntax)
                                    .Select(m => m as MethodDeclarationSyntax)
-                                   .Select(m => MakeCaseClass(context, applyTo.Identifier, applyTo.Members, applyTo.TypeParameterList, applyTo.Modifiers, applyTo.ConstraintClauses, m, true))
+                                   .Zip(Enumerable.Range(1, Int32.MaxValue), (m, i) => (m, i))
+                                   .Select(m => MakeCaseClass(context, applyTo.Identifier, applyTo.Members, applyTo.TypeParameterList, applyTo.Modifiers, applyTo.ConstraintClauses, m.m, m.i, true))
                                    .ToList();
 
                 var staticCtorClass = MakeStaticConstructorClass(applyTo.Identifier, applyTo.Members, applyTo.TypeParameterList);
@@ -62,7 +63,8 @@ namespace LanguageExt.CodeGen
                 var cases = applyToClass.Members
                                         .Where(m => m is MethodDeclarationSyntax)
                                         .Select(m => m as MethodDeclarationSyntax)
-                                        .Select(m => MakeCaseClass(context, applyToClass.Identifier, applyToClass.Members, applyToClass.TypeParameterList, applyToClass.Modifiers, applyToClass.ConstraintClauses, m, false))
+                                        .Zip(Enumerable.Range(1, Int32.MaxValue), (m, i) => (m, i))
+                                        .Select(m => MakeCaseClass(context, applyToClass.Identifier, applyToClass.Members, applyToClass.TypeParameterList, applyToClass.Modifiers, applyToClass.ConstraintClauses, m.m, m.i, false))
                                         .ToList();
 
                 var staticCtorClass = MakeStaticConstructorClass(applyToClass.Identifier, applyToClass.Members, applyToClass.TypeParameterList);
@@ -194,6 +196,7 @@ namespace LanguageExt.CodeGen
             SyntaxTokenList applyToModifiers,
             SyntaxList<TypeParameterConstraintClauseSyntax> applyToConstraints,
             MethodDeclarationSyntax method,
+            int tag,
             bool baseIsInterface)
         {
             var modifiers = TokenList(
@@ -239,10 +242,29 @@ namespace LanguageExt.CodeGen
             var ctor = MakeConstructor(method);
             var dtor = MakeDeconstructor(method);
 
+            var tagProp = PropertyDeclaration(
+                                PredefinedType(
+                                    Token(SyntaxKind.IntKeyword)),
+                                Identifier("_Tag"))
+                            .WithModifiers(
+                                TokenList(
+                                    new[]{
+                                        Token(SyntaxKind.PublicKeyword),
+                                        Token(SyntaxKind.OverrideKeyword)}))
+                            .WithExpressionBody(
+                                ArrowExpressionClause(
+                                    LiteralExpression(
+                                        SyntaxKind.NumericLiteralExpression,
+                                        Literal(tag))))
+                            .WithSemicolonToken(
+                                Token(SyntaxKind.SemicolonToken));
+
             var fields = method.ParameterList
                                .Parameters
                                .Select(p => MakeField(returnType, p))
                                .ToList();
+
+            fields.Add(tagProp);
 
             var publicMod = TokenList(Token(SyntaxKind.PublicKeyword));
 
@@ -426,6 +448,21 @@ namespace LanguageExt.CodeGen
                             .WithMembers(
                                 List<MemberDeclarationSyntax>(
                                     new MemberDeclarationSyntax[]{
+                                    PropertyDeclaration(
+                                            PredefinedType(
+                                                Token(SyntaxKind.IntKeyword)),
+                                            Identifier("_Tag"))
+                                        .WithModifiers(
+                                            TokenList(
+                                                new []{
+                                                    Token(SyntaxKind.PublicKeyword),
+                                                    Token(SyntaxKind.AbstractKeyword)}))
+                                        .WithAccessorList(
+                                            AccessorList(
+                                                SingletonList<AccessorDeclarationSyntax>(
+                                                    AccessorDeclaration(
+                                                        SyntaxKind.GetAccessorDeclaration)
+                                                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))))),
                                     MethodDeclaration(
                                         PredefinedType(
                                             Token(SyntaxKind.IntKeyword)),
@@ -799,41 +836,3 @@ namespace LanguageExt.CodeGen
         }
     }
 }
-
-//public interface Option<A>
-//{
-//    Option<A> Some(A value);
-//    Option<A> None();
-//}
-
-//public class Some<A> : Option<A>, Record<Some<A>>
-//{
-//    public readonly A Value;
-//    public Some(A value)
-//    {
-//        Value = value;
-//    }
-
-//    [EditorBrowsable(EditorBrowsableState.Never)]
-//    Option<A> Option<A>.None() => new None<A>();
-//    [EditorBrowsable(EditorBrowsableState.Never)]
-//    Option<A> Option<A>.Some(A value) => new Some<A>(value);
-//}
-
-//public class None<A> : Option<A>, Record<None<A>>
-//{
-//    public None()
-//    {
-//    }
-
-//    [EditorBrowsable(EditorBrowsableState.Never)]
-//    Option<A> Option<A>.None() => new None<A>();
-//    [EditorBrowsable(EditorBrowsableState.Never)]
-//    Option<A> Option<A>.Some(A value) => new Some<A>(value);
-//}
-
-//public static partial class Option
-//{
-//    public static Option<A> Some<A>(A value) => new Some<A>(value);
-//    public static Option<A> None<A>() => new None<A>();
-//}
