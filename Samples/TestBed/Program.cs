@@ -50,6 +50,8 @@ class Program
         var c3 = ShapeCon.Circle(10);
         var r1 = ShapeCon.Rectangle(10, 10);
 
+        Debug.Assert(c2 > c3);
+
         var chc1 = c1.GetHashCode();
         var chc2 = c2.GetHashCode();
 

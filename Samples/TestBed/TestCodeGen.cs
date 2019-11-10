@@ -154,6 +154,14 @@ namespace TestBed
         public abstract Maybe<A> Nothing();
     }
 
+    //[Union]
+    //public interface Shape
+    //{
+    //    Shape Rectangle(float width, float length);
+    //    Shape Circle(float radius);
+    //    Shape Prism(float width, float height);
+    //}
+
     [Union]
     public abstract partial class Shape
     {

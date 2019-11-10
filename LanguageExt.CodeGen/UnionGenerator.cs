@@ -526,16 +526,12 @@ namespace LanguageExt.CodeGen
                                                 Token(SyntaxKind.OverrideKeyword)}))
                                     .WithExpressionBody(
                                         ArrowExpressionClause(
-                                            InvocationExpression(
-                                                MemberAccessExpression(
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    DefaultExpression(
-                                                        GenericName(
-                                                            Identifier("EqDefault"))
-                                                        .WithTypeArgumentList(
-                                                            TypeArgumentList(
-                                                                SingletonSeparatedList<TypeSyntax>(returnType)))),
-                                                    IdentifierName("GetHashCode")))))
+                                           ThrowExpression(
+                                                ObjectCreationExpression(
+                                                    QualifiedName(
+                                                        IdentifierName("System"),
+                                                        IdentifierName("NotSupportedException")))
+                                                .WithArgumentList(ArgumentList()))))
                                     .WithSemicolonToken(
                                         Token(SyntaxKind.SemicolonToken)),
                                     OperatorDeclaration(
