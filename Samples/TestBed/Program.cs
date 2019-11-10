@@ -45,11 +45,11 @@ class Program
 {
     static void Main(string[] args)
     {
-        Shape sw = null;
-        Shape sx = null;
-        Shape sy = ShapeCon.Circle(100);
-        Shape sz = ShapeCon.Circle(100);
-        Shape s2 = ShapeCon.Circle(200);
+        Shape<TInt, int> sw = null;
+        Shape<TInt, int> sx = null;
+        var sy = Shape.Circle<TInt, int>(100);
+        var sz = Shape.Circle<TInt, int>(100);
+        var s2 = Shape.Circle<TInt, int>(200);
 
         Debug.Assert((sw == sx) == true); // both null
         Debug.Assert((sw == sy) == false); // left null
@@ -89,10 +89,10 @@ class Program
         Debug.Assert((sz <= s2) == true);
 
 
-        var c1 = ShapeCon.Circle(100);
-        var c2 = ShapeCon.Circle(100);
-        var c3 = ShapeCon.Circle(10);
-        var r1 = ShapeCon.Rectangle(10, 10);
+        var c1 = Shape.Circle<TInt, int>(100);
+        var c2 = Shape.Circle<TInt, int>(100);
+        var c3 = Shape.Circle<TInt, int>(10);
+        var r1 = Shape.Rectangle<TInt, int>(10, 10);
 
         Debug.Assert(c2 > c3);
 

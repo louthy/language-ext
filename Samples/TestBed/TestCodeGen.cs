@@ -6,12 +6,10 @@
 //                                                                                                    //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using LanguageExt;
 using LanguageExt.ClassInstances;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
 namespace TestBed
@@ -140,19 +138,19 @@ namespace TestBed
         }
     }
 
-    //[Union]
-    //public interface Maybe<A>
-    //{
-    //    Maybe<A> Just(A value);
-    //    Maybe<A> Nothing();
-    //}
-
     [Union]
-    public abstract partial class Maybe<A>
+    public interface Maybe<A>
     {
-        public abstract Maybe<A> Just(A value);
-        public abstract Maybe<A> Nothing();
+        Maybe<A> Just(A value);
+        Maybe<A> Nothing();
     }
+
+    //[Union]
+    //public abstract partial class Maybe<A>
+    //{
+    //    public abstract Maybe<A> Just(A value);
+    //    public abstract Maybe<A> Nothing();
+    //}
 
     //[Union]
     //public interface Shape
@@ -163,11 +161,11 @@ namespace TestBed
     //}
 
     [Union]
-    public abstract partial class Shape
+    public abstract partial class Shape<NumA, A> where NumA : struct, Num<A>
     {
-        public abstract Shape Rectangle(float width, float length);
-        public abstract Shape Circle(float radius);
-        public abstract Shape Prism(float width, float height);
+        public abstract Shape<NumA, A> Rectangle(A width, A length);
+        public abstract Shape<NumA, A> Circle(A radius);
+        public abstract Shape<NumA, A> Prism(A width, A height);
     }
 }
 

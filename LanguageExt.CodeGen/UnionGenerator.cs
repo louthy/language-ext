@@ -38,7 +38,7 @@ namespace LanguageExt.CodeGen
                                    .Select(m => MakeCaseClass(context, applyTo.Identifier, applyTo.Members, applyTo.TypeParameterList, applyTo.Modifiers, applyTo.ConstraintClauses, m.m, m.i, true))
                                    .ToList();
 
-                var staticCtorClass = MakeStaticConstructorClass(applyTo.Identifier, applyTo.Members, applyTo.TypeParameterList);
+                var staticCtorClass = MakeStaticConstructorClass(applyTo.Identifier, applyTo.Members, applyTo.TypeParameterList, applyTo.ConstraintClauses);
 
                 return Task.FromResult(List<MemberDeclarationSyntax>().AddRange(cases).Add(staticCtorClass));
             }
@@ -67,7 +67,7 @@ namespace LanguageExt.CodeGen
                                         .Select(m => MakeCaseClass(context, applyToClass.Identifier, applyToClass.Members, applyToClass.TypeParameterList, applyToClass.Modifiers, applyToClass.ConstraintClauses, m.m, m.i, false))
                                         .ToList();
 
-                var staticCtorClass = MakeStaticConstructorClass(applyToClass.Identifier, applyToClass.Members, applyToClass.TypeParameterList);
+                var staticCtorClass = MakeStaticConstructorClass(applyToClass.Identifier, applyToClass.Members, applyToClass.TypeParameterList, applyToClass.ConstraintClauses);
 
                 var partialClass = MakeAbstractClass(applyToClass);
                 var unionBase = MakeBaseFromAbstractClass(applyToClass);
@@ -121,7 +121,8 @@ namespace LanguageExt.CodeGen
         static ClassDeclarationSyntax MakeStaticConstructorClass(
             SyntaxToken applyToIdentifier,
             SyntaxList<MemberDeclarationSyntax> applyToMembers,
-            TypeParameterListSyntax applyToTypeParams
+            TypeParameterListSyntax applyToTypeParams,
+            SyntaxList<TypeParameterConstraintClauseSyntax> applyToConstraints
             )
         {
             var name = applyToIdentifier;
@@ -139,14 +140,15 @@ namespace LanguageExt.CodeGen
             var cases = applyToMembers
                                .Where(m => m is MethodDeclarationSyntax)
                                .Select(m => m as MethodDeclarationSyntax)
-                               .Select(m => MakeCaseCtorFunction(applyToTypeParams, returnType, m))
+                               .Select(m => MakeCaseCtorFunction(applyToTypeParams, applyToConstraints, returnType, m))
                                .ToList();
 
             return @class.WithMembers(List(cases));
         }
 
         static MemberDeclarationSyntax MakeCaseCtorFunction(
-            TypeParameterListSyntax applyToTypeParams, 
+            TypeParameterListSyntax applyToTypeParams,
+            SyntaxList<TypeParameterConstraintClauseSyntax> applyToConstraints,
             TypeSyntax returnType, 
             MethodDeclarationSyntax method)
         {
@@ -172,6 +174,7 @@ namespace LanguageExt.CodeGen
                                     Token(SyntaxKind.PublicKeyword),
                                     Token(SyntaxKind.StaticKeyword)}))
                         .WithParameterList(method.ParameterList)
+                        .WithConstraintClauses(applyToConstraints)
                         .WithExpressionBody(
                             ArrowExpressionClause(
                                 ObjectCreationExpression(thisType)
@@ -242,29 +245,32 @@ namespace LanguageExt.CodeGen
             var ctor = MakeConstructor(method);
             var dtor = MakeDeconstructor(method);
 
-            var tagProp = PropertyDeclaration(
-                                PredefinedType(
-                                    Token(SyntaxKind.IntKeyword)),
-                                Identifier("_Tag"))
-                            .WithModifiers(
-                                TokenList(
-                                    new[]{
-                                        Token(SyntaxKind.PublicKeyword),
-                                        Token(SyntaxKind.OverrideKeyword)}))
-                            .WithExpressionBody(
-                                ArrowExpressionClause(
-                                    LiteralExpression(
-                                        SyntaxKind.NumericLiteralExpression,
-                                        Literal(tag))))
-                            .WithSemicolonToken(
-                                Token(SyntaxKind.SemicolonToken));
-
             var fields = method.ParameterList
                                .Parameters
                                .Select(p => MakeField(returnType, p))
                                .ToList();
 
-            fields.Add(tagProp);
+            if (!baseIsInterface)
+            {
+                var tagProp = PropertyDeclaration(
+                                    PredefinedType(
+                                        Token(SyntaxKind.IntKeyword)),
+                                    Identifier("@Tag"))
+                                .WithModifiers(
+                                    TokenList(
+                                        new[]{
+                                        Token(SyntaxKind.PublicKeyword),
+                                        Token(SyntaxKind.OverrideKeyword)}))
+                                .WithExpressionBody(
+                                    ArrowExpressionClause(
+                                        LiteralExpression(
+                                            SyntaxKind.NumericLiteralExpression,
+                                            Literal(tag))))
+                                .WithSemicolonToken(
+                                    Token(SyntaxKind.SemicolonToken));
+
+                fields.Add(tagProp);
+            }
 
             var publicMod = TokenList(Token(SyntaxKind.PublicKeyword));
 
@@ -448,7 +454,7 @@ namespace LanguageExt.CodeGen
                                     PropertyDeclaration(
                                             PredefinedType(
                                                 Token(SyntaxKind.IntKeyword)),
-                                            Identifier("_Tag"))
+                                            Identifier("@Tag"))
                                         .WithModifiers(
                                             TokenList(
                                                 new []{

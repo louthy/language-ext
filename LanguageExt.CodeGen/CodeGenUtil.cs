@@ -632,7 +632,11 @@ namespace LanguageExt.CodeGen
                                 .WithInitializer(
                                     EqualsValueClause(
                                         ObjectCreationExpression(
-                                            IdentifierName("StringBuilder"))
+                                            QualifiedName(
+                                                QualifiedName(
+                                                    IdentifierName("System"),
+                                                    IdentifierName("Text")),
+                                                IdentifierName("StringBuilder")))
                                         .WithArgumentList(
                                             ArgumentList())))))));
 
@@ -939,7 +943,7 @@ namespace LanguageExt.CodeGen
                                             InvocationExpression(
                                                 MemberAccessExpression(
                                                     SyntaxKind.SimpleMemberAccessExpression,
-                                                    IdentifierName("_Tag"),
+                                                    IdentifierName("@Tag"),
                                                     IdentifierName("CompareTo")))
                                             .WithArgumentList(
                                                 ArgumentList(
@@ -948,7 +952,7 @@ namespace LanguageExt.CodeGen
                                                             MemberAccessExpression(
                                                                 SyntaxKind.SimpleMemberAccessExpression,
                                                                 IdentifierName("obj"),
-                                                                IdentifierName("_Tag"))))))))))
+                                                                IdentifierName("@Tag"))))))))))
                             .WithSemicolonToken(
                                 Token(SyntaxKind.SemicolonToken)));
             }
