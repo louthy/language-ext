@@ -45,6 +45,19 @@ class Program
 {
     static void Main(string[] args)
     {
+        var c1 = ShapeCon.Circle(100);
+        var c2 = ShapeCon.Circle(100);
+        var c3 = ShapeCon.Circle(10);
+        var r1 = ShapeCon.Rectangle(10, 10);
+
+        var chc1 = c1.GetHashCode();
+        var chc2 = c2.GetHashCode();
+
+        var isceq1 = c1 == c2;
+        var isceq2 = c2 == c3;
+        var iscreq1 = c1 == r1;
+
+
         Issue634();
 
         HashMapRemoveTest();

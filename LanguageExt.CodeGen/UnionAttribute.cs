@@ -10,7 +10,7 @@ namespace LanguageExt
     /// <summary>
     /// Union attribute
     /// </summary>
-    [AttributeUsage(AttributeTargets.Interface, Inherited = false, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     [CodeGenerationAttribute(typeof(UnionGenerator))]
     [Conditional("CodeGeneration")]
     public class UnionAttribute : Attribute

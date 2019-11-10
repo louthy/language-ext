@@ -140,19 +140,26 @@ namespace TestBed
         }
     }
 
+    //[Union]
+    //public interface Maybe<A>
+    //{
+    //    Maybe<A> Just(A value);
+    //    Maybe<A> Nothing();
+    //}
+
     [Union]
-    public interface Maybe<A>
+    public abstract partial class Maybe<A>
     {
-        Maybe<A> Just(A value);
-        Maybe<A> Nothing();
+        public abstract Maybe<A> Just(A value);
+        public abstract Maybe<A> Nothing();
     }
 
     [Union]
-    public interface Shape
+    public abstract partial class Shape
     {
-        Shape Rectangle(float width, float length);
-        Shape Circle(float radius);
-        Shape Prism(float width, float height);
+        public abstract Shape Rectangle(float width, float length);
+        public abstract Shape Circle(float radius);
+        public abstract Shape Prism(float width, float height);
     }
 }
 
