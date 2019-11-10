@@ -1271,16 +1271,34 @@ namespace LanguageExt.CodeGen
                                                     thisType)})))
                         .WithExpressionBody(
                             ArrowExpressionClause(
-                                InvocationExpression(
-                                    MemberAccessExpression(
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        IdentifierName("x"),
-                                        IdentifierName("Equals")))
-                                .WithArgumentList(
-                                    ArgumentList(
-                                        SingletonSeparatedList<ArgumentSyntax>(
-                                            Argument(
-                                                IdentifierName("y")))))))
+                                BinaryExpression(
+                                    SyntaxKind.LogicalOrExpression,
+                                    InvocationExpression(
+                                        IdentifierName("ReferenceEquals"))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SeparatedList<ArgumentSyntax>(
+                                                new SyntaxNodeOrToken[]{
+                                                    Argument(
+                                                        IdentifierName("x")),
+                                                    Token(SyntaxKind.CommaToken),
+                                                    Argument(
+                                                        IdentifierName("y"))}))),
+                                    ParenthesizedExpression(
+                                        BinaryExpression(
+                                            SyntaxKind.CoalesceExpression,
+                                            ConditionalAccessExpression(
+                                                IdentifierName("x"),
+                                                InvocationExpression(
+                                                    MemberBindingExpression(
+                                                        IdentifierName("Equals")))
+                                                .WithArgumentList(
+                                                    ArgumentList(
+                                                        SingletonSeparatedList<ArgumentSyntax>(
+                                                            Argument(
+                                                                IdentifierName("y")))))),
+                                            LiteralExpression(
+                                                SyntaxKind.FalseLiteralExpression))))))
                         .WithSemicolonToken(
                             Token(SyntaxKind.SemicolonToken));
 
@@ -1343,20 +1361,51 @@ namespace LanguageExt.CodeGen
                         .WithExpressionBody(
                             ArrowExpressionClause(
                                 BinaryExpression(
-                                    SyntaxKind.GreaterThanExpression,
-                                    InvocationExpression(
-                                        MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            IdentifierName("x"),
-                                            IdentifierName("CompareTo")))
-                                    .WithArgumentList(
-                                        ArgumentList(
-                                            SingletonSeparatedList<ArgumentSyntax>(
-                                                Argument(
-                                                    IdentifierName("y"))))),
-                                    LiteralExpression(
-                                        SyntaxKind.NumericLiteralExpression,
-                                        Literal(0)))))
+                                    SyntaxKind.LogicalAndExpression,
+                                    BinaryExpression(
+                                        SyntaxKind.LogicalAndExpression,
+                                        PrefixUnaryExpression(
+                                            SyntaxKind.LogicalNotExpression,
+                                            InvocationExpression(
+                                                IdentifierName("ReferenceEquals"))
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SeparatedList<ArgumentSyntax>(
+                                                        new SyntaxNodeOrToken[]{
+                                                            Argument(
+                                                                IdentifierName("x")),
+                                                            Token(SyntaxKind.CommaToken),
+                                                            Argument(
+                                                                IdentifierName("y"))})))),
+                                        PrefixUnaryExpression(
+                                            SyntaxKind.LogicalNotExpression,
+                                            InvocationExpression(
+                                                IdentifierName("ReferenceEquals"))
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SeparatedList<ArgumentSyntax>(
+                                                        new SyntaxNodeOrToken[]{
+                                                            Argument(
+                                                                IdentifierName("x")),
+                                                            Token(SyntaxKind.CommaToken),
+                                                            Argument(
+                                                                LiteralExpression(
+                                                                    SyntaxKind.NullLiteralExpression))}))))),
+                                    BinaryExpression(
+                                        SyntaxKind.GreaterThanExpression,
+                                        InvocationExpression(
+                                            MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName("x"),
+                                                IdentifierName("CompareTo")))
+                                        .WithArgumentList(
+                                            ArgumentList(
+                                                SingletonSeparatedList<ArgumentSyntax>(
+                                                    Argument(
+                                                        IdentifierName("y"))))),
+                                        LiteralExpression(
+                                            SyntaxKind.NumericLiteralExpression,
+                                            Literal(0))))))
                         .WithSemicolonToken(
                             Token(SyntaxKind.SemicolonToken));
 
@@ -1385,20 +1434,50 @@ namespace LanguageExt.CodeGen
                         .WithExpressionBody(
                             ArrowExpressionClause(
                                 BinaryExpression(
-                                    SyntaxKind.GreaterThanOrEqualExpression,
+                                    SyntaxKind.LogicalOrExpression,
                                     InvocationExpression(
-                                        MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            IdentifierName("x"),
-                                            IdentifierName("CompareTo")))
+                                        IdentifierName("ReferenceEquals"))
                                     .WithArgumentList(
                                         ArgumentList(
-                                            SingletonSeparatedList<ArgumentSyntax>(
-                                                Argument(
-                                                    IdentifierName("y"))))),
-                                    LiteralExpression(
-                                        SyntaxKind.NumericLiteralExpression,
-                                        Literal(0)))))
+                                            SeparatedList<ArgumentSyntax>(
+                                                new SyntaxNodeOrToken[]{
+                                                    Argument(
+                                                        IdentifierName("x")),
+                                                    Token(SyntaxKind.CommaToken),
+                                                    Argument(
+                                                        IdentifierName("y"))}))),
+                                    ParenthesizedExpression(
+                                        BinaryExpression(
+                                            SyntaxKind.LogicalAndExpression,
+                                            PrefixUnaryExpression(
+                                                SyntaxKind.LogicalNotExpression,
+                                                InvocationExpression(
+                                                    IdentifierName("ReferenceEquals"))
+                                                .WithArgumentList(
+                                                    ArgumentList(
+                                                        SeparatedList<ArgumentSyntax>(
+                                                            new SyntaxNodeOrToken[]{
+                                                                Argument(
+                                                                    IdentifierName("x")),
+                                                                Token(SyntaxKind.CommaToken),
+                                                                Argument(
+                                                                    LiteralExpression(
+                                                                        SyntaxKind.NullLiteralExpression))})))),
+                                            BinaryExpression(
+                                                SyntaxKind.GreaterThanOrEqualExpression,
+                                                InvocationExpression(
+                                                    MemberAccessExpression(
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        IdentifierName("x"),
+                                                        IdentifierName("CompareTo")))
+                                                .WithArgumentList(
+                                                    ArgumentList(
+                                                        SingletonSeparatedList<ArgumentSyntax>(
+                                                            Argument(
+                                                                IdentifierName("y"))))),
+                                                LiteralExpression(
+                                                    SyntaxKind.NumericLiteralExpression,
+                                                    Literal(0))))))))
                         .WithSemicolonToken(
                             Token(SyntaxKind.SemicolonToken));
 
@@ -1427,20 +1506,66 @@ namespace LanguageExt.CodeGen
                         .WithExpressionBody(
                             ArrowExpressionClause(
                                 BinaryExpression(
-                                    SyntaxKind.LessThanExpression,
-                                    InvocationExpression(
-                                        MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            IdentifierName("x"),
-                                            IdentifierName("CompareTo")))
-                                    .WithArgumentList(
-                                        ArgumentList(
-                                            SingletonSeparatedList<ArgumentSyntax>(
-                                                Argument(
-                                                    IdentifierName("y"))))),
-                                    LiteralExpression(
-                                        SyntaxKind.NumericLiteralExpression,
-                                        Literal(0)))))
+                                    SyntaxKind.LogicalAndExpression,
+                                    PrefixUnaryExpression(
+                                        SyntaxKind.LogicalNotExpression,
+                                        InvocationExpression(
+                                            IdentifierName("ReferenceEquals"))
+                                        .WithArgumentList(
+                                            ArgumentList(
+                                                SeparatedList<ArgumentSyntax>(
+                                                    new SyntaxNodeOrToken[]{
+                                                        Argument(
+                                                            IdentifierName("x")),
+                                                        Token(SyntaxKind.CommaToken),
+                                                        Argument(
+                                                            IdentifierName("y"))})))),
+                                    ParenthesizedExpression(
+                                        BinaryExpression(
+                                            SyntaxKind.LogicalOrExpression,
+                                            BinaryExpression(
+                                                SyntaxKind.LogicalAndExpression,
+                                                InvocationExpression(
+                                                    IdentifierName("ReferenceEquals"))
+                                                .WithArgumentList(
+                                                    ArgumentList(
+                                                        SeparatedList<ArgumentSyntax>(
+                                                            new SyntaxNodeOrToken[]{
+                                                                Argument(
+                                                                    IdentifierName("x")),
+                                                                Token(SyntaxKind.CommaToken),
+                                                                Argument(
+                                                                    LiteralExpression(
+                                                                        SyntaxKind.NullLiteralExpression))}))),
+                                                PrefixUnaryExpression(
+                                                    SyntaxKind.LogicalNotExpression,
+                                                    InvocationExpression(
+                                                        IdentifierName("ReferenceEquals"))
+                                                    .WithArgumentList(
+                                                        ArgumentList(
+                                                            SeparatedList<ArgumentSyntax>(
+                                                                new SyntaxNodeOrToken[]{
+                                                                    Argument(
+                                                                        IdentifierName("y")),
+                                                                    Token(SyntaxKind.CommaToken),
+                                                                    Argument(
+                                                                        LiteralExpression(
+                                                                            SyntaxKind.NullLiteralExpression))}))))),
+                                            BinaryExpression(
+                                                SyntaxKind.LessThanExpression,
+                                                InvocationExpression(
+                                                    MemberAccessExpression(
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        IdentifierName("x"),
+                                                        IdentifierName("CompareTo")))
+                                                .WithArgumentList(
+                                                    ArgumentList(
+                                                        SingletonSeparatedList<ArgumentSyntax>(
+                                                            Argument(
+                                                                IdentifierName("y"))))),
+                                                LiteralExpression(
+                                                    SyntaxKind.NumericLiteralExpression,
+                                                    Literal(0))))))))
                         .WithSemicolonToken(
                             Token(SyntaxKind.SemicolonToken));
 
@@ -1469,20 +1594,64 @@ namespace LanguageExt.CodeGen
                         .WithExpressionBody(
                             ArrowExpressionClause(
                                 BinaryExpression(
-                                    SyntaxKind.LessThanOrEqualExpression,
+                                    SyntaxKind.LogicalOrExpression,
                                     InvocationExpression(
-                                        MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            IdentifierName("x"),
-                                            IdentifierName("CompareTo")))
+                                        IdentifierName("ReferenceEquals"))
                                     .WithArgumentList(
                                         ArgumentList(
-                                            SingletonSeparatedList<ArgumentSyntax>(
-                                                Argument(
-                                                    IdentifierName("y"))))),
-                                    LiteralExpression(
-                                        SyntaxKind.NumericLiteralExpression,
-                                        Literal(0)))))
+                                            SeparatedList<ArgumentSyntax>(
+                                                new SyntaxNodeOrToken[]{
+                                                    Argument(
+                                                        IdentifierName("x")),
+                                                    Token(SyntaxKind.CommaToken),
+                                                    Argument(
+                                                        IdentifierName("y"))}))),
+                                    ParenthesizedExpression(
+                                        BinaryExpression(
+                                            SyntaxKind.LogicalOrExpression,
+                                            BinaryExpression(
+                                                SyntaxKind.LogicalAndExpression,
+                                                InvocationExpression(
+                                                    IdentifierName("ReferenceEquals"))
+                                                .WithArgumentList(
+                                                    ArgumentList(
+                                                        SeparatedList<ArgumentSyntax>(
+                                                            new SyntaxNodeOrToken[]{
+                                                                Argument(
+                                                                    IdentifierName("x")),
+                                                                Token(SyntaxKind.CommaToken),
+                                                                Argument(
+                                                                    LiteralExpression(
+                                                                        SyntaxKind.NullLiteralExpression))}))),
+                                                PrefixUnaryExpression(
+                                                    SyntaxKind.LogicalNotExpression,
+                                                    InvocationExpression(
+                                                        IdentifierName("ReferenceEquals"))
+                                                    .WithArgumentList(
+                                                        ArgumentList(
+                                                            SeparatedList<ArgumentSyntax>(
+                                                                new SyntaxNodeOrToken[]{
+                                                                    Argument(
+                                                                        IdentifierName("y")),
+                                                                    Token(SyntaxKind.CommaToken),
+                                                                    Argument(
+                                                                        LiteralExpression(
+                                                                            SyntaxKind.NullLiteralExpression))}))))),
+                                            BinaryExpression(
+                                                SyntaxKind.LessThanOrEqualExpression,
+                                                InvocationExpression(
+                                                    MemberAccessExpression(
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        IdentifierName("x"),
+                                                        IdentifierName("CompareTo")))
+                                                .WithArgumentList(
+                                                    ArgumentList(
+                                                        SingletonSeparatedList<ArgumentSyntax>(
+                                                            Argument(
+                                                                IdentifierName("y"))))),
+                                                LiteralExpression(
+                                                    SyntaxKind.NumericLiteralExpression,
+                                                    Literal(0))))))))
                         .WithSemicolonToken(
                             Token(SyntaxKind.SemicolonToken));
 

@@ -45,6 +45,50 @@ class Program
 {
     static void Main(string[] args)
     {
+        Shape sw = null;
+        Shape sx = null;
+        Shape sy = ShapeCon.Circle(100);
+        Shape sz = ShapeCon.Circle(100);
+        Shape s2 = ShapeCon.Circle(200);
+
+        Debug.Assert((sw == sx) == true); // both null
+        Debug.Assert((sw == sy) == false); // left null
+        Debug.Assert((sy == sx) == false); // right null
+        Debug.Assert((sy == sz) == true); // both set
+        Debug.Assert((s2 == sz) == false); // left bigger
+        Debug.Assert((sz == s2) == false); // right bigger
+
+        Debug.Assert((sw > sx) == false); // both null
+        Debug.Assert((sw < sx) == false);
+        Debug.Assert((sw >= sx) == true);
+        Debug.Assert((sw <= sx) == true);
+
+        Debug.Assert((sw > sy) == false); // left null
+        Debug.Assert((sw < sy) == true);
+        Debug.Assert((sw >= sy) == false);
+        Debug.Assert((sw <= sy) == true);
+
+        Debug.Assert((sy > sw) == true); // right null
+        Debug.Assert((sy < sw) == false);
+        Debug.Assert((sy >= sw) == true);
+        Debug.Assert((sy <= sw) == false);
+
+        Debug.Assert((sy > sz) == false); // both same
+        Debug.Assert((sy < sz) == false);
+        Debug.Assert((sy >= sz) == true);
+        Debug.Assert((sy <= sz) == true);
+
+        Debug.Assert((s2 > sz) == true); // left bigger
+        Debug.Assert((s2 < sz) == false);
+        Debug.Assert((s2 >= sz) == true);
+        Debug.Assert((s2 <= sz) == false);
+
+        Debug.Assert((sz > s2) == false); // right bigger
+        Debug.Assert((sz < s2) == true);
+        Debug.Assert((sz >= s2) == false);
+        Debug.Assert((sz <= s2) == true);
+
+
         var c1 = ShapeCon.Circle(100);
         var c2 = ShapeCon.Circle(100);
         var c3 = ShapeCon.Circle(10);
