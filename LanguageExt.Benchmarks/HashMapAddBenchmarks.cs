@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
 using static LanguageExt.Prelude;
@@ -7,43 +6,55 @@ using static LanguageExt.Prelude;
 namespace LanguageExt.Benchmarks
 {
     [RPlotExporter, RankColumn]
-    public class HashMapAddBenchmark
+    [GenericTypeArguments(typeof(int))]
+    [GenericTypeArguments(typeof(string))]
+    public class HashMapAddBenchmark<T>
     {
-
         [Params(100, 1000, 10000, 100000)]
         public int N;
 
-        [Benchmark]
-        public void SysColImmutableDictionary()
-        {
-            var map = ImmutableDictionary.Create<int, int>();
+        Dictionary<T, T> values;
 
-            for (int j = 0; j < N; j++)
-            {
-                map = map.Add(j, j);
-            }
+        [GlobalSetup]
+        public void Setup()
+        {
+            values = ValuesGenerator.Default.GenerateDictionary<T, T>(N);
         }
 
         [Benchmark]
-        public void SysColDictionary()
+        public ImmutableDictionary<T, T> SysColImmutableDictionary()
         {
-            var map = new Dictionary<int, int>();
-
-            for (int j = 0; j < N; j++)
+            var map = ImmutableDictionary.Create<T, T>();
+            foreach (var kvp in values)
             {
-                map.Add(j, j);
+                map = map.Add(kvp.Key, kvp.Value);
             }
+
+            return map;
         }
 
         [Benchmark]
-        public void LangExtHashMap()
+        public Dictionary<T, T> SysColDictionary()
         {
-            var map = HashMap<int, int>();
-
-            for (int j = 0; j < N; j++)
+            var map = new Dictionary<T, T>();
+            foreach (var kvp in values)
             {
-                map = map.Add(j, j);
+                map.Add(kvp.Key, kvp.Value);
             }
+
+            return map;
+        }
+
+        [Benchmark]
+        public HashMap<T, T> LangExtHashMap()
+        {
+            var map = HashMap<T, T>();
+            foreach (var kvp in values)
+            {
+                map = map.Add(kvp.Key, kvp.Value);
+            }
+
+            return map;
         }
     }
 }

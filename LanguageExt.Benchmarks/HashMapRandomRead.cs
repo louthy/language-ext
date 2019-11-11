@@ -1,85 +1,106 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using BenchmarkDotNet.Attributes;
 using LanguageExt.ClassInstances;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Benchmarks
 {
     [RPlotExporter, RankColumn]
-    public class HashMapRandomReadBenchmark
+    [GenericTypeArguments(typeof(int), typeof(EqInt))]
+    [GenericTypeArguments(typeof(string), typeof(EqString))]
+    public class HashMapRandomReadBenchmark<T, TEq>
+        where TEq : struct, Eq<T>
     {
         [Params(100, 1000, 10000, 100000)]
         public int N;
 
-        ImmutableDictionary<int, int> immutableMap;
-        Dictionary<int, int> dictionary;
-        HashMap<EqInt, int, int> hashMap;
+        T[] keys;
 
-        [IterationSetup]
+        ImmutableDictionary<T, T> immutableMap;
+        Dictionary<T, T> dictionary;
+        HashMap<TEq, T, T> hashMap;
+
+        [GlobalSetup]
         public void Setup()
         {
-            SysColImmutableDictionarySetup();
-            SysColDictionarySetup();
-            LangExtHashMapSetup();
+            var values = ValuesGenerator.Default.GenerateDictionary<T, T>(N);
+            keys = values.Keys.ToArray();
+
+            immutableMap = SysColImmutableDictionarySetup(values);
+            dictionary = SysColDictionarySetup(values);
+            hashMap = LangExtHashMapSetup(values);
         }
 
         [Benchmark]
-        public void SysColImmutableDictionary()
+        public int SysColImmutableDictionary()
         {
             int result = default;
-            for (int j = 0; j < N; j++)
+            foreach (var key in keys)
             {
-                result ^= immutableMap[j];
+                result ^= immutableMap[key].GetHashCode();
             }
+
+            return result;
         }
 
         [Benchmark]
-        public void SysColDictionary()
+        public int SysColDictionary()
         {
             int result = default;
-            for (int j = 0; j < N; j++)
+            foreach (var key in keys)
             {
-                result ^= dictionary[j];
+                result ^= dictionary[key].GetHashCode();
             }
+
+            return result;
         }
 
         [Benchmark]
-        public void LangExtHashMap()
+        public int LangExtHashMap()
         {
             int result = default;
-            for (int j = 0; j < N; j++)
+            foreach (var key in keys)
             {
-                result ^= hashMap[j];
+                result ^= hashMap[key].GetHashCode();
             }
+
+            return result;
         }
 
-        public void SysColImmutableDictionarySetup()
+        public ImmutableDictionary<T, T> SysColImmutableDictionarySetup(Dictionary<T, T> values)
         {
-            immutableMap = ImmutableDictionary.Create<int, int>();
-            for (int j = 0; j < N; j++)
+            var immutableMap = ImmutableDictionary.Create<T, T>();
+            foreach (var kvp in values)
             {
-                immutableMap = immutableMap.Add(j, j);
+                immutableMap = immutableMap.Add(kvp.Key, kvp.Value);
             }
+
+            return immutableMap;
         }
 
-        public void SysColDictionarySetup()
+        public Dictionary<T, T> SysColDictionarySetup(Dictionary<T, T> values)
         {
-            dictionary = new Dictionary<int, int>();
-            for (int j = 0; j < N; j++)
+            var dictionary = new Dictionary<T, T>();
+            foreach (var kvp in values)
             {
-                dictionary.Add(j, j);
+                dictionary.Add(kvp.Key, kvp.Value);
             }
+
+            return dictionary;
         }
 
-        public void LangExtHashMapSetup()
+        public HashMap<TEq, T, T> LangExtHashMapSetup(Dictionary<T, T> values)
         {
-            hashMap = HashMap<EqInt, int, int>();
-            for (int j = 0; j < N; j++)
+            var hashMap = HashMap<TEq, T, T>();
+            foreach (var kvp in values)
             {
-                hashMap = hashMap.Add(j, j);
+                hashMap = hashMap.Add(kvp.Key, kvp.Value);
             }
+
+            return hashMap;
         }
     }
 }
