@@ -7,7 +7,7 @@ namespace LanguageExt.Benchmarks
 {
     internal class ValuesGenerator
     {
-        public static readonly ValuesGenerator Default = new ValuesGenerator(1234);
+        public static readonly ValuesGenerator Default = new ValuesGenerator(12345);
 
         readonly Random rand;
 
@@ -63,15 +63,15 @@ namespace LanguageExt.Benchmarks
                 switch (rand.Next(0, 3))
                 {
                     case 0:
-                        sb.Append(rand.Next('0', '9'));
+                        sb.Append((char)rand.Next('0', '9'));
                         break;
 
                     case 1:
-                        sb.Append(rand.Next('A', 'Z'));
+                        sb.Append((char)rand.Next('A', 'Z'));
                         break;
 
                     default:
-                        sb.Append(rand.Next('a', 'z'));
+                        sb.Append((char)rand.Next('a', 'z'));
                         break;
                 }
             }
