@@ -9,19 +9,21 @@ namespace LanguageExt.Benchmarks
     {
         public static readonly ValuesGenerator Default = new ValuesGenerator(12345);
 
-        readonly Random rand;
+        readonly int randSeed;
 
         public ValuesGenerator(int seed)
         {
-            rand = new Random(seed);
+            randSeed = seed;
         }
 
         public Dictionary<TKey, TValue> GenerateDictionary<TKey, TValue>(int count)
         {
+            var rand = new Random(randSeed);
+
             var dict = new Dictionary<TKey, TValue>(count);
             while (dict.Count < count)
             {
-                dict[GenerateValue<TKey>()] = GenerateValue<TValue>();
+                dict[GenerateValue<TKey>(rand)] = GenerateValue<TValue>(rand);
             }
 
             return dict;
@@ -29,16 +31,18 @@ namespace LanguageExt.Benchmarks
 
         public T[] GenerateUniqueValues<T>(int count)
         {
+            var rand = new Random(randSeed);
+
             var set = new System.Collections.Generic.HashSet<T>(count);
             while (set.Count < count)
             {
-                set.Add(GenerateValue<T>());
+                set.Add(GenerateValue<T>(rand));
             }
 
             return set.ToArray();
         }
 
-        public T GenerateValue<T>()
+        private T GenerateValue<T>(Random rand)
         {
             if (typeof(T) == typeof(int))
             {
@@ -47,13 +51,13 @@ namespace LanguageExt.Benchmarks
 
             if (typeof(T) == typeof(string))
             {
-                return (T)(object)GenerateString(1, 50);
+                return (T)(object)GenerateString(rand, 1, 50);
             }
 
             throw new NotSupportedException($"Generating value of type {typeof(T)} is not supported");
         }
 
-        private string GenerateString(int minLength, int maxLength)
+        private string GenerateString(Random rand, int minLength, int maxLength)
         {
             var length = rand.Next(minLength, maxLength);
             var sb = new StringBuilder(length);
