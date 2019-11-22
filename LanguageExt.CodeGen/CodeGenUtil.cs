@@ -778,7 +778,7 @@ namespace LanguageExt.CodeGen
                                                             SyntaxKind.SimpleMemberAccessExpression,
                                                             DefaultExpression(
                                                                 GenericName(
-                                                                    Identifier("EqDefault"))
+                                                                    Identifier("LanguageExt.ClassInstances.EqDefault"))
                                                                 .WithTypeArgumentList(
                                                                     TypeArgumentList(
                                                                         SingletonSeparatedList<TypeSyntax>(
@@ -1049,7 +1049,7 @@ namespace LanguageExt.CodeGen
                                             SyntaxKind.SimpleMemberAccessExpression,
                                             DefaultExpression(
                                                 GenericName(
-                                                    Identifier("OrdDefault"))
+                                                    Identifier("LanguageExt.ClassInstances.OrdDefault"))
                                                 .WithTypeArgumentList(
                                                     TypeArgumentList(
                                                         SingletonSeparatedList(m.Type)))),
@@ -1131,7 +1131,7 @@ namespace LanguageExt.CodeGen
                                     SyntaxKind.SimpleMemberAccessExpression,
                                     DefaultExpression(
                                         GenericName(
-                                            Identifier("EqDefault"))
+                                            Identifier("LanguageExt.ClassInstances.EqDefault"))
                                         .WithTypeArgumentList(
                                             TypeArgumentList(
                                                 SingletonSeparatedList(m.Type)))),
