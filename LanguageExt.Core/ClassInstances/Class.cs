@@ -14,7 +14,7 @@ namespace LanguageExt.ClassInstances
     public static class Class<A>
     {
         public readonly static string Name;
-        public readonly static GSet All;
+        public readonly static IReadOnlyCollection<Type> All;
         public readonly static Option<string> Error;
 
         /// <summary>

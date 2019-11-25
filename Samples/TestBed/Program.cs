@@ -40,11 +40,36 @@ public interface IRepository
     Task<Option<Gender>> GetGenderByIdAsync(Guid id);
 }
 
-
 class Program
 {
+    static void TestEquals<T>(T t1, T t2) =>
+    Console.WriteLine(t1.Equals(t2));
+
+    static void TestEqualityComparer<T>(T t1, T t2) =>
+        Console.WriteLine(EqualityComparer<T>.Default.Equals(t1, t2));
+
+    static void Issue663()
+    {
+        var i1 = Right(1);
+        var i2 = Right(1);
+        TestEquals(i1, i2);             // True
+        TestEqualityComparer(i1, i2);   // True
+
+        var a1 = new { x = 1 };
+        var a2 = new { x = 1 };
+        TestEquals(a1, a2);             // True
+        TestEqualityComparer(a1, a2);   // True
+
+        var r1 = Right(a1);
+        var r2 = Right(a2);
+        TestEquals(r1, r2);             // True
+        TestEqualityComparer(r1, r2);   // True
+    }
+
     static void Main(string[] args)
     {
+        Issue663();
+
         Shape<TInt, int> sw = null;
         Shape<TInt, int> sx = null;
         var sy = Shape.Circle<TInt, int>(100);

@@ -15,29 +15,20 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly OrdDefault<A> Inst = default(OrdDefault<A>);
 
-        static readonly IComparer<A> comparer;
         static readonly Func<A, A, int> ord;
 
         static OrdDefault()
         {
-            bool isFunc =
-                typeof(A).GetTypeInfo().ToString().StartsWith("System.Func") ||
-                typeof(A).GetTypeInfo().ToString().StartsWith("<>");
-
-            comparer = isFunc
-                ? new DelCompare() as IComparer<A>
-                : Comparer<A>.Default;
-
-            if (isFunc)
+            if(Reflect.IsAnonymous(typeof(A)))
             {
-                ord = (a, b) => comparer.Compare(a, b);
+                ord = IL.Compare<A>(false);
             }
             else
             {
                 var def = Class<Ord<A>>.Default;
                 if (def == null)
                 {
-                    ord = comparer.Compare;
+                    ord = Comparer<A>.Default.Compare;
                 }
                 else
                 {
@@ -67,15 +58,5 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(A x) =>
             default(EqDefault<A>).GetHashCode(x);
-
-        // Below is a shameless hack to make Func and anonymous Funcs equality comparable
-        // This is primarily to support Sets being used as applicatives, where the functor
-        // must be in a set itself.  A smarter solution is required.
-
-        class DelCompare : IComparer<A>
-        {
-            public int Compare(A x, A y) =>
-                ReferenceEquals(x, y) ? 0 : -1;
-        }
     }
 }

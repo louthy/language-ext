@@ -18,30 +18,26 @@ namespace LanguageExt.ClassInstances
 
         static readonly Func<A, A, bool> eq;
         static readonly Func<A, int> hash;
-        static readonly IEqualityComparer<A> comparer;
 
         static EqDefault()
         {
-            bool isFunc =
-                typeof(A).GetTypeInfo().ToString().StartsWith("System.Func") ||
-                typeof(A).GetTypeInfo().ToString().StartsWith("<>");
-
-            comparer = isFunc
-                ? new DelEq() as IEqualityComparer<A>
-                : EqualityComparer<A>.Default;
-
-            if (isFunc)
+            if (Reflect.IsFunc(typeof(A)))
             {
-                eq = (a, b) => comparer.Equals(a, b);
-                hash = x => x.IsNull() ? 0 : comparer.GetHashCode(x);
+                eq = (a, b) => ReferenceEquals(a, b);
+                hash = x => x.IsNull() ? 0 : x.GetHashCode();
+            }
+            else if (Reflect.IsAnonymous(typeof(A)))
+            {
+                eq = IL.EqualsTyped<A>(false);
+                hash = IL.GetHashCode<A>(false);
             }
             else
             {
-                var def = Class<Eq<A>>.Default;
-                if(def == null)
+                var def = Class<Ord<A>>.Default;
+                if (def == null)
                 {
-                    eq = comparer.Equals;
-                    hash = x => x.IsNull() ? 0 : comparer.GetHashCode(x);
+                    eq = EqualityComparer<A>.Default.Equals;
+                    hash = x => x.IsNull() ? 0 : x.GetHashCode();
                 }
                 else
                 {
@@ -74,18 +70,5 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(A x) =>
             hash(x);
-
-        // Below is a shameless hack to make Func and anonymous Funcs equality comparable
-        // This is primarily to support Sets being used as applicatives, where the functor
-        // must be in a set itself.  A smarter solution is required.
-
-        class DelEq : IEqualityComparer<A>
-        {
-            public bool Equals(A x, A y) =>
-                ReferenceEquals(x, y);
-
-            public int GetHashCode(A x) =>
-                x?.GetHashCode() ?? 0;
-        }
     }
 }

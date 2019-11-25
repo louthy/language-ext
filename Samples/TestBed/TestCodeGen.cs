@@ -167,6 +167,26 @@ namespace TestBed
         public abstract Shape<NumA, A> Circle(A radius);
         public abstract Shape<NumA, A> Prism(A width, A height);
     }
+
+    [WithLens]
+    public partial class CustomClass : Record<CustomClass>
+    {
+        public readonly Option<string> Value;
+
+        public CustomClass(Option<string> value)
+        {
+            Value = value;
+        }
+
+        public Option<int> ValueLengthAsExpressionBodiedProperty => Value.Map(x => x.Length);
+
+        public Option<int> ValueLengthAsGetProperty
+        {
+            get { return Value.Map(x => x.Length); }
+        }
+
+        public Option<int> ValueLengthAsExpressionBodiedMethod() => Value.Map(x => x.Length);
+    }
 }
 
 

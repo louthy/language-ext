@@ -11,6 +11,16 @@ namespace LanguageExt.CodeGen
 {
     internal static class CodeGenUtil
     {
+        public static readonly TypeSyntax ExceptionType;
+        public static readonly TypeSyntax UnitType;
+
+        static CodeGenUtil()
+        {
+            var classInstances = QualifiedName(IdentifierName("LanguageExt"), IdentifierName("ClassInstances"));
+            ExceptionType = SystemType("Exception");
+            UnitType = ParseTypeName("LanguageExt.Unit");
+        }
+
         public static void ReportInfo(string message, string codeGenCategory, SyntaxNode node, IProgress<Diagnostic> progress) =>
             Report(message, codeGenCategory, DiagnosticSeverity.Info, node, progress);
 
@@ -82,6 +92,7 @@ namespace LanguageExt.CodeGen
                                            .Where(m => FirstCharIsUpper(m.p.Identifier.ToString()))
                                            .Where(m => m.p.Modifiers.Any(SyntaxKind.PublicKeyword))
                                            .Where(m => !m.p.Modifiers.Any(SyntaxKind.StaticKeyword))
+                                           .Where(m => m.p.AccessorList != null && m.p.AccessorList.Accessors != null)
                                            .Where(m => m.p.AccessorList.Accessors.Count == 1)
                                            .Where(m => m.p.AccessorList.Accessors[0].Kind() == SyntaxKind.GetAccessorDeclaration)
                                            .Where(m => m.p.AccessorList.Accessors[0].ExpressionBody == null)
@@ -240,13 +251,13 @@ namespace LanguageExt.CodeGen
         }
 
         public static TypeSyntax TypeFromClass(ClassDeclarationSyntax decl) =>
-            SyntaxFactory.ParseTypeName($"{decl.Identifier}{decl.TypeParameterList}");// SyntaxFactory.IdentifierName(decl.Identifier);
+            ParseTypeName($"{decl.Identifier}{decl.TypeParameterList}");
 
         public static SyntaxToken MakeFirstCharUpper(SyntaxToken identifier)
         {
             var id = identifier.ToString();
             var id2 = $"{Char.ToUpper(id[0])}{id.Substring(1)}";
-            return SyntaxFactory.Identifier(id2);
+            return Identifier(id2);
         }
 
         public static string MakeFirstCharUpper(string identifier)
@@ -260,7 +271,7 @@ namespace LanguageExt.CodeGen
         {
             var id = identifier.ToString();
             var id2 = $"{Char.ToLower(id[0])}{id.Substring(1)}";
-            return SyntaxFactory.Identifier(id2);
+            return Identifier(id2);
         }
 
         public static string MakeFirstCharLower(string identifier)
@@ -478,8 +489,6 @@ namespace LanguageExt.CodeGen
             var gens = nolast.AddRange(genAdd.Select(gen => TypeParameter(gen)));
             return SyntaxFactory.ParseTypeName($"{s.Identifier}<{gens}>");
         }
-
-        public static TypeSyntax ExceptionType = SystemType("Exception");
 
         public static TypeSyntax FuncType(params SyntaxNodeOrToken[] gens) =>
             SystemType("Func", gens);
@@ -776,13 +785,7 @@ namespace LanguageExt.CodeGen
                                                     InvocationExpression(
                                                         MemberAccessExpression(
                                                             SyntaxKind.SimpleMemberAccessExpression,
-                                                            DefaultExpression(
-                                                                GenericName(
-                                                                    Identifier("EqDefault"))
-                                                                .WithTypeArgumentList(
-                                                                    TypeArgumentList(
-                                                                        SingletonSeparatedList<TypeSyntax>(
-                                                                            m.Type)))),
+                                                            DefaultExpression(EqDefaultType(m.Type)),
                                                             IdentifierName("GetHashCode")))
                                                     .WithArgumentList(
                                                         ArgumentList(
@@ -1047,12 +1050,7 @@ namespace LanguageExt.CodeGen
                                     InvocationExpression(
                                         MemberAccessExpression(
                                             SyntaxKind.SimpleMemberAccessExpression,
-                                            DefaultExpression(
-                                                GenericName(
-                                                    Identifier("OrdDefault"))
-                                                .WithTypeArgumentList(
-                                                    TypeArgumentList(
-                                                        SingletonSeparatedList(m.Type)))),
+                                            DefaultExpression(OrdDefaultType(m.Type)),
                                             IdentifierName("Compare")))
                                     .WithArgumentList(
                                         ArgumentList(
@@ -1129,12 +1127,7 @@ namespace LanguageExt.CodeGen
                             InvocationExpression(
                                 MemberAccessExpression(
                                     SyntaxKind.SimpleMemberAccessExpression,
-                                    DefaultExpression(
-                                        GenericName(
-                                            Identifier("EqDefault"))
-                                        .WithTypeArgumentList(
-                                            TypeArgumentList(
-                                                SingletonSeparatedList(m.Type)))),
+                                    DefaultExpression(EqDefaultType(m.Type)),
                                     IdentifierName("Equals")))
                             .WithArgumentList(
                                 ArgumentList(
@@ -1777,5 +1770,27 @@ namespace LanguageExt.CodeGen
 
             return new MemberDeclarationSyntax[] { ctor, getObjData };
         }
+
+        public static TypeSyntax EqDefaultType(TypeSyntax genericParam) =>
+            QualifiedName(
+                QualifiedName(
+                    IdentifierName("LanguageExt"),
+                    IdentifierName("ClassInstances")),
+                GenericName(
+                    Identifier("EqDefault"))
+                .WithTypeArgumentList(
+                    TypeArgumentList(
+                        SingletonSeparatedList(genericParam))));
+
+        public static TypeSyntax OrdDefaultType(TypeSyntax genericParam) =>
+            QualifiedName(
+                QualifiedName(
+                    IdentifierName("LanguageExt"),
+                    IdentifierName("ClassInstances")),
+                GenericName(
+                    Identifier("OrdDefault"))
+                .WithTypeArgumentList(
+                    TypeArgumentList(
+                        SingletonSeparatedList(genericParam))));
     }
 }

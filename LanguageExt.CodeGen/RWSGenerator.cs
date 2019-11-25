@@ -1768,7 +1768,7 @@ namespace LanguageExt.CodeGen
                                                                                     Argument(
                                                                                         IdentifierName("value")),
                                                                                     Token(SyntaxKind.CommaToken),
-                                                                                    Argument(DefaultExpression(ParseTypeName("LanguageExt.Unit")))}))))
+                                                                                    Argument(DefaultExpression(CodeGenUtil.UnitType))}))))
                                                                 .WithParameterList(
                                                                     ParameterList(
                                                                         SeparatedList<ParameterSyntax>(
@@ -1829,7 +1829,7 @@ namespace LanguageExt.CodeGen
                                                                                                     IdentifierName("state")))))),
                                                                                 Token(SyntaxKind.CommaToken),
                                                                                 Argument(
-                                                                                    DefaultExpression(ParseTypeName("LanguageExt.Unit")))}))))
+                                                                                    DefaultExpression(CodeGenUtil.UnitType))}))))
                                                             .WithParameterList(
                                                                 ParameterList(
                                                                     SeparatedList<ParameterSyntax>(
@@ -2065,7 +2065,7 @@ namespace LanguageExt.CodeGen
                                                                                     Token(SyntaxKind.CommaToken),
                                                                                     IdentifierName(genS),
                                                                                     Token(SyntaxKind.CommaToken),
-                                                                                    ParseTypeName("LanguageExt.Unit")})))))
+                                                                                    CodeGenUtil.UnitType})))))
                                                             .WithArgumentList(
                                                                 ArgumentList(
                                                                     SingletonSeparatedList<ArgumentSyntax>(
