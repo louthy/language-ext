@@ -195,3 +195,6 @@ ModelManifest.xml
 /Parsec Tests.playlist
 /LanguageExt.Tests/LanguageExt.Tests.nuget.props
 /.idea/.idea.language-ext
+
+# Benchmark artifacts
+BenchmarkDotNet.Artifacts/
