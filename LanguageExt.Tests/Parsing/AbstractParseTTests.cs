@@ -27,12 +27,16 @@ namespace LanguageExt.Tests.Parsing
         public void ParseT_ValidStringFromDefaultValue_SomeDefaultValue() =>
             ParseT_ValidStringFromGiven_SomeAsGiven(default(T));
 
-        protected void ParseT_ValidStringFromGiven_SomeAsGiven(T expected)
+        protected void ParseT_ValidStringFromGiven_SomeAsGiven(T expected) =>
+            ParseT_ValidStringFromGiven_SomeAsGiven(expected, expected.ToString());
+
+        protected void ParseT_ValidStringFromGivenToLower_SomeAsGiven(T expected) =>
+            ParseT_ValidStringFromGiven_SomeAsGiven(expected, expected.ToString().ToLower());
+
+        private void ParseT_ValidStringFromGiven_SomeAsGiven(T expected, string value)
         {
-            var value = expected.ToString();
             var actual = ParseT(value);
             Assert.Equal(expected, actual);
         }
-
     }
 }
