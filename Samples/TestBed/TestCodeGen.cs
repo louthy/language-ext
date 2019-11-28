@@ -189,9 +189,9 @@ namespace TestBed
     }
 
     [Record]
-    public partial class TestRecordGen<A>
+    public partial struct XTestRecordGen<A>
     {
-        public A X { get; }
+        public bool X { get; }
         public int Y { get; }
         public readonly int Z;
 

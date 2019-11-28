@@ -620,11 +620,11 @@ namespace LanguageExt.CodeGen
                 ? null
                 : member;
 
-        public static MemberDeclarationSyntax[] MakeDataTypeMembers(string typeName, TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members, BaseSpec baseSpec)
+        public static MemberDeclarationSyntax[] MakeDataTypeMembers(string typeName, TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members, BaseSpec baseSpec, bool typeIsClass)
         {
             var nmembers = new List<MemberDeclarationSyntax>();
             nmembers.AddRange(MakeSerialisationMembers(typeName, members));
-            nmembers.AddRange(MakeOperatorMembers(thisType));
+            nmembers.AddRange(typeIsClass ? MakeClassOperatorMembers(thisType) : MakeStructOperatorMembers(thisType));
             nmembers.AddRange(MakeEqualityMembers(thisType, baseType, members, baseSpec));
             nmembers.AddRange(MakeOrderingMembers(thisType, baseType, members, baseSpec));
             nmembers.Add(MakeGetHashCode(members));
@@ -1288,7 +1288,231 @@ namespace LanguageExt.CodeGen
             }
         }
 
-        static IEnumerable<MemberDeclarationSyntax> MakeOperatorMembers(TypeSyntax thisType)
+        static IEnumerable<MemberDeclarationSyntax> MakeStructOperatorMembers(TypeSyntax thisType) =>
+            new MemberDeclarationSyntax[]{
+                    OperatorDeclaration(
+                        PredefinedType(
+                            Token(SyntaxKind.BoolKeyword)),
+                        Token(SyntaxKind.EqualsEqualsToken))
+                    .WithModifiers(
+                        TokenList(
+                            new []{
+                                Token(SyntaxKind.PublicKeyword),
+                                Token(SyntaxKind.StaticKeyword)}))
+                    .WithParameterList(
+                        ParameterList(
+                            SeparatedList<ParameterSyntax>(
+                                new SyntaxNodeOrToken[]{
+                                    Parameter(
+                                        Identifier("x"))
+                                    .WithType(thisType),
+                                    Token(SyntaxKind.CommaToken),
+                                    Parameter(
+                                        Identifier("y"))
+                                    .WithType(thisType)})))
+                    .WithExpressionBody(
+                        ArrowExpressionClause(
+                            InvocationExpression(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("x"),
+                                    IdentifierName("Equals")))
+                            .WithArgumentList(
+                                ArgumentList(
+                                    SingletonSeparatedList<ArgumentSyntax>(
+                                        Argument(
+                                            IdentifierName("y")))))))
+                    .WithSemicolonToken(
+                        Token(SyntaxKind.SemicolonToken)),
+                    OperatorDeclaration(
+                        PredefinedType(
+                            Token(SyntaxKind.BoolKeyword)),
+                        Token(SyntaxKind.ExclamationEqualsToken))
+                    .WithModifiers(
+                        TokenList(
+                            new []{
+                                Token(SyntaxKind.PublicKeyword),
+                                Token(SyntaxKind.StaticKeyword)}))
+                    .WithParameterList(
+                        ParameterList(
+                            SeparatedList<ParameterSyntax>(
+                                new SyntaxNodeOrToken[]{
+                                    Parameter(
+                                        Identifier("x"))
+                                    .WithType(thisType),
+                                    Token(SyntaxKind.CommaToken),
+                                    Parameter(
+                                        Identifier("y"))
+                                    .WithType(thisType)})))
+                    .WithExpressionBody(
+                        ArrowExpressionClause(
+                            PrefixUnaryExpression(
+                                SyntaxKind.LogicalNotExpression,
+                                ParenthesizedExpression(
+                                    BinaryExpression(
+                                        SyntaxKind.EqualsExpression,
+                                        IdentifierName("x"),
+                                        IdentifierName("y"))))))
+                    .WithSemicolonToken(
+                        Token(SyntaxKind.SemicolonToken)),
+                    OperatorDeclaration(
+                        PredefinedType(
+                            Token(SyntaxKind.BoolKeyword)),
+                        Token(SyntaxKind.GreaterThanToken))
+                    .WithModifiers(
+                        TokenList(
+                            new []{
+                                Token(SyntaxKind.PublicKeyword),
+                                Token(SyntaxKind.StaticKeyword)}))
+                    .WithParameterList(
+                        ParameterList(
+                            SeparatedList<ParameterSyntax>(
+                                new SyntaxNodeOrToken[]{
+                                    Parameter(
+                                        Identifier("x"))
+                                    .WithType(thisType),
+                                    Token(SyntaxKind.CommaToken),
+                                    Parameter(
+                                        Identifier("y"))
+                                    .WithType(thisType)})))
+                    .WithExpressionBody(
+                        ArrowExpressionClause(
+                            BinaryExpression(
+                                SyntaxKind.GreaterThanExpression,
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("x"),
+                                        IdentifierName("CompareTo")))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SingletonSeparatedList<ArgumentSyntax>(
+                                            Argument(
+                                                IdentifierName("y"))))),
+                                LiteralExpression(
+                                    SyntaxKind.NumericLiteralExpression,
+                                    Literal(0)))))
+                    .WithSemicolonToken(
+                        Token(SyntaxKind.SemicolonToken)),
+                    OperatorDeclaration(
+                        PredefinedType(
+                            Token(SyntaxKind.BoolKeyword)),
+                        Token(SyntaxKind.LessThanToken))
+                    .WithModifiers(
+                        TokenList(
+                            new []{
+                                Token(SyntaxKind.PublicKeyword),
+                                Token(SyntaxKind.StaticKeyword)}))
+                    .WithParameterList(
+                        ParameterList(
+                            SeparatedList<ParameterSyntax>(
+                                new SyntaxNodeOrToken[]{
+                                    Parameter(
+                                        Identifier("x"))
+                                    .WithType(thisType),
+                                    Token(SyntaxKind.CommaToken),
+                                    Parameter(
+                                        Identifier("y"))
+                                    .WithType(thisType)})))
+                    .WithExpressionBody(
+                        ArrowExpressionClause(
+                            BinaryExpression(
+                                SyntaxKind.LessThanExpression,
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("x"),
+                                        IdentifierName("CompareTo")))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SingletonSeparatedList<ArgumentSyntax>(
+                                            Argument(
+                                                IdentifierName("y"))))),
+                                LiteralExpression(
+                                    SyntaxKind.NumericLiteralExpression,
+                                    Literal(0)))))
+                    .WithSemicolonToken(
+                        Token(SyntaxKind.SemicolonToken)),
+                    OperatorDeclaration(
+                        PredefinedType(
+                            Token(SyntaxKind.BoolKeyword)),
+                        Token(SyntaxKind.GreaterThanEqualsToken))
+                    .WithModifiers(
+                        TokenList(
+                            new []{
+                                Token(SyntaxKind.PublicKeyword),
+                                Token(SyntaxKind.StaticKeyword)}))
+                    .WithParameterList(
+                        ParameterList(
+                            SeparatedList<ParameterSyntax>(
+                                new SyntaxNodeOrToken[]{
+                                    Parameter(
+                                        Identifier("x"))
+                                    .WithType(thisType),
+                                    Token(SyntaxKind.CommaToken),
+                                    Parameter(
+                                        Identifier("y"))
+                                    .WithType(thisType)})))
+                    .WithExpressionBody(
+                        ArrowExpressionClause(
+                            BinaryExpression(
+                                SyntaxKind.GreaterThanOrEqualExpression,
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("x"),
+                                        IdentifierName("CompareTo")))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SingletonSeparatedList<ArgumentSyntax>(
+                                            Argument(
+                                                IdentifierName("y"))))),
+                                LiteralExpression(
+                                    SyntaxKind.NumericLiteralExpression,
+                                    Literal(0)))))
+                    .WithSemicolonToken(
+                        Token(SyntaxKind.SemicolonToken)),
+                    OperatorDeclaration(
+                        PredefinedType(
+                            Token(SyntaxKind.BoolKeyword)),
+                        Token(SyntaxKind.LessThanEqualsToken))
+                    .WithModifiers(
+                        TokenList(
+                            new []{
+                                Token(SyntaxKind.PublicKeyword),
+                                Token(SyntaxKind.StaticKeyword)}))
+                    .WithParameterList(
+                        ParameterList(
+                            SeparatedList<ParameterSyntax>(
+                                new SyntaxNodeOrToken[]{
+                                    Parameter(
+                                        Identifier("x"))
+                                    .WithType(thisType),
+                                    Token(SyntaxKind.CommaToken),
+                                    Parameter(
+                                        Identifier("y"))
+                                    .WithType(thisType)})))
+                    .WithExpressionBody(
+                        ArrowExpressionClause(
+                            BinaryExpression(
+                                SyntaxKind.LessThanOrEqualExpression,
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("x"),
+                                        IdentifierName("CompareTo")))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SingletonSeparatedList<ArgumentSyntax>(
+                                            Argument(
+                                                IdentifierName("y"))))),
+                                LiteralExpression(
+                                    SyntaxKind.NumericLiteralExpression,
+                                    Literal(0)))))
+                    .WithSemicolonToken(
+                        Token(SyntaxKind.SemicolonToken)) };
+
+        static IEnumerable<MemberDeclarationSyntax> MakeClassOperatorMembers(TypeSyntax thisType)
         {
             var eqeq = OperatorDeclaration(
                             PredefinedType(
@@ -1873,7 +2097,10 @@ namespace LanguageExt.CodeGen
             var lmodifiers = applyToModifiers.Where(t => !t.IsKind(SyntaxKind.PartialKeyword) && !t.IsKind(SyntaxKind.AbstractKeyword))
                                             .ToList();
 
-            lmodifiers.Add(Token(SyntaxKind.SealedKeyword));
+            if (caseIsClass)
+            {
+                lmodifiers.Add(Token(SyntaxKind.SealedKeyword));
+            }
             if(caseIsPartial)
             {
                 lmodifiers.Add(Token(SyntaxKind.PartialKeyword));
@@ -1963,7 +2190,7 @@ namespace LanguageExt.CodeGen
                         .Select(m => MakeExplicitInterfaceImpl(interfaceType, thisType, m.Identifier, m.ParameterList, m.TypeParameterList)));
             }
 
-            var dtype = MakeDataTypeMembers(caseIdentifier.Text, thisType, interfaceType, caseParams, baseSpec);
+            var dtype = MakeDataTypeMembers(caseIdentifier.Text, thisType, interfaceType, caseParams, baseSpec, caseIsClass);
 
             fields.Add(ctor);
             fields.Add(dtor);
