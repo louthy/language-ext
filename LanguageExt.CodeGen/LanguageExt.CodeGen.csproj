@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build">
+﻿<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build">
 
     <PropertyGroup>
         <PackageVersion>3.3.40</PackageVersion>
         <PackageId>LanguageExt.CodeGen</PackageId>
         <Title>LanguageExt.CodeGen</Title>
         <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
-        <LangVersion>7.3</LangVersion>
+        <LangVersion>8.0</LangVersion>
         <Authors>Paul Louth</Authors>
         <Summary>Functional language code-generation for C#</Summary>
         <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>

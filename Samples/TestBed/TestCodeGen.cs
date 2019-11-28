@@ -187,6 +187,16 @@ namespace TestBed
 
         public Option<int> ValueLengthAsExpressionBodiedMethod() => Value.Map(x => x.Length);
     }
+
+    [Record]
+    public partial class TestRecordGen<A>
+    {
+        public A X { get; }
+        public int Y { get; }
+        public readonly int Z;
+
+        public int Sum => Y + Z;
+    }
 }
 
 

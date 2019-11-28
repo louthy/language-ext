@@ -35,7 +35,23 @@ namespace LanguageExt.CodeGen
                                    .Where(m => m is MethodDeclarationSyntax)
                                    .Select(m => m as MethodDeclarationSyntax)
                                    .Zip(Enumerable.Range(1, Int32.MaxValue), (m, i) => (m, i))
-                                   .Select(m => MakeCaseClass(context, applyTo.Identifier, applyTo.Members, applyTo.TypeParameterList, applyTo.Modifiers, applyTo.ConstraintClauses, m.m, m.i, true))
+                                   .Select(m => CodeGenUtil.MakeCaseType(
+                                                    context,
+                                                    applyTo.Identifier,
+                                                    applyTo.Members,
+                                                    applyTo.TypeParameterList,
+                                                    applyTo.Modifiers,
+                                                    applyTo.ConstraintClauses,
+                                                    m.m.Identifier,
+                                                    m.m.TypeParameterList,
+                                                    m.m.ParameterList
+                                                       .Parameters
+                                                       .Select(p => (p.Identifier, p.Type, p.Modifiers))
+                                                       .ToList(),
+                                                    BaseSpec.Interface,
+                                                    caseIsClass: true,
+                                                    caseIsPartial: false,
+                                                    m.i))
                                    .ToList();
 
                 var staticCtorClass = MakeStaticConstructorClass(applyTo.Identifier, applyTo.Members, applyTo.TypeParameterList, applyTo.ConstraintClauses);
@@ -64,7 +80,23 @@ namespace LanguageExt.CodeGen
                                         .Where(m => m is MethodDeclarationSyntax)
                                         .Select(m => m as MethodDeclarationSyntax)
                                         .Zip(Enumerable.Range(1, Int32.MaxValue), (m, i) => (m, i))
-                                        .Select(m => MakeCaseClass(context, applyToClass.Identifier, applyToClass.Members, applyToClass.TypeParameterList, applyToClass.Modifiers, applyToClass.ConstraintClauses, m.m, m.i, false))
+                                        .Select(m => CodeGenUtil.MakeCaseType(
+                                                        context,
+                                                        applyToClass.Identifier,
+                                                        applyToClass.Members,
+                                                        applyToClass.TypeParameterList,
+                                                        applyToClass.Modifiers,
+                                                        applyToClass.ConstraintClauses,
+                                                        m.m.Identifier,
+                                                        m.m.TypeParameterList,
+                                                        m.m.ParameterList
+                                                           .Parameters
+                                                           .Select(p => (p.Identifier, p.Type, p.Modifiers))
+                                                           .ToList(),
+                                                        BaseSpec.Abstract,
+                                                        caseIsClass: true,
+                                                        caseIsPartial: false,
+                                                        m.i))
                                         .ToList();
 
                 var staticCtorClass = MakeStaticConstructorClass(applyToClass.Identifier, applyToClass.Members, applyToClass.TypeParameterList, applyToClass.ConstraintClauses);
@@ -189,230 +221,6 @@ namespace LanguageExt.CodeGen
                 @case = @case.WithTypeParameterList(typeParamList);
             }
             return @case;
-        }
-
-        static ClassDeclarationSyntax MakeCaseClass(
-            TransformationContext context, 
-            SyntaxToken applyToIdentifier,
-            SyntaxList<MemberDeclarationSyntax> applyToMembers,
-            TypeParameterListSyntax applyToTypeParams,
-            SyntaxTokenList applyToModifiers,
-            SyntaxList<TypeParameterConstraintClauseSyntax> applyToConstraints,
-            MethodDeclarationSyntax method,
-            int tag,
-            bool baseIsInterface)
-        {
-            var modifiers = TokenList(
-                    Enumerable.Concat(
-                        applyToModifiers.Where(t => !t.IsKind(SyntaxKind.PartialKeyword) && !t.IsKind(SyntaxKind.AbstractKeyword)).AsEnumerable(),
-                        new[] { Token(SyntaxKind.SealedKeyword) }));
-
-            var @class = ClassDeclaration(method.Identifier.Text)
-                            .WithModifiers(modifiers)
-                            .WithAttributeLists(
-                                SingletonList(
-                                    AttributeList(
-                                        SingletonSeparatedList(
-                                            Attribute(
-                                                QualifiedName(
-                                                    IdentifierName("System"),
-                                                    IdentifierName("Serializable")))))));
-
-            var typeParamList = applyToTypeParams;
-            if(method.TypeParameterList != null)
-            {
-                typeParamList = typeParamList.AddParameters(method.TypeParameterList.Parameters.ToArray());
-            }
-
-            if (typeParamList != null)
-            {
-                @class = @class.WithTypeParameterList(typeParamList);
-            }
-
-            if (applyToConstraints != null)
-            {
-                @class = @class.WithConstraintClauses(applyToConstraints);
-            }
-
-            var abstractBaseType = ParseTypeName($"_{applyToIdentifier}Base{applyToTypeParams}");
-            var returnType =     ParseTypeName($"{applyToIdentifier}{applyToTypeParams}");
-            var thisType =       ParseTypeName($"{method.Identifier.Text}{typeParamList}");
-            var thisEquatableType = ParseTypeName($"System.IEquatable<{method.Identifier.Text}{typeParamList}>");
-            var thisComparableType = ParseTypeName($"System.IComparable<{method.Identifier.Text}{typeParamList}>");
-            var comparableType = ParseTypeName($"System.IComparable");
-            var serializableType = ParseTypeName($"System.Runtime.Serialization.ISerializable");
-
-            var ctor = MakeConstructor(method);
-            var dtor = MakeDeconstructor(method);
-
-            var fields = method.ParameterList
-                               .Parameters
-                               .Select(p => MakeField(returnType, p))
-                               .ToList();
-
-            if (!baseIsInterface)
-            {
-                var tagProp = PropertyDeclaration(
-                                    PredefinedType(
-                                        Token(SyntaxKind.IntKeyword)),
-                                    Identifier("@Tag"))
-                                .WithModifiers(
-                                    TokenList(
-                                        new[]{
-                                        Token(SyntaxKind.PublicKeyword),
-                                        Token(SyntaxKind.OverrideKeyword)}))
-                                .WithExpressionBody(
-                                    ArrowExpressionClause(
-                                        LiteralExpression(
-                                            SyntaxKind.NumericLiteralExpression,
-                                            Literal(tag))))
-                                .WithSemicolonToken(
-                                    Token(SyntaxKind.SemicolonToken));
-
-                fields.Add(tagProp);
-            }
-
-            var publicMod = TokenList(Token(SyntaxKind.PublicKeyword));
-
-            var fieldList = method.ParameterList
-                                  .Parameters
-                                  .Select(p => (Identifier(CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text)), p.Type, publicMod))
-                                  .ToList();
-
-            var impl = new List<MemberDeclarationSyntax>();
-            if (baseIsInterface)
-            {
-                impl.AddRange(
-                    applyToMembers
-                        .Where(m => m is MethodDeclarationSyntax)
-                        .Select(m => m as MethodDeclarationSyntax)
-                        .Select(m => MakeExplicitInterfaceImpl(returnType, m)));
-            }
-
-            var dtype = CodeGenUtil.MakeDataTypeMembers(method.Identifier.Text, thisType, returnType, fieldList, baseIsInterface);
-
-            fields.Add(ctor);
-            fields.Add(dtor);
-            fields.AddRange(dtype);
-            fields.AddRange(impl);
-
-            @class = @class.WithMembers(List(fields));
-
-            var baseType = baseIsInterface
-                               ? returnType
-                               : abstractBaseType;
-
-            // Derive from Record<UnionBaseType> and UnionBaseType
-            @class = @class.WithBaseList(
-                BaseList(
-                    SeparatedList<BaseTypeSyntax>(
-                        new SyntaxNodeOrToken[]{
-                            SimpleBaseType(baseType),
-                            Token(SyntaxKind.CommaToken),
-                            SimpleBaseType(thisEquatableType),
-                            Token(SyntaxKind.CommaToken),
-                            SimpleBaseType(thisComparableType),
-                            Token(SyntaxKind.CommaToken),
-                            SimpleBaseType(comparableType),
-                            Token(SyntaxKind.CommaToken),
-                            SimpleBaseType(serializableType)
-                        })));
-
-            @class = CodeGenUtil.AddWith(context, @class, thisType, fieldList);
-            @class = CodeGenUtil.AddLenses(@class, thisType, fieldList);
-
-            return @class;
-        }
-
-        static MemberDeclarationSyntax MakeExplicitInterfaceImpl(TypeSyntax returnType, MethodDeclarationSyntax @case)
-        {
-            var method = MethodDeclaration(@case.ReturnType, @case.Identifier)
-                            .WithExplicitInterfaceSpecifier(
-                                ExplicitInterfaceSpecifier(ParseName(returnType.ToString())))
-                            .WithParameterList(@case.ParameterList)
-                            .WithExpressionBody(
-                                ArrowExpressionClause(
-                                    ThrowExpression(
-                                        ObjectCreationExpression(
-                                            QualifiedName(
-                                                IdentifierName("System"),
-                                                IdentifierName("NotSupportedException")))
-                                        .WithArgumentList(ArgumentList()))))
-                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
-
-            if(@case.TypeParameterList != null)
-            {
-                method = method.WithTypeParameterList(@case.TypeParameterList);
-            }
-            return method;
-        }
-
-        static MemberDeclarationSyntax MakeConstructor(MethodDeclarationSyntax method)
-        {
-            var assignments = method.ParameterList
-                                    .Parameters
-                                    .Select(p =>
-                                        ExpressionStatement(
-                                            AssignmentExpression(
-                                                SyntaxKind.SimpleAssignmentExpression,
-                                                MemberAccessExpression(
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    ThisExpression(),
-                                                    IdentifierName(CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text))),
-                                                IdentifierName(p.Identifier.Text))));
-
-
-            return ConstructorDeclaration(Identifier(method.Identifier.Text))
-                        .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-                        .WithParameterList(method.ParameterList)
-                        .WithBody(Block(List(assignments)));
-        }
-
-
-        static MethodDeclarationSyntax MakeDeconstructor(MethodDeclarationSyntax method)
-        {
-            var assignments = method.ParameterList
-                                    .Parameters
-                                    .Select(p =>
-                                        ExpressionStatement(
-                                            AssignmentExpression(
-                                                SyntaxKind.SimpleAssignmentExpression,
-                                                IdentifierName(CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text)),
-                                                MemberAccessExpression(
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    ThisExpression(),
-                                                    IdentifierName(CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text)))
-                                                )))
-                                    .ToArray();
-
-            // Make the parameters start with an upper case letter and have the out modifier
-            var parameters = method.ParameterList
-                                   .Parameters
-                                   .Select(p => p.WithIdentifier(Identifier(CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text)))
-                                                 .WithModifiers(TokenList(Token(SyntaxKind.OutKeyword))))
-                                   .ToArray();
-
-            return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier("Deconstruct"))
-                       .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-                       .WithParameterList(ParameterList(SeparatedList(parameters)))
-                       .WithBody(Block(assignments));
-        }
-
-        static MemberDeclarationSyntax MakeField(TypeSyntax returnType, ParameterSyntax p)
-        {
-            var fieldName = CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text);
-
-            var field = FieldDeclaration(
-                            VariableDeclaration(p.Type)
-                                .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(fieldName)))))
-                            .WithModifiers(
-                                TokenList(
-                                    new[]{
-                                        Token(SyntaxKind.PublicKeyword),
-                                        Token(SyntaxKind.ReadOnlyKeyword)}))
-                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)); ;
-
-            return field;
         }
 
         static ClassDeclarationSyntax MakeAbstractClass(ClassDeclarationSyntax applyTo)

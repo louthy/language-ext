@@ -9,6 +9,20 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace LanguageExt.CodeGen
 {
+    public enum AllowedType
+    {
+        Class = 1,
+        Struct = 2,
+        ClassOrStruct = 3
+    }
+
+    public enum BaseSpec
+    {
+        Interface,
+        Abstract,
+        None
+    }
+
     internal static class CodeGenUtil
     {
         public static readonly TypeSyntax ExceptionType;
@@ -44,34 +58,60 @@ namespace LanguageExt.CodeGen
                 node.GetLocation()));
         }
 
-        public static (ClassDeclarationSyntax PartialClass, TypeSyntax ReturnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> Fields) GetState(TransformationContext context)
+        public static (TypeDeclarationSyntax PartialType, TypeSyntax ReturnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> Fields) GetState(TransformationContext context, IProgress<Diagnostic> progress, AllowedType allowedTypes, string codeGenCategory)
         {
             // Our generator is applied to any class that our attribute is applied to.
-            var applyToClass = (ClassDeclarationSyntax)context.ProcessingNode;
+            var applyTo = (TypeDeclarationSyntax)context.ProcessingNode;
 
-            var classModifiers = SyntaxFactory.TokenList(
+            // Remove and re-add `partial`
+            var modifiers = TokenList(
                     Enumerable.Concat(
-                        applyToClass.Modifiers
+                        applyTo.Modifiers
                                     .Where(t => !t.IsKind(SyntaxKind.PartialKeyword)).AsEnumerable(),
-                        new[] { SyntaxFactory.Token(SyntaxKind.PartialKeyword) }));
+                        new[] { Token(SyntaxKind.PartialKeyword) }));
 
-            // Apply a suffix to the name of a copy of the class.
-            var partialClass = SyntaxFactory.ClassDeclaration($"{applyToClass.Identifier}")
-                                            .WithModifiers(classModifiers);
-
-            if (applyToClass.TypeParameterList != null)
+            // Ensure class or struct
+            var partialType = applyTo switch
             {
-                partialClass = partialClass.WithTypeParameterList(applyToClass.TypeParameterList);
+                ClassDeclarationSyntax _ when (allowedTypes & AllowedType.Class) == AllowedType.Class =>
+                    ClassDeclaration($"{applyTo.Identifier}").WithModifiers(modifiers),
+
+                StructDeclarationSyntax _ when (allowedTypes & AllowedType.Struct) == AllowedType.Struct =>
+                    StructDeclaration($"{applyTo.Identifier}").WithModifiers(modifiers),
+
+                _ => (TypeDeclarationSyntax)null
+            };
+
+            if (partialType is null)
+            {
+                var error = allowedTypes switch
+                {
+                    AllowedType.Class => "Type should be a struct",
+                    AllowedType.Struct => "Type should be a class",
+                    AllowedType.ClassOrStruct => "Type should be a class or struct",
+                    _ => throw new NotSupportedException()
+                };
+                ReportError(error, codeGenCategory, applyTo, progress);
+                return default;
             }
 
-            if (applyToClass.ConstraintClauses != null)
+            // Apply type params
+            if (applyTo.TypeParameterList != null)
             {
-                partialClass = partialClass.WithConstraintClauses(applyToClass.ConstraintClauses);
+                partialType = partialType.WithTypeParameterList(applyTo.TypeParameterList);
             }
 
-            var returnType = CodeGenUtil.TypeFromClass(applyToClass);
+            // Apply type constraints
+            if (applyTo.ConstraintClauses != null)
+            {
+                partialType = partialType.WithConstraintClauses(applyTo.ConstraintClauses);
+            }
 
-            var indexedMembers = applyToClass.Members.Select((m, i) => (m, i));
+            // Get the return type as a TypeSyntax
+            var returnType = TypeFromTypeDecl(applyTo);
+
+            // Provide an index for each member
+            var indexedMembers = applyTo.Members.Select((m, i) => (m, i)).ToList();
 
             var fields = indexedMembers.Where(m => m.m is FieldDeclarationSyntax)
                                        .Select(m => (f: m.m as FieldDeclarationSyntax, m.i))
@@ -110,7 +150,7 @@ namespace LanguageExt.CodeGen
                 .Select(m => (m.Identifier, m.Type, m.Modifiers))
                 .ToList();
 
-            return (partialClass, returnType, members);
+            return (partialType, returnType, members);
         }
 
         internal static bool ForAll<A>(this IEnumerable<A> ma, Func<A, bool> f)
@@ -131,7 +171,7 @@ namespace LanguageExt.CodeGen
             return false;
         }
 
-        public static ClassDeclarationSyntax AddLenses(ClassDeclarationSyntax partialClass, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
+        public static TypeDeclarationSyntax AddLenses(TypeDeclarationSyntax partialClass, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
         {
             foreach (var member in members)
             {
@@ -140,71 +180,71 @@ namespace LanguageExt.CodeGen
             return partialClass;
         }
 
-        public static ClassDeclarationSyntax AddLens(ClassDeclarationSyntax partialClass, TypeSyntax returnType, (SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers) member)
+        public static TypeDeclarationSyntax AddLens(TypeDeclarationSyntax partialClass, TypeSyntax returnType, (SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers) member)
         {
-            var lfield = SyntaxFactory.FieldDeclaration(
-                SyntaxFactory.VariableDeclaration(
-                    SyntaxFactory.GenericName(SyntaxFactory.Identifier("Lens"))
+            var lfield = FieldDeclaration(
+                VariableDeclaration(
+                    GenericName(Identifier("Lens"))
                                  .WithTypeArgumentList(
-                                    SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList<TypeSyntax>(new[] { returnType, member.Type }))))
+                                    TypeArgumentList(SeparatedList<TypeSyntax>(new[] { returnType, member.Type }))))
                              .WithVariables(
-                                SyntaxFactory.SingletonSeparatedList<VariableDeclaratorSyntax>(
-                                    SyntaxFactory.VariableDeclarator(MakeCamelCaseId(member.Identifier))
+                                SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                    VariableDeclarator(MakeCamelCaseId(member.Identifier))
                                                  .WithInitializer(
-                                                    SyntaxFactory.EqualsValueClause(
-                                                        SyntaxFactory.InvocationExpression(
-                                                                            SyntaxFactory.MemberAccessExpression(
+                                                    EqualsValueClause(
+                                                        InvocationExpression(
+                                                                            MemberAccessExpression(
                                                                                 SyntaxKind.SimpleMemberAccessExpression,
-                                                                                SyntaxFactory.GenericName("Lens")
+                                                                                GenericName("Lens")
                                                                                     .WithTypeArgumentList(
-                                                                                        SyntaxFactory.TypeArgumentList(
-                                                                                            SyntaxFactory.SeparatedList<TypeSyntax>(new[] { returnType, member.Type }))),
-                                                                                    SyntaxFactory.IdentifierName("New")))
+                                                                                        TypeArgumentList(
+                                                                                            SeparatedList<TypeSyntax>(new[] { returnType, member.Type }))),
+                                                                                    IdentifierName("New")))
                                                                      .WithArgumentList(
-                                                                        SyntaxFactory.ArgumentList(
-                                                                            SyntaxFactory.SeparatedList<ArgumentSyntax>(
+                                                                        ArgumentList(
+                                                                            SeparatedList<ArgumentSyntax>(
                                                                                 new SyntaxNodeOrToken[] {
-                                                                                    SyntaxFactory.Argument(
-                                                                                        SyntaxFactory.SimpleLambdaExpression(
-                                                                                            SyntaxFactory.Parameter(
-                                                                                                SyntaxFactory.Identifier("_x")),
-                                                                                            SyntaxFactory.MemberAccessExpression(
+                                                                                    Argument(
+                                                                                        SimpleLambdaExpression(
+                                                                                            Parameter(
+                                                                                                Identifier("_x")),
+                                                                                            MemberAccessExpression(
                                                                                                 SyntaxKind.SimpleMemberAccessExpression,
-                                                                                                SyntaxFactory.IdentifierName("_x"),
-                                                                                                SyntaxFactory.IdentifierName(member.Identifier.ToString())))),
-                                                                                    SyntaxFactory.Token(SyntaxKind.CommaToken),
-                                                                                    SyntaxFactory.Argument(
-                                                                                        SyntaxFactory.SimpleLambdaExpression(
-                                                                                            SyntaxFactory.Parameter(
-                                                                                                SyntaxFactory.Identifier("_x")),
-                                                                                                SyntaxFactory.SimpleLambdaExpression(
-                                                                                                    SyntaxFactory.Parameter(
-                                                                                                        SyntaxFactory.Identifier("_y")),
-                                                                                                        SyntaxFactory.InvocationExpression(
-                                                                                                            SyntaxFactory.MemberAccessExpression(
+                                                                                                IdentifierName("_x"),
+                                                                                                IdentifierName(MakeFirstCharUpper(member.Identifier))))),
+                                                                                    Token(SyntaxKind.CommaToken),
+                                                                                    Argument(
+                                                                                        SimpleLambdaExpression(
+                                                                                            Parameter(
+                                                                                                Identifier("_x")),
+                                                                                                SimpleLambdaExpression(
+                                                                                                    Parameter(
+                                                                                                        Identifier("_y")),
+                                                                                                        InvocationExpression(
+                                                                                                            MemberAccessExpression(
                                                                                                                 SyntaxKind.SimpleMemberAccessExpression,
-                                                                                                                SyntaxFactory.IdentifierName("_y"),
-                                                                                                                SyntaxFactory.IdentifierName("With")))
+                                                                                                                IdentifierName("_y"),
+                                                                                                                IdentifierName("With")))
                                                                                                             .WithArgumentList(
-                                                                                                                SyntaxFactory.ArgumentList(
-                                                                                                                    SyntaxFactory.SingletonSeparatedList<ArgumentSyntax>(
-                                                                                                                        SyntaxFactory.Argument(
-                                                                                                                            SyntaxFactory.IdentifierName("_x"))
+                                                                                                                ArgumentList(
+                                                                                                                    SingletonSeparatedList<ArgumentSyntax>(
+                                                                                                                        Argument(
+                                                                                                                            IdentifierName("_x"))
                                                                                                                             .WithNameColon(
-                                                                                                                                SyntaxFactory.NameColon(member.Identifier.ToString()))))))))
+                                                                                                                                NameColon(MakeFirstCharUpper(member.Identifier.ToString()).ToString()))))))))
 
                                                                                 }))))))));
 
             lfield = lfield.WithModifiers(
-                SyntaxFactory.TokenList(
+                TokenList(
                     Enumerable.Concat(
                         member.Modifiers.Where(m => m.IsKind(SyntaxKind.PublicKeyword) || m.IsKind(SyntaxKind.PrivateKeyword) || m.IsKind(SyntaxKind.ProtectedKeyword)),
-                        new[] { SyntaxFactory.Token(SyntaxKind.StaticKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword) })));
+                        new[] { Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword) })));
 
             return partialClass.AddMembers(lfield);
         }
 
-        public static ClassDeclarationSyntax AddWith(TransformationContext context, ClassDeclarationSyntax partialClass, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
+        public static TypeDeclarationSyntax AddWith(TransformationContext context, TypeDeclarationSyntax partialClass, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
         {
             var withParms = members.Select(m => (Id: m.Identifier,
                                                 Type: m.Type,
@@ -214,43 +254,43 @@ namespace LanguageExt.CodeGen
                                                  m.Info,
                                                  IsGeneric: !m.Info.Type.IsValueType && !m.Info.Type.IsReferenceType,
                                                  ParamType: m.Info.Type.IsValueType
-                                                     ? SyntaxFactory.NullableType(m.Type)
+                                                     ? NullableType(m.Type)
                                                      : m.Type))
                                    .Select(m =>
-                                        SyntaxFactory.Parameter(MakeFirstCharUpper(m.Id))
+                                        Parameter(MakeFirstCharUpper(m.Id))
                                                      .WithType(m.ParamType)
                                                      .WithDefault(
                                                          m.IsGeneric
-                                                             ? SyntaxFactory.EqualsValueClause(SyntaxFactory.DefaultExpression(m.Type))
-                                                             : SyntaxFactory.EqualsValueClause(SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression))))
+                                                             ? EqualsValueClause(DefaultExpression(m.Type))
+                                                             : EqualsValueClause(LiteralExpression(SyntaxKind.NullLiteralExpression))))
                                    .ToArray();
 
-            var withMethod = SyntaxFactory.MethodDeclaration(returnType, "With")
-                                          .WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList<ParameterSyntax>(withParms)))
-                                          .WithModifiers(SyntaxFactory.TokenList(
-                                              SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                          .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+            var withMethod = MethodDeclaration(returnType, "With")
+                                          .WithParameterList(ParameterList(SeparatedList<ParameterSyntax>(withParms)))
+                                          .WithModifiers(TokenList(
+                                              Token(SyntaxKind.PublicKeyword)))
+                                          .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                                           .WithExpressionBody(
-                                              SyntaxFactory.ArrowExpressionClause(
-                                                  SyntaxFactory.ObjectCreationExpression(
+                                              ArrowExpressionClause(
+                                                  ObjectCreationExpression(
                                                       returnType,
-                                                      SyntaxFactory.ArgumentList(
-                                                          SyntaxFactory.SeparatedList<ArgumentSyntax>(
+                                                      ArgumentList(
+                                                          SeparatedList<ArgumentSyntax>(
                                                               withParms.Select(wa =>
-                                                                SyntaxFactory.Argument(
-                                                                    SyntaxFactory.BinaryExpression(
+                                                                Argument(
+                                                                    BinaryExpression(
                                                                         SyntaxKind.CoalesceExpression,
-                                                                        SyntaxFactory.IdentifierName(wa.Identifier),
-                                                                        SyntaxFactory.MemberAccessExpression(
+                                                                        IdentifierName(wa.Identifier),
+                                                                        MemberAccessExpression(
                                                                             SyntaxKind.SimpleMemberAccessExpression,
-                                                                            SyntaxFactory.ThisExpression(),
-                                                                            SyntaxFactory.IdentifierName(wa.Identifier))))))), null)));
+                                                                            ThisExpression(),
+                                                                            IdentifierName(wa.Identifier))))))), null)));
 
             partialClass = partialClass.AddMembers(withMethod);
             return partialClass;
         }
 
-        public static TypeSyntax TypeFromClass(ClassDeclarationSyntax decl) =>
+        public static TypeSyntax TypeFromTypeDecl(TypeDeclarationSyntax decl) =>
             ParseTypeName($"{decl.Identifier}{decl.TypeParameterList}");
 
         public static SyntaxToken MakeFirstCharUpper(SyntaxToken identifier)
@@ -321,7 +361,7 @@ namespace LanguageExt.CodeGen
         }
 
         public static SyntaxToken MakeCamelCaseId(SyntaxToken identifier) =>
-            SyntaxFactory.Identifier(MakeCamelCaseId(identifier.ToString()));
+            Identifier(MakeCamelCaseId(identifier.ToString()));
 
         public static string NextGenName(string gen) =>
             $"{gen.Substring(0, gen.Length - 1)}{(char)((gen[gen.Length - 1] + 1))}";
@@ -379,7 +419,7 @@ namespace LanguageExt.CodeGen
 
                             // Method args
                             var args = ParameterList(SeparatedList<ParameterSyntax>(
-                                            method.Parameters.Select(a => Parameter(Identifier(a.Name)).WithType(SyntaxFactory.ParseTypeName(a.Type.ToString())))));
+                                            method.Parameters.Select(a => Parameter(Identifier(a.Name)).WithType(ParseTypeName(a.Type.ToString())))));
 
                             // Return type
                             var returnType = MakeGenericStruct(applyToStruct, method.ReturnType.ToString());
@@ -487,7 +527,7 @@ namespace LanguageExt.CodeGen
         {
             var nolast = s.TypeParameterList.Parameters.RemoveAt(s.TypeParameterList.Parameters.Count - 1);
             var gens = nolast.AddRange(genAdd.Select(gen => TypeParameter(gen)));
-            return SyntaxFactory.ParseTypeName($"{s.Identifier}<{gens}>");
+            return ParseTypeName($"{s.Identifier}<{gens}>");
         }
 
         public static TypeSyntax FuncType(params SyntaxNodeOrToken[] gens) =>
@@ -580,13 +620,13 @@ namespace LanguageExt.CodeGen
                 ? null
                 : member;
 
-        public static MemberDeclarationSyntax[] MakeDataTypeMembers(string typeName, TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members, bool baseIsInterface)
+        public static MemberDeclarationSyntax[] MakeDataTypeMembers(string typeName, TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members, BaseSpec baseSpec)
         {
             var nmembers = new List<MemberDeclarationSyntax>();
             nmembers.AddRange(MakeSerialisationMembers(typeName, members));
             nmembers.AddRange(MakeOperatorMembers(thisType));
-            nmembers.AddRange(MakeEqualityMembers(thisType, baseType, members, baseIsInterface));
-            nmembers.AddRange(MakeOrderingMembers(thisType, baseType, members, baseIsInterface));
+            nmembers.AddRange(MakeEqualityMembers(thisType, baseType, members, baseSpec));
+            nmembers.AddRange(MakeOrderingMembers(thisType, baseType, members, baseSpec));
             nmembers.Add(MakeGetHashCode(members));
             nmembers.Add(MakeToString(typeName, members));
             return nmembers.ToArray();
@@ -791,7 +831,10 @@ namespace LanguageExt.CodeGen
                                                         ArgumentList(
                                                             SingletonSeparatedList<ArgumentSyntax>(
                                                                 Argument(
-                                                                    IdentifierName(m.Identifier.Text))))),
+                                                                    MemberAccessExpression(
+                                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                                        ThisExpression(),
+                                                                        IdentifierName(MakeFirstCharUpper(m.Identifier.Text))))))),
                                                     IdentifierName("state"))),
                                             IdentifierName("fnvPrime"))))));
 
@@ -860,7 +903,7 @@ namespace LanguageExt.CodeGen
                         .WithBody(block);
             }
 
-        static IEnumerable<MemberDeclarationSyntax> MakeOrderingMembers(TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members, bool baseIsInterface)
+        static IEnumerable<MemberDeclarationSyntax> MakeOrderingMembers(TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members, BaseSpec baseSpec)
         {
             var ords = new List<MemberDeclarationSyntax>();
 
@@ -869,9 +912,9 @@ namespace LanguageExt.CodeGen
                                 Token(SyntaxKind.IntKeyword)),
                             Identifier("CompareTo"))
                         .WithModifiers(
-                                baseIsInterface
-                                    ? TokenList(Token(SyntaxKind.PublicKeyword))
-                                    : TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword)))
+                                baseSpec == BaseSpec.Abstract
+                                    ? TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword))
+                                    : TokenList(Token(SyntaxKind.PublicKeyword)))
                         .WithParameterList(
                             ParameterList(
                                 SingletonSeparatedList<ParameterSyntax>(
@@ -902,16 +945,13 @@ namespace LanguageExt.CodeGen
                         .WithSemicolonToken(
                             Token(SyntaxKind.SemicolonToken)));
 
-            if (!baseIsInterface)
+            if (baseSpec == BaseSpec.Abstract)
             {
                 ords.Add(MethodDeclaration(
                                 PredefinedType(
                                     Token(SyntaxKind.IntKeyword)),
                                 Identifier("CompareTo"))
-                            .WithModifiers(
-                                    baseIsInterface
-                                        ? TokenList(Token(SyntaxKind.PublicKeyword))
-                                        : TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword)))
+                            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword)))
                             .WithParameterList(
                                 ParameterList(
                                     SingletonSeparatedList<ParameterSyntax>(
@@ -1057,13 +1097,16 @@ namespace LanguageExt.CodeGen
                                             SeparatedList<ArgumentSyntax>(
                                                 new SyntaxNodeOrToken[]{
                                                     Argument(
-                                                        IdentifierName(m.Identifier.Text)),
+                                                        MemberAccessExpression(
+                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                            ThisExpression(),
+                                                            IdentifierName(MakeFirstCharUpper(m.Identifier.Text)))),
                                                     Token(SyntaxKind.CommaToken),
                                                     Argument(
                                                         MemberAccessExpression(
                                                             SyntaxKind.SimpleMemberAccessExpression,
                                                             IdentifierName("other"),
-                                                            IdentifierName(m.Identifier.Text)))}))))),
+                                                            IdentifierName(MakeFirstCharUpper(m.Identifier.Text))))}))))),
                             IfStatement(
                                 BinaryExpression(
                                     SyntaxKind.NotEqualsExpression,
@@ -1096,7 +1139,7 @@ namespace LanguageExt.CodeGen
             }
         }
 
-        static IEnumerable<MemberDeclarationSyntax> MakeEqualityMembers(TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members, bool baseIsInterface)
+        static IEnumerable<MemberDeclarationSyntax> MakeEqualityMembers(TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members, BaseSpec baseSpec)
         {
             var statements = new List<StatementSyntax>();
 
@@ -1134,13 +1177,16 @@ namespace LanguageExt.CodeGen
                                     SeparatedList<ArgumentSyntax>(
                                         new SyntaxNodeOrToken[]{
                                             Argument(
-                                                IdentifierName(m.Identifier.Text)),
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    ThisExpression(),
+                                                    IdentifierName(MakeFirstCharUpper(m.Identifier.Text)))),
                                             Token(SyntaxKind.CommaToken),
                                             Argument(
                                                 MemberAccessExpression(
                                                     SyntaxKind.SimpleMemberAccessExpression,
                                                     IdentifierName("other"),
-                                                    IdentifierName(m.Identifier.Text)))})))),
+                                                    IdentifierName(MakeFirstCharUpper(m.Identifier.Text))))})))),
                         ReturnStatement(
                             LiteralExpression(
                                 SyntaxKind.FalseLiteralExpression)))));
@@ -1197,7 +1243,7 @@ namespace LanguageExt.CodeGen
                                 .WithSemicolonToken(
                                     Token(SyntaxKind.SemicolonToken));
 
-            if (baseIsInterface)
+            if (baseSpec == BaseSpec.Interface || baseSpec == BaseSpec.None)
             {
                 return new[] { eqTyped, eqUntyped };
             }
@@ -1661,7 +1707,10 @@ namespace LanguageExt.CodeGen
                         ExpressionStatement(
                             AssignmentExpression(
                                 SyntaxKind.SimpleAssignmentExpression,
-                                IdentifierName(m.Identifier.Text),
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    ThisExpression(),
+                                    IdentifierName(MakeFirstCharUpper(m.Identifier.Text))),
                                 CastExpression(
                                     m.Type,
                                     InvocationExpression(
@@ -1698,7 +1747,10 @@ namespace LanguageExt.CodeGen
                                                     Literal(m.Identifier.Text))),
                                             Token(SyntaxKind.CommaToken),
                                             Argument(
-                                                IdentifierName(m.Identifier.Text))})))));
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    ThisExpression(),
+                                                    IdentifierName(MakeFirstCharUpper(m.Identifier.Text))))})))));
 
             var ctor = ConstructorDeclaration(
                             Identifier(typeName))
@@ -1792,5 +1844,288 @@ namespace LanguageExt.CodeGen
                 .WithTypeArgumentList(
                     TypeArgumentList(
                         SingletonSeparatedList(genericParam))));
+
+        /// <summary>
+        /// Makes a case class
+        /// This can be a case within a union, or a standalone record (which can be seen as a union 
+        /// type with 1 case)
+        /// 
+        /// In the parameter list, below, anything prefixed with `applyTo` represents either the record-type
+        /// or the union-type (not the case).  Anything prefixed with `case` contains information relating to
+        /// the case, which for record types is also the record.
+        /// 
+        /// </summary>
+        public static TypeDeclarationSyntax MakeCaseType(
+            TransformationContext context, 
+            SyntaxToken applyToIdentifier,
+            SyntaxList<MemberDeclarationSyntax> applyToMembers,
+            TypeParameterListSyntax applyToTypeParams,
+            SyntaxTokenList applyToModifiers,
+            SyntaxList<TypeParameterConstraintClauseSyntax> applyToConstraints,
+            SyntaxToken caseIdentifier,
+            TypeParameterListSyntax caseTypeParams,
+            List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> caseParams,
+            BaseSpec baseSpec,
+            bool caseIsClass,
+            bool caseIsPartial,
+            int tag)
+        {
+            var lmodifiers = applyToModifiers.Where(t => !t.IsKind(SyntaxKind.PartialKeyword) && !t.IsKind(SyntaxKind.AbstractKeyword))
+                                            .ToList();
+
+            lmodifiers.Add(Token(SyntaxKind.SealedKeyword));
+            if(caseIsPartial)
+            {
+                lmodifiers.Add(Token(SyntaxKind.PartialKeyword));
+            }
+
+            var modifiers = TokenList(lmodifiers);
+
+            var type = caseIsClass 
+                ? ClassDeclaration(caseIdentifier.Text) 
+                : StructDeclaration(caseIdentifier.Text) as TypeDeclarationSyntax;
+
+            type = type.WithModifiers(modifiers)
+                       .WithAttributeLists(
+                           SingletonList(
+                               AttributeList(
+                                   SingletonSeparatedList(
+                                       Attribute(
+                                           QualifiedName(
+                                               IdentifierName("System"),
+                                               IdentifierName("Serializable")))))));
+
+            var typeParamList = applyToTypeParams;
+            if(caseTypeParams != null)
+            {
+                typeParamList = typeParamList == null
+                    ? caseTypeParams
+                    : typeParamList.AddParameters(caseTypeParams.Parameters.ToArray());
+            }
+
+            if (typeParamList != null)
+            {
+                type = type.WithTypeParameterList(typeParamList);
+            }
+
+            if (applyToConstraints != null)
+            {
+                type = type.WithConstraintClauses(applyToConstraints);
+            }
+
+            var abstractBaseType = ParseTypeName($"_{applyToIdentifier}Base{applyToTypeParams}");
+            var interfaceType =     ParseTypeName($"{applyToIdentifier}{applyToTypeParams}");
+            var thisType =       ParseTypeName($"{caseIdentifier.Text}{typeParamList}");
+            var thisEquatableType = ParseTypeName($"System.IEquatable<{caseIdentifier.Text}{typeParamList}>");
+            var thisComparableType = ParseTypeName($"System.IComparable<{caseIdentifier.Text}{typeParamList}>");
+            var comparableType = ParseTypeName($"System.IComparable");
+            var serializableType = ParseTypeName($"System.Runtime.Serialization.ISerializable");
+
+            var ctor = MakeConstructor(caseIdentifier.Text, caseParams);
+            var dtor = MakeDeconstructor(caseParams);
+
+            var fields = baseSpec == BaseSpec.None
+                ? new List<MemberDeclarationSyntax>()
+                : caseParams.Select(p => MakeField(p.Identifier.Text, p.Type))
+                            .ToList();
+
+            if (baseSpec == BaseSpec.Abstract)
+            {
+                var tagProp = PropertyDeclaration(
+                                    PredefinedType(
+                                        Token(SyntaxKind.IntKeyword)),
+                                    Identifier("@Tag"))
+                                .WithModifiers(
+                                    TokenList(
+                                        new[]{
+                                        Token(SyntaxKind.PublicKeyword),
+                                        Token(SyntaxKind.OverrideKeyword)}))
+                                .WithExpressionBody(
+                                    ArrowExpressionClause(
+                                        LiteralExpression(
+                                            SyntaxKind.NumericLiteralExpression,
+                                            Literal(tag))))
+                                .WithSemicolonToken(
+                                    Token(SyntaxKind.SemicolonToken));
+
+                fields.Add(tagProp);
+            }
+
+            var publicMod = TokenList(Token(SyntaxKind.PublicKeyword));
+
+            var impl = new List<MemberDeclarationSyntax>();
+            if (baseSpec == BaseSpec.Interface)
+            {
+                impl.AddRange(
+                    applyToMembers
+                        .Where(m => m is MethodDeclarationSyntax)
+                        .Select(m => m as MethodDeclarationSyntax)
+                        .Select(m => MakeExplicitInterfaceImpl(interfaceType, thisType, m.Identifier, m.ParameterList, m.TypeParameterList)));
+            }
+
+            var dtype = MakeDataTypeMembers(caseIdentifier.Text, thisType, interfaceType, caseParams, baseSpec);
+
+            fields.Add(ctor);
+            fields.Add(dtor);
+            fields.AddRange(dtype);
+            fields.AddRange(impl);
+
+            type = type.WithMembers(List(fields));
+
+            // Derive from Record<UnionBaseType> and UnionBaseType
+            type = baseSpec switch
+            {
+                BaseSpec.Interface =>
+                    type.WithBaseList(
+                        BaseList(
+                            SeparatedList<BaseTypeSyntax>(
+                                new SyntaxNodeOrToken[]{
+                                    SimpleBaseType(interfaceType),
+                                    Token(SyntaxKind.CommaToken),
+                                    SimpleBaseType(thisEquatableType),
+                                    Token(SyntaxKind.CommaToken),
+                                    SimpleBaseType(thisComparableType),
+                                    Token(SyntaxKind.CommaToken),
+                                    SimpleBaseType(comparableType),
+                                    Token(SyntaxKind.CommaToken),
+                                    SimpleBaseType(serializableType)
+                                }))),
+                BaseSpec.Abstract =>
+                    type.WithBaseList(
+                        BaseList(
+                            SeparatedList<BaseTypeSyntax>(
+                                new SyntaxNodeOrToken[]{
+                                    SimpleBaseType(abstractBaseType),
+                                    Token(SyntaxKind.CommaToken),
+                                    SimpleBaseType(thisEquatableType),
+                                    Token(SyntaxKind.CommaToken),
+                                    SimpleBaseType(thisComparableType),
+                                    Token(SyntaxKind.CommaToken),
+                                    SimpleBaseType(comparableType),
+                                    Token(SyntaxKind.CommaToken),
+                                    SimpleBaseType(serializableType)
+                                }))),
+                _ =>
+                    type.WithBaseList(
+                        BaseList(
+                            SeparatedList<BaseTypeSyntax>(
+                                new SyntaxNodeOrToken[]{
+                                    SimpleBaseType(thisEquatableType),
+                                    Token(SyntaxKind.CommaToken),
+                                    SimpleBaseType(thisComparableType),
+                                    Token(SyntaxKind.CommaToken),
+                                    SimpleBaseType(comparableType),
+                                    Token(SyntaxKind.CommaToken),
+                                    SimpleBaseType(serializableType)
+                                })))
+            };
+
+            type = AddWith(context, type, thisType, caseParams);
+            type = AddLenses(type, thisType, caseParams);
+
+            return type;
+        }
+
+        static MemberDeclarationSyntax MakeConstructor(
+            string ctorName, 
+            List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> fields
+            )
+        {
+            // Make the parameters start with an upper case letter and have the out modifier
+            var parameters = fields.Select(f => Parameter(Identifier(MakeFirstCharUpper(f.Identifier.Text)))
+                                                    .WithType(f.Type))
+                                   .ToArray();
+
+            var assignments = parameters.Select(p =>
+                ExpressionStatement(
+                    AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            ThisExpression(),
+                            IdentifierName(MakeFirstCharUpper(p.Identifier.Text))),
+                        IdentifierName(p.Identifier.Text))));
+
+
+            return ConstructorDeclaration(Identifier(ctorName))
+                        .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+                        .WithParameterList(ParameterList(SeparatedList(parameters)))
+                        .WithBody(Block(List(assignments)));
+        }
+
+
+        static MethodDeclarationSyntax MakeDeconstructor(
+            List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> fields
+            )
+        {
+            var assignments = fields.Select(p =>
+                                        ExpressionStatement(
+                                            AssignmentExpression(
+                                                SyntaxKind.SimpleAssignmentExpression,
+                                                IdentifierName(MakeFirstCharUpper(p.Identifier.Text)),
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    ThisExpression(),
+                                                    IdentifierName(MakeFirstCharUpper(p.Identifier.Text)))
+                                                )))
+                                    .ToArray();
+
+            // Make the parameters start with an upper case letter and have the out modifier
+            var parameters = fields.Select(f => Parameter(Identifier(MakeFirstCharUpper(f.Identifier.Text)))
+                                                    .WithType(f.Type)
+                                                    .WithModifiers(TokenList(Token(SyntaxKind.OutKeyword))))
+                                   .ToArray();
+
+            return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier("Deconstruct"))
+                       .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+                       .WithParameterList(ParameterList(SeparatedList(parameters)))
+                       .WithBody(Block(assignments));
+        }
+
+        static MemberDeclarationSyntax MakeField(string name, TypeSyntax type)
+        {
+            var fieldName = MakeFirstCharUpper(name);
+
+            var field = FieldDeclaration(
+                            VariableDeclaration(type)
+                                .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(fieldName)))))
+                            .WithModifiers(
+                                TokenList(
+                                    new[]{
+                                        Token(SyntaxKind.PublicKeyword),
+                                        Token(SyntaxKind.ReadOnlyKeyword)}))
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)); ;
+
+            return field;
+        }
+
+        static MemberDeclarationSyntax MakeExplicitInterfaceImpl(
+            TypeSyntax interfaceType, 
+            TypeSyntax resultType, 
+            SyntaxToken identifier, 
+            ParameterListSyntax caseParams, 
+            TypeParameterListSyntax caseTypeParams)
+        {
+
+            var method = MethodDeclaration(interfaceType, identifier)
+                            .WithExplicitInterfaceSpecifier(
+                                ExplicitInterfaceSpecifier(ParseName(interfaceType.ToString())))
+                            .WithParameterList(caseParams)
+                            .WithExpressionBody(
+                                ArrowExpressionClause(
+                                    ThrowExpression(
+                                        ObjectCreationExpression(
+                                            QualifiedName(
+                                                IdentifierName("System"),
+                                                IdentifierName("NotSupportedException")))
+                                        .WithArgumentList(ArgumentList()))))
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+
+            if (caseTypeParams != null)
+            {
+                method = method.WithTypeParameterList(caseTypeParams);
+            }
+            return method;
+        }
     }
 }
