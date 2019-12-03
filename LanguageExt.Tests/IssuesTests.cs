@@ -200,7 +200,7 @@ namespace Issues
         public TenantId CurrentTenant { get; }
         public UserId AssignedBy { get; }
         public Instant InstantAssigned { get; }
-        public Collector(Some<CollectorId> id, Some<string> name, Some<TenantId> tenant, Some<UserId> assignedBy, Instant dateAssigned)
+        public Collector(SomeValue<CollectorId> id, SomeValue<string> name, SomeValue<TenantId> tenant, SomeValue<UserId> assignedBy, Instant dateAssigned)
         {
             Id = id;
             Name = name;

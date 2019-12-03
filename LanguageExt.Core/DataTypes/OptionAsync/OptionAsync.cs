@@ -7,6 +7,7 @@ using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
@@ -100,6 +101,22 @@ namespace LanguageExt
             this.data = first.Length == 0
                 ? (false, default(A)).AsTask()
                 : (true, first[0]).AsTask();
+        }
+
+        /// <summary>
+        /// Reference version of option for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public Task<OptionCase<A>> This =>
+            GetThis();
+
+        [Pure]
+        async Task<OptionCase<A>> GetThis()
+        {
+            var (isSome, value) = await data;
+            return isSome
+                ? new Some<A>(value)
+                : None<A>.Default;
         }
 
         /// <summary>

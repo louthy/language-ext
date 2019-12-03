@@ -105,6 +105,15 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Reference version of option for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public OptionCase<A> This =>
+            IsSome
+                ? new Some<A>(Value)
+                : None<A>.Default;
+
+        /// <summary>
         /// Uses the `EqDefault` instance to do an equality check on the bound value.  
         /// To use anything other than the default call `oa.Equals<EqA>(ob)`
         /// where `EqA` is an instance derived from `Eq<A>`

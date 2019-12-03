@@ -33,14 +33,14 @@ namespace LanguageExt
     }
 
     [Serializable]
-    public struct Some<A> : 
+    public struct SomeValue<A> : 
         IEnumerable<A>,
         IOptional
     {
         readonly A value;
         readonly bool initialised;
 
-        public Some(A value)
+        public SomeValue(A value)
         {
             if (isnull(value))
             {
@@ -53,7 +53,7 @@ namespace LanguageExt
         /// <summary>
         /// Used to facilitate serialisation
         /// </summary>
-        public Some(IEnumerable<A> someValue)
+        public SomeValue(IEnumerable<A> someValue)
         {
             var first = someValue.Take(1).ToArray();
             initialised = first.Length == 1;
@@ -93,15 +93,15 @@ namespace LanguageExt
                 : raise<U>( new SomeNotInitialisedException(typeof(A)) );
 
         [Pure]
-        public static implicit operator Option<A>(Some<A> value) =>
+        public static implicit operator Option<A>(SomeValue<A> value) =>
             default(MOption<A>).Return(value.Value);
 
         [Pure]
-        public static implicit operator Some<A>(A value) => 
-            new Some<A>(value);
+        public static implicit operator SomeValue<A>(A value) => 
+            new SomeValue<A>(value);
 
         [Pure]
-        public static implicit operator A(Some<A> value) => 
+        public static implicit operator A(SomeValue<A> value) => 
             value.Value;
 
         [Pure]
