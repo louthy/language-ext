@@ -72,17 +72,6 @@ namespace TestBed
     //{
     //}
 
-    public class Person
-    {
-        public readonly string Forename;
-        public readonly string Surname;
-
-        public Person(string forename, string surname)
-        {
-            Forename = forename;
-            Surname = surname;
-        }
-    }
 
     [RWS(WriterMonoid: typeof(MSeq<string>), 
          Env:          typeof(IO), 
@@ -189,14 +178,12 @@ namespace TestBed
     }
 
     [Record]
-    public partial struct XTestRecordGen<A>
+    public partial struct Person
     {
-        public bool X { get; }
-        public int Y { get; }
-        public readonly int Z;
-
-        public int Sum => Y + Z;
+        public readonly string Forename;
+        public readonly string Surname;
     }
+
 }
 
 
