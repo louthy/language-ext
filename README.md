@@ -12,6 +12,44 @@ in the direction of declarative and functional code rather than imperative.
 __Author on twitter:__ 
 https://twitter.com/paullouth
 
+## Index
+
+* [Contributing & Code of Conduct](#contributing--code-of-conduct)
+* [Nu-get package](#nu-get)
+* [Code-gen setup](#code-gen-setup)
+* [Unity](#unity)
+* [Introduction](#introduction)
+* [Getting started](#getting-started)
+* [Features](#features)
+* [API Reference](https://louthy.github.io/language-ext)
+
+This library started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
+
+* [Poor tuple support](#poor-tuple-support)
+* [Null reference problem](#null-reference-problem)
+    * [Option](#option)
+* [Lack of lambda and expression inference](#lack-of-lambda-and-expression-inference)
+* [Void isn't a real type](#void-isnt-a-real-type)
+* [Mutable lists and dictionaries](#mutable-lists-and-dictionaries)
+   * [Lists](#lists)
+   * [List pattern matching](#list-pattern-matching)
+   * [Maps](#maps)
+* [Difficulty in creating immutable record types](#difficulty-in-creating-immutable-record-types)
+   * [Transformation of immutable types](#transformation-of-immutable-types)
+      * [`[With]`](#with)
+   * [Transformation of nested immutable types with Lenses](#transformation-of-nested-immutable-types-with-lenses)
+      * [`[WithLens]`](#withlens)
+* [The awful 'out' parameter](#the-awful-out-parameter)
+* [The lack of ad-hoc polymorphism](#ad-hoc-polymorphism)
+   * [`Num<A>`](#num<A>)
+   * [`Eq<A>`](#eq<A>)
+   * [`Ord<A>`](#ord<A>)
+   * [`Semigroup<A>`](#semigroup<A>)
+   * [`Monoid<A>`](#monoid<A>)
+   * [`Monad`](#monad)
+   * [Transformer types](#transformer-types)
+
+
 ## Reference
 
 #### [API Reference](https://louthy.github.io/language-ext)
@@ -159,34 +197,6 @@ Location | Feature | Description
 `Core` | [Improved lambda type inference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#fun<R>) | `var add = fun( (int x, int y) => x + y)`
 `Core` | [`IQueryable<T>` extensions](https://louthy.github.io/language-ext/LanguageExt.Core/QueryExtensions_.htm)  |
 `Core` | [`IObservable<T>` extensions](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/ObservableExt_.htm)  |
-
-It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
-
-* [Poor tuple support](#poor-tuple-support)
-* [Null reference problem](#null-reference-problem)
-    * [Option](#option)
-* [Lack of lambda and expression inference](#lack-of-lambda-and-expression-inference)
-* [Void isn't a real type](#void-isnt-a-real-type)
-* [Mutable lists and dictionaries](#mutable-lists-and-dictionaries)
-   * [Lists](#lists)
-   * [List pattern matching](#list-pattern-matching)
-   * [Maps](#maps)
-* [Difficulty in creating immutable record types](#difficulty-in-creating-immutable-record-types)
-   * [Transformation of immutable types](#transformation-of-immutable-types)
-      * [`[With]`](#with)
-   * [Transformation of nested immutable types with Lenses](#transformation-of-nested-immutable-types-with-lenses)
-      * [`[WithLens]`](#withlens)
-* [The awful 'out' parameter](#the-awful-out-parameter)
-* [The lack of ad-hoc polymorphism](#ad-hoc-polymorphism)
-   * [`Num<A>`](#num<A>)
-   * [`Eq<A>`](#eq<A>)
-   * [`Ord<A>`](#ord<A>)
-   * [`Semigroup<A>`](#semigroup<A>)
-   * [`Monoid<A>`](#monoid<A>)
-   * [`Monad`](#monad)
-   * [Transformer types](#transformer-types)
-
-   
 
 ## Poor tuple support
 I've been crying out for proper tuple support for ages. When this library was created we were no closer (C# 6). 
