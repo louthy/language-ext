@@ -235,8 +235,8 @@ For example:
 of C# had to make pragmatic decisions, it's a shame this one slipped through though. So, what to do about the 
 "null problem"?
 
-`null` is often used to indicate "no value"; the method called can't produce a value of the type it said 
-it was going to produce, and therefore it gives you "nothing". The thing is that when "no value" is passed to 
+`null` is often used to indicate _no value_; the method called can't produce a value of the type it said 
+it was going to produce, and therefore it gives you "nothing". The thing is that when _no value_ is passed to 
 the consuming code, it gets assigned to a variable of type T, the same type that the function said it was going 
 to return, except this variable now has a timebomb in it. You must continually check if the value is `null`, if 
 it's passed around it must be checked too. 
