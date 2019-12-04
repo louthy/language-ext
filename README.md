@@ -244,7 +244,7 @@ it's passed around it must be checked too.
 As we all know it's only a matter of time before a null reference bug crops up because the variable wasn't 
 checked. It puts C# in the realm of the dynamic languages, where you can't trust the value you're being given.
 
-Functional languages use what's known as an "option type". In F# it's called `Option`, in Haskell it's called 
+Functional languages use what's known as an _option type_. In F# it's called `Option`, in Haskell it's called 
 `Maybe`. In the next section we'll see how it's used.
 
 ## Option
