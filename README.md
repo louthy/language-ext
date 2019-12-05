@@ -85,6 +85,8 @@ To make the reference **build and design time only** (i.e. your project doesn't 
 
 > Obviously, update the `Version` attributes to the appropriate values. Also note that you will probably need the latest VS2019+ for this to work. Even early versions of VS2019 seem to have problems.
 
+There's more information on the code-gen features on [the wiki](https://github.com/louthy/language-ext/wiki/Code-generation)
+
 ## Unity
 
 This library seems compatible on the latest (at the time of writing) Unity 2018.2 with __incremental compiler__ (which enables C# 7), so it should work well once Unity has official support for C# 7 on upcoming 2018.3.
