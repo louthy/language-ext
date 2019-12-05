@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
     <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
         <DefineConstants>TRACE;DEBUG</DefineConstants>
     </PropertyGroup>
@@ -19,7 +19,7 @@
         <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
         <Description>This library uses and abuses the features of C# 6 and 7 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself.</Description>
         <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
-        <PackageIconUrl>https://raw.githubusercontent.com/louthy/language-ext/master/backers-images/lang-ext-thumb.png</PackageIconUrl>
+        <PackageIcon>lang-ext-small.png</PackageIcon>
         <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
         <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
@@ -30,6 +30,15 @@
         <FileVersion>3.0.0.0</FileVersion>
         <LangVersion>7.3</LangVersion>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\Images\lang-ext-small.png">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
+
+
     <ItemGroup>
         <Compile Include="**\*.cs" />
         <EmbeddedResource Include="**\*.resx" />
