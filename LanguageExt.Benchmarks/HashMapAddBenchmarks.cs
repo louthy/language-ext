@@ -56,5 +56,17 @@ namespace LanguageExt.Benchmarks
 
             return map;
         }
+
+        [Benchmark]
+        public Map<T, T> LangExtMap()
+        {
+            var map = Map<T, T>();
+            foreach (var kvp in values)
+            {
+                map = map.Add(kvp.Key, kvp.Value);
+            }
+
+            return map;
+        }
     }
 }

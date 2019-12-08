@@ -22,6 +22,7 @@ namespace LanguageExt.Benchmarks
         ImmutableDictionary<T, T> immutableMap;
         Dictionary<T, T> dictionary;
         HashMap<TEq, T, T> hashMap;
+        Map<T, T> map;
 
         [GlobalSetup]
         public void Setup()
@@ -32,8 +33,8 @@ namespace LanguageExt.Benchmarks
             immutableMap = SysColImmutableDictionarySetup(values);
             dictionary = SysColDictionarySetup(values);
             hashMap = LangExtHashMapSetup(values);
+            map = LangExtMapSetup(values);
         }
-
         [Benchmark]
         public int SysColImmutableDictionary()
         {
@@ -70,6 +71,18 @@ namespace LanguageExt.Benchmarks
             return result;
         }
 
+        [Benchmark]
+        public int LangExtMap()
+        {
+            int result = default;
+            foreach (var key in keys)
+            {
+                result ^= map[key].GetHashCode();
+            }
+
+            return result;
+        }
+
         public ImmutableDictionary<T, T> SysColImmutableDictionarySetup(Dictionary<T, T> values)
         {
             var immutableMap = ImmutableDictionary.Create<T, T>();
@@ -95,6 +108,17 @@ namespace LanguageExt.Benchmarks
         public HashMap<TEq, T, T> LangExtHashMapSetup(Dictionary<T, T> values)
         {
             var hashMap = HashMap<TEq, T, T>();
+            foreach (var kvp in values)
+            {
+                hashMap = hashMap.Add(kvp.Key, kvp.Value);
+            }
+
+            return hashMap;
+        }
+
+        private Map<T, T> LangExtMapSetup(Dictionary<T, T> values)
+        {
+            var hashMap = Map<T, T>();
             foreach (var kvp in values)
             {
                 hashMap = hashMap.Add(kvp.Key, kvp.Value);
