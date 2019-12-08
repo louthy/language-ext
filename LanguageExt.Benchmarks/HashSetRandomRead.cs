@@ -16,6 +16,7 @@ namespace LanguageExt.Benchmarks
         T[] values;
 
         ImmutableHashSet<T> immutableSet;
+        ImmutableSortedSet<T> immutableSortedSet;
         System.Collections.Generic.HashSet<T> sysHashSet;
         HashSet<T> hashSet;
         Set<T> set;
@@ -26,13 +27,14 @@ namespace LanguageExt.Benchmarks
             values = ValuesGenerator.Default.GenerateUniqueValues<T>(N);
 
             immutableSet = SysColImmutableHashSetSetup(values);
+            immutableSortedSet = SysColImmutableSortedSetSetup(values);
             sysHashSet = SysColHashSetSetup(values);
             hashSet = LangExtHashSetSetup(values);
             set = LangExtSetSetup(values);
         }
 
         [Benchmark]
-        public bool SysColImmutableDictionary()
+        public bool SysColImmutableHashSet()
         {
             var result = true;
             foreach (var value in values)
@@ -44,7 +46,19 @@ namespace LanguageExt.Benchmarks
         }
 
         [Benchmark]
-        public bool SysColDictionary()
+        public bool SysColImmutableSortedSet()
+        {
+            var result = true;
+            foreach (var value in values)
+            {
+                result &= immutableSortedSet.Contains(value);
+            }
+
+            return result;
+        }
+
+        [Benchmark]
+        public bool SysColHashSet()
         {
             var result = true;
             foreach (var value in values)
@@ -56,7 +70,7 @@ namespace LanguageExt.Benchmarks
         }
 
         [Benchmark]
-        public bool LangExtHashMap()
+        public bool LangExtHashSet()
         {
             var result = true;
             foreach (var value in values)
@@ -68,7 +82,7 @@ namespace LanguageExt.Benchmarks
         }
 
         [Benchmark]
-        public bool LangExtMap()
+        public bool LangExtSet()
         {
             var result = true;
             foreach (var value in values)
@@ -82,6 +96,17 @@ namespace LanguageExt.Benchmarks
         public ImmutableHashSet<T> SysColImmutableHashSetSetup(T[] values)
         {
             var immutableSet = ImmutableHashSet.Create<T>();
+            foreach (var value in values)
+            {
+                immutableSet = immutableSet.Add(value);
+            }
+
+            return immutableSet;
+        }
+
+        public ImmutableSortedSet<T> SysColImmutableSortedSetSetup(T[] values)
+        {
+            var immutableSet = ImmutableSortedSet.Create<T>();
             foreach (var value in values)
             {
                 immutableSet = immutableSet.Add(value);

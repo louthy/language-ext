@@ -33,6 +33,18 @@ namespace LanguageExt.Benchmarks
         }
 
         [Benchmark]
+        public ImmutableSortedSet<T> SysColImmutableSortedSet()
+        {
+            var set = ImmutableSortedSet.Create<T>();
+            foreach (var value in values)
+            {
+                set = set.Add(value);
+            }
+
+            return set;
+        }
+
+        [Benchmark]
         public System.Collections.Generic.HashSet<T> SysColHashSet()
         {
             var set = new System.Collections.Generic.HashSet<T>();
