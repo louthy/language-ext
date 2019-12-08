@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
 using LanguageExt.ClassInstances;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Benchmarks
 {
@@ -26,11 +25,11 @@ namespace LanguageExt.Benchmarks
         {
             values = ValuesGenerator.Default.GenerateUniqueValues<T>(N);
 
-            immutableSet = SysColImmutableHashSetSetup(values);
-            immutableSortedSet = SysColImmutableSortedSetSetup(values);
-            sysHashSet = SysColHashSetSetup(values);
-            hashSet = LangExtHashSetSetup(values);
-            set = LangExtSetSetup(values);
+            immutableSet = ValuesGenerator.SysColImmutableHashSetSetup(values);
+            immutableSortedSet = ValuesGenerator.SysColImmutableSortedSetSetup(values);
+            sysHashSet = ValuesGenerator.SysColHashSetSetup(values);
+            hashSet = ValuesGenerator.LangExtHashSetSetup(values);
+            set = ValuesGenerator.LangExtSetSetup(values);
         }
 
         [Benchmark]
@@ -91,61 +90,6 @@ namespace LanguageExt.Benchmarks
             }
 
             return result;
-        }
-
-        public ImmutableHashSet<T> SysColImmutableHashSetSetup(T[] values)
-        {
-            var immutableSet = ImmutableHashSet.Create<T>();
-            foreach (var value in values)
-            {
-                immutableSet = immutableSet.Add(value);
-            }
-
-            return immutableSet;
-        }
-
-        public ImmutableSortedSet<T> SysColImmutableSortedSetSetup(T[] values)
-        {
-            var immutableSet = ImmutableSortedSet.Create<T>();
-            foreach (var value in values)
-            {
-                immutableSet = immutableSet.Add(value);
-            }
-
-            return immutableSet;
-        }
-
-        public System.Collections.Generic.HashSet<T> SysColHashSetSetup(T[] values)
-        {
-            var hashSet = new System.Collections.Generic.HashSet<T>();
-            foreach (var value in values)
-            {
-                hashSet.Add(value);
-            }
-
-            return hashSet;
-        }
-
-        public HashSet<T> LangExtHashSetSetup(T[] values)
-        {
-            var hashSet = HashSet<T>();
-            foreach (var value in values)
-            {
-                hashSet = hashSet.Add(value);
-            }
-
-            return hashSet;
-        }
-
-        private Set<T> LangExtSetSetup(T[] values)
-        {
-            var set = Set<T>();
-            foreach (var value in values)
-            {
-                set = set.Add(value);
-            }
-
-            return set;
         }
     }
 }

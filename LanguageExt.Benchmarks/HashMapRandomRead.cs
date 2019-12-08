@@ -4,7 +4,6 @@ using System.Linq;
 using BenchmarkDotNet.Attributes;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Benchmarks
 {
@@ -31,11 +30,11 @@ namespace LanguageExt.Benchmarks
             var values = ValuesGenerator.Default.GenerateDictionary<T, T>(N);
             keys = values.Keys.ToArray();
 
-            immutableMap = SysColImmutableDictionarySetup(values);
-            immutableSortedMap = SysColImmutableSortedDictionarySetup(values);
-            dictionary = SysColDictionarySetup(values);
-            hashMap = LangExtHashMapSetup(values);
-            map = LangExtMapSetup(values);
+            immutableMap = ValuesGenerator.SysColImmutableDictionarySetup(values);
+            immutableSortedMap = ValuesGenerator.SysColImmutableSortedDictionarySetup(values);
+            dictionary = ValuesGenerator.SysColDictionarySetup(values);
+            hashMap = ValuesGenerator.LangExtHashMapSetup<T, TEq>(values);
+            map = ValuesGenerator.LangExtMapSetup(values);
         }
 
         [Benchmark]
@@ -96,61 +95,6 @@ namespace LanguageExt.Benchmarks
             }
 
             return result;
-        }
-
-        public ImmutableDictionary<T, T> SysColImmutableDictionarySetup(Dictionary<T, T> values)
-        {
-            var immutableMap = ImmutableDictionary.Create<T, T>();
-            foreach (var kvp in values)
-            {
-                immutableMap = immutableMap.Add(kvp.Key, kvp.Value);
-            }
-
-            return immutableMap;
-        }
-
-        public ImmutableSortedDictionary<T, T> SysColImmutableSortedDictionarySetup(Dictionary<T, T> values)
-        {
-            var immutableMap = ImmutableSortedDictionary.Create<T, T>();
-            foreach (var kvp in values)
-            {
-                immutableMap = immutableMap.Add(kvp.Key, kvp.Value);
-            }
-
-            return immutableMap;
-        }
-
-        public Dictionary<T, T> SysColDictionarySetup(Dictionary<T, T> values)
-        {
-            var dictionary = new Dictionary<T, T>();
-            foreach (var kvp in values)
-            {
-                dictionary.Add(kvp.Key, kvp.Value);
-            }
-
-            return dictionary;
-        }
-
-        public HashMap<TEq, T, T> LangExtHashMapSetup(Dictionary<T, T> values)
-        {
-            var hashMap = HashMap<TEq, T, T>();
-            foreach (var kvp in values)
-            {
-                hashMap = hashMap.Add(kvp.Key, kvp.Value);
-            }
-
-            return hashMap;
-        }
-
-        private Map<T, T> LangExtMapSetup(Dictionary<T, T> values)
-        {
-            var hashMap = Map<T, T>();
-            foreach (var kvp in values)
-            {
-                hashMap = hashMap.Add(kvp.Key, kvp.Value);
-            }
-
-            return hashMap;
         }
     }
 }
