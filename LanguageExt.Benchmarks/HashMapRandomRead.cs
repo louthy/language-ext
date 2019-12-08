@@ -20,6 +20,7 @@ namespace LanguageExt.Benchmarks
         T[] keys;
 
         ImmutableDictionary<T, T> immutableMap;
+        ImmutableSortedDictionary<T, T> immutableSortedMap;
         Dictionary<T, T> dictionary;
         HashMap<TEq, T, T> hashMap;
         Map<T, T> map;
@@ -31,10 +32,12 @@ namespace LanguageExt.Benchmarks
             keys = values.Keys.ToArray();
 
             immutableMap = SysColImmutableDictionarySetup(values);
+            immutableSortedMap = SysColImmutableSortedDictionarySetup(values);
             dictionary = SysColDictionarySetup(values);
             hashMap = LangExtHashMapSetup(values);
             map = LangExtMapSetup(values);
         }
+
         [Benchmark]
         public int SysColImmutableDictionary()
         {
@@ -42,6 +45,18 @@ namespace LanguageExt.Benchmarks
             foreach (var key in keys)
             {
                 result ^= immutableMap[key].GetHashCode();
+            }
+
+            return result;
+        }
+
+        [Benchmark]
+        public int SysColImmutableSortedDictionary()
+        {
+            int result = default;
+            foreach (var key in keys)
+            {
+                result ^= immutableSortedMap[key].GetHashCode();
             }
 
             return result;
@@ -86,6 +101,17 @@ namespace LanguageExt.Benchmarks
         public ImmutableDictionary<T, T> SysColImmutableDictionarySetup(Dictionary<T, T> values)
         {
             var immutableMap = ImmutableDictionary.Create<T, T>();
+            foreach (var kvp in values)
+            {
+                immutableMap = immutableMap.Add(kvp.Key, kvp.Value);
+            }
+
+            return immutableMap;
+        }
+
+        public ImmutableSortedDictionary<T, T> SysColImmutableSortedDictionarySetup(Dictionary<T, T> values)
+        {
+            var immutableMap = ImmutableSortedDictionary.Create<T, T>();
             foreach (var kvp in values)
             {
                 immutableMap = immutableMap.Add(kvp.Key, kvp.Value);

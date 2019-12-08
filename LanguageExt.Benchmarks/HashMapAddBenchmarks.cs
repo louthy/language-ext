@@ -34,6 +34,18 @@ namespace LanguageExt.Benchmarks
         }
 
         [Benchmark]
+        public ImmutableSortedDictionary<T, T> SysColImmutableSortedDictionary()
+        {
+            var map = ImmutableSortedDictionary.Create<T, T>();
+            foreach (var kvp in values)
+            {
+                map = map.Add(kvp.Key, kvp.Value);
+            }
+
+            return map;
+        }
+
+        [Benchmark]
         public Dictionary<T, T> SysColDictionary()
         {
             var map = new Dictionary<T, T>();
