@@ -52,9 +52,10 @@ namespace LanguageExt.Benchmarks
             return hashMap;
         }
 
-        public static Map<T, T> LangExtMapSetup<T>(Dictionary<T, T> values)
+        public static Map<TOrd, T, T> LangExtMapSetup<T, TOrd>(Dictionary<T, T> values)
+            where TOrd : struct, Ord<T>
         {
-            var hashMap = Map<T, T>();
+            var hashMap = Map<TOrd, T, T>();
             foreach (var kvp in values)
             {
                 hashMap = hashMap.Add(kvp.Key, kvp.Value);

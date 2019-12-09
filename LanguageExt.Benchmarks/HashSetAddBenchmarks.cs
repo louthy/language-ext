@@ -1,13 +1,16 @@
 ﻿using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
+using LanguageExt.ClassInstances;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Benchmarks
 {
     [RPlotExporter, RankColumn]
-    [GenericTypeArguments(typeof(int))]
-    [GenericTypeArguments(typeof(string))]
-    public class HashSetAddBenchmarks<T>
+    [GenericTypeArguments(typeof(int), typeof(OrdInt))]
+    [GenericTypeArguments(typeof(string), typeof(OrdString))]
+    public class HashSetAddBenchmarks<T, TOrd>
+        where TOrd : struct, Ord<T>
     {
         [Params(100, 1000, 10000, 100000)]
         public int N;
@@ -57,9 +60,9 @@ namespace LanguageExt.Benchmarks
         }
 
         [Benchmark]
-        public HashSet<T> LangExtHashSet()
+        public HashSet<TOrd, T> LangExtHashSet()
         {
-            var set = HashSet<T>();
+            var set = HashSet<TOrd, T>();
             foreach (var value in values)
             {
                 set = set.Add(value);
@@ -69,9 +72,9 @@ namespace LanguageExt.Benchmarks
         }
 
         [Benchmark]
-        public Set<T> LangExtSet()
+        public Set<TOrd, T> LangExtSet()
         {
-            var set = Set<T>();
+            var set = Set<TOrd, T>();
             foreach (var value in values)
             {
                 set = set.Add(value);

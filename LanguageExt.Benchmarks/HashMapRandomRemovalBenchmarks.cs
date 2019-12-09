@@ -8,10 +8,10 @@ using LanguageExt.TypeClasses;
 namespace LanguageExt.Benchmarks
 {
     [RPlotExporter, RankColumn]
-    [GenericTypeArguments(typeof(int), typeof(EqInt))]
-    [GenericTypeArguments(typeof(string), typeof(EqString))]
-    public class HashMapRandomRemovalBenchmarks<T, TEq>
-        where TEq : struct, Eq<T>
+    [GenericTypeArguments(typeof(int), typeof(OrdInt))]
+    [GenericTypeArguments(typeof(string), typeof(OrdString))]
+    public class HashMapRandomRemovalBenchmarks<T, TOrd>
+        where TOrd : struct, Ord<T>
     {
         [Params(100, 1000, 10000, 100000)]
         public int N;
@@ -21,8 +21,8 @@ namespace LanguageExt.Benchmarks
         ImmutableDictionary<T, T> immutableMap;
         ImmutableSortedDictionary<T, T> immutableSortedMap;
         Dictionary<T, T> dictionary;
-        HashMap<TEq, T, T> hashMap;
-        Map<T, T> map;
+        HashMap<TOrd, T, T> hashMap;
+        Map<TOrd, T, T> map;
 
         [GlobalSetup]
         public void Setup()
@@ -33,8 +33,8 @@ namespace LanguageExt.Benchmarks
             immutableMap = ValuesGenerator.SysColImmutableDictionarySetup(values);
             immutableSortedMap = ValuesGenerator.SysColImmutableSortedDictionarySetup(values);
             dictionary = ValuesGenerator.SysColDictionarySetup(values);
-            hashMap = ValuesGenerator.LangExtHashMapSetup<T, TEq>(values);
-            map = ValuesGenerator.LangExtMapSetup(values);
+            hashMap = ValuesGenerator.LangExtHashMapSetup<T, TOrd>(values);
+            map = ValuesGenerator.LangExtMapSetup<T, TOrd>(values);
         }
 
         [Benchmark]
