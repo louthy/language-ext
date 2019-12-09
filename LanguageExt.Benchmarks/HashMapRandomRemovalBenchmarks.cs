@@ -10,7 +10,7 @@ namespace LanguageExt.Benchmarks
     [RPlotExporter, RankColumn]
     [GenericTypeArguments(typeof(int), typeof(EqInt))]
     [GenericTypeArguments(typeof(string), typeof(EqString))]
-    public class HashMapRandomRemovalBenchmark<T, TEq>
+    public class HashMapRandomRemovalBenchmarks<T, TEq>
         where TEq : struct, Eq<T>
     {
         [Params(100, 1000, 10000, 100000)]

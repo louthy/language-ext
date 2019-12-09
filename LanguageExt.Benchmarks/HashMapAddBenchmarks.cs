@@ -8,7 +8,7 @@ namespace LanguageExt.Benchmarks
     [RPlotExporter, RankColumn]
     [GenericTypeArguments(typeof(int))]
     [GenericTypeArguments(typeof(string))]
-    public class HashMapAddBenchmark<T>
+    public class HashMapAddBenchmarks<T>
     {
         [Params(100, 1000, 10000, 100000)]
         public int N;

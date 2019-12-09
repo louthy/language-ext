@@ -7,7 +7,7 @@ namespace LanguageExt.Benchmarks
     [RPlotExporter, RankColumn]
     [GenericTypeArguments(typeof(int), typeof(EqInt))]
     [GenericTypeArguments(typeof(string), typeof(EqString))]
-    public class HashSetRandomReadBenchmark<T>
+    public class HashSetRandomReadBenchmarks<T>
     {
         [Params(100, 1000, 10000, 100000)]
         public int N;
