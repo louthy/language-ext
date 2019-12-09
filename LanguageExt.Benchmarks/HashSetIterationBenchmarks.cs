@@ -8,7 +8,7 @@ namespace LanguageExt.Benchmarks
     [RPlotExporter, RankColumn]
     [GenericTypeArguments(typeof(int), typeof(OrdInt))]
     [GenericTypeArguments(typeof(string), typeof(OrdString))]
-    public class HashSetContainsBenchmarks<T, TOrd>
+    public class HashSetIterationBenchmarks<T, TOrd>
         where TOrd : struct, Ord<T>
     {
         [Params(100, 1000, 10000, 100000)]
@@ -35,60 +35,70 @@ namespace LanguageExt.Benchmarks
         }
 
         [Benchmark]
-        public bool SysColImmutableHashSet()
+        public T SysColImmutableHashSet()
         {
-            var result = true;
-            foreach (var value in values)
+            T result = default;
+
+            var collection = immutableHashSet;
+            foreach (var item in collection)
             {
-                result &= immutableHashSet.Contains(value);
+                result = item;
             }
 
             return result;
         }
 
         [Benchmark]
-        public bool SysColImmutableSortedSet()
+        public T SysColImmutableSortedSet()
         {
-            var result = true;
-            foreach (var value in values)
+            T result = default;
+
+            var collection = immutableSortedSet;
+            foreach (var item in collection)
             {
-                result &= immutableSortedSet.Contains(value);
+                result = item;
             }
 
             return result;
         }
 
         [Benchmark]
-        public bool SysColHashSet()
+        public T SysColHashSet()
         {
-            var result = true;
-            foreach (var value in values)
+            T result = default;
+
+            var collection = sysHashSet;
+            foreach (var item in collection)
             {
-                result &= sysHashSet.Contains(value);
+                result = item;
             }
 
             return result;
         }
 
         [Benchmark]
-        public bool LangExtHashSet()
+        public T LangExtHashSet()
         {
-            var result = true;
-            foreach (var value in values)
+            T result = default;
+
+            var collection = hashSet;
+            foreach (var item in collection)
             {
-                result &= hashSet.Contains(value);
+                result = item;
             }
 
             return result;
         }
 
         [Benchmark]
-        public bool LangExtSet()
+        public T LangExtSet()
         {
-            var result = true;
-            foreach (var value in values)
+            T result = default;
+
+            var collection = set;
+            foreach (var item in collection)
             {
-                result &= set.Contains(value);
+                result = item;
             }
 
             return result;
