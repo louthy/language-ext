@@ -8,7 +8,7 @@ namespace LanguageExt.Benchmarks
     [RPlotExporter, RankColumn]
     [GenericTypeArguments(typeof(int), typeof(OrdInt))]
     [GenericTypeArguments(typeof(string), typeof(OrdString))]
-    public class HashSetRandomReadBenchmarks<T, TOrd>
+    public class HashSetContainsBenchmarks<T, TOrd>
         where TOrd : struct, Ord<T>
     {
         [Params(100, 1000, 10000, 100000)]

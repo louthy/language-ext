@@ -10,7 +10,7 @@ namespace LanguageExt.Benchmarks
     [RPlotExporter, RankColumn]
     [GenericTypeArguments(typeof(int), typeof(OrdInt))]
     [GenericTypeArguments(typeof(string), typeof(OrdString))]
-    public class HashMapRandomReadBenchmarks<T, TOrd>
+    public class HashMapContainsKeyBenchmarks<T, TOrd>
         where TOrd : struct, Ord<T>
     {
         [Params(100, 1000, 10000, 100000)]
@@ -38,60 +38,60 @@ namespace LanguageExt.Benchmarks
         }
 
         [Benchmark]
-        public int SysColImmutableDictionary()
+        public bool SysColImmutableDictionary()
         {
-            int result = default;
+            var result = true;
             foreach (var key in keys)
             {
-                result ^= immutableMap[key].GetHashCode();
+                result &= immutableMap.ContainsKey(key);
             }
 
             return result;
         }
 
         [Benchmark]
-        public int SysColImmutableSortedDictionary()
+        public bool SysColImmutableSortedDictionary()
         {
-            int result = default;
+            var result = true;
             foreach (var key in keys)
             {
-                result ^= immutableSortedMap[key].GetHashCode();
+                result &= immutableSortedMap.ContainsKey(key);
             }
 
             return result;
         }
 
         [Benchmark]
-        public int SysColDictionary()
+        public bool SysColDictionary()
         {
-            int result = default;
+            var result = true;
             foreach (var key in keys)
             {
-                result ^= dictionary[key].GetHashCode();
+                result &= dictionary.ContainsKey(key);
             }
 
             return result;
         }
 
         [Benchmark]
-        public int LangExtHashMap()
+        public bool LangExtHashMap()
         {
-            int result = default;
+            var result = true;
             foreach (var key in keys)
             {
-                result ^= hashMap[key].GetHashCode();
+                result &= hashMap.ContainsKey(key);
             }
 
             return result;
         }
 
         [Benchmark]
-        public int LangExtMap()
+        public bool LangExtMap()
         {
-            int result = default;
+            var result = true;
             foreach (var key in keys)
             {
-                result ^= map[key].GetHashCode();
+                result &= map.ContainsKey(key);
             }
 
             return result;
