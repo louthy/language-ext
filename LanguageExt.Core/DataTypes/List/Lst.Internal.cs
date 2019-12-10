@@ -136,7 +136,7 @@ namespace LanguageExt
         {
             if (items == null) return this;
             if (Count == 0) return new LstInternal<A>(items);
-            return Wrap(ListModuleM.InsertMany(Root, items, Count));
+            return Wrap(ListModule.InsertMany(Root, items, Count));
         }
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace LanguageExt
         {
             if (items == null) return this;
             if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
-            return Wrap(ListModuleM.InsertMany(Root, items, index));
+            return Wrap(ListModule.InsertMany(Root, items, index));
         }
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace LanguageExt
         {
             if (items == null) return this;
             if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
-            return Wrap(ListModuleM.InsertMany(Root, items, index, pred));
+            return Wrap(ListModule.InsertMany(Root, items, index, pred));
         }
 
         /// <summary>
@@ -501,27 +501,29 @@ namespace LanguageExt
     {
         public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index, Pred<A> pred)
         {
-            var root = node;
-            var subIndex = index;
+            var root = ListItem<A>.Empty;
+
+            var subIndex = 0;
             foreach (var item in items)
             {
                 if (!pred.True(item)) throw new ArgumentOutOfRangeException("item in items");
                 root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
                 subIndex++;
             }
-            return root;
+            return Insert(node, root, index);
         }
 
         public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index)
         {
-            var root = node;
-            var subIndex = index;
+            var root = ListItem<A>.Empty;
+
+            var subIndex = 0;
             foreach (var item in items)
             {
                 root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
                 subIndex++;
             }
-            return root;
+            return Insert(node, root, index);
         }
 
         public static ListItem<A> Insert<A>(ListItem<A> node, ListItem<A> insertNode, int index)
@@ -535,8 +537,12 @@ namespace LanguageExt
                 insertNode.Left = node.Left;
                 insertNode = Balance(insertNode);
 
+                //var insertedLeft = Balance(Make(insertNode.Key, node.Left, ListItem<A>.Empty));
+
                 node.Left = insertNode;
                 node = Balance(node);
+
+                //var newThis = Balance(Make(node.Key, insertedLeft, node.Right)); 
 
                 return node;
             }
@@ -648,6 +654,33 @@ namespace LanguageExt
             node.IsEmpty
                 ? ListItem<U>.Empty
                 : new ListItem<U>(node.Height, node.Count, Map(node.Left, f), f(node.Key), Map(node.Right, f));
+
+        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index, Pred<A> pred)
+        {
+            var root = ListItem<A>.Empty;
+
+            var subIndex = 0;
+            foreach (var item in items)
+            {
+                if (!pred.True(item)) throw new ArgumentOutOfRangeException("item in items");
+                root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
+                subIndex++;
+            }
+            return Insert(node, root, index);
+        }
+
+        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index)
+        {
+            var root = ListItem<A>.Empty;
+
+            var subIndex = 0;
+            foreach (var item in items)
+            {
+                root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
+                subIndex++;
+            }
+            return Insert(node, root, index);
+        }
 
         public static ListItem<T> Insert<T>(ListItem<T> node, T key, int index)
         {
