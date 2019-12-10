@@ -28,7 +28,7 @@
         <OutputType>library</OutputType>
         <AssemblyVersion>3.0.0.0</AssemblyVersion>
         <FileVersion>3.0.0.0</FileVersion>
-        <LangVersion>7.3</LangVersion>
+        <LangVersion>8.0</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

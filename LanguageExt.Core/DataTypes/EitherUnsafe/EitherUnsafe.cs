@@ -171,6 +171,18 @@ namespace LanguageExt
             State == EitherStatus.IsBottom;
 
         /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public EitherCase<L, R> Case =>
+            State switch
+            {
+                EitherStatus.IsRight => RightCase<L, R>.New(right),
+                EitherStatus.IsLeft => LeftCase<L, R>.New(left),
+                _ => null
+            };
+
+        /// <summary>
         /// Implicit conversion operator from R to EitherUnsafe R L
         /// </summary>
         /// <param name="value">Value, must not be null.</param>

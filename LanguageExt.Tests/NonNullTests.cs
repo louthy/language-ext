@@ -41,14 +41,14 @@ namespace LanguageExt.Tests
             Assert.Throws<ValueIsNullException>(
                 () =>
                 {
-                    SomeValue<string> str = null;
+                    Some<string> str = null;
                 });
         }
 
         [Fact]
         public void SomeCastsToOptionTest()
         {
-            SomeValue<string> some = "Hello";
+            Some<string> some = "Hello";
             Option<string> opt = some;
 
             Assert.True(opt.IsSome && opt.IfNone("") == "Hello");
@@ -60,7 +60,7 @@ namespace LanguageExt.Tests
                 ? Some("Hello")
                 : None;
 
-        void Foo(SomeValue<string> value )
+        void Foo(Some<string> value )
         {
             if (value.Value == null)
             {
@@ -70,7 +70,7 @@ namespace LanguageExt.Tests
             string doesItImplicitlyCastBackToAString = value;
         }
 
-        void Greet(SomeValue<string> arg)
+        void Greet(Some<string> arg)
         {
             Console.WriteLine(arg);
         }
@@ -78,7 +78,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void AssignToSomeAfterDeclaration()
         {
-            SomeValue<string> val;
+            Some<string> val;
             val = "Hello";
             Assert.True(val.Value != null);
             Greet(val);
@@ -132,8 +132,8 @@ namespace LanguageExt.Tests
 
     class SomeClass
     {
-        public SomeValue<string> SomeValue = "Hello";
-        public SomeValue<string> SomeOtherValue;
+        public Some<string> SomeValue = "Hello";
+        public Some<string> SomeOtherValue;
     }
 
     #pragma warning disable CS0649

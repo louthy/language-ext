@@ -19,6 +19,7 @@ namespace LanguageExt
     /// <typeparam name="A">List item type</typeparam>
     [Serializable]
     internal class SetInternal<OrdA, A> :
+        IEnumerable<A>,
         IEquatable<SetInternal<OrdA, A>>
         where OrdA : struct, Ord<A>
     {
@@ -56,7 +57,7 @@ namespace LanguageExt
             return hashCode = hash(this.AsEnumerable());
         }
 
-        public Seq<A> AsEnumerable()
+        public IEnumerable<A> AsEnumerable()
         {
             IEnumerable<A> Yield()
             {
@@ -66,7 +67,7 @@ namespace LanguageExt
                     yield return iter.Current;
                 }
             }
-            return Seq(Yield());
+            return Yield();
         }
 
         public IEnumerable<A> Skip(int amount)
@@ -391,7 +392,7 @@ namespace LanguageExt
         /// <returns>IEnumerator T</returns>
         [Pure]
         public IEnumerator<A> GetEnumerator() =>
-            new SetModule.SetEnumerator<A>(set,false,0);
+            new SetModule.SetEnumerator<A>(set, false, 0);
 
         /// <summary>
         /// Removes an item from the set (if it exists)
@@ -787,6 +788,9 @@ namespace LanguageExt
             }
             return 0;
         }
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+            new SetModule.SetEnumerator<A>(set, false, 0);
     }
 
     internal class SetItem<K>

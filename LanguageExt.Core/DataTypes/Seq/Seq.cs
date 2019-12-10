@@ -69,6 +69,17 @@ namespace LanguageExt
             this.hash = 0;
         }
 
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            IsEmpty 
+                ? EmptyCase<A>.Default
+                : Tail.IsEmpty 
+                    ? HeadCase<A>.New(Head)
+                    : HeadTailCase<A>.New(Head, Tail);
+
         public void Deconstruct(out A head, out Seq<A> tail)
         {
             head = Head;

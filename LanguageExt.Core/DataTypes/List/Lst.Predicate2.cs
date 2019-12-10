@@ -59,6 +59,17 @@ namespace LanguageExt
         ListItem<A> Root =>
             Value.Root;
 
+        [Pure]
+        public bool IsEmpty =>
+            Count == 0;
+
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            Seq(Value).Case;
+
         Lst<PredList, PredItem, A> Wrap(LstInternal<A> list)=>
             new Lst<PredList, PredItem, A>(list);
 

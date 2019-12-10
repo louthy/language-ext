@@ -12,6 +12,23 @@ namespace LanguageExt
 {
     public static class TaskExtensions
     {
+        /// <summary>
+        /// Use for pattern-matching the case of the target
+        /// </summary>
+        [Pure]
+        public static async Task<TryCase<A>> Case<A>(this Task<A> ma)
+        {
+            if (ma == null) return FailCase<A>.New(Common.Error.Bottom);
+            try
+            {
+                return SuccCase<A>.New(await ma);
+            }
+            catch(Exception ex)
+            {
+                return FailCase<A>.New(ex);
+            }
+        }
+
         [Pure]
         public static Task<A> AsFailedTask<A>(this Exception ex)
         {

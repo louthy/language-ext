@@ -48,6 +48,13 @@ namespace LanguageExt
         public readonly bool StepIsAscending;
 
         /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            Prelude.Seq(this).Case;
+
+        /// <summary>
         /// Construct a new range
         /// </summary>
         /// <param name="from">The minimum value in the range</param>
@@ -79,9 +86,7 @@ namespace LanguageExt
             From = from;
             To = to;
             Step = step;
-            StepIsAscending = M.Compare(
-                                  M.Plus(M.Empty(), step),
-                                  M.Empty()) >= 0;
+            StepIsAscending = M.Compare(step, M.Empty()) >= 0;
         }
 
         /// <summary>

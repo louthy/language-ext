@@ -121,7 +121,15 @@ namespace LanguageExt
         /// Index accessor
         /// </summary>
         [Pure]
-        public A this[int index] => Value[index];
+        public A this[int index] => 
+            Value[index];
+
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            Seq.FromArray(Value).Case;
 
         /// <summary>
         /// Number of items in the array

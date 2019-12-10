@@ -1,20 +1,47 @@
 ﻿namespace LanguageExt
 {
+    /// <summary>
+    /// Returned by the `This` property in all `Option*` types.  It facilitates
+    /// the C# pattern-maching functionality.
+    /// </summary>
     public interface OptionCase<A>
     { }
 
-    public class Some<A> : OptionCase<A>
+    /// <summary>
+    /// Some case
+    /// 
+    /// Returned by the `This` property in all `Option*` types.  It facilitates
+    /// the C# pattern-maching functionality.
+    /// </summary>
+    public sealed class SomeCase<A> : OptionCase<A>
     {
-        readonly A Value;
-        internal Some(A value) => Value = value;
-        public void Deconstruct(out A Value) => Value = this.Value;
-        public static implicit operator A(Some<A> ma) => ma.Value;
-        public static implicit operator Some<A>(A value) => new Some<A>(value);
+        public readonly A Value;
+
+        internal SomeCase(A value) => 
+            Value = value;
+
+        public void Deconstruct(out A Value) => 
+            Value = this.Value;
+
+        internal static OptionCase<A> New(A value) => 
+            new SomeCase<A>(value);
+
+        public static implicit operator A(SomeCase<A> ma) => 
+            ma.Value;
+        
+        public static implicit operator SomeCase<A>(A value) => 
+            new SomeCase<A>(value);
     }
 
-    public class None<A> : OptionCase<A>
+    /// <summary>
+    /// None case
+    /// 
+    /// Returned by the `This` property in all `Option*` types and `TryOption*` types.  
+    /// It facilitates the C# pattern-maching functionality.
+    /// </summary>
+    public sealed class NoneCase<A> : OptionCase<A>, TryCase<A>
     {
-        public static OptionCase<A> Default = new None<A>();
-        internal None() { }
+        internal static NoneCase<A> Default = new NoneCase<A>();
+        internal NoneCase() { }
     }
 }

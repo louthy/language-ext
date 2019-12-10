@@ -82,6 +82,25 @@ namespace LanguageExt
             Data.Map(x => x.State == EitherStatus.IsBottom);
 
         /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public Task<EitherCase<L, R>> Case =>
+            GetCase();
+
+        [Pure]
+        async Task<EitherCase<L, R>> GetCase()
+        {
+            var data = await Data;
+            return data.State switch
+            {
+                EitherStatus.IsRight => RightCase<L, R>.New(data.Right),
+                EitherStatus.IsLeft  => LeftCase<L, R>.New(data.Left),
+                _                    => null
+            };
+        }
+
+        /// <summary>
         /// Implicit conversion operator from R to Either R L
         /// </summary>
         /// <param name="value">Value, must not be null.</param>

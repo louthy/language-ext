@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -62,6 +63,13 @@ namespace LanguageExt
 
         static Set<OrdB, B> Wrap<OrdB, B>(SetInternal<OrdB, B> set) where OrdB : struct, Ord<B>  =>
             new Set<OrdB, B>(set);
+
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            Seq(this).Case;
 
         /// <summary>
         /// Number of items in the set

@@ -16,6 +16,19 @@ using LanguageExt.Common;
 public static class TryAsyncExtensions
 {
     /// <summary>
+    /// Use for pattern-matching the case of the target
+    /// </summary>
+    [Pure]
+    public static async Task<TryCase<A>> Case<A>(this TryAsync<A> ma)
+    {
+        if (ma == null) return FailCase<A>.New(Error.Bottom);
+        var res = await ma.Try();
+        return res.IsSuccess
+            ? SuccCase<A>.New(res.Value)
+            : FailCase<A>.New(res.Exception);
+    }
+
+    /// <summary>
     /// Memoize the computation so that it's only run once
     /// </summary>
     public static TryAsync<A> Memo<A>(this TryAsync<A> ma)

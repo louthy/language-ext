@@ -46,6 +46,17 @@ namespace LanguageExt
         ListItem<A> Root =>
             Value.Root ?? ListItem<A>.Empty;
 
+        [Pure]
+        public bool IsEmpty => 
+            Count == 0;
+
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            Seq(Value).Case;
+
         /// <summary>
         /// Head lens
         /// </summary>
@@ -417,5 +428,6 @@ namespace LanguageExt
         /// </summary>
         public static implicit operator Lst<A>(SeqEmpty _) =>
             Empty;
+
     }
 }

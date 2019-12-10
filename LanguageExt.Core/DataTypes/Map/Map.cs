@@ -51,6 +51,13 @@ namespace LanguageExt
             value ?? MapInternal<OrdDefault<K>, K, V>.Empty;
 
         /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<(K Key, V Value)> Case =>
+            Seq<(K Key, V Value)>(Value).Case;
+
+        /// <summary>
         /// Item at index lens
         /// </summary>
         [Pure]

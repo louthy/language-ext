@@ -43,6 +43,13 @@ namespace LanguageExt
             return this;
         }
 
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            Seq(Value).Case;
+
         [Pure]
         public int Count =>
             Value.Count;

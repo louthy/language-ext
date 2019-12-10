@@ -107,16 +107,16 @@ namespace LanguageExt
         /// Reference version of option for use in pattern-matching
         /// </summary>
         [Pure]
-        public Task<OptionCase<A>> This =>
-            GetThis();
+        public Task<OptionCase<A>> Case =>
+            GetCase();
 
         [Pure]
-        async Task<OptionCase<A>> GetThis()
+        async Task<OptionCase<A>> GetCase()
         {
             var (isSome, value) = await data;
             return isSome
-                ? new Some<A>(value)
-                : None<A>.Default;
+                ? SomeCase<A>.New(value)
+                : NoneCase<A>.Default;
         }
 
         /// <summary>

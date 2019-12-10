@@ -15,12 +15,25 @@ using LanguageExt.Common;
 public static class TryExtensions
 {
     /// <summary>
+    /// Use for pattern-matching the case of the target
+    /// </summary>
+    [Pure]
+    public static TryCase<A> Case<A>(this Try<A> ma)
+    {
+        if (ma == null) return FailCase<A>.New(Error.Bottom);
+        var res = ma.Try();
+        return res.IsSuccess
+            ? SuccCase<A>.New(res.Value)
+            : FailCase<A>.New(res.Exception);
+    }
+
+    /// <summary>
     /// Memoize the computation so that it's only run once
     /// </summary>
     public static Try<A> Memo<A>(this Try<A> ma)
     {
         bool run = false;
-        Result<A> result = new Result<A>();
+        var result = new Result<A>();
         return (() =>
         {
             if (run) return result;

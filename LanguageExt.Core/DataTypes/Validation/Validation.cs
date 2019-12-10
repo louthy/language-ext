@@ -147,6 +147,18 @@ namespace LanguageExt
                 : Fail(value);
 
         /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public ValidationCase<FAIL, SUCCESS> Case =>
+            state switch
+            {
+                Validation.StateType.Success => SuccCase<FAIL, SUCCESS>.New(success),
+                Validation.StateType.Fail    => FailCase<FAIL, SUCCESS>.New(fail),
+                _                            => null
+            };
+
+        /// <summary>
         /// Success constructor
         /// </summary>
         [Pure]
