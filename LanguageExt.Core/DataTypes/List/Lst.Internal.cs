@@ -136,7 +136,7 @@ namespace LanguageExt
         {
             if (items == null) return this;
             if (Count == 0) return new LstInternal<A>(items);
-            return Wrap(ListModule.InsertMany(Root, items, Count));
+            return Wrap(ListModule.AddRange(Root, items));
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public LstInternal<A> Clear() =>
-            LstInternal<A>.Empty;
+            Empty;
 
         /// <summary>
         /// Get enumerator
@@ -659,21 +659,52 @@ namespace LanguageExt
                 ? ListItem<U>.Empty
                 : new ListItem<U>(node.Height, node.Count, Map(node.Left, f), f(node.Key), Map(node.Right, f));
 
-        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index, Pred<A> pred) =>
-            Insert(node, ListModuleM.BuildSubTree(items, pred), index);
 
-        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index) =>
-            Insert(node, ListModuleM.BuildSubTree(items), index);
+        public static ListItem<A> AddRange<A>(ListItem<A> node, IEnumerable<A> items, Pred<A> pred) =>
+            AddRange(node, ListModuleM.BuildSubTree(items, pred));
 
-        public static ListItem<T> Insert<T>(ListItem<T> node, T key, int index)
+        public static ListItem<A> AddRange<A>(ListItem<A> node, IEnumerable<A> items) =>
+            AddRange(node, ListModuleM.BuildSubTree(items));
+
+        static ListItem<A> AddRange<A>(ListItem<A> node, ListItem<A> insertNode) =>
+            node.IsEmpty
+                ? insertNode
+                : Balance(Make(node.Key, node.Left, AddRange(node.Right, insertNode)));
+
+        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index, Pred<A> pred)
+        {
+            var root = node;
+            var subIndex = index;
+            foreach(var item in items)
+            {
+                if (!pred.True(item)) throw new ArgumentOutOfRangeException("item in items");
+                root = Insert(root, item, subIndex);
+                subIndex++;
+            }
+            return root;
+        }
+
+        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index)
+        {
+            var root = node;
+            var subIndex = index;
+            foreach (var item in items)
+            {
+                root = Insert(root, item, subIndex);
+                subIndex++;
+            }
+            return root;
+        }
+
+        public static ListItem<A> Insert<A>(ListItem<A> node, A key, int index)
         {
             if (node.IsEmpty)
             {
-                return new ListItem<T>(1, 1, ListItem<T>.Empty, key, ListItem<T>.Empty);
+                return new ListItem<A>(1, 1, ListItem<A>.Empty, key, ListItem<A>.Empty);
             }
             else if (index == node.Left.Count)
             {
-                var insertedLeft = Balance(Make(key, node.Left, ListItem<T>.Empty));
+                var insertedLeft = Balance(Make(key, node.Left, ListItem<A>.Empty));
                 var newThis = Balance(Make(node.Key, insertedLeft, node.Right));
                 return newThis;
             }
@@ -687,29 +718,7 @@ namespace LanguageExt
             }
         }
 
-        public static ListItem<T> Insert<T>(ListItem<T> node, ListItem<T> insertNode, int index)
-        {
-            if (node.IsEmpty)
-            {
-                return insertNode;
-            }
-            else if (index == node.Left.Count)
-            {
-                var insertedLeft = Balance(Make(insertNode.Key, node.Left, ListItem<T>.Empty));
-                var newThis = Balance(Make(node.Key, insertedLeft, node.Right));
-                return newThis;
-            }
-            else if (index < node.Left.Count)
-            {
-                return Balance(Make(node.Key, Insert(node.Left, insertNode, index), node.Right));
-            }
-            else
-            {
-                return Balance(Make(node.Key, node.Left, Insert(node.Right, insertNode, index - node.Left.Count - 1)));
-            }
-        }
-
-        public static ListItem<T> SetItem<T>(ListItem<T> node, T key, int index)
+        public static ListItem<A> SetItem<A>(ListItem<A> node, A key, int index)
         {
             if (node.IsEmpty)
             {
@@ -718,15 +727,15 @@ namespace LanguageExt
 
             if (index == node.Left.Count)
             {
-                return new ListItem<T>(node.Height, node.Count, node.Left, key, node.Right);
+                return new ListItem<A>(node.Height, node.Count, node.Left, key, node.Right);
             }
             else if (index < node.Left.Count)
             {
-                return new ListItem<T>(node.Height, node.Count, SetItem(node.Left, key, index), node.Key, node.Right);
+                return new ListItem<A>(node.Height, node.Count, SetItem(node.Left, key, index), node.Key, node.Right);
             }
             else
             {
-                return new ListItem<T>(node.Height, node.Count, node.Left, node.Key, SetItem(node.Right, key, index - node.Left.Count - 1));
+                return new ListItem<A>(node.Height, node.Count, node.Left, node.Key, SetItem(node.Right, key, index - node.Left.Count - 1));
             }
         }
 

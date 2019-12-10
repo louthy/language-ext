@@ -83,8 +83,36 @@ class Program
         Debug.Assert(a == e);
     }
 
+    static void InsertRangeIssue()
+    {
+        var l1 = LanguageExt.Prelude.List<int>(1, 2, 3);
+        var l2 = LanguageExt.Prelude.List<int>(4, 5, 6);
+
+        var a = l1.InsertRange(0, l2);
+        var b = l1.InsertRange(1, l2);
+        var c = l1.InsertRange(2, l2);
+        var d = l1.InsertRange(3, l2);
+        var e = l1.InsertRange(4, l2);
+    }
+
+    static void Matching()
+    {
+        var seq = Seq(1, 2, 3, 4, 5);
+    }
+
+    static int Sum(Seq<int> seq) =>
+        seq.Case switch
+        {
+            HeadCase<int>(var x)             => x,
+            HeadTailCase<int>(var x, var xs) => x + Sum(xs),
+            _                                => 0             // Empty
+        };
+
+
     static void Main(string[] args)
     {
+        InsertRangeIssue();
+        Matching();
         Issue675();
         Issue663();
 
