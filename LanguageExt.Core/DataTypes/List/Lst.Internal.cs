@@ -35,7 +35,6 @@ namespace LanguageExt
         internal LstInternal(IEnumerable<A> items, Pred<A> pred)
         {
             hashCode = 0;
-            root = ListItem<A>.Empty;
             if (items is Lst<A>)
             {
                 var lst = (Lst<A>)items;
@@ -43,6 +42,7 @@ namespace LanguageExt
             }
             else
             {
+                root = new ListItem<A>(0, 0, null, default, null);
                 root = ListModuleM.InsertMany(root, items, 0, pred);
             }
         }
@@ -50,7 +50,6 @@ namespace LanguageExt
         internal LstInternal(IEnumerable<A> items)
         {
             hashCode = 0;
-            root = ListItem<A>.Empty;
             if (items is Lst<A>)
             {
                 var lst = (Lst<A>)items;
@@ -58,6 +57,7 @@ namespace LanguageExt
             }
             else
             {
+                root = new ListItem<A>(0, 0, null, default, null);
                 root = ListModuleM.InsertMany(root, items, 0);
             }
         }
