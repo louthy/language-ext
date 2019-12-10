@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LanguageExt.Benchmarks
 {
-    internal class ValuesGenerator
+    internal partial class ValuesGenerator
     {
         public static readonly ValuesGenerator Default = new ValuesGenerator(12345);
 
