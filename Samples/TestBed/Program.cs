@@ -66,8 +66,26 @@ class Program
         TestEqualityComparer(r1, r2);   // True
     }
 
+    static void Issue675()
+    {
+        var l1 = LanguageExt.Prelude.List<int>(1, 2, 3);
+        var l2 = LanguageExt.Prelude.List<int>(4, 5, 6);
+
+        var a = l1.AddRange(l2); // Count 6, [1,2,3,4,5,6]
+        var b = l1.AddRange(l2); // Count 5, [1,2,4,5,6]
+        var c = l1.AddRange(l2); // Count 8, [1,2,4,5,6,4,5,6]
+        var d = l1.AddRange(l2); // Count 7, [1,2,4,5,4,5,6]
+        var e = l1.AddRange(l2); // Count 6, [1,2,4,4,5,6]
+
+        Debug.Assert(a == b);
+        Debug.Assert(a == c);
+        Debug.Assert(a == d);
+        Debug.Assert(a == e);
+    }
+
     static void Main(string[] args)
     {
+        Issue675();
         Issue663();
 
         Shape<TInt, int> sw = null;

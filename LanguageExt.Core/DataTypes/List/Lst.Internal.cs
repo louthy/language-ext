@@ -501,29 +501,27 @@ namespace LanguageExt
     {
         public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index, Pred<A> pred)
         {
-            var root = ListItem<A>.Empty;
-
-            var subIndex = 0;
+            var root = node;
+            var subIndex = index;
             foreach (var item in items)
             {
                 if (!pred.True(item)) throw new ArgumentOutOfRangeException("item in items");
                 root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
                 subIndex++;
             }
-            return Insert(node, root, index);
+            return root;
         }
 
         public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index)
         {
-            var root = ListItem<A>.Empty;
-
-            var subIndex = 0;
+            var root = node;
+            var subIndex = index;
             foreach (var item in items)
             {
                 root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
                 subIndex++;
             }
-            return Insert(node, root, index);
+            return root;
         }
 
         public static ListItem<A> Insert<A>(ListItem<A> node, ListItem<A> insertNode, int index)
@@ -537,12 +535,8 @@ namespace LanguageExt
                 insertNode.Left = node.Left;
                 insertNode = Balance(insertNode);
 
-                //var insertedLeft = Balance(Make(insertNode.Key, node.Left, ListItem<A>.Empty));
-
                 node.Left = insertNode;
                 node = Balance(node);
-
-                //var newThis = Balance(Make(node.Key, insertedLeft, node.Right)); 
 
                 return node;
             }
