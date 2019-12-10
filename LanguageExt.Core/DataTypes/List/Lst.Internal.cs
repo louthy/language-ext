@@ -499,9 +499,15 @@ namespace LanguageExt
 
     internal static class ListModuleM
     {
-        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index, Pred<A> pred)
+        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index, Pred<A> pred) =>
+            Insert(node, BuildSubTree(items, pred), index);
+
+        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index) =>
+            Insert(node, BuildSubTree(items), index);
+
+        public static ListItem<A> BuildSubTree<A>(IEnumerable<A> items, Pred<A> pred)
         {
-            var root = ListItem<A>.Empty;
+            var root = new ListItem<A>(0, 0, null, default, null);
 
             var subIndex = 0;
             foreach (var item in items)
@@ -510,12 +516,13 @@ namespace LanguageExt
                 root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
                 subIndex++;
             }
-            return Insert(node, root, index);
+
+            return root;
         }
 
-        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index)
+        public static ListItem<A> BuildSubTree<A>(IEnumerable<A> items)
         {
-            var root = ListItem<A>.Empty;
+            var root = new ListItem<A>(0, 0, null, default, null);
 
             var subIndex = 0;
             foreach (var item in items)
@@ -523,7 +530,8 @@ namespace LanguageExt
                 root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
                 subIndex++;
             }
-            return Insert(node, root, index);
+
+            return root;
         }
 
         public static ListItem<A> Insert<A>(ListItem<A> node, ListItem<A> insertNode, int index)
@@ -537,12 +545,8 @@ namespace LanguageExt
                 insertNode.Left = node.Left;
                 insertNode = Balance(insertNode);
 
-                //var insertedLeft = Balance(Make(insertNode.Key, node.Left, ListItem<A>.Empty));
-
                 node.Left = insertNode;
                 node = Balance(node);
-
-                //var newThis = Balance(Make(node.Key, insertedLeft, node.Right)); 
 
                 return node;
             }
@@ -655,32 +659,11 @@ namespace LanguageExt
                 ? ListItem<U>.Empty
                 : new ListItem<U>(node.Height, node.Count, Map(node.Left, f), f(node.Key), Map(node.Right, f));
 
-        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index, Pred<A> pred)
-        {
-            var root = ListItem<A>.Empty;
+        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index, Pred<A> pred) =>
+            Insert(node, ListModuleM.BuildSubTree(items, pred), index);
 
-            var subIndex = 0;
-            foreach (var item in items)
-            {
-                if (!pred.True(item)) throw new ArgumentOutOfRangeException("item in items");
-                root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
-                subIndex++;
-            }
-            return Insert(node, root, index);
-        }
-
-        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index)
-        {
-            var root = ListItem<A>.Empty;
-
-            var subIndex = 0;
-            foreach (var item in items)
-            {
-                root = Insert(root, new ListItem<A>(1, 1, ListItem<A>.Empty, item, ListItem<A>.Empty), subIndex);
-                subIndex++;
-            }
-            return Insert(node, root, index);
-        }
+        public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index) =>
+            Insert(node, ListModuleM.BuildSubTree(items), index);
 
         public static ListItem<T> Insert<T>(ListItem<T> node, T key, int index)
         {
