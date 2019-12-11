@@ -818,15 +818,50 @@ public static class TryAsyncExtensions
         self.Filter(pred);
 
     [Pure]
-    public static TryAsync<B> Bind<A, B>(this TryAsync<A> self, Func<A, TryAsync<B>> binder) =>
-        default(MTryAsync<A>).Bind<MTryAsync<B>, TryAsync<B>, B>(self, binder);
+    public static TryAsync<B> Bind<A, B>(this TryAsync<A> ma, Func<A, TryAsync<B>> f) => Memo(async () =>
+    {
+        try
+        {
+            var ra = await ma();
+            if(ra.IsSuccess)
+            {
+                return await f(ra.Value)();
+            }
+            else
+            {
+                return new Result<B>(ra.Exception);
+            }
+        }
+        catch(Exception e)
+        {
+            return new Result<B>(e);
+        }
+    });
 
     [Pure]
-    public static TryAsync<B> BindAsync<A, B>(this TryAsync<A> self, Func<A, Task<TryAsync<B>>> binder) =>
-        default(MTryAsync<A>).BindAsync<MTryAsync<B>, TryAsync<B>, B>(self, binder);
+    public static TryAsync<B> BindAsync<A, B>(this TryAsync<A> ma, Func<A, Task<TryAsync<B>>> f) => Memo(async () =>
+    {
+        try
+        {
+            var ra = await ma();
+            if (ra.IsSuccess)
+            {
+                return await (await f(ra.Value))();
+            }
+            else
+            {
+                return new Result<B>(ra.Exception);
+            }
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return new Result<B>(e);
+        }
+    });
 
     [Pure]
-    public static TryAsync<R> BiBind<A, R>(this TryAsync<A> self, Func<A, TryAsync<R>> Succ, Func<Exception, TryAsync<R>> Fail) => Memo<R>(async () =>
+    public static TryAsync<R> BiBind<A, R>(this TryAsync<A> self, Func<A, TryAsync<R>> Succ, Func<Exception, TryAsync<R>> Fail) => Memo(async () =>
     {
         var res = await self.Try();
         return res.IsFaulted
@@ -880,39 +915,139 @@ public static class TryAsyncExtensions
 
     [Pure]
     public static TryAsync<C> SelectMany<A, B, C>(
-        this TryAsync<A> self,
+        this TryAsync<A> ma,
         Func<A, TryAsync<B>> bind,
-        Func<A, B, C> project) =>
-            default(MTryAsync<A>).Bind<MTryAsync<C>, TryAsync<C>, C>(self, a =>
-            default(MTryAsync<B>).Bind<MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
-            default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
+        Func<A, B, C> project) => Memo(async () =>
+        {
+            try
+            {
+                var ra = await ma();
+                if (ra.IsSuccess)
+                {
+                    var mb = bind(ra.Value);
+                    var rb = await mb();
+
+                    if (rb.IsSuccess)
+                    {
+                        return new Result<C>(project(ra.Value, rb.Value));
+                    }
+                    else
+                    {
+                        return new Result<C>(rb.Exception);
+                    }
+                }
+                else
+                {
+                    return new Result<C>(ra.Exception);
+                }
+            }
+            catch (Exception e)
+            {
+                return new Result<C>(e);
+            }
+        });
 
     [Pure]
     public static TryAsync<C> SelectMany<A, B, C>(
-        this TryAsync<A> self,
+        this TryAsync<A> ma,
         Func<A, Task<TryAsync<B>>> bind,
-        Func<A, B, C> project) =>
-            default(MTryAsync<A>).BindAsync<MTryAsync<C>, TryAsync<C>, C>(self, async a =>
-            default(MTryAsync<B>).Bind<MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
-            default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
+        Func<A, B, C> project) => Memo(async () =>
+        {
+            try
+            {
+                var ra = await ma();
+                if (ra.IsSuccess)
+                {
+                    var mb = await bind(ra.Value);
+                    var rb = await mb();
+
+                    if (rb.IsSuccess)
+                    {
+                        return new Result<C>(project(ra.Value, rb.Value));
+                    }
+                    else
+                    {
+                        return new Result<C>(rb.Exception);
+                    }
+                }
+                else
+                {
+                    return new Result<C>(ra.Exception);
+                }
+            }
+            catch (Exception e)
+            {
+                return new Result<C>(e);
+            }
+        });
 
     [Pure]
     public static TryAsync<C> SelectMany<A, B, C>(
-        this TryAsync<A> self,
+        this TryAsync<A> ma,
         Func<A, Task<TryAsync<B>>> bind,
-        Func<A, B, Task<C>> project) =>
-            default(MTryAsync<A>).BindAsync<MTryAsync<C>, TryAsync<C>, C>(self, async a =>
-            default(MTryAsync<B>).Bind<MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
-            default(MTryAsync<C>).ReturnAsync(project(a, b))));
+        Func<A, B, Task<C>> project) => Memo(async () =>
+        {
+            try
+            {
+                var ra = await ma();
+                if (ra.IsSuccess)
+                {
+                    var mb = await bind(ra.Value);
+                    var rb = await mb();
+
+                    if (rb.IsSuccess)
+                    {
+                        return new Result<C>(await project(ra.Value, rb.Value));
+                    }
+                    else
+                    {
+                        return new Result<C>(rb.Exception);
+                    }
+                }
+                else
+                {
+                    return new Result<C>(ra.Exception);
+                }
+            }
+            catch (Exception e)
+            {
+                return new Result<C>(e);
+            }
+        });
 
     [Pure]
     public static TryAsync<C> SelectMany<A, B, C>(
-        this TryAsync<A> self,
+        this TryAsync<A> ma,
         Func<A, TryAsync<B>> bind,
-        Func<A, B, Task<C>> project) =>
-            default(MTryAsync<A>).Bind<MTryAsync<C>, TryAsync<C>, C>(self, a =>
-            default(MTryAsync<B>).Bind<MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
-            default(MTryAsync<C>).ReturnAsync(project(a, b))));
+        Func<A, B, Task<C>> project) => Memo(async () =>
+        {
+            try
+            {
+                var ra = await ma();
+                if (ra.IsSuccess)
+                {
+                    var mb = bind(ra.Value);
+                    var rb = await mb();
+
+                    if (rb.IsSuccess)
+                    {
+                        return new Result<C>(await project(ra.Value, rb.Value));
+                    }
+                    else
+                    {
+                        return new Result<C>(rb.Exception);
+                    }
+                }
+                else
+                {
+                    return new Result<C>(ra.Exception);
+                }
+            }
+            catch (Exception e)
+            {
+                return new Result<C>(e);
+            }
+        });
 
     [Pure]
     public static TryAsync<V> Join<A, U, K, V>(

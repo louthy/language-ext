@@ -1813,8 +1813,30 @@ public static class TryOptionAsyncExtensions
         self.Filter(pred);
 
     [Pure]
-    public static TryOptionAsync<B> Bind<A, B>(this TryOptionAsync<A> self, Func<A, TryOptionAsync<B>> binder) =>
-        default(MTryOptionAsync<A>).Bind<MTryOptionAsync<B>, TryOptionAsync<B>, B>(self, binder);
+    public static TryOptionAsync<B> Bind<A, B>(this TryOptionAsync<A> ma, Func<A, TryOptionAsync<B>> f) => Memo(async () =>
+    {
+        try
+        {
+            var ra = await ma();
+            if (ra.IsSome)
+            {
+                return await f(ra.Value.Value)();
+            }
+            else if(ra.IsNone)
+            {
+                return OptionalResult<B>.None;
+            }
+            else
+            {
+                return new OptionalResult<B>(ra.Exception);
+            }
+        }
+        catch (Exception e)
+        {
+            return new OptionalResult<B>(e);
+        }
+
+    });
 
     [Pure]
     public static TryOptionAsync<B> BindAsync<A, B>(this TryOptionAsync<A> self, Func<A, Task<TryOptionAsync<B>>> binder) =>
@@ -1875,39 +1897,171 @@ public static class TryOptionAsyncExtensions
 
     [Pure]
     public static TryOptionAsync<C> SelectMany<A, B, C>(
-        this TryOptionAsync<A> self,
+        this TryOptionAsync<A> ma,
         Func<A, TryOptionAsync<B>> bind,
-        Func<A, B, C> project) =>
-            default(MTryOptionAsync<A>).Bind<MTryOptionAsync<C>, TryOptionAsync<C>, C>(self, a =>
-            default(MTryOptionAsync<B>).Bind<MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
-            default(MTryOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
+        Func<A, B, C> project) => Memo(async () =>
+        {
+            try
+            {
+                var ra = await ma();
+                if (ra.IsSome)
+                {
+                    var rb = await bind(ra.Value.Value)();
+                    if (rb.IsSome)
+                    {
+                        return new OptionalResult<C>(project(ra.Value.Value, rb.Value.Value));
+                    }
+                    else if (rb.IsNone)
+                    {
+                        return OptionalResult<C>.None;
+                    }
+                    else
+                    {
+                        return new OptionalResult<C>(rb.Exception);
+                    }
+
+                }
+                else if (ra.IsNone)
+                {
+                    return OptionalResult<C>.None;
+                }
+                else
+                {
+                    return new OptionalResult<C>(ra.Exception);
+                }
+            }
+            catch (Exception e)
+            {
+                return new OptionalResult<C>(e);
+            }
+
+        });
 
     [Pure]
     public static TryOptionAsync<C> SelectMany<A, B, C>(
-        this TryOptionAsync<A> self,
+        this TryOptionAsync<A> ma,
         Func<A, Task<TryOptionAsync<B>>> bind,
-        Func<A, B, C> project) =>
-            default(MTryOptionAsync<A>).BindAsync<MTryOptionAsync<C>, TryOptionAsync<C>, C>(self, async a =>
-            default(MTryOptionAsync<B>).Bind<MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
-            default(MTryOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
+        Func<A, B, C> project) => Memo(async () =>
+        {
+            try
+            {
+                var ra = await ma();
+                if (ra.IsSome)
+                {
+                    var rb = await (await bind(ra.Value.Value))();
+                    if (rb.IsSome)
+                    {
+                        return new OptionalResult<C>(project(ra.Value.Value, rb.Value.Value));
+                    }
+                    else if (rb.IsNone)
+                    {
+                        return OptionalResult<C>.None;
+                    }
+                    else
+                    {
+                        return new OptionalResult<C>(rb.Exception);
+                    }
+
+                }
+                else if (ra.IsNone)
+                {
+                    return OptionalResult<C>.None;
+                }
+                else
+                {
+                    return new OptionalResult<C>(ra.Exception);
+                }
+            }
+            catch (Exception e)
+            {
+                return new OptionalResult<C>(e);
+            }
+
+        });
 
     [Pure]
     public static TryOptionAsync<C> SelectMany<A, B, C>(
-        this TryOptionAsync<A> self,
+        this TryOptionAsync<A> ma,
         Func<A, Task<TryOptionAsync<B>>> bind,
-        Func<A, B, Task<C>> project) =>
-            default(MTryOptionAsync<A>).BindAsync<MTryOptionAsync<C>, TryOptionAsync<C>, C>(self, async a =>
-            default(MTryOptionAsync<B>).Bind<MTryOptionAsync<C>, TryOptionAsync<C>, C>(await bind(a), b =>
-            default(MTryOptionAsync<C>).ReturnAsync(project(a, b))));
+        Func<A, B, Task<C>> project) => Memo(async () =>
+        {
+            try
+            {
+                var ra = await ma();
+                if (ra.IsSome)
+                {
+                    var rb = await (await bind(ra.Value.Value))();
+                    if (rb.IsSome)
+                    {
+                        return new OptionalResult<C>(await project(ra.Value.Value, rb.Value.Value));
+                    }
+                    else if (rb.IsNone)
+                    {
+                        return OptionalResult<C>.None;
+                    }
+                    else
+                    {
+                        return new OptionalResult<C>(rb.Exception);
+                    }
+
+                }
+                else if (ra.IsNone)
+                {
+                    return OptionalResult<C>.None;
+                }
+                else
+                {
+                    return new OptionalResult<C>(ra.Exception);
+                }
+            }
+            catch (Exception e)
+            {
+                return new OptionalResult<C>(e);
+            }
+
+        });
 
     [Pure]
     public static TryOptionAsync<C> SelectMany<A, B, C>(
-        this TryOptionAsync<A> self,
+        this TryOptionAsync<A> ma,
         Func<A, TryOptionAsync<B>> bind,
-        Func<A, B, Task<C>> project) =>
-            default(MTryOptionAsync<A>).Bind<MTryOptionAsync<C>, TryOptionAsync<C>, C>(self, a =>
-            default(MTryOptionAsync<B>).Bind<MTryOptionAsync<C>, TryOptionAsync<C>, C>(bind(a), b =>
-            default(MTryOptionAsync<C>).ReturnAsync(project(a, b))));
+        Func<A, B, Task<C>> project) => Memo(async () =>
+        {
+            try
+            {
+                var ra = await ma();
+                if (ra.IsSome)
+                {
+                    var rb = await bind(ra.Value.Value)();
+                    if (rb.IsSome)
+                    {
+                        return new OptionalResult<C>(await project(ra.Value.Value, rb.Value.Value));
+                    }
+                    else if (rb.IsNone)
+                    {
+                        return OptionalResult<C>.None;
+                    }
+                    else
+                    {
+                        return new OptionalResult<C>(rb.Exception);
+                    }
+
+                }
+                else if (ra.IsNone)
+                {
+                    return OptionalResult<C>.None;
+                }
+                else
+                {
+                    return new OptionalResult<C>(ra.Exception);
+                }
+            }
+            catch (Exception e)
+            {
+                return new OptionalResult<C>(e);
+            }
+
+        });
 
     [Pure]
     public static TryOptionAsync<D> Join<A, B, C, D>(
