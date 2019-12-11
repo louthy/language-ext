@@ -30,6 +30,17 @@ namespace LanguageExt
         public bool IsEmpty => 
             ms.ForAll(s => s.IsEmpty);
 
+        public ISeqInternal<A> Init
+        {
+            get
+            {
+                var take = Count - 1;
+                return take <= 0
+                    ? SeqEmptyInternal<A>.Default
+                    : Take(take);
+            }
+        }
+
         public A Last =>
             ms.Last.Last;
 

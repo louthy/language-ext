@@ -158,9 +158,9 @@ namespace LanguageExt.Tests
 
 
         [Fact]
-        public void InitTest()
+        public void GenerateTest()
         {
-            var r = init(10, i => "Hello " + i );
+            var r = generate(10, i => "Hello " + i );
 
             for (int i = 0; i < 10; i++)
             {

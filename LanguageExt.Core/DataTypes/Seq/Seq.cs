@@ -286,6 +286,15 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Get all items except the last one
+        /// </summary>
+        public Seq<A> Init
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new Seq<A>(Value.Init);
+        }
+
+        /// <summary>
         /// Head of the sequence if this node isn't the empty node
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -393,10 +402,18 @@ namespace LanguageExt
         /// <typeparam name="L"></typeparam>
         /// <param name="left">Left case</param>
         /// <returns>Head of the sequence or left</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Either<L, A> HeadOrLeft<L>(L left) =>
             IsEmpty
                 ? Left<L, A>(left)
+                : Right<L, A>(Head);
+
+        /// <summary>
+        /// Head of the sequence if this node isn't the empty node
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Either<L, A> HeadOrLeft<L>(Func<L> Left) =>
+            IsEmpty
+                ? Left<L, A>(Left())
                 : Right<L, A>(Head);
 
         /// <summary>

@@ -44,7 +44,7 @@ namespace LanguageExt.Tests
             int counter = 0;
             Func<int, int> run = x => { counter++; return x; };
 
-            var seq = Seq.init(5, x => run((x + 1) * 2));
+            var seq = Seq.generate(5, x => run((x + 1) * 2));
 
             var fst = seq.Take(1).Head;
 
@@ -83,7 +83,7 @@ namespace LanguageExt.Tests
             int counter = 0;
             Func<int, int> run = x => { counter++; return x; };
 
-            var seq = List.init(5, x => run((x + 1) * 2));
+            var seq = List.generate(5, x => run((x + 1) * 2));
 
             var fst = seq.Take(1).First();
 
@@ -152,7 +152,7 @@ namespace LanguageExt.Tests
             int counter = 0;
             Func<int, int> run = x => { counter++; return x; };
 
-            var seq1 = Seq.init(5, x => run((x + 1) * 2));
+            var seq1 = Seq.generate(5, x => run((x + 1) * 2));
             var seq2 = 1.Cons(seq1);
 
             var cnt1 = seq1.Count;
@@ -162,7 +162,7 @@ namespace LanguageExt.Tests
             Assert.True(cnt1 == 5);
             Assert.True(cnt2 == 6);
 
-            var seq3 = Seq.init(5, x => run((x + 1) * 2));
+            var seq3 = Seq.generate(5, x => run((x + 1) * 2));
             var seq4 = 1.Cons(seq3);
 
             var cnt3 = seq4.Count;

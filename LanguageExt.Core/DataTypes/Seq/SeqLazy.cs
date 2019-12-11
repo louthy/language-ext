@@ -159,6 +159,17 @@ namespace LanguageExt
             }
         }
 
+        public ISeqInternal<A> Init
+        {
+            get
+            {
+                var take = Count - 1;
+                return take <= 0
+                    ? SeqEmptyInternal<A>.Default
+                    : Take(take);
+            }
+        }
+
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

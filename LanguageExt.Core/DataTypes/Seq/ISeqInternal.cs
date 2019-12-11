@@ -21,6 +21,7 @@ namespace LanguageExt
         A Head { get; }
         ISeqInternal<A> Tail { get; }
         bool IsEmpty { get; }
+        ISeqInternal<A> Init { get; }
         A Last { get; }
         int Count { get; }
         S Fold<S>(S state, Func<S, A, S> f);

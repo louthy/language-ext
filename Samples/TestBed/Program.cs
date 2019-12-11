@@ -97,6 +97,8 @@ class Program
     static void Matching()
     {
         var seq = Seq(1, 2, 3, 4, 5);
+        var res = Sum(seq);
+        Debug.Assert(res == 15);
     }
 
     static int Sum(Seq<int> seq) =>

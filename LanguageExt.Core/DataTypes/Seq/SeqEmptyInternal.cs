@@ -21,6 +21,9 @@ namespace LanguageExt
         public bool IsEmpty => 
             true;
 
+        public ISeqInternal<A> Init =>
+            this;
+
         public A Last =>
             throw new InvalidOperationException("Sequence is empty");
 

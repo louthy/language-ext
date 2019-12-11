@@ -455,8 +455,8 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         [Pure]
-        public IEnumerable<V> FindSeq(K key) =>
-            Find(key).AsEnumerable();
+        public Seq<V> FindSeq(K key) =>
+            Find(key).ToSeq();
 
         /// <summary>
         /// Retrieve a value from the map by key and pattern match the

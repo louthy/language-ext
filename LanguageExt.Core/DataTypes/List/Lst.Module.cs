@@ -64,19 +64,16 @@ namespace LanguageExt
         /// each item.
         /// </summary>
         [Pure]
-        public static IEnumerable<T> init<T>(int count, Func<int, T> generator) =>
+        public static IEnumerable<T> generate<T>(int count, Func<int, T> generator) =>
             from i in Range(0, count)
             select generator(i);
 
         /// <summary>
-        /// Generates an infinite sequence of T using the provided delegate to initialise
+        /// Generates an int.MaxValue sequence of T using the provided delegate to initialise
         /// each item.
-        /// 
-        ///   Remarks: Not truly infinite, will end at Int32.MaxValue
-        /// 
         /// </summary>
         [Pure]
-        public static IEnumerable<T> initInfinite<T>(Func<int, T> generator) =>
+        public static IEnumerable<T> generate<T>(Func<int, T> generator) =>
             from i in Range(0, Int32.MaxValue)
             select generator(i);
 
@@ -134,8 +131,8 @@ namespace LanguageExt
         /// <param name="list">List</param>
         /// <returns>Head item</returns>
         [Pure]
-        public static T head<T>(IEnumerable<T> list) => list.First();
-
+        public static T head<T>(IEnumerable<T> list) => 
+            list.First();
         /// <summary>
         /// Get the item at the head (first) of the list or None if the list is empty
         /// </summary>
@@ -191,6 +188,87 @@ namespace LanguageExt
             list.Select(Validation<MonoidFail, Fail, Success>.Success)
                 .DefaultIfEmpty(Validation<MonoidFail, Fail, Success>.Fail(fail))
                 .FirstOrDefault();
+
+        /// <summary>
+        /// Get the last item of the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Last item</returns>
+        [Pure]
+        public static A last<A>(IEnumerable<A> list) =>
+            list.Last();
+
+        /// <summary>
+        /// Get the last item of the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Last item</returns>
+        [Pure]
+        public static Option<A> lastOrNone<A>(IEnumerable<A> list) =>
+            list.Select(Option<A>.Some)
+                .DefaultIfEmpty(Option<A>.None)
+                .LastOrDefault();
+
+        /// <summary>
+        /// Get the last item of the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Last item</returns>
+        [Pure]
+        public static Either<L, R> lastOrLeft<L, R>(IEnumerable<R> list, L left) =>
+            list.Select(Either<L, R>.Right)
+                .DefaultIfEmpty(Either<L, R>.Left(left))
+                .LastOrDefault();
+
+        /// <summary>
+        /// Get the last item of the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Last item</returns>
+        [Pure]
+        public static Validation<Fail, Success> lastOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail) =>
+            list.Select(Validation<Fail, Success>.Success)
+                .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq1(fail)))
+                .LastOrDefault();
+
+        /// <summary>
+        /// Get the last item of the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Last item</returns>
+        [Pure]
+        public static Validation<Fail, Success> lastOrInvalid<Fail, Success>(IEnumerable<Success> list, Seq<Fail> fail) =>
+            list.Select(Validation<Fail, Success>.Success)
+                .DefaultIfEmpty(Validation<Fail, Success>.Fail(fail))
+                .LastOrDefault();
+
+        /// <summary>
+        /// Get the last item of the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Last item</returns>
+        [Pure]
+        public static Validation<MonoidFail, Fail, Success> lastOrInvalid<MonoidFail, Fail, Success>(IEnumerable<Success> list, Fail fail)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+            list.Select(Validation<MonoidFail, Fail, Success>.Success)
+                .DefaultIfEmpty(Validation<MonoidFail, Fail, Success>.Fail(fail))
+                .LastOrDefault();
+
+        /// <summary>
+        /// Get all items in the list except the last one
+        /// </summary>
+        /// <remarks>
+        /// Must evaluate the last item to know it's the last, but won't return it
+        /// </remarks>
+        /// <param name="list">List</param>
+        /// <returns>The initial items (all but the last)</returns>
+        [Pure]
+        public static Seq<A> init<A>(IEnumerable<A> list)
+        {
+            var items = list.ToArray();
+            return new Seq<A>(new SeqStrict<A>(items, 0, Math.Max(0, items.Length - 1), 0, 0));
+        }
+
 
         /// <summary>
         /// Get the tail of the list (skips the head item)

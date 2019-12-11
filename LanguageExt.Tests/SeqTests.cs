@@ -269,5 +269,59 @@ namespace LanguageExt.Tests
             Assert.Equal("c|a", string.Join("|", c));
 
         }
+
+        [Fact]
+        public void InitStrictTest()
+        {
+            var sa = Seq(1, 2, 3, 4, 5);
+
+            var sb = sa.Init;  // [1,2,3,4]
+            var sc = sb.Init;  // [1,2,3]
+            var sd = sc.Init;  // [1,2]
+            var se = sd.Init;  // [1]
+            var sf = se.Init;  // []
+
+            Assert.True(sb == Seq(1, 2, 3, 4));
+            Assert.True(sc == Seq(1, 2, 3));
+            Assert.True(sd == Seq(1, 2));
+            Assert.True(se == Seq1(1));
+            Assert.True(sf == Empty);
+        }
+
+        [Fact]
+        public void InitLazyTest()
+        {
+            var sa = Seq(Range(1, 5));
+
+            var sb = sa.Init;  // [1,2,3,4]
+            var sc = sb.Init;  // [1,2,3]
+            var sd = sc.Init;  // [1,2]
+            var se = sd.Init;  // [1]
+            var sf = se.Init;  // []
+
+            Assert.True(sb == Seq(1, 2, 3, 4));
+            Assert.True(sc == Seq(1, 2, 3));
+            Assert.True(sd == Seq(1, 2));
+            Assert.True(se == Seq1(1));
+            Assert.True(sf == Empty);
+        }
+
+        [Fact]
+        public void InitConcatTest()
+        {
+            var sa = Seq(Range(1, 2)) + Seq(Range(3, 3));
+
+            var sb = sa.Init;  // [1,2,3,4]
+            var sc = sb.Init;  // [1,2,3]
+            var sd = sc.Init;  // [1,2]
+            var se = sd.Init;  // [1]
+            var sf = se.Init;  // []
+
+            Assert.True(sb == Seq(1, 2, 3, 4));
+            Assert.True(sc == Seq(1, 2, 3));
+            Assert.True(sd == Seq(1, 2));
+            Assert.True(se == Seq1(1));
+            Assert.True(sf == Empty);
+        }
     }
 }

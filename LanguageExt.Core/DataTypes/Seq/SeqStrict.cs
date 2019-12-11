@@ -246,6 +246,18 @@ namespace LanguageExt
                 : new SeqStrict<A>(data, start + 1, count - 1, NoCons, NoAdd);
         }
 
+        public ISeqInternal<A> Init
+        {
+            get
+            {
+                var take = count - 1;
+
+                return take <= 0
+                    ? SeqEmptyInternal<A>.Default
+                    : new SeqStrict<A>(data, start, take, NoCons, NoAdd);
+            }
+        }
+
         /// <summary>
         /// Returns true if the sequence is empty
         /// </summary>
