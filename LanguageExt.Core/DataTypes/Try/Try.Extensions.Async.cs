@@ -141,11 +141,11 @@ public static class TryExtensionsAsync
         self.ToAsync().ToOptionUnsafe();
 
     [Pure]
-    public static Task<Either<Exception, A>> ToEitherAsync<A>(this Try<A> self) =>
+    public static EitherAsync<Error, A> ToEitherAsync<A>(this Try<A> self) =>
         self.ToAsync().ToEither();
 
     [Pure]
-    public static Task<EitherUnsafe<Exception, A>> ToEitherUnsafeAsync<A>(this Try<A> self) =>
+    public static Task<EitherUnsafe<Error, A>> ToEitherUnsafeAsync<A>(this Try<A> self) =>
         self.ToAsync().ToEitherUnsafe();
 
     [Pure]

@@ -51,11 +51,19 @@ namespace LanguageExt.Common
         internal Exception ToException() =>
             Exception.IsSome
                 ? (Exception)Exception
-                : new Exception(Message);
+                : Message == null
+                    ? new Exception("Bottom")
+                    : new Exception(Message);
 
         public override string ToString() =>
             code == 0 
                 ? message
                 : $"{code}: {message}";
+
+        public static implicit operator Error(Exception e) =>
+            New(e);
+
+        public static implicit operator Exception(Error e) =>
+            e.ToException();
     }
 }

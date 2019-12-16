@@ -9,6 +9,7 @@ using LanguageExt.TypeClasses;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
+using LanguageExt.DataTypes.Serialisation;
 
 /// <summary>
 /// Extension methods for the TryAsync monad
@@ -392,28 +393,28 @@ public static class TryAsyncExtensions
         async () => (await self.Try()).ToOptional();
 
     [Pure]
-    public static Task<EitherUnsafe<Exception, A>> ToEitherUnsafe<A>(this TryAsync<A> self) =>
+    public static Task<EitherUnsafe<Error, A>> ToEitherUnsafe<A>(this TryAsync<A> self) =>
         self.Match(
-              Succ: v => EitherUnsafe<Exception, A>.Right(v),
-              Fail: x => EitherUnsafe<Exception, A>.Left(x));
+              Succ: v => EitherUnsafe<Error, A>.Right(v),
+              Fail: x => EitherUnsafe<Error, A>.Left(Error.New(x)));
 
     [Pure]
-    public static Task<EitherUnsafe<L, A>> ToEitherUnsafe<A, L>(this TryAsync<A> self, Func<Exception, L> Fail) =>
+    public static Task<EitherUnsafe<L, A>> ToEitherUnsafe<A, L>(this TryAsync<A> self, Func<Error, L> Fail) =>
         self.Match(
               Succ: v => EitherUnsafe<L, A>.Right(v),
-              Fail: x => EitherUnsafe<L, A>.Left(Fail(x)));
+              Fail: x => EitherUnsafe<L, A>.Left(Fail(Error.New(x))));
 
     [Pure]
-    public static Task<Either<Exception, A>> ToEither<A>(this TryAsync<A> self) =>
+    public static EitherAsync<Error, A> ToEither<A>(this TryAsync<A> self) => new EitherAsync<Error, A>(
         self.Match(
-              Succ: v => Either<Exception, A>.Right(v),
-              Fail: x => Either<Exception, A>.Left(x));
+              Succ: v => EitherData.Right<Error, A>(v),
+              Fail: x => EitherData.Left<Error, A>(Error.New(x))));
 
     [Pure]
-    public static Task<Either<L, A>> ToEither<A, L>(this TryAsync<A> self, Func<Exception, L> Fail) =>
+    public static EitherAsync<L, A> ToEither<A, L>(this TryAsync<A> self, Func<Error, L> Fail) => new EitherAsync<L, A>(
         self.Match(
-              Succ: v => Either<L, A>.Right(v),
-              Fail: x => Either<L, A>.Left(Fail(x)));
+              Succ: v => EitherData.Right<L, A>(v),
+              Fail: x => EitherData.Left<L, A>(Fail(Error.New(x)))));
 
     [Pure]
     public static async Task<A> IfFailThrow<A>(this TryAsync<A> self)
