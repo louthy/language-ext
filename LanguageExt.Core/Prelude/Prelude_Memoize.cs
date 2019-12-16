@@ -39,32 +39,36 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Returns a Func<T,R> that wraps func.  Each time the resulting
-        /// Func<T,R> is called with a new value, its result is memoized (cached).
+        /// Returns a `Func<A, B>` that wraps func.  Each time the resulting
+        /// `Func<A, B>` is called with a new value, its result is memoized (cached).
         /// Subsequent calls use the memoized value.  
         /// 
         /// Remarks: 
         ///     Thread-safe and memory-leak safe.  
         /// </summary>
-        public static Func<T, R> memo<T, R>(Func<T, R> func)
+        public static Func<A, B> memo<A, B>(Func<A, B> func)
         {
-            var cache = new WeakDict<T, R>();
-            var syncMap = new ConcurrentDictionary<T, object>();
+            var cache = new WeakDict<A, B> ();
+            var syncMap = new ConcurrentDictionary<A, object>();
 
             return inp =>
-                matchUnsafe(cache.TryGetValue(inp),
-                    Some: x => x,
-                    None: () =>
+            {
+                if(cache.TryGetValue(inp, out var x))
+                {
+                    return x;
+                }
+                else
+                {
+                    B res;
+                    var sync = syncMap.GetOrAdd(inp, new object());
+                    lock (sync)
                     {
-                        R res;
-                        var sync = syncMap.GetOrAdd(inp, new object());
-                        lock (sync)
-                        {
-                            res = cache.GetOrAdd(inp, func);
-                        }
-                        syncMap.TryRemove(inp, out sync);
-                        return res;
-                    });
+                        res = cache.GetOrAdd(inp, func);
+                    }
+                    syncMap.TryRemove(inp, out sync);
+                    return res;
+                }
+            };
         }
 
         /// <summary>
@@ -155,15 +159,18 @@ namespace LanguageExt
                         },
                         addFunc(key)));
 
-            public OptionUnsafe<R> TryGetValue(T key)
+            public bool TryGetValue(T key, out R value)
             {
-                WeakReference<OnFinalise<R>> res = null;
-                OnFinalise<R> target = null;
-                return dict.TryGetValue(key, out res)
-                    ? res.TryGetTarget(out target)
-                        ? SomeUnsafe(target.Value)
-                        : None
-                    : None;
+                if(dict.TryGetValue(key, out var res) && res.TryGetTarget(out var target))
+                {
+                    value = target.Value;
+                    return true;
+                }
+                else
+                {
+                    value = default;
+                    return false;
+                }
             }
 
             public R GetOrAdd(T key, Func<T, R> addFunc)
