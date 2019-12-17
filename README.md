@@ -1678,7 +1678,7 @@ Looking at the prototype for `Bind` it seems at first glance that the `bind` arg
             ? bind(ma.Value)
             : ??? ; // What do we return here?
 ```
-The key is to use constraints. But it also requires an extra generic paramter for `Bind`:
+The key is to use constraints. But it also requires an extra generic parameter for `Bind`:
 ```c#
     public interface Monad<MA, A>
     {
@@ -1691,7 +1691,7 @@ The key is to use constraints. But it also requires an extra generic paramter fo
 ```
 So we now know that `MonadB` is a class-instance of the `Monad<MB, B>` type-class. So we can now do this:
 ```c#
-    public MB Bind<MB, B>(Option<A> ma, Func<A, MB> f) 
+    public MB Bind<MonadB, MB, B>(Option<A> ma, Func<A, MB> f) 
         where MonadB : struct, Monad<MB, B> =>
             ma.IsSome
                 ? f(ma.Value)
