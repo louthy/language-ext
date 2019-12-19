@@ -1980,7 +1980,7 @@ namespace LanguageExt.CodeGen
                             Identifier(typeName))
                         .WithModifiers(
                             TokenList(
-                                Token(SyntaxKind.PublicKeyword)))
+                                Token(SyntaxKind.ProtectedKeyword)))
                         .WithParameterList(
                             ParameterList(
                                 SeparatedList<ParameterSyntax>(
