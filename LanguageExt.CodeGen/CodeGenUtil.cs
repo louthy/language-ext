@@ -1980,7 +1980,7 @@ namespace LanguageExt.CodeGen
                             Identifier(typeName))
                         .WithModifiers(
                             TokenList(
-                                Token(SyntaxKind.ProtectedKeyword)))
+                                Token(SyntaxKind.PrivateKeyword)))
                         .WithParameterList(
                             ParameterList(
                                 SeparatedList<ParameterSyntax>(
@@ -2213,9 +2213,7 @@ namespace LanguageExt.CodeGen
                                     Token(SyntaxKind.CommaToken),
                                     SimpleBaseType(thisComparableType),
                                     Token(SyntaxKind.CommaToken),
-                                    SimpleBaseType(comparableType),
-                                    Token(SyntaxKind.CommaToken),
-                                    SimpleBaseType(serializableType)
+                                    SimpleBaseType(comparableType)
                                 }))),
                 BaseSpec.Abstract =>
                     type.WithBaseList(
@@ -2228,9 +2226,7 @@ namespace LanguageExt.CodeGen
                                     Token(SyntaxKind.CommaToken),
                                     SimpleBaseType(thisComparableType),
                                     Token(SyntaxKind.CommaToken),
-                                    SimpleBaseType(comparableType),
-                                    Token(SyntaxKind.CommaToken),
-                                    SimpleBaseType(serializableType)
+                                    SimpleBaseType(comparableType)
                                 }))),
                 _ =>
                     type.WithBaseList(
@@ -2241,9 +2237,7 @@ namespace LanguageExt.CodeGen
                                     Token(SyntaxKind.CommaToken),
                                     SimpleBaseType(thisComparableType),
                                     Token(SyntaxKind.CommaToken),
-                                    SimpleBaseType(comparableType),
-                                    Token(SyntaxKind.CommaToken),
-                                    SimpleBaseType(serializableType)
+                                    SimpleBaseType(comparableType)
                                 })))
             };
 
