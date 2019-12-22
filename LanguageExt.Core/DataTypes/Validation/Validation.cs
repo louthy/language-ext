@@ -205,10 +205,10 @@ namespace LanguageExt
             Check.NullReturn(MatchUnsafe(Succ, Fail));
 
         /// <summary>
-        /// Invokes the `Succ` or `Fail` function depending on the state of the `Validation`
+        /// Returns `Succ` value or invokes `Fail` function depending on the state of the `Validation`
         /// </summary>
         /// <typeparam name="Ret">Return type</typeparam>
-        /// <param name="Succ">Function to invoke if in a `Success` state</param>
+        /// <param name="Succ">Value to return if in a `Success` state</param>
         /// <param name="Fail">Function to invoke if in a `Fail` state</param>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
