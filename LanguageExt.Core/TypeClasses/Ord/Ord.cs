@@ -3,7 +3,7 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("Ord*")]
     public interface Ord<A> : Eq<A>
     {
         /// <summary>

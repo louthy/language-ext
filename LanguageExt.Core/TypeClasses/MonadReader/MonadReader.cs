@@ -7,7 +7,7 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// Reader monad type class
     /// </summary>
-    [Typeclass]
+    [Typeclass("M*")]
     public interface MonadReader<Env, A> : Typeclass
     {
         /// <summary>

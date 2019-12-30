@@ -4,7 +4,7 @@ using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("BiFold*")]
     public interface BiFoldable<F, A, B> : Typeclass
     {
         /// <summary>
@@ -42,7 +42,7 @@ namespace LanguageExt.TypeClasses
         S BiFoldBack<S>(F foldable, S state, Func<S, A, S> fa, Func<S, B, S> fb);
     }
 
-    [Typeclass]
+    [Typeclass("BiFold*")]
     public interface BiFoldable<F, A> : Foldable<F, A>
     {
         /// <summary>

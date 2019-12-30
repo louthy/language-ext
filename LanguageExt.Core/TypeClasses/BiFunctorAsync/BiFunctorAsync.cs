@@ -8,7 +8,7 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// Functor type-class
     /// </summary>
-    [Typeclass]
+    [Typeclass("BiF*Async")]
     public interface BiFunctorAsync<FAB, FR, A, B, R> : Typeclass
     {
         /// <summary>
@@ -84,7 +84,7 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// Functor type-class
     /// </summary>
-    [Typeclass]
+    [Typeclass("BiF*Async")]
     public interface BiFunctorAsync<FAB, FUV, A, B, U, V> : Typeclass
     {
         /// <summary>

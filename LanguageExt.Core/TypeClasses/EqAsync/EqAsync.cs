@@ -10,7 +10,7 @@ namespace LanguageExt.TypeClasses
     /// <typeparam name="A">
     /// The type for which equality is defined
     /// </typeparam>
-    [Typeclass]
+    [Typeclass("Eq*Async")]
     public interface EqAsync<A> : Typeclass
     {
         /// <summary>

@@ -7,7 +7,7 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// Functor type-class
     /// </summary>
-    [Typeclass]
+    [Typeclass("BiF*")]
     public interface BiFunctor<FAB, FR, A, B, R> : Typeclass
     {
         /// <summary>
@@ -31,7 +31,7 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// Functor type-class
     /// </summary>
-    [Typeclass]
+    [Typeclass("BiF*")]
     public interface BiFunctor<FAB, FUV, A, B, U, V> : Typeclass
     {
         /// <summary>

@@ -2,7 +2,7 @@
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("Alt*")]
     public interface Alternative<AltAB, A, B> : Typeclass
     {
         /// <summary>

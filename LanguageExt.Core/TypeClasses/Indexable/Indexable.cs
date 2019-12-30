@@ -5,7 +5,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("Ix*")]
     public interface Indexable<A, KEY, VALUE>
     {
         Option<VALUE> TryGet(A ma, KEY key);

@@ -4,7 +4,7 @@ using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("Opt*Unsafe")]
     public interface OptionalUnsafe<OA, A> : Typeclass
     {
         /// <summary>

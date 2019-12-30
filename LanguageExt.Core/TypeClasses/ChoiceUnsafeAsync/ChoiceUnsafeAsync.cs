@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("Choice*UnsafeAsync")]
     public interface ChoiceUnsafeAsync<CH, L, R> : Typeclass
     {
         /// <summary>
