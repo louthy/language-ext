@@ -112,7 +112,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static bool equals<T>(HashSet<T> setA, HashSet<T> setB) =>
-            setA.SetEquals(setB);
+            setA.Equals(setB);
 
         /// <summary>
         /// Get the number of elements in the set

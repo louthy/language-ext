@@ -669,14 +669,6 @@ namespace LanguageExt
             new Map<K, V>(MapInternal<OrdDefault<K>, K, V>.Empty);
 
         [Pure]
-        public bool Equals(Map<K, V> y) =>
-            Value.Equals(y.Value);
-
-        [Pure]
-        public bool Equals<EqK>(Map<K, V> y) where EqK : struct, Eq<K> =>
-            Value.Equals<EqK>(y.Value);
-
-        [Pure]
         public static implicit operator Map<K, V>(ValueTuple<(K, V)> items) =>
             new Map<K, V>(new [] { items.Item1 });
 
@@ -742,7 +734,7 @@ namespace LanguageExt
 
         [Pure]
         public static bool operator ==(Map<K, V> lhs, Map<K, V> rhs) =>
-            lhs.Value == rhs.Value;
+            lhs.Equals(rhs);
 
         [Pure]
         public static bool operator !=(Map<K, V> lhs, Map<K, V> rhs) =>
@@ -772,9 +764,33 @@ namespace LanguageExt
         public static Map<K, V> operator -(Map<K, V> lhs, Map<K, V> rhs) =>
             new Map<K, V>(lhs.Value - rhs.Value);
 
+        /// <summary>
+        /// Equality of keys and values with `EqDefault<V>` used for values
+        /// </summary>
         [Pure]
         public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) && obj is Map<K, V> && Equals((Map<K, V>)obj);
+            obj is Map<K, V> m && Equals(m);
+
+        /// <summary>
+        /// Equality of keys and values with `EqDefault<V>` used for values
+        /// </summary>
+        [Pure]
+        public bool Equals(Map<K, V> y) =>
+            Value.Equals<EqDefault<V>>(y.Value);
+
+        /// <summary>
+        /// Equality of keys and values
+        /// </summary>
+        [Pure]
+        public bool Equals<EqV>(Map<K, V> y) where EqV : struct, Eq<V> =>
+            Value.Equals<EqV>(y.Value);
+
+        /// <summary>
+        /// Equality of keys only
+        /// </summary>
+        [Pure]
+        public bool EqualsKeys(Map<K, V> y) =>
+            Value.Equals<EqTrue<V>>(y.Value);
 
         [Pure]
         public override int GetHashCode() =>
@@ -1108,13 +1124,26 @@ namespace LanguageExt
         public Map<K, V> SymmetricExcept(Map<K, V> other) =>
             Wrap(Value.SymmetricExcept(other.Value));
 
+        /// <summary>
+        /// Compare keys and values (values use `OrdDefault<V>` for ordering)
+        /// </summary>
         [Pure]
         public int CompareTo(Map<K, V> other) =>
-            Value.CompareTo(other.Value);
+            Value.CompareTo<OrdDefault<V>>(other.Value);
 
+        /// <summary>
+        /// Compare keys and values (values use `OrdV` for ordering)
+        /// </summary>
         [Pure]
-        public int CompareTo<OrdK>(Map<K, V> other) where OrdK : struct, Ord<K> =>
-            Value.CompareTo<OrdK>(other.Value);
+        public int CompareTo<OrdV>(Map<K, V> other) where OrdV : struct, Ord<V> =>
+            Value.CompareTo<OrdV>(other.Value);
+
+        /// <summary>
+        /// Compare keys only
+        /// </summary>
+        [Pure]
+        public int CompareKeysTo<OrdV>(Map<K, V> other) =>
+            Value.CompareTo<OrdTrue<V>>(other.Value);
 
         /// <summary>
         /// Implicit conversion from an untyped empty list

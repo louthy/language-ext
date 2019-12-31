@@ -339,7 +339,7 @@ namespace LanguageExt.Tests
             Assert.False(Map((1, 2)).Equals(emp));
             Assert.False(emp.Equals(Map((1, 2))));
             Assert.True(Map((1, 2)).Equals(Map((1, 2))));
-            Assert.True(Map((1, 2)).Equals(Map((1, 3))));
+            Assert.False(Map((1, 2)).Equals(Map((1, 3))));
             Assert.False(Map((1, 2), (3, 4)).Equals(Map((1, 2))));
             Assert.False(Map((1, 2)).Equals(Map((1, 2), (3, 4))));
             Assert.True(Map((1, 2), (3, 4)).Equals(Map((1, 2), (3, 4))));

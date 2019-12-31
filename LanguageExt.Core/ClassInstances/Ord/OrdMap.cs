@@ -8,7 +8,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Equality and ordering
     /// </summary>
-    public struct OrdMap<OrdK, K, V> : Ord<Map<K, V>>
+    public struct OrdMap<OrdK, K, V> : Ord<Map<OrdK, K, V>>
         where OrdK : struct, Ord<K>
     {
         /// <summary>
@@ -22,8 +22,8 @@ namespace LanguageExt.ClassInstances
         /// if `x` equals `y`       : `0`
         /// </returns>
         [Pure]
-        public int Compare(Map<K, V> x, Map<K, V> y) =>
-            x.CompareTo<OrdK>(y);
+        public int Compare(Map<OrdK, K, V> x, Map<OrdK, K, V> y) =>
+            x.CompareTo(y);
 
         /// <summary>
         /// Equality test
@@ -32,15 +32,15 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if `x` and `y` are equal</returns>
         [Pure]
-        public bool Equals(Map<K, V> x, Map<K, V> y) =>
-            default(EqMap<OrdK, K, V>).Equals(x, y);
+        public bool Equals(Map<OrdK, K, V> x, Map<OrdK, K, V> y) =>
+            x.Equals(y);
 
         /// <summary>
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of `x`</returns>
         [Pure]
-        public int GetHashCode(Map<K, V> x) =>
+        public int GetHashCode(Map<OrdK, K, V> x) =>
             x.GetHashCode();
     }
 
@@ -61,7 +61,7 @@ namespace LanguageExt.ClassInstances
         /// </returns>
         [Pure]
         public int Compare(Map<K, V> x, Map<K, V> y) =>
-            default(OrdMap<OrdDefault<K>, K, V>).Compare(x, y);
+            x.CompareTo(y);
 
         /// <summary>
         /// Equality test
@@ -71,7 +71,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>True if `x` and `y` are equal</returns>
         [Pure]
         public bool Equals(Map<K, V> x, Map<K, V> y) =>
-            default(OrdMap<OrdDefault<K>, K, V>).Equals(x, y);
+            x.Equals(y);
 
         /// <summary>
         /// Get the hash-code of the provided value
@@ -79,6 +79,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>Hash code of `x`</returns>
         [Pure]
         public int GetHashCode(Map<K, V> x) =>
-            default(OrdMap<OrdDefault<K>, K, V>).GetHashCode(x);
+            x.GetHashCode();
     }
 }

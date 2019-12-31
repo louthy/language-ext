@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Runtime.Serialization;
 using LanguageExt.TypeClasses;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -1373,19 +1374,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public override bool Equals(object obj) =>
-            Equals(obj as MapInternal<OrdK, K, V>);
-
-        [Pure]
-        public static bool operator ==(MapInternal<OrdK, K, V> lhs, MapInternal<OrdK, K, V> rhs) =>
-            lhs.Equals(rhs);
-
-        [Pure]
-        public static bool operator !=(MapInternal<OrdK, K, V> lhs, MapInternal<OrdK, K, V> rhs) =>
-            !(lhs == rhs);
-
-        [Pure]
-        public bool Equals(MapInternal<OrdK, K, V> rhs)
+        public bool Equals<EqV>(MapInternal<OrdK, K, V> rhs) where EqV : struct, Eq<V>
         {
             if (ReferenceEquals(this, rhs)) return true;
             if (Count != rhs.Count) return false;
@@ -1400,32 +1389,13 @@ namespace LanguageExt
                 iterA.MoveNext();
                 iterB.MoveNext();
                 if (!default(OrdK).Equals(iterA.Current.Key, iterB.Current.Key)) return false;
+                if (!default(EqV).Equals(iterA.Current.Value, iterB.Current.Value)) return false;
             }
             return true;
         }
 
         [Pure]
-        public bool Equals<EqAlt>(MapInternal<OrdK, K, V> rhs) where EqAlt : struct, Eq<K>
-        {
-            if (ReferenceEquals(this, rhs)) return true;
-            if (Count != rhs.Count) return false;
-            if (hashCode != 0 && rhs.hashCode != 0 && hashCode != rhs.hashCode) return false;
-
-            var iterA = GetEnumerator();
-            var iterB = rhs.GetEnumerator();
-            var count = Count;
-
-            for (int i = 0; i < count; i++)
-            {
-                iterA.MoveNext();
-                iterB.MoveNext();
-                if (!default(EqAlt).Equals(iterA.Current.Key, iterB.Current.Key)) return false;
-            }
-            return true;
-        }
-
-        [Pure]
-        public int CompareTo(MapInternal<OrdK, K, V> other)
+        public int CompareTo<OrdV>(MapInternal<OrdK, K, V> other) where OrdV : struct, Ord<V>
         {
             var cmp = Count.CompareTo(other.Count);
             if (cmp != 0) return cmp;
@@ -1435,20 +1405,7 @@ namespace LanguageExt
             {
                 cmp = default(OrdK).Compare(iterA.Current.Key, iterB.Current.Key);
                 if (cmp != 0) return cmp;
-            }
-            return 0;
-        }
-
-        [Pure]
-        public int CompareTo<OrdAlt>(MapInternal<OrdK, K, V> other) where OrdAlt : struct, Ord<K>
-        {
-            var cmp = Count.CompareTo(other.Count);
-            if (cmp != 0) return cmp;
-            var iterA = GetEnumerator();
-            var iterB = other.GetEnumerator();
-            while (iterA.MoveNext() && iterB.MoveNext())
-            {
-                cmp = default(OrdAlt).Compare(iterA.Current.Key, iterB.Current.Key);
+                cmp = default(OrdV).Compare(iterA.Current.Value, iterB.Current.Value);
                 if (cmp != 0) return cmp;
             }
             return 0;

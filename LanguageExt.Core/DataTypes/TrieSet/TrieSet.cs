@@ -16,12 +16,12 @@ namespace LanguageExt
     /// https://michael.steindorfer.name/publications/phd-thesis-efficient-immutable-collections.pdf
     /// </summary>
     /// <remarks>
-    /// Used by internally by `LanguageExt.HashMap`
+    /// Used by internally by `LanguageExt.HashSet`
     /// </remarks>
-    internal class TrieMap<EqK, K, V> :
-        IEnumerable<(K Key, V Value)>,
-        IEquatable<TrieMap<EqK, K, V>>,
-        IReadOnlyDictionary<K, V>
+    internal class TrieSet<EqK, K> :
+        IEnumerable<K>,
+        IEquatable<TrieSet<EqK, K>>,
+        IReadOnlyCollection<K>
         where EqK : struct, Eq<K>
     {
         internal enum UpdateType
@@ -40,7 +40,7 @@ namespace LanguageExt
             Empty
         }
 
-        public static readonly TrieMap<EqK, K, V> Empty = new TrieMap<EqK, K, V>(EmptyNode.Default, 0);
+        public static readonly TrieSet<EqK, K> Empty = new TrieSet<EqK, K>(EmptyNode.Default, 0);
 
         readonly Node Root;
         readonly int count;
@@ -50,19 +50,19 @@ namespace LanguageExt
         /// Ctor
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        TrieMap(Node root, int count)
+        TrieSet(Node root, int count)
         {
             Root = root;
             this.count = count;
         }
 
-        public TrieMap(IEnumerable<(K Key, V Value)> items, bool tryAdd = true)
+        public TrieSet(IEnumerable<K> items, bool tryAdd = true)
         {
             Root = EmptyNode.Default;
             var type = tryAdd ? UpdateType.TryAdd : UpdateType.AddOrUpdate;
             foreach (var item in items)
             {
-                var hash = (uint)default(EqK).GetHashCode(item.Key);
+                var hash = (uint)default(EqK).GetHashCode(item);
                 Sec section = default;
                 var (countDelta, newRoot) = Root.Update((type, true), item, hash, section);
                 count += countDelta;
@@ -92,238 +92,85 @@ namespace LanguageExt
         /// Add an item to the map
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> Add(K key, V value) =>
-            Update(key, value, UpdateType.Add, false);
+        public TrieSet<EqK, K> Add(K key) =>
+            Update(key, UpdateType.Add, false);
 
         /// <summary>
         /// Try to add an item to the map.  If it already exists, do
         /// nothing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> TryAdd(K key, V value) =>
-            Update(key, value, UpdateType.TryAdd, false);
+        public TrieSet<EqK, K> TryAdd(K key) =>
+            Update(key, UpdateType.TryAdd, false);
 
         /// <summary>
         /// Add an item to the map, if it exists update the value
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> AddOrUpdate(K key, V value) =>
-            Update(key, value, UpdateType.AddOrUpdate, false);
-
-        /// <summary>
-        /// Add an item to the map, if it exists update the value
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None)
-        {
-            var (found, _, value) = FindInternal(key);
-            return found
-                ? AddOrUpdate(key, Some(value))
-                : AddOrUpdate(key, None());
-        }
-
-        /// <summary>
-        /// Add an item to the map, if it exists update the value
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, V None)
-        {
-            var (found, _, value) = FindInternal(key);
-            return found
-                ? AddOrUpdate(key, Some(value))
-                : AddOrUpdate(key, None);
-        }
+        public TrieSet<EqK, K> AddOrUpdate(K key) =>
+            Update(key, UpdateType.AddOrUpdate, false);
 
         /// <summary>
         /// Add a range of values to the map
         /// If any items already exist an exception will be thrown
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> AddRange(IEnumerable<(K Key, V Value)> items)
+        public TrieSet<EqK, K> AddRange(IEnumerable<K> items)
         {
             var self = this;
             foreach (var item in items)
             {
-                self = self.Add(item.Key, item.Value);
-            }
-            return self;
-        }
-
-        /// <summary>
-        /// Add a range of values to the map
-        /// If any items already exist an exception will be thrown
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> AddRange(IEnumerable<Tuple<K, V>> items)
-        {
-            var self = this;
-            foreach (var item in items)
-            {
-                self = self.Add(item.Item1, item.Item2);
-            }
-            return self;
-        }
-
-        /// <summary>
-        /// Add a range of values to the map
-        /// If any items already exist an exception will be thrown
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> AddRange(IEnumerable<KeyValuePair<K, V>> items)
-        {
-            var self = this;
-            foreach (var item in items)
-            {
-                self = self.Add(item.Key, item.Value);
+                self = self.Add(item);
             }
             return self;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> TryAddRange(IEnumerable<(K Key, V Value)> items)
+        public TrieSet<EqK, K> TryAddRange(IEnumerable<K> items)
         {
             var self = this;
             foreach (var item in items)
             {
-                self = self.TryAdd(item.Key, item.Value);
+                self = self.TryAdd(item);
             }
             return self;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> TryAddRange(IEnumerable<Tuple<K, V>> items)
+        public TrieSet<EqK, K> AddOrUpdateRange(IEnumerable<K> items)
         {
             var self = this;
             foreach (var item in items)
             {
-                self = self.TryAdd(item.Item1, item.Item2);
+                self = self.AddOrUpdate(item);
             }
             return self;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> TryAddRange(IEnumerable<KeyValuePair<K, V>> items)
+        public TrieSet<EqK, K> SetItems(IEnumerable<K> items)
         {
             var self = this;
             foreach (var item in items)
             {
-                self = self.TryAdd(item.Key, item.Value);
+                self = self.SetItem(item);
             }
             return self;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> AddOrUpdateRange(IEnumerable<(K Key, V Value)> items)
+        public TrieSet<EqK, K> TrySetItems(IEnumerable<K> items)
         {
             var self = this;
             foreach (var item in items)
             {
-                self = self.AddOrUpdate(item.Key, item.Value);
+                self = self.TrySetItem(item);
             }
             return self;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> AddOrUpdateRange(IEnumerable<Tuple<K, V>> items)
-        {
-            var self = this;
-            foreach (var item in items)
-            {
-                self = self.AddOrUpdate(item.Item1, item.Item2);
-            }
-            return self;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> AddOrUpdateRange(IEnumerable<KeyValuePair<K, V>> items)
-        {
-            var self = this;
-            foreach (var item in items)
-            {
-                self = self.AddOrUpdate(item.Key, item.Value);
-            }
-            return self;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> SetItems(IEnumerable<(K Key, V Value)> items)
-        {
-            var self = this;
-            foreach (var item in items)
-            {
-                self = self.SetItem(item.Key, item.Value);
-            }
-            return self;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items)
-        {
-            var self = this;
-            foreach (var item in items)
-            {
-                self = self.SetItem(item.Key, item.Value);
-            }
-            return self;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> SetItems(IEnumerable<Tuple<K, V>> items)
-        {
-            var self = this;
-            foreach (var item in items)
-            {
-                self = self.SetItem(item.Item1, item.Item2);
-            }
-            return self;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> TrySetItems(IEnumerable<(K Key, V Value)> items)
-        {
-            var self = this;
-            foreach (var item in items)
-            {
-                self = self.TrySetItem(item.Key, item.Value);
-            }
-            return self;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> TrySetItems(IEnumerable<KeyValuePair<K, V>> items)
-        {
-            var self = this;
-            foreach (var item in items)
-            {
-                self = self.TrySetItem(item.Key, item.Value);
-            }
-            return self;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> TrySetItems(IEnumerable<Tuple<K, V>> items)
-        {
-            var self = this;
-            foreach (var item in items)
-            {
-                self = self.TrySetItem(item.Item1, item.Item2);
-            }
-            return self;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> TrySetItems(IEnumerable<K> items, Func<V, V> Some)
-        {
-            var self = this;
-            foreach (var item in items)
-            {
-                self = self.TrySetItem(item, Some);
-            }
-            return self;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> RemoveRange(IEnumerable<K> items)
+        public TrieSet<EqK, K> RemoveRange(IEnumerable<K> items)
         {
             var self = this;
             foreach (var item in items)
@@ -337,111 +184,58 @@ namespace LanguageExt
         /// Set an item that already exists in the map
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> SetItem(K key, V value) =>
-            Update(key, value, UpdateType.SetItem, false);
-
-        /// <summary>
-        /// Set an item that already exists in the map
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> SetItem(K key, Func<V, V> Some)
-        {
-            var value = Find(key).Map(Some).IfNone(() => throw new ArgumentException($"Key doesn't exist in map: {key}"));
-            return SetItem(key, value);
-        }
+        public TrieSet<EqK, K> SetItem(K key) =>
+            Update(key, UpdateType.SetItem, false);
 
         /// <summary>
         /// Try to set an item that already exists in the map.  If none
         /// exists, do nothing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> TrySetItem(K key, V value) =>
-            Update(key, value, UpdateType.TrySetItem, false);
-
-        /// <summary>
-        /// Set an item that already exists in the map
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> TrySetItem(K key, Func<V, V> Some) =>
-            Find(key)
-                .Map(Some)
-                .Match(Some: v => SetItem(key, v),
-                       None: () => this);
+        public TrieSet<EqK, K> TrySetItem(K key) =>
+            Update(key, UpdateType.TrySetItem, false);
 
         /// <summary>
         /// Update an item in the map
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> Update(K key, V value) =>
-            Update(key, value, UpdateType.Add, false);
+        public TrieSet<EqK, K> Update(K key) =>
+            Update(key, UpdateType.Add, false);
 
         /// <summary>
         /// Remove an item from the map
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> Remove(K key)
+        public TrieSet<EqK, K> Remove(K key)
         {
             var hash = (uint)default(EqK).GetHashCode(key);
             Sec section = default;
             var (countDelta, newRoot) = Root.Remove(key, hash, section);
             return ReferenceEquals(newRoot, Root)
                 ? this
-                : new TrieMap<EqK, K, V>(newRoot, count + countDelta);
+                : new TrieSet<EqK, K>(newRoot, count + countDelta);
         }
 
         /// <summary>
         /// Indexer
         /// </summary>
-        public V this[K key]
+        public K this[K key]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                var (found, _, value) = FindInternal(key);
+                var (found, nkey) = FindInternal(key);
                 return found
-                    ? value
+                    ? nkey
                     : throw new ArgumentException($"Key doesn't exist in map: {key}");
             }
-        }
-
-        /// <summary>
-        /// Get a key value pair from a key
-        /// </summary>
-        public (K Key, V Value) Get(K key)
-        {
-            var (found, nkey, value) = FindInternal(key);
-            return found
-                ? (nkey, value)
-                : throw new ArgumentException($"Key doesn't exist in map: {key}");
-        }
-
-        /// <summary>
-        /// Get a key value pair from a key
-        /// </summary>
-        public Option<(K Key, V Value)> GetOption(K key)
-        {
-            var (found, nkey, value) = FindInternal(key);
-            return found
-                ? Some((nkey, value))
-                : default;
-        }
-
-        /// <summary>
-        /// Get a key value pair from a key
-        /// </summary>
-        public Option<K> GetKeyOption(K key)
-        {
-            var (found, nkey, value) = FindInternal(key);
-            return found
-                ? Some(nkey)
-                : default;
         }
 
         /// <summary>
         /// Create an empty map
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> Clear() =>
+        public TrieSet<EqK, K> Clear() =>
             Empty;
 
         /// <summary>
@@ -461,42 +255,14 @@ namespace LanguageExt
             FindInternal(key).Found;
 
         /// <summary>
-        /// Returns the whether the `value` exists in the map
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains(V value) =>
-            Contains<EqDefault<V>>(value);
-
-        /// <summary>
-        /// Returns the whether the `value` exists in the map
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains<EqV>(V value) where EqV: struct, Eq<V> =>
-            Values.Exists(v => default(EqV).Equals(v, value));
-
-        /// <summary>
-        /// Returns the whether the `key` exists in the map
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains(K key, V value) =>
-            Find(key).Map(v => ReferenceEquals(v, value) || (v?.Equals(value) ?? false)).IfNone(false);
-
-        /// <summary>
-        /// Returns the whether the `key` exists in the map
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains<EqV>(K key, V Value) where EqV : struct, Eq<V> =>
-            Find(key).Map(v => default(EqV).Equals(v, Value)).IfNone(false);
-
-        /// <summary>
         /// Returns the value associated with `key`.  Or None, if no key exists
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Option<V> Find(K key)
+        public Option<K> Find(K key)
         {
-            var (found, _, value) = FindInternal(key);
+            var (found, nkey) = FindInternal(key);
             return found
-                ? Some(value)
+                ? Some(nkey)
                 : default;
         }
 
@@ -504,7 +270,7 @@ namespace LanguageExt
         /// Returns the value associated with `key`.  Or None, if no key exists
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        (bool Found, K Key, V Value) FindInternal(K key)
+        (bool Found, K Key) FindInternal(K key)
         {
             var hash = (uint)default(EqK).GetHashCode(key);
             Sec section = default;
@@ -512,108 +278,49 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Returns the value associated with `key` then match the result
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public R Find<R>(K key, Func<V, R> Some, Func<R> None)
-        {
-            var (found, _, value) = FindInternal(key);
-            return found
-                ? Some(value)
-                : None();
-        }
-
-        /// <summary>
-        /// Tries to find the value, if not adds it and returns the update map and/or value
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public (TrieMap<EqK, K, V> Map, V Value) FindOrAdd(K key, Func<V> None) =>
-            Find(key, Some: v => (this, v), None: () =>
-            {
-                var v = None();
-                return (Add(key, v), v);
-            });
-
-        /// <summary>
-        /// Tries to find the value, if not adds it and returns the update map and/or value
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public (TrieMap<EqK, K, V> Map, V Value) FindOrAdd(K key, V value) =>
-            Find(key, Some: v => (this, v), None: () => (Add(key, value), value));
-
-        /// <summary>
-        /// Tries to find the value, if not adds it and returns the update map and/or value
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public (TrieMap<EqK, K, V> Map, Option<V> Value) FindOrMaybeAdd(K key, Func<Option<V>> None) =>
-            Find(key, Some: v => (this, v), None: () =>
-            {
-                var v = None();
-                return v.IsSome
-                    ? (Add(key, (V)v), v)
-                    : (this, v);
-            });
-
-        /// <summary>
-        /// Tries to find the value, if not adds it and returns the update map and/or value
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public (TrieMap<EqK, K, V> Map, Option<V> Value) FindOrMaybeAdd(K key, Option<V> value) =>
-            Find(key, Some: v => (this, v), None: () =>
-                value.IsSome
-                    ? (Add(key, (V)value), value)
-                    : (this, value));
-
-        /// <summary>
         /// Returns the value associated with `key`.  Or None, if no key exists
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<V> FindSeq(K key) =>
+        public Seq<K> FindSeq(K key) =>
             Find(key).ToSeq();
 
         /// <summary>
-        /// Map from V to U
+        /// Map from K to U
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, U> Map<U>(Func<V, U> f) =>
-            new TrieMap<EqK, K, U>(AsEnumerable().Select(kv => (kv.Key, f(kv.Value))), false);
+        public TrieSet<EqU, U> Map<EqU, U>(Func<K, U> f) 
+            where EqU : struct, Eq<U> =>
+                new TrieSet<EqU, U>(AsEnumerable().Select(f), true);
 
         /// <summary>
-        /// Map from V to U
+        /// Map from K to K
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, U> Map<U>(Func<K, V, U> f) =>
-            new TrieMap<EqK, K, U>(AsEnumerable().Select(kv => (kv.Key, f(kv.Key, kv.Value))), false);
-
-        /// <summary>
-        /// Filter
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> Filter(Func<V, bool> f) =>
-            new TrieMap<EqK, K, V>(AsEnumerable().Filter(kv => f(kv.Value)), false);
+        public TrieSet<EqK, K> Map(Func<K, K> f) =>
+            new TrieSet<EqK, K>(AsEnumerable().Select(f), true);
 
         /// <summary>
         /// Filter
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> Filter(Func<K, V, bool> f) =>
-            new TrieMap<EqK, K, V>(AsEnumerable().Filter(kv => f(kv.Key, kv.Value)), false);
+        public TrieSet<EqK, K> Filter(Func<K, bool> f) =>
+            new TrieSet<EqK, K>(AsEnumerable().Filter(f), false);
 
         /// <summary>
         /// Associative union
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> Append(TrieMap<EqK, K, V> rhs) =>
+        public TrieSet<EqK, K> Append(TrieSet<EqK, K> rhs) =>
             TryAddRange(rhs.AsEnumerable());
 
         /// <summary>
         /// Subtract
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TrieMap<EqK, K, V> Subtract(TrieMap<EqK, K, V> rhs)
+        public TrieSet<EqK, K> Subtract(TrieSet<EqK, K> rhs)
         {
             var lhs = this;
-            foreach (var item in rhs.Keys)
+            foreach (var item in rhs)
             {
                 lhs = lhs.Remove(item);
             }
@@ -624,28 +331,28 @@ namespace LanguageExt
         /// Union
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TrieMap<EqK, K, V> operator +(TrieMap<EqK, K, V> lhs, TrieMap<EqK, K, V> rhs) =>
+        public static TrieSet<EqK, K> operator +(TrieSet<EqK, K> lhs, TrieSet<EqK, K> rhs) =>
             lhs.Append(rhs);
 
         /// <summary>
         /// Subtract
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TrieMap<EqK, K, V> operator -(TrieMap<EqK, K, V> lhs, TrieMap<EqK, K, V> rhs) =>
+        public static TrieSet<EqK, K> operator -(TrieSet<EqK, K> lhs, TrieSet<EqK, K> rhs) =>
             lhs.Subtract(rhs);
 
         /// <summary>
         /// Equality
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(TrieMap<EqK, K, V> lhs, TrieMap<EqK, K, V> rhs) =>
+        public static bool operator ==(TrieSet<EqK, K> lhs, TrieSet<EqK, K> rhs) =>
             lhs.Equals(rhs);
 
         /// <summary>
         /// Non equality
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(TrieMap<EqK, K, V> lhs, TrieMap<EqK, K, V> rhs) =>
+        public static bool operator !=(TrieSet<EqK, K> lhs, TrieSet<EqK, K> rhs) =>
             (lhs != rhs);
 
         /// <summary>
@@ -653,20 +360,12 @@ namespace LanguageExt
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object rhs) =>
-            rhs is TrieMap<EqK, K, V> map && Equals<EqDefault<V>>(map);
+            rhs is TrieSet<EqK, K> map && Equals(map);
 
         /// <summary>
         /// Equality
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(TrieMap<EqK, K, V> rhs) =>
-            Equals<EqDefault<V>>(rhs);
-
-        /// <summary>
-        /// Equality
-        /// </summary>
-        public bool Equals<EqV>(TrieMap<EqK, K, V> rhs)
-            where EqV : struct, Eq<V>
+        public bool Equals(TrieSet<EqK, K> rhs)
         {
             if (ReferenceEquals(this, rhs)) return true;
             if (ReferenceEquals(rhs, null)) return false;
@@ -675,13 +374,7 @@ namespace LanguageExt
             var iterB = rhs.GetEnumerator();
             while (iterA.MoveNext() && iterB.MoveNext())
             {
-                if (!default(EqK).Equals(iterA.Current.Key, iterB.Current.Key)) return false;
-            }
-            iterA = GetEnumerator();
-            iterB = rhs.GetEnumerator();
-            while (iterA.MoveNext() && iterB.MoveNext())
-            {
-                if (!default(EqV).Equals(iterA.Current.Value, iterB.Current.Value)) return false;
+                if (!default(EqK).Equals(iterA.Current, iterB.Current)) return false;
             }
             return true;
         }
@@ -690,22 +383,15 @@ namespace LanguageExt
         /// Update an item in the map - can mutate if needed
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        TrieMap<EqK, K, V> Update(K key, V value, UpdateType type, bool mutate)
+        TrieSet<EqK, K> Update(K key, UpdateType type, bool mutate)
         {
             var hash = (uint)default(EqK).GetHashCode(key);
             Sec section = default;
-            var (countDelta, newRoot) = Root.Update((type, mutate), (key, value), hash, section);
+            var (countDelta, newRoot) = Root.Update((type, mutate), key, hash, section);
             return ReferenceEquals(newRoot, Root)
                 ? this
-                : new TrieMap<EqK, K, V>(newRoot, count + countDelta);
+                : new TrieSet<EqK, K>(newRoot, count + countDelta);
         }
-
-        /// <summary>
-        /// Returns True if 'other' is a proper subset of this set
-        /// </summary>
-        /// <returns>True if 'other' is a proper subset of this set</returns>
-        public bool IsProperSubsetOf(IEnumerable<(K Key, V Value)> other) =>
-            IsProperSubsetOf(other.Map(x => x.Key));
 
         /// <summary>
         /// Returns True if 'other' is a proper subset of this set
@@ -744,13 +430,6 @@ namespace LanguageExt
         /// Returns True if 'other' is a proper superset of this set
         /// </summary>
         /// <returns>True if 'other' is a proper superset of this set</returns>
-        public bool IsProperSupersetOf(IEnumerable<(K Key, V Value)> other) =>
-            IsProperSupersetOf(other.Map(x => x.Key));
-
-        /// <summary>
-        /// Returns True if 'other' is a proper superset of this set
-        /// </summary>
-        /// <returns>True if 'other' is a proper superset of this set</returns>
         public bool IsProperSupersetOf(IEnumerable<K> other)
         {
             if (IsEmpty)
@@ -769,28 +448,6 @@ namespace LanguageExt
             }
 
             return Count > matchCount;
-        }
-
-        /// <summary>
-        /// Returns True if 'other' is a superset of this set
-        /// </summary>
-        /// <returns>True if 'other' is a superset of this set</returns>
-        public bool IsSubsetOf(IEnumerable<(K Key, V Value)> other)
-        {
-            if (IsEmpty)
-            {
-                return true;
-            }
-
-            int matches = 0;
-            foreach (var item in other)
-            {
-                if (ContainsKey(item.Key))
-                {
-                    matches++;
-                }
-            }
-            return matches == Count;
         }
 
         /// <summary>
@@ -819,7 +476,7 @@ namespace LanguageExt
         /// Returns True if 'other' is a superset of this set
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
-        public bool IsSubsetOf(TrieMap<EqK, K, V> other)
+        public bool IsSubsetOf(TrieSet<EqK, K> other)
         {
             if (IsEmpty)
             {
@@ -846,13 +503,6 @@ namespace LanguageExt
         /// Returns True if 'other' is a superset of this set
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
-        public bool IsSupersetOf(IEnumerable<(K Key, V Value)> other) =>
-            IsSupersetOf(other.Map(x => x.Key));
-
-        /// <summary>
-        /// Returns True if 'other' is a superset of this set
-        /// </summary>
-        /// <returns>True if 'other' is a superset of this set</returns>
         public bool IsSupersetOf(IEnumerable<K> other)
         {
             foreach (var item in other)
@@ -864,12 +514,6 @@ namespace LanguageExt
             }
             return true;
         }
-
-        /// <summary>
-        /// Returns True if other overlaps this set
-        /// </summary>
-        public bool Overlaps(IEnumerable<(K Key, V Value)> other) =>
-            Overlaps(other.Map(x => x.Key));
 
         /// <summary>
         /// Returns True if other overlaps this set
@@ -894,36 +538,22 @@ namespace LanguageExt
         /// <summary>
         /// Returns the elements that are in both this and other
         /// </summary>
-        public TrieMap<EqK, K, V> Intersect(IEnumerable<K> other)
+        public TrieSet<EqK, K> Intersect(IEnumerable<K> other)
         {
-            var res = new List<(K, V)>();
+            var res = new List<K>();
             foreach (var item in other)
             {
-                var litem = GetOption(item);
-                if (litem.IsSome) res.Add(((K, V))litem);
+                var litem = Find(item);
+                if (litem.IsSome) res.Add((K)litem);
             }
-            return new TrieMap<EqK, K, V>(res);
-        }
-
-        /// <summary>
-        /// Returns the elements that are in both this and other
-        /// </summary>
-        public TrieMap<EqK, K, V> Intersect(IEnumerable<(K Key, V Value)> other)
-        {
-            var res = new List<(K, V)>();
-            foreach (var item in other)
-            {
-                var litem = GetOption(item.Key);
-                if (litem.IsSome) res.Add(((K, V))litem);
-            }
-            return new TrieMap<EqK, K, V>(res);
+            return new TrieSet<EqK, K>(res);
         }
 
         /// <summary>
         /// Returns this - other.  Only the items in this that are not in 
         /// other will be returned.
         /// </summary>
-        public TrieMap<EqK, K, V> Except(IEnumerable<K> other)
+        public TrieSet<EqK, K> Except(IEnumerable<K> other)
         {
             var self = this;
             foreach (var item in other)
@@ -934,30 +564,23 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Returns this - other.  Only the items in this that are not in 
-        /// other will be returned.
+        /// Only items that are in one set or the other will be returned.
+        /// If an item is in both, it is dropped.
         /// </summary>
-        public TrieMap<EqK, K, V> Except(IEnumerable<(K Key, V Value)> other)
-        {
-            var self = this;
-            foreach (var item in other)
-            {
-                self = self.Remove(item.Key);
-            }
-            return self;
-        }
+        public TrieSet<EqK, K> SymmetricExcept(IEnumerable<K> rhs) =>
+            SymmetricExcept(new TrieSet<EqK, K>(rhs, true));
 
         /// <summary>
         /// Only items that are in one set or the other will be returned.
         /// If an item is in both, it is dropped.
         /// </summary>
-        public TrieMap<EqK, K, V> SymmetricExcept(TrieMap<EqK, K, V> rhs)
+        public TrieSet<EqK, K> SymmetricExcept(TrieSet<EqK, K> rhs)
         {
-            var res = new List<(K Key, V Value)>();
+            var res = new List<K>();
 
             foreach (var item in this)
             {
-                if (!rhs.ContainsKey(item.Key))
+                if (!rhs.ContainsKey(item))
                 {
                     res.Add(item);
                 }
@@ -965,41 +588,13 @@ namespace LanguageExt
 
             foreach (var item in rhs)
             {
-                if (!ContainsKey(item.Key))
+                if (!ContainsKey(item))
                 {
                     res.Add(item);
                 }
             }
 
-            return new TrieMap<EqK, K, V>(res);
-        }
-
-        /// <summary>
-        /// Only items that are in one set or the other will be returned.
-        /// If an item is in both, it is dropped.
-        /// </summary>
-        public TrieMap<EqK, K, V> SymmetricExcept(IEnumerable<(K Key, V Value)> other)
-        {
-            var rhs = other.ToDictionary(kv => kv.Key, kv => kv.Value);
-            var res = new List<(K Key, V Value)>();
-
-            foreach (var item in this)
-            {
-                if (!rhs.ContainsKey(item.Key))
-                {
-                    res.Add(item);
-                }
-            }
-
-            foreach (var item in other)
-            {
-                if (!ContainsKey(item.Key))
-                {
-                    res.Add(item);
-                }
-            }
-
-            return new TrieMap<EqK, K, V>(res);
+            return new TrieSet<EqK, K>(res);
         }
 
         /// <summary>
@@ -1008,7 +603,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="other">Other set to union with</param>
         /// <returns>A set which contains all items from both sets</returns>
-        public TrieMap<EqK, K, V> Union(IEnumerable<(K, V)> other) =>
+        public TrieSet<EqK, K> Union(IEnumerable<K> other) =>
             this.TryAddRange(other);
 
         /// <summary>
@@ -1019,11 +614,11 @@ namespace LanguageExt
         ///     Collision - keeps track of items that have different keys but the same hash
         /// 
         /// </summary>
-        internal interface Node : IEnumerable<(K, V)>
+        internal interface Node : IEnumerable<K>
         {
             Tag Type { get; }
-            (bool Found, K Key, V Value) Read(K key, uint hash, Sec section);
-            (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section);
+            (bool Found, K Key) Read(K key, uint hash, Sec section);
+            (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, K change, uint hash, Sec section);
             (int CountDelta, Node Node) Remove(K key, uint hash, Sec section);
         }
 
@@ -1041,12 +636,12 @@ namespace LanguageExt
         {
             public readonly uint EntryMap;
             public readonly uint NodeMap;
-            public readonly (K Key, V Value)[] Items;
+            public readonly K[] Items;
             public readonly Node[] Nodes;
 
             public Tag Type => Tag.Entries;
 
-            public Entries(uint entryMap, uint nodeMap, (K, V)[] items, Node[] nodes)
+            public Entries(uint entryMap, uint nodeMap, K[] items, Node[] nodes)
             {
                 EntryMap = entryMap;
                 NodeMap = nodeMap;
@@ -1054,7 +649,7 @@ namespace LanguageExt
                 Nodes = nodes;
             }
 
-            public void Deconstruct(out uint entryMap, out uint nodeMap, out (K, V)[] items, out Node[] nodes)
+            public void Deconstruct(out uint entryMap, out uint nodeMap, out K[] items, out Node[] nodes)
             {
                 entryMap = EntryMap;
                 nodeMap = NodeMap;
@@ -1071,7 +666,7 @@ namespace LanguageExt
                 {
                     // If key belongs to an entry
                     var ind = Index(EntryMap, mask);
-                    if (default(EqK).Equals(Items[ind].Key, key))
+                    if (default(EqK).Equals(Items[ind], key))
                     {
                         return (-1, 
                             new Entries(
@@ -1105,7 +700,7 @@ namespace LanguageExt
                                 {
                                     // Build a new Entries for this level with the sublevel mask fixed
                                     return (cd, new Entries(
-                                        Mask(Bit.Get((uint)default(EqK).GetHashCode(subEntries.Items[0].Key), section)),
+                                        Mask(Bit.Get((uint)default(EqK).GetHashCode(subEntries.Items[0]), section)),
                                         0,
                                         Clone(subEntries.Items),
                                         new Node[0]
@@ -1143,7 +738,7 @@ namespace LanguageExt
                 }
             }
 
-            public (bool Found, K Key, V Value) Read(K key, uint hash, Sec section)
+            public (bool Found, K Key) Read(K key, uint hash, Sec section)
             {                                                                                         
                 // var hashIndex = Bit.Get(hash, section);
                 // Mask(hashIndex)
@@ -1154,10 +749,10 @@ namespace LanguageExt
                 {
                     // var entryIndex = Index(EntryMap, mask);
                     var entryIndex = BitCount((int)EntryMap & (((int)mask) - 1));                     
-                    if (default(EqK).Equals(Items[entryIndex].Key, key))
+                    if (default(EqK).Equals(Items[entryIndex], key))
                     {
                         var item = Items[entryIndex];
-                        return (true, item.Key, item.Value);
+                        return (true, item);
                     }
                     else
                     {
@@ -1177,7 +772,7 @@ namespace LanguageExt
                 }
             }
 
-            public (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
+            public (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, K change, uint hash, Sec section)
             {
                 // var hashIndex = Bit.Get(hash, section);
                 // var mask = Mask(hashIndex);
@@ -1190,12 +785,12 @@ namespace LanguageExt
                     var entryIndex = BitCount((int)EntryMap & (((int)mask) - 1));
                     var currentEntry = Items[entryIndex];
 
-                    if (default(EqK).Equals(currentEntry.Key, change.Key))
+                    if (default(EqK).Equals(currentEntry, change))
                     {
                         if (env.Type == UpdateType.Add)
                         {
                             // Key already exists - so it's an error to add again
-                            throw new ArgumentException($"Key already exists in map: {change.Key}");
+                            throw new ArgumentException($"Key already exists in map: {change}");
                         }
                         else if (env.Type == UpdateType.TryAdd)
                         {
@@ -1211,7 +806,7 @@ namespace LanguageExt
                         if (env.Type == UpdateType.SetItem)
                         {
                             // Key must already exist to set it
-                            throw new ArgumentException($"Key already exists in map: {change.Key}");
+                            throw new ArgumentException($"Key already exists in map: {change}");
                         }
                         else if (env.Type == UpdateType.TrySetItem)
                         {
@@ -1220,14 +815,14 @@ namespace LanguageExt
                         }
 
                         // Add
-                        var node = Merge(change, currentEntry, hash, (uint)default(EqK).GetHashCode(currentEntry.Key), section);
+                        var node = Merge(change, currentEntry, hash, (uint)default(EqK).GetHashCode(currentEntry), section);
 
                         //var newItems = Items.Filter(elem => !default(EqK).Equals(elem.Key, currentEntry.Key)).ToArray();
-                        var newItems = new (K Key, V Value)[Items.Length - 1];
+                        var newItems = new K[Items.Length - 1];
                         var i = 0;
                         foreach(var elem in Items)
                         {
-                            if(!default(EqK).Equals(elem.Key, currentEntry.Key))
+                            if(!default(EqK).Equals(elem, currentEntry))
                             {
                                 newItems[i] = elem;
                                 i++;
@@ -1267,7 +862,7 @@ namespace LanguageExt
                     if (env.Type == UpdateType.SetItem)
                     {
                         // Key must already exist to set it
-                        throw new ArgumentException($"Key doesn't exist in map: {change.Key}");
+                        throw new ArgumentException($"Key doesn't exist in map: {change}");
                     }
                     else if (env.Type == UpdateType.TrySetItem)
                     {
@@ -1286,7 +881,7 @@ namespace LanguageExt
                 }
             }
 
-            public IEnumerator<(K, V)> GetEnumerator()
+            public IEnumerator<K> GetEnumerator()
             {
                 foreach (var item in Items)
                 {
@@ -1311,24 +906,24 @@ namespace LanguageExt
         /// </summary>
         internal class Collision : Node
         {
-            public readonly (K Key, V Value)[] Items;
+            public readonly K[] Items;
             public readonly uint Hash;
 
             public Tag Type => Tag.Collision;
 
-            public Collision((K Key, V Value)[] items, uint hash)
+            public Collision(K[] items, uint hash)
             {
                 Items = items;
                 Hash = hash;
             }
 
-            public (bool Found, K Key, V Value) Read(K key, uint hash, Sec section)
+            public (bool Found, K Key) Read(K key, uint hash, Sec section)
             {
                 foreach (var kv in Items)
                 {
-                    if (default(EqK).Equals(kv.Key, key))
+                    if (default(EqK).Equals(kv, key))
                     {
-                        return (true, kv.Key, kv.Value);
+                        return (true, kv);
                     }
                 }
                 return default;
@@ -1341,7 +936,7 @@ namespace LanguageExt
                 else if (len == 1) return (-1, EmptyNode.Default);
                 else if (len == 2)
                 {
-                    var (_, n) = default(EqK).Equals(Items[0].Key, key)
+                    var (_, n) = default(EqK).Equals(Items[0], key)
                         ? EmptyNode.Default.Update((UpdateType.Add, false), Items[1], hash, default)
                         : EmptyNode.Default.Update((UpdateType.Add, false), Items[0], hash, default);
 
@@ -1349,11 +944,11 @@ namespace LanguageExt
                 }
                 else
                 {
-                    IEnumerable<(K, V)> Yield((K Key, V Value)[] items, K ikey)
+                    IEnumerable<K> Yield(K[] items, K ikey)
                     {
                         foreach (var item in items)
                         {
-                            if (!default(EqK).Equals(item.Key, ikey))
+                            if (!default(EqK).Equals(item, ikey))
                             {
                                 yield return item;
                             }
@@ -1366,12 +961,12 @@ namespace LanguageExt
                 }
             }
 
-            public (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
+            public (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, K change, uint hash, Sec section)
             {
                 var index = -1;
                 for (var i = 0; i < Items.Length; i++)
                 {
-                    if (default(EqK).Equals(Items[i].Key, change.Key))
+                    if (default(EqK).Equals(Items[i], change))
                     {
                         index = i;
                         break;
@@ -1383,7 +978,7 @@ namespace LanguageExt
                     if (env.Type == UpdateType.Add)
                     {
                         // Key already exists - so it's an error to add again
-                        throw new ArgumentException($"Key already exists in map: {change.Key}");
+                        throw new ArgumentException($"Key already exists in map: {change}");
                     }
                     else if (env.Type == UpdateType.TryAdd)
                     {
@@ -1399,7 +994,7 @@ namespace LanguageExt
                     if (env.Type == UpdateType.SetItem)
                     {
                         // Key must already exist to set it
-                        throw new ArgumentException($"Key doesn't exist in map: {change.Key}");
+                        throw new ArgumentException($"Key doesn't exist in map: {change}");
                     }
                     else if (env.Type == UpdateType.TrySetItem)
                     {
@@ -1407,14 +1002,14 @@ namespace LanguageExt
                         return (0, this);
                     }
 
-                    var nitems = new (K, V)[Items.Length + 1];
+                    var nitems = new K[Items.Length + 1];
                     System.Array.Copy(Items, nitems, Items.Length);
                     nitems[Items.Length] = change;
                     return (1, new Collision(nitems, hash));
                 }
             }
 
-            public IEnumerator<(K, V)> GetEnumerator() =>
+            public IEnumerator<K> GetEnumerator() =>
                 Items.AsEnumerable().GetEnumerator();
 
             IEnumerator IEnumerable.GetEnumerator() =>
@@ -1430,18 +1025,18 @@ namespace LanguageExt
 
             public Tag Type => Tag.Empty;
 
-            public (bool Found, K Key, V Value) Read(K key, uint hash, Sec section) =>
+            public (bool Found, K Key) Read(K key, uint hash, Sec section) =>
                 default;
 
             public (int CountDelta, Node Node) Remove(K key, uint hash, Sec section) =>
                 (0, this);
 
-            public (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, (K Key, V Value) change, uint hash, Sec section)
+            public (int CountDelta, Node Node) Update((UpdateType Type, bool Mutate) env, K change, uint hash, Sec section)
             {
                 if (env.Type == UpdateType.SetItem)
                 {
                     // Key must already exist to set it
-                    throw new ArgumentException($"Key doesn't exist in map: {change.Key}");
+                    throw new ArgumentException($"Key doesn't exist in map: {change}");
                 }
                 else if (env.Type == UpdateType.TrySetItem)
                 {
@@ -1453,7 +1048,7 @@ namespace LanguageExt
                 return (1, new Entries(dataMap, 0, new[] { change }, new Node[0]));
             }
 
-            public IEnumerator<(K, V)> GetEnumerator()
+            public IEnumerator<K> GetEnumerator()
             {
                 yield break;
             }
@@ -1465,13 +1060,13 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Merges two key-value pairs into a single Node
+        /// Merges two keys into a single Node
         /// </summary>
-        static Node Merge((K, V) pair1, (K, V) pair2, uint pair1Hash, uint pair2Hash, Sec section)
+        static Node Merge(K key1, K key2, uint pair1Hash, uint pair2Hash, Sec section)
         {
             if (section.Offset >= 25)
             {
-                return new Collision(new[] { pair1, pair2 }, pair1Hash);
+                return new Collision(new[] { key1, key2 }, pair1Hash);
             }
             else
             {
@@ -1480,25 +1075,25 @@ namespace LanguageExt
                 var pair2Index = Bit.Get(pair2Hash, nextLevel);
                 if (pair1Index == pair2Index)
                 {
-                    var node = Merge(pair1, pair2, pair1Hash, pair2Hash, nextLevel);
+                    var node = Merge(key1, key2, pair1Hash, pair2Hash, nextLevel);
                     var nodeMap = Mask(pair1Index);
-                    return new Entries(0, nodeMap, new (K, V)[0], new[] { node });
+                    return new Entries(0, nodeMap, new K[0], new[] { node });
                 }
                 else
                 {
                     var dataMap = Mask(pair1Index);
                     dataMap = Bit.Set(dataMap, Mask(pair2Index), true);
                     return new Entries(dataMap, 0, pair1Index < pair2Index
-                        ? new[] { pair1, pair2 }
-                        : new[] { pair2, pair1 }, new Node[0]);
+                        ? new[] { key1, key2 }
+                        : new[] { key2, key1 }, new Node[0]);
                 }
             }
         }
 
-        public IEnumerable<(K Key, V Value)> AsEnumerable() =>
+        public IEnumerable<K> AsEnumerable() =>
             Root;
 
-        public IEnumerator<(K Key, V Value)> GetEnumerator() =>
+        public IEnumerator<K> GetEnumerator() =>
             Root.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() =>
@@ -1623,24 +1218,15 @@ namespace LanguageExt
 
         public override string ToString() =>
             count < 50
-                ? $"[{ String.Join(", ", AsEnumerable().Select(TupleToString)) }]"
-                : $"[{ String.Join(", ", AsEnumerable().Select(TupleToString).Take(50)) } ... ]";
+                ? $"[{ String.Join(", ", AsEnumerable()) }]"
+                : $"[{ String.Join(", ", AsEnumerable().Take(50)) } ... ]";
 
-        string TupleToString((K Key, V Value) tuple) =>
-            $"({tuple.Key}, {tuple.Value})";
-
-        public IEnumerable<K> Keys =>
-            AsEnumerable().Select(kv => kv.Key);
-
-        public IEnumerable<V> Values =>
-            AsEnumerable().Select(kv => kv.Value);
-
-        public bool TryGetValue(K key, out V value)
+        public bool TryGetValue(K key, out K value)
         {
             var ov = Find(key);
             if (ov.IsSome)
             {
-                value = (V)ov;
+                value = (K)ov;
                 return true;
             }
             else
@@ -1650,57 +1236,7 @@ namespace LanguageExt
             }
         }
 
-        IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-            AsEnumerable().Select(kv => new KeyValuePair<K, V>(kv.Key, kv.Value))
-                          .GetEnumerator();
-    }
-
-    internal struct Sec
-    {
-        public const int Mask = 31;
-        public readonly int Offset;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Sec(int offset) =>
-            Offset = offset;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Sec Next() =>
-            new Sec(Offset + 5);
-    }
-
-    internal static class Bit
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint Set(uint value, int bit, bool flag) =>
-            flag
-                ? value | (uint)bit
-                : value & (~(uint)bit);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint Set(uint value, uint bit, bool flag) =>
-            flag
-                ? value | bit
-                : value & (~bit);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Get(uint value, int bit) =>
-            (value & (uint)bit) == (uint)bit;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Get(uint value, uint bit) =>
-            (value & bit) == bit;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Get(uint data, Sec section) =>
-            (int)((data & (uint)(Sec.Mask << section.Offset)) >> section.Offset);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint Set(uint data, Sec section, int value)
-        {
-            value <<= section.Offset;
-            int offsetMask = (0xFFFF & (int)Sec.Mask) << section.Offset;
-            return (data & ~(uint)offsetMask) | ((uint)value & (uint)offsetMask);
-        }
+        IEnumerator<K> IEnumerable<K>.GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
     }
 }

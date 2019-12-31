@@ -113,7 +113,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static bool equals<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : struct, Eq<T> =>
-            setA.SetEquals(setB);
+            setA.Equals(setB);
 
         /// <summary>
         /// Get the number of elements in the set
