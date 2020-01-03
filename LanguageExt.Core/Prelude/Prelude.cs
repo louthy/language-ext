@@ -145,6 +145,38 @@ namespace LanguageExt
             x;
 
         /// <summary>
+        /// Constant function
+        /// Always returns the first argument
+        /// </summary>
+        [Pure]
+        public static Func<B, A> constant<A, B>(A x) =>
+            _ => x;
+
+        /// <summary>
+        /// Constant function
+        /// Always returns the first argument
+        /// </summary>
+        [Pure]
+        public static A constant<A, B>(A x, B _) =>
+            x;
+
+        /// <summary>
+        /// Constant function
+        /// Always returns the first argument
+        /// </summary>
+        [Pure]
+        public static Func<A, A> constantA<A>(A x) =>
+            _ => x;
+
+        /// <summary>
+        /// Constant function
+        /// Always returns the first argument
+        /// </summary>
+        [Pure]
+        public static A constantA<A>(A x, A _) =>
+            x;
+
+        /// <summary>
         /// Raises a lazy Exception with the message provided
         /// </summary>
         /// <param name="message">Exception message</param>
