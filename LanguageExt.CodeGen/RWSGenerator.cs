@@ -549,7 +549,7 @@ namespace LanguageExt.CodeGen
                                                                     MemberAccessExpression(
                                                                         SyntaxKind.SimpleMemberAccessExpression,
                                                                         structB,
-                                                                        IdentifierName("Pure")))
+                                                                        IdentifierName(this.ctorName)))
                                                                 .WithArgumentList(
                                                                     ArgumentList(
                                                                         SingletonSeparatedList<ArgumentSyntax>(
