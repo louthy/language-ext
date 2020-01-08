@@ -173,12 +173,36 @@ namespace LanguageExt.CodeGen
 
         public static TypeDeclarationSyntax AddLenses(TypeDeclarationSyntax partialClass, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
         {
+            TypeDeclarationSyntax lensClass = ClassDeclaration("__LensFields")
+                                                  .WithModifiers(TokenList(Token(SyntaxKind.StaticKeyword)));
+
             foreach (var member in members)
             {
-                partialClass = AddLens(partialClass, returnType, member);
+                partialClass = AddLensProp(partialClass, returnType, member);
+                lensClass = AddLens(lensClass, returnType, member);
             }
-            return partialClass;
+            return partialClass.AddMembers(lensClass);
         }
+
+        public static TypeDeclarationSyntax AddLensProp(TypeDeclarationSyntax partialClass, TypeSyntax returnType, (SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers) member) =>
+            partialClass.AddMembers(
+                PropertyDeclaration(
+                    GenericName(Identifier("Lens"))
+                        .WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(new[] { returnType, member.Type }))),
+                    Identifier(MakeCamelCaseId(member.Identifier).Text))
+                .WithModifiers(
+                    TokenList(
+                        new[]{
+                            Token(SyntaxKind.PublicKeyword),
+                            Token(SyntaxKind.StaticKeyword)}))
+                .WithExpressionBody(
+                    ArrowExpressionClause(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName("__LensFields"),
+                            IdentifierName(MakeCamelCaseId(member.Identifier).Text))))
+                .WithSemicolonToken(
+                    Token(SyntaxKind.SemicolonToken)));
 
         public static TypeDeclarationSyntax AddLens(TypeDeclarationSyntax partialClass, TypeSyntax returnType, (SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers) member)
         {
@@ -237,9 +261,11 @@ namespace LanguageExt.CodeGen
 
             lfield = lfield.WithModifiers(
                 TokenList(
-                    Enumerable.Concat(
-                        member.Modifiers.Where(m => m.IsKind(SyntaxKind.PublicKeyword) || m.IsKind(SyntaxKind.PrivateKeyword) || m.IsKind(SyntaxKind.ProtectedKeyword)),
-                        new[] { Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword) })));
+                    //Enumerable.Concat(
+                    //    member.Modifiers.Where(m => m.IsKind(SyntaxKind.PublicKeyword) || m.IsKind(SyntaxKind.PrivateKeyword) || m.IsKind(SyntaxKind.ProtectedKeyword)),
+                    //    new[] { Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword) })
+                    new[] { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword) })
+                    );
 
             return partialClass.AddMembers(lfield);
         }
