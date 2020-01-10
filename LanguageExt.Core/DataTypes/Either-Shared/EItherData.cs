@@ -9,7 +9,7 @@ namespace LanguageExt.DataTypes.Serialisation
             new EitherData<L, R>(EitherStatus.IsRight, rightValue, default(L));
 
         public static EitherData<L, R> Left<L, R>(L leftValue) =>
-            new EitherData<L, R>(EitherStatus.IsRight, default(R), leftValue);
+            new EitherData<L, R>(EitherStatus.IsLeft, default(R), leftValue);
 
         public static EitherData<L, R> Bottom<L, R>() =>
             EitherData<L, R>.Bottom;

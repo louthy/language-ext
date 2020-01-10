@@ -112,6 +112,11 @@ class Program
 
     static void Main(string[] args)
     {
+        var p = new Person("P", "L");
+
+        var l1 = Person.forename;
+        var l2 = Person.surname;
+
         InsertRangeIssue();
         Matching();
         Issue675();
