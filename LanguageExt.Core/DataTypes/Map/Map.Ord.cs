@@ -623,6 +623,31 @@ namespace LanguageExt
         public Seq<(K Key, V Value)> ToSeq() =>
             Seq(this);
 
+        /// <summary>
+        /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
+        /// The elipsis is used for collections over 50 items
+        /// To get a formatted string with all the items, use `ToFullString`
+        /// or `ToFullArrayString`.
+        /// </summary>
+        [Pure]
+        public override string ToString() =>
+            CollectionFormat.ToShortArrayString(ValueTuples.Map(kv => $"({kv.Key}: {kv.Value})"), Count);
+
+        /// <summary>
+        /// Format the collection as `(key: value), (key: value), (key: value), ...`
+        /// </summary>
+        [Pure]
+        public string ToFullString(string separator = ", ") =>
+            CollectionFormat.ToFullString(ValueTuples.Map(kv => $"({kv.Key}: {kv.Value})"));
+
+        /// <summary>
+        /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
+        /// </summary>
+        [Pure]
+        public string ToFullArrayString(string separator = ", ") =>
+            CollectionFormat.ToFullArrayString(ValueTuples.Map(kv => $"({kv.Key}: {kv.Value})"));
+
+
         [Pure]
         public IEnumerable<(K Key, V Value)> AsEnumerable() => 
             Value.AsEnumerable();

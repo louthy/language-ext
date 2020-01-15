@@ -1077,7 +1077,6 @@ namespace LanguageExt
                 else
                 {
                     state = res.Value;
-                    yield return res.Value;
                 }
             }
         }
@@ -1087,12 +1086,13 @@ namespace LanguageExt
         /// state value is threaded through separately to the yielded value.
         /// The unfold function generates the items in the resulting list until None is returned.
         /// </summary>
+        /// <typeparam name="A">Bound value of resulting enumerable</typeparam>
         /// <typeparam name="S">State type</typeparam>
         /// <param name="state">Initial state</param>
         /// <param name="unfolder">Unfold function</param>
         /// <returns>Unfolded enumerable</returns>
         [Pure]
-        public static IEnumerable<T> unfold<S, T>(S state, Func<S, Option<Tuple<T, S>>> unfolder)
+        public static IEnumerable<A> unfold<S, A>(S state, Func<S, Option<(A, S)>> unfolder)
         {
             while (true)
             {
@@ -1114,12 +1114,14 @@ namespace LanguageExt
         /// state value is threaded through separately to the yielded value.
         /// The unfold function generates the items in the resulting list until None is returned.
         /// </summary>
-        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value of resulting enumerable</typeparam>
+        /// <typeparam name="S1">State type</typeparam>
+        /// <typeparam name="S2">State type</typeparam>
         /// <param name="state">Initial state</param>
         /// <param name="unfolder">Unfold function</param>
         /// <returns>Unfolded enumerable</returns>
         [Pure]
-        public static IEnumerable<T> unfold<S1, S2, T>(Tuple<S1, S2> state, Func<S1, S2, Option<Tuple<T, S1, S2>>> unfolder)
+        public static IEnumerable<A> unfold<S1, S2, A>((S1, S2) state, Func<S1, S2, Option<(A, S1, S2)>> unfolder)
         {
             while (true)
             {
@@ -1130,7 +1132,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    state = System.Tuple.Create(res.Value.Item2, res.Value.Item3);
+                    state = (res.Value.Item2, res.Value.Item3);
                     yield return res.Value.Item1;
                 }
             }
@@ -1141,12 +1143,15 @@ namespace LanguageExt
         /// state value is threaded through separately to the yielded value.
         /// The unfold function generates the items in the resulting list until None is returned.
         /// </summary>
-        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value of resulting enumerable</typeparam>
+        /// <typeparam name="S1">State type</typeparam>
+        /// <typeparam name="S2">State type</typeparam>
+        /// <typeparam name="S3">State type</typeparam>
         /// <param name="state">Initial state</param>
         /// <param name="unfolder">Unfold function</param>
         /// <returns>Unfolded enumerable</returns>
         [Pure]
-        public static IEnumerable<T> unfold<S1, S2, S3, T>(Tuple<S1, S2, S3> state, Func<S1, S2, S3, Option<Tuple<T, S1, S2, S3>>> unfolder)
+        public static IEnumerable<A> unfold<S1, S2, S3, A>((S1, S2, S3) state, Func<S1, S2, S3, Option<(A, S1, S2, S3)>> unfolder)
         {
             while (true)
             {
@@ -1157,7 +1162,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    state = System.Tuple.Create(res.Value.Item2, res.Value.Item3, res.Value.Item4);
+                    state = (res.Value.Item2, res.Value.Item3, res.Value.Item4);
                     yield return res.Value.Item1;
                 }
             }
@@ -1168,12 +1173,16 @@ namespace LanguageExt
         /// state value is threaded through separately to the yielded value.
         /// The unfold function generates the items in the resulting list until None is returned.
         /// </summary>
-        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value of resulting enumerable</typeparam>
+        /// <typeparam name="S1">State type</typeparam>
+        /// <typeparam name="S2">State type</typeparam>
+        /// <typeparam name="S3">State type</typeparam>
+        /// <typeparam name="S4">State type</typeparam>
         /// <param name="state">Initial state</param>
         /// <param name="unfolder">Unfold function</param>
         /// <returns>Unfolded enumerable</returns>
         [Pure]
-        public static IEnumerable<T> unfold<S1, S2, S3, S4, T>(Tuple<S1, S2, S3, S4> state, Func<S1, S2, S3, S4, Option<Tuple<T, S1, S2, S3, S4>>> unfolder)
+        public static IEnumerable<A> unfold<S1, S2, S3, S4, A>((S1, S2, S3, S4) state, Func<S1, S2, S3, S4, Option<(A, S1, S2, S3, S4)>> unfolder)
         {
             while (true)
             {
@@ -1184,7 +1193,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    state = System.Tuple.Create(res.Value.Item2, res.Value.Item3, res.Value.Item4, res.Value.Item5);
+                    state = (res.Value.Item2, res.Value.Item3, res.Value.Item4, res.Value.Item5);
                     yield return res.Value.Item1;
                 }
             }

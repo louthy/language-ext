@@ -679,6 +679,32 @@ namespace LanguageExt
                 : hash;
 
         /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// The elipsis is used for collections over 50 items
+        /// To get a formatted string with all the items, use `ToFullString`
+        /// or `ToFullArrayString`.
+        /// </summary>
+        [Pure]
+        public override string ToString() =>
+            Value is SeqLazy<A>
+                ? CollectionFormat.ToShortArrayString(this)
+                : CollectionFormat.ToShortArrayString(this, Count);
+
+        /// <summary>
+        /// Format the collection as `a, b, c, ...`
+        /// </summary>
+        [Pure]
+        public string ToFullString(string separator = ", ") =>
+            CollectionFormat.ToFullString(this);
+
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// </summary>
+        [Pure]
+        public string ToFullArrayString(string separator = ", ") =>
+            CollectionFormat.ToFullArrayString(this);
+
+        /// <summary>
         /// Append operator
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
