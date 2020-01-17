@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
@@ -380,9 +380,7 @@ namespace LanguageExt.Parsec
                     }
 
                     // eerr
-                    return count == n
-                        ? ConsumedError<Seq<T>>(mergeError(error, t.Reply.Error))
-                        : EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                    return EmptyError<Seq<T>>(mergeError(error, t.Reply.Error));
                 }
             };
 
