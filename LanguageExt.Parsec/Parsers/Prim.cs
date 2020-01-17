@@ -429,7 +429,7 @@ namespace LanguageExt.Parsec
                         if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
                         {
                             // eok, eerr
-                            return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'manyn' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                            return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'manyn0' is applied to a parser that accepts an empty string.", List.empty<string>()));
                         }
 
                         // cerr
