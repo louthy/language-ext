@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -491,12 +491,16 @@ namespace LanguageExt.Tests
             Assert.True(r.IfLeft("") == "1234");
         }
 
-        [Fact]
-        public void ParseNTimesFail()
+        [Theory]
+        [InlineData("")]
+        [InlineData("1")]
+        [InlineData("12")]
+        [InlineData("123")]
+        public void ParseNTimesFail(string input)
         {
             var p = asString(manyn(digit, 4));
 
-            var r = parse(p, "123").ToEither();
+            var r = parse(p, input).ToEither();
 
             Assert.True(r.IsLeft);
         }
