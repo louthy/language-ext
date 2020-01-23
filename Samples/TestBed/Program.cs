@@ -112,6 +112,18 @@ class Program
 
     static void Main(string[] args)
     {
+        var lst = List<int>();
+
+        for (var ix = 0; ix < 10000; ix++)
+        {
+            lst = lst.Add(ix);
+        }
+
+        for (var ix = 1001; ix < 100000; ix++)
+        {
+            lst = lst.Add(ix);
+        }
+
         var p = new Person("P", "L");
 
         var l1 = Person.forename;

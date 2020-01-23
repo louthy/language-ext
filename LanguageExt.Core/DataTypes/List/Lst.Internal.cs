@@ -7,6 +7,7 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
@@ -47,6 +48,7 @@ namespace LanguageExt
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal LstInternal(IEnumerable<A> items)
         {
             hashCode = 0;
@@ -63,12 +65,14 @@ namespace LanguageExt
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static LstInternal<A> Wrap(ListItem<A> list) =>
             new LstInternal<A>(list);
 
         /// <summary>
         /// Ctor
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal LstInternal()
         {
             hashCode = 0;
@@ -78,14 +82,18 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal LstInternal(ListItem<A> root)
         {
             hashCode = 0;
             this.root = root;
         }
 
-        internal ListItem<A> Root =>
-            root ?? ListItem<A>.Empty;
+        internal ListItem<A> Root
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => root ?? ListItem<A>.Empty;
+        }
 
         /// <summary>
         /// Index accessor
@@ -93,6 +101,7 @@ namespace LanguageExt
         [Pure]
         public A this[int index]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
@@ -104,16 +113,23 @@ namespace LanguageExt
         /// Number of items in the list
         /// </summary>
         [Pure]
-        public int Count =>
-            Root.Count;
+        public int Count
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Root.Count;
+        }
 
         [Pure]
-        int IReadOnlyCollection<A>.Count =>
-            Count;
+        int IReadOnlyCollection<A>.Count
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Count;
+        }
 
         [Pure]
         A IReadOnlyList<A>.this[int index]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
@@ -125,13 +141,15 @@ namespace LanguageExt
         /// Add an item to the end of the list
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> Add(A value) =>
-            Wrap(ListModule.Insert(Root, value, Root.Count));
+            Wrap(ListModule.Add(Root, value));
 
         /// <summary>
         /// Add a range of items to the end of the list
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> AddRange(IEnumerable<A> items)
         {
             if (items == null) return this;
@@ -143,6 +161,7 @@ namespace LanguageExt
         /// Clear the list
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> Clear() =>
             Empty;
 
@@ -150,6 +169,7 @@ namespace LanguageExt
         /// Get enumerator
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerator<A> GetEnumerator() =>
             new ListModule.ListEnumerator<A>(Root, false, 0);
 
@@ -185,6 +205,7 @@ namespace LanguageExt
         /// Insert value at specified index
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> Insert(int index, A value)
         {
             if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
@@ -195,6 +216,7 @@ namespace LanguageExt
         /// Insert range of values at specified index
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> InsertRange(int index, IEnumerable<A> items)
         {
             if (items == null) return this;
@@ -206,6 +228,7 @@ namespace LanguageExt
         /// Insert range of values at specified index
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> InsertRange(int index, IEnumerable<A> items, Pred<A> pred)
         {
             if (items == null) return this;
@@ -217,6 +240,7 @@ namespace LanguageExt
         /// Find the last index of an item in the list
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int LastIndexOf(A item, int index = 0, int count = -1, IEqualityComparer<A> equalityComparer = null) =>
             Count - Reverse().IndexOf(item, index, count, equalityComparer) - 1;
 
@@ -224,6 +248,7 @@ namespace LanguageExt
         /// Remove an item from the list
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> Remove(A value) => 
             Remove(value, EqualityComparer<A>.Default);
 
@@ -231,6 +256,7 @@ namespace LanguageExt
         /// Remove all items that match `value` from the list
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> Remove(A value, IEqualityComparer<A> equalityComparer) =>
             Wrap(ListModule.Remove(Root, value, equalityComparer));
 
@@ -238,6 +264,7 @@ namespace LanguageExt
         /// Remove all items that match a predicate
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> RemoveAll(Func<A, bool> pred) =>
             Wrap(ListModule.Remove(Root, pred));
 
@@ -247,6 +274,7 @@ namespace LanguageExt
         /// <param name="index"></param>
         /// <returns></returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> RemoveAt(int index)
         {
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
@@ -257,6 +285,7 @@ namespace LanguageExt
         /// Remove a range of items
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> RemoveRange(int index, int count)
         {
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
@@ -274,6 +303,7 @@ namespace LanguageExt
         /// Set an item at the specified index
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> SetItem(int index, A value)
         {
             if (isnull(value)) throw new ArgumentNullException(nameof(value));
@@ -282,14 +312,17 @@ namespace LanguageExt
         }
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator() =>
             new ListModule.ListEnumerator<A>(Root, false, 0);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
             new ListModule.ListEnumerator<A>(Root, false, 0);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<A> Skip(int amount)
         {
             var iter = new ListModule.ListEnumerator<A>(Root, false, amount);
@@ -303,6 +336,7 @@ namespace LanguageExt
         /// Reverse the order of the items in the list
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> Reverse() =>
             new LstInternal<A>(this.AsEnumerable().Reverse());
 
@@ -310,6 +344,7 @@ namespace LanguageExt
         /// Fold
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S Fold<S>(S state, Func<S, A, S> folder)
         {
             foreach (var item in this)
@@ -323,10 +358,12 @@ namespace LanguageExt
         /// Map
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<U> Map<U>(Func<A, U> map) =>
             new LstInternal<U>(ListModule.Map(Root, map));
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<A> FindRange(int index, int count)
         {
             if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
@@ -342,6 +379,7 @@ namespace LanguageExt
         /// Filter
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> Filter(Func<A, bool> pred)
         {
             IEnumerable<A> Yield()
@@ -358,26 +396,32 @@ namespace LanguageExt
         }
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LstInternal<A> operator +(LstInternal<A> lhs, A rhs) =>
             lhs.Add(rhs);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LstInternal<A> operator +(A rhs, LstInternal<A> lhs) =>
             new LstInternal<A>(rhs.Cons(lhs));
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LstInternal<A> operator +(LstInternal<A> lhs, LstInternal<A> rhs) =>
             lhs.Append(rhs);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> Append(LstInternal<A> rhs) =>
             AddRange(rhs);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LstInternal<A> operator -(LstInternal<A> lhs, LstInternal<A> rhs) =>
             lhs.Subtract(rhs);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LstInternal<A> Subtract(LstInternal<A> rhs)
         {
             var self = this;
@@ -389,6 +433,7 @@ namespace LanguageExt
         }
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object obj) =>
             !ReferenceEquals(obj,null) && 
             obj is LstInternal<A> && 
@@ -400,6 +445,7 @@ namespace LanguageExt
         /// Empty list hash == 0
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode()
         {
             if (hashCode != 0) return hashCode;
@@ -407,6 +453,7 @@ namespace LanguageExt
         }
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(LstInternal<A> other)
         {
             if (ReferenceEquals(this, other)) return true;
@@ -416,14 +463,17 @@ namespace LanguageExt
         }
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(LstInternal<A> lhs, LstInternal<A> rhs) =>
             lhs.Equals(rhs);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(LstInternal<A> lhs, LstInternal<A> rhs) =>
             !lhs.Equals(rhs);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(LstInternal<A> other)
         {
             var cmp = Count.CompareTo(other.Count);
@@ -439,6 +489,7 @@ namespace LanguageExt
         }
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo<OrdA>(LstInternal<A> other) where OrdA : struct, Ord<A>
         {
             var cmp = Count.CompareTo(other.Count);
@@ -454,12 +505,16 @@ namespace LanguageExt
         }
     }
 
-    [Serializable]
+    //[Serializable]
     class ListItem<T>
     {
         public static readonly ListItem<T> Empty = new ListItem<T>(0, 0, null, default(T), null);
 
-        public bool IsEmpty => Count == 0;
+        public bool IsEmpty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Count == 0;
+        }
         public int Count;
         public byte Height;
         public ListItem<T> Left;
@@ -468,6 +523,7 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal ListItem(byte height, int count, ListItem<T> left, T key, ListItem<T> right)
         {
             Count = count;
@@ -477,20 +533,30 @@ namespace LanguageExt
             Right = right;
         }
 
-        internal int BalanceFactor =>
-            Count == 0
-                ? 0
-                : ((int)Right.Height) - ((int)Left.Height);
+        internal int BalanceFactor
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get =>
+                Count == 0
+                    ? 0
+                    : ((int)Right.Height) - ((int)Left.Height);
+        }
 
         public T Key
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal set;
         }
 
-        public bool IsBalanced =>
-            (uint)(BalanceFactor + 1) <= 2;
+        public bool IsBalanced
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => (uint)(BalanceFactor + 1) <= 2;
+        }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString() =>
             IsEmpty
                 ? "(empty)"
@@ -499,12 +565,15 @@ namespace LanguageExt
 
     internal static class ListModuleM
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index, Pred<A> pred) =>
             Insert(node, BuildSubTree(items, pred), index);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index) =>
             Insert(node, BuildSubTree(items), index);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<A> BuildSubTree<A>(IEnumerable<A> items, Pred<A> pred)
         {
             var root = new ListItem<A>(0, 0, null, default, null);
@@ -520,6 +589,7 @@ namespace LanguageExt
             return root;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<A> BuildSubTree<A>(IEnumerable<A> items)
         {
             var root = new ListItem<A>(0, 0, null, default, null);
@@ -562,6 +632,7 @@ namespace LanguageExt
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<T> Balance<T>(ListItem<T> node)
         {
             node.Height = (byte)(1 + Math.Max(node.Left.Height, node.Right.Height));
@@ -578,18 +649,21 @@ namespace LanguageExt
                     : node;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<T> DblRotRight<T>(ListItem<T> node)
         {
             node.Left = RotLeft(node.Left);
             return RotRight(node);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<T> DblRotLeft<T>(ListItem<T> node)
         {
             node.Right = RotRight(node.Right);
             return RotLeft(node);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<A> RotRight<A>(ListItem<A> node)
         {
             if (node.IsEmpty || node.Left.IsEmpty) return node;
@@ -607,6 +681,7 @@ namespace LanguageExt
             return x;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<A> RotLeft<A>(ListItem<A> node)
         {
             if (node.IsEmpty || node.Right.IsEmpty) return node;
@@ -659,10 +734,11 @@ namespace LanguageExt
                 ? ListItem<U>.Empty
                 : new ListItem<U>(node.Height, node.Count, Map(node.Left, f), f(node.Key), Map(node.Right, f));
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<A> AddRange<A>(ListItem<A> node, IEnumerable<A> items, Pred<A> pred) =>
             AddRange(node, ListModuleM.BuildSubTree(items, pred));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<A> AddRange<A>(ListItem<A> node, IEnumerable<A> items) =>
             AddRange(node, ListModuleM.BuildSubTree(items));
 
@@ -671,6 +747,7 @@ namespace LanguageExt
                 ? insertNode
                 : Balance(Make(node.Key, node.Left, AddRange(node.Right, insertNode)));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index, Pred<A> pred)
         {
             var root = node;
@@ -684,6 +761,7 @@ namespace LanguageExt
             return root;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<A> InsertMany<A>(ListItem<A> node, IEnumerable<A> items, int index)
         {
             var root = node;
@@ -717,6 +795,11 @@ namespace LanguageExt
                 return Balance(Make(node.Key, node.Left, Insert(node.Right, key, index - node.Left.Count - 1)));
             }
         }
+
+        public static ListItem<A> Add<A>(ListItem<A> node, A key) =>
+            node.IsEmpty
+                ? new ListItem<A>(1, 1, ListItem<A>.Empty, key, ListItem<A>.Empty)
+                : Balance(Make(node.Key, node.Left, Add(node.Right, key)));
 
         public static ListItem<A> SetItem<A>(ListItem<A> node, A key, int index)
         {
@@ -759,7 +842,6 @@ namespace LanguageExt
                 return GetItem(node.Right, index - node.Left.Count - 1);
             }
         }
-
 
         public static ListItem<T> Remove<T>(ListItem<T> node, Func<T, bool> pred)
         {
@@ -984,9 +1066,11 @@ namespace LanguageExt
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<T> Make<T>(T k, ListItem<T> l, ListItem<T> r) =>
             new ListItem<T>((byte)(1 + Math.Max(l.Height, r.Height)), l.Count + r.Count + 1, l, k, r);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<T> Balance<T>(ListItem<T> node) =>
             node.BalanceFactor >= 2
                 ? node.Right.BalanceFactor < 0
@@ -998,21 +1082,25 @@ namespace LanguageExt
                         : RotRight(node)
                     : node;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<T> RotRight<T>(ListItem<T> node) =>
             node.IsEmpty || node.Left.IsEmpty
                 ? node
                 : Make(node.Left.Key, node.Left.Left, Make(node.Key, node.Left.Right, node.Right));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<T> RotLeft<T>(ListItem<T> node) =>
             node.IsEmpty || node.Right.IsEmpty
                 ? node
                 : Make(node.Right.Key, Make(node.Key, node.Left, node.Right.Left), node.Right.Right);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<T> DblRotRight<T>(ListItem<T> node) =>
             node.IsEmpty
                 ? node
                 : RotRight(Make(node.Key, RotLeft(node.Left), node.Right));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ListItem<T> DblRotLeft<T>(ListItem<T> node) =>
             node.IsEmpty
                 ? node
@@ -1034,6 +1122,7 @@ namespace LanguageExt
             int start;
             int count;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public ListEnumerator(ListItem<T> root, bool rev, int start, int count = Int32.MaxValue)
             {
                 this.rev = rev;
@@ -1046,12 +1135,23 @@ namespace LanguageExt
 
             private ListItem<T> NodeCurrent
             {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get;
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 set;
             }
 
-            public T Current => NodeCurrent.Key;
-            object IEnumerator.Current => NodeCurrent.Key;
+            public T Current
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => NodeCurrent.Key;
+            }
+
+            object IEnumerator.Current
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => NodeCurrent.Key;
+            }
 
             public void Dispose()
             {
@@ -1062,12 +1162,15 @@ namespace LanguageExt
                 }
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private ListItem<T> Next(ListItem<T> node) =>
                 rev ? node.Left : node.Right;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private ListItem<T> Prev(ListItem<T> node) =>
                 rev ? node.Right : node.Left;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private void Push(ListItem<T> node)
             {
                 while (!node.IsEmpty)
@@ -1078,6 +1181,7 @@ namespace LanguageExt
                 }
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext()
             {
                 if (count > 0 && left > 0 && stackDepth > 0)
@@ -1094,6 +1198,7 @@ namespace LanguageExt
                 return false;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Reset()
             {
                 var skip = rev ? map.Count - start - 1 : start;
