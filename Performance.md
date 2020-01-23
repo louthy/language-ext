@@ -13,37 +13,37 @@
 
 ### Lists with value types
 
-Type | N | Add | Iteration
------ | ----- | ----- | -----
-`Sys.Coll.Imm.List` | `100` | `20 us` | `6,016 ns`
-`Sys.Coll.Imm.List` | `1000` | `342 us` | `62,300 ns`
-`Sys.Coll.Imm.List` | `10000` | `5,942 us` | `605,456 ns`
-`Sys.Coll.Imm.List` | `100000` | `87,089 us` | `8,154,876 ns`
-`LanguageExt.Lst` | `100` | `17 us` | `1,386 ns`
-`LanguageExt.Lst` | `1000` | `273 us` | `13,455 ns`
-`LanguageExt.Lst` | `10000` | `5,341 us` | `137,278 ns`
-`LanguageExt.Lst` | `100000` | `62,340 us` | `1,696,505 ns`
-`LanguageExt.Seq` | `100` | `2 us` | `638 ns`
-`LanguageExt.Seq` | `1000` | `17 us` | `6,194 ns`
-`LanguageExt.Seq` | `10000` | `205 us` | `61,358 ns`
-`LanguageExt.Seq` | `100000` | `1,879 us` | `613,746 ns`
+Type | N | Add | RandomAccess | Iteration
+----- | ----- | ----- | ----- | -----
+`Sys.Coll.Imm.List` | `100` | `20 us` | `6,016 ns` | `1,021 ns`
+`Sys.Coll.Imm.List` | `1000` | `342 us` | `62,300 ns` | `32,942 ns`
+`Sys.Coll.Imm.List` | `10000` | `5,942 us` | `605,456 ns` | `443,482 ns`
+`Sys.Coll.Imm.List` | `100000` | `87,089 us` | `8,154,876 ns` | `6,146,402 ns`
+`LanguageExt.Lst` | `100` | `17 us` | `1,386 ns` | `1,213 ns`
+`LanguageExt.Lst` | `1000` | `273 us` | `13,455 ns` | `35,304 ns`
+`LanguageExt.Lst` | `10000` | `5,341 us` | `137,278 ns` | `471,614 ns`
+`LanguageExt.Lst` | `100000` | `62,340 us` | `1,696,505 ns` | `6,195,590 ns`
+`LanguageExt.Seq` | `100` | `2 us` | `638 ns` | `359 ns`
+`LanguageExt.Seq` | `1000` | `17 us` | `6,194 ns` | `3,518 ns`
+`LanguageExt.Seq` | `10000` | `205 us` | `61,358 ns` | `35,117 ns`
+`LanguageExt.Seq` | `100000` | `1,879 us` | `613,746 ns` | `351,036 ns`
 
 ### Lists with reference types
 
-Type | N | Add | Iteration
------ | ----- | ----- | -----
-`Sys.Coll.Imm.List` | `100` | `22 us` | `10,652 ns`
-`Sys.Coll.Imm.List` | `1000` | `357 us` | `105,946 ns`
-`Sys.Coll.Imm.List` | `10000` | `6,237 us` | `1,069,881 ns`
-`Sys.Coll.Imm.List` | `100000` | `83,450 us` | `13,386,415 ns`
-`LanguageExt.Lst` | `100` | `24 us` | `1,547 ns`
-`LanguageExt.Lst` | `1000` | `349 us` | `14,446 ns`
-`LanguageExt.Lst` | `10000` | `6,240 us` | `148,034 ns`
-`LanguageExt.Lst` | `100000` | `75,870 us` | `1,986,228 ns`
-`LanguageExt.Seq` | `100` | `3 us` | `888 ns`
-`LanguageExt.Seq` | `1000` | `28 us` | `8,489 ns`
-`LanguageExt.Seq` | `10000` | `367 us` | `84,479 ns`
-`LanguageExt.Seq` | `100000` | `4,463 us` | `856,149 ns`
+Type | N | Add | RandomAccess | Iteration
+----- | ----- | ----- | ----- | -----
+`Sys.Coll.Imm.List` | `100` | `22 us` | `10,652 ns` | `1,013 ns`
+`Sys.Coll.Imm.List` | `1000` | `357 us` | `105,946 ns` | `33,410 ns`
+`Sys.Coll.Imm.List` | `10000` | `6,237 us` | `1,069,881 ns` | `448,148 ns`
+`Sys.Coll.Imm.List` | `100000` | `83,450 us` | `13,386,415 ns` | `6,260,259 ns`
+`LanguageExt.Lst` | `100` | `24 us` | `1,547 ns` | `3,561 ns`
+`LanguageExt.Lst` | `1000` | `349 us` | `14,446 ns` | `56,720 ns`
+`LanguageExt.Lst` | `10000` | `6,240 us` | `148,034 ns` | `747,441 ns`
+`LanguageExt.Lst` | `100000` | `75,870 us` | `1,986,228 ns` | `9,194,727 ns`
+`LanguageExt.Seq` | `100` | `3 us` | `888 ns` | `856 ns`
+`LanguageExt.Seq` | `1000` | `28 us` | `8,489 ns` | `8,537 ns`
+`LanguageExt.Seq` | `10000` | `367 us` | `84,479 ns` | `85,092 ns`
+`LanguageExt.Seq` | `100000` | `4,463 us` | `856,149 ns` | `853,446 ns`
 
 ## Maps
 
