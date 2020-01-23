@@ -9,6 +9,42 @@
       [Host]     : .NET Core 3.0.1 (CoreCLR 4.700.19.51502, CoreFX 4.700.19.51609), 64bit RyuJIT
       DefaultJob : .NET Core 3.0.1 (CoreCLR 4.700.19.51502, CoreFX 4.700.19.51609), 64bit RyuJIT
 
+## Lists
+
+### Lists with value types
+
+Type | N | Add | Iteration
+----- | ----- | ----- | -----
+`Sys.Coll.Imm.List` | `100` | `20 us` | `6,016 ns`
+`Sys.Coll.Imm.List` | `1000` | `342 us` | `62,300 ns`
+`Sys.Coll.Imm.List` | `10000` | `5,942 us` | `605,456 ns`
+`Sys.Coll.Imm.List` | `100000` | `87,089 us` | `8,154,876 ns`
+`LanguageExt.Lst` | `100` | `17 us` | `1,386 ns`
+`LanguageExt.Lst` | `1000` | `273 us` | `13,455 ns`
+`LanguageExt.Lst` | `10000` | `5,341 us` | `137,278 ns`
+`LanguageExt.Lst` | `100000` | `62,340 us` | `1,696,505 ns`
+`LanguageExt.Seq` | `100` | `2 us` | `638 ns`
+`LanguageExt.Seq` | `1000` | `17 us` | `6,194 ns`
+`LanguageExt.Seq` | `10000` | `205 us` | `61,358 ns`
+`LanguageExt.Seq` | `100000` | `1,879 us` | `613,746 ns`
+
+### Lists with reference types
+
+Type | N | Add | Iteration
+----- | ----- | ----- | -----
+`Sys.Coll.Imm.List` | `100` | `22 us` | `10,652 ns`
+`Sys.Coll.Imm.List` | `1000` | `357 us` | `105,946 ns`
+`Sys.Coll.Imm.List` | `10000` | `6,237 us` | `1,069,881 ns`
+`Sys.Coll.Imm.List` | `100000` | `83,450 us` | `13,386,415 ns`
+`LanguageExt.Lst` | `100` | `24 us` | `1,547 ns`
+`LanguageExt.Lst` | `1000` | `349 us` | `14,446 ns`
+`LanguageExt.Lst` | `10000` | `6,240 us` | `148,034 ns`
+`LanguageExt.Lst` | `100000` | `75,870 us` | `1,986,228 ns`
+`LanguageExt.Seq` | `100` | `3 us` | `888 ns`
+`LanguageExt.Seq` | `1000` | `28 us` | `8,489 ns`
+`LanguageExt.Seq` | `10000` | `367 us` | `84,479 ns`
+`LanguageExt.Seq` | `100000` | `4,463 us` | `856,149 ns`
+
 ## Maps
 
 ### Unsorted maps with value types
