@@ -473,7 +473,7 @@ public static class TryExtensions
     public static Try<A> Filter<A>(this Try<A> self, Func<A, bool> pred) => Memo(() =>
     {
         var res = self();
-        return pred(res.Value)
+        return res.IsFaulted || pred(res.Value)
             ? res
             : raise<A>(new BottomException());
     });
