@@ -484,7 +484,7 @@ public static class TryExtensions
         var res = self.Try();
         return res.IsFaulted
             ? Fail(res.Exception)
-                ? res.Value
+                ? res
                 : raise<A>(new BottomException())
             : Succ(res.Value)
                 ? res.Value
