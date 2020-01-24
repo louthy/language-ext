@@ -8,7 +8,7 @@ using System.Net.Http;
 namespace LanguageExt.Tests
 {
 
-    public class TryOptionMonadTests
+    public class TryMonadTests
     {
         [Fact]
         public void TryOddNumber1()

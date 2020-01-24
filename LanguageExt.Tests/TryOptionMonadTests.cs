@@ -8,7 +8,7 @@ using System;
 namespace LanguageExt.Tests
 {
     
-    public class TryMonadTests
+    public class TryOptionMonadTests
     {
         [Fact]
         public void TryOptionListTest()
