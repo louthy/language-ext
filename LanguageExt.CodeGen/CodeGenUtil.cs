@@ -2235,7 +2235,7 @@ namespace LanguageExt.CodeGen
             var comparableType = ParseTypeName($"System.IComparable");
             var serializableType = ParseTypeName($"System.Runtime.Serialization.ISerializable");
 
-            var ctor = MakeConstructor(caseIdentifier.Text, caseParams);
+            var ctor = MakeConstructor(caseIdentifier.Text, caseParams, thisType);
             var dtor = MakeDeconstructor(caseParams);
 
             var fields = baseSpec == BaseSpec.None
@@ -2279,7 +2279,7 @@ namespace LanguageExt.CodeGen
 
             var dtype = MakeDataTypeMembers(caseIdentifier.Text, thisType, interfaceType, caseParams, baseSpec, caseIsClass);
 
-            fields.Add(ctor);
+            fields.AddRange(ctor);
             fields.Add(dtor);
             fields.AddRange(dtype);
             fields.AddRange(impl);
@@ -2334,9 +2334,10 @@ namespace LanguageExt.CodeGen
             return (true, type);
         }
 
-        static MemberDeclarationSyntax MakeConstructor(
-            string ctorName, 
-            List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> fields
+        static MemberDeclarationSyntax[] MakeConstructor(
+            string ctorName,
+            List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> fields,
+            TypeSyntax thisType
             )
         {
             // Make the parameters start with an upper case letter and have the out modifier
@@ -2355,10 +2356,31 @@ namespace LanguageExt.CodeGen
                         IdentifierName(p.Identifier.Text))));
 
 
-            return ConstructorDeclaration(Identifier(ctorName))
-                        .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-                        .WithParameterList(ParameterList(SeparatedList(parameters)))
-                        .WithBody(Block(List(assignments)));
+            var ctor = ConstructorDeclaration(Identifier(ctorName))
+                           .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+                           .WithParameterList(ParameterList(SeparatedList(parameters)))
+                           .WithBody(Block(List(assignments)));
+
+            var args = parameters.SelectMany(p => new[] { (SyntaxNodeOrToken)Argument(IdentifierName(p.Identifier.Text)), (SyntaxNodeOrToken)Token(SyntaxKind.CommaToken) })
+                                 .ToList();
+            
+            if(args.Count > 0)
+            {
+                args.RemoveAt(args.Count - 1);
+            }
+
+            var newm = MethodDeclaration(thisType, Identifier("New"))
+                           .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)))
+                           .WithParameterList(ParameterList(SeparatedList(parameters)))
+                           .WithExpressionBody(
+                                ArrowExpressionClause(
+                                    ObjectCreationExpression(thisType)
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SeparatedList<ArgumentSyntax>(args)))))
+                           .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+
+            return new MemberDeclarationSyntax[] { ctor, newm };
         }
 
 
