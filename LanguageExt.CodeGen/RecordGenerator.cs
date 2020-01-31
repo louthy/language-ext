@@ -27,23 +27,30 @@ namespace LanguageExt.CodeGen
             if (context.ProcessingNode is TypeDeclarationSyntax applyTo && 
                 (applyTo is ClassDeclarationSyntax || (applyTo is StructDeclarationSyntax)))
             {
-                var record = CodeGenUtil.MakeCaseType(
-                                context,
-                                applyTo.Identifier,
-                                applyTo.Members,
-                                applyTo.TypeParameterList,
-                                applyTo.Modifiers,
-                                applyTo.ConstraintClauses,
-                                applyTo.Identifier,
-                                null,
-                                CodeGenUtil.GetState(context, progress, AllowedType.ClassOrStruct, "Record code-gen").Fields,
-                                BaseSpec.None,
-                                caseIsClass: applyTo is ClassDeclarationSyntax,
-                                caseIsPartial: true,
-                                -1);
-                
+                var (ok, record) = CodeGenUtil.MakeCaseType(
+                                        context,
+                                        progress,
+                                        applyTo.Identifier,
+                                        applyTo.Members,
+                                        applyTo.TypeParameterList,
+                                        applyTo.Modifiers,
+                                        applyTo.ConstraintClauses,
+                                        applyTo.Identifier,
+                                        null,
+                                        CodeGenUtil.GetState(context, progress, AllowedType.ClassOrStruct, "Record code-gen").Fields,
+                                        BaseSpec.None,
+                                        caseIsClass: applyTo is ClassDeclarationSyntax,
+                                        caseIsPartial: true,
+                                        -1);
 
-                return Task.FromResult(List<MemberDeclarationSyntax>().Add(record));
+                if (ok)
+                {
+                    return Task.FromResult(List<MemberDeclarationSyntax>().Add(record));
+                }
+                else
+                {
+                    return Task.FromResult(List<MemberDeclarationSyntax>());
+                }
             }
             else 
             {

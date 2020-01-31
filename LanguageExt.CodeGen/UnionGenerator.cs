@@ -31,12 +31,13 @@ namespace LanguageExt.CodeGen
                     return Task.FromResult(List<MemberDeclarationSyntax>());
                 }
 
-                var cases = applyTo.Members
+                var caseRes = applyTo.Members
                                    .Where(m => m is MethodDeclarationSyntax)
                                    .Select(m => m as MethodDeclarationSyntax)
                                    .Zip(Enumerable.Range(1, Int32.MaxValue), (m, i) => (m, i))
                                    .Select(m => CodeGenUtil.MakeCaseType(
                                                     context,
+                                                    progress,
                                                     applyTo.Identifier,
                                                     applyTo.Members,
                                                     applyTo.TypeParameterList,
@@ -46,7 +47,7 @@ namespace LanguageExt.CodeGen
                                                     m.m.TypeParameterList,
                                                     m.m.ParameterList
                                                        .Parameters
-                                                       .Select(p => (p.Identifier, p.Type, p.Modifiers))
+                                                       .Select(p => (p.Identifier, p.Type, p.Modifiers, p.AttributeLists))
                                                        .ToList(),
                                                     BaseSpec.Interface,
                                                     caseIsClass: true,
@@ -54,9 +55,19 @@ namespace LanguageExt.CodeGen
                                                     m.i))
                                    .ToList();
 
+                var ok = caseRes.All(x => x.Success);
+                var cases = caseRes.Select(c => c.Type);
+
                 var staticCtorClass = MakeStaticConstructorClass(applyTo.Identifier, applyTo.Members, applyTo.TypeParameterList, applyTo.ConstraintClauses);
 
-                return Task.FromResult(List<MemberDeclarationSyntax>().AddRange(cases).Add(staticCtorClass));
+                if (ok)
+                {
+                    return Task.FromResult(List<MemberDeclarationSyntax>().AddRange(cases).Add(staticCtorClass));
+                }
+                else
+                {
+                    return Task.FromResult(List<MemberDeclarationSyntax>());
+                }
             }
             else if (context.ProcessingNode is ClassDeclarationSyntax applyToClass)
             {
@@ -76,12 +87,13 @@ namespace LanguageExt.CodeGen
                     return Task.FromResult(List<MemberDeclarationSyntax>());
                 }
 
-                var cases = applyToClass.Members
+                var caseRes = applyToClass.Members
                                         .Where(m => m is MethodDeclarationSyntax)
                                         .Select(m => m as MethodDeclarationSyntax)
                                         .Zip(Enumerable.Range(1, Int32.MaxValue), (m, i) => (m, i))
                                         .Select(m => CodeGenUtil.MakeCaseType(
                                                         context,
+                                                        progress,
                                                         applyToClass.Identifier,
                                                         applyToClass.Members,
                                                         applyToClass.TypeParameterList,
@@ -91,7 +103,7 @@ namespace LanguageExt.CodeGen
                                                         m.m.TypeParameterList,
                                                         m.m.ParameterList
                                                            .Parameters
-                                                           .Select(p => (p.Identifier, p.Type, p.Modifiers))
+                                                           .Select(p => (p.Identifier, p.Type, p.Modifiers, p.AttributeLists))
                                                            .ToList(),
                                                         BaseSpec.Abstract,
                                                         caseIsClass: true,
@@ -99,15 +111,25 @@ namespace LanguageExt.CodeGen
                                                         m.i))
                                         .ToList();
 
+                var ok = caseRes.All(x => x.Success);
+                var cases = caseRes.Select(c => c.Type);
+
                 var staticCtorClass = MakeStaticConstructorClass(applyToClass.Identifier, applyToClass.Members, applyToClass.TypeParameterList, applyToClass.ConstraintClauses);
 
                 var partialClass = MakeAbstractClass(applyToClass);
                 var unionBase = MakeBaseFromAbstractClass(applyToClass);
 
-                return Task.FromResult(List<MemberDeclarationSyntax>().AddRange(cases)
-                                                                      .Add(staticCtorClass)
-                                                                      .Add(partialClass)
-                                                                      .Add(unionBase));
+                if (ok)
+                {
+                    return Task.FromResult(List<MemberDeclarationSyntax>().AddRange(cases)
+                                                                          .Add(staticCtorClass)
+                                                                          .Add(partialClass)
+                                                                          .Add(unionBase));
+                }
+                else
+                {
+                    return Task.FromResult(List<MemberDeclarationSyntax>());
+                }
             }
             else
             {

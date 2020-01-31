@@ -58,7 +58,7 @@ namespace LanguageExt.CodeGen
                 node.GetLocation()));
         }
 
-        public static (TypeDeclarationSyntax PartialType, TypeSyntax ReturnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> Fields) GetState(TransformationContext context, IProgress<Diagnostic> progress, AllowedType allowedTypes, string codeGenCategory)
+        public static (TypeDeclarationSyntax PartialType, TypeSyntax ReturnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> Fields) GetState(TransformationContext context, IProgress<Diagnostic> progress, AllowedType allowedTypes, string codeGenCategory)
         {
             // Our generator is applied to any class that our attribute is applied to.
             var applyTo = (TypeDeclarationSyntax)context.ProcessingNode;
@@ -124,7 +124,8 @@ namespace LanguageExt.CodeGen
                                            m.f.Declaration.Variables[0].Identifier,
                                            m.f.Declaration.Type,
                                            m.f.Modifiers,
-                                           m.i
+                                           m.i,
+                                           m.f.AttributeLists
                                        ));
    
             var properties = indexedMembers.Where(m => m.m is PropertyDeclarationSyntax)
@@ -142,12 +143,13 @@ namespace LanguageExt.CodeGen
                                                m.p.Identifier,
                                                m.p.Type,
                                                m.p.Modifiers,
-                                               m.i
+                                               m.i,
+                                               m.p.AttributeLists
                                            ));
  
             var members = fields.Concat(properties)
                 .OrderBy(m => m.i) // Preserve the order between properties and fields.
-                .Select(m => (m.Identifier, m.Type, m.Modifiers))
+                .Select(m => (m.Identifier, m.Type, m.Modifiers, m.AttributeLists))
                 .ToList();
 
             return (partialType, returnType, members);
@@ -171,7 +173,7 @@ namespace LanguageExt.CodeGen
             return false;
         }
 
-        public static TypeDeclarationSyntax AddLenses(TypeDeclarationSyntax partialClass, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
+        public static TypeDeclarationSyntax AddLenses(TypeDeclarationSyntax partialClass, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members)
         {
             TypeDeclarationSyntax lensClass = ClassDeclaration("__LensFields")
                                                   .WithModifiers(TokenList(Token(SyntaxKind.StaticKeyword)));
@@ -184,7 +186,7 @@ namespace LanguageExt.CodeGen
             return partialClass.AddMembers(lensClass);
         }
 
-        public static TypeDeclarationSyntax AddLensProp(TypeDeclarationSyntax partialClass, TypeSyntax returnType, (SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers) member) =>
+        public static TypeDeclarationSyntax AddLensProp(TypeDeclarationSyntax partialClass, TypeSyntax returnType, (SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs) member) =>
             partialClass.AddMembers(
                 PropertyDeclaration(
                     GenericName(Identifier("Lens"))
@@ -204,7 +206,7 @@ namespace LanguageExt.CodeGen
                 .WithSemicolonToken(
                     Token(SyntaxKind.SemicolonToken)));
 
-        public static TypeDeclarationSyntax AddLens(TypeDeclarationSyntax partialClass, TypeSyntax returnType, (SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers) member)
+        public static TypeDeclarationSyntax AddLens(TypeDeclarationSyntax partialClass, TypeSyntax returnType, (SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs) member)
         {
             var lfield = FieldDeclaration(
                 VariableDeclaration(
@@ -270,7 +272,7 @@ namespace LanguageExt.CodeGen
             return partialClass.AddMembers(lfield);
         }
 
-        public static TypeDeclarationSyntax AddWith(TransformationContext context, TypeDeclarationSyntax partialClass, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
+        public static TypeDeclarationSyntax AddWith(TransformationContext context, TypeDeclarationSyntax partialClass, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members)
         {
             var withParms = members.Select(m => (Id: m.Identifier,
                                                 Type: m.Type,
@@ -376,7 +378,7 @@ namespace LanguageExt.CodeGen
         });
 
         static bool IsIdentifier(string id) =>
-            identifiers.Contains(id);
+            identifiers.Contains(id.ToLower());
 
         static string MakeCamelCaseId(string id)
         {
@@ -638,6 +640,7 @@ namespace LanguageExt.CodeGen
 
         static string MemberName(MemberDeclarationSyntax decl) =>
             decl is PropertyDeclarationSyntax p ? p.Identifier.Text
+          : decl is FieldDeclarationSyntax f    ? f.Declaration.Variables[0].Identifier.Text
           : decl is MethodDeclarationSyntax m   ? m.Identifier.Text
           : "";
 
@@ -646,19 +649,48 @@ namespace LanguageExt.CodeGen
                 ? null
                 : member;
 
-        public static MemberDeclarationSyntax[] MakeDataTypeMembers(string typeName, TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members, BaseSpec baseSpec, bool typeIsClass)
+        public static List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> MembersWithAttr(List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members, params string[] names) =>
+            members.Where(p => p.Attrs == null ||
+                              !p.Attrs.Any() ||
+                              !p.Attrs
+                                .SelectMany(a => a.Attributes)
+                                .Select(a => a.Name)
+                                .Select(a => a.ToString())
+                                .Where(names.Contains)
+                                .Any())
+                    .ToList();
+
+        public static List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> MembersWithoutAttr(List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members, params string[] names) =>
+            members.Where(p => p.Attrs != null &&
+                               p.Attrs.Any() &&
+                               p.Attrs
+                                .SelectMany(a => a.Attributes)
+                                .Select(a => a.Name)
+                                .Select(a => a.ToString())
+                                .Where(names.Contains)
+                                .Any())
+                    .ToList();
+
+        public static MemberDeclarationSyntax[] MakeDataTypeMembers(string typeName, TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members, BaseSpec baseSpec, bool typeIsClass)
         {
+            var eqs = MembersWithAttr(members, "NonEq", "NonRecord", "NonStructural", "LanguageExt.NonEq", "LanguageExt.NonRecord", "LanguageExt.NonStructural");
+            var ords = MembersWithAttr(members, "NonOrd", "NonRecord", "NonStructural", "LanguageExt.NonOrd", "LanguageExt.NonRecord", "LanguageExt.NonStructural");
+            var hashes = MembersWithAttr(members, "NonHash", "NonRecord", "NonStructural", "LanguageExt.NonHash", "LanguageExt.NonRecord", "LanguageExt.NonStructural");
+            var shows = MembersWithAttr(members, "NonShow", "NonRecord", "LanguageExt.NonShow", "LanguageExt.NonRecord");
+            var serials = MembersWithAttr(members, "NonSerializable", "NonSerialized", "NonRecord", "LanguageExt.NonSerializable", "System.NonSerialized", "LanguageExt.NonRecord");
+            var nonserials = MembersWithoutAttr(members, "NonSerializable", "NonSerialized", "NonRecord", "LanguageExt.NonSerializable", "System.NonSerialized", "LanguageExt.NonRecord");
+
             var nmembers = new List<MemberDeclarationSyntax>();
-            nmembers.AddRange(MakeSerialisationMembers(typeName, members));
+            nmembers.AddRange(MakeSerialisationMembers(typeName, serials, nonserials));
             nmembers.AddRange(typeIsClass ? MakeClassOperatorMembers(thisType) : MakeStructOperatorMembers(thisType));
-            nmembers.AddRange(MakeEqualityMembers(thisType, baseType, members, baseSpec));
-            nmembers.AddRange(MakeOrderingMembers(thisType, baseType, members, baseSpec));
-            nmembers.Add(MakeGetHashCode(members));
-            nmembers.Add(MakeToString(typeName, members));
+            nmembers.AddRange(MakeEqualityMembers(thisType, baseType, eqs, baseSpec));
+            nmembers.AddRange(MakeOrderingMembers(thisType, baseType, ords, baseSpec));
+            nmembers.Add(MakeGetHashCode(hashes));
+            nmembers.Add(MakeToString(typeName, shows));
             return nmembers.ToArray();
         }
 
-        static MemberDeclarationSyntax MakeToString(string typeName, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
+        static MemberDeclarationSyntax MakeToString(string typeName, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members)
         {
             var statements = new List<StatementSyntax>();
 
@@ -822,7 +854,7 @@ namespace LanguageExt.CodeGen
                         Block(statements));
         }
 
-        static MemberDeclarationSyntax MakeGetHashCode(List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
+        static MemberDeclarationSyntax MakeGetHashCode(List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members)
         {
             BlockSyntax block = null;
 
@@ -929,7 +961,7 @@ namespace LanguageExt.CodeGen
                         .WithBody(block);
             }
 
-        static IEnumerable<MemberDeclarationSyntax> MakeOrderingMembers(TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members, BaseSpec baseSpec)
+        static IEnumerable<MemberDeclarationSyntax> MakeOrderingMembers(TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members, BaseSpec baseSpec)
         {
             var ords = new List<MemberDeclarationSyntax>();
 
@@ -1165,7 +1197,7 @@ namespace LanguageExt.CodeGen
             }
         }
 
-        static IEnumerable<MemberDeclarationSyntax> MakeEqualityMembers(TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members, BaseSpec baseSpec)
+        static IEnumerable<MemberDeclarationSyntax> MakeEqualityMembers(TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members, BaseSpec baseSpec)
         {
             var statements = new List<StatementSyntax>();
 
@@ -1951,7 +1983,7 @@ namespace LanguageExt.CodeGen
             return new[] { eqeq, noteq, gt, lt, gte, lte };
         }
 
-        static MemberDeclarationSyntax[] MakeSerialisationMembers(string typeName, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> members)
+        static MemberDeclarationSyntax[] MakeSerialisationMembers(string typeName, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> nonmembers)
         {
             var gets = members.Select(m =>
                         ExpressionStatement(
@@ -1978,7 +2010,19 @@ namespace LanguageExt.CodeGen
                                                             Literal(m.Identifier.Text))),
                                                     Token(SyntaxKind.CommaToken),
                                                     Argument(
-                                                        TypeOfExpression(m.Type))})))))));
+                                                        TypeOfExpression(m.Type))}))))))).ToList();
+
+            gets.AddRange(nonmembers.Select(m =>
+                ExpressionStatement(
+                    AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                ThisExpression(),
+                                IdentifierName(MakeFirstCharUpper(m.Identifier.Text))),
+                        LiteralExpression(
+                            SyntaxKind.DefaultLiteralExpression,
+                            Token(SyntaxKind.DefaultKeyword))))));
 
             var sets = members.Select(m =>
                         ExpressionStatement(
@@ -2000,7 +2044,7 @@ namespace LanguageExt.CodeGen
                                                 MemberAccessExpression(
                                                     SyntaxKind.SimpleMemberAccessExpression,
                                                     ThisExpression(),
-                                                    IdentifierName(MakeFirstCharUpper(m.Identifier.Text))))})))));
+                                                    IdentifierName(MakeFirstCharUpper(m.Identifier.Text))))}))))).ToList();
 
             var ctor = ConstructorDeclaration(
                             Identifier(typeName))
@@ -2105,8 +2149,9 @@ namespace LanguageExt.CodeGen
         /// the case, which for record types is also the record.
         /// 
         /// </summary>
-        public static TypeDeclarationSyntax MakeCaseType(
-            TransformationContext context, 
+        public static (bool Success, TypeDeclarationSyntax Type) MakeCaseType(
+            TransformationContext context,
+            IProgress<Diagnostic> progress,
             SyntaxToken applyToIdentifier,
             SyntaxList<MemberDeclarationSyntax> applyToMembers,
             TypeParameterListSyntax applyToTypeParams,
@@ -2114,14 +2159,30 @@ namespace LanguageExt.CodeGen
             SyntaxList<TypeParameterConstraintClauseSyntax> applyToConstraints,
             SyntaxToken caseIdentifier,
             TypeParameterListSyntax caseTypeParams,
-            List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> caseParams,
+            List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> caseParams,
             BaseSpec baseSpec,
             bool caseIsClass,
             bool caseIsPartial,
             int tag)
         {
+            var idents = applyToMembers.Select(MemberName)
+                                       .Where(IsIdentifier)
+                                       .Select(m => $"'{m}'")
+                                       .ToList();
+
+            if (idents.Count == 1)
+            {
+                CodeGenUtil.ReportError($"Member: {idents[0]} clashes with a C# identifier and therefore can't be used in the code-gen", "Code-Gen", context.ProcessingNode, progress);
+                return (false, default);
+            }
+            else if (idents.Count > 1)
+            {
+                CodeGenUtil.ReportError($"Members: {String.Join(", ", idents.Take(idents.Count - 1))} and {idents.Last()} clash with a C# identifier and therefore can't be used in the code-gen", "Code-Gen", context.ProcessingNode, progress);
+                return (false, default);
+            }
+
             var lmodifiers = applyToModifiers.Where(t => !t.IsKind(SyntaxKind.PartialKeyword) && !t.IsKind(SyntaxKind.AbstractKeyword))
-                                            .ToList();
+                                             .ToList();
 
             if (caseIsClass)
             {
@@ -2167,8 +2228,8 @@ namespace LanguageExt.CodeGen
             }
 
             var abstractBaseType = ParseTypeName($"_{applyToIdentifier}Base{applyToTypeParams}");
-            var interfaceType =     ParseTypeName($"{applyToIdentifier}{applyToTypeParams}");
-            var thisType =       ParseTypeName($"{caseIdentifier.Text}{typeParamList}");
+            var interfaceType = ParseTypeName($"{applyToIdentifier}{applyToTypeParams}");
+            var thisType = ParseTypeName($"{caseIdentifier.Text}{typeParamList}");
             var thisEquatableType = ParseTypeName($"System.IEquatable<{caseIdentifier.Text}{typeParamList}>");
             var thisComparableType = ParseTypeName($"System.IComparable<{caseIdentifier.Text}{typeParamList}>");
             var comparableType = ParseTypeName($"System.IComparable");
@@ -2270,12 +2331,12 @@ namespace LanguageExt.CodeGen
             type = AddWith(context, type, thisType, caseParams);
             type = AddLenses(type, thisType, caseParams);
 
-            return type;
+            return (true, type);
         }
 
         static MemberDeclarationSyntax MakeConstructor(
             string ctorName, 
-            List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> fields
+            List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> fields
             )
         {
             // Make the parameters start with an upper case letter and have the out modifier
@@ -2302,7 +2363,7 @@ namespace LanguageExt.CodeGen
 
 
         static MethodDeclarationSyntax MakeDeconstructor(
-            List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers)> fields
+            List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> fields
             )
         {
             var assignments = fields.Select(p =>

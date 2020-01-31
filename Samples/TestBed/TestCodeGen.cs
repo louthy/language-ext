@@ -130,7 +130,7 @@ namespace TestBed
     [Union]
     public interface Maybe<A>
     {
-        Maybe<A> Just(A value);
+        Maybe<A> Just([NonRecord] A value);
         Maybe<A> Nothing();
     }
 
@@ -180,6 +180,7 @@ namespace TestBed
     [Record]
     public partial struct Person
     {
+        [NonRecord]
         public readonly string Forename;
         public readonly string Surname;
     }
