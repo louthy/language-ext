@@ -195,6 +195,28 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        public void IfNoneSideEffect()
+        {
+            int sideEffectResult = 0;
+
+            Action sideEffectNone = () => sideEffectResult += 1;
+
+            Assert.Equal(0, Option<string>.Some("test").IfNone(sideEffectNone).Return(sideEffectResult));
+            Assert.Equal(1, Option<string>.None.IfNone(sideEffectNone).Return(sideEffectResult));
+        }
+
+        [Fact]
+        public void ISomeSideEffect()
+        {
+            int sideEffectResult = 0;
+
+            Action<string> sideEffectSome = _ => sideEffectResult += 2;
+
+            Assert.Equal(0, Option<string>.None.IfSome(sideEffectSome).Return(sideEffectResult));
+            Assert.Equal(2, Option<string>.Some("test").IfSome(sideEffectSome).Return(sideEffectResult));
+        }
+
+        [Fact]
         public void OptionMap_ToNull_ThrowsValueIsNullException()
         {
             var option = Some(new object());
