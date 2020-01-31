@@ -8,7 +8,7 @@ using System.Net.Http;
 namespace LanguageExt.Tests
 {
 
-    public class TryOptionMonadTests
+    public class TryMonadTests
     {
         [Fact]
         public void TryOddNumber1()
@@ -75,6 +75,60 @@ namespace LanguageExt.Tests
             Assert.True(res == 0);
         }
 
+        [Fact]
+        public void TryLinqWhere1()
+        {
+            var res = match(from x in Num(10, true)
+                where x == 10
+                select 5,
+                Succ: toString,
+                Fail: _ => _.GetType().Name);
+
+            Assert.Equal("5", res);
+        }
+
+        [Fact]
+        public void TryLinqWhere2()
+        {
+            var res = match(from x in Num(10, true)
+                where x == 0
+                select 5,
+                Succ: toString,
+                Fail: _ => _.GetType().Name);
+            
+            Assert.Equal(nameof(BottomException), res);
+        }
+
+        [Fact]
+        public void TryLinqWhere3()
+        {
+            var res = match(from x in Num(10, false).Strict()
+                where x != 0
+                select 5,
+                Succ: toString,
+                Fail: _ => _.GetType().Name);
+
+            Assert.Equal(nameof(Exception), res);
+        }
+
+        [Fact]
+        public void TryFilter1()
+        {
+            var actual = Try(() => failwith<HttpResponseMessage>("fail"))
+                .Filter(_ => _.IsSuccessStatusCode)
+                .Match(_ => "success", ex => ex.GetType().Name);
+            Assert.Equal(nameof(Exception), actual);
+        }
+        
+        [Fact]
+        public void TryBiFilter1()
+        {
+            var actual = Try(() => failwith<HttpResponseMessage>("fail"))
+                .BiFilter(_ => _.IsSuccessStatusCode, ex => true)
+                .Match(_ => "success", ex => ex.GetType().Name);
+            Assert.Equal(nameof(Exception), actual);
+        }
+        
         [Fact]
         public void TryMatchSuccessTest1()
         {
