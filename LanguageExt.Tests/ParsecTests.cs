@@ -481,42 +481,48 @@ namespace LanguageExt.Tests
             Assert.True(r.Reply.Result == "/abc");
         }
 
-        [Fact]
-        public void ParseNTimes()
+        [Theory]
+        [InlineData("1234")]
+        [InlineData("12345")]
+        [InlineData("123456")]
+        [InlineData("1234567")]
+        [InlineData("12345678")]
+        public void ParseNTimes(string input)
         {
             var p = asString(manyn(digit, 4));
 
-            var r = parse(p, "12345678").ToEither();
+            var r = parse(p, input).ToEither();
 
             Assert.True(r.IfLeft("") == "1234");
         }
 
-        [Fact]
-        public void ParseNTimesFail()
+        [Theory]
+        [InlineData("")]
+        [InlineData("1")]
+        [InlineData("12")]
+        [InlineData("123")]
+        public void ParseNTimesFail(string input)
         {
             var p = asString(manyn(digit, 4));
 
-            var r = parse(p, "123").ToEither();
+            var r = parse(p, input).ToEither();
 
             Assert.True(r.IsLeft);
         }
 
-        [Fact]
-        public void ParseN1Times()
+        [Theory]
+        [InlineData("1", "1")]
+        [InlineData("12", "12")]
+        [InlineData("123", "123")]
+        [InlineData("1234", "1234")]
+        [InlineData("12345", "1234")]
+        public void ParseN1Times(string input, string expected)
         {
             var p = asString(manyn1(digit, 4));
 
-            var r1 = parse(p, "1").ToEither();
-            var r2 = parse(p, "12").ToEither();
-            var r3 = parse(p, "123").ToEither();
-            var r4 = parse(p, "1234").ToEither();
-            var r5 = parse(p, "12345").ToEither();
+            var r = parse(p, input).ToEither();
 
-            Assert.True(r1.IfLeft("") == "1");
-            Assert.True(r2.IfLeft("") == "12");
-            Assert.True(r3.IfLeft("") == "123");
-            Assert.True(r4.IfLeft("") == "1234");
-            Assert.True(r5.IfLeft("") == "1234");
+            Assert.True(r.IfLeft("") == expected);
         }
 
         [Fact]
@@ -529,24 +535,20 @@ namespace LanguageExt.Tests
             Assert.True(r.IsLeft);
         }
 
-        [Fact]
-        public void ParseN0Times()
+        [Theory]
+        [InlineData("", "")]
+        [InlineData("1", "1")]
+        [InlineData("12", "12")]
+        [InlineData("123", "123")]
+        [InlineData("1234", "1234")]
+        [InlineData("12345", "1234")]
+        public void ParseN0Times(string input, string expected)
         {
             var p = asString(manyn0(digit, 4));
 
-            var r0 = parse(p, "").ToEither();
-            var r1 = parse(p, "1").ToEither();
-            var r2 = parse(p, "12").ToEither();
-            var r3 = parse(p, "123").ToEither();
-            var r4 = parse(p, "1234").ToEither();
-            var r5 = parse(p, "12345").ToEither();
+            var r = parse(p, input).ToEither();
 
-            Assert.True(r0.IfLeft("x") == "");
-            Assert.True(r1.IfLeft("x") == "1");
-            Assert.True(r2.IfLeft("x") == "12");
-            Assert.True(r3.IfLeft("x") == "123");
-            Assert.True(r4.IfLeft("x") == "1234");
-            Assert.True(r5.IfLeft("x") == "1234");
+            Assert.True(r.IfLeft("") == expected);
         }
         
         [Fact]

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
@@ -380,9 +380,7 @@ namespace LanguageExt.Parsec
                     }
 
                     // eerr
-                    return count == n
-                        ? ConsumedError<Seq<T>>(mergeError(error, t.Reply.Error))
-                        : EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                    return EmptyError<Seq<T>>(mergeError(error, t.Reply.Error));
                 }
             };
 
@@ -431,7 +429,7 @@ namespace LanguageExt.Parsec
                         if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
                         {
                             // eok, eerr
-                            return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'manyn' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                            return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'manyn0' is applied to a parser that accepts an empty string.", List.empty<string>()));
                         }
 
                         // cerr
