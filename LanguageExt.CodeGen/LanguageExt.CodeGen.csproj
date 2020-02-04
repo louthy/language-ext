@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build">
+﻿<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build">
 
     <PropertyGroup>
         <PackageVersion>3.3.51</PackageVersion>
@@ -24,7 +24,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CodeGeneration.Roslyn" Version="0.6.1" />
+        <PackageReference Include="CodeGeneration.Roslyn" Version="0.7.5-alpha" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <DotNetCliToolReference Include="dotnet-codegen" Version="0.6.1" />
+        <DotNetCliToolReference Include="dotnet-codegen" Version="0.7.5-alpha" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.6.1">
+        <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.7.5-alpha">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" />
+        <ProjectReference Include="..\..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" OutputItemType="ResolvedGeneratorReferencePaths" PrivateAssets="all"/>
         <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
         <ProjectReference Include="..\..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
         <ProjectReference Include="..\..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />
