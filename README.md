@@ -78,9 +78,10 @@ To make the reference **build and design time only** (i.e. your project doesn't 
 ```xml
 <ItemGroup>
   <PackageReference Include="LanguageExt.CodeGen" Version="3.3.51"
-                    OutputItemType="ResolvedGeneratorReferencePaths" 
                     PrivateAssets="all" />
-  <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.7.5" PrivateAssets="all" />
+  <PackageReference Include="CodeGeneration.Roslyn.BuildTime" 
+                    Version="0.7.5" 
+                    PrivateAssets="all" />
   <DotNetCliToolReference Include="dotnet-codegen" Version="0.7.5" />
 </ItemGroup>
 ```
