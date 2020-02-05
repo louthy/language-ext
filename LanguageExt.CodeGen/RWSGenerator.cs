@@ -161,6 +161,15 @@ namespace LanguageExt.CodeGen
                                                             SingletonSeparatedList<ArgumentSyntax>(
                                                                 Argument(
                                                                     ParenthesizedLambdaExpression(
+                                                                        ParameterList(
+                                                                            SeparatedList<ParameterSyntax>(
+                                                                                new SyntaxNodeOrToken[]{
+                                                                                    Parameter(
+                                                                                        Identifier("env")),
+                                                                                    Token(SyntaxKind.CommaToken),
+                                                                                    Parameter(
+                                                                                        Identifier("state"))})),
+
                                                                         InvocationExpression(
                                                                             MemberAccessExpression(
                                                                                 SyntaxKind.SimpleMemberAccessExpression,
@@ -175,15 +184,7 @@ namespace LanguageExt.CodeGen
                                                                                         Token(SyntaxKind.CommaToken),
                                                                                         Argument(
                                                                                             IdentifierName("value"))}))))
-                                                                    .WithParameterList(
-                                                                        ParameterList(
-                                                                            SeparatedList<ParameterSyntax>(
-                                                                                new SyntaxNodeOrToken[]{
-                                                                                    Parameter(
-                                                                                        Identifier("env")),
-                                                                                    Token(SyntaxKind.CommaToken),
-                                                                                    Parameter(
-                                                                                        Identifier("state"))})))))))))
+                                                                    ))))))
                                             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 
                 var failMethod1 = MethodDeclaration(structA, Identifier(failName))
@@ -196,6 +197,14 @@ namespace LanguageExt.CodeGen
                                                       SingletonSeparatedList<ArgumentSyntax>(
                                                           Argument(
                                                               ParenthesizedLambdaExpression(
+                                                                  ParameterList(
+                                                                      SeparatedList<ParameterSyntax>(
+                                                                          new SyntaxNodeOrToken[]{
+                                                                              Parameter(
+                                                                                  Identifier("env")),
+                                                                              Token(SyntaxKind.CommaToken),
+                                                                              Parameter(
+                                                                                  Identifier("state"))})),
                                                                   InvocationExpression(
                                                                       MemberAccessExpression(
                                                                           SyntaxKind.SimpleMemberAccessExpression,
@@ -217,16 +226,7 @@ namespace LanguageExt.CodeGen
                                                                                                   IdentifierName("LanguageExt"),
                                                                                                   IdentifierName("Common")),
                                                                                               IdentifierName("Error")),
-                                                                                          IdentifierName("Bottom")))}))))
-                                                              .WithParameterList(
-                                                                  ParameterList(
-                                                                      SeparatedList<ParameterSyntax>(
-                                                                          new SyntaxNodeOrToken[]{
-                                                                              Parameter(
-                                                                                  Identifier("env")),
-                                                                              Token(SyntaxKind.CommaToken),
-                                                                              Parameter(
-                                                                                  Identifier("state"))})))))))))
+                                                                                          IdentifierName("Bottom")))}))))))))))
                                                               .WithSemicolonToken(
                                                                   Token(SyntaxKind.SemicolonToken));
 
@@ -254,6 +254,14 @@ namespace LanguageExt.CodeGen
                                                         SingletonSeparatedList<ArgumentSyntax>(
                                                             Argument(
                                                                 ParenthesizedLambdaExpression(
+                                                                    ParameterList(
+                                                                        SeparatedList<ParameterSyntax>(
+                                                                            new SyntaxNodeOrToken[]{
+                                                                                Parameter(
+                                                                                    Identifier("env")),
+                                                                                Token(SyntaxKind.CommaToken),
+                                                                                Parameter(
+                                                                                    Identifier("state"))})),
                                                                     InvocationExpression(
                                                                       MemberAccessExpression(
                                                                           SyntaxKind.SimpleMemberAccessExpression,
@@ -282,16 +290,7 @@ namespace LanguageExt.CodeGen
                                                                                             ArgumentList(
                                                                                                 SingletonSeparatedList<ArgumentSyntax>(
                                                                                                     Argument(
-                                                                                                        IdentifierName("message"))))))}))))
-                                                                .WithParameterList(
-                                                                    ParameterList(
-                                                                        SeparatedList<ParameterSyntax>(
-                                                                            new SyntaxNodeOrToken[]{
-                                                                                Parameter(
-                                                                                    Identifier("env")),
-                                                                                Token(SyntaxKind.CommaToken),
-                                                                                Parameter(
-                                                                                    Identifier("state"))})))))))))
+                                                                                                        IdentifierName("message"))))))}))))))))))
                                                                 .WithSemicolonToken(
                                                                     Token(SyntaxKind.SemicolonToken));
 
@@ -317,6 +316,14 @@ namespace LanguageExt.CodeGen
                                                         SingletonSeparatedList<ArgumentSyntax>(
                                                             Argument(
                                                                 ParenthesizedLambdaExpression(
+                                                                    ParameterList(
+                                                                        SeparatedList<ParameterSyntax>(
+                                                                            new SyntaxNodeOrToken[]{
+                                                                                Parameter(
+                                                                                    Identifier("env")),
+                                                                                Token(SyntaxKind.CommaToken),
+                                                                                Parameter(
+                                                                                    Identifier("state"))})),
                                                                     InvocationExpression(
                                                                       MemberAccessExpression(
                                                                           SyntaxKind.SimpleMemberAccessExpression,
@@ -345,16 +352,7 @@ namespace LanguageExt.CodeGen
                                                                                             ArgumentList(
                                                                                                 SingletonSeparatedList<ArgumentSyntax>(
                                                                                                     Argument(
-                                                                                                        IdentifierName("exception"))))))}))))
-                                                                .WithParameterList(
-                                                                    ParameterList(
-                                                                        SeparatedList<ParameterSyntax>(
-                                                                            new SyntaxNodeOrToken[]{
-                                                                                Parameter(
-                                                                                    Identifier("env")),
-                                                                                Token(SyntaxKind.CommaToken),
-                                                                                Parameter(
-                                                                                    Identifier("state"))})))))))))
+                                                                                                        IdentifierName("exception"))))))}))))))))))
                                                                 .WithSemicolonToken(
                                                                     Token(SyntaxKind.SemicolonToken));
 
@@ -385,6 +383,14 @@ namespace LanguageExt.CodeGen
                                                         SingletonSeparatedList<ArgumentSyntax>(
                                                             Argument(
                                                                 ParenthesizedLambdaExpression(
+                                                                    ParameterList(
+                                                                        SeparatedList<ParameterSyntax>(
+                                                                            new SyntaxNodeOrToken[]{
+                                                                                Parameter(
+                                                                                    Identifier("env")),
+                                                                                Token(SyntaxKind.CommaToken),
+                                                                                Parameter(
+                                                                                    Identifier("state"))})),
                                                                     InvocationExpression(
                                                                       MemberAccessExpression(
                                                                           SyntaxKind.SimpleMemberAccessExpression,
@@ -398,16 +404,7 @@ namespace LanguageExt.CodeGen
                                                                                         IdentifierName("state")),
                                                                                     Token(SyntaxKind.CommaToken),
                                                                                     Argument(
-                                                                                        IdentifierName("error"))}))))
-                                                                .WithParameterList(
-                                                                    ParameterList(
-                                                                        SeparatedList<ParameterSyntax>(
-                                                                            new SyntaxNodeOrToken[]{
-                                                                                Parameter(
-                                                                                    Identifier("env")),
-                                                                                Token(SyntaxKind.CommaToken),
-                                                                                Parameter(
-                                                                                    Identifier("state"))})))))))))
+                                                                                        IdentifierName("error"))}))))))))))
                                                                 .WithSemicolonToken(
                                                                     Token(SyntaxKind.SemicolonToken));
 
@@ -440,6 +437,14 @@ namespace LanguageExt.CodeGen
                                                         SingletonSeparatedList<ArgumentSyntax>(
                                                             Argument(
                                                                 ParenthesizedLambdaExpression(
+                                                                    ParameterList(
+                                                                        SeparatedList<ParameterSyntax>(
+                                                                            new SyntaxNodeOrToken[]{
+                                                                                Parameter(
+                                                                                    Identifier("env")),
+                                                                                Token(SyntaxKind.CommaToken),
+                                                                                Parameter(
+                                                                                    Identifier("state"))})),
                                                                     InvocationExpression(
                                                                       MemberAccessExpression(
                                                                           SyntaxKind.SimpleMemberAccessExpression,
@@ -472,16 +477,7 @@ namespace LanguageExt.CodeGen
                                                                                                             IdentifierName("message")),
                                                                                                         Token(SyntaxKind.CommaToken),
                                                                                                         Argument(
-                                                                                                            IdentifierName("exception"))}))))}))))
-                                                                .WithParameterList(
-                                                                    ParameterList(
-                                                                        SeparatedList<ParameterSyntax>(
-                                                                            new SyntaxNodeOrToken[]{
-                                                                                Parameter(
-                                                                                    Identifier("env")),
-                                                                                Token(SyntaxKind.CommaToken),
-                                                                                Parameter(
-                                                                                    Identifier("state"))})))))))))
+                                                                                                            IdentifierName("exception"))}))))}))))))))))
                                                                 .WithSemicolonToken(
                                                                     Token(SyntaxKind.SemicolonToken));
 
@@ -976,6 +972,14 @@ namespace LanguageExt.CodeGen
                                                                 ThisExpression()))))),
                                             ReturnStatement(
                                                 ParenthesizedLambdaExpression(
+                                                    ParameterList(
+                                                        SeparatedList<ParameterSyntax>(
+                                                            new SyntaxNodeOrToken[]{
+                                                                    Parameter(
+                                                                        Identifier("env")),
+                                                                    Token(SyntaxKind.CommaToken),
+                                                                    Parameter(
+                                                                        Identifier("s"))})),
                                                     InvocationExpression(
                                                         MemberAccessExpression(
                                                             SyntaxKind.SimpleMemberAccessExpression,
@@ -1014,16 +1018,7 @@ namespace LanguageExt.CodeGen
                                                         ArgumentList(
                                                             SingletonSeparatedList<ArgumentSyntax>(
                                                                 Argument(
-                                                                    IdentifierName("state"))))))
-                                                .WithParameterList(
-                                                    ParameterList(
-                                                        SeparatedList<ParameterSyntax>(
-                                                            new SyntaxNodeOrToken[]{
-                                                                    Parameter(
-                                                                        Identifier("env")),
-                                                                    Token(SyntaxKind.CommaToken),
-                                                                    Parameter(
-                                                                        Identifier("s"))}))))));
+                                                                    IdentifierName("state")))))))));
 
                 var forAllMethod = MethodDeclaration(
                                             CodeGenUtil.FuncType(rTypeSyntax, IdentifierName(genS), PredefinedType(Token(SyntaxKind.BoolKeyword))),
@@ -1053,6 +1048,14 @@ namespace LanguageExt.CodeGen
                                                                     ThisExpression()))))),
                                                 ReturnStatement(
                                                     ParenthesizedLambdaExpression(
+                                                        ParameterList(
+                                                            SeparatedList<ParameterSyntax>(
+                                                                new SyntaxNodeOrToken[]{
+                                                                        Parameter(
+                                                                            Identifier("env")),
+                                                                        Token(SyntaxKind.CommaToken),
+                                                                        Parameter(
+                                                                            Identifier("s"))})),
                                                         InvocationExpression(
                                                             MemberAccessExpression(
                                                                 SyntaxKind.SimpleMemberAccessExpression,
@@ -1088,16 +1091,7 @@ namespace LanguageExt.CodeGen
                                                                 SingletonSeparatedList<ArgumentSyntax>(
                                                                     Argument(
                                                                         LiteralExpression(
-                                                                            SyntaxKind.FalseLiteralExpression))))))
-                                                    .WithParameterList(
-                                                        ParameterList(
-                                                            SeparatedList<ParameterSyntax>(
-                                                                new SyntaxNodeOrToken[]{
-                                                                        Parameter(
-                                                                            Identifier("env")),
-                                                                        Token(SyntaxKind.CommaToken),
-                                                                        Parameter(
-                                                                            Identifier("s"))}))))));
+                                                                            SyntaxKind.FalseLiteralExpression)))))))));
 
                 var existsMethod = MethodDeclaration(
                                             CodeGenUtil.FuncType(rTypeSyntax, IdentifierName(genS), PredefinedType(Token(SyntaxKind.BoolKeyword))),
@@ -1127,6 +1121,14 @@ namespace LanguageExt.CodeGen
                                                                     ThisExpression()))))),
                                                 ReturnStatement(
                                                     ParenthesizedLambdaExpression(
+                                                        ParameterList(
+                                                            SeparatedList<ParameterSyntax>(
+                                                                new SyntaxNodeOrToken[]{
+                                                                        Parameter(
+                                                                            Identifier("env")),
+                                                                        Token(SyntaxKind.CommaToken),
+                                                                        Parameter(
+                                                                            Identifier("s"))})),
                                                         InvocationExpression(
                                                             MemberAccessExpression(
                                                                 SyntaxKind.SimpleMemberAccessExpression,
@@ -1162,16 +1164,7 @@ namespace LanguageExt.CodeGen
                                                                 SingletonSeparatedList<ArgumentSyntax>(
                                                                     Argument(
                                                                         LiteralExpression(
-                                                                            SyntaxKind.FalseLiteralExpression))))))
-                                                    .WithParameterList(
-                                                        ParameterList(
-                                                            SeparatedList<ParameterSyntax>(
-                                                                new SyntaxNodeOrToken[]{
-                                                                        Parameter(
-                                                                            Identifier("env")),
-                                                                        Token(SyntaxKind.CommaToken),
-                                                                        Parameter(
-                                                                            Identifier("s"))}))))));
+                                                                            SyntaxKind.FalseLiteralExpression)))))))));
 
                 var localMethod = MethodDeclaration(
                                         structA,
@@ -1540,6 +1533,14 @@ namespace LanguageExt.CodeGen
                                                 SingletonSeparatedList<ArgumentSyntax>(
                                                     Argument(
                                                         ParenthesizedLambdaExpression(
+                                                            ParameterList(
+                                                                SeparatedList<ParameterSyntax>(
+                                                                    new SyntaxNodeOrToken[]{
+                                                                        Parameter(
+                                                                            Identifier("env")),
+                                                                        Token(SyntaxKind.CommaToken),
+                                                                        Parameter(
+                                                                            Identifier("state"))})),
                                                             InvocationExpression(
                                                                 MemberAccessExpression(
                                                                     SyntaxKind.SimpleMemberAccessExpression,
@@ -1559,16 +1560,7 @@ namespace LanguageExt.CodeGen
                                                                                     ArgumentList(
                                                                                         SingletonSeparatedList<ArgumentSyntax>(
                                                                                             Argument(
-                                                                                                IdentifierName("env"))))))}))))
-                                                        .WithParameterList(
-                                                            ParameterList(
-                                                                SeparatedList<ParameterSyntax>(
-                                                                    new SyntaxNodeOrToken[]{
-                                                                        Parameter(
-                                                                            Identifier("env")),
-                                                                        Token(SyntaxKind.CommaToken),
-                                                                        Parameter(
-                                                                            Identifier("state"))})))))))))
+                                                                                                IdentifierName("env"))))))}))))))))))
                                 .WithSemicolonToken(
                                     Token(SyntaxKind.SemicolonToken));
 
@@ -1579,6 +1571,14 @@ namespace LanguageExt.CodeGen
                             SingletonSeparatedList<ArgumentSyntax>(
                                 Argument(
                                     ParenthesizedLambdaExpression(
+                                        ParameterList(
+                                            SeparatedList<ParameterSyntax>(
+                                                new SyntaxNodeOrToken[]{
+                                                    Parameter(
+                                                        Identifier("env")),
+                                                    Token(SyntaxKind.CommaToken),
+                                                    Parameter(
+                                                        Identifier("state"))})),
                                         InvocationExpression(
                                             MemberAccessExpression(
                                                 SyntaxKind.SimpleMemberAccessExpression,
@@ -1592,16 +1592,7 @@ namespace LanguageExt.CodeGen
                                                             IdentifierName("state")),
                                                         Token(SyntaxKind.CommaToken),
                                                         Argument(
-                                                            IdentifierName("env"))}))))
-                                    .WithParameterList(
-                                        ParameterList(
-                                            SeparatedList<ParameterSyntax>(
-                                                new SyntaxNodeOrToken[]{
-                                                    Parameter(
-                                                        Identifier("env")),
-                                                    Token(SyntaxKind.CommaToken),
-                                                    Parameter(
-                                                        Identifier("state"))}))))))));
+                                                            IdentifierName("env"))})))))))));
 
                 var askFunc = applyToStruct.TypeParameterList.Parameters.Count == 1
                               ? PropertyDeclaration(structR, Identifier("ask"))
@@ -1633,6 +1624,14 @@ namespace LanguageExt.CodeGen
                                             SingletonSeparatedList<ArgumentSyntax>(
                                                 Argument(
                                                     ParenthesizedLambdaExpression(
+                                                        ParameterList(
+                                                            SeparatedList<ParameterSyntax>(
+                                                                new SyntaxNodeOrToken[]{
+                                                                    Parameter(
+                                                                        Identifier("env")),
+                                                                    Token(SyntaxKind.CommaToken),
+                                                                    Parameter(
+                                                                        Identifier("state"))})),
                                                         InvocationExpression(
                                                             MemberAccessExpression(
                                                                 SyntaxKind.SimpleMemberAccessExpression,
@@ -1646,16 +1645,7 @@ namespace LanguageExt.CodeGen
                                                                             IdentifierName("state")),
                                                                         Token(SyntaxKind.CommaToken),
                                                                         Argument(
-                                                                            IdentifierName("state"))}))))
-                                                    .WithParameterList(
-                                                        ParameterList(
-                                                            SeparatedList<ParameterSyntax>(
-                                                                new SyntaxNodeOrToken[]{
-                                                                    Parameter(
-                                                                        Identifier("env")),
-                                                                    Token(SyntaxKind.CommaToken),
-                                                                    Parameter(
-                                                                        Identifier("state"))}))))))));
+                                                                            IdentifierName("state"))})))))))));
 
                 var getFunc = applyToStruct.TypeParameterList.Parameters.Count == 1
                               ? PropertyDeclaration(structS, Identifier("get"))
@@ -1701,6 +1691,14 @@ namespace LanguageExt.CodeGen
                                                         SingletonSeparatedList<ArgumentSyntax>(
                                                             Argument(
                                                                 ParenthesizedLambdaExpression(
+                                                                    ParameterList(
+                                                                        SeparatedList<ParameterSyntax>(
+                                                                            new SyntaxNodeOrToken[]{
+                                                                                Parameter(
+                                                                                    Identifier("env")),
+                                                                                Token(SyntaxKind.CommaToken),
+                                                                                Parameter(
+                                                                                    Identifier("state"))})),
                                                                     InvocationExpression(
                                                                         MemberAccessExpression(
                                                                             SyntaxKind.SimpleMemberAccessExpression,
@@ -1720,16 +1718,7 @@ namespace LanguageExt.CodeGen
                                                                                             ArgumentList(
                                                                                                 SingletonSeparatedList<ArgumentSyntax>(
                                                                                                     Argument(
-                                                                                                        IdentifierName("state"))))))}))))
-                                                                .WithParameterList(
-                                                                    ParameterList(
-                                                                        SeparatedList<ParameterSyntax>(
-                                                                            new SyntaxNodeOrToken[]{
-                                                                                Parameter(
-                                                                                    Identifier("env")),
-                                                                                Token(SyntaxKind.CommaToken),
-                                                                                Parameter(
-                                                                                    Identifier("state"))})))))))))
+                                                                                                        IdentifierName("state"))))))}))))))))))
                                                                 .WithSemicolonToken(
                                                                     Token(SyntaxKind.SemicolonToken));
 
@@ -1756,6 +1745,14 @@ namespace LanguageExt.CodeGen
                                                         SingletonSeparatedList<ArgumentSyntax>(
                                                             Argument(
                                                                 ParenthesizedLambdaExpression(
+                                                                    ParameterList(
+                                                                        SeparatedList<ParameterSyntax>(
+                                                                            new SyntaxNodeOrToken[]{
+                                                                                Parameter(
+                                                                                    Identifier("env")),
+                                                                                Token(SyntaxKind.CommaToken),
+                                                                                Parameter(
+                                                                                    Identifier("state"))})),
                                                                     InvocationExpression(
                                                                         MemberAccessExpression(
                                                                             SyntaxKind.SimpleMemberAccessExpression,
@@ -1768,16 +1765,7 @@ namespace LanguageExt.CodeGen
                                                                                     Argument(
                                                                                         IdentifierName("value")),
                                                                                     Token(SyntaxKind.CommaToken),
-                                                                                    Argument(DefaultExpression(CodeGenUtil.UnitType))}))))
-                                                                .WithParameterList(
-                                                                    ParameterList(
-                                                                        SeparatedList<ParameterSyntax>(
-                                                                            new SyntaxNodeOrToken[]{
-                                                                                Parameter(
-                                                                                    Identifier("env")),
-                                                                                Token(SyntaxKind.CommaToken),
-                                                                                Parameter(
-                                                                                    Identifier("state"))})))))))))
+                                                                                    Argument(DefaultExpression(CodeGenUtil.UnitType))}))))))))))
                                         .WithSemicolonToken(
                                             Token(SyntaxKind.SemicolonToken));
 
@@ -1810,6 +1798,14 @@ namespace LanguageExt.CodeGen
                                                     SingletonSeparatedList<ArgumentSyntax>(
                                                         Argument(
                                                             ParenthesizedLambdaExpression(
+                                                                ParameterList(
+                                                                    SeparatedList<ParameterSyntax>(
+                                                                        new SyntaxNodeOrToken[]{
+                                                                            Parameter(
+                                                                                Identifier("env")),
+                                                                            Token(SyntaxKind.CommaToken),
+                                                                            Parameter(
+                                                                                Identifier("state"))})),
                                                                 InvocationExpression(
                                                                     MemberAccessExpression(
                                                                         SyntaxKind.SimpleMemberAccessExpression,
@@ -1829,16 +1825,7 @@ namespace LanguageExt.CodeGen
                                                                                                     IdentifierName("state")))))),
                                                                                 Token(SyntaxKind.CommaToken),
                                                                                 Argument(
-                                                                                    DefaultExpression(CodeGenUtil.UnitType))}))))
-                                                            .WithParameterList(
-                                                                ParameterList(
-                                                                    SeparatedList<ParameterSyntax>(
-                                                                        new SyntaxNodeOrToken[]{
-                                                                            Parameter(
-                                                                                Identifier("env")),
-                                                                            Token(SyntaxKind.CommaToken),
-                                                                            Parameter(
-                                                                                Identifier("state"))})))))))))
+                                                                                    DefaultExpression(CodeGenUtil.UnitType))}))))))))))
                                                             .WithSemicolonToken(
                                                                     Token(SyntaxKind.SemicolonToken));
 
