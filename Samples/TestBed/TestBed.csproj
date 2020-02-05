@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" OutputItemType="ResolvedGeneratorReferencePaths" PrivateAssets="all"/>
+        <ProjectReference Include="..\..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" OutputItemType="CodeGenerationRoslynPlugin" PrivateAssets="all"/>
         <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
         <ProjectReference Include="..\..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
         <ProjectReference Include="..\..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />
