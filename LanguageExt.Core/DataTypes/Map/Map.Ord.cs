@@ -638,14 +638,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public string ToFullString(string separator = ", ") =>
-            CollectionFormat.ToFullString(ValueTuples.Map(kv => $"({kv.Key}: {kv.Value})"));
+            CollectionFormat.ToFullString(ValueTuples.Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
         /// <summary>
         /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
         /// </summary>
         [Pure]
         public string ToFullArrayString(string separator = ", ") =>
-            CollectionFormat.ToFullArrayString(ValueTuples.Map(kv => $"({kv.Key}: {kv.Value})"));
+            CollectionFormat.ToFullArrayString(ValueTuples.Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
 
         [Pure]
