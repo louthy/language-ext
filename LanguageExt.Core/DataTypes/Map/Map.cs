@@ -673,14 +673,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public string ToFullString(string separator = ", ") =>
-            CollectionFormat.ToFullString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"));
+            CollectionFormat.ToFullString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
         /// <summary>
         /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
         /// </summary>
         [Pure]
         public string ToFullArrayString(string separator = ", ") =>
-            CollectionFormat.ToFullArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"));
+            CollectionFormat.ToFullArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
         [Pure]
         public IEnumerable<(K Key, V Value)> AsEnumerable() => 

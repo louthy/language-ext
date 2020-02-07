@@ -383,7 +383,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string ToFullString(string separator = ", ") =>
-            CollectionFormat.ToFullString(this);
+            CollectionFormat.ToFullString(this, separator);
 
         /// <summary>
         /// Format the collection as `[a, b, c, ...]`
@@ -391,7 +391,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string ToFullArrayString(string separator = ", ") =>
-            CollectionFormat.ToFullArrayString(this);
+            CollectionFormat.ToFullArrayString(this, separator);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
