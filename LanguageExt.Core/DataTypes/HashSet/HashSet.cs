@@ -396,14 +396,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public string ToFullString(string separator = ", ") =>
-            CollectionFormat.ToFullString(this);
+            CollectionFormat.ToFullString(this, separator);
 
         /// <summary>
         /// Format the collection as `[a, b, c, ...]`
         /// </summary>
         [Pure]
         public string ToFullArrayString(string separator = ", ") =>
-            CollectionFormat.ToFullArrayString(this);
+            CollectionFormat.ToFullArrayString(this, separator);
 
         [Pure]
         public IEnumerable<A> AsEnumerable() =>

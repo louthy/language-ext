@@ -20,7 +20,7 @@ namespace TestBed
         MRobot<Unit> MoveRobotDown();
     }
 
-    [RWS(WriterMonoid: typeof(MUnit), Env: typeof(Env), State: typeof(RobotState))]
+    [LanguageExt.RWS(WriterMonoid: typeof(MUnit), Env: typeof(Env), State: typeof(RobotState))]
     public partial struct MRobot<A>
     {
     }
