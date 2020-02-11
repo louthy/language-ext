@@ -29,6 +29,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(DateTime x) =>
-            x.GetHashCode();
+            default(HashableDateTime).GetHashCode(x);
     }
 }

@@ -33,7 +33,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(NumType<NUMTYPE, NUM, A> x) =>
-            x.IsNull() ? 0 : x.GetHashCode();
+            default(HashableNumType<NUMTYPE, NUM, A>).GetHashCode(x);
     }
 
     /// <summary>
@@ -66,6 +66,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(NumType<NUMTYPE, NUM, A, PRED> x) =>
-            x.IsNull() ? 0 : x.GetHashCode();
+            default(HashableNumType<NUMTYPE, NUM, A, PRED>).GetHashCode(x);
     }
 }

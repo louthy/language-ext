@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -234,40 +235,40 @@ namespace LanguageExt
         /// <summary>
         /// Calculate a hash-code for an enumerable
         /// </summary>
-        public static int hash<A>(IEnumerable<A> xs)
+        public static int hash<A>(IEnumerable<A> xs) =>
+            hash<HashableDefault<A>, A>(xs);
+
+        /// <summary>
+        /// Calculate a hash-code for an enumerable
+        /// </summary>
+        public static int hash<HashA, A>(IEnumerable<A> xs) where HashA : struct, Hashable<A>
         {
+            const int fnvOffsetBasis = -2128831035;
+            const int fnvPrime = 16777619;
+            int hash = fnvOffsetBasis;
+
             if (xs == null) return 0;
             unchecked
             {
-                int hash = 1;
-                foreach(var x in xs)
+                foreach (var x in xs)
                 {
-                    hash = ReferenceEquals(x, null)
-                        ? hash * 31
-                        : hash * 31 + x.GetHashCode();
+                    hash = (default(HashA).GetHashCode(x) ^ hash) * fnvPrime;
                 }
                 return hash;
             }
         }
 
         /// <summary>
-        /// Calculate a hash-code for an enumerable
+        /// Calculate a hash-code for a seq
         /// </summary>
-        public static int hash<A>(Seq<A> xs)
-        {
-            if (xs == null) return 0;
-            unchecked
-            {
-                int hash = 1;
-                foreach (var x in xs)
-                {
-                    hash = ReferenceEquals(x, null)
-                        ? hash * 31
-                        : hash * 31 + x.GetHashCode();
-                }
-                return hash;
-            }
-        }
+        public static int hash<A>(Seq<A> xs) =>
+            hash<HashableDefault<A>, A>(xs);
+
+        /// <summary>
+        /// Calculate a hash-code for a seq
+        /// </summary>
+        public static int hash<HashA, A>(Seq<A> xs) where HashA : struct, Hashable<A> =>
+            hash<HashA, A>(xs);
 
         /// <summary>
         /// Not function, for prettifying code and removing the need to 

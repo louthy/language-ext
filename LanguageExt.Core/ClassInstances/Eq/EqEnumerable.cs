@@ -45,7 +45,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(IEnumerable<A> x) =>
-            hash(x);
+            default(HashableEnumerable<EQ, A>).GetHashCode(x);
     }
 
     /// <summary>
@@ -72,6 +72,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(IEnumerable<A> x) =>
-            default(EqEnumerable<EqDefault<A>, A>).GetHashCode(x);
+            default(HashableEnumerable<A>).GetHashCode(x);
     }
 }

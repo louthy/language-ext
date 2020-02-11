@@ -9,6 +9,6 @@ namespace LanguageExt.ClassInstances
             x.Id == y.Id;
 
         public int GetHashCode(Task<A> x) =>
-            x.Id.GetHashCode();
+            default(HashableTask<A>).GetHashCode(x);
     }
 }

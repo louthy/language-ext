@@ -8,6 +8,6 @@ namespace LanguageExt.ClassInstances
             x == y;
 
         public int GetHashCode(Compositions<A> x) =>
-            x.GetHashCode();
+            default(HashableCompositions<A>).GetHashCode(x);
     }
 }

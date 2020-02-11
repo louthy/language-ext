@@ -28,7 +28,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(string x) =>
-            x == null ? 0 : x.GetHashCode();
+            default(HashableString).GetHashCode(x);
     }
 
     /// <summary>
@@ -55,7 +55,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(string x) =>
-            StringComparer.OrdinalIgnoreCase.GetHashCode(x);
+            default(HashableStringOrdinalIgnoreCase).GetHashCode(x);
     }
 
     /// <summary>
@@ -82,7 +82,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(string x) =>
-            StringComparer.Ordinal.GetHashCode(x);
+            default(HashableStringOrdinal).GetHashCode(x);
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(string x) =>
-            StringComparer.CurrentCultureIgnoreCase.GetHashCode(x);
+            default(HashableStringCurrentCultureIgnoreCase).GetHashCode(x);
     }
 
     /// <summary>
@@ -136,6 +136,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(string x) =>
-            StringComparer.CurrentCulture.GetHashCode(x);
+            default(HashableStringCurrentCulture).GetHashCode(x);
     }
 }

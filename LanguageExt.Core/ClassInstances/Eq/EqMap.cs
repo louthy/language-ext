@@ -22,7 +22,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>Hash code of `x`</returns>
         [Pure]
         public int GetHashCode(Map<K, V> x) =>
-            x.GetHashCode();
+            default(HashableMap<K, V>).GetHashCode(x);
     }
 
     public struct EqMap<OrdK, K, V> : Eq<Map<OrdK, K, V>>
@@ -44,6 +44,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>Hash code of `x`</returns>
         [Pure]
         public int GetHashCode(Map<OrdK, K, V> x) =>
-            x.GetHashCode();
+            default(HashableMap<OrdK, K, V>).GetHashCode(x);
     }
 }

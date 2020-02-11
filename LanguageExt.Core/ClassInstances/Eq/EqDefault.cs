@@ -17,32 +17,27 @@ namespace LanguageExt.ClassInstances
         public static readonly EqDefault<A> Inst = default(EqDefault<A>);
 
         static readonly Func<A, A, bool> eq;
-        static readonly Func<A, int> hash;
 
         static EqDefault()
         {
             if (Reflect.IsFunc(typeof(A)))
             {
                 eq = (a, b) => ReferenceEquals(a, b);
-                hash = x => x.IsNull() ? 0 : x.GetHashCode();
             }
             else if (Reflect.IsAnonymous(typeof(A)))
             {
                 eq = IL.EqualsTyped<A>(false);
-                hash = IL.GetHashCode<A>(false);
             }
             else
             {
-                var def = Class<Ord<A>>.Default;
+                var def = Class<Eq<A>>.Default;
                 if (def == null)
                 {
                     eq = EqualityComparer<A>.Default.Equals;
-                    hash = x => x.IsNull() ? 0 : x.GetHashCode();
                 }
                 else
                 {
                     eq = def.Equals;
-                    hash = def.GetHashCode;
                 }
             }
         }
@@ -69,6 +64,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(A x) =>
-            hash(x);
+            default(HashableDefault<A>).GetHashCode(x);
     }
 }
