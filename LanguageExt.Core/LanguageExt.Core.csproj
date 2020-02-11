@@ -24,7 +24,7 @@
     <PackageIcon>lang-ext-small.png</PackageIcon>
     <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
-    <TargetFrameworks>net46;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.1</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <OutputType>library</OutputType>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>

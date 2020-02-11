@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
     <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
         <DefineConstants>TRACE;DEBUG</DefineConstants>
     </PropertyGroup>
@@ -7,7 +7,7 @@
         <DefineConstants>CONTRACTS_FULL</DefineConstants>
     </PropertyGroup>
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
+        <TargetFrameworks>netstandard2.1;net461</TargetFrameworks>
         <PackageVersion>3.3.51</PackageVersion>
         <PackageId>LanguageExt.Parsec</PackageId>
         <Title>LanguageExt.Parsec</Title>
@@ -24,12 +24,7 @@
         <OutputType>library</OutputType>
         <AssemblyVersion>3.0.0.0</AssemblyVersion>
         <FileVersion>3.0.0.0</FileVersion>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-        <LangVersion>7.1</LangVersion>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-        <LangVersion>7.1</LangVersion>
+        <LangVersion>8.0</LangVersion>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\Images\lang-ext-small.png">
