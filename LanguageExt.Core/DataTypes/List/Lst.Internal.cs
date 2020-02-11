@@ -505,7 +505,7 @@ namespace LanguageExt
         }
     }
 
-    //[Serializable]
+    [Serializable]
     class ListItem<T>
     {
         public static readonly ListItem<T> Empty = new ListItem<T>(0, 0, null, default(T), null);
