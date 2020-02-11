@@ -5,6 +5,8 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
 using LanguageExt.DataTypes.Serialisation;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace LanguageExt
 {
@@ -29,6 +31,9 @@ namespace LanguageExt
     /// <typeparam name="R">Right</typeparam>
     [Serializable]
     public struct EitherAsync<L, R> :
+#if NETCORE
+        IAsyncEnumerable<R>,
+#endif
         IEitherAsync
     {
         public readonly static EitherAsync<L, R> Bottom = new EitherAsync<L, R>();
@@ -1739,6 +1744,22 @@ namespace LanguageExt
         [Pure]
         public EitherAsync<L, V> SelectMany<U, V>(Func<R, EitherAsync<L, U>> bind, Func<R, U, V> project) =>
             Bind(a => bind(a).Bind(b => EitherAsync<L, V>.Right(project(a, b))));
+
+
+#if NETCORE
+        /// <summary>
+        /// Enumerate asynchronously
+        /// </summary>
+        [Pure]
+        public async IAsyncEnumerator<R> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+            var data = await Data;
+            if (data.State == EitherStatus.IsRight)
+            {
+                yield return data.Right;
+            }
+        }
+#endif
     }
 
     /// <summary>

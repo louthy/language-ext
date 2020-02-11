@@ -310,11 +310,27 @@ namespace LanguageExt
         /// <summary>
         /// Removes an item from the set (if it exists)
         /// </summary>
-        /// <param name="value">Value to check</param>
+        /// <param name="value">Value to remove</param>
         /// <returns>New set with item removed</returns>
         [Pure]
         public Set<A> Remove(A value) =>
             Wrap(Value.Remove(value));
+
+        /// <summary>
+        /// Removes a range of items from the set (if they exist)
+        /// </summary>
+        /// <param name="value">Value to remove</param>
+        /// <returns>New set with items removed</returns>
+        [Pure]
+        public Set<A> RemoveRange(IEnumerable<A> values)
+        {
+            var set = Value;
+            foreach(var x in values)
+            {
+                set = set.Remove(x);
+            }
+            return Wrap(set);
+        }
 
         /// <summary>
         /// Applies a function 'folder' to each element of the collection, threading an accumulator 

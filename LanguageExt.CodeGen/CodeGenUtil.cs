@@ -787,7 +787,7 @@ namespace LanguageExt.CodeGen
                                                         ArgumentList(
                                                             SingletonSeparatedList<ArgumentSyntax>(
                                                                 Argument(
-                                                                    IdentifierName(m.Identifier.Text))))),
+                                                                    IdentifierName(MakeFirstCharUpper(m.Identifier.Text)))))),
                                                     InterpolatedStringExpression(
                                                         Token(SyntaxKind.InterpolatedStringStartToken))
                                                     .WithContents(
@@ -797,8 +797,8 @@ namespace LanguageExt.CodeGen
                                                                 Token(
                                                                     TriviaList(),
                                                                     SyntaxKind.InterpolatedStringTextToken,
-                                                                    $"{m.Identifier.Text}: [null]",
-                                                                    $"{m.Identifier.Text}: [null]",
+                                                                    $"{MakeFirstCharUpper(m.Identifier.Text)}: [null]",
+                                                                    $"{MakeFirstCharUpper(m.Identifier.Text)}: [null]",
                                                                     TriviaList())))),
                                                     InterpolatedStringExpression(
                                                         Token(SyntaxKind.InterpolatedStringStartToken))
@@ -810,11 +810,11 @@ namespace LanguageExt.CodeGen
                                                                     Token(
                                                                         TriviaList(),
                                                                         SyntaxKind.InterpolatedStringTextToken,
-                                                                        $"{m.Identifier.Text}: ",
-                                                                        $"{m.Identifier.Text}: ",
+                                                                        $"{MakeFirstCharUpper(m.Identifier.Text)}: ",
+                                                                        $"{MakeFirstCharUpper(m.Identifier.Text)}: ",
                                                                         TriviaList())),
                                                                 Interpolation(
-                                                                    IdentifierName(m.Identifier.Text))})))))))),
+                                                                    IdentifierName(MakeFirstCharUpper(m.Identifier.Text)))})))))))),
                             comma }));
 
                 // Remove last comma
