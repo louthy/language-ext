@@ -557,6 +557,49 @@ namespace LanguageExt.Tests
             Assert.True(parse(asString(manyn0(digit, 0)), "123").ToEither().IfLeft("x") == "");
             Assert.True(parse(asString(manyn0(digit, -1)), "123").ToEither().IfLeft("x") == "");
         }
+
+        [Fact]
+        public void SepByTest()
+        {
+            // greedy, but works because of nice input
+            Assert.Equal(Seq("this", "is", "a", "path"), parse(sepBy1(asString(many1(alphaNum)), ch('/')), "this/is/a/path").ToEither());
+            Assert.Equal(Seq("this", "is", "a", "path"), parse(sepBy1(asString(many1(alphaNum)), ch('/')), "this/is/a/path.").ToEither());
+
+            // greedy + runs into dead end
+            Assert.True(parse(sepBy1(asString(many1(alphaNum)), ch('/')), "this/is/a/path/").IsFaulted);
+
+            // consume as many items as possible without failing
+            Assert.Equal(Seq("this", "is", "a", "path"), parse(from x in asString(many1(alphaNum)) from xs in many(attempt(from sep in ch('/') from word in asString(many1(alphaNum)) select word)) select x.Cons(xs), "this/is/a/path/").ToEither());
+        }
+
+        [Fact]
+        public void EndByTest()
+        {
+            // greedy, but works because of nice input
+            Assert.Equal(Seq("this", "is", "a", "folder"), parse(endBy1(asString(many1(alphaNum)), ch('/')), "this/is/a/folder//").ToEither());
+            Assert.Equal(Seq("this", "is", "a", "folder"), parse(endBy1(asString(many1(alphaNum)), ch('/')), "this/is/a/folder/").ToEither());
+
+            // greedy + runs into dead end
+            Assert.True(parse(endBy1(attempt(asString(many1(alphaNum))), attempt(ch('/'))), "this/is/a/folder/filename").IsFaulted);
+
+            // consume as many items as possible without failing
+            Assert.Equal(Seq("this", "is", "a", "folder"), parse(many1(attempt(from word in asString(many1(alphaNum)) from sep in ch('/') select word)), "this/is/a/folder/filename").ToEither());
+        }
+
+        [Fact]
+        public void SepEndByTest()
+        {
+            Assert.Equal(Seq("this", "is", "a", "path"), parse(sepEndBy1(asString(many1(alphaNum)), ch('/')), "this/is/a/path//").ToEither());
+            Assert.Equal(Seq("this", "is", "a", "path"), parse(sepEndBy1(asString(many1(alphaNum)), ch('/')), "this/is/a/path/").ToEither());
+            Assert.Equal(Seq("this", "is", "a", "path"), parse(sepEndBy1(asString(many1(alphaNum)), ch('/')), "this/is/a/path").ToEither());
+            Assert.True(parse(sepEndBy1(asString(many1(alphaNum)), ch('/')), ".").IsFaulted);
+            
+            Assert.Equal(Seq("this", "is", "a", "path"), parse(sepEndBy(asString(many1(alphaNum)), ch('/')), "this/is/a/path//").ToEither());
+            Assert.Equal(Seq("this", "is", "a", "path"), parse(sepEndBy(asString(many1(alphaNum)), ch('/')), "this/is/a/path/").ToEither());
+            Assert.Equal(Seq("this", "is", "a", "path"), parse(sepEndBy(asString(many1(alphaNum)), ch('/')), "this/is/a/path").ToEither());
+            Assert.Equal(Seq<string>(), parse(sepEndBy(asString(many1(alphaNum)), ch('/')), ".").ToEither());
+
+        }
         
         [Fact]
         public void ParallelCheck()
