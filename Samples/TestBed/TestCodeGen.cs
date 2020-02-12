@@ -180,7 +180,14 @@ namespace TestBed
     [Record]
     public partial struct Person
     {
+        [Eq(typeof(EqStringOrdinalIgnoreCase))]
+        [Ord(typeof(OrdStringOrdinalIgnoreCase))]
+        [Hashable(typeof(HashableStringOrdinalIgnoreCase))]
         public readonly string Forename;
+
+        [Eq(typeof(EqStringOrdinalIgnoreCase))]
+        [Ord(typeof(OrdStringOrdinalIgnoreCase))]
+        [Hashable(typeof(HashableStringOrdinalIgnoreCase))]
         public readonly string Surname;
     }
 

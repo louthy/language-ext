@@ -649,7 +649,7 @@ namespace LanguageExt.CodeGen
                 ? null
                 : member;
 
-        public static List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> MembersWithAttr(List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members, params string[] names) =>
+        public static List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> MembersWithoutAttr(List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members, params string[] names) =>
             members.Where(p => p.Attrs == null ||
                               !p.Attrs.Any() ||
                               !p.Attrs
@@ -660,7 +660,7 @@ namespace LanguageExt.CodeGen
                                 .Any())
                     .ToList();
 
-        public static List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> MembersWithoutAttr(List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members, params string[] names) =>
+        public static List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> MembersWithAttr(List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members, params string[] names) =>
             members.Where(p => p.Attrs != null &&
                                p.Attrs.Any() &&
                                p.Attrs
@@ -673,12 +673,12 @@ namespace LanguageExt.CodeGen
 
         public static MemberDeclarationSyntax[] MakeDataTypeMembers(string typeName, TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members, BaseSpec baseSpec, bool typeIsClass)
         {
-            var eqs = MembersWithAttr(members, "NonEq", "NonRecord", "NonStructural", "LanguageExt.NonEq", "LanguageExt.NonRecord", "LanguageExt.NonStructural");
-            var ords = MembersWithAttr(members, "NonOrd", "NonRecord", "NonStructural", "LanguageExt.NonOrd", "LanguageExt.NonRecord", "LanguageExt.NonStructural");
-            var hashes = MembersWithAttr(members, "NonHash", "NonRecord", "NonStructural", "LanguageExt.NonHash", "LanguageExt.NonRecord", "LanguageExt.NonStructural");
-            var shows = MembersWithAttr(members, "NonShow", "NonRecord", "LanguageExt.NonShow", "LanguageExt.NonRecord");
-            var serials = MembersWithAttr(members, "NonSerializable", "NonSerialized", "NonRecord", "LanguageExt.NonSerializable", "System.NonSerialized", "LanguageExt.NonRecord");
-            var nonserials = MembersWithoutAttr(members, "NonSerializable", "NonSerialized", "NonRecord", "LanguageExt.NonSerializable", "System.NonSerialized", "LanguageExt.NonRecord");
+            var eqs = MembersWithoutAttr(members, "NonEq", "NonRecord", "NonStructural", "LanguageExt.NonEq", "LanguageExt.NonRecord", "LanguageExt.NonStructural");
+            var ords = MembersWithoutAttr(members, "NonOrd", "NonRecord", "NonStructural", "LanguageExt.NonOrd", "LanguageExt.NonRecord", "LanguageExt.NonStructural");
+            var hashes = MembersWithoutAttr(members, "NonHash", "NonRecord", "NonStructural", "LanguageExt.NonHash", "LanguageExt.NonRecord", "LanguageExt.NonStructural");
+            var shows = MembersWithoutAttr(members, "NonShow", "NonRecord", "LanguageExt.NonShow", "LanguageExt.NonRecord");
+            var serials = MembersWithoutAttr(members, "NonSerializable", "NonSerialized", "NonRecord", "LanguageExt.NonSerializable", "System.NonSerialized", "LanguageExt.NonRecord");
+            var nonserials = MembersWithAttr(members, "NonSerializable", "NonSerialized", "NonRecord", "LanguageExt.NonSerializable", "System.NonSerialized", "LanguageExt.NonRecord");
 
             var nmembers = new List<MemberDeclarationSyntax>();
             nmembers.AddRange(MakeSerialisationMembers(typeName, serials, nonserials));
@@ -883,7 +883,7 @@ namespace LanguageExt.CodeGen
                                                     InvocationExpression(
                                                         MemberAccessExpression(
                                                             SyntaxKind.SimpleMemberAccessExpression,
-                                                            DefaultExpression(EqDefaultType(m.Type)),
+                                                            DefaultExpression(HashDefaultType(m.Type, m.Attrs)),
                                                             IdentifierName("GetHashCode")))
                                                     .WithArgumentList(
                                                         ArgumentList(
@@ -1148,7 +1148,7 @@ namespace LanguageExt.CodeGen
                                     InvocationExpression(
                                         MemberAccessExpression(
                                             SyntaxKind.SimpleMemberAccessExpression,
-                                            DefaultExpression(OrdDefaultType(m.Type)),
+                                            DefaultExpression(OrdDefaultType(m.Type, m.Attrs)),
                                             IdentifierName("Compare")))
                                     .WithArgumentList(
                                         ArgumentList(
@@ -1228,7 +1228,7 @@ namespace LanguageExt.CodeGen
                             InvocationExpression(
                                 MemberAccessExpression(
                                     SyntaxKind.SimpleMemberAccessExpression,
-                                    DefaultExpression(EqDefaultType(m.Type)),
+                                    DefaultExpression(EqDefaultType(m.Type, m.Attrs)),
                                     IdentifierName("Equals")))
                             .WithArgumentList(
                                 ArgumentList(
@@ -2117,6 +2117,44 @@ namespace LanguageExt.CodeGen
             return new MemberDeclarationSyntax[] { ctor, getObjData };
         }
 
+        static TypeSyntax EqAttrIdent(TypeSyntax genericParam, SyntaxList<AttributeListSyntax> attrs)
+        {
+            var def = EqDefaultType(genericParam);
+            if (attrs == null || !attrs.Any()) return def;
+            return attrs.SelectMany(a => a.Attributes)
+                        .Where(a => a.Name.ToString() == "Eq" && a.ArgumentList.Arguments.Count == 1)
+                        .Select(a => a.ArgumentList.Arguments.First().Expression as TypeOfExpressionSyntax)
+                        .Where(e => e != null)
+                        .Select(e => e.Type)
+                        .DefaultIfEmpty(def)
+                        .FirstOrDefault();
+        }
+
+        static TypeSyntax OrdAttrIdent(TypeSyntax genericParam, SyntaxList<AttributeListSyntax> attrs)
+        {
+            var def = OrdDefaultType(genericParam);
+            if (attrs == null || !attrs.Any()) return def;
+            return attrs.SelectMany(a => a.Attributes)
+                        .Where(a => a.Name.ToString() == "Ord" && a.ArgumentList.Arguments.Count == 1)
+                        .Select(a => a.ArgumentList.Arguments.First().Expression as TypeOfExpressionSyntax)
+                        .Where(e => e != null)
+                        .Select(e => e.Type)
+                        .DefaultIfEmpty(def)
+                        .FirstOrDefault();
+        }
+
+        static TypeSyntax HashAttrIdent(TypeSyntax genericParam, SyntaxList<AttributeListSyntax> attrs)
+        {
+            var def = HashDefaultType(genericParam);
+            if (attrs == null || !attrs.Any()) return def;
+            return attrs.SelectMany(a => a.Attributes)
+                        .Where(a => a.Name.ToString() == "Hashable" && a.ArgumentList.Arguments.Count == 1)
+                        .Select(a => a.ArgumentList.Arguments.First().Expression as TypeOfExpressionSyntax)
+                        .Where(e => e != null)
+                        .Select(e => e.Type)
+                        .DefaultIfEmpty(def)
+                        .FirstOrDefault();
+        }
         public static TypeSyntax EqDefaultType(TypeSyntax genericParam) =>
             QualifiedName(
                 QualifiedName(
@@ -2138,6 +2176,26 @@ namespace LanguageExt.CodeGen
                 .WithTypeArgumentList(
                     TypeArgumentList(
                         SingletonSeparatedList(genericParam))));
+
+        public static TypeSyntax HashDefaultType(TypeSyntax genericParam) =>
+            QualifiedName(
+                QualifiedName(
+                    IdentifierName("LanguageExt"),
+                    IdentifierName("ClassInstances")),
+                GenericName(
+                    Identifier("HashableDefault"))
+                .WithTypeArgumentList(
+                    TypeArgumentList(
+                        SingletonSeparatedList(genericParam))));
+
+        public static TypeSyntax EqDefaultType(TypeSyntax genericParam, SyntaxList<AttributeListSyntax> attrs) =>
+            EqAttrIdent(genericParam, attrs);
+
+        public static TypeSyntax OrdDefaultType(TypeSyntax genericParam, SyntaxList<AttributeListSyntax> attrs) =>
+            OrdAttrIdent(genericParam, attrs);
+
+        public static TypeSyntax HashDefaultType(TypeSyntax genericParam, SyntaxList<AttributeListSyntax> attrs) =>
+            HashAttrIdent(genericParam, attrs);
 
         /// <summary>
         /// Makes a case class
