@@ -323,5 +323,15 @@ namespace LanguageExt.Tests
             Assert.True(se == Seq1(1));
             Assert.True(sf == Empty);
         }
+
+
+        [Fact]
+        public void HashTest()
+        {
+            var s1 = Seq1("test");
+            var s2 = Seq1("test");
+
+            Assert.True(s1.GetHashCode() == s2.GetHashCode());
+        }
     }
 }

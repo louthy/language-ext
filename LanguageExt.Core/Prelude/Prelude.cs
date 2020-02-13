@@ -267,8 +267,22 @@ namespace LanguageExt
         /// <summary>
         /// Calculate a hash-code for a seq
         /// </summary>
-        public static int hash<HashA, A>(Seq<A> xs) where HashA : struct, Hashable<A> =>
-            hash<HashA, A>(xs);
+        public static int hash<HashA, A>(Seq<A> xs) where HashA : struct, Hashable<A>
+        {
+            const int fnvOffsetBasis = -2128831035;
+            const int fnvPrime = 16777619;
+            int hash = fnvOffsetBasis;
+
+            if (xs == null) return 0;
+            unchecked
+            {
+                foreach (var x in xs)
+                {
+                    hash = (default(HashA).GetHashCode(x) ^ hash) * fnvPrime;
+                }
+                return hash;
+            }
+        }
 
         /// <summary>
         /// Not function, for prettifying code and removing the need to 
