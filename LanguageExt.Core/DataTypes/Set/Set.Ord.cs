@@ -523,7 +523,7 @@ namespace LanguageExt
         /// <returns>True if the two sets are equal</returns>
         [Pure]
         public static bool operator !=(Set<OrdA, A> lhs, Set<OrdA, A> rhs) =>
-            lhs.Equals(rhs);
+            !lhs.Equals(rhs);
 
         [Pure]
         public static bool operator <(Set<OrdA, A> lhs, Set<OrdA, A> rhs) =>
