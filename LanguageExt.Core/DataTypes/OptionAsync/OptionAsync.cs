@@ -30,9 +30,10 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
     public struct OptionAsync<A> :
-#if NETCORE
-        IAsyncEnumerable<A>,
-#endif
+// TODO: Re-add when we move to netstandard2.1
+//#if NETCORE
+//        IAsyncEnumerable<A>,
+//#endif
         IOptionalAsync
     {
         internal readonly Task<(bool IsSome, A Value)> data;
@@ -1241,19 +1242,20 @@ namespace LanguageExt
         public OptionAsync<Func<B, Func<C, D>>> ParMap<B, C, D>(Func<A, B, C, D> func) =>
             Map(curry(func));
 
-#if NETCORE
-        /// <summary>
-        /// Enumerate asynchronously
-        /// </summary>
-        [Pure]
-        public async IAsyncEnumerator<A> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-        {
-            var (isSome, value) = await Data;
-            if(isSome)
-            {
-                yield return value;
-            }
-        }
-#endif
+// TODO: Re-add when we move to netstandard2.1
+//#if NETCORE
+//        /// <summary>
+//        /// Enumerate asynchronously
+//        /// </summary>
+//        [Pure]
+//        public async IAsyncEnumerator<A> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+//        {
+//            var (isSome, value) = await Data;
+//            if(isSome)
+//            {
+//                yield return value;
+//            }
+//        }
+//#endif
     }
 }
