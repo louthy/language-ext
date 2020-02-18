@@ -45,7 +45,7 @@ namespace TestBed
         }
         public Person ReadFromDB() => new Person("Spider", "Man");
         public int Zero => 0;
-    }
+    } 
 
     public static class TestSubs
     {

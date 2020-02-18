@@ -112,6 +112,8 @@ class Program
 
     static void Main(string[] args)
     {
+        var nseq = new Seq<int> { 1, 2, 3 };
+
         var lst = List<int>();
 
         for (var ix = 0; ix < 10000; ix++)
@@ -201,10 +203,7 @@ class Program
 
         TestSubs.Test();
 
-        SeqPerf.Broken1();
         return;
-        HashMapPerf.Run();
-        SeqPerf.Run();
 
         Test533();
 

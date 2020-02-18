@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.Rx", "LanguageE
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.CodeGen", "LanguageExt.CodeGen\LanguageExt.CodeGen.csproj", "{D36A9A47-5820-4B6B-97EF-3AA1341A6E72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Benchmarks", "LanguageExt.Benchmarks\LanguageExt.Benchmarks.csproj", "{4F7FCDBC-F37A-493B-A648-107F69F10EFF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.Benchmarks", "LanguageExt.Benchmarks\LanguageExt.Benchmarks.csproj", "{4F7FCDBC-F37A-493B-A648-107F69F10EFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
