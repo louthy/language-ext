@@ -9,17 +9,6 @@ namespace LanguageExt.Tests
     public class ListPredicateTests
     {
         [Fact]
-        public void UninitialisedEmptyListThrows()
-        {
-            var x = new Lst<NonEmpty, int>();
-
-            Assert.Throws<BottomException>(() =>
-            {
-                var u = x.Count;
-            });
-        }
-
-        [Fact]
         public void EmptyListThrows()
         {
             var x = List<NonEmpty, int>(1, 2, 3, 4);
