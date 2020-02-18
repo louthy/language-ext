@@ -329,8 +329,17 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Tuples</returns>
         [Pure]
+        [Obsolete("Use Pairs instead")]
         public IEnumerable<(A Key, B Value)> Tuples =>
-            Left.ValueTuples;
+            Left.Pairs;
+
+        /// <summary>
+        /// Enumerable of in-order tuples that make up the map
+        /// </summary>
+        /// <returns>Tuples</returns>
+        [Pure]
+        public IEnumerable<(A Key, B Value)> Pairs =>
+            Left.Pairs;
 
         [Pure]
         public Seq<(A Key, B Value)> ToSeq() =>

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -54,7 +55,7 @@ namespace LanguageExt
         /// Constructor
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal SeqLazy(A[] data, int start, int count, int noCons, Enum<A> seq, int seqStart)
+        SeqLazy(A[] data, int start, int count, int noCons, Enum<A> seq, int seqStart)
         {
             this.data = data;
             this.start = start;
@@ -482,6 +483,21 @@ namespace LanguageExt
             return true;
         }
 
-        public SeqType Type => SeqType.Lazy;
+        public SeqType Type => 
+            SeqType.Lazy;
+
+        public int GetHashCode(int hash)
+        {
+            InternalStrict();
+            if (count > 0)
+            {
+                hash = FNV32.Hash<HashableDefault<A>, A>(data, start, count, hash);
+            }
+            if (seq.Count > 0)
+            {
+                hash = FNV32.Hash<HashableDefault<A>, A>(seq.Data, 0, seq.Count, hash);
+            }
+            return hash;
+        }
     }
 }

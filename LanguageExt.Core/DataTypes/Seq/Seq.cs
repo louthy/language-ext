@@ -673,9 +673,10 @@ namespace LanguageExt
         /// Get the hash code for all of the items in the sequence, or 0 if empty
         /// </summary>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() =>
             hash = hash == 0
-                ? hash(this)
+                ? (hash = Value.GetHashCode(FNV32.OffsetBasis))
                 : hash;
 
         /// <summary>

@@ -77,5 +77,8 @@ namespace LanguageExt
             true;
 
         public SeqType Type => SeqType.Empty;
+
+        public int GetHashCode(int offsetBasis) =>
+            offsetBasis;
     }
 }

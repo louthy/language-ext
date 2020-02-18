@@ -30,7 +30,11 @@ namespace LanguageExt
 
         readonly LstInternal<A> value;
 
-        internal LstInternal<A> Value => value ?? LstInternal<A>.Empty;
+        internal LstInternal<A> Value
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value ?? LstInternal<A>.Empty;
+        }
 
         /// <summary>
         /// Ctor
@@ -56,7 +60,7 @@ namespace LanguageExt
         ListItem<A> Root
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Value.Root ?? ListItem<A>.Empty;
+            get => Value.Root;
         }
 
         [Pure]

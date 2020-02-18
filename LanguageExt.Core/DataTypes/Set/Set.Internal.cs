@@ -7,6 +7,7 @@ using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -51,11 +52,10 @@ namespace LanguageExt
         {
         }
 
-        public override int GetHashCode()
-        {
-            if (hashCode != 0) return hashCode;
-            return hashCode = hash(this.AsEnumerable());
-        }
+        public override int GetHashCode() =>
+            hashCode == 0
+                ? hashCode = FNV32.Hash<OrdA, A>(this.AsEnumerable())
+                : hashCode;
 
         public IEnumerable<A> AsEnumerable()
         {

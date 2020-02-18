@@ -172,5 +172,14 @@ namespace LanguageExt
             }
             return new SeqStrict<A>(data, start, total, 0, 0);
         }
+
+        public int GetHashCode(int hash)
+        {
+            foreach (var seq in ms)
+            {
+                hash = seq.GetHashCode(hash);
+            }
+            return hash;
+        }
     }
 }

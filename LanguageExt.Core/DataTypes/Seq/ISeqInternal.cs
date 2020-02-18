@@ -34,5 +34,6 @@ namespace LanguageExt
         Unit Iter(Action<A> f);
         bool Exists(Func<A, bool> f);
         bool ForAll(Func<A, bool> f);
+        int GetHashCode(int offsetBasis);
     }
 }

@@ -20,7 +20,8 @@ namespace LanguageExt
         IEnumerable<A>, 
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
-        IEquatable<LstInternal<A>>
+        IEquatable<LstInternal<A>>,
+        ListInfo
     {
         /// <summary>
         /// Empty list
@@ -446,11 +447,10 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode()
-        {
-            if (hashCode != 0) return hashCode;
-            return hashCode = hash(this.AsEnumerable());
-        }
+        public override int GetHashCode() =>
+            hashCode == 0
+                ? (hashCode = FNV32.Hash<HashableDefault<A>, A>(this.AsEnumerable()))
+                : hashCode;
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
