@@ -6,6 +6,7 @@ using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
@@ -15,7 +16,7 @@ namespace LanguageExt
     /// <typeparam name="PredItem">Predicate instance to run when the type is constructed</typeparam>
     /// <typeparam name="A">Value type</typeparam>
     [Serializable]
-    public struct Lst<PredList, PredItem, A> :
+    public class Lst<PredList, PredItem, A> :
         IEnumerable<A>, 
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
@@ -47,17 +48,17 @@ namespace LanguageExt
             if (!default(PredList).True(this)) throw new ArgumentOutOfRangeException(nameof(value));
         }
 
-        LstInternal<A> Value
+        internal LstInternal<A> Value
         {
-            get
-            {
-                if (value.IsNull()) throw new BottomException();
-                return value;
-            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value ?? LstInternal<A>.Empty;
         }
 
-        ListItem<A> Root =>
-            Value.Root;
+        ListItem<A> Root
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Value.Root;
+        }
 
         [Pure]
         public bool IsEmpty =>

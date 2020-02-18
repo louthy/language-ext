@@ -244,7 +244,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() =>
             hash == 0
-                ? (hash = hash(AsEnumerable()))
+                ? (hash = FNV32.Hash<EqK, K>(AsEnumerable()))
                 : hash;
 
         /// <summary>

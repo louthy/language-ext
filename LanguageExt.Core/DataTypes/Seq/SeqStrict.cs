@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -492,5 +493,9 @@ namespace LanguageExt
                 return new SeqStrict<A>(data, start, count + right.count, NoCons, 0);
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetHashCode(int offsetBasis) =>
+            FNV32.Hash<HashableDefault<A>, A>(data, start, count, offsetBasis);
     }
 }

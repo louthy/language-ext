@@ -9,6 +9,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.Serialization;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
@@ -35,30 +36,32 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        internal MapInternal()
-        {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal MapInternal() =>
             Root = MapItem<K, V>.Empty;
-        }
 
         /// <summary>
         /// Ctor
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal MapInternal(MapItem<K, V> root, bool rev)
         {
             Root = root;
             Rev = rev;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal MapInternal(IEnumerable<(K Key, V Value)> items, MapModuleM.AddOpt option)
         {
             var root = MapItem<K, V>.Empty;
-            foreach(var item in items)
+            foreach (var item in items)
             {
                 root = MapModuleM.Add<OrdK, K, V>(root, item.Key, item.Value, option);
             }
             Root = root;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal MapInternal(IEnumerable<KeyValuePair<K, V>> items, MapModuleM.AddOpt option)
         {
             var root = MapItem<K, V>.Empty;
@@ -69,6 +72,7 @@ namespace LanguageExt
             Root = root;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal MapInternal(IEnumerable<Tuple<K, V>> items, MapModuleM.AddOpt option)
         {
             var root = MapItem<K, V>.Empty;
@@ -87,53 +91,66 @@ namespace LanguageExt
         [Pure]
         public V this[K key]
         {
-            get
-            {
-                return Find(key).IfNone(() => failwith<V>("Key doesn't exist in map"));
-            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Find(key).IfNone(() => failwith<V>("Key doesn't exist in map"));
         }
 
         /// <summary>
         /// Is the map empty
         /// </summary>
         [Pure]
-        public bool IsEmpty =>
-            Count == 0;
+        public bool IsEmpty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Count == 0;
+        }
 
         /// <summary>
         /// Number of items in the map
         /// </summary>
         [Pure]
-        public int Count =>
-            Root.Count;
+        public int Count
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Root.Count;
+        }
 
         /// <summary>
         /// Alias of Count
         /// </summary>
         [Pure]
-        public int Length =>
-            Count;
+        public int Length
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Count;
+        }
 
         [Pure]
-        public Option<(K, V)> Min => 
-            Root.IsEmpty
+        public Option<(K, V)> Min
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Root.IsEmpty
                 ? None
                 : MapModule.Min(Root);
+        }
 
         [Pure]
-        public Option<(K, V)> Max => 
-            Root.IsEmpty
+        public Option<(K, V)> Max
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Root.IsEmpty
                 ? None
                 : MapModule.Max(Root);
+        }
 
         /// <summary>
         /// Get the hash code of all items in the map
         /// </summary>
-        public override int GetHashCode()
-        {
-            if (hashCode != 0) return hashCode;
-            return hashCode = hash(AsEnumerable());
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode() =>
+            hashCode == 0
+                ? (hashCode = FNV32.Hash<HashablePair<OrdK, HashableDefault<V>, K, V>, (K, V)>(AsEnumerable()))
+                : hashCode;
 
         /// <summary>
         /// Atomically adds a new item to the map
@@ -145,6 +162,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> Add(K key, V value)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
@@ -162,6 +180,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> TryAdd(K key, V value)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
@@ -181,6 +200,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> TryAdd(K key, V value, Func<MapInternal<OrdK, K, V>, V, MapInternal<OrdK, K, V>> Fail)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
@@ -203,7 +223,7 @@ namespace LanguageExt
                 return this;
             }
 
-            if(Count == 0)
+            if (Count == 0)
             {
                 return new MapInternal<OrdK, K, V>(range, MapModuleM.AddOpt.ThrowOnDuplicate);
             }
@@ -434,6 +454,7 @@ namespace LanguageExt
         /// <param name="key">Key</param>
         /// <returns>New map with the item removed</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> Remove(K key) =>
             isnull(key)
                 ? this
@@ -445,6 +466,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<V> Find(K key) =>
             isnull(key)
                 ? None
@@ -456,6 +478,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<V> FindSeq(K key) =>
             Find(key).ToSeq();
 
@@ -466,6 +489,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public R Find<R>(K key, Func<V, R> Some, Func<R> None) =>
             isnull(key)
                 ? None()
@@ -477,6 +501,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found key</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<(K, V)> FindPredecessor(K key) => MapModule.TryFindPredecessor<OrdK, K, V>(Root, key);
 
         /// <summary>
@@ -485,6 +510,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found key</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<(K, V)> FindOrPredecessor(K key) => MapModule.TryFindOrPredecessor<OrdK, K, V>(Root, key);
 
         /// <summary>
@@ -493,6 +519,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found key</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<(K, V)> FindSuccessor(K key) => MapModule.TryFindSuccessor<OrdK, K, V>(Root, key);
 
         /// <summary>
@@ -501,6 +528,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found key</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<(K, V)> FindOrSuccessor(K key) => MapModule.TryFindOrSuccessor<OrdK, K, V>(Root, key);
 
 
@@ -512,6 +540,7 @@ namespace LanguageExt
         /// <param name="None">Delegate to get the value</param>
         /// <returns>Updated map and added value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (MapInternal<OrdK, K, V> Map, V Value) FindOrAdd(K key, Func<V> None) =>
             Find(key).Match(
                 Some: x => (this, x),
@@ -529,6 +558,7 @@ namespace LanguageExt
         /// <param name="value">Delegate to get the value</param>
         /// <returns>Updated map and added value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (MapInternal<OrdK, K, V>, V Value) FindOrAdd(K key, V value) =>
             Find(key).Match(
                 Some: x => (this, x),
@@ -542,6 +572,7 @@ namespace LanguageExt
         /// <param name="value">Delegate to get the value</param>
         /// <returns>Updated map and added value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (MapInternal<OrdK, K, V>, Option<V> Value) FindOrMaybeAdd(K key, Func<Option<V>> value) =>
             Find(key).Match(
                 Some: x => (this, Some(x)),
@@ -556,6 +587,7 @@ namespace LanguageExt
         /// <param name="value">Delegate to get the value</param>
         /// <returns>Updated map and added value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (MapInternal<OrdK, K, V>, Option<V> Value) FindOrMaybeAdd(K key, Option<V> value) =>
             Find(key).Match(
                 Some: x => (this, Some(x)),
@@ -571,6 +603,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> SetItem(K key, V value)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
@@ -586,11 +619,12 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> SetItem(K key, Func<V, V> Some) =>
             isnull(key)
                 ? this
                 : match(MapModule.TryFind<OrdK, K, V>(Root, key),
-                        Some: x  => SetItem(key, Some(x)),
+                        Some: x => SetItem(key, Some(x)),
                         None: () => throw new ArgumentException("Key not found in Map"));
 
         /// <summary>
@@ -603,6 +637,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the value is null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> TrySetItem(K key, V value)
         {
             if (isnull(key)) return this;
@@ -619,6 +654,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New map with the item set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> TrySetItem(K key, Func<V, V> Some) =>
             isnull(key)
                 ? this
@@ -638,6 +674,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if None returns null</exception>
         /// <returns>New map with the item set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> TrySetItem(K key, Func<V, V> Some, Func<Map<K, V>, Map<K, V>> None) =>
             isnull(key)
                 ? this
@@ -655,6 +692,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> AddOrUpdate(K key, V value)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
@@ -671,6 +709,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None) =>
             isnull(key)
                 ? this
@@ -687,6 +726,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> AddOrUpdate(K key, Func<V, V> Some, V None)
         {
             if (isnull(None)) throw new ArgumentNullException(nameof(None));
@@ -706,6 +746,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
         /// <returns>Range of values</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<V> FindRange(K keyFrom, K keyTo)
         {
             if (isnull(keyFrom)) throw new ArgumentNullException(nameof(keyFrom));
@@ -723,6 +764,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
         /// <returns>Range of values</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<(K, V)> FindRangePairs(K keyFrom, K keyTo)
         {
             if (isnull(keyFrom)) throw new ArgumentNullException(nameof(keyFrom));
@@ -739,6 +781,7 @@ namespace LanguageExt
         /// <param name="amount">Amount to skip</param>
         /// <returns>New tree</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<(K Key, V Value)> Skip(int amount)
         {
             var enumer = new MapEnumerator<K, V>(Root, Rev, amount);
@@ -754,6 +797,7 @@ namespace LanguageExt
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ContainsKey(K key) =>
             isnull(key)
                 ? false
@@ -767,6 +811,7 @@ namespace LanguageExt
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Contains(K key, V value) =>
             match(Find(key),
                 Some: v => ReferenceEquals(v, value),
@@ -779,6 +824,7 @@ namespace LanguageExt
         /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
         /// <returns>Empty map</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> Clear() =>
             Empty;
 
@@ -789,6 +835,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) =>
             AddRange(pairs.Map(kv => (kv.Key, kv.Value)));
 
@@ -885,7 +932,7 @@ namespace LanguageExt
         [Pure]
         public MapInternal<OrdK, K, V> TrySetItems(IEnumerable<KeyValuePair<K, V>> items)
         {
-            if(items == null)
+            if (items == null)
             {
                 return this;
             }
@@ -913,7 +960,7 @@ namespace LanguageExt
         [Pure]
         public MapInternal<OrdK, K, V> TrySetItems(IEnumerable<Tuple<K, V>> items)
         {
-            if(items == null)
+            if (items == null)
             {
                 return this;
             }
@@ -942,7 +989,7 @@ namespace LanguageExt
         [Pure]
         public MapInternal<OrdK, K, V> TrySetItems(IEnumerable<(K, V)> items)
         {
-            if(items== null)
+            if (items == null)
             {
                 return this;
             }
@@ -970,9 +1017,10 @@ namespace LanguageExt
         /// <param name="Some">Function map the existing item to a new one</param>
         /// <returns>New map with the items set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> TrySetItems(IEnumerable<K> keys, Func<V, V> Some)
         {
-            if(keys == null)
+            if (keys == null)
             {
                 return this;
             }
@@ -992,6 +1040,7 @@ namespace LanguageExt
         /// <param name="keys">Keys to remove</param>
         /// <returns>New map with the items removed</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> RemoveRange(IEnumerable<K> keys)
         {
             var self = Root;
@@ -1008,6 +1057,7 @@ namespace LanguageExt
         /// <param name="pair">Pair to find</param>
         /// <returns>True if exists, false otherwise</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Contains(KeyValuePair<K, V> pair) =>
             match(MapModule.TryFind<OrdK, K, V>(Root, pair.Key),
                   Some: v => ReferenceEquals(v, pair.Value),
@@ -1021,6 +1071,7 @@ namespace LanguageExt
         /// <returns></returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("TryGetValue is obsolete, use TryFind instead")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetValue(K key, out V value)
         {
             var res = match(Find(key),
@@ -1042,7 +1093,7 @@ namespace LanguageExt
         {
             IEnumerable<(K, U)> Yield()
             {
-                foreach(var item in this)
+                foreach (var item in this)
                 {
                     var opt = selector(item.Key, item.Value);
                     if (opt.IsNone) continue;
@@ -1080,6 +1131,7 @@ namespace LanguageExt
         [Pure]
         public IEnumerable<K> Keys
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 var iter = new MapKeyEnumerator<K, V>(Root, Rev, 0);
@@ -1096,10 +1148,11 @@ namespace LanguageExt
         [Pure]
         public IEnumerable<V> Values
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 var iter = new MapValueEnumerator<K, V>(Root, Rev, 0);
-                while(iter.MoveNext())
+                while (iter.MoveNext())
                 {
                     yield return iter.Current;
                 }
@@ -1111,6 +1164,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns></returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IReadOnlyDictionary<K, V> ToDictionary() =>
             this;
 
@@ -1118,6 +1172,7 @@ namespace LanguageExt
         /// Map the map the a dictionary
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K Key, V Value), KR> keySelector, Func<(K Key, V Value), VR> valueSelector) =>
             AsEnumerable().ToDictionary(keySelector, valueSelector);
 
@@ -1134,13 +1189,17 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Tuples</returns>
         [Pure]
-        public IEnumerable<(K Key, V Value)> ValueTuples =>
-            AsEnumerable().Map(kv => (kv.Key, kv.Value));
+        public IEnumerable<(K Key, V Value)> ValueTuples
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => AsEnumerable().Map(kv => (kv.Key, kv.Value));
+        }
 
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerator<(K Key, V Value)> GetEnumerator() =>
             new MapEnumerator<K, V>(Root, Rev, 0);
 
@@ -1148,14 +1207,17 @@ namespace LanguageExt
         /// GetEnumerator - IEnumerable interface
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator() =>
             new MapEnumerator<K, V>(Root, Rev, 0);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<(K Key, V Value)> ToSeq() =>
             Seq(AsEnumerable());
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<(K Key, V Value)> AsEnumerable()
         {
             var iter = new MapEnumerator<K, V>(Root, Rev, 0);
@@ -1165,16 +1227,20 @@ namespace LanguageExt
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
             AsEnumerable().Map(ToKeyValuePair).GetEnumerator();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static KeyValuePair<K, V> ToKeyValuePair((K Key, V Value) kv) => 
             new KeyValuePair<K, V>(kv.Key, kv.Value);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal MapInternal<OrdK, K, V> SetRoot(MapItem<K, V> root) =>
             new MapInternal<OrdK, K, V>(root, Rev);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MapInternal<OrdK, K, V> operator +(MapInternal<OrdK, K, V> lhs, MapInternal<OrdK, K, V> rhs) =>
             lhs.Append(rhs);
 
@@ -1334,6 +1400,7 @@ namespace LanguageExt
         }
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MapInternal<OrdK, K, V> operator -(MapInternal<OrdK, K, V> lhs, MapInternal<OrdK, K, V> rhs) =>
             lhs.Subtract(rhs);
 
@@ -1411,11 +1478,15 @@ namespace LanguageExt
             return 0;
         }
 
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> Filter(Func<K, V, bool> f) =>
             new MapInternal<OrdK, K, V>(
                 AsEnumerable().Filter(mi => f(mi.Key, mi.Value)), 
                 MapModuleM.AddOpt.ThrowOnDuplicate);
 
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapInternal<OrdK, K, V> Filter(Func<V, bool> f) =>
             new MapInternal<OrdK, K, V>(
                 AsEnumerable().Filter(mi => f(mi.Value)),
@@ -1478,10 +1549,13 @@ namespace LanguageExt
             info.AddValue("Value", KeyValue.Value, typeof(V));
         }
 
-        internal int BalanceFactor =>
-            Count == 0
+        internal int BalanceFactor
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Count == 0
                 ? 0
                 : ((int)Right.Height) - ((int)Left.Height);
+        }
 
         public (K Key, V Value) KeyValue
         {
@@ -1534,6 +1608,7 @@ namespace LanguageExt
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MapItem<K, V> Balance<K, V>(MapItem<K, V> node)
         {
             node.Height = (byte)(1 + Math.Max(node.Left.Height, node.Right.Height));
@@ -1550,18 +1625,21 @@ namespace LanguageExt
                     : node;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MapItem<K, V> DblRotRight<K, V>(MapItem<K, V> node)
         {
             node.Left = RotLeft(node.Left);
             return RotRight(node);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MapItem<K, V> DblRotLeft<K, V>(MapItem<K, V> node)
         {
             node.Right = RotRight(node.Right);
             return RotLeft(node);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MapItem<K, V> RotRight<K, V>(MapItem<K, V> node)
         {
             if (node.IsEmpty || node.Left.IsEmpty) return node;
@@ -1579,6 +1657,7 @@ namespace LanguageExt
             return x;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MapItem<K, V> RotLeft<K, V>(MapItem<K, V> node)
         {
             if (node.IsEmpty || node.Right.IsEmpty) return node;
@@ -1965,12 +2044,15 @@ namespace LanguageExt
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MapItem<K, V> Make<K, V>((K,V) kv, MapItem<K, V> l, MapItem<K, V> r) =>
             new MapItem<K, V>((byte)(1 + Math.Max(l.Height, r.Height)), l.Count + r.Count + 1, kv, l, r);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MapItem<K, V> Make<K, V>(K k, V v, MapItem<K, V> l, MapItem<K, V> r) =>
             new MapItem<K, V>((byte)(1 + Math.Max(l.Height, r.Height)), l.Count + r.Count + 1, (k, v), l, r);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MapItem<K, V> Balance<K, V>(MapItem<K, V> node) =>
             node.BalanceFactor >= 2
                 ? node.Right.BalanceFactor < 0
@@ -1982,21 +2064,25 @@ namespace LanguageExt
                         : RotRight(node)
                     : node;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MapItem<K, V> RotRight<K, V>(MapItem<K, V> node) =>
             node.IsEmpty || node.Left.IsEmpty
                 ? node
                 : Make(node.Left.KeyValue, node.Left.Left, Make(node.KeyValue, node.Left.Right, node.Right));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MapItem<K, V> RotLeft<K, V>(MapItem<K, V> node) =>
             node.IsEmpty || node.Right.IsEmpty
                 ? node
                 : Make(node.Right.KeyValue, Make(node.KeyValue, node.Left, node.Right.Left), node.Right.Right);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MapItem<K, V> DblRotRight<K, V>(MapItem<K, V> node) =>
             node.IsEmpty || node.Left.IsEmpty
                 ? node
                 : RotRight(Make(node.KeyValue, RotLeft(node.Left), node.Right));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MapItem<K, V> DblRotLeft<K, V>(MapItem<K, V> node) =>
             node.IsEmpty || node.Right.IsEmpty
                 ? node

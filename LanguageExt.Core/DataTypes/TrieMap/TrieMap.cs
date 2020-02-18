@@ -450,7 +450,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() =>
             hash == 0
-                ? (hash = hash(AsEnumerable()))
+                ? (hash = FNV32.Hash<HashablePair<EqK, HashableDefault<V>, K, V>, (K, V)>(AsEnumerable()))
                 : hash;
 
         /// <summary>

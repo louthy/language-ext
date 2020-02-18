@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -289,7 +290,7 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             hashCode == 0
-                ? hashCode = hash(this)
+                ? hashCode = FNV32.Hash<HashableDefault<A>, A>(this)
                 : hashCode;
 
         [Pure]
