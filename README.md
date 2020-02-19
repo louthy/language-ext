@@ -68,7 +68,7 @@ Nu-get package | Description
 [LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop library. Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
 [LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
 [LanguageExt.Rx](https://www.nuget.org/packages/LanguageExt.Rx) | Reactive Extensions support for various types within the Core
-[LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) | Used to generate lenses and `With` functions automagically for record types. 
+[LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) | [Used to generate records, unions, lenses, and `With` functions automagically](https://github.com/louthy/language-ext/wiki/Code-generation). 
 
 ## Code-gen setup
 
@@ -77,13 +77,16 @@ To use the code-generation features of `language-ext` (which are totally optiona
 To make the reference **build and design time only** (i.e. your project doesn't gain an additional dependencies because of the code-generator), open up your `csproj` and set the `PrivateAssets` attribute to `all`:
 ```xml
 <ItemGroup>
-  <PackageReference Include="LanguageExt.CodeGen" Version="3.4.0"
-                    OutputItemType="CodeGenerationRoslynPlugin"
-                    PrivateAssets="all" />
-  <PackageReference Include="CodeGeneration.Roslyn.BuildTime" 
-                    Version="0.7.5-alpha" 
-                    PrivateAssets="all" />
-  <DotNetCliToolReference Include="dotnet-codegen" Version="0.7.5-alpha" /></ItemGroup>
+    <PackageReference Include="LanguageExt.Core" Version="3.4.10" />
+
+    <PackageReference Include="LanguageExt.CodeGen" Version="3.4.10"
+                      PrivateAssets="all" />
+
+    <PackageReference Include="CodeGeneration.Roslyn.BuildTime"
+                      Version="0.6.1"
+                      PrivateAssets="all" />
+
+    <DotNetCliToolReference Include="dotnet-codegen" Version="0.6.1" />
 </ItemGroup>
 ```
 
