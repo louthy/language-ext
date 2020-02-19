@@ -61,8 +61,8 @@
         <None Remove="ValidationSeq.Extensions.cs" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-        <PackageReference Include="System.Reactive" Version="[3.0.0,5.0]" />
+        <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
+        <PackageReference Include="System.Reactive" Version="[3.0.0,)" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
