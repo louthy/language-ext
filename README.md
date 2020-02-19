@@ -68,7 +68,7 @@ Nu-get package | Description
 [LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop library. Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
 [LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
 [LanguageExt.Rx](https://www.nuget.org/packages/LanguageExt.Rx) | Reactive Extensions support for various types within the Core
-[LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) | Used to generate lenses and `With` functions automagically for record types. 
+[LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) | [Used to generate records, unions, lenses, and `With` functions automagically](https://github.com/louthy/language-ext/wiki/Code-generation). 
 
 ## Code-gen setup
 
