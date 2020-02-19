@@ -77,9 +77,9 @@ To use the code-generation features of `language-ext` (which are totally optiona
 To make the reference **build and design time only** (i.e. your project doesn't gain an additional dependencies because of the code-generator), open up your `csproj` and set the `PrivateAssets` attribute to `all`:
 ```xml
 <ItemGroup>
-    <PackageReference Include="LanguageExt.Core" Version="3.4.9" />
+    <PackageReference Include="LanguageExt.Core" Version="3.4.10" />
 
-    <PackageReference Include="LanguageExt.CodeGen" Version="3.4.9"
+    <PackageReference Include="LanguageExt.CodeGen" Version="3.4.10"
                       PrivateAssets="all" />
 
     <PackageReference Include="CodeGeneration.Roslyn.BuildTime"
