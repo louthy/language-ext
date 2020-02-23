@@ -1800,7 +1800,7 @@ For every pair of nested monads: `Lst<Option<A>>`, `Try<Either<L, A>>`, etc. the
 // Sums all the bound value(s)
 A SumT<NumA, A>(this Arr<Lst<A>> ma);
 
-// Counds all the bound value(s)
+// Counts all the bound value(s)
 int CountT<A>(this Arr<Lst<A>> ma);
 
 // Monadic bind on the inner monad
