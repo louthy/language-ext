@@ -72,6 +72,36 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        public void TakeWhileTest()
+        {
+            var str = "                          <p>The</p>";
+            Assert.Equal("                          ",
+                         String.Join("", str.ToSeq().TakeWhile(ch => ch == ' ')));
+        }
+
+        [Fact]
+        public void TakeWhileIndex()
+        {
+            var str = "                          <p>The</p>";
+            Assert.Equal("                          ",
+                         String.Join("", str.ToSeq().TakeWhile((ch, index) => index != 26)));
+        }
+
+        [Fact]
+        public void TakeWhile_HalfDefaultCapacityTest()
+        {
+            var str = "1234";
+            Assert.Equal("1234", String.Join("", str.ToSeq().TakeWhile(ch => true)));
+        }
+
+        [Fact]
+        public void TakeWhileIndex_HalfDefaultCapacityTest()
+        {
+            var str = "1234";
+            Assert.Equal("1234", String.Join("", str.ToSeq().TakeWhile((ch, index) => true)));
+        }
+
+        [Fact]
         public void FoldTest()
         {
             var input = Seq(1, 2, 3, 4, 5);
