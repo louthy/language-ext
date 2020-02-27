@@ -850,7 +850,7 @@ namespace LanguageExt
             }
             return index == HalfDefaultCapacity
                 ? Empty
-                : new Seq<A>(new SeqStrict<A>(data, HalfDefaultCapacity, index, 0, 0));
+                : new Seq<A>(new SeqStrict<A>(data, HalfDefaultCapacity, index - HalfDefaultCapacity, 0, 0));
         }
 
         /// <summary>
@@ -882,7 +882,7 @@ namespace LanguageExt
             }
             return index == HalfDefaultCapacity
                 ? Empty
-                : new Seq<A>(new SeqStrict<A>(data, HalfDefaultCapacity, index, 0, 0));
+                : new Seq<A>(new SeqStrict<A>(data, HalfDefaultCapacity, index - HalfDefaultCapacity, 0, 0));
         }
 
         /// <summary>
