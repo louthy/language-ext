@@ -9,6 +9,7 @@
 using System;
 using System.Diagnostics.Contracts;
 using System.IO;
+using System.Threading.Tasks;
 using LanguageExt;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
@@ -25,12 +26,52 @@ namespace TestBed
         string ReadAllText(string path);
         Unit WriteAllText(string path, string text);
     }
-    
+
+    public static class FreeIOTest
+    {
+        public async static Task Test1()
+        {
+            var dsl = from t in FreeIO.ReadAllText("I:\\temp\\test.txt")
+                      from _ in FreeIO.WriteAllText("I:\\temp\\test2.txt", t)
+                      select unit;
+
+
+            var res1 = Interpret(dsl);
+            
+            var res2 = await InterpretAsync(dsl);
+        }
+
+        public static Either<Error, A> Interpret<A>(FreeIO<A> ma) => ma switch
+        {
+            Pure<A> (var value)                            => value,
+            Fail<A> (var error)                            => error,  
+            ReadAllText<A> (var path, var next)            => Interpret(next(Read(path))),
+            WriteAllText<A> (var path, var text, var next) => Interpret(next(Write(path, text))),
+        };
+
+        static string Read(string path) => 
+            File.ReadAllText(path);
+
+        static Unit Write(string path, string text)
+        {
+            File.WriteAllText(path, text);
+            return unit;
+        }
+
+        public static async Task<A> InterpretAsync<A>(FreeIO<A> ma) => ma switch
+        {
+            Pure<A> (var value)                            => value,
+            Fail<A> (var error)                            => await Task.FromException<A>(error),  
+            ReadAllText<A> (var path, var next)            => await InterpretAsync(next(await File.ReadAllTextAsync(path))),
+            WriteAllText<A> (var path, var text, var next) => await InterpretAsync(next(await File.WriteAllTextAsync(path, text).ToUnit())),
+        };
+    }
+
     [Free]
     public interface Maybe<A>
     {
         [Pure] A Just(A value);
-        [Pure] Unit Nothing();
+        [Pure] A Nothing();
 
         public static Maybe<B> Map<B>(Maybe<A> ma, Func<A, B> f) => ma switch
         {
@@ -57,6 +98,12 @@ namespace TestBed
                 from b in mb
                 from _ in mn
                 select a + b;
+            
+            var r3 = mr switch
+            {
+                Just<int> (var x) => $"Value is {x}",
+                _                 => "No value"
+            };
             
             Console.WriteLine(mr);
             Console.WriteLine(mnn);
