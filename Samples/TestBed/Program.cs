@@ -112,6 +112,16 @@ class Program
 
     static void Main(string[] args)
     {
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //                                                                                                    //
+        //                                                                                                    //
+        //     NOTE: This is just my scratch pad for quickly testing stuff, not for human consumption         //
+        //                                                                                                    //
+        //                                                                                                    //
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////
+ 
+        MaybeFreeTest.Test1(); 
+        
         var nseq = new Seq<int> { 1, 2, 3 };
 
         var lst = List<int>();

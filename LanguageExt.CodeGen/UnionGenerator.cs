@@ -31,9 +31,14 @@ namespace LanguageExt.CodeGen
                     return Task.FromResult(List<MemberDeclarationSyntax>());
                 }
 
-                var caseRes = applyTo.Members
-                                   .Where(m => m is MethodDeclarationSyntax)
-                                   .Select(m => m as MethodDeclarationSyntax)
+                var caseMembers = applyTo.Members
+                    .Where(m => m is MethodDeclarationSyntax)
+                    .Select(m => m as MethodDeclarationSyntax)
+                    .Where(m => !m.Modifiers.Any(mo => mo.IsKind(SyntaxKind.StaticKeyword)))
+                    .ToArray();
+
+
+                var caseRes = caseMembers
                                    .Zip(Enumerable.Range(1, Int32.MaxValue), (m, i) => (m, i))
                                    .Select(m => CodeGenUtil.MakeCaseType(
                                                     context,
@@ -52,6 +57,7 @@ namespace LanguageExt.CodeGen
                                                     BaseSpec.Interface,
                                                     caseIsClass: true,
                                                     caseIsPartial: false,
+                                                    includeWithAndLenses: true,
                                                     m.i))
                                    .ToList();
 
@@ -108,6 +114,7 @@ namespace LanguageExt.CodeGen
                                                         BaseSpec.Abstract,
                                                         caseIsClass: true,
                                                         caseIsPartial: false,
+                                                        includeWithAndLenses: true,
                                                         m.i))
                                         .ToList();
 
@@ -194,6 +201,7 @@ namespace LanguageExt.CodeGen
             var cases = applyToMembers
                                .Where(m => m is MethodDeclarationSyntax)
                                .Select(m => m as MethodDeclarationSyntax)
+                               .Where(m => !m.Modifiers.Any(mo => mo.IsKind(SyntaxKind.StaticKeyword)))
                                .Select(m => MakeCaseCtorFunction(applyToTypeParams, applyToConstraints, returnType, m))
                                .ToList();
 

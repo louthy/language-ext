@@ -41,6 +41,7 @@ namespace LanguageExt.CodeGen
                                         BaseSpec.None,
                                         caseIsClass: applyTo is ClassDeclarationSyntax,
                                         caseIsPartial: true,
+                                        includeWithAndLenses: true,
                                         -1);
 
                 if (ok)

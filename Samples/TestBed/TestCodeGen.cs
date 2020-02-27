@@ -6,14 +6,64 @@
 //                                                                                                    //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+using System;
+using System.Diagnostics.Contracts;
 using System.IO;
 using LanguageExt;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
 namespace TestBed
 {
+    [Free]
+    public interface FreeIO<T>
+    {
+        [Pure] T Pure(T value);
+        [Pure] T Fail(Error error);
+        string ReadAllText(string path);
+        Unit WriteAllText(string path, string text);
+    }
+    
+    [Free]
+    public interface Maybe<A>
+    {
+        [Pure] A Just(A value);
+        [Pure] Unit Nothing();
+
+        public static Maybe<B> Map<B>(Maybe<A> ma, Func<A, B> f) => ma switch
+        {
+            Just<A>(var x) => Maybe.Just(f(x)),
+            _              => Maybe.Nothing<B>()
+        };
+    }
+
+    public static class MaybeFreeTest
+    {
+        public static void Test1()
+        {
+            var ma = Maybe.Just(10);
+            var mb = Maybe.Just(20);
+            var mn = Maybe.Nothing<int>();
+
+            var mr =
+                from a in ma
+                from b in mb
+                select a + b;
+
+            var mnn =
+                from a in ma
+                from b in mb
+                from _ in mn
+                select a + b;
+            
+            Console.WriteLine(mr);
+            Console.WriteLine(mnn);
+        }
+    }
+
+
     [WithLens]
     public partial class TestWith : Record<TestWith>
     {
@@ -128,10 +178,10 @@ namespace TestBed
     }
 
     [Union]
-    public interface Maybe<A>
+    public interface MaybeUnion<A>
     {
-        Maybe<A> Just(A value);
-        Maybe<A> Nothing();
+        MaybeUnion<A> JustValue(A value);
+        MaybeUnion<A> NothingValue();
     }
 
     //[Union]
@@ -190,7 +240,6 @@ namespace TestBed
         [Hashable(typeof(HashableStringOrdinalIgnoreCase))]
         public readonly string Surname;
     }
-
 }
 
 

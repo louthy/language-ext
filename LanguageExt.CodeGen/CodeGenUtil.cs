@@ -2221,6 +2221,7 @@ namespace LanguageExt.CodeGen
             BaseSpec baseSpec,
             bool caseIsClass,
             bool caseIsPartial,
+            bool includeWithAndLenses,
             int tag)
         {
             var idents = applyToMembers.Select(MemberName)
@@ -2330,9 +2331,9 @@ namespace LanguageExt.CodeGen
             {
                 impl.AddRange(
                     applyToMembers
-                        .Where(m => m is MethodDeclarationSyntax)
-                        .Select(m => m as MethodDeclarationSyntax)
-                        .Select(m => MakeExplicitInterfaceImpl(interfaceType, thisType, m.Identifier, m.ParameterList, m.TypeParameterList)));
+                        .OfType<MethodDeclarationSyntax>()
+                        .Where(m => !m.Modifiers.Any(mo => mo.IsKind(SyntaxKind.StaticKeyword)))
+                        .Select(m => MakeExplicitInterfaceImpl(interfaceType, includeWithAndLenses ? interfaceType : m.ReturnType, m.Identifier, m.ParameterList, m.TypeParameterList)));
             }
 
             var dtype = MakeDataTypeMembers(caseIdentifier.Text, thisType, interfaceType, caseParams, baseSpec, caseIsClass);
@@ -2386,8 +2387,11 @@ namespace LanguageExt.CodeGen
                                 })))
             };
 
-            type = AddWith(context, type, thisType, caseParams);
-            type = AddLenses(type, thisType, caseParams);
+            if (includeWithAndLenses)
+            {
+                type = AddWith(context, type, thisType, caseParams);
+                type = AddLenses(type, thisType, caseParams);
+            }
 
             return (true, type);
         }
@@ -2495,7 +2499,7 @@ namespace LanguageExt.CodeGen
             TypeParameterListSyntax caseTypeParams)
         {
 
-            var method = MethodDeclaration(interfaceType, identifier)
+            var method = MethodDeclaration(resultType, identifier)
                             .WithExplicitInterfaceSpecifier(
                                 ExplicitInterfaceSpecifier(ParseName(interfaceType.ToString())))
                             .WithParameterList(caseParams)
