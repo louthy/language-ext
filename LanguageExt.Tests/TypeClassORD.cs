@@ -89,7 +89,7 @@ namespace LanguageExt.Tests
             Assert.True(max<OrdInt, int>(1, 1, 1, 1) == 1);
         }
 
-        private struct OrdReverse<ORD, T> : Ord<T> where ORD : struct, Ord<T>
+        private struct OrdDesc<ORD, T> : Ord<T> where ORD : struct, Ord<T>
         {
             public int GetHashCode(T x) => default(ORD).GetHashCode(x);
 
@@ -106,8 +106,8 @@ namespace LanguageExt.Tests
             Assert.Equal(Prelude.Seq("1", "10", "2"), items.OrderBy(Prelude.identity,  default(OrdDefault<string>)));
             Assert.Equal(Prelude.Seq("1", "2", "10"), items.OrderBy(System.Convert.ToInt32,  default(OrdDefault<int>)));
             
-            Assert.Equal(Prelude.Seq("2", "10", "1"), items.OrderBy(Prelude.identity,  default(OrdReverse<OrdDefault<string>, string>)));
-            Assert.Equal(Prelude.Seq("10", "2", "1"), items.OrderBy(System.Convert.ToInt32,  default(OrdReverse<OrdDefault<int>, int>)));
+            Assert.Equal(Prelude.Seq("2", "10", "1"), items.OrderBy(Prelude.identity,  default(OrdDesc<OrdDefault<string>, string>)));
+            Assert.Equal(Prelude.Seq("10", "2", "1"), items.OrderBy(System.Convert.ToInt32,  default(OrdDesc<OrdDefault<int>, int>)));
         }
     }
 }
