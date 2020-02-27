@@ -26,9 +26,6 @@ namespace LanguageExt
 #pragma warning restore CS0618
         IComparable<Seq<A>>, IEquatable<Seq<A>>
     {
-        const int DefaultCapacity = 8;
-        const int HalfDefaultCapacity = DefaultCapacity >> 1;
-
         /// <summary>
         /// Empty sequence
         /// </summary>
@@ -828,30 +825,8 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
-        public Seq<A> TakeWhile(Func<A, bool> pred)
-        {
-            var data = new A[DefaultCapacity];
-            var index = HalfDefaultCapacity;
-
-            foreach (var item in this)
-            {
-                if (pred(item))
-                {
-                    if (index == data.Length)
-                    {
-                        var ndata = new A[Math.Max(1, data.Length << 1)];
-                        System.Array.Copy(data, ndata, data.Length);
-                        data = ndata;
-                    }
-
-                    data[index] = item;
-                    index++;
-                }
-            }
-            return index == HalfDefaultCapacity
-                ? Empty
-                : new Seq<A>(new SeqStrict<A>(data, HalfDefaultCapacity, index - HalfDefaultCapacity, 0, 0));
-        }
+        public Seq<A> TakeWhile(Func<A, bool> pred) =>
+            TakeWhile((item, _) => pred(item));
 
         /// <summary>
         /// Iterate the sequence, yielding items if they match the predicate 
@@ -860,30 +835,8 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
-        public Seq<A> TakeWhile(Func<A, int, bool> pred)
-        {
-            var data = new A[DefaultCapacity];
-            var index = HalfDefaultCapacity;
-
-            foreach (var item in this)
-            {
-                if (pred(item, index))
-                {
-                    if (index == data.Length)
-                    {
-                        var ndata = new A[Math.Max(1, data.Length << 1)];
-                        System.Array.Copy(data, ndata, data.Length);
-                        data = ndata;
-                    }
-
-                    data[index] = item;
-                    index++;
-                }
-            }
-            return index == HalfDefaultCapacity
-                ? Empty
-                : new Seq<A>(new SeqStrict<A>(data, HalfDefaultCapacity, index - HalfDefaultCapacity, 0, 0));
-        }
+        public Seq<A> TakeWhile(Func<A, int, bool> pred) =>
+            new Seq<A>(TakeWhileImpl(this, pred));
 
         /// <summary>
         /// Compare to another sequence
@@ -980,5 +933,28 @@ namespace LanguageExt
                 ? new Seq<B>(mb)
                 : new Seq<B>(Yield(this));
         }
+
+        private static IEnumerable<(A, int)> ZipWithIndex(IEnumerable<A> items)
+        {
+            var index = 0;
+            foreach (var item in items)
+            {
+                yield return (item, index);
+                ++index;
+            }
+        }
+
+        private static IEnumerable<A> TakeWhileImpl(IEnumerable<A> seq, Func<A, int, bool> pred)
+        {
+            foreach ((var item, var index) in ZipWithIndex(seq))
+            {
+                if (!pred(item, index))
+                {
+                    break;
+                }
+                yield return item;
+            }
+        }
+
     }
 }
