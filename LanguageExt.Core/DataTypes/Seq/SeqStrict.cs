@@ -9,6 +9,9 @@ namespace LanguageExt
 {
     internal class SeqStrict<A> : ISeqInternal<A>
     {
+        const int DefaultCapacity = 8;
+        const int HalfDefaultCapacity = DefaultCapacity >> 1;
+
         const int NoCons = 1;
         const int NoAdd = 1;
 
@@ -359,6 +362,69 @@ namespace LanguageExt
             amount < count
                 ? new SeqStrict<A>(data, start, amount, NoCons, NoAdd)
                 : this;
+        
+        /// <summary>
+        /// Iterate the sequence, yielding items if they match the predicate 
+        /// provided, and stopping as soon as one doesn't
+        /// </summary>
+        /// <returns>A new sequence with the first items that match the 
+        /// predicate</returns>
+        public ISeqInternal<A> TakeWhile(Func<A, bool> pred)
+        {
+            var data = new A[DefaultCapacity];
+            var index = HalfDefaultCapacity;
+
+            foreach (var item in this)
+            {
+                if (pred(item))
+                {
+                    if (index == data.Length)
+                    {
+                        var ndata = new A[Math.Max(1, data.Length << 1)];
+                        System.Array.Copy(data, ndata, data.Length);
+                        data = ndata;
+                    }
+
+                    data[index] = item;
+                    index++;
+                }
+            }
+            return index == HalfDefaultCapacity
+                ? SeqEmptyInternal<A>.Default
+                : new SeqStrict<A>(data, HalfDefaultCapacity, index - HalfDefaultCapacity, 0, 0);
+        }
+        
+        /// <summary>
+        /// Iterate the sequence, yielding items if they match the predicate 
+        /// provided, and stopping as soon as one doesn't.  An index value is 
+        /// also provided to the predicate function.
+        /// </summary>
+        /// <returns>A new sequence with the first items that match the 
+        /// predicate</returns>
+        public ISeqInternal<A> TakeWhile(Func<A, int, bool> pred)
+        {
+            var data = new A[DefaultCapacity];
+            var index = HalfDefaultCapacity;
+
+            foreach (var item in this)
+            {
+                if (pred(item, index))
+                {
+                    if (index == data.Length)
+                    {
+                        var ndata = new A[Math.Max(1, data.Length << 1)];
+                        System.Array.Copy(data, ndata, data.Length);
+                        data = ndata;
+                    }
+
+                    data[index] = item;
+                    index++;
+                }
+            }
+            return index == HalfDefaultCapacity
+                ? SeqEmptyInternal<A>.Default
+                : new SeqStrict<A>(data, HalfDefaultCapacity, index - HalfDefaultCapacity, 0, 0);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ISeqInternal<A> Strict() =>
