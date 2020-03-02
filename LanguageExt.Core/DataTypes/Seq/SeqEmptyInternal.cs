@@ -50,12 +50,6 @@ namespace LanguageExt
 
         public ISeqInternal<A> Take(int amount) =>
             this;
-
-        public ISeqInternal<A> TakeWhile(Func<A, bool> pred) =>
-            this;
-
-        public ISeqInternal<A> TakeWhile(Func<A, int, bool> pred) =>
-            this;
         
         public IEnumerator<A> GetEnumerator()
         {

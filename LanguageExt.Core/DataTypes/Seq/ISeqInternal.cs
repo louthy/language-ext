@@ -28,8 +28,6 @@ namespace LanguageExt
         S FoldBack<S>(S state, Func<S, A, S> f);
         ISeqInternal<A> Skip(int amount);
         ISeqInternal<A> Take(int amount);
-        ISeqInternal<A> TakeWhile(Func<A, bool> pred);
-        ISeqInternal<A> TakeWhile(Func<A, int, bool> pred);
         ISeqInternal<A> Strict();
         ISeqInternal<A> Filter(Func<A, bool> f);
         ISeqInternal<B> Map<B>(Func<A, B> f);

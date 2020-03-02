@@ -398,34 +398,6 @@ namespace LanguageExt
             }
         }
 
-        public ISeqInternal<A> TakeWhile(Func<A, bool> pred)
-        {
-            return new SeqLazy<A>(Yield());
-            IEnumerable<A> Yield()
-            {
-                foreach (var item in this)
-                {
-                    if (!pred(item)) break;
-                    yield return item;
-                }
-            }
-        }
-
-        public ISeqInternal<A> TakeWhile(Func<A, int, bool> pred)
-        {
-            return new SeqLazy<A>(Yield());
-            IEnumerable<A> Yield()
-            {
-                int i = 0;
-                foreach (var item in this)
-                {
-                    if (!pred(item, i)) break;
-                    yield return item;
-                    i++;
-                }
-            }
-        }
-
         public IEnumerator<A> GetEnumerator()
         {
             int nstart = data.Length - count;

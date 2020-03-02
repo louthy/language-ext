@@ -825,8 +825,18 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
-        public Seq<A> TakeWhile(Func<A, bool> pred) =>
-            new Seq<A>(Value.TakeWhile(pred));
+        public Seq<A> TakeWhile(Func<A, bool> pred)
+        {
+            return new Seq<A>(new SeqLazy<A>(Yield(Value, pred)));
+            IEnumerable<A> Yield(IEnumerable<A> xs, Func<A, bool> f)
+            {
+                foreach (var x in xs)
+                {
+                    if (!f(x)) break;
+                    yield return x;
+                }
+            }
+        }
 
         /// <summary>
         /// Iterate the sequence, yielding items if they match the predicate 
@@ -835,8 +845,20 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
-        public Seq<A> TakeWhile(Func<A, int, bool> pred) =>
-            new Seq<A>(Value.TakeWhile(pred));
+        public Seq<A> TakeWhile(Func<A, int, bool> pred)
+        {
+            return new Seq<A>(new SeqLazy<A>(Yield(Value, pred)));
+            IEnumerable<A> Yield(IEnumerable<A> xs, Func<A, int, bool> f)
+            {
+                var i = 0;
+                foreach (var x in xs)
+                {
+                    if (!f(x, i)) break;
+                    yield return x;
+                    i++;
+                }
+            }
+        }
 
         /// <summary>
         /// Compare to another sequence
