@@ -82,14 +82,22 @@ namespace LanguageExt
 
         public static Arr<Seq<B>> Traverse<A, B>(this Seq<Arr<A>> ma, Func<A, B> f)
         {
-            var res = new Seq<B>[ma.Count];
-            var ix = 0;
+            var res = new List<Seq<B>>();
             foreach (var arr in ma)
             {
-                res[ix] = Seq.FromArray(arr.Map(f).Value);
-                ix++;
+                res.Add(Seq(arr.AsEnumerable().Map(f)));
             }
             return new Arr<Seq<B>>(res);
+        }
+
+        public static Arr<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Arr<A>> ma, Func<A, B> f)
+        {
+            var res = new List<IEnumerable<B>>();
+            foreach (var arr in ma)
+            {
+                res.Add(arr.AsEnumerable().Map(f));
+            }
+            return new Arr<IEnumerable<B>>(res);
         }
 
         public static Arr<Set<B>> Traverse<A, B>(this Set<Arr<A>> ma, Func<A, B> f)

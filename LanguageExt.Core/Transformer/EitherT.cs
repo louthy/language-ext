@@ -197,6 +197,23 @@ namespace LanguageExt
             return new Seq<B>(res);
         }
         
+        public static Either<L, IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<Either<L, A>> ma, Func<A, B> f)
+        {
+            var res = new List<B>();
+            foreach (var x in ma)
+            {
+                if (x.IsLeft)
+                {
+                    return Either<L, IEnumerable<B>>.Left((L)x);
+                }
+                else
+                {
+                    res.Add(f((A)x));                    
+                }
+            }
+            return Seq.FromArray<B>(res.ToArray());
+        }
+        
         public static Either<L, Set<B>> Traverse<L, A, B>(this Set<Either<L, A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];

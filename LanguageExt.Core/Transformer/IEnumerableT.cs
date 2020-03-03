@@ -7,9 +7,9 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class SeqTExtensions
+    public static class IEnumerableTExtensions
     {
-        public static Seq<Arr<B>> Traverse<A, B>(this Arr<Seq<A>> ma, Func<A, B> f)
+        public static IEnumerable<Arr<B>> Traverse<A, B>(this Arr<IEnumerable<A>> ma, Func<A, B> f)
         {
             var res = new Arr<B>[ma.Count];
             var ix = 0;
@@ -18,20 +18,20 @@ namespace LanguageExt
                 res[ix] = xs.Map(f).ToArray();
                 ix++;
             }
-            return Seq.FromArray(res);            
+            return res;
         }
         
-        public static Seq<Either<L, B>> Traverse<L, A, B>(this Either<L, Seq<A>> ma, Func<A, B> f) =>
+        public static IEnumerable<Either<L, B>> Traverse<L, A, B>(this Either<L, IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Left: _ => Seq<Either<L, B>>.Empty,
                 Right: xs => xs.Map(x => Right<L, B>(f(x))));
 
-        public static Seq<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Seq<A>> ma, Func<A, B> f) =>
+        public static IEnumerable<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, IEnumerable<A>> ma, Func<A, B> f) =>
             ma.MatchUnsafe(
                 Left: _ => Seq<EitherUnsafe<L, B>>.Empty,
                 Right: xs => xs.Map(x => RightUnsafe<L, B>(f(x))));
 
-        public static Seq<HashSet<B>> Traverse<A, B>(this HashSet<Seq<A>> ma, Func<A, B> f)
+        public static IEnumerable<HashSet<B>> Traverse<A, B>(this HashSet<IEnumerable<A>> ma, Func<A, B> f)
         {
             var res = new HashSet<B>[ma.Count];
             var ix = 0;
@@ -40,13 +40,13 @@ namespace LanguageExt
                 res[ix] = toHashSet(xs.AsEnumerable().Map(f));
                 ix++;
             }
-            return Seq.FromArray<HashSet<B>>(res);
+            return res;
         }
 
-        public static Seq<Identity<B>> Traverse<A, B>(this Identity<Seq<A>> ma, Func<A, B> f) =>
+        public static IEnumerable<Identity<B>> Traverse<A, B>(this Identity<IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Value.Map(a => new Identity<B>(f(a)));
 
-        public static Seq<Lst<B>> Traverse<A, B>(this Lst<Seq<A>> ma, Func<A, B> f)
+        public static IEnumerable<Lst<B>> Traverse<A, B>(this Lst<IEnumerable<A>> ma, Func<A, B> f)
         {
             var res = new Lst<B>[ma.Count];
             var ix = 0;
@@ -55,20 +55,20 @@ namespace LanguageExt
                 res[ix] = toList(xs.AsEnumerable().Map(f));
                 ix++;
             }
-            return Seq.FromArray<Lst<B>>(res);
+            return res;
         }
 
-        public static Seq<Option<B>> Traverse<A, B>(this Option<Seq<A>> ma, Func<A, B> f) =>
+        public static IEnumerable<Option<B>> Traverse<A, B>(this Option<IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
                 None: () => Seq<Option<B>>.Empty,
                 Some: xs => xs.Map(x => Some(f(x))));
 
-        public static Seq<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<Seq<A>> ma, Func<A, B> f) =>
+        public static IEnumerable<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<IEnumerable<A>> ma, Func<A, B> f) =>
             ma.MatchUnsafe(
                 None: () => Seq<OptionUnsafe<B>>.Empty,
                 Some: xs => xs.Map(x => SomeUnsafe(f(x))));
 
-        public static Seq<Que<B>> Traverse<A, B>(this Que<Seq<A>> ma, Func<A, B> f)
+        public static IEnumerable<Que<B>> Traverse<A, B>(this Que<IEnumerable<A>> ma, Func<A, B> f)
         {
             var res = new Que<B>[ma.Count];
             var ix = 0;
@@ -77,32 +77,32 @@ namespace LanguageExt
                 res[ix] = toQueue(xs.AsEnumerable().Map(f));
                 ix++;
             }
-            return Seq.FromArray<Que<B>>(res);
+            return res;
         }
 
-        public static Seq<Seq<B>> Traverse<A, B>(this Seq<Seq<A>> ma, Func<A, B> f)
+        public static IEnumerable<Seq<B>> Traverse<A, B>(this Seq<IEnumerable<A>> ma, Func<A, B> f)
         {
             var res = new Seq<B>[ma.Count];
             var ix = 0;
             foreach (var xs in ma)
             {
-                res[ix] = xs.Map(f);
+                res[ix] = xs.Map(f).ToSeq();
                 ix++;
             }
-            return Seq.FromArray<Seq<B>>(res);
+            return res;
         }
 
-        public static Seq<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Seq<A>> ma, Func<A, B> f)
+        public static IEnumerable<IEnumerable<B>> Traverse<A, B>(this IEnumerable<IEnumerable<A>> ma, Func<A, B> f)
         {
             var res = new List<IEnumerable<B>>();
             foreach (var xs in ma)
             {
                 res.Add(xs.Map(f));
             }
-            return Seq.FromArray(res.ToArray());
+            return res;
         }
 
-        public static Seq<Set<B>> Traverse<A, B>(this Set<Seq<A>> ma, Func<A, B> f)
+        public static IEnumerable<Set<B>> Traverse<A, B>(this Set<IEnumerable<A>> ma, Func<A, B> f)
         {
             var res = new Set<B>[ma.Count];
             var ix = 0;
@@ -111,10 +111,10 @@ namespace LanguageExt
                 res[ix] = toSet(xs.AsEnumerable().Map(f));
                 ix++;
             }
-            return Seq.FromArray<Set<B>>(res);
+            return res;
         }
 
-        public static Seq<Stck<B>> Traverse<A, B>(this Stck<Seq<A>> ma, Func<A, B> f)
+        public static IEnumerable<Stck<B>> Traverse<A, B>(this Stck<IEnumerable<A>> ma, Func<A, B> f)
         {
             var res = new Stck<B>[ma.Count];
             var ix = 0;
@@ -123,26 +123,26 @@ namespace LanguageExt
                 res[ix] = toStack(xs.AsEnumerable().Map(f));
                 ix++;
             }
-            return Seq.FromArray<Stck<B>>(res);
+            return res;
         }
 
-        public static Seq<Try<B>> Traverse<A, B>(this Try<Seq<A>> ma, Func<A, B> f) =>
+        public static IEnumerable<Try<B>> Traverse<A, B>(this Try<IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: ex => Seq<Try<B>>.Empty,
                 Succ: xs => xs.Map(x => Try<B>(f(x))));
 
-        public static Seq<TryOption<B>> Traverse<A, B>(this TryOption<Seq<A>> ma, Func<A, B> f) =>
+        public static IEnumerable<TryOption<B>> Traverse<A, B>(this TryOption<IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: ex => Seq<TryOption<B>>.Empty,
                 None: () => Seq<TryOption<B>>.Empty,
                 Some: xs => xs.Map(x => TryOption<B>(f(x))));
 
-        public static Seq<Validation<L, B>> Traverse<L, A, B>(this Validation<L, Seq<A>> ma, Func<A, B> f) =>
+        public static IEnumerable<Validation<L, B>> Traverse<L, A, B>(this Validation<L, IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: _ => Seq<Validation<L, B>>.Empty,
                 Succ: xs => xs.Map(x => Success<L, B>(f(x))));
 
-        public static Seq<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Seq<A>> ma, Func<A, B> f) 
+        public static IEnumerable<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, IEnumerable<A>> ma, Func<A, B> f) 
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
             ma.Match(
                 Fail: __ => Seq<Validation<MonoidFail, Fail, B>>.Empty,

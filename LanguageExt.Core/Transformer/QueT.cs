@@ -58,17 +58,17 @@ namespace LanguageExt
             return new Que<Lst<B>>(res);
         }
 
-        public static Lst<Option<B>> Traverse<A, B>(this Option<Lst<A>> ma, Func<A, B> f) =>
+        public static Que<Option<B>> Traverse<A, B>(this Option<Que<A>> ma, Func<A, B> f) =>
             ma.Match(
-                None: () => Lst<Option<B>>.Empty,
-                Some: xs => xs.Map(x => Some(f(x))));
+                None: () => Que<Option<B>>.Empty,
+                Some: xs => toQueue(xs.Map(x => Some(f(x)))));
 
-        public static Lst<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<Lst<A>> ma, Func<A, B> f) =>
+        public static Que<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<Que<A>> ma, Func<A, B> f) =>
             ma.MatchUnsafe(
-                None: () => Lst<OptionUnsafe<B>>.Empty,
-                Some: xs => xs.Map(x => SomeUnsafe(f(x))));
+                None: () => Que<OptionUnsafe<B>>.Empty,
+                Some: xs => toQueue(xs.Map(x => SomeUnsafe(f(x)))));
 
-        public static Lst<Que<B>> Traverse<A, B>(this Que<Lst<A>> ma, Func<A, B> f)
+        public static Que<Que<B>> Traverse<A, B>(this Que<Que<A>> ma, Func<A, B> f)
         {
             var res = new Que<B>[ma.Count];
             var ix = 0;
@@ -77,10 +77,10 @@ namespace LanguageExt
                 res[ix] = toQueue(xs.AsEnumerable().Map(f));
                 ix++;
             }
-            return new Lst<Que<B>>(res);
+            return new Que<Que<B>>(res);
         }
 
-        public static Lst<Seq<B>> Traverse<A, B>(this Seq<Lst<A>> ma, Func<A, B> f)
+        public static Que<Seq<B>> Traverse<A, B>(this Seq<Que<A>> ma, Func<A, B> f)
         {
             var res = new Seq<B>[ma.Count];
             var ix = 0;
@@ -89,10 +89,22 @@ namespace LanguageExt
                 res[ix] = xs.AsEnumerable().Map(f).ToSeq();
                 ix++;
             }
-            return new Lst<Seq<B>>(res);
+            return new Que<Seq<B>>(res);
         }
 
-        public static Lst<Set<B>> Traverse<A, B>(this Set<Lst<A>> ma, Func<A, B> f)
+        public static Que<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Que<A>> ma, Func<A, B> f)
+        {
+            var res = new List<IEnumerable<B>>();
+            var ix = 0;
+            foreach (var xs in ma)
+            {
+                res[ix] = xs.AsEnumerable().Map(f).ToSeq();
+                ix++;
+            }
+            return new Que<IEnumerable<B>>(res);
+        }        
+
+        public static Que<Set<B>> Traverse<A, B>(this Set<Que<A>> ma, Func<A, B> f)
         {
             var res = new Set<B>[ma.Count];
             var ix = 0;
@@ -101,10 +113,10 @@ namespace LanguageExt
                 res[ix] = toSet(xs.AsEnumerable().Map(f));
                 ix++;
             }
-            return new Lst<Set<B>>(res);
+            return new Que<Set<B>>(res);
         }
 
-        public static Lst<Stck<B>> Traverse<A, B>(this Stck<Lst<A>> ma, Func<A, B> f)
+        public static Que<Stck<B>> Traverse<A, B>(this Stck<Que<A>> ma, Func<A, B> f)
         {
             var res = new Stck<B>[ma.Count];
             var ix = 0;
@@ -113,29 +125,29 @@ namespace LanguageExt
                 res[ix] = toStack(xs.AsEnumerable().Map(f));
                 ix++;
             }
-            return new Lst<Stck<B>>(res);
+            return new Que<Stck<B>>(res);
         }
 
-        public static Lst<Try<B>> Traverse<A, B>(this Try<Lst<A>> ma, Func<A, B> f) =>
+        public static Que<Try<B>> Traverse<A, B>(this Try<Que<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Fail: ex => Lst<Try<B>>.Empty,
-                Succ: xs => xs.Map(x => Try<B>(f(x))));
+                Fail: ex => Que<Try<B>>.Empty,
+                Succ: xs => toQueue(xs.Map(x => Try<B>(f(x)))));
 
-        public static Lst<TryOption<B>> Traverse<A, B>(this TryOption<Lst<A>> ma, Func<A, B> f) =>
+        public static Que<TryOption<B>> Traverse<A, B>(this TryOption<Que<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Fail: ex => Lst<TryOption<B>>.Empty,
-                None: () => Lst<TryOption<B>>.Empty,
-                Some: xs => xs.Map(x => TryOption<B>(f(x))));
+                Fail: ex => Que<TryOption<B>>.Empty,
+                None: () => Que<TryOption<B>>.Empty,
+                Some: xs => toQueue(xs.Map(x => TryOption<B>(f(x)))));
 
-        public static Lst<Validation<L, B>> Traverse<L, A, B>(this Validation<L, Lst<A>> ma, Func<A, B> f) =>
+        public static Que<Validation<L, B>> Traverse<L, A, B>(this Validation<L, Que<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Fail: _ => Lst<Validation<L, B>>.Empty,
-                Succ: xs => xs.Map(x => Success<L, B>(f(x))));
+                Fail: _ => Que<Validation<L, B>>.Empty,
+                Succ: xs => toQueue(xs.Map(x => Success<L, B>(f(x)))));
 
-        public static Lst<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Lst<A>> ma, Func<A, B> f) 
+        public static Que<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Que<A>> ma, Func<A, B> f) 
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
             ma.Match(
-                Fail: __ => Lst<Validation<MonoidFail, Fail, B>>.Empty,
-                Succ: xs => xs.Map(x => Success<MonoidFail, Fail, B>(f(x))));
+                Fail: __ => Que<Validation<MonoidFail, Fail, B>>.Empty,
+                Succ: xs => toQueue(xs.Map(x => Success<MonoidFail, Fail, B>(f(x)))));
     }
 }

@@ -92,6 +92,16 @@ namespace LanguageExt
             return toStack<Seq<B>>(res);
         }
 
+        public static Stck<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Stck<A>> ma, Func<A, B> f)
+        {
+            var res = new List<IEnumerable<B>>();
+            foreach (var xs in ma)
+            {
+                res.Add(xs.AsEnumerable().Map(f).ToSeq());
+            }
+            return toStack<IEnumerable<B>>(res);
+        }
+
         public static Stck<Set<B>> Traverse<A, B>(this Set<Stck<A>> ma, Func<A, B> f)
         {
             var res = new Set<B>[ma.Count];

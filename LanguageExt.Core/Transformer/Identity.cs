@@ -92,6 +92,16 @@ namespace LanguageExt
             return new Identity<Seq<B>>(Seq.FromArray(res));            
         }
         
+        public static Identity<IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<Identity<A>> ma, Func<A, B> f)
+        {
+            var res = new List<B>();
+            foreach (var xs in ma)
+            {
+                res.Add(f(xs.Value));
+            }
+            return new Identity<IEnumerable<B>>(Seq.FromArray(res.ToArray()));            
+        }
+        
         public static Identity<Set<B>> Traverse<L, A, B>(this Set<Identity<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];

@@ -92,6 +92,16 @@ namespace LanguageExt
             return toSet<Seq<B>>(res);
         }
 
+        public static Set<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Set<A>> ma, Func<A, B> f)
+        {
+            var res = new List<IEnumerable<B>>();
+            foreach (var xs in ma)
+            {
+                res.Add(xs.AsEnumerable().Map(f).ToSeq());
+            }
+            return toSet<IEnumerable<B>>(res);
+        }
+
         public static Set<Set<B>> Traverse<A, B>(this Set<Set<A>> ma, Func<A, B> f)
         {
             var res = new Set<B>[ma.Count];

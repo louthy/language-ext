@@ -147,6 +147,28 @@ namespace LanguageExt
                 : Fail(value);
 
         /// <summary>
+        /// Explicit conversion operator from `Validation` to `SUCCESS`
+        /// </summary>
+        /// <param name="value">Value, must not be null.</param>
+        /// <exception cref="ValueIsNullException">Value is null</exception>
+        [Pure]
+        public static explicit operator SUCCESS(Validation<MonoidFail, FAIL, SUCCESS> ma) =>
+            ma.IsSuccess
+                ? ma.SuccessValue
+                : throw new InvalidCastException("Validation is not in a Success state");
+
+        /// <summary>
+        /// Explicit conversion operator from `Validation` to `FAIL`
+        /// </summary>
+        /// <param name="value">Value, must not be null.</param>
+        /// <exception cref="ValueIsNullException">Value is null</exception>
+        [Pure]
+        public static explicit operator FAIL(Validation<MonoidFail, FAIL, SUCCESS> ma) =>
+            ma.IsFail
+                ? ma.FailValue
+                : throw new InvalidCastException("Validation is not in a Fail state");
+
+        /// <summary>
         /// Reference version for use in pattern-matching
         /// </summary>
         [Pure]
