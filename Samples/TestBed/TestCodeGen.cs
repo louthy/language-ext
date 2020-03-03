@@ -59,6 +59,7 @@ namespace TestBed
             Fail<A> (var error)                            => error,  
             ReadAllText<A> (var path, var next)            => Interpret(next(Read(path))),
             WriteAllText<A> (var path, var text, var next) => Interpret(next(Write(path, text))),
+            _                                              => throw new NotSupportedException()
         };
 
         static string Read(string path) => 
@@ -76,6 +77,7 @@ namespace TestBed
             Fail<A> (var error)                            => await Task.FromException<A>(error),  
             ReadAllText<A> (var path, var next)            => await InterpretAsync(next(await File.ReadAllTextAsync(path))),
             WriteAllText<A> (var path, var text, var next) => await InterpretAsync(next(await File.WriteAllTextAsync(path, text).ToUnit())),
+            _                                              => throw new NotSupportedException()
         };
     }
 
