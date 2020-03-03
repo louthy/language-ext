@@ -79,5 +79,13 @@ namespace LanguageExt
         [Pure]
         public static Unit operator +(Unit a, Unit b) =>
             Default;
+
+        [Pure]
+        public static implicit operator ValueTuple(Unit _) => 
+            default;
+        
+        [Pure]
+        public static implicit operator Unit(ValueTuple _) => 
+            default;
     }
 }
