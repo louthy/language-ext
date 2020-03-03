@@ -27,6 +27,18 @@ namespace TestBed
         Unit WriteAllText(string path, string text);
     }
 
+    public static partial class FreeIO
+    {
+        public static FreeIO<T> Flatten2<T>(this FreeIO<FreeIO<T>> ma) => ma switch
+        {
+            Pure<FreeIO<T>> v => v.Value, 
+            Fail<FreeIO<T>> v => new Fail<T>(v.Error),
+            ReadAllText<FreeIO<T>> v => new ReadAllText<T>(v.Path, n => Flatten(v.Next(n))),
+            WriteAllText<FreeIO<T>> v => new WriteAllText<T>(v.Path, v.Text, n => Flatten(v.Next(n))),
+            _ => throw new System.NotSupportedException()
+        };
+    }
+
     public static class FreeIOTest
     {
         public async static Task Test1()
