@@ -36,7 +36,7 @@ namespace LanguageExt.ClassInstances
                 
                 L left => EitherUnsafe<L, R>.Left(left),
                 Exception e when typeof(L) == typeof(Common.Error) => EitherUnsafe<L, R>.Left((L)(object)Common.Error.New(e)),
-                Common.Error e when typeof(L) == typeof(Exception) => EitherUnsafe<L, R>.Left((L)(object)e.Exception),
+                Common.Error e when typeof(L) == typeof(Exception) => EitherUnsafe<L, R>.Left((L)(object)e.ToException()),
                 _ => EitherUnsafe<L, R>.Bottom
             };
         

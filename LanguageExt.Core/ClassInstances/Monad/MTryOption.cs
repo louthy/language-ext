@@ -41,9 +41,12 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryOption<A> Fail(object err = null) =>
-            err != null && err is Exception
-                ? TryOption<A>((Exception)err)
-                : TryOption(Option<A>.None);
+            err switch
+            {
+                Exception e => TryOption<A>(e),
+                Common.Error e => TryOption<A>(e.ToException()),
+                _ => TryOption<A>(Option<A>.None)
+            };
 
         [Pure]
         public TryOption<A> Plus(TryOption<A> ma, TryOption<A> mb) => () =>

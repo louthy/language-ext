@@ -108,7 +108,7 @@ namespace LanguageExt.ClassInstances
                 
                 FAIL fail => Validation<MonoidFail, FAIL, SUCCESS>.Fail(fail),
                 Exception e when typeof(FAIL) == typeof(Common.Error) => Validation<MonoidFail, FAIL, SUCCESS>.Fail((FAIL)(object)Common.Error.New(e)),
-                Common.Error e when typeof(FAIL) == typeof(Exception) => Validation<MonoidFail, FAIL, SUCCESS>.Fail((FAIL)(object)e.Exception),
+                Common.Error e when typeof(FAIL) == typeof(Exception) => Validation<MonoidFail, FAIL, SUCCESS>.Fail((FAIL)(object)e.ToException()),
                 _ => Validation<MonoidFail, FAIL, SUCCESS>.Fail(default(MonoidFail).Empty())
             };            
 

@@ -112,7 +112,7 @@ namespace LanguageExt.ClassInstances
                 FAIL fail => Validation<FAIL, SUCCESS>.Fail(Seq1(fail)),
                 Seq<FAIL> fails => Validation<FAIL, SUCCESS>.Fail(fails),
                 Exception e when typeof(FAIL) == typeof(Common.Error) => Validation<FAIL, SUCCESS>.Fail(Seq1((FAIL)(object)Common.Error.New(e))),
-                Common.Error e when typeof(FAIL) == typeof(Exception) => Validation< FAIL, SUCCESS>.Fail(Seq1((FAIL)(object)e.Exception)),
+                Common.Error e when typeof(FAIL) == typeof(Exception) => Validation< FAIL, SUCCESS>.Fail(Seq1((FAIL)(object)e.ToException())),
                 _ => Validation<FAIL, SUCCESS>.Fail(Seq<FAIL>.Empty)
             };            
 

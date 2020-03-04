@@ -113,7 +113,7 @@ namespace LanguageExt.ClassInstances
                 
                 L left => EitherAsync<L, R>.Left(left),
                 Exception e when typeof(L) == typeof(Common.Error) => EitherAsync<L, R>.Left((L)(object)Common.Error.New(e)),
-                Common.Error e when typeof(L) == typeof(Exception) => EitherAsync<L, R>.Left((L)(object)e.Exception),
+                Common.Error e when typeof(L) == typeof(Exception) => EitherAsync<L, R>.Left((L)(object)e.ToException()),
                 _ => EitherAsync<L, R>.Bottom
             };
 
