@@ -7,7 +7,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class SeqTExtensions
+    public static partial class SeqT
     {
         public static Seq<Arr<B>> Traverse<A, B>(this Arr<Seq<A>> ma, Func<A, B> f)
         {

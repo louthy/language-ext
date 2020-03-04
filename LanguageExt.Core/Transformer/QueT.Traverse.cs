@@ -7,7 +7,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class QueTExtensions
+    public static partial class QueT
     {
         public static Que<Arr<B>> Traverse<A, B>(this Arr<Que<A>> ma, Func<A, B> f)
         {

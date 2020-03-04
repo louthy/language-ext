@@ -7,7 +7,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class LstTExtensions
+    public static partial class LstT
     {
         public static Lst<Arr<B>> Traverse<A, B>(this Arr<Lst<A>> ma, Func<A, B> f)
         {

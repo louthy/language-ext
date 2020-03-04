@@ -9,7 +9,7 @@ using static LanguageExt.TypeClass;
 
 namespace LanguageExt
 {
-    public static class ValidationTExtensions
+    public static partial class ValidationT
     {
         public static Validation<MonoidFail, Fail, Arr<B>> Traverse<MonoidFail, Fail, A, B>(this Arr<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail>

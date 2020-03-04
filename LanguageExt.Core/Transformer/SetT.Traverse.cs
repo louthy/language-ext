@@ -7,7 +7,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class SetTExtensions
+    public static partial class SetT
     {
         public static Set<Arr<B>> Traverse<A, B>(this Arr<Set<A>> ma, Func<A, B> f)
         {

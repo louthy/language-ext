@@ -8,9 +8,9 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class EitherUnsafeTExtensions
+    public static partial class EitherT
     {
-        public static EitherUnsafe<L, Arr<B>> Traverse<L, A, B>(this Arr<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, Arr<B>> Traverse<L, A, B>(this Arr<Either<L, A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -18,7 +18,7 @@ namespace LanguageExt
             {
                 if (x.IsLeft)
                 {
-                    return EitherUnsafe<L, Arr<B>>.Left((L)x);
+                    return Either<L, Arr<B>>.Left((L)x);
                 }
                 else
                 {
@@ -29,47 +29,47 @@ namespace LanguageExt
             return new Arr<B>(res);
         }
         
-        public static EitherUnsafe<L, Either<L, B>> Traverse<L, A, B>(this Either<L, EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, Either<L, B>> Traverse<L, A, B>(this Either<L, Either<L, A>> ma, Func<A, B> f)
         {
             if (ma.IsLeft)
             {
-                return EitherUnsafe<L, Either<L, B>>.Left((L)ma);
+                return Either<L, Either<L, B>>.Left((L)ma);
             }
             else
             {
-                var mb = (EitherUnsafe<L, A>)ma;
+                var mb = (Either<L, A>)ma;
                 if (mb.IsLeft)
                 {
-                    return EitherUnsafe<L, Either<L, B>>.Left((L)mb);
+                    return Either<L, Either<L, B>>.Left((L)mb);
                 }
                 else
                 {
-                    return EitherUnsafe<L, Either<L, B>>.Right(f((A)mb));
+                    return Either<L, Either<L, B>>.Right(f((A)mb));
                 }
             }
         }
         
-        public static EitherUnsafe<L, EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Either<L, A>> ma, Func<A, B> f)
         {
             if (ma.IsLeft)
             {
-                return EitherUnsafe<L, EitherUnsafe<L, B>>.Left((L)ma);
+                return Either<L, EitherUnsafe<L, B>>.Left((L)ma);
             }
             else
             {
-                var mb = (EitherUnsafe<L, A>)ma;
+                var mb = (Either<L, A>)ma;
                 if (mb.IsLeft)
                 {
-                    return EitherUnsafe<L, EitherUnsafe<L, B>>.Left((L)mb);
+                    return Either<L, EitherUnsafe<L, B>>.Left((L)mb);
                 }
                 else
                 {
-                    return EitherUnsafe<L, EitherUnsafe<L, B>>.Right(f((A)mb));
+                    return Either<L, EitherUnsafe<L, B>>.Right(f((A)mb));
                 }
             }
         }
         
-        public static EitherUnsafe<L, HashSet<B>> Traverse<L, A, B>(this HashSet<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, HashSet<B>> Traverse<L, A, B>(this HashSet<Either<L, A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -77,7 +77,7 @@ namespace LanguageExt
             {
                 if (x.IsLeft)
                 {
-                    return EitherUnsafe<L, HashSet<B>>.Left((L)x);
+                    return Either<L, HashSet<B>>.Left((L)x);
                 }
                 else
                 {
@@ -88,19 +88,19 @@ namespace LanguageExt
             return new HashSet<B>(res);
         }
                 
-        public static EitherUnsafe<L, Identity<B>> Traverse<L, A, B>(this Identity<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, Identity<B>> Traverse<L, A, B>(this Identity<Either<L, A>> ma, Func<A, B> f)
         {
             if (ma.Value.IsLeft)
             {
-                return EitherUnsafe<L, Identity<B>>.Left((L)ma.Value);
+                return Either<L, Identity<B>>.Left((L)ma.Value);
             }
             else
             {
-                return EitherUnsafe<L, Identity<B>>.Right(new Identity<B>(f((A)ma.Value)));
+                return Either<L, Identity<B>>.Right(new Identity<B>(f((A)ma.Value)));
             }
         }
         
-        public static EitherUnsafe<L, Lst<B>> Traverse<L, A, B>(this Lst<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, Lst<B>> Traverse<L, A, B>(this Lst<Either<L, A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -108,7 +108,7 @@ namespace LanguageExt
             {
                 if (x.IsLeft)
                 {
-                    return EitherUnsafe<L, Lst<B>>.Left((L)x);
+                    return Either<L, Lst<B>>.Left((L)x);
                 }
                 else
                 {
@@ -119,47 +119,47 @@ namespace LanguageExt
             return new Lst<B>(res);
         }
         
-        public static EitherUnsafe<L, Option<B>> Traverse<L, A, B>(this Option<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, Option<B>> Traverse<L, A, B>(this Option<Either<L, A>> ma, Func<A, B> f)
         {
             if (ma.IsNone)
             {
-                return EitherUnsafe<L, Option<B>>.Right(Option<B>.None);
+                return Either<L, Option<B>>.Right(Option<B>.None);
             }
             else
             {
-                var mb = (EitherUnsafe<L, A>)ma;
+                var mb = (Either<L, A>)ma;
                 if (mb.IsLeft)
                 {
-                    return EitherUnsafe<L, Option<B>>.Left((L)mb);
+                    return Either<L, Option<B>>.Left((L)mb);
                 }
                 else
                 {
-                    return EitherUnsafe<L, Option<B>>.Right(f((A)mb));
+                    return Either<L, Option<B>>.Right(f((A)mb));
                 }
             }
         }        
         
-        public static EitherUnsafe<L, OptionUnsafe<B>> Traverse<L, A, B>(this OptionUnsafe<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, OptionUnsafe<B>> Traverse<L, A, B>(this OptionUnsafe<Either<L, A>> ma, Func<A, B> f)
         {
             if (ma.IsNone)
             {
-                return EitherUnsafe<L, OptionUnsafe<B>>.Right(OptionUnsafe<B>.None);
+                return Either<L, OptionUnsafe<B>>.Right(OptionUnsafe<B>.None);
             }
             else
             {
-                var mb = (EitherUnsafe<L, A>)ma;
+                var mb = (Either<L, A>)ma;
                 if (mb.IsLeft)
                 {
-                    return EitherUnsafe<L, OptionUnsafe<B>>.Left((L)mb);
+                    return Either<L, OptionUnsafe<B>>.Left((L)mb);
                 }
                 else
                 {
-                    return EitherUnsafe<L, OptionUnsafe<B>>.Right(f((A)mb));
+                    return Either<L, OptionUnsafe<B>>.Right(f((A)mb));
                 }
             }
         }        
         
-        public static EitherUnsafe<L, Que<B>> Traverse<L, A, B>(this Que<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, Que<B>> Traverse<L, A, B>(this Que<Either<L, A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -167,7 +167,7 @@ namespace LanguageExt
             {
                 if (x.IsLeft)
                 {
-                    return EitherUnsafe<L, Que<B>>.Left((L)x);
+                    return Either<L, Que<B>>.Left((L)x);
                 }
                 else
                 {
@@ -178,7 +178,7 @@ namespace LanguageExt
             return new Que<B>(res);
         }
         
-        public static EitherUnsafe<L, Seq<B>> Traverse<L, A, B>(this Seq<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, Seq<B>> Traverse<L, A, B>(this Seq<Either<L, A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -186,7 +186,7 @@ namespace LanguageExt
             {
                 if (x.IsLeft)
                 {
-                    return EitherUnsafe<L, Seq<B>>.Left((L)x);
+                    return Either<L, Seq<B>>.Left((L)x);
                 }
                 else
                 {
@@ -197,14 +197,14 @@ namespace LanguageExt
             return new Seq<B>(res);
         }
         
-        public static EitherUnsafe<L, IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<Either<L, A>> ma, Func<A, B> f)
         {
             var res = new List<B>();
             foreach (var x in ma)
             {
                 if (x.IsLeft)
                 {
-                    return EitherUnsafe<L, IEnumerable<B>>.Left((L)x);
+                    return Either<L, IEnumerable<B>>.Left((L)x);
                 }
                 else
                 {
@@ -214,7 +214,7 @@ namespace LanguageExt
             return Seq.FromArray<B>(res.ToArray());
         }
         
-        public static EitherUnsafe<L, Set<B>> Traverse<L, A, B>(this Set<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, Set<B>> Traverse<L, A, B>(this Set<Either<L, A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -222,7 +222,7 @@ namespace LanguageExt
             {
                 if (x.IsLeft)
                 {
-                    return EitherUnsafe<L, Set<B>>.Left((L)x);
+                    return Either<L, Set<B>>.Left((L)x);
                 }
                 else
                 {
@@ -233,7 +233,7 @@ namespace LanguageExt
             return new Set<B>(res);
         }
         
-        public static EitherUnsafe<L, Stck<B>> Traverse<L, A, B>(this Stck<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, Stck<B>> Traverse<L, A, B>(this Stck<Either<L, A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -241,7 +241,7 @@ namespace LanguageExt
             {
                 if (x.IsLeft)
                 {
-                    return EitherUnsafe<L, Stck<B>>.Left((L)x);
+                    return Either<L, Stck<B>>.Left((L)x);
                 }
                 else
                 {
@@ -252,95 +252,95 @@ namespace LanguageExt
             return new Stck<B>(res);
         }
         
-        public static EitherUnsafe<L, Try<B>> Traverse<L, A, B>(this Try<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, Try<B>> Traverse<L, A, B>(this Try<Either<L, A>> ma, Func<A, B> f)
         {
             var tres = ma.Try();
             
             if (tres.IsBottom)
             {
-                return EitherUnsafe<L, Try<B>>.Bottom;
+                return Either<L, Try<B>>.Bottom;
             }
             else if (tres.IsFaulted)
             {
-                return default(MEitherUnsafe<L, Try<B>>).Fail(tres.Exception);
+                return default(MEither<L, Try<B>>).Fail(tres.Exception);
             }
             else if (tres.Value.IsLeft)
             {
-                return EitherUnsafe<L, Try<B>>.Left((L)tres.Value);
+                return Either<L, Try<B>>.Left((L)tres.Value);
             }
             else
             {
-                return EitherUnsafe<L, Try<B>>.Right(Try(f((A)tres.Value)));
+                return Either<L, Try<B>>.Right(Try(f((A)tres.Value)));
             }
         }
         
-        public static EitherUnsafe<L, TryOption<B>> Traverse<L, A, B>(this TryOption<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        public static Either<L, TryOption<B>> Traverse<L, A, B>(this TryOption<Either<L, A>> ma, Func<A, B> f)
         {
             var tres = ma.Try();
             
             if (tres.IsBottom)
             {
-                return EitherUnsafe<L, TryOption<B>>.Bottom;
+                return Either<L, TryOption<B>>.Bottom;
             }
             else if (tres.IsFaulted)
             {
-                return default(MEitherUnsafe<L, TryOption<B>>).Fail(tres.Exception);
+                return default(MEither<L, TryOption<B>>).Fail(tres.Exception);
             }
             else if (tres.Value.IsNone)
             {
-                return EitherUnsafe<L, TryOption<B>>.Right(TryOption<B>(None));
+                return Either<L, TryOption<B>>.Right(TryOption<B>(None));
             }
             else if (tres.Value.Value.IsLeft)
             {
-                return EitherUnsafe<L, TryOption<B>>.Left((L)tres.Value.Value);
+                return Either<L, TryOption<B>>.Left((L)tres.Value.Value);
             }
             else
             {
-                return EitherUnsafe<L, TryOption<B>>.Right(TryOption(f((A)tres.Value.Value)));
+                return Either<L, TryOption<B>>.Right(TryOption(f((A)tres.Value.Value)));
             }
         }
         
-        public static EitherUnsafe<Fail, Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, EitherUnsafe<Fail, A>> ma, Func<A, B> f)
+        public static Either<Fail, Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Either<Fail, A>> ma, Func<A, B> f)
         {
             if (ma.IsFail && ma.FailValue.IsEmpty)
             {
-                return EitherUnsafe<Fail, Validation<Fail, B>>.Bottom;
+                return Either<Fail, Validation<Fail, B>>.Bottom;
             }
             if (ma.IsFail)
             {
-                return EitherUnsafe<Fail, Validation<Fail, B>>.Left(ma.FailValue.Head());
+                return Either<Fail, Validation<Fail, B>>.Left(ma.FailValue.Head());
             }
             else
             {
                 var mb = ma.SuccessValue;
                 if (mb.IsLeft)
                 {
-                    return EitherUnsafe<Fail, Validation<Fail, B>>.Left((Fail)mb);
+                    return Either<Fail, Validation<Fail, B>>.Left((Fail)mb);
                 }
                 else
                 {
-                    return EitherUnsafe<Fail, Validation<Fail, B>>.Right(f((A)mb));
+                    return Either<Fail, Validation<Fail, B>>.Right(f((A)mb));
                 }
             }
         }
         
-        public static EitherUnsafe<Fail, Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, EitherUnsafe<Fail, A>> ma, Func<A, B> f) 
+        public static Either<Fail, Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Either<Fail, A>> ma, Func<A, B> f) 
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail)
             {
-                return EitherUnsafe<Fail, Validation<MonoidFail, Fail, B>>.Left(ma.FailValue);
+                return Either<Fail, Validation<MonoidFail, Fail, B>>.Left(ma.FailValue);
             }
             else
             {
                 var mb = ma.SuccessValue;
                 if (mb.IsLeft)
                 {
-                    return EitherUnsafe<Fail, Validation<MonoidFail, Fail, B>>.Left((Fail)mb);
+                    return Either<Fail, Validation<MonoidFail, Fail, B>>.Left((Fail)mb);
                 }
                 else
                 {
-                    return EitherUnsafe<Fail, Validation<MonoidFail, Fail, B>>.Right(f((A)mb));
+                    return Either<Fail, Validation<MonoidFail, Fail, B>>.Right(f((A)mb));
                 }
             }
         }

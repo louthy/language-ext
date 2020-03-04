@@ -7,7 +7,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class HashSetTExtensions
+    public static partial class HashSetT
     {
         public static HashSet<Arr<B>> Traverse<A, B>(this Arr<HashSet<A>> ma, Func<A, B> f)
         {

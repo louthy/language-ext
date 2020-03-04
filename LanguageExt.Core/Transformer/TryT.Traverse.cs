@@ -8,7 +8,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class TryTExtensions
+    public static partial class TryT
     {
         public static Try<Arr<B>> Traverse<A, B>(this Arr<Try<A>> ma, Func<A, B> f) => () =>
         {

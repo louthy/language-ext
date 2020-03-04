@@ -7,7 +7,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class IdentityTExtensions
+    public static partial class IdentityT
     {
         public static Identity<Arr<B>> Traverse<A, B>(this Arr<Identity<A>> ma, Func<A, B> f)
         {

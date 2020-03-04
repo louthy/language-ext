@@ -10,7 +10,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class EitherAsyncTExtensions
+    public static partial class EitherAsyncT
     {
         //
         // Collections

@@ -8,7 +8,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class TaskTExtensions
+    public static partial class TaskT
     {
         //
         // Collections

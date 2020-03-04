@@ -7,7 +7,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class IEnumerableTExtensions
+    public static partial class IEnumerableT
     {
         public static IEnumerable<Arr<B>> Traverse<A, B>(this Arr<IEnumerable<A>> ma, Func<A, B> f)
         {

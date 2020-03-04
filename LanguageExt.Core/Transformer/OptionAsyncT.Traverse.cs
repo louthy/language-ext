@@ -10,7 +10,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class OptionAsyncTExtensions
+    public static partial class OptionAsyncT
     {
         //
         // Collections

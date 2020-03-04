@@ -7,7 +7,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class StckTExtensions
+    public static partial class StckT
     {
         public static Stck<Arr<B>> Traverse<A, B>(this Arr<Stck<A>> ma, Func<A, B> f)
         {

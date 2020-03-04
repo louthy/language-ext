@@ -7,9 +7,9 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class OptionTExtensions
+    public static partial class OptionUnsafeT
     {
-        public static Option<Arr<B>> Traverse<A, B>(this Arr<Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<Arr<B>> Traverse<A, B>(this Arr<OptionUnsafe<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -20,10 +20,10 @@ namespace LanguageExt
                 ix++;
             }
 
-            return Option<Arr<B>>.Some(new Arr<B>(res));
+            return OptionUnsafe<Arr<B>>.Some(new Arr<B>(res));
         }
 
-        public static Option<Either<L, B>> Traverse<L, A, B>(this Either<L, Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<Either<L, B>> Traverse<L, A, B>(this Either<L, OptionUnsafe<A>> ma, Func<A, B> f)
         {
             if (ma.IsLeft || ma.RightValue.IsNone)
             {
@@ -31,11 +31,11 @@ namespace LanguageExt
             }
             else
             {
-                return Option<Either<L, B>>.Some(f(ma.RightValue.Value));
+                return OptionUnsafe<Either<L, B>>.Some(f(ma.RightValue.Value));
             }
         }
         
-        public static Option<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, OptionUnsafe<A>> ma, Func<A, B> f)
         {
             if (ma.IsLeft || ma.RightValue.IsNone)
             {
@@ -43,11 +43,11 @@ namespace LanguageExt
             }
             else
             {
-                return Option<EitherUnsafe<L, B>>.Some(f(ma.RightValue.Value));
+                return OptionUnsafe<EitherUnsafe<L, B>>.Some(f(ma.RightValue.Value));
             }
         }
 
-        public static Option<HashSet<B>> Traverse<L, A, B>(this HashSet<Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<HashSet<B>> Traverse<L, A, B>(this HashSet<OptionUnsafe<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -57,15 +57,15 @@ namespace LanguageExt
                 res[ix] = f(xs.Value);
                 ix++;
             }
-            return Option<HashSet<B>>.Some(new HashSet<B>(res));            
+            return OptionUnsafe<HashSet<B>>.Some(new HashSet<B>(res));            
         }
 
-        public static Option<Identity<B>> Traverse<L, A, B>(this Identity<Option<A>> ma, Func<A, B> f) =>
+        public static OptionUnsafe<Identity<B>> Traverse<L, A, B>(this Identity<OptionUnsafe<A>> ma, Func<A, B> f) =>
             ma.Value.IsSome
-                ? Option<Identity<B>>.Some(new Identity<B>(f(ma.Value.Value)))
-                : Option<Identity<B>>.None;
+                ? OptionUnsafe<Identity<B>>.Some(new Identity<B>(f(ma.Value.Value)))
+                : OptionUnsafe<Identity<B>>.None;
         
-        public static Option<Lst<B>> Traverse<L, A, B>(this Lst<Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<Lst<B>> Traverse<L, A, B>(this Lst<OptionUnsafe<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -75,10 +75,10 @@ namespace LanguageExt
                 res[ix] = f(xs.Value);
                 ix++;
             }
-            return Option<Lst<B>>.Some(new Lst<B>(res));                
+            return OptionUnsafe<Lst<B>>.Some(new Lst<B>(res));                
         }
 
-        public static Option<Option<B>> Traverse<A, B>(this Option<Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<Option<B>> Traverse<A, B>(this Option<OptionUnsafe<A>> ma, Func<A, B> f)
         {
             if (ma.IsNone || ma.Value.IsNone)
             {
@@ -86,11 +86,11 @@ namespace LanguageExt
             }
             else
             {
-                return Some(Some(f(ma.Value.Value)));
+                return SomeUnsafe(Some(f(ma.Value.Value)));
             }
         }
         
-        public static Option<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<OptionUnsafe<A>> ma, Func<A, B> f)
         {
             if (ma.IsNone || ma.Value.IsNone)
             {
@@ -98,11 +98,11 @@ namespace LanguageExt
             }
             else
             {
-                return Some(SomeUnsafe(f(ma.Value.Value)));
+                return SomeUnsafe(SomeUnsafe(f(ma.Value.Value)));
             }
         }
         
-        public static Option<Que<B>> Traverse<L, A, B>(this Que<Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<Que<B>> Traverse<L, A, B>(this Que<OptionUnsafe<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -112,10 +112,10 @@ namespace LanguageExt
                 res[ix] = f(xs.Value);
                 ix++;
             }
-            return Option<Que<B>>.Some(new Que<B>(res));                
+            return OptionUnsafe<Que<B>>.Some(new Que<B>(res));                
         }
         
-        public static Option<Seq<B>> Traverse<L, A, B>(this Seq<Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<Seq<B>> Traverse<L, A, B>(this Seq<OptionUnsafe<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -125,10 +125,10 @@ namespace LanguageExt
                 res[ix] = f(xs.Value);
                 ix++;
             }
-            return Option<Seq<B>>.Some(new Seq<B>(res));                
+            return OptionUnsafe<Seq<B>>.Some(new Seq<B>(res));                
         }
-                
-        public static Option<IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<Option<A>> ma, Func<A, B> f)
+        
+        public static OptionUnsafe<IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<OptionUnsafe<A>> ma, Func<A, B> f)
         {
             var res = new List<B>();
             foreach (var xs in ma)
@@ -136,10 +136,10 @@ namespace LanguageExt
                 if (xs.IsNone) return None;
                 res.Add(f(xs.Value));
             }
-            return Option<IEnumerable<B>>.Some(Seq.FromArray<B>(res.ToArray()));                
+            return OptionUnsafe<IEnumerable<B>>.Some(Seq.FromArray<B>(res.ToArray()));                
         }
         
-        public static Option<Set<B>> Traverse<L, A, B>(this Set<Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<Set<B>> Traverse<L, A, B>(this Set<OptionUnsafe<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -149,10 +149,10 @@ namespace LanguageExt
                 res[ix] = f(xs.Value);
                 ix++;
             }
-            return Option<Set<B>>.Some(new Set<B>(res));                
+            return OptionUnsafe<Set<B>>.Some(new Set<B>(res));                
         }
         
-        public static Option<Stck<B>> Traverse<L, A, B>(this Stck<Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<Stck<B>> Traverse<L, A, B>(this Stck<OptionUnsafe<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -162,10 +162,10 @@ namespace LanguageExt
                 res[ix] = f(xs.Value);
                 ix++;
             }
-            return Option<Stck<B>>.Some(new Stck<B>(res));                
+            return OptionUnsafe<Stck<B>>.Some(new Stck<B>(res));                
         }
         
-        public static Option<Try<B>> Traverse<L, A, B>(this Try<Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<Try<B>> Traverse<L, A, B>(this Try<OptionUnsafe<A>> ma, Func<A, B> f)
         {
             var tres = ma.Try();
             
@@ -179,7 +179,7 @@ namespace LanguageExt
             }
         }
         
-        public static Option<TryOption<B>> Traverse<L, A, B>(this TryOption<Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<TryOption<B>> Traverse<L, A, B>(this TryOption<OptionUnsafe<A>> ma, Func<A, B> f)
         {
             var tres = ma.Try();
             
@@ -189,11 +189,11 @@ namespace LanguageExt
             }
             else
             {
-                return Some(TryOption(f(tres.Value.Value.Value)));
+                return SomeUnsafe(TryOption(f(tres.Value.Value.Value)));
             }
         }
         
-        public static Option<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, OptionUnsafe<A>> ma, Func<A, B> f)
         {
             if (ma.IsFail || ma.SuccessValue.IsNone)
             {
@@ -201,12 +201,12 @@ namespace LanguageExt
             }
             else
             {
-                return Some(Validation<Fail, B>.Success(f(ma.SuccessValue.Value)));
+                return SomeUnsafe(Validation<Fail, B>.Success(f(ma.SuccessValue.Value)));
             }
         }
 
-        public static Option<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(
-            this Validation<MonoidFail, Fail, Option<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(
+            this Validation<MonoidFail, Fail, OptionUnsafe<A>> ma, Func<A, B> f)
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail || ma.SuccessValue.IsNone)
@@ -215,7 +215,7 @@ namespace LanguageExt
             }
             else
             {
-                return Some(Validation<MonoidFail, Fail, B>.Success(f(ma.SuccessValue.Value)));
+                return SomeUnsafe(Validation<MonoidFail, Fail, B>.Success(f(ma.SuccessValue.Value)));
             }
         }
     }

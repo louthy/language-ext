@@ -8,7 +8,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class ValidationSeqTExtensions
+    public static partial class ValidationT
     {
         public static Validation<Fail, Arr<B>> Traverse<Fail, A, B>(this Arr<Validation<Fail, A>> ma, Func<A, B> f)
         {
