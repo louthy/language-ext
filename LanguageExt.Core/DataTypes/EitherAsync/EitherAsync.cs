@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
 using LanguageExt.DataTypes.Serialisation;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace LanguageExt
@@ -30,6 +31,7 @@ namespace LanguageExt
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
     [Serializable]
+    //[AsyncMethodBuilder(typeof(EitherAsyncBuilder<,>))]
     public struct EitherAsync<L, R> :
 // TODO: Re-add when we move to netstandard2.1
 //#if NETCORE
@@ -105,6 +107,17 @@ namespace LanguageExt
                 _                    => null
             };
         }
+
+        /// <summary>
+        /// Custom awaiter that turns an EitherAsync into an Either
+        /// </summary>
+        public TaskAwaiter<Either<L, R>> GetAwaiter() =>
+            Data.Map(d => d.State switch
+            {
+                EitherStatus.IsRight => Either<L, R>.Right(d.Right),
+                EitherStatus.IsLeft  => Either<L, R>.Left(d.Left),
+                _                    => Either<L, R>.Bottom
+            }).GetAwaiter();
 
         /// <summary>
         /// Implicit conversion operator from R to Either R L
@@ -1805,4 +1818,79 @@ namespace LanguageExt
         public Task<Unit> Left(Action<L> leftHandler) =>
             either.Match(rightHandler, leftHandler);
     }
+    //
+    // public struct EitherAsyncBuilder<L, R>
+    // {
+    //     Either<L, R> result;
+    //     Exception exception;
+    //     bool isFaulted;
+    //     IAsyncStateMachine stateMachine;
+    //     
+    //     public static EitherAsyncBuilder<L, R> Create() => 
+    //         new EitherAsyncBuilder<L, R>();
+    //
+    //     public void Start<TStateMachine>(ref TStateMachine stateMachine)
+    //         where TStateMachine : IAsyncStateMachine
+    //     {
+    //         stateMachine?.MoveNext();
+    //     }
+    //
+    //     public void SetStateMachine(IAsyncStateMachine stateMachine)
+    //     {
+    //         this.stateMachine = stateMachine;
+    //     }
+    //
+    //     public void SetException(Exception e)
+    //     {
+    //         isFaulted = true;
+    //         exception = e;
+    //         result = default;
+    //     }
+    //
+    //     public void SetResult(Either<L, R> result)
+    //     {
+    //         this.result = result;
+    //         isFaulted = false;
+    //     };
+    //
+    //     public Either<L, R> Task => result;
+    //
+    //     public void AwaitOnCompleted<TAwaiter, TStateMachine>(
+    //         ref TAwaiter awaiter, 
+    //         ref TStateMachine stateMachine)
+    //         where TAwaiter : INotifyCompletion
+    //         where TStateMachine : IAsyncStateMachine
+    //     {
+    //         var sm = stateMachine;
+    //         awaiter.OnCompleted(() => sm?.MoveNext());
+    //     }
+    //
+    //     public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(
+    //         ref TAwaiter awaiter, 
+    //         ref TStateMachine stateMachine)
+    //         where TAwaiter : ICriticalNotifyCompletion
+    //         where TStateMachine : IAsyncStateMachine
+    //     {
+    //         var sm = stateMachine;
+    //         awaiter.UnsafeOnCompleted(() => sm?.MoveNext());
+    //     }
+    // }
+    //
+    // public struct EitherAwaiter<L, R> : INotifyCompletion
+    // {
+    //     readonly Task<Either<L, R>> Task;
+    //     readonly TaskAwaiter<Either<L, R>> Awaiter;
+    //
+    //     public EitherAwaiter(Task<Either<L, R>> task)
+    //     {
+    //         Task = task;
+    //         Awaiter = Task.GetAwaiter();
+    //     }
+    //
+    //     public void GetResult() => Awaiter.GetResult();
+    //     public bool IsCompleted => Awaiter.IsCompleted;
+    //
+    //     public void OnCompleted(Action continuation) =>
+    //         Awaiter.OnCompleted(continuation);
+    // }
 }

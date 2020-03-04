@@ -102,9 +102,15 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Validation<MonoidFail, FAIL, SUCCESS> Fail(object err = null) =>
-            err != null && err is FAIL
-                ? Validation<MonoidFail, FAIL, SUCCESS>.Fail((FAIL)err)
-                : Validation<MonoidFail, FAIL, SUCCESS>.Fail(default(MonoidFail).Empty());
+            err switch
+            {
+                // Messy, but we're doing our best to recover an error rather than return Bottom
+                
+                FAIL fail => Validation<MonoidFail, FAIL, SUCCESS>.Fail(fail),
+                Exception e when typeof(FAIL) == typeof(Common.Error) => Validation<MonoidFail, FAIL, SUCCESS>.Fail((FAIL)(object)Common.Error.New(e)),
+                Common.Error e when typeof(FAIL) == typeof(Exception) => Validation<MonoidFail, FAIL, SUCCESS>.Fail((FAIL)(object)e.Exception),
+                _ => Validation<MonoidFail, FAIL, SUCCESS>.Fail(default(MonoidFail).Empty())
+            };            
 
         [Pure]
         public Validation<MonoidFail, FAIL, SUCCESS> Run(Func<Unit, Validation<MonoidFail, FAIL, SUCCESS>> ma) =>

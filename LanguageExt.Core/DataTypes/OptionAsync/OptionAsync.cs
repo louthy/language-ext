@@ -214,6 +214,12 @@ namespace LanguageExt
             Data.Map(a => a.Value);
 
         /// <summary>
+        /// Custom awaiter that turns an OptionAsync into an Option
+        /// </summary>
+        public TaskAwaiter<Option<A>> GetAwaiter() =>
+            Data.Map(d => d.IsSome ? Option<A>.Some(d.Value) : Option<A>.None).GetAwaiter();
+        
+        /// <summary>
         /// Impure iteration of the bound value in the structure
         /// </summary>
         /// <returns>

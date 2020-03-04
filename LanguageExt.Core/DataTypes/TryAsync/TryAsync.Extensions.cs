@@ -7,6 +7,7 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.DataTypes.Serialisation;
@@ -44,6 +45,14 @@ public static class TryAsyncExtensions
             return result;
         });
     }
+
+    /// <summary>
+    /// Custom awaiter that turns an TryAsync into an Try
+    /// </summary>
+    public static TaskAwaiter<Try<A>> GetAwaiter<A>(this TryAsync<A> ma) =>
+        ma.Match(
+            Succ: x => Prelude.Try<A>(x),
+            Fail: e => Prelude.Try<A>(e)).GetAwaiter();
 
     /// <summary>
     /// Forces evaluation of the lazy TryAsync

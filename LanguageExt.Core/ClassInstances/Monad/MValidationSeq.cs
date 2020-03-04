@@ -105,11 +105,16 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Validation<FAIL, SUCCESS> Fail(object err = null) =>
-            err is Seq<FAIL> 
-                ? Validation<FAIL, SUCCESS>.Fail((Seq<FAIL>)err)
-                : err is FAIL 
-                    ? Validation < FAIL, SUCCESS>.Fail(Seq1((FAIL)err))
-                    : Validation<FAIL, SUCCESS>.Fail(Seq<FAIL>.Empty);
+            err switch
+            {
+                // Messy, but we're doing our best to recover an error rather than return Bottom
+                
+                FAIL fail => Validation<FAIL, SUCCESS>.Fail(Seq1(fail)),
+                Seq<FAIL> fails => Validation<FAIL, SUCCESS>.Fail(fails),
+                Exception e when typeof(FAIL) == typeof(Common.Error) => Validation<FAIL, SUCCESS>.Fail(Seq1((FAIL)(object)Common.Error.New(e))),
+                Common.Error e when typeof(FAIL) == typeof(Exception) => Validation< FAIL, SUCCESS>.Fail(Seq1((FAIL)(object)e.Exception)),
+                _ => Validation<FAIL, SUCCESS>.Fail(Seq<FAIL>.Empty)
+            };            
 
         [Pure]
         public Validation<FAIL, SUCCESS> Run(Func<Unit, Validation<FAIL, SUCCESS>> ma) =>

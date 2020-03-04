@@ -7,6 +7,7 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.DataTypes.Serialisation;
 using LanguageExt.Common;
@@ -58,6 +59,15 @@ public static class TryOptionAsyncExtensions
         var res = ma.Try();
         return () => res;
     }
+    
+    /// <summary>
+    /// Custom awaiter that turns an TryOptionAsync into an TryOption
+    /// </summary>
+    public static TaskAwaiter<TryOption<A>> GetAwaiter<A>(this TryOptionAsync<A> ma) =>
+        ma.Match(
+            Some: Prelude.TryOption<A>,
+            None: () => Prelude.TryOption<A>(None),
+            Fail: Prelude.TryOption<A>).GetAwaiter();
 
     /// <summary>
     /// Test if the TryOptionAsync is in a success state
