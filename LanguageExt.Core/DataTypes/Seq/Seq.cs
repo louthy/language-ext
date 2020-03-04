@@ -538,8 +538,17 @@ namespace LanguageExt
         /// <typeparam name="B"></typeparam>
         /// <param name="f">Mapping function</param>
         /// <returns>Mapped sequence</returns>
-        public Seq<B> Map<B>(Func<A, B> f) =>
-            new Seq<B>(Value.Map(f));
+        public Seq<B> Map<B>(Func<A, B> f)
+        {
+            return new Seq<B>(new SeqLazy<B>(Yield(this)));
+            IEnumerable<B> Yield(Seq<A> items)
+            {
+                foreach (var item in items)
+                {
+                    yield return f(item);
+                }
+            }
+        }
 
         /// <summary>
         /// Map the sequence using the function provided
@@ -598,8 +607,20 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Predicate to apply to the items</param>
         /// <returns>Filtered sequence</returns>
-        public Seq<A> Filter(Func<A, bool> f) =>
-            new Seq<A>(Value.Filter(f));
+        public Seq<A> Filter(Func<A, bool> f)
+        {
+            return new Seq<A>(new SeqLazy<A>(Yield(this, f)));
+            IEnumerable<A> Yield(Seq<A> items, Func<A, bool> f)
+            {
+                foreach (var item in items)
+                {
+                    if (f(item))
+                    {
+                        yield return item;
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Filter the items in the sequence

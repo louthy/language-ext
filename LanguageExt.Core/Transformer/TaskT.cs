@@ -13,20 +13,8 @@ namespace LanguageExt
         //
         // Collections
         //
-        
+ 
         public static async Task<Arr<B>> Traverse<A, B>(this Arr<Task<A>> ma, Func<A, B> f)
-        {
-            var rb = new B[ma.Count];
-            var ix = 0;
-            foreach (var a in ma)
-            {
-                rb[ix] = f(await a);
-                ix++;
-            }
-            return new Arr<B>(rb);            
-        }
-        
-        public static async Task<Arr<B>> TraverseParallel<A, B>(this Arr<Task<A>> ma, Func<A, B> f)
         {
             var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
             return new Arr<B>(rb);
@@ -34,23 +22,15 @@ namespace LanguageExt
         
         public static async Task<HashSet<B>> Traverse<A, B>(this HashSet<Task<A>> ma, Func<A, B> f)
         {
-            var rb = new B[ma.Count];
-            var ix = 0;
-            foreach (var a in ma)
-            {
-                rb[ix] = f(await a);
-                ix++;
-            }
-            return new HashSet<B>(rb);            
-        }
-        
-        public static async Task<HashSet<B>> TraverseParallel<A, B>(this HashSet<Task<A>> ma, Func<A, B> f)
-        {
             var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
             return new HashSet<B>(rb);
         }
         
-        public static async Task<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f)
+        [Obsolete("use TraverseSerial or TraverseParallel instead")]
+        public static Task<IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f) =>
+            TraverseParallel(ma, f);
+        
+        public static async Task<IEnumerable<B>> TraverseSerial<A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f)
         {
             var rb = new List<B>();
             foreach (var a in ma)
@@ -59,24 +39,14 @@ namespace LanguageExt
             }
             return rb;            
         }
-        
-        public static async Task<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f)
-        {
-            var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
-            return rb;
-        }
+
+        public static Task<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<Task<A>> ma, int windowSize, Func<A, B> f) =>
+            ma.WindowMap(windowSize, f).Map(xs => (IEnumerable<B>)xs);
+
+        public static Task<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f) =>
+            ma.WindowMap(f).Map(xs => (IEnumerable<B>)xs);
         
         public static async Task<Lst<B>> Traverse<A, B>(this Lst<Task<A>> ma, Func<A, B> f)
-        {
-            var rb = new List<B>();
-            foreach (var a in ma)
-            {
-                rb.Add(f(await a));
-            }
-            return new Lst<B>(rb);
-        }
-        
-        public static async Task<Lst<B>> TraverseParallel<A, B>(this Lst<Task<A>> ma, Func<A, B> f)
         {
             var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
             return new Lst<B>(rb);
@@ -84,21 +54,15 @@ namespace LanguageExt
         
         public static async Task<Que<B>> Traverse<A, B>(this Que<Task<A>> ma, Func<A, B> f)
         {
-            var rb = new List<B>();
-            foreach (var a in ma)
-            {
-                rb.Add(f(await a));
-            }
-            return new Que<B>(rb);
-        }
-        
-        public static async Task<Que<B>> TraverseParallel<A, B>(this Que<Task<A>> ma, Func<A, B> f)
-        {
             var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
             return new Que<B>(rb);
         }
-        
-        public static async Task<Seq<B>> Traverse<A, B>(this Seq<Task<A>> ma, Func<A, B> f)
+
+        [Obsolete("use TraverseSerial or TraverseParallel instead")]
+        public static Task<Seq<B>> Traverse<L, A, B>(this Seq<Task<A>> ma, Func<A, B> f) =>
+            TraverseParallel(ma, f);
+ 
+        public static async Task<Seq<B>> TraverseSerial<A, B>(this Seq<Task<A>> ma, Func<A, B> f)
         {
             var rb = new List<B>();
             foreach (var a in ma)
@@ -108,53 +72,33 @@ namespace LanguageExt
             return Seq.FromArray<B>(rb.ToArray());
         }
         
-        public static async Task<Seq<B>> TraverseParallel<A, B>(this Seq<Task<A>> ma, Func<A, B> f)
-        {
-            var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
-            return Seq.FromArray<B>(rb);
-        }
-        
+        public static Task<Seq<B>> TraverseParallel<A, B>(this Seq<Task<A>> ma, int windowSize, Func<A, B> f) =>
+            ma.WindowMap(windowSize, f).Map(xs => Seq(xs));        
+
+        public static Task<Seq<B>> TraverseParallel<A, B>(this Seq<Task<A>> ma, Func<A, B> f) =>
+            ma.WindowMap(f).Map(xs => Seq(xs));
+
         public static async Task<Set<B>> Traverse<A, B>(this Set<Task<A>> ma, Func<A, B> f)
         {
-            var rb = new List<B>();
-            foreach (var a in ma)
-            {
-                rb.Add(f(await a));
-            }
-            return new Set<B>(rb);
-        }
-        
-        public static async Task<Set<B>> TraverseParallel<A, B>(this Set<Task<A>> ma, Func<A, B> f)
-        {
             var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
             return new Set<B>(rb);
         }
-        
+
         public static async Task<Stck<B>> Traverse<A, B>(this Stck<Task<A>> ma, Func<A, B> f)
         {
-            var rb = new List<B>();
-            foreach (var a in ma)
-            {
-                rb.Add(f(await a));
-            }
-            return new Stck<B>(rb);
-        }
-        
-        public static async Task<Stck<B>> TraverseParallel<A, B>(this Stck<Task<A>> ma, Func<A, B> f)
-        {
             var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
             return new Stck<B>(rb);
         }
-        
+
         //
         // Async types
         //
-        
+
         public static Task<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, B> f) =>
             ma.MatchAsync(
                 RightAsync: async ta => EitherAsync<L, B>.Right(f(await ta)), 
                 Left: EitherAsync<L, B>.Left);
-        
+
         public static Task<OptionAsync<B>> Traverse<A, B>(this OptionAsync<Task<A>> ma, Func<A, B> f) =>
             ma.MatchAsync(
                 Some: async ta => OptionAsync<B>.Some(f(await ta)), 
@@ -238,10 +182,10 @@ namespace LanguageExt
             }
         }
         
-        public static async Task<Validation<L, B>> Traverse<L, A, B>(this Validation<L, Task<A>> ma, Func<A, B> f)
+        public static async Task<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Task<A>> ma, Func<A, B> f)
         {
-            if (ma.IsFail) return Validation<L, B>.Fail(ma.FailValue);
-            return Validation<L, B>.Success(f(await ma.SuccessValue));
+            if (ma.IsFail) return Validation<Fail, B>.Fail(ma.FailValue);
+            return Validation<Fail, B>.Success(f(await ma.SuccessValue));
         }
         
         public static async Task<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Task<A>> ma, Func<A, B> f)

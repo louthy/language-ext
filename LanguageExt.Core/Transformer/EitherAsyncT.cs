@@ -21,54 +21,14 @@ namespace LanguageExt
             return new EitherAsync<L, Arr<B>>(Go(ma, f));
             async Task<EitherData<L, Arr<B>>> Go(Arr<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var rb = new B[ma.Count];
-                var ix = 0;
-                foreach (var a in ma)
-                {
-                    var mb = await a;
-                    if (mb.IsBottom) return default(EitherData<L, Arr<B>>);
-                    if (mb.IsLeft) return EitherData.Left<L, Arr<B>>(mb.LeftValue);
-                    rb[ix] = f(mb.RightValue);
-                    ix++;
-                }
-
-                return EitherData.Right<L, Arr<B>>(new Arr<B>(rb));
-            };
-        }
-
-        public static EitherAsync<L, Arr<B>> TraverseParallel<L, A, B>(this Arr<EitherAsync<L, A>> ma, Func<A, B> f)
-        {
-            return new EitherAsync<L, Arr<B>>(Go(ma, f));
-            async Task<EitherData<L, Arr<B>>> Go(Arr<EitherAsync<L, A>> ma, Func<A, B> f)
-            {
                 var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data));
                 return rb.Exists(d => d.State == EitherStatus.IsLeft)
                     ? rb.Filter(d => d.State == EitherStatus.IsLeft).Map(d => EitherData.Left<L,Arr<B>>(d.Left)).Head()
                     : EitherData.Right<L, Arr<B>>(new Arr<B>(rb.Map(d => d.Right)));
             }
         }
-        
+
         public static EitherAsync<L, HashSet<B>> Traverse<L, A, B>(this HashSet<EitherAsync<L, A>> ma, Func<A, B> f)
-        {
-            return new EitherAsync<L, HashSet<B>>(Go(ma, f));
-            async Task<EitherData<L, HashSet<B>>> Go(HashSet<EitherAsync<L, A>> ma, Func<A, B> f)
-            {
-                var rb = new B[ma.Count];
-                var ix = 0;
-                foreach (var a in ma)
-                {
-                    var mb = await a;
-                    if (mb.IsBottom) return default(EitherData<L, HashSet<B>>);
-                    if (mb.IsLeft) return EitherData.Left<L, HashSet<B>>(mb.LeftValue);
-                    rb[ix] = f(mb.RightValue);
-                    ix++;
-                }
-
-                return EitherData.Right<L, HashSet<B>>(new HashSet<B>(rb));
-            };
-        }
-
-        public static EitherAsync<L, HashSet<B>> TraverseParallel<L, A, B>(this HashSet<EitherAsync<L, A>> ma, Func<A, B> f)
         {
             return new EitherAsync<L, HashSet<B>>(Go(ma, f));
             async Task<EitherData<L, HashSet<B>>> Go(HashSet<EitherAsync<L, A>> ma, Func<A, B> f)
@@ -80,7 +40,11 @@ namespace LanguageExt
             }
         }
         
-        public static EitherAsync<L, IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<EitherAsync<L, A>> ma, Func<A, B> f)
+        [Obsolete("use TraverseSerial or TraverseParallel instead")]
+        public static EitherAsync<L, IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<EitherAsync<L, A>> ma, Func<A, B> f) =>
+            TraverseParallel(ma, f);
+
+        public static EitherAsync<L, IEnumerable<B>> TraverseSerial<L, A, B>(this IEnumerable<EitherAsync<L, A>> ma, Func<A, B> f)
         {
             return new EitherAsync<L, IEnumerable<B>>(Go(ma, f));
             async Task<EitherData<L, IEnumerable<B>>> Go(IEnumerable<EitherAsync<L, A>> ma, Func<A, B> f)
@@ -98,39 +62,22 @@ namespace LanguageExt
             };
         }
 
-        public static EitherAsync<L, IEnumerable<B>> TraverseParallel<L, A, B>(this IEnumerable<EitherAsync<L, A>> ma, Func<A, B> f)
+        public static EitherAsync<L, IEnumerable<B>> TraverseParallel<L, A, B>(this IEnumerable<EitherAsync<L, A>> ma, Func<A, B> f) =>
+            TraverseParallel(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+ 
+        public static EitherAsync<L, IEnumerable<B>> TraverseParallel<L, A, B>(this IEnumerable<EitherAsync<L, A>> ma, int windowSize, Func<A, B> f)
         {
             return new EitherAsync<L, IEnumerable<B>>(Go(ma, f));
             async Task<EitherData<L, IEnumerable<B>>> Go(IEnumerable<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data));
+                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, identity);
                 return rb.Exists(d => d.State == EitherStatus.IsLeft)
                     ? rb.Filter(d => d.State == EitherStatus.IsLeft).Map(d => EitherData.Left<L,IEnumerable<B>>(d.Left)).Head()
                     : EitherData.Right<L, IEnumerable<B>>(rb.Map(d => d.Right));
             }
         }
-        
+
         public static EitherAsync<L, Lst<B>> Traverse<L, A, B>(this Lst<EitherAsync<L, A>> ma, Func<A, B> f)
-        {
-            return new EitherAsync<L, Lst<B>>(Go(ma, f));
-            async Task<EitherData<L, Lst<B>>> Go(Lst<EitherAsync<L, A>> ma, Func<A, B> f)
-            {
-                var rb = new B[ma.Count];
-                var ix = 0;
-                foreach (var a in ma)
-                {
-                    var mb = await a;
-                    if (mb.IsBottom) return default(EitherData<L, Lst<B>>);
-                    if (mb.IsLeft) return EitherData.Left<L, Lst<B>>(mb.LeftValue);
-                    rb[ix] = f(mb.RightValue);
-                    ix++;
-                }
-
-                return EitherData.Right<L, Lst<B>>(new Lst<B>(rb));
-            };
-        }
-
-        public static EitherAsync<L, Lst<B>> TraverseParallel<L, A, B>(this Lst<EitherAsync<L, A>> ma, Func<A, B> f)
         {
             return new EitherAsync<L, Lst<B>>(Go(ma, f));
             async Task<EitherData<L, Lst<B>>> Go(Lst<EitherAsync<L, A>> ma, Func<A, B> f)
@@ -141,28 +88,8 @@ namespace LanguageExt
                     : EitherData.Right<L, Lst<B>>(new Lst<B>(rb.Map(d => d.Right)));
             }
         }
-        
+
         public static EitherAsync<L, Que<B>> Traverse<L, A, B>(this Que<EitherAsync<L, A>> ma, Func<A, B> f)
-        {
-            return new EitherAsync<L, Que<B>>(Go(ma, f));
-            async Task<EitherData<L, Que<B>>> Go(Que<EitherAsync<L, A>> ma, Func<A, B> f)
-            {
-                var rb = new B[ma.Count];
-                var ix = 0;
-                foreach (var a in ma)
-                {
-                    var mb = await a;
-                    if (mb.IsBottom) return default(EitherData<L, Que<B>>);
-                    if (mb.IsLeft) return EitherData.Left<L, Que<B>>(mb.LeftValue);
-                    rb[ix] = f(mb.RightValue);
-                    ix++;
-                }
-
-                return EitherData.Right<L, Que<B>>(new Que<B>(rb));
-            };
-        }
-
-        public static EitherAsync<L, Que<B>> TraverseParallel<L, A, B>(this Que<EitherAsync<L, A>> ma, Func<A, B> f)
         {
             return new EitherAsync<L, Que<B>>(Go(ma, f));
             async Task<EitherData<L, Que<B>>> Go(Que<EitherAsync<L, A>> ma, Func<A, B> f)
@@ -174,7 +101,11 @@ namespace LanguageExt
             }
         }
         
-        public static EitherAsync<L, Seq<B>> Traverse<L, A, B>(this Seq<EitherAsync<L, A>> ma, Func<A, B> f)
+        [Obsolete("use TraverseSerial or TraverseParallel instead")]
+        public static EitherAsync<L, Seq<B>> Traverse<L, A, B>(this Seq<EitherAsync<L, A>> ma, Func<A, B> f) =>
+            TraverseParallel(ma, f);
+        
+        public static EitherAsync<L, Seq<B>> TraverseSerial<L, A, B>(this Seq<EitherAsync<L, A>> ma, Func<A, B> f)
         {
             return new EitherAsync<L, Seq<B>>(Go(ma, f));
             async Task<EitherData<L, Seq<B>>> Go(Seq<EitherAsync<L, A>> ma, Func<A, B> f)
@@ -194,39 +125,22 @@ namespace LanguageExt
             };
         }
 
-        public static EitherAsync<L, Seq<B>> TraverseParallel<L, A, B>(this Seq<EitherAsync<L, A>> ma, Func<A, B> f)
+        public static EitherAsync<L, Seq<B>> TraverseParallel<L, A, B>(this Seq<EitherAsync<L, A>> ma, Func<A, B> f) =>
+            TraverseParallel(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+ 
+        public static EitherAsync<L, Seq<B>> TraverseParallel<L, A, B>(this Seq<EitherAsync<L, A>> ma, int windowSize, Func<A, B> f)
         {
             return new EitherAsync<L, Seq<B>>(Go(ma, f));
             async Task<EitherData<L, Seq<B>>> Go(Seq<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data));
+                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, identity);
                 return rb.Exists(d => d.State == EitherStatus.IsLeft)
-                    ? rb.Filter(d => d.State == EitherStatus.IsLeft).Map(d => EitherData.Left<L,Seq<B>>(d.Left)).Head()
-                    : EitherData.Right<L, Seq<B>>(Seq.FromArray<B>(rb.Map(d => d.Right).ToArray()));
+                     ? rb.Filter(d => d.State == EitherStatus.IsLeft).Map(d => EitherData.Left<L, Seq<B>>(d.Left)).Head()
+                     : EitherData.Right<L, Seq<B>>(Seq.FromArray(rb.Map(d => d.Right).ToArray()));
             }
         }
-        
+
         public static EitherAsync<L, Set<B>> Traverse<L, A, B>(this Set<EitherAsync<L, A>> ma, Func<A, B> f)
-        {
-            return new EitherAsync<L, Set<B>>(Go(ma, f));
-            async Task<EitherData<L, Set<B>>> Go(Set<EitherAsync<L, A>> ma, Func<A, B> f)
-            {
-                var rb = new B[ma.Count];
-                var ix = 0;
-                foreach (var a in ma)
-                {
-                    var mb = await a;
-                    if (mb.IsBottom) return default(EitherData<L, Set<B>>);
-                    if (mb.IsLeft) return EitherData.Left<L, Set<B>>(mb.LeftValue);
-                    rb[ix] = f(mb.RightValue);
-                    ix++;
-                }
-
-                return EitherData.Right<L, Set<B>>(new Set<B>(rb));
-            };
-        }
-
-        public static EitherAsync<L, Set<B>> TraverseParallel<L, A, B>(this Set<EitherAsync<L, A>> ma, Func<A, B> f)
         {
             return new EitherAsync<L, Set<B>>(Go(ma, f));
             async Task<EitherData<L, Set<B>>> Go(Set<EitherAsync<L, A>> ma, Func<A, B> f)
@@ -239,26 +153,6 @@ namespace LanguageExt
         }
         
         public static EitherAsync<L, Stck<B>> Traverse<L, A, B>(this Stck<EitherAsync<L, A>> ma, Func<A, B> f)
-        {
-            return new EitherAsync<L, Stck<B>>(Go(ma, f));
-            async Task<EitherData<L, Stck<B>>> Go(Stck<EitherAsync<L, A>> ma, Func<A, B> f)
-            {
-                var rb = new B[ma.Count];
-                var ix = 0;
-                foreach (var a in ma)
-                {
-                    var mb = await a;
-                    if (mb.IsBottom) return default(EitherData<L, Stck<B>>);
-                    if (mb.IsLeft) return EitherData.Left<L, Stck<B>>(mb.LeftValue);
-                    rb[ix] = f(mb.RightValue);
-                    ix++;
-                }
-
-                return EitherData.Right<L, Stck<B>>(new Stck<B>(rb));
-            };
-        }
-
-        public static EitherAsync<L, Stck<B>> TraverseParallel<L, A, B>(this Stck<EitherAsync<L, A>> ma, Func<A, B> f)
         {
             return new EitherAsync<L, Stck<B>>(Go(ma, f));
             async Task<EitherData<L, Stck<B>>> Go(Stck<EitherAsync<L, A>> ma, Func<A, B> f)

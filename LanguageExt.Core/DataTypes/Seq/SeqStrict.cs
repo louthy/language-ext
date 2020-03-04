@@ -406,35 +406,6 @@ namespace LanguageExt
             return new SeqStrict<A>(data, start, count);
         }
 
-        public ISeqInternal<A> Filter(Func<A, bool> f)
-        {
-            var ndata = new A[data.Length];
-            var end = start + count;
-            var ncount = 0;
-            for(var i = start; i < end; i++)
-            {
-                var item = data[i];
-                if (f(data[i]))
-                {
-                    ndata[start + ncount] = item;
-                    ncount++;
-                }
-            }
-
-            return new SeqStrict<A>(ndata, start, ncount);
-        }
-
-        public ISeqInternal<B> Map<B>(Func<A, B> f)
-        {
-            var ndata = new B[data.Length];
-            var end = start + count;
-            for (var i = start; i < end; i++)
-            {
-                ndata[i] = f(data[i]);
-            }
-            return new SeqStrict<B>(ndata, start, count);
-        }
-
         public Unit Iter(Action<A> f)
         {
             var end = start + count;

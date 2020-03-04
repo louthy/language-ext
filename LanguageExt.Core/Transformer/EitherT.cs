@@ -300,47 +300,47 @@ namespace LanguageExt
             }
         }
         
-        public static Either<L, Validation<L, B>> Traverse<L, A, B>(this Validation<L, Either<L, A>> ma, Func<A, B> f)
+        public static Either<Fail, Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Either<Fail, A>> ma, Func<A, B> f)
         {
             if (ma.IsFail && ma.FailValue.IsEmpty)
             {
-                return Either<L, Validation<L, B>>.Bottom;
+                return Either<Fail, Validation<Fail, B>>.Bottom;
             }
             if (ma.IsFail)
             {
-                return Either<L, Validation<L, B>>.Left(ma.FailValue.Head());
+                return Either<Fail, Validation<Fail, B>>.Left(ma.FailValue.Head());
             }
             else
             {
                 var mb = ma.SuccessValue;
                 if (mb.IsLeft)
                 {
-                    return Either<L, Validation<L, B>>.Left((L)mb);
+                    return Either<Fail, Validation<Fail, B>>.Left((Fail)mb);
                 }
                 else
                 {
-                    return Either<L, Validation<L, B>>.Right(f((A)mb));
+                    return Either<Fail, Validation<Fail, B>>.Right(f((A)mb));
                 }
             }
         }
         
-        public static Either<L, Validation<MonoidL, L, B>> Traverse<MonoidL, L, A, B>(this Validation<MonoidL, L, Either<L, A>> ma, Func<A, B> f) 
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Either<Fail, Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Either<Fail, A>> ma, Func<A, B> f) 
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail)
             {
-                return Either<L, Validation<MonoidL, L, B>>.Left(ma.FailValue);
+                return Either<Fail, Validation<MonoidFail, Fail, B>>.Left(ma.FailValue);
             }
             else
             {
                 var mb = ma.SuccessValue;
                 if (mb.IsLeft)
                 {
-                    return Either<L, Validation<MonoidL, L, B>>.Left((L)mb);
+                    return Either<Fail, Validation<MonoidFail, Fail, B>>.Left((Fail)mb);
                 }
                 else
                 {
-                    return Either<L, Validation<MonoidL, L, B>>.Right(f((A)mb));
+                    return Either<Fail, Validation<MonoidFail, Fail, B>>.Right(f((A)mb));
                 }
             }
         }

@@ -285,20 +285,20 @@ namespace LanguageExt
 
         /// <summary>
         /// Tasks a lazy sequence of tasks and iterates them in a 'measured way'.  A default window size of
-        /// `Environment.ProcessorCount / 2` tasks is used, which means there are `Environment.ProcessorCount / 2`
-        /// 'await streams'.  An await stream essentially awaits one task from the sequence, and on completion
-        /// goes and gets the next task from the lazy sequence and awaits that too.  This continues until the end
-        /// of the lazy sequence, or forever for infinite streams.
+        /// `Sys.DefaultAsyncSequenceConcurrency` tasks is used, which by default means there are
+        /// `Sys.DefaultAsyncSequenceConcurrency / 2` 'await streams'.  An await stream essentially awaits one
+        /// task from the sequence, and on completion goes and gets the next task from the lazy sequence and
+        /// awaits that too.  This continues until the end of the lazy sequence, or forever for infinite streams.
         /// </summary>
         public static Task<Unit> WindowIter<A>(this IEnumerable<Task<A>> ma, Action<A> f) =>
-            WindowIter(ma, Math.Max(1, Environment.ProcessorCount >> 1), f);
+            WindowIter(ma, Sys.DefaultAsyncSequenceConcurrency, f);
 
         /// <summary>
         /// Tasks a lazy sequence of tasks and iterates them in a 'measured way'.  A default window size of
         /// `windowSize` tasks is used, which means there are `windowSize` 'await streams'.  An await stream 
         /// essentially awaits one task from the sequence, and on completion goes and gets the next task from 
         /// the lazy sequence and awaits that too.  This continues until the end of the lazy sequence, or forever 
-        /// for infinite streams.
+        /// for infinite streams.  Therefore there are at most `windowSize` tasks running concurrently.
         /// </summary>
         public static async Task<Unit> WindowIter<A>(this IEnumerable<Task<A>> ma, int windowSize, Action<A> f)
         {
@@ -336,6 +336,76 @@ namespace LanguageExt
             }
             await Task.WhenAll(tasks);
             return unit;
+        }
+        
+        /// <summary>
+        /// Tasks a lazy sequence of tasks and iterates them in a 'measured way'.  A default window size of
+        /// `Sys.DefaultAsyncSequenceConcurrency` tasks is used, which means there are `Environment.ProcessorCount / 2`
+        /// 'await streams' (by default).  An await stream essentially awaits one task from the sequence, and on
+        /// completion goes and gets the next task from the lazy sequence and awaits that too.  This continues until the
+        /// end of the lazy sequence, or forever for infinite streams.
+        /// </summary>
+        internal static Task<IList<B>> WindowMap<A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f) =>
+            WindowMap(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+        
+        /// <summary>
+        /// Tasks a lazy sequence of tasks and maps them in a 'measured way'.  A default window size of
+        /// `windowSize` tasks is used, which means there are `windowSize` 'await streams'.  An await stream 
+        /// essentially awaits one task from the sequence, and on completion goes and gets the next task from 
+        /// the lazy sequence and awaits that too.  This continues until the end of the lazy sequence, or forever 
+        /// for infinite streams.  Therefore there are at most `windowSize` tasks running concurrently.
+        /// </summary>
+        internal static async Task<IList<B>> WindowMap<A, B>(this IEnumerable<Task<A>> ma, int windowSize, Func<A, B> f)
+        {
+            object sync = new object();
+            var iter = ma.GetEnumerator();
+
+            (bool Success, Task<A> Task) GetNext()
+            {
+                lock (sync)
+                {
+                    return iter.MoveNext()
+                        ? (true, iter.Current)
+                        : default;
+                }
+            }
+
+            var tasks = new List<Task<Unit>>();
+            var results = new List<B>[windowSize];
+
+            for (var i = 0; i < windowSize; i++)
+            {
+                results[i] = new List<B>();
+            }
+
+            for (var i = 0; i < windowSize; i++)
+            {
+                var (s, outerTask) = GetNext();
+                if (!s) break;
+
+                var ix = i;
+                tasks.Add(outerTask.Iter(async oa =>
+                {
+                    f(oa);
+
+                    while (true)
+                    {
+                        var next = GetNext();
+                        if (!next.Success) return;
+                        var a = await next.Task;
+                        results[ix].Add(f(a));
+                    }
+                }));
+            }
+            await Task.WhenAll(tasks);
+
+            // Move all results into one list
+            for (var i = 1; i < windowSize; i++)
+            {
+                results[0].AddRange(results[i]);
+            }
+
+            return results[0];
         }
     }
 }

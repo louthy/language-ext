@@ -238,26 +238,26 @@ namespace LanguageExt
             return new OptionalResult<TryOption<B>>(TryOption<B>(f(mr.Value.Value)));
         };
         
-        public static TryOption<Validation<L, B>> Traverse<L, A, B>(this Validation<L, TryOption<A>> ma, Func<A, B> f) => () =>
+        public static TryOption<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, TryOption<A>> ma, Func<A, B> f) => () =>
         {
-            if (ma.IsFail) return new OptionalResult<Validation<L, B>>(Validation<L, B>.Fail(ma.FailValue));
+            if (ma.IsFail) return new OptionalResult<Validation<Fail, B>>(Validation<Fail, B>.Fail(ma.FailValue));
             var mr = ma.SuccessValue();  
-            if (mr.IsBottom) return new OptionalResult<Validation<L, B>>(BottomException.Default);
-            if (mr.IsFaulted) return new OptionalResult<Validation<L, B>>(mr.Exception);
-            if (mr.IsNone) return OptionalResult<Validation<L, B>>.None;
-            return new OptionalResult<Validation<L, B>>(Validation<L, B>.Success(f(mr.Value.Value)));
+            if (mr.IsBottom) return new OptionalResult<Validation<Fail, B>>(BottomException.Default);
+            if (mr.IsFaulted) return new OptionalResult<Validation<Fail, B>>(mr.Exception);
+            if (mr.IsNone) return OptionalResult<Validation<Fail, B>>.None;
+            return new OptionalResult<Validation<Fail, B>>(Validation<Fail, B>.Success(f(mr.Value.Value)));
         };
 
-        public static TryOption<Validation<MonoidL, L, B>> Traverse<MonoidL, L, A, B>(
-            this Validation<MonoidL, L, TryOption<A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L> => () =>
+        public static TryOption<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(
+            this Validation<MonoidFail, Fail, TryOption<A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail> => () =>
         {
-            if (ma.IsFail) return new OptionalResult<Validation<MonoidL, L, B>>(Validation<MonoidL, L, B>.Fail(ma.FailValue));
+            if (ma.IsFail) return new OptionalResult<Validation<MonoidFail, Fail, B>>(Validation<MonoidFail, Fail, B>.Fail(ma.FailValue));
             var mr = ma.SuccessValue();  
-            if (mr.IsBottom) return new OptionalResult<Validation<MonoidL, L, B>>(BottomException.Default);
-            if (mr.IsFaulted) return new OptionalResult<Validation<MonoidL, L, B>>(mr.Exception);
-            if (mr.IsNone) return OptionalResult<Validation<MonoidL, L, B>>.None;
-            return new OptionalResult<Validation<MonoidL, L, B>>(Validation<MonoidL, L, B>.Success(f(mr.Value.Value)));
+            if (mr.IsBottom) return new OptionalResult<Validation<MonoidFail, Fail, B>>(BottomException.Default);
+            if (mr.IsFaulted) return new OptionalResult<Validation<MonoidFail, Fail, B>>(mr.Exception);
+            if (mr.IsNone) return OptionalResult<Validation<MonoidFail, Fail, B>>.None;
+            return new OptionalResult<Validation<MonoidFail, Fail, B>>(Validation<MonoidFail, Fail, B>.Success(f(mr.Value.Value)));
         };
     }
 }

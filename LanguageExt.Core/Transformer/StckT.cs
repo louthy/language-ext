@@ -137,10 +137,10 @@ namespace LanguageExt
                 None: () => Stck<TryOption<B>>.Empty,
                 Some: xs => toStack(xs.Map(x => TryOption<B>(f(x)))));
 
-        public static Stck<Validation<L, B>> Traverse<L, A, B>(this Validation<L, Stck<A>> ma, Func<A, B> f) =>
+        public static Stck<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Stck<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Fail: _ => Stck<Validation<L, B>>.Empty,
-                Succ: xs => toStack(xs.Map(x => Success<L, B>(f(x)))));
+                Fail: _ => Stck<Validation<Fail, B>>.Empty,
+                Succ: xs => toStack(xs.Map(x => Success<Fail, B>(f(x)))));
 
         public static Stck<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Stck<A>> ma, Func<A, B> f) 
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>

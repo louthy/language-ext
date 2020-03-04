@@ -129,7 +129,7 @@ namespace LanguageExt.Tests
         public static async void TraverseAsync()
         {
             var start = DateTime.UtcNow;
-            var fs = Range(1, Environment.ProcessorCount).Map(x => Task.Run(() =>
+            var fs = Range(1, Sys.DefaultAsyncSequenceConcurrency).Map(x => Task.Run(() =>
             {
                 Thread.Sleep(3000);
                 return x;
@@ -138,7 +138,7 @@ namespace LanguageExt.Tests
             var res = await fs.Freeze().Traverse(x => x * 2);
             var ms = (int)(DateTime.UtcNow - start).TotalMilliseconds;
 
-            Assert.True(Set.createRange(res) == toSet(Range(2, Environment.ProcessorCount, 2)));
+            Assert.True(Set.createRange(res) == toSet(Range(2, Sys.DefaultAsyncSequenceConcurrency, 2)));
             Assert.True(ms < 4000, $"Took {ms} ticks");
         }
 

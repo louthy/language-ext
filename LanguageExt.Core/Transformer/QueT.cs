@@ -139,10 +139,10 @@ namespace LanguageExt
                 None: () => Que<TryOption<B>>.Empty,
                 Some: xs => toQueue(xs.Map(x => TryOption<B>(f(x)))));
 
-        public static Que<Validation<L, B>> Traverse<L, A, B>(this Validation<L, Que<A>> ma, Func<A, B> f) =>
+        public static Que<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Que<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Fail: _ => Que<Validation<L, B>>.Empty,
-                Succ: xs => toQueue(xs.Map(x => Success<L, B>(f(x)))));
+                Fail: _ => Que<Validation<Fail, B>>.Empty,
+                Succ: xs => toQueue(xs.Map(x => Success<Fail, B>(f(x)))));
 
         public static Que<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Que<A>> ma, Func<A, B> f) 
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>

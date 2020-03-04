@@ -11,18 +11,18 @@ namespace LanguageExt
 {
     public static class ValidationTExtensions
     {
-        public static Validation<MonoidL, L, Arr<B>> Traverse<MonoidL, L, A, B>(this Arr<Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, Arr<B>> Traverse<MonoidFail, Fail, A, B>(this Arr<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             var res = new B[ma.Count];
-            var errs = default(MonoidL).Empty();
+            var errs = default(MonoidFail).Empty();
             var isSuccess = true;
             var ix = 0;
             foreach (var x in ma)
             {
                 if (x.IsFail)
                 {
-                    errs = default(MonoidL).Append(errs, x.FailValue);
+                    errs = default(MonoidFail).Append(errs, x.FailValue);
                     isSuccess = false;
                 }
                 else
@@ -34,63 +34,63 @@ namespace LanguageExt
 
             return isSuccess
                 ? new Arr<B>(res)
-                : Validation<MonoidL, L, Arr<B>>.Fail(errs);
+                : Validation<MonoidFail, Fail, Arr<B>>.Fail(errs);
         }
         
-        public static Validation<MonoidL, L, Either<L, B>> Traverse<MonoidL, L, A, B>(this Either<L, Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, Either<Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Either<Fail, Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsLeft)
             {
-                return Validation<MonoidL, L, Either<L, B>>.Fail(ma.LeftValue);
+                return Validation<MonoidFail, Fail, Either<Fail, B>>.Fail(ma.LeftValue);
             }
             else
             {
-                var mb = (Validation<MonoidL, L, A>)ma;
+                var mb = (Validation<MonoidFail, Fail, A>)ma;
                 if (mb.IsFail)
                 {
-                    return Validation<MonoidL, L, Either<L, B>>.Fail(mb.FailValue);
+                    return Validation<MonoidFail, Fail, Either<Fail, B>>.Fail(mb.FailValue);
                 }
                 else
                 {
-                    return Validation<MonoidL, L, Either<L, B>>.Success(f((A)mb));
+                    return Validation<MonoidFail, Fail, Either<Fail, B>>.Success(f((A)mb));
                 }
             }
         }
         
-        public static Validation<MonoidL, L, EitherUnsafe<L, B>> Traverse<MonoidL, L, A, B>(this EitherUnsafe<L, Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, EitherUnsafe<Fail, B>> Traverse<MonoidFail, Fail, A, B>(this EitherUnsafe<Fail, Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsLeft)
             {
-                return Validation<MonoidL, L, EitherUnsafe<L, B>>.Fail(ma.LeftValue);
+                return Validation<MonoidFail, Fail, EitherUnsafe<Fail, B>>.Fail(ma.LeftValue);
             }
             else
             {
-                var mb = (Validation<MonoidL, L, A>)ma;
+                var mb = (Validation<MonoidFail, Fail, A>)ma;
                 if (mb.IsFail)
                 {
-                    return Validation<MonoidL, L, EitherUnsafe<L, B>>.Fail(mb.FailValue);
+                    return Validation<MonoidFail, Fail, EitherUnsafe<Fail, B>>.Fail(mb.FailValue);
                 }
                 else
                 {
-                    return Validation<MonoidL, L, EitherUnsafe<L, B>>.Success(f((A)mb));
+                    return Validation<MonoidFail, Fail, EitherUnsafe<Fail, B>>.Success(f((A)mb));
                 }
             }
         }
         
-        public static Validation<MonoidL, L, HashSet<B>> Traverse<MonoidL, L, A, B>(this HashSet<Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, HashSet<B>> Traverse<MonoidFail, Fail, A, B>(this HashSet<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             var res = new B[ma.Count];
-            var errs = default(MonoidL).Empty();
+            var errs = default(MonoidFail).Empty();
             var isSuccess = true;
             var ix = 0;
             foreach (var x in ma)
             {
                 if (x.IsFail)
                 {
-                    errs = default(MonoidL).Append(errs, x.FailValue);
+                    errs = default(MonoidFail).Append(errs, x.FailValue);
                     isSuccess = false;
                 }
                 else
@@ -102,34 +102,34 @@ namespace LanguageExt
 
             return isSuccess
                 ? new HashSet<B>(res)
-                : Validation<MonoidL, L, HashSet<B>>.Fail(errs);
+                : Validation<MonoidFail, Fail, HashSet<B>>.Fail(errs);
         }
 
-        public static Validation<MonoidL, L, Identity<B>> Traverse<MonoidL, L, A, B>(this Identity<Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, Identity<B>> Traverse<MonoidFail, Fail, A, B>(this Identity<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             if (ma.Value.IsFail)
             {
-                return Validation<MonoidL, L, Identity<B>>.Fail(ma.Value.FailValue);
+                return Validation<MonoidFail, Fail, Identity<B>>.Fail(ma.Value.FailValue);
             }
             else
             {
-                return Validation<MonoidL, L, Identity<B>>.Success(new Identity<B>(f((A)ma.Value)));
+                return Validation<MonoidFail, Fail, Identity<B>>.Success(new Identity<B>(f((A)ma.Value)));
             }
         }
 
-        public static Validation<MonoidL, L, Lst<B>> Traverse<MonoidL, L, A, B>(this Lst<Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, Lst<B>> Traverse<MonoidFail, Fail, A, B>(this Lst<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             var res = new B[ma.Count];
-            var errs = default(MonoidL).Empty();
+            var errs = default(MonoidFail).Empty();
             var isSuccess = true;
             var ix = 0;
             foreach (var x in ma)
             {
                 if (x.IsFail)
                 {
-                    errs = default(MonoidL).Append(errs, x.FailValue);
+                    errs = default(MonoidFail).Append(errs, x.FailValue);
                     isSuccess = false;
                 }
                 else
@@ -141,63 +141,63 @@ namespace LanguageExt
 
             return isSuccess
                 ? new Lst<B>(res)
-                : Validation<MonoidL, L, Lst<B>>.Fail(errs);
+                : Validation<MonoidFail, Fail, Lst<B>>.Fail(errs);
         }
         
-        public static Validation<MonoidL, L, Option<B>> Traverse<MonoidL, L, A, B>(this Option<Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, Option<B>> Traverse<MonoidFail, Fail, A, B>(this Option<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsNone)
             {
-                return Validation<MonoidL, L, Option<B>>.Success(Option<B>.None);
+                return Validation<MonoidFail, Fail, Option<B>>.Success(Option<B>.None);
             }
             else
             {
-                var mb = (Validation<MonoidL, L, A>)ma;
+                var mb = (Validation<MonoidFail, Fail, A>)ma;
                 if (mb.IsFail)
                 {
-                    return Validation<MonoidL, L, Option<B>>.Fail(mb.FailValue);
+                    return Validation<MonoidFail, Fail, Option<B>>.Fail(mb.FailValue);
                 }
                 else
                 {
-                    return Validation<MonoidL, L, Option<B>>.Success(f((A)mb));
+                    return Validation<MonoidFail, Fail, Option<B>>.Success(f((A)mb));
                 }
             }
         }        
         
-        public static Validation<MonoidL, L, OptionUnsafe<B>> Traverse<MonoidL, L, A, B>(this OptionUnsafe<Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, OptionUnsafe<B>> Traverse<MonoidFail, Fail, A, B>(this OptionUnsafe<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsNone)
             {
-                return Validation<MonoidL, L, OptionUnsafe<B>>.Success(OptionUnsafe<B>.None);
+                return Validation<MonoidFail, Fail, OptionUnsafe<B>>.Success(OptionUnsafe<B>.None);
             }
             else
             {
-                var mb = (Validation<MonoidL, L, A>)ma;
+                var mb = (Validation<MonoidFail, Fail, A>)ma;
                 if (mb.IsFail)
                 {
-                    return Validation<MonoidL, L, OptionUnsafe<B>>.Fail(mb.FailValue);
+                    return Validation<MonoidFail, Fail, OptionUnsafe<B>>.Fail(mb.FailValue);
                 }
                 else
                 {
-                    return Validation<MonoidL, L, OptionUnsafe<B>>.Success(f((A)mb));
+                    return Validation<MonoidFail, Fail, OptionUnsafe<B>>.Success(f((A)mb));
                 }
             }
         }        
         
-        public static Validation<MonoidL, L, Que<B>> Traverse<MonoidL, L, A, B>(this Que<Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, Que<B>> Traverse<MonoidFail, Fail, A, B>(this Que<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             var res = new B[ma.Count];
-            var errs = default(MonoidL).Empty();
+            var errs = default(MonoidFail).Empty();
             var isSuccess = true;
             var ix = 0;
             foreach (var x in ma)
             {
                 if (x.IsFail)
                 {
-                    errs = default(MonoidL).Append(errs, x.FailValue);
+                    errs = default(MonoidFail).Append(errs, x.FailValue);
                     isSuccess = false;
                 }
                 else
@@ -209,21 +209,21 @@ namespace LanguageExt
 
             return isSuccess
                 ? new Que<B>(res)
-                : Validation<MonoidL, L, Que<B>>.Fail(errs);
+                : Validation<MonoidFail, Fail, Que<B>>.Fail(errs);
         }
         
-        public static Validation<MonoidL, L, Seq<B>> Traverse<MonoidL, L, A, B>(this Seq<Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, Seq<B>> Traverse<MonoidFail, Fail, A, B>(this Seq<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             var res = new B[ma.Count];
-            var errs = default(MonoidL).Empty();
+            var errs = default(MonoidFail).Empty();
             var isSuccess = true;
             var ix = 0;
             foreach (var x in ma)
             {
                 if (x.IsFail)
                 {
-                    errs = default(MonoidL).Append(errs, x.FailValue);
+                    errs = default(MonoidFail).Append(errs, x.FailValue);
                     isSuccess = false;
                 }
                 else
@@ -235,20 +235,20 @@ namespace LanguageExt
 
             return isSuccess
                 ? Seq.FromArray(res)
-                : Validation<MonoidL, L, Seq<B>>.Fail(errs);
+                : Validation<MonoidFail, Fail, Seq<B>>.Fail(errs);
         }
                 
-        public static Validation<MonoidL, L, IEnumerable<B>> Traverse<MonoidL, L, A, B>(this IEnumerable<Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, IEnumerable<B>> Traverse<MonoidFail, Fail, A, B>(this IEnumerable<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             var res = new List<B>();
-            var errs = default(MonoidL).Empty();
+            var errs = default(MonoidFail).Empty();
             var isSuccess = true;
             foreach (var x in ma)
             {
                 if (x.IsFail)
                 {
-                    errs = default(MonoidL).Append(errs, x.FailValue);
+                    errs = default(MonoidFail).Append(errs, x.FailValue);
                     isSuccess = false;
                 }
                 else
@@ -258,22 +258,22 @@ namespace LanguageExt
             }
 
             return isSuccess
-                ? Validation<MonoidL, L, IEnumerable<B>>.Success(res)
-                : Validation<MonoidL, L, IEnumerable<B>>.Fail(errs);
+                ? Validation<MonoidFail, Fail, IEnumerable<B>>.Success(res)
+                : Validation<MonoidFail, Fail, IEnumerable<B>>.Fail(errs);
         }
         
-        public static Validation<MonoidL, L, Set<B>> Traverse<MonoidL, L, A, B>(this Set<Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, Set<B>> Traverse<MonoidFail, Fail, A, B>(this Set<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             var res = new B[ma.Count];
-            var errs = default(MonoidL).Empty();
+            var errs = default(MonoidFail).Empty();
             var isSuccess = true;
             var ix = 0;
             foreach (var x in ma)
             {
                 if (x.IsFail)
                 {
-                    errs = default(MonoidL).Append(errs, x.FailValue);
+                    errs = default(MonoidFail).Append(errs, x.FailValue);
                     isSuccess = false;
                 }
                 else
@@ -285,21 +285,21 @@ namespace LanguageExt
 
             return isSuccess
                 ? new Set<B>(res)
-                : Validation<MonoidL, L, Set<B>>.Fail(errs);
+                : Validation<MonoidFail, Fail, Set<B>>.Fail(errs);
         }
         
-        public static Validation<MonoidL, L, Stck<B>> Traverse<MonoidL, L, A, B>(this Stck<Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, Stck<B>> Traverse<MonoidFail, Fail, A, B>(this Stck<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             var res = new B[ma.Count];
-            var errs = default(MonoidL).Empty();
+            var errs = default(MonoidFail).Empty();
             var isSuccess = true;
             var ix = 0;
             foreach (var x in ma)
             {
                 if (x.IsFail)
                 {
-                    errs = default(MonoidL).Append(errs, x.FailValue);
+                    errs = default(MonoidFail).Append(errs, x.FailValue);
                     isSuccess = false;
                 }
                 else
@@ -311,89 +311,89 @@ namespace LanguageExt
 
             return isSuccess
                 ? new Stck<B>(res)
-                : Validation<MonoidL, L, Stck<B>>.Fail(errs);
+                : Validation<MonoidFail, Fail, Stck<B>>.Fail(errs);
         }
         
-        public static Validation<MonoidL, L, Try<B>> Traverse<MonoidL, L, A, B>(this Try<Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, Try<B>> Traverse<MonoidFail, Fail, A, B>(this Try<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             var tres = ma.Try();
             
             if (tres.IsBottom || tres.IsFaulted)
             {
-                return default(MValidation<MonoidL, L, Try<B>>).Fail(tres.Exception);
+                return default(MValidation<MonoidFail, Fail, Try<B>>).Fail(tres.Exception);
             }
             else if (tres.Value.IsFail)
             {
-                return Validation<MonoidL, L, Try<B>>.Fail(tres.Value.FailValue);
+                return Validation<MonoidFail, Fail, Try<B>>.Fail(tres.Value.FailValue);
             }
             else
             {
-                return Validation<MonoidL, L, Try<B>>.Success(Try(f((A)tres.Value)));
+                return Validation<MonoidFail, Fail, Try<B>>.Success(Try(f((A)tres.Value)));
             }
         }
         
-        public static Validation<MonoidL, L, TryOption<B>> Traverse<MonoidL, L, A, B>(this TryOption<Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, TryOption<B>> Traverse<MonoidFail, Fail, A, B>(this TryOption<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             var tres = ma.Try();
             
             if (tres.IsBottom || tres.IsFaulted)
             {
-                return default(MValidation<MonoidL, L, TryOption<B>>).Fail(tres.Exception);
+                return default(MValidation<MonoidFail, Fail, TryOption<B>>).Fail(tres.Exception);
             }
             else if (tres.Value.IsNone)
             {
-                return Validation<MonoidL, L, TryOption<B>>.Success(TryOption<B>(None));
+                return Validation<MonoidFail, Fail, TryOption<B>>.Success(TryOption<B>(None));
             }
             else if (tres.Value.Value.IsFail)
             {
-                return Validation<MonoidL, L, TryOption<B>>.Fail(tres.Value.Value.FailValue);
+                return Validation<MonoidFail, Fail, TryOption<B>>.Fail(tres.Value.Value.FailValue);
             }
             else
             {
-                return Validation<MonoidL, L, TryOption<B>>.Success(TryOption(f((A)tres.Value.Value)));
+                return Validation<MonoidFail, Fail, TryOption<B>>.Success(TryOption(f((A)tres.Value.Value)));
             }
         }
         
-        public static Validation<MonoidL, L, Validation<L, B>> Traverse<MonoidL, L, A, B>(this Validation<L, Validation<MonoidL, L, A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, Validation<Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<Fail, Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail)
             {
-                return Validation<MonoidL, L, Validation<L, B>>.Fail(mconcat<MonoidL, L>(ma.FailValue));
+                return Validation<MonoidFail, Fail, Validation<Fail, B>>.Fail(mconcat<MonoidFail, Fail>(ma.FailValue));
             }
             else
             {
                 var mb = ma.SuccessValue;
                 if (mb.IsSuccess)
                 {
-                    return Validation<MonoidL, L, Validation<L, B>>.Success(f((A)mb));
+                    return Validation<MonoidFail, Fail, Validation<Fail, B>>.Success(f((A)mb));
                 }
                 else
                 {
-                    return Validation<MonoidL, L, Validation<L, B>>.Fail(mb.FailValue);
+                    return Validation<MonoidFail, Fail, Validation<Fail, B>>.Fail(mb.FailValue);
                 }
             }
         }
         
-        public static Validation<MonoidL, L, Validation<MonoidL, L, B>> Traverse<MonoidL, L, A, B>(this Validation<MonoidL, L, Validation<MonoidL, L, A>> ma, Func<A, B> f) 
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Validation<MonoidFail, Fail, Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Validation<MonoidFail, Fail, A>> ma, Func<A, B> f) 
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail)
             {
-                return Validation<MonoidL, L, Validation<MonoidL, L, B>>.Fail(ma.FailValue);
+                return Validation<MonoidFail, Fail, Validation<MonoidFail, Fail, B>>.Fail(ma.FailValue);
             }
             else
             {
                 var mb = ma.SuccessValue;
                 if (mb.IsSuccess)
                 {
-                    return Validation<MonoidL, L, Validation<MonoidL, L, B>>.Success(f((A)mb));
+                    return Validation<MonoidFail, Fail, Validation<MonoidFail, Fail, B>>.Success(f((A)mb));
                 }
                 else
                 {
-                    return Validation<MonoidL, L, Validation<MonoidL, L, B>>.Fail(mb.FailValue);
+                    return Validation<MonoidFail, Fail, Validation<MonoidFail, Fail, B>>.Fail(mb.FailValue);
                 }
             }
         }

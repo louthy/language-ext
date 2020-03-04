@@ -137,10 +137,10 @@ namespace LanguageExt
                 None: () => Seq<TryOption<B>>.Empty,
                 Some: xs => xs.Map(x => TryOption<B>(f(x))));
 
-        public static Seq<Validation<L, B>> Traverse<L, A, B>(this Validation<L, Seq<A>> ma, Func<A, B> f) =>
+        public static Seq<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Seq<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Fail: _ => Seq<Validation<L, B>>.Empty,
-                Succ: xs => xs.Map(x => Success<L, B>(f(x))));
+                Fail: _ => Seq<Validation<Fail, B>>.Empty,
+                Succ: xs => xs.Map(x => Success<Fail, B>(f(x))));
 
         public static Seq<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Seq<A>> ma, Func<A, B> f) 
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>

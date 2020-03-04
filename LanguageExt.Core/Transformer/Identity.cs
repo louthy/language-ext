@@ -137,15 +137,15 @@ namespace LanguageExt
                 None: () => new Identity<TryOption<B>>(TryOption<B>(Option<B>.None)),
                 Fail: e  => new Identity<TryOption<B>>(TryOption<B>(e)));
         
-        public static Identity<Validation<L, B>> Traverse<L, A, B>(this Validation<L, Identity<A>> ma, Func<A, B> f) =>
+        public static Identity<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Identity<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Succ: x => new Identity<Validation<L, B>>(f(x.Value)),
-                Fail: e => new Identity<Validation<L, B>>(Validation<L, B>.Fail(e)));
+                Succ: x => new Identity<Validation<Fail, B>>(f(x.Value)),
+                Fail: e => new Identity<Validation<Fail, B>>(Validation<Fail, B>.Fail(e)));
         
-        public static Identity<Validation<MonoidL, L, B>> Traverse<MonoidL, L, A, B>(this Validation<MonoidL, L, Identity<A>> ma, Func<A, B> f) 
-            where MonoidL : struct, Monoid<L>, Eq<L> =>
+        public static Identity<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Identity<A>> ma, Func<A, B> f) 
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
             ma.Match(
-                Succ: x => new Identity<Validation<MonoidL, L, B>>(f(x.Value)),
-                Fail: e => new Identity<Validation<MonoidL, L, B>>(Validation<MonoidL, L, B>.Fail(e)));
+                Succ: x => new Identity<Validation<MonoidFail, Fail, B>>(f(x.Value)),
+                Fail: e => new Identity<Validation<MonoidFail, Fail, B>>(Validation<MonoidFail, Fail, B>.Fail(e)));
     }
 }

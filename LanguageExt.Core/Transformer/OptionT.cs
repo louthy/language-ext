@@ -193,7 +193,7 @@ namespace LanguageExt
             }
         }
         
-        public static Option<Validation<L, B>> Traverse<L, A, B>(this Validation<L, Option<A>> ma, Func<A, B> f)
+        public static Option<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Option<A>> ma, Func<A, B> f)
         {
             if (ma.IsFail || ma.SuccessValue.IsNone)
             {
@@ -201,13 +201,13 @@ namespace LanguageExt
             }
             else
             {
-                return Some(Validation<L, B>.Success(f(ma.SuccessValue.Value)));
+                return Some(Validation<Fail, B>.Success(f(ma.SuccessValue.Value)));
             }
         }
 
-        public static Option<Validation<MonoidL, L, B>> Traverse<MonoidL, L, A, B>(
-            this Validation<MonoidL, L, Option<A>> ma, Func<A, B> f)
-            where MonoidL : struct, Monoid<L>, Eq<L>
+        public static Option<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(
+            this Validation<MonoidFail, Fail, Option<A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail || ma.SuccessValue.IsNone)
             {
@@ -215,7 +215,7 @@ namespace LanguageExt
             }
             else
             {
-                return Some(Validation<MonoidL, L, B>.Success(f(ma.SuccessValue.Value)));
+                return Some(Validation<MonoidFail, Fail, B>.Success(f(ma.SuccessValue.Value)));
             }
         }
     }
