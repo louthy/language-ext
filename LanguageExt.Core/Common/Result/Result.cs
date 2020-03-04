@@ -42,7 +42,7 @@ namespace LanguageExt.Common
 
         internal readonly ResultState State;
         internal readonly A Value;
-        Exception exception;
+        readonly Exception exception;
 
         internal Exception Exception => exception ?? BottomException.Default;
 
