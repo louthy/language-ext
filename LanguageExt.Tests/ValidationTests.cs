@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Linq;
 using LanguageExt;
+using LanguageExt.Common;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using Xunit;
 
 namespace LanguageExt.Tests
 {
-    public class Error : NewType<Error, string>
-    {
-        public Error(string e) : base(e) { }
-    }
-
     public class ValidationTests
     {
         public Func<string, string> ToUpper => x => x.ToUpper();
@@ -160,8 +156,8 @@ namespace LanguageExt.Tests
                 Fail: errors =>
                 {
                     Assert.True(errors.Count == 2);
-                    Assert.True(errors.Head.Value == "only numbers are allowed");
-                    Assert.True(errors.Tail.Head.Value == "can not exceed 16 characters");
+                    Assert.True(errors.Head.Message == "only numbers are allowed");
+                    Assert.True(errors.Tail.Head.Message == "can not exceed 16 characters");
                 });
         }
 
@@ -176,9 +172,9 @@ namespace LanguageExt.Tests
                 Fail: errors =>
                 {
                     Assert.True(errors.Count == 3);
-                    Assert.True(errors.Head.Value == "only numbers are allowed");
-                    Assert.True(errors.Tail.Head.Value == "can not exceed 16 characters");
-                    Assert.True(errors.Tail.Tail.Head.Value == "card has expired");
+                    Assert.True(errors.Head.Message == "only numbers are allowed");
+                    Assert.True(errors.Tail.Head.Message == "can not exceed 16 characters");
+                    Assert.True(errors.Tail.Tail.Head.Message == "card has expired");
                 });
         }
 

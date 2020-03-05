@@ -6,7 +6,7 @@ using LanguageExt.Common;
 using Xunit;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.Either
+namespace LanguageExt.Tests.Transformer.Traverse.Either.Collections
 {
     public class IEnumerableEither
     {

@@ -3,7 +3,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Common
 {
-    public struct Error
+    public struct Error : IEquatable<Error>
     {
         public readonly static Error Bottom = new Error(666, "Bottom", None);
 
@@ -56,14 +56,31 @@ namespace LanguageExt.Common
                     : new Exception(Message);
 
         public override string ToString() =>
-            code == 0 
-                ? message
-                : $"{code}: {message}";
+            message;
 
         public static implicit operator Error(Exception e) =>
             New(e);
 
         public static implicit operator Exception(Error e) =>
             e.ToException();
+
+        public static bool operator ==(Error x, Error y) =>
+            x.Equals(y);
+
+        public static bool operator !=(Error x, Error y) =>
+            !(x == y);
+        
+        public bool Equals(Error other) => 
+            message == other.message;
+
+        public override bool Equals(object obj) => obj is Error other && Equals(other);
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (code * 397) ^ (message != null ? message.GetHashCode() : 0);
+            }
+        }
     }
 }

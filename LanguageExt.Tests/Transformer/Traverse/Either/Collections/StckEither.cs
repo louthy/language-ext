@@ -3,7 +3,7 @@ using LanguageExt.Common;
 using Xunit;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.Either
+namespace LanguageExt.Tests.Transformer.Traverse.Either.Collections
 {
     public class StckEither
     {
@@ -21,14 +21,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.Either
         public void StckRightsIsRightStcks()
         {
             var ma = Stack(Right<Error, int>(1), Right<Error, int>(2), Right<Error, int>(3));
-
             var mb = ma.Traverse(Prelude.identity);
-
             var mc = Right(Stack(1, 2, 3));
-            
-            var txta = ma.ToString();
-            var txtb = mb.ToString();
-            var txtc = mc.ToString();
             
             var mr = mb == mc;
             
