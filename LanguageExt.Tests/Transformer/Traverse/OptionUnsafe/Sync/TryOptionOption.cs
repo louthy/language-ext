@@ -39,9 +39,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionUnsafe.Sync
             var mb = ma.Sequence();
             var mc = SomeUnsafe(TryOption(1234));
 
-            var mr = (from tb in mb
-                from tc in mc
-                select tb.Try().Equals(tc.Try())).IfNoneUnsafe(false);
+            var mr = mb == mc;
             
             Assert.True(mr);
         }

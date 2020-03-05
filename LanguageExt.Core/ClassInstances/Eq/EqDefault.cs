@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System;
 using System.Diagnostics.Contracts;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace LanguageExt.ClassInstances
@@ -22,7 +23,11 @@ namespace LanguageExt.ClassInstances
         {
             if (Reflect.IsFunc(typeof(A)))
             {
-                eq = (a, b) => ReferenceEquals(a, b);
+                eq = GetEq<A>("Try", typeof(EqTry<>)) ?? 
+                     GetEq<A>("TryOption", typeof(EqTryOption<>)) ??
+                     GetEq<A>("TryAsync", typeof(EqTryAsync<>)) ??
+                     GetEq<A>("TryOptionAsync", typeof(EqTryOptionAsync<>)) ??
+                     new Func<A, A, bool>((a, b) => ReferenceEquals(a, b));
             }
             else if (Reflect.IsAnonymous(typeof(A)))
             {
@@ -65,5 +70,25 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(A x) =>
             default(HashableDefault<A>).GetHashCode(x);
+        
+        static Func<A, A, bool> GetEq<A>(string name, Type eqType)
+        {
+            if (typeof(A).FullName.StartsWith($"LanguageExt.{name}`"))
+            {
+                var genA = typeof(A).GenericTypeArguments[0];
+                var tryA = eqType.MakeGenericType(genA);
+                var eq = tryA.GetMethod("Equals", new Type[] {typeof(A), typeof(A)});
+            
+                var lhs = Expression.Parameter(typeof(A), "lhs");
+                var rhs = Expression.Parameter(typeof(A), "rhs");
+
+                var lambda = Expression.Lambda<Func<A, A, bool>>(Expression.Call(Expression.Default(tryA), eq, lhs, rhs), lhs, rhs);
+                return lambda.Compile();
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

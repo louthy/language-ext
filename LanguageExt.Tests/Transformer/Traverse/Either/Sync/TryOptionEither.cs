@@ -27,7 +27,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Either.Sync
             var mb = ma.Sequence();
             var mc = Left<Exception, TryOption<int>>(new Exception("fail"));
 
-            var mr = mb.LeftToSeq().Head().Message == mc.LeftToSeq().Head().Message;
+            var mr = mb == mc;
             
             Assert.True(mr);
         }
@@ -72,9 +72,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Either.Sync
             var mb = ma.Sequence();
             var mc = Right<Error, TryOption<int>>(TryOption(1234));
 
-            var mr = (from tb in mb
-                      from tc in mc
-                      select tb.Try().Equals(tc.Try())).IfLeft(false);
+            var mr = mb == mc;
             
             Assert.True(mr);
         }
@@ -86,9 +84,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Either.Sync
             var mb = ma.Sequence();
             var mc = Right<Error, TryOption<int>>(TryOption<int>(None));
 
-            var mr = (from tb in mb
-                      from tc in mc
-                      select tb.Try().Equals(tc.Try())).IfLeft(false);
+            var mr = mb == mc;
             
             Assert.True(mr);
         }

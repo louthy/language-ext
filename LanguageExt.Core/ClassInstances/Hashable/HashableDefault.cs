@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System;
 using System.Diagnostics.Contracts;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace LanguageExt.ClassInstances
@@ -19,7 +20,11 @@ namespace LanguageExt.ClassInstances
         {
             if (Reflect.IsFunc(typeof(A)))
             {
-                hash = x => x.IsNull() ? 0 : x.GetHashCode();
+                hash = GetHashable<A>("Try", typeof(HashableTry<>)) ?? 
+                       GetHashable<A>("TryOption", typeof(HashableTryOption<>)) ??
+                       GetHashable<A>("TryAsync", typeof(HashableTryAsync<>)) ??
+                       GetHashable<A>("TryOptionAsync", typeof(HashableTryOptionAsync<>)) ??
+                       new Func<A, int>(x => x.IsNull() ? 0 : x.GetHashCode());
             }
             else if (Reflect.IsAnonymous(typeof(A)))
             {
@@ -47,5 +52,24 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(A x) =>
             hash(x);
+        
+        static Func<A, int> GetHashable<A>(string name, Type ordType)
+        {
+            if (typeof(A).FullName.StartsWith($"LanguageExt.{name}`"))
+            {
+                var arg = typeof(A).GenericTypeArguments[0];
+                var genA = ordType.MakeGenericType(arg);
+                var mthd = genA.GetMethod("GetHashCode", new Type[] {typeof(A)});
+            
+                var val = Expression.Parameter(typeof(A), "x");
+
+                var lambda = Expression.Lambda<Func<A, int>>(Expression.Call(Expression.Default(genA), mthd, val), val);
+                return lambda.Compile();
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

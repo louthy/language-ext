@@ -39,9 +39,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Option.Sync
             var mb = ma.Sequence();
             var mc = Some(TryOption(1234));
 
-            var mr = (from tb in mb
-                from tc in mc
-                select tb.Try().Equals(tc.Try())).IfNone(false);
+            var mr = mb == mc;
             
             Assert.True(mr);
         }

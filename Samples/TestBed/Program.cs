@@ -20,6 +20,7 @@ using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using TestBed;
 
 public static class Global
@@ -120,6 +121,12 @@ class Program
         //                                                                                                    //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        var tryX = default(EqDefault<Try<int>>).Equals(Try(1), Try(1)); 
+        var tryY = default(EqDefault<Try<int>>).Equals(Try(1), Try(2)); 
+
+        var tryHashX = default(HashableDefault<Try<int>>).GetHashCode(Try(1)); 
+        var tryHashY = default(HashableDefault<Try<int>>).GetHashCode(Try(2)); 
+ 
         var before = Left<string, Task<int>>("Failed");
         var after = await before.Sequence();
         
@@ -292,6 +299,26 @@ class Program
 
 
         Console.WriteLine("Coming soon");
+    }
+
+    private static Func<A, A, bool> GetEq<A>()
+    {
+        if (typeof(A).FullName.StartsWith("LanguageExt.Try`"))
+        {
+            var genA = typeof(A).GenericTypeArguments[0];
+            var tryA = typeof(EqTry<>).MakeGenericType(genA);
+            var eq = tryA.GetMethod("Equals", new Type[] {typeof(A), typeof(A)});
+            
+            var lhs = Expression.Parameter(typeof(A), "lhs");
+            var rhs = Expression.Parameter(typeof(A), "rhs");
+
+            var lambda = Expression.Lambda<Func<A, A, bool>>(Expression.Call(Expression.Default(tryA), eq, lhs, rhs), lhs, rhs);
+            return lambda.Compile();
+        }
+        else
+        {
+            throw new InvalidOperationException();
+        }
     }
 
     static void Issue634()

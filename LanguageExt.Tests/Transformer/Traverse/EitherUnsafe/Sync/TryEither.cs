@@ -27,7 +27,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.EitherUnsafe.Sync
             var mb = ma.Sequence();
             var mc = LeftUnsafe<Exception, Try<int>>(new Exception("fail"));
 
-            var mr = mb.LeftToSeq().Head().Message == mc.LeftToSeq().Head().Message;
+            var mr = mb == mc;
             
             Assert.True(mr);
         }
@@ -72,9 +72,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.EitherUnsafe.Sync
             var mb = ma.Sequence();
             var mc = RightUnsafe<Error, Try<int>>(Try(1234));
 
-            var mr = (from tb in mb
-                      from tc in mc
-                      select tb.Try().Equals(tc.Try())).IfLeftUnsafe(false);
+            var mr = mb == mc;
             
             Assert.True(mr);
         }
