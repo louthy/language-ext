@@ -31,7 +31,7 @@ namespace LanguageExt
             SequenceFast(ma).Map(toHashSet);
 
         public static Writer<MonoidW, W, Stck<A>> Sequence<MonoidW, W, A>(this Stck<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma).Map(toStack);
+            SequenceFast(ma.Reverse()).Map(toStack);
 
         public static Writer<MonoidW, W, IEnumerable<A>> Sequence<MonoidW, W, A>(this IEnumerable<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
             SequenceFast(ma).Map(Enumerable.AsEnumerable);
@@ -56,7 +56,7 @@ namespace LanguageExt
             TraverseFast(ma, f).Map(toHashSet);
 
         public static Writer<MonoidW, W, Stck<B>> Traverse<MonoidW, W, A, B>(this Stck<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
-            TraverseFast(ma, f).Map(toStack);
+            TraverseFast(ma.Reverse(), f).Map(toStack);
 
         public static Writer<MonoidW, W, IEnumerable<B>> Traverse<MonoidW, W, A, B>(this IEnumerable<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
             TraverseFast(ma, f).Map(Enumerable.AsEnumerable);

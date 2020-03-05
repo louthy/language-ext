@@ -181,13 +181,13 @@ namespace LanguageExt
         public static Try<Stck<B>> Traverse<A, B>(this Stck<Try<A>> ma, Func<A, B> f) => () =>
         {
             var res = new B[ma.Count];
-            var ix = 0;
+            var ix = ma.Count - 1;
             foreach (var xs in ma)
             {
                 var x = xs();
                 if (x.IsFaulted) return new Result<Stck<B>>(x.Exception);
                 res[ix] = f(x.Value);
-                ix++;
+                ix--;
             }
 
             return new Result<Stck<B>>(new Stck<B>(res));

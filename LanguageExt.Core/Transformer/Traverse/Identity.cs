@@ -117,11 +117,11 @@ namespace LanguageExt
         public static Identity<Stck<B>> Traverse<L, A, B>(this Stck<Identity<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
-            var ix = 0;
+            var ix = ma.Count - 1;
             foreach (var xs in ma)
             {
                 res[ix] = f(xs.Value);
-                ix++;
+                ix--;
             }
             return new Identity<Stck<B>>(new Stck<B>(res));            
         }

@@ -115,11 +115,11 @@ namespace LanguageExt
         public static Arr<Stck<B>> Traverse<A, B>(this Stck<Arr<A>> ma, Func<A, B> f)
         {
             var res = new Stck<B>[ma.Count];
-            var ix = 0;
+            var ix = ma.Count - 1;
             foreach (var arr in ma)
             {
                 res[ix] = toStack(arr.AsEnumerable().Map(f));
-                ix++;
+                ix--;
             }
             return new Arr<Stck<B>>(res);
         }

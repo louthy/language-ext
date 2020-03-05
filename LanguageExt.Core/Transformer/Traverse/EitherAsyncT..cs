@@ -183,7 +183,7 @@ namespace LanguageExt
             return new EitherAsync<L, Stck<B>>(Go(ma, f));
             async Task<EitherData<L, Stck<B>>> Go(Stck<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data));
+                var rb = await Task.WhenAll(ma.Reverse().Map(a => a.Map(f).Data));
                 return rb.Exists(d => d.State == EitherStatus.IsLeft)
                     ? rb.Filter(d => d.State == EitherStatus.IsLeft).Map(d => EitherData.Left<L,Stck<B>>(d.Left)).Head()
                     : EitherData.Right<L, Stck<B>>(new Stck<B>(rb.Map(d => d.Right)));

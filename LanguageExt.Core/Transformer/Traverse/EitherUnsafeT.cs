@@ -236,7 +236,7 @@ namespace LanguageExt
         public static EitherUnsafe<L, Stck<B>> Traverse<L, A, B>(this Stck<EitherUnsafe<L, A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
-            var ix = 0;
+            var ix = ma.Count - 1;
             foreach (var x in ma)
             {
                 if (x.IsLeft)
@@ -246,7 +246,7 @@ namespace LanguageExt
                 else
                 {
                     res[ix] = f((A)x);                    
-                    ix++;
+                    ix--;
                 }
             }
             return new Stck<B>(res);

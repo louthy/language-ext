@@ -184,7 +184,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<OptionalResult<Stck<B>>> Go(Stck<TryOptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try()));
+                var rb = await Task.WhenAll(ma.Reverse().Map(a => a.Map(f).Try()));
                 return rb.Exists(d => d.IsFaulted) ? rb.Filter(b => b.IsFaulted).Map(b => new OptionalResult<Stck<B>>(b.Exception)).Head()
                     : rb.Exists(d => d.IsNone) ? OptionalResult<Stck<B>>.None
                     : new OptionalResult<Stck<B>>(new Stck<B>(rb.Map(d => d.Value.Value)));

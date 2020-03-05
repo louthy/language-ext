@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
 using System.Diagnostics.Contracts;
+using LanguageExt.ClassInstances;
 
 public static class SetExtensions
 {
@@ -809,7 +810,7 @@ public static class SetExtensions
     /// </summary>
     [Pure]
     public static bool SequenceEqual<TSource>(this Set<TSource> first, IEnumerable<TSource> second) =>
-        Enumerable.SequenceEqual(first.AsEnumerable(), second);
+        default(EqEnumerable<TSource>).Equals(first.AsEnumerable(), second);
 
     /// <summary>
     /// Determines whether two sequences are equal by comparing their elements by using a specified IEqualityComparer<T>.

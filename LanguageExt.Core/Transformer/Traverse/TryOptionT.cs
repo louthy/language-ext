@@ -199,7 +199,7 @@ namespace LanguageExt
         public static TryOption<Stck<B>> Traverse<A, B>(this Stck<TryOption<A>> ma, Func<A, B> f) => () =>
         {
             var res = new B[ma.Count];
-            var ix = 0;
+            var ix = ma.Count - 1;
             foreach (var xs in ma)
             {
                 var x = xs();
@@ -207,7 +207,7 @@ namespace LanguageExt
                 if (x.IsFaulted) return new OptionalResult<Stck<B>>(x.Exception);
                 if (x.IsNone) return OptionalResult<Stck<B>>.None;
                 res[ix] = f(x.Value.Value);
-                ix++;
+                ix--;
             }
 
             return new OptionalResult<Stck<B>>(new Stck<B>(res));

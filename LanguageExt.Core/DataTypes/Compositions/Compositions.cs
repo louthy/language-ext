@@ -102,7 +102,7 @@ namespace LanguageExt
         /// Equality operator
         /// </summary>
         public bool Equals(Compositions<A> b) =>
-            Enumerable.SequenceEqual(this, b);
+            default(EqEnumerable<A>).Equals(this, b);
 
         /// <summary>
         /// Equality operator

@@ -305,7 +305,7 @@ namespace LanguageExt
         {
             var res = new B[ma.Count];
             var errs = new List<Fail>();
-            var ix = 0;
+            var ix = ma.Count - 1;
             foreach (var x in ma)
             {
                 if (x.IsFail)
@@ -315,7 +315,7 @@ namespace LanguageExt
                 else
                 {
                     res[ix] = f((A)x);                    
-                    ix++;
+                    ix--;
                 }
             }
 

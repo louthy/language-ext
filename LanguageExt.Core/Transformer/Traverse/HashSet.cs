@@ -117,11 +117,11 @@ namespace LanguageExt
         public static HashSet<Stck<B>> Traverse<A, B>(this Stck<HashSet<A>> ma, Func<A, B> f)
         {
             var res = new Stck<B>[ma.Count];
-            var ix = 0;
+            var ix = ma.Count - 1;
             foreach (var xs in ma)
             {
                 res[ix] = toStack(xs.AsEnumerable().Map(f));
-                ix++;
+                ix--;
             }
             return toHashSet<Stck<B>>(res);
         }

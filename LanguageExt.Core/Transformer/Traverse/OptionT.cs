@@ -155,12 +155,12 @@ namespace LanguageExt
         public static Option<Stck<B>> Traverse<A, B>(this Stck<Option<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
-            var ix = 0;
+            var ix = ma.Count - 1;
             foreach (var xs in ma)
             {
                 if (xs.IsNone) return None;
                 res[ix] = f(xs.Value);
-                ix++;
+                ix--;
             }
             return Option<Stck<B>>.Some(new Stck<B>(res));                
         }

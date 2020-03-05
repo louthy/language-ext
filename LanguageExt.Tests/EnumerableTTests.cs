@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Linq;
 using LanguageExt;
+using LanguageExt.ClassInstances;
 //using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using Xunit;
@@ -48,7 +49,7 @@ namespace LanguageExt.Tests
 
             var toString = fun((IEnumerable items) => string.Join(", ", items));
 
-            Assert.True(Enumerable.SequenceEqual(actual, expected), $"Expected {toString(expected)} but was {toString(actual)}");
+            Assert.True(default(EqEnumerable<int>).Equals(actual, expected), $"Expected {toString(expected)} but was {toString(actual)}");
         }
 
         //[Fact]

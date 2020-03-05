@@ -180,7 +180,7 @@ namespace LanguageExt
             return new OptionAsync<Stck<B>>(Go(ma, f));
             async Task<(bool, Stck<B>)> Go(Stck<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data));
+                var rb = await Task.WhenAll(ma.Reverse().Map(a => a.Map(f).Data));
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, new Stck<B>(rb.Map(d => d.Value)));

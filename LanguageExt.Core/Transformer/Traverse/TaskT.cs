@@ -112,7 +112,7 @@ namespace LanguageExt
 
         public static async Task<Stck<B>> Traverse<A, B>(this Stck<Task<A>> ma, Func<A, B> f)
         {
-            var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
+            var rb = await Task.WhenAll(ma.Reverse().Map(async a => f(await a)));
             return new Stck<B>(rb);
         }
 

@@ -1876,7 +1876,7 @@ public static class ListExtensions
     /// </summary>
     [Pure]
     public static bool SequenceEqual<TSource>(this Lst<TSource> first, IEnumerable<TSource> second) =>
-        Enumerable.SequenceEqual(first.Value, second);
+        default(EqEnumerable<TSource>).Equals(first.Value, second);
 
     /// <summary>
     /// Determines whether two sequences are equal by comparing their elements by using a specified IEqualityComparer<T>.

@@ -47,7 +47,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public bool Equals(Seq<A> x, Seq<A> y) =>
-            Enumerable.SequenceEqual(x, y);
+            default(EqEnumerable<A>).Equals(x, y);
 
         [Pure]
         public Seq<A> Fail(object err = null) =>

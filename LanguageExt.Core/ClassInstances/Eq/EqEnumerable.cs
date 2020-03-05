@@ -26,15 +26,19 @@ namespace LanguageExt.ClassInstances
             if (x == null) return y == null;
             if (y == null) return false;
 
-            var enumx = x.GetEnumerator();
-            var enumy = y.GetEnumerator();
-            while(true)
+            using (var enumx = x.GetEnumerator())
             {
-                bool a = enumx.MoveNext();
-                bool b = enumy.MoveNext();
-                if (a != b) return false;
-                if (!a && !b) return true;
-                if (!default(EQ).Equals(enumx.Current, enumy.Current)) return false;
+                using (var enumy = y.GetEnumerator())
+                {
+                    while (true)
+                    {
+                        bool a = enumx.MoveNext();
+                        bool b = enumy.MoveNext();
+                        if (a != b) return false;
+                        if (!a && !b) return true;
+                        if (!default(EQ).Equals(enumx.Current, enumy.Current)) return false;
+                    }
+                }
             }
         }
 

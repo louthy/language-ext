@@ -117,11 +117,11 @@ namespace LanguageExt
         public static Stck<Stck<B>> Traverse<A, B>(this Stck<Stck<A>> ma, Func<A, B> f)
         {
             var res = new Stck<B>[ma.Count];
-            var ix = 0;
+            var ix = ma.Count - 1;
             foreach (var xs in ma)
             {
-                res[ix] = toStack(xs.AsEnumerable().Map(f));
-                ix++;
+                res[ix] = toStack(xs.Reverse().AsEnumerable().Map(f));
+                ix--;
             }
             return toStack<Stck<B>>(res);
         }

@@ -77,7 +77,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public bool Equals(IEnumerable<A> x, IEnumerable<A> y) =>
-            Enumerable.SequenceEqual(x, y);
+            default(EqEnumerable<A>).Equals(x, y);
 
         [Pure]
         public int Compare(IEnumerable<A> x, IEnumerable<A> y)

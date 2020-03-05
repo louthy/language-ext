@@ -785,7 +785,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Obsolete(ISeqObsolete.Message)]
         public bool Equals(ISeq<A> rhs) =>
-            Enumerable.SequenceEqual(this, rhs);
+            default(EqEnumerable<A>).Equals(this, rhs);
 
         /// <summary>
         /// Equality test
