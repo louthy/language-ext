@@ -66,12 +66,10 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryAsync<A> Fail(object err = null) =>
-            err switch
-            {
-                Exception e => TryAsync<A>(e),
-                Common.Error e => TryAsync<A>(e.ToException()),
-                _ => TryAsync<A>(BottomException.Default)
-            };
+            Common.Error
+                  .Convert<Exception>(err)
+                  .Map(f => TryAsync<A>(f))
+                  .IfNone(TryAsync<A>(BottomException.Default));            
 
         [Pure]
         public TryAsync<A> Plus(TryAsync<A> ma, TryAsync<A> mb) => async () =>

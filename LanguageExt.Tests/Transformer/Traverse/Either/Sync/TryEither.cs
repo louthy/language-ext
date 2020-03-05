@@ -32,11 +32,22 @@ namespace LanguageExt.Tests.Transformer.Traverse.Either.Sync
             Assert.True(mr);
         }
         
-        
         [Fact]
-        public void WithUnknownLeft_FailIsLeft()
+        public void WithStringLeft_FailIsLeft()
         {
             var ma = Try<Either<string, int>>(new Exception("fail"));
+            var mb = ma.Sequence();
+            var mc = Left<string, Try<int>>("fail");
+            
+            var mr = mb == mc;
+            
+            Assert.True(mr);
+        }        
+        
+        [Fact]
+        public void WithUnknownLeft_ResultIsBottom()
+        {
+            var ma = Try<Either<bool, int>>(new Exception("fail"));
             var mb = ma.Sequence();
 
             Assert.True(mb.IsBottom);

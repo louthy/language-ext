@@ -82,5 +82,19 @@ namespace LanguageExt.Common
                 return (code * 397) ^ (message != null ? message.GetHashCode() : 0);
             }
         }
+        
+        internal static Option<FAIL> Convert<FAIL>(object err) => err switch
+        {
+            // Messy, but we're doing our best to recover an error rather than return Bottom
+                
+            FAIL fail                                                   => fail,
+            Exception e     when typeof(FAIL) == typeof(Common.Error)   => (FAIL)(object)Common.Error.New(e),
+            Exception e     when typeof(FAIL) == typeof(string)         => (FAIL)(object)e.Message,
+            Common.Error e  when typeof(FAIL) == typeof(Exception)      => (FAIL)(object)e.ToException(),
+            Common.Error e  when typeof(FAIL) == typeof(string)         => (FAIL)(object)e.ToString(),
+            string e        when typeof(FAIL) == typeof(Exception)      => (FAIL)(object)new Exception(e),
+            string e        when typeof(FAIL) == typeof(Common.Error)   => (FAIL)(object)Common.Error.New(e),
+            _ => None
+        };            
     }
 }

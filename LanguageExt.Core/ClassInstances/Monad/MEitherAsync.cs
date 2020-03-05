@@ -107,15 +107,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public EitherAsync<L, R> Fail(object err = null) =>
-            err switch
-            {
-                // Messy, but we're doing our best to recover an error rather than return Bottom
-                
-                L left => EitherAsync<L, R>.Left(left),
-                Exception e when typeof(L) == typeof(Common.Error) => EitherAsync<L, R>.Left((L)(object)Common.Error.New(e)),
-                Common.Error e when typeof(L) == typeof(Exception) => EitherAsync<L, R>.Left((L)(object)e.ToException()),
-                _ => EitherAsync<L, R>.Bottom
-            };
+            Common.Error
+                  .Convert<L>(err)
+                  .Map(EitherAsync<L, R>.Left)
+                  .IfNone(EitherAsync<L, R>.Bottom);                
+
 
         [Pure]
         public Func<Unit, Task<S>> Fold<S>(EitherAsync<L, R> fa, S state, Func<S, R, S> f) => _ =>

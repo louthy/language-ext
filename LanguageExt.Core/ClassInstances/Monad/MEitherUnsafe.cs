@@ -30,15 +30,10 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public EitherUnsafe<L, R> Fail(object err = null) =>
-            err switch
-            {
-                // Messy, but we're doing our best to recover an error rather than return Bottom
-                
-                L left => EitherUnsafe<L, R>.Left(left),
-                Exception e when typeof(L) == typeof(Common.Error) => EitherUnsafe<L, R>.Left((L)(object)Common.Error.New(e)),
-                Common.Error e when typeof(L) == typeof(Exception) => EitherUnsafe<L, R>.Left((L)(object)e.ToException()),
-                _ => EitherUnsafe<L, R>.Bottom
-            };
+            Common.Error
+                  .Convert<L>(err)
+                  .Map(EitherUnsafe<L, R>.Left)
+                  .IfNone(EitherUnsafe<L, R>.Bottom);                
         
         [Pure]
         public EitherUnsafe<L, R> Plus(EitherUnsafe<L, R> ma, EitherUnsafe<L, R> mb) =>

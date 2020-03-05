@@ -43,12 +43,10 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Task<A> Fail(object err = null) =>
-            err switch
-            {
-                Exception e => Task.FromException<A>(e),
-                Common.Error e => Task.FromException<A>(e.ToException()),
-                _ => None
-            }; 
+            Common.Error
+                  .Convert<Exception>(err)
+                  .Map(f => Task.FromException<A>(f))
+                  .IfNone(None);            
 
         /// <summary>
         /// The `Plus` function will allow `ma` and `mb` to run in parallel and 
