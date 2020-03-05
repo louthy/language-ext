@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 
 namespace LanguageExt
@@ -650,6 +651,14 @@ namespace LanguageExt
             Value.AsEnumerable();
 
         #endregion
+        
+        /// <summary>
+        /// Implicit conversion from an untyped empty list
+        /// </summary>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator HashMap<EqK, K, V>(SeqEmpty _) =>
+            Empty;
 
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values

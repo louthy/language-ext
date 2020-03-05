@@ -10,6 +10,10 @@ namespace LanguageExt
 {
     public static partial class EitherT
     {
+        //
+        // Collections
+        //
+        
         public static Either<L, Arr<B>> Traverse<L, A, B>(this Arr<Either<L, A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
@@ -28,47 +32,7 @@ namespace LanguageExt
             }
             return new Arr<B>(res);
         }
-        
-        public static Either<L, Either<L, B>> Traverse<L, A, B>(this Either<L, Either<L, A>> ma, Func<A, B> f)
-        {
-            if (ma.IsLeft)
-            {
-                return Either<L, Either<L, B>>.Left((L)ma);
-            }
-            else
-            {
-                var mb = (Either<L, A>)ma;
-                if (mb.IsLeft)
-                {
-                    return Either<L, Either<L, B>>.Left((L)mb);
-                }
-                else
-                {
-                    return Either<L, Either<L, B>>.Right(f((A)mb));
-                }
-            }
-        }
-        
-        public static Either<L, EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Either<L, A>> ma, Func<A, B> f)
-        {
-            if (ma.IsLeft)
-            {
-                return Either<L, EitherUnsafe<L, B>>.Left((L)ma);
-            }
-            else
-            {
-                var mb = (Either<L, A>)ma;
-                if (mb.IsLeft)
-                {
-                    return Either<L, EitherUnsafe<L, B>>.Left((L)mb);
-                }
-                else
-                {
-                    return Either<L, EitherUnsafe<L, B>>.Right(f((A)mb));
-                }
-            }
-        }
-        
+                
         public static Either<L, HashSet<B>> Traverse<L, A, B>(this HashSet<Either<L, A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
@@ -86,18 +50,6 @@ namespace LanguageExt
                 }
             }
             return new HashSet<B>(res);
-        }
-                
-        public static Either<L, Identity<B>> Traverse<L, A, B>(this Identity<Either<L, A>> ma, Func<A, B> f)
-        {
-            if (ma.Value.IsLeft)
-            {
-                return Either<L, Identity<B>>.Left((L)ma.Value);
-            }
-            else
-            {
-                return Either<L, Identity<B>>.Right(new Identity<B>(f((A)ma.Value)));
-            }
         }
         
         public static Either<L, Lst<B>> Traverse<L, A, B>(this Lst<Either<L, A>> ma, Func<A, B> f)
@@ -118,46 +70,6 @@ namespace LanguageExt
             }
             return new Lst<B>(res);
         }
-        
-        public static Either<L, Option<B>> Traverse<L, A, B>(this Option<Either<L, A>> ma, Func<A, B> f)
-        {
-            if (ma.IsNone)
-            {
-                return Either<L, Option<B>>.Right(Option<B>.None);
-            }
-            else
-            {
-                var mb = (Either<L, A>)ma;
-                if (mb.IsLeft)
-                {
-                    return Either<L, Option<B>>.Left((L)mb);
-                }
-                else
-                {
-                    return Either<L, Option<B>>.Right(f((A)mb));
-                }
-            }
-        }        
-        
-        public static Either<L, OptionUnsafe<B>> Traverse<L, A, B>(this OptionUnsafe<Either<L, A>> ma, Func<A, B> f)
-        {
-            if (ma.IsNone)
-            {
-                return Either<L, OptionUnsafe<B>>.Right(OptionUnsafe<B>.None);
-            }
-            else
-            {
-                var mb = (Either<L, A>)ma;
-                if (mb.IsLeft)
-                {
-                    return Either<L, OptionUnsafe<B>>.Left((L)mb);
-                }
-                else
-                {
-                    return Either<L, OptionUnsafe<B>>.Right(f((A)mb));
-                }
-            }
-        }        
         
         public static Either<L, Que<B>> Traverse<L, A, B>(this Que<Either<L, A>> ma, Func<A, B> f)
         {
@@ -252,6 +164,104 @@ namespace LanguageExt
             return new Stck<B>(res);
         }
         
+        
+        //
+        // Sync types
+        //
+        
+        
+        public static Either<L, Either<L, B>> Traverse<L, A, B>(this Either<L, Either<L, A>> ma, Func<A, B> f)
+        {
+            if (ma.IsLeft)
+            {
+                return Either<L, Either<L, B>>.Left((L)ma);
+            }
+            else
+            {
+                var mb = (Either<L, A>)ma;
+                if (mb.IsLeft)
+                {
+                    return Either<L, Either<L, B>>.Left((L)mb);
+                }
+                else
+                {
+                    return Either<L, Either<L, B>>.Right(f((A)mb));
+                }
+            }
+        }
+        
+        public static Either<L, EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Either<L, A>> ma, Func<A, B> f)
+        {
+            if (ma.IsLeft)
+            {
+                return Either<L, EitherUnsafe<L, B>>.Left((L)ma);
+            }
+            else
+            {
+                var mb = (Either<L, A>)ma;
+                if (mb.IsLeft)
+                {
+                    return Either<L, EitherUnsafe<L, B>>.Left((L)mb);
+                }
+                else
+                {
+                    return Either<L, EitherUnsafe<L, B>>.Right(f((A)mb));
+                }
+            }
+        }
+                
+        public static Either<L, Identity<B>> Traverse<L, A, B>(this Identity<Either<L, A>> ma, Func<A, B> f)
+        {
+            if (ma.Value.IsLeft)
+            {
+                return Either<L, Identity<B>>.Left((L)ma.Value);
+            }
+            else
+            {
+                return Either<L, Identity<B>>.Right(new Identity<B>(f((A)ma.Value)));
+            }
+        }
+        
+        public static Either<L, Option<B>> Traverse<L, A, B>(this Option<Either<L, A>> ma, Func<A, B> f)
+        {
+            if (ma.IsNone)
+            {
+                return Either<L, Option<B>>.Right(Option<B>.None);
+            }
+            else
+            {
+                var mb = (Either<L, A>)ma;
+                if (mb.IsLeft)
+                {
+                    return Either<L, Option<B>>.Left((L)mb);
+                }
+                else
+                {
+                    return Either<L, Option<B>>.Right(f((A)mb));
+                }
+            }
+        }        
+        
+        public static Either<L, OptionUnsafe<B>> Traverse<L, A, B>(this OptionUnsafe<Either<L, A>> ma, Func<A, B> f)
+        {
+            if (ma.IsNone)
+            {
+                return Either<L, OptionUnsafe<B>>.Right(OptionUnsafe<B>.None);
+            }
+            else
+            {
+                var mb = (Either<L, A>)ma;
+                if (mb.IsLeft)
+                {
+                    return Either<L, OptionUnsafe<B>>.Left((L)mb);
+                }
+                else
+                {
+                    return Either<L, OptionUnsafe<B>>.Right(f((A)mb));
+                }
+            }
+        }        
+
         public static Either<L, Try<B>> Traverse<L, A, B>(this Try<Either<L, A>> ma, Func<A, B> f)
         {
             var tres = ma.Try();

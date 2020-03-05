@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 
@@ -234,6 +235,14 @@ namespace LanguageExt
         [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
+        
+        /// <summary>
+        /// Implicit conversion from an untyped empty list
+        /// </summary>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator Stck<A>(SeqEmpty _) =>
+            Empty;        
 
         /// <summary>
         /// Append another stack to the top of this stack
