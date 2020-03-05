@@ -64,7 +64,7 @@ namespace LanguageExt
             }
         };
 
-        public static Try<HashSet<B>> Traverse<L, A, B>(this HashSet<Try<A>> ma, Func<A, B> f) => () =>
+        public static Try<HashSet<B>> Traverse<A, B>(this HashSet<Try<A>> ma, Func<A, B> f) => () =>
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -79,7 +79,7 @@ namespace LanguageExt
             return new Result<HashSet<B>>(new HashSet<B>(res));
         };
 
-        public static Try<Identity<B>> Traverse<L, A, B>(this Identity<Try<A>> ma, Func<A, B> f) => () =>
+        public static Try<Identity<B>> Traverse<A, B>(this Identity<Try<A>> ma, Func<A, B> f) => () =>
         {
             var mr = ma.Value();
             if (mr.IsBottom) return new Result<Identity<B>>(BottomException.Default);
@@ -87,7 +87,7 @@ namespace LanguageExt
             return new Result<Identity<B>>(new Identity<B>(f(mr.Value)));
         };
 
-        public static Try<Lst<B>> Traverse<L, A, B>(this Lst<Try<A>> ma, Func<A, B> f) => () =>
+        public static Try<Lst<B>> Traverse<A, B>(this Lst<Try<A>> ma, Func<A, B> f) => () =>
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -120,7 +120,7 @@ namespace LanguageExt
             return new Result<OptionUnsafe<B>>(OptionUnsafe<B>.Some(f(mr.Value)));
         };
 
-        public static Try<Que<B>> Traverse<L, A, B>(this Que<Try<A>> ma, Func<A, B> f) => () =>
+        public static Try<Que<B>> Traverse<A, B>(this Que<Try<A>> ma, Func<A, B> f) => () =>
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -135,7 +135,7 @@ namespace LanguageExt
             return new Result<Que<B>>(new Que<B>(res));
         };
 
-        public static Try<Seq<B>> Traverse<L, A, B>(this Seq<Try<A>> ma, Func<A, B> f) => () =>
+        public static Try<Seq<B>> Traverse<A, B>(this Seq<Try<A>> ma, Func<A, B> f) => () =>
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -150,7 +150,7 @@ namespace LanguageExt
             return new Result<Seq<B>>(Seq.FromArray(res));
         };
 
-        public static Try<IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<Try<A>> ma, Func<A, B> f) => () =>
+        public static Try<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Try<A>> ma, Func<A, B> f) => () =>
         {
             var res = new List<B>();
             foreach (var xs in ma)
@@ -163,7 +163,7 @@ namespace LanguageExt
             return new Result<IEnumerable<B>>(res);
         };
 
-        public static Try<Set<B>> Traverse<L, A, B>(this Set<Try<A>> ma, Func<A, B> f) => () =>
+        public static Try<Set<B>> Traverse<A, B>(this Set<Try<A>> ma, Func<A, B> f) => () =>
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -178,7 +178,7 @@ namespace LanguageExt
             return new Result<Set<B>>(new Set<B>(res));
         };
 
-        public static Try<Stck<B>> Traverse<L, A, B>(this Stck<Try<A>> ma, Func<A, B> f) => () =>
+        public static Try<Stck<B>> Traverse<A, B>(this Stck<Try<A>> ma, Func<A, B> f) => () =>
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -193,7 +193,7 @@ namespace LanguageExt
             return new Result<Stck<B>>(new Stck<B>(res));
         };
         
-        public static Try<Try<B>> Traverse<L, A, B>(this Try<Try<A>> ma, Func<A, B> f) => () =>
+        public static Try<Try<B>> Traverse<A, B>(this Try<Try<A>> ma, Func<A, B> f) => () =>
         {
             var mb = ma();
             if (mb.IsBottom) return default;
@@ -203,7 +203,7 @@ namespace LanguageExt
             return new Result<Try<B>>(Try<B>(f(mr.Value)));
         };
         
-        public static Try<TryOption<B>> Traverse<L, A, B>(this TryOption<Try<A>> ma, Func<A, B> f) => () =>
+        public static Try<TryOption<B>> Traverse<A, B>(this TryOption<Try<A>> ma, Func<A, B> f) => () =>
         {
             var mb = ma();
             if (mb.IsBottom) return default;

@@ -76,6 +76,19 @@ namespace LanguageExt
                     : EitherData.Right<L, IEnumerable<B>>(rb.Map(d => d.Right));
             }
         }
+        
+        [Obsolete("use TraverseSerial or TraverseParallel instead")]
+        public static EitherAsync<L, IEnumerable<A>> Sequence<L, A>(this IEnumerable<EitherAsync<L, A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+ 
+        public static EitherAsync<L, IEnumerable<A>> SequenceSerial<L, A>(this IEnumerable<EitherAsync<L, A>> ma) =>
+            TraverseSerial(ma, Prelude.identity);
+ 
+        public static EitherAsync<L, IEnumerable<A>> SequenceParallel<L, A>(this IEnumerable<EitherAsync<L, A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+
+        public static EitherAsync<L, IEnumerable<A>> SequenceParallel<L, A>(this IEnumerable<EitherAsync<L, A>> ma, int windowSize) =>
+            TraverseParallel(ma, windowSize, Prelude.identity); 
 
         public static EitherAsync<L, Lst<B>> Traverse<L, A, B>(this Lst<EitherAsync<L, A>> ma, Func<A, B> f)
         {
@@ -139,6 +152,19 @@ namespace LanguageExt
                      : EitherData.Right<L, Seq<B>>(Seq.FromArray(rb.Map(d => d.Right).ToArray()));
             }
         }
+
+        [Obsolete("use TraverseSerial or TraverseParallel instead")]
+        public static EitherAsync<L, Seq<A>> Sequence<L, A>(this Seq<EitherAsync<L, A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+ 
+        public static EitherAsync<L, Seq<A>> SequenceSerial<L, A>(this Seq<EitherAsync<L, A>> ma) =>
+            TraverseSerial(ma, Prelude.identity);
+ 
+        public static EitherAsync<L, Seq<A>> SequenceParallel<L, A>(this Seq<EitherAsync<L, A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+
+        public static EitherAsync<L, Seq<A>> SequenceParallel<L, A>(this Seq<EitherAsync<L, A>> ma, int windowSize) =>
+            TraverseParallel(ma, windowSize, Prelude.identity);        
 
         public static EitherAsync<L, Set<B>> Traverse<L, A, B>(this Set<EitherAsync<L, A>> ma, Func<A, B> f)
         {
@@ -370,6 +396,19 @@ namespace LanguageExt
             }
         }
         
+        public static EitherAsync<L, Validation<Fail, B>> Traverse<Fail, L, A, B>(this Validation<Fail, EitherAsync<L, A>> ma, Func<A, B> f)
+        {
+            return new EitherAsync<L, Validation<Fail, B>>(Go(ma, f));
+            async Task<EitherData<L, Validation<Fail, B>>> Go(Validation<Fail, EitherAsync<L, A>> ma, Func<A, B> f)
+            {
+                if(ma.IsFail) return await default(MEitherAsync<L, Validation<Fail, B>>).Fail(ma.FailValue.Head()).Data;
+                var da = await ma.SuccessValue.Data;
+                if(da.State == EitherStatus.IsBottom) return EitherData<L, Validation<Fail, B>>.Bottom;
+                if(da.State == EitherStatus.IsLeft) return EitherData.Left<L, Validation<Fail, B>>(da.Left);
+                return EitherData.Right<L, Validation<Fail, B>>(f(da.Right));
+            }
+        }
+        
         public static EitherAsync<Fail, Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, EitherAsync<Fail, A>> ma, Func<A, B> f)
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
@@ -381,6 +420,20 @@ namespace LanguageExt
                 if(da.State == EitherStatus.IsBottom) return EitherData<Fail, Validation<MonoidFail, Fail, B>>.Bottom;
                 if(da.State == EitherStatus.IsLeft) return EitherData.Left<Fail, Validation<MonoidFail, Fail, B>>(da.Left);
                 return EitherData.Right<Fail, Validation<MonoidFail, Fail, B>>(f(da.Right));
+            }
+        }
+        
+        public static EitherAsync<L, Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, L, A, B>(this Validation<MonoidFail, Fail, EitherAsync<L, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+        {
+            return new EitherAsync<L, Validation<MonoidFail, Fail, B>>(Go(ma, f));
+            async Task<EitherData<L, Validation<MonoidFail, Fail, B>>> Go(Validation<MonoidFail, Fail, EitherAsync<L, A>> ma, Func<A, B> f)
+            {
+                if(ma.IsFail) return await default(MEitherAsync<L, Validation<MonoidFail, Fail, B>>).Fail(ma.FailValue).Data;
+                var da = await ma.SuccessValue.Data;
+                if(da.State == EitherStatus.IsBottom) return EitherData<L, Validation<MonoidFail, Fail, B>>.Bottom;
+                if(da.State == EitherStatus.IsLeft) return EitherData.Left<L, Validation<MonoidFail, Fail, B>>(da.Left);
+                return EitherData.Right<L, Validation<MonoidFail, Fail, B>>(f(da.Right));
             }
         }
     }

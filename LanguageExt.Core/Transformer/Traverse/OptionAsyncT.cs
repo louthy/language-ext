@@ -59,18 +59,35 @@ namespace LanguageExt
                 return (true, rb);
             };
         }
-        
-        public static OptionAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<OptionAsync<A>> ma, Func<A, B> f)
+
+        public static OptionAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<OptionAsync<A>> ma, Func<A, B> f) =>
+            TraverseParallel(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+ 
+        public static OptionAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<OptionAsync<A>> ma, int windowSize, Func<A, B> f)
         {
             return new OptionAsync<IEnumerable<B>>(Go(ma, f));
             async Task<(bool, IEnumerable<B>)> Go(IEnumerable<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data));
+                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, Prelude.identity);
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, rb.Map(d => d.Value));
             }
         }
+        
+               
+        [Obsolete("use TraverseSerial or TraverseParallel instead")]
+        public static OptionAsync<IEnumerable<A>> Sequence<A>(this IEnumerable<OptionAsync<A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+ 
+        public static OptionAsync<IEnumerable<A>> SequenceSerial<A>(this IEnumerable<OptionAsync<A>> ma) =>
+            TraverseSerial(ma, Prelude.identity);
+ 
+        public static OptionAsync<IEnumerable<A>> SequenceParallel<A>(this IEnumerable<OptionAsync<A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+
+        public static OptionAsync<IEnumerable<A>> SequenceParallel<A>(this IEnumerable<OptionAsync<A>> ma, int windowSize) =>
+            TraverseParallel(ma, windowSize, Prelude.identity);        
 
         public static OptionAsync<Lst<B>> Traverse<A, B>(this Lst<OptionAsync<A>> ma, Func<A, B> f)
         {
@@ -118,18 +135,34 @@ namespace LanguageExt
             };
         }
 
-        public static OptionAsync<Seq<B>> TraverseParallel<A, B>(this Seq<OptionAsync<A>> ma, Func<A, B> f)
+        public static OptionAsync<Seq<B>> TraverseParallel<A, B>(this Seq<OptionAsync<A>> ma, Func<A, B> f) =>
+            TraverseParallel(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+ 
+        public static OptionAsync<Seq<B>> TraverseParallel<A, B>(this Seq<OptionAsync<A>> ma, int windowSize, Func<A, B> f)
         {
             return new OptionAsync<Seq<B>>(Go(ma, f));
             async Task<(bool, Seq<B>)> Go(Seq<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data));
+                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, Prelude.identity);
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, Seq.FromArray<B>(rb.Map(d => d.Value).ToArray()));
             }
         }
+               
+        [Obsolete("use TraverseSerial or TraverseParallel instead")]
+        public static OptionAsync<Seq<A>> Sequence<A>(this Seq<OptionAsync<A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+ 
+        public static OptionAsync<Seq<A>> SequenceSerial<A>(this Seq<OptionAsync<A>> ma) =>
+            TraverseSerial(ma, Prelude.identity);
+ 
+        public static OptionAsync<Seq<A>> SequenceParallel<A>(this Seq<OptionAsync<A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
 
+        public static OptionAsync<Seq<A>> SequenceParallel<A>(this Seq<OptionAsync<A>> ma, int windowSize) =>
+            TraverseParallel(ma, windowSize, Prelude.identity);        
+        
         public static OptionAsync<Set<B>> Traverse<A, B>(this Set<OptionAsync<A>> ma, Func<A, B> f)
         {
             return new OptionAsync<Set<B>>(Go(ma, f));

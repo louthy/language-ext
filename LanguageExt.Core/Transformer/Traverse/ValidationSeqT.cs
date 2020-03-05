@@ -53,6 +53,26 @@ namespace LanguageExt
             }
         }
         
+        public static Validation<Fail, Either<L, B>> Traverse<L, Fail, A, B>(this Either<L, Validation<Fail, A>> ma, Func<A, B> f)
+        {
+            if (ma.IsLeft)
+            {
+                return default(MValidation<Fail, Either<L, B>>).Fail(ma.LeftValue);
+            }
+            else
+            {
+                var mb = (Validation<Fail, A>)ma;
+                if (mb.IsFail)
+                {
+                    return Validation<Fail, Either<L, B>>.Fail((Seq<Fail>)mb);
+                }
+                else
+                {
+                    return Validation<Fail, Either<L, B>>.Success(f((A)mb));
+                }
+            }
+        }
+        
         public static Validation<Fail, EitherUnsafe<Fail, B>> Traverse<Fail, A, B>(this EitherUnsafe<Fail, Validation<Fail, A>> ma, Func<A, B> f)
         {
             if (ma.IsLeft)
@@ -69,6 +89,26 @@ namespace LanguageExt
                 else
                 {
                     return Validation<Fail, EitherUnsafe<Fail, B>>.Success(f((A)mb));
+                }
+            }
+        }
+        
+        public static Validation<Fail, EitherUnsafe<L, B>> Traverse<L, Fail, A, B>(this EitherUnsafe<L, Validation<Fail, A>> ma, Func<A, B> f)
+        {
+            if (ma.IsLeft)
+            {
+                return default(MValidation<Fail, EitherUnsafe<L, B>>).Fail(ma.LeftValue);
+            }
+            else
+            {
+                var mb = (Validation<Fail, A>)ma;
+                if (mb.IsFail)
+                {
+                    return Validation<Fail, EitherUnsafe<L, B>>.Fail((Seq<Fail>)mb);
+                }
+                else
+                {
+                    return Validation<Fail, EitherUnsafe<L, B>>.Success(f((A)mb));
                 }
             }
         }

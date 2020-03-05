@@ -63,18 +63,34 @@ namespace LanguageExt
                 return new Result<IEnumerable<B>>(rb);
             };
         }
-        
-        public static TryAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<TryAsync<A>> ma, Func<A, B> f)
+
+        public static TryAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<TryAsync<A>> ma, Func<A, B> f) =>
+            TraverseParallel(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+ 
+        public static TryAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<TryAsync<A>> ma, int windowSize, Func<A, B> f)
         {
             return ToTry(() => Go(ma, f));
             async Task<Result<IEnumerable<B>>> Go(IEnumerable<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try()));
+                var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<IEnumerable<B>>(b.Exception)).Head()
                     : new Result<IEnumerable<B>>(rb.Map(d => d.Value).ToArray());
             }
         }
+                
+        [Obsolete("use TraverseSerial or TraverseParallel instead")]
+        public static TryAsync<IEnumerable<A>> Sequence<A>(this IEnumerable<TryAsync<A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+        
+        public static TryAsync<IEnumerable<A>> SequenceSerial<A>(this IEnumerable<TryAsync<A>> ma) =>
+            TraverseSerial(ma, Prelude.identity);
+ 
+        public static TryAsync<IEnumerable<A>> SequenceParallel<A>(this IEnumerable<TryAsync<A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+
+        public static TryAsync<IEnumerable<A>> SequenceParallel<A>(this IEnumerable<TryAsync<A>> ma, int windowSize) =>
+            TraverseParallel(ma, windowSize, Prelude.identity);        
 
         public static TryAsync<Lst<B>> Traverse<A, B>(this Lst<TryAsync<A>> ma, Func<A, B> f)
         {
@@ -119,18 +135,34 @@ namespace LanguageExt
                 return new Result<Seq<B>>(Seq.FromArray(rb.ToArray()));
             };
         }
-        
-        public static TryAsync<Seq<B>> TraverseParallel<A, B>(this Seq<TryAsync<A>> ma, Func<A, B> f)
+
+        public static TryAsync<Seq<B>> TraverseParallel<A, B>(this Seq<TryAsync<A>> ma, Func<A, B> f) =>
+            TraverseParallel(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+ 
+        public static TryAsync<Seq<B>> TraverseParallel<A, B>(this Seq<TryAsync<A>> ma, int windowSize, Func<A, B> f)
         {
             return ToTry(() => Go(ma, f));
             async Task<Result<Seq<B>>> Go(Seq<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try()));
+                var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<Seq<B>>(b.Exception)).Head()
                     : new Result<Seq<B>>(Seq.FromArray(rb.Map(d => d.Value).ToArray()));
             }
         }
+        
+        [Obsolete("use TraverseSerial or TraverseParallel instead")]
+        public static TryAsync<Seq<A>> Sequence<A>(this Seq<TryAsync<A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+
+        public static TryAsync<Seq<A>> SequenceSerial<A>(this Seq<TryAsync<A>> ma) =>
+            TraverseSerial(ma, Prelude.identity);
+ 
+        public static TryAsync<Seq<A>> SequenceParallel<A>(this Seq<TryAsync<A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+
+        public static TryAsync<Seq<A>> SequenceParallel<A>(this Seq<TryAsync<A>> ma, int windowSize) =>
+            TraverseParallel(ma, windowSize, Prelude.identity);        
 
         public static TryAsync<Set<B>> Traverse<A, B>(this Set<TryAsync<A>> ma, Func<A, B> f)
         {

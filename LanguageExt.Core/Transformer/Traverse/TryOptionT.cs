@@ -67,7 +67,7 @@ namespace LanguageExt
             }
         };
 
-        public static TryOption<HashSet<B>> Traverse<L, A, B>(this HashSet<TryOption<A>> ma, Func<A, B> f) => () =>
+        public static TryOption<HashSet<B>> Traverse<A, B>(this HashSet<TryOption<A>> ma, Func<A, B> f) => () =>
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -84,7 +84,7 @@ namespace LanguageExt
             return new OptionalResult<HashSet<B>>(new HashSet<B>(res));
         };
 
-        public static TryOption<Identity<B>> Traverse<L, A, B>(this Identity<TryOption<A>> ma, Func<A, B> f) => () =>
+        public static TryOption<Identity<B>> Traverse<A, B>(this Identity<TryOption<A>> ma, Func<A, B> f) => () =>
         {
             var mr = ma.Value();
             if (mr.IsBottom) return new OptionalResult<Identity<B>>(BottomException.Default);
@@ -93,7 +93,7 @@ namespace LanguageExt
             return new OptionalResult<Identity<B>>(new Identity<B>(f(mr.Value.Value)));
         };
 
-        public static TryOption<Lst<B>> Traverse<L, A, B>(this Lst<TryOption<A>> ma, Func<A, B> f) => () =>
+        public static TryOption<Lst<B>> Traverse<A, B>(this Lst<TryOption<A>> ma, Func<A, B> f) => () =>
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -130,7 +130,7 @@ namespace LanguageExt
             return new OptionalResult<OptionUnsafe<B>>(OptionUnsafe<B>.Some(f(mr.Value.Value)));
         };
 
-        public static TryOption<Que<B>> Traverse<L, A, B>(this Que<TryOption<A>> ma, Func<A, B> f) => () =>
+        public static TryOption<Que<B>> Traverse<A, B>(this Que<TryOption<A>> ma, Func<A, B> f) => () =>
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -147,7 +147,7 @@ namespace LanguageExt
             return new OptionalResult<Que<B>>(new Que<B>(res));
         };
 
-        public static TryOption<Seq<B>> Traverse<L, A, B>(this Seq<TryOption<A>> ma, Func<A, B> f) => () =>
+        public static TryOption<Seq<B>> Traverse<A, B>(this Seq<TryOption<A>> ma, Func<A, B> f) => () =>
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -164,7 +164,7 @@ namespace LanguageExt
             return new OptionalResult<Seq<B>>(Seq.FromArray(res));
         };
 
-        public static TryOption<IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<TryOption<A>> ma, Func<A, B> f) => () =>
+        public static TryOption<IEnumerable<B>> Traverse<A, B>(this IEnumerable<TryOption<A>> ma, Func<A, B> f) => () =>
         {
             var res = new List<B>();
             foreach (var xs in ma)
@@ -179,7 +179,7 @@ namespace LanguageExt
             return new OptionalResult<IEnumerable<B>>(res);
         };
 
-        public static TryOption<Set<B>> Traverse<L, A, B>(this Set<TryOption<A>> ma, Func<A, B> f) => () =>
+        public static TryOption<Set<B>> Traverse<A, B>(this Set<TryOption<A>> ma, Func<A, B> f) => () =>
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -196,7 +196,7 @@ namespace LanguageExt
             return new OptionalResult<Set<B>>(new Set<B>(res));
         };
 
-        public static TryOption<Stck<B>> Traverse<L, A, B>(this Stck<TryOption<A>> ma, Func<A, B> f) => () =>
+        public static TryOption<Stck<B>> Traverse<A, B>(this Stck<TryOption<A>> ma, Func<A, B> f) => () =>
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -213,7 +213,7 @@ namespace LanguageExt
             return new OptionalResult<Stck<B>>(new Stck<B>(res));
         };
         
-        public static TryOption<Try<B>> Traverse<L, A, B>(this Try<TryOption<A>> ma, Func<A, B> f) => () =>
+        public static TryOption<Try<B>> Traverse<A, B>(this Try<TryOption<A>> ma, Func<A, B> f) => () =>
         {
             var mb = ma();
             if (mb.IsBottom) return default;
@@ -225,7 +225,7 @@ namespace LanguageExt
             return new OptionalResult<Try<B>>(Try<B>(f(mr.Value.Value)));
         };
         
-        public static TryOption<TryOption<B>> Traverse<L, A, B>(this TryOption<TryOption<A>> ma, Func<A, B> f) => () =>
+        public static TryOption<TryOption<B>> Traverse<A, B>(this TryOption<TryOption<A>> ma, Func<A, B> f) => () =>
         {
             var mb = ma();
             if (mb.IsBottom) return default;

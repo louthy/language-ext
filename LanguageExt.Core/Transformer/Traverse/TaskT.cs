@@ -27,9 +27,9 @@ namespace LanguageExt
         }
         
         [Obsolete("use TraverseSerial or TraverseParallel instead")]
-        public static Task<IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f) =>
+        public static Task<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f) =>
             TraverseParallel(ma, f);
-        
+
         public static async Task<IEnumerable<B>> TraverseSerial<A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f)
         {
             var rb = new List<B>();
@@ -45,7 +45,20 @@ namespace LanguageExt
 
         public static Task<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f) =>
             ma.WindowMap(f).Map(xs => (IEnumerable<B>)xs);
-        
+                      
+        [Obsolete("use TraverseSerial or TraverseParallel instead")]
+        public static Task<IEnumerable<A>> Sequence<A>(this IEnumerable<Task<A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+ 
+        public static Task<IEnumerable<A>> SequenceSerial<A>(this IEnumerable<Task<A>> ma) =>
+            TraverseSerial(ma, Prelude.identity);
+ 
+        public static Task<IEnumerable<A>> SequenceParallel<A>(this IEnumerable<Task<A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+
+        public static Task<IEnumerable<A>> SequenceParallel<A>(this IEnumerable<Task<A>> ma, int windowSize) =>
+            TraverseParallel(ma, windowSize, Prelude.identity);
+ 
         public static async Task<Lst<B>> Traverse<A, B>(this Lst<Task<A>> ma, Func<A, B> f)
         {
             var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
@@ -59,7 +72,7 @@ namespace LanguageExt
         }
 
         [Obsolete("use TraverseSerial or TraverseParallel instead")]
-        public static Task<Seq<B>> Traverse<L, A, B>(this Seq<Task<A>> ma, Func<A, B> f) =>
+        public static Task<Seq<B>> Traverse<A, B>(this Seq<Task<A>> ma, Func<A, B> f) =>
             TraverseParallel(ma, f);
  
         public static async Task<Seq<B>> TraverseSerial<A, B>(this Seq<Task<A>> ma, Func<A, B> f)
@@ -77,6 +90,19 @@ namespace LanguageExt
 
         public static Task<Seq<B>> TraverseParallel<A, B>(this Seq<Task<A>> ma, Func<A, B> f) =>
             ma.WindowMap(f).Map(xs => Seq(xs));
+        
+        [Obsolete("use TraverseSerial or TraverseParallel instead")]
+        public static Task<Seq<A>> Sequence<A>(this Seq<Task<A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+ 
+        public static Task<Seq<A>> SequenceSerial<A>(this Seq<Task<A>> ma) =>
+            TraverseSerial(ma, Prelude.identity);
+ 
+        public static Task<Seq<A>> SequenceParallel<A>(this Seq<Task<A>> ma) =>
+            TraverseParallel(ma, Prelude.identity);
+
+        public static Task<Seq<A>> SequenceParallel<A>(this Seq<Task<A>> ma, int windowSize) =>
+            TraverseParallel(ma, windowSize, Prelude.identity);
 
         public static async Task<Set<B>> Traverse<A, B>(this Set<Task<A>> ma, Func<A, B> f)
         {

@@ -47,7 +47,7 @@ namespace LanguageExt
             }
         }
 
-        public static Option<HashSet<B>> Traverse<L, A, B>(this HashSet<Option<A>> ma, Func<A, B> f)
+        public static Option<HashSet<B>> Traverse<A, B>(this HashSet<Option<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -60,12 +60,12 @@ namespace LanguageExt
             return Option<HashSet<B>>.Some(new HashSet<B>(res));            
         }
 
-        public static Option<Identity<B>> Traverse<L, A, B>(this Identity<Option<A>> ma, Func<A, B> f) =>
+        public static Option<Identity<B>> Traverse<A, B>(this Identity<Option<A>> ma, Func<A, B> f) =>
             ma.Value.IsSome
                 ? Option<Identity<B>>.Some(new Identity<B>(f(ma.Value.Value)))
                 : Option<Identity<B>>.None;
         
-        public static Option<Lst<B>> Traverse<L, A, B>(this Lst<Option<A>> ma, Func<A, B> f)
+        public static Option<Lst<B>> Traverse<A, B>(this Lst<Option<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -102,7 +102,7 @@ namespace LanguageExt
             }
         }
         
-        public static Option<Que<B>> Traverse<L, A, B>(this Que<Option<A>> ma, Func<A, B> f)
+        public static Option<Que<B>> Traverse<A, B>(this Que<Option<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -115,7 +115,7 @@ namespace LanguageExt
             return Option<Que<B>>.Some(new Que<B>(res));                
         }
         
-        public static Option<Seq<B>> Traverse<L, A, B>(this Seq<Option<A>> ma, Func<A, B> f)
+        public static Option<Seq<B>> Traverse<A, B>(this Seq<Option<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -128,7 +128,7 @@ namespace LanguageExt
             return Option<Seq<B>>.Some(new Seq<B>(res));                
         }
                 
-        public static Option<IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<Option<A>> ma, Func<A, B> f)
+        public static Option<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Option<A>> ma, Func<A, B> f)
         {
             var res = new List<B>();
             foreach (var xs in ma)
@@ -139,7 +139,7 @@ namespace LanguageExt
             return Option<IEnumerable<B>>.Some(Seq.FromArray<B>(res.ToArray()));                
         }
         
-        public static Option<Set<B>> Traverse<L, A, B>(this Set<Option<A>> ma, Func<A, B> f)
+        public static Option<Set<B>> Traverse<A, B>(this Set<Option<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -152,7 +152,7 @@ namespace LanguageExt
             return Option<Set<B>>.Some(new Set<B>(res));                
         }
         
-        public static Option<Stck<B>> Traverse<L, A, B>(this Stck<Option<A>> ma, Func<A, B> f)
+        public static Option<Stck<B>> Traverse<A, B>(this Stck<Option<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -165,7 +165,7 @@ namespace LanguageExt
             return Option<Stck<B>>.Some(new Stck<B>(res));                
         }
         
-        public static Option<Try<B>> Traverse<L, A, B>(this Try<Option<A>> ma, Func<A, B> f)
+        public static Option<Try<B>> Traverse<A, B>(this Try<Option<A>> ma, Func<A, B> f)
         {
             var tres = ma.Try();
             
@@ -179,7 +179,7 @@ namespace LanguageExt
             }
         }
         
-        public static Option<TryOption<B>> Traverse<L, A, B>(this TryOption<Option<A>> ma, Func<A, B> f)
+        public static Option<TryOption<B>> Traverse<A, B>(this TryOption<Option<A>> ma, Func<A, B> f)
         {
             var tres = ma.Try();
             

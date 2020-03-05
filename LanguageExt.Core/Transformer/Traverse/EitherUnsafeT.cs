@@ -344,5 +344,50 @@ namespace LanguageExt
                 }
             }
         }
+        
+        public static EitherUnsafe<L, Validation<Fail, B>> Traverse<Fail, L, A, B>(this Validation<Fail, EitherUnsafe<L, A>> ma, Func<A, B> f)
+        {
+            if (ma.IsFail && ma.FailValue.IsEmpty)
+            {
+                return EitherUnsafe<L, Validation<Fail, B>>.Bottom;
+            }
+            if (ma.IsFail)
+            {
+                return default(MEitherUnsafe<L, Validation<Fail, B>>).Fail(ma.FailValue.Head());
+            }
+            else
+            {
+                var mb = ma.SuccessValue;
+                if (mb.IsLeft)
+                {
+                    return EitherUnsafe<L, Validation<Fail, B>>.Left((L)mb);
+                }
+                else
+                {
+                    return EitherUnsafe<L, Validation<Fail, B>>.Right(f((A)mb));
+                }
+            }
+        }
+        
+        public static EitherUnsafe<L, Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, L, A, B>(this Validation<MonoidFail, Fail, EitherUnsafe<L, A>> ma, Func<A, B> f) 
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+        {
+            if (ma.IsFail)
+            {
+                return default(MEitherUnsafe<L, Validation<MonoidFail, Fail, B>>).Fail(ma.FailValue);
+            }
+            else
+            {
+                var mb = ma.SuccessValue;
+                if (mb.IsLeft)
+                {
+                    return EitherUnsafe<L, Validation<MonoidFail, Fail, B>>.Left((L)mb);
+                }
+                else
+                {
+                    return EitherUnsafe<L, Validation<MonoidFail, Fail, B>>.Right(f((A)mb));
+                }
+            }
+        }
     }
 }
