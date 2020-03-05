@@ -39,7 +39,7 @@ namespace LanguageExt
         /// </summary>
         public Stck(IEnumerable<A> initial)
         {
-            value = new StckInternal<A>(initial);
+            value = initial.Any() ? new StckInternal<A>(initial) : StckInternal<A>.Empty;
             this.hashCode = 0;
         }
 
