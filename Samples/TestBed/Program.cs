@@ -120,6 +120,17 @@ class Program
         //                                                                                                    //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        var before = Left<string, Task<int>>("Failed");
+        var after = await before.Sequence();
+        
+        Either<string, Seq<int>> xxr1 = Prelude.Seq(1,2,3);
+        Seq<Either<string, int>> xxr2 = xxr1.Sequence();
+        Either<string, Seq<int>> xxr3 = xxr2.Sequence();
+        
+        Either<string, Seq<int>> xxl1 = "left";
+        Seq<Either<string, int>> xxl2 = xxl1.Sequence(); // []
+        Either<string, Seq<int>> xxl3 = xxl2.Sequence(); // Bottom         
+        
         var tries = from ixx in Range(0, 1_000_000) select Try(() => ixx);
         var _ = tries.Sequence().Map(Enumerable.Sum).IfFailThrow();
         
