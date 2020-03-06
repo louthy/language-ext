@@ -2,6 +2,7 @@
 using LanguageExt;
 using System.Linq;
 using System.Collections.Generic;
+using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -35,7 +36,7 @@ namespace LanguageExt
             }
             else if (ma.IsLeft)
             {
-                return new OptionalResult<Either<L, B>>(Either<L, B>.Left(ma.LeftValue));
+                return default(MTryOption<Either<L, B>>).Fail(ma.LeftValue).Try();
             }
             else
             {
@@ -55,7 +56,7 @@ namespace LanguageExt
             }
             else if (ma.IsLeft)
             {
-                return new OptionalResult<EitherUnsafe<L, B>>(EitherUnsafe<L, B>.Left(ma.LeftValue));
+                return default(MTryOption<EitherUnsafe<L, B>>).Fail(ma.LeftValue).Try();
             }
             else
             {
@@ -215,11 +216,11 @@ namespace LanguageExt
         
         public static TryOption<Try<B>> Traverse<A, B>(this Try<TryOption<A>> ma, Func<A, B> f) => () =>
         {
-            var mb = ma();
-            if (mb.IsBottom) return default;
+            var mb = ma.Try();
+            if (mb.IsBottom) return OptionalResult<Try<B>>.None;
             if (mb.IsFaulted) return new OptionalResult<Try<B>>(mb.Exception);
-            var mr = mb.Value();
-            if (mr.IsBottom) return default;
+            var mr = mb.Value.Try();
+            if (mr.IsBottom) return  OptionalResult<Try<B>>.None;
             if (mr.IsFaulted) return new OptionalResult<Try<B>>(mr.Exception);
             if (mr.IsNone) return OptionalResult<Try<B>>.None;
             return new OptionalResult<Try<B>>(Try<B>(f(mr.Value.Value)));
@@ -227,12 +228,12 @@ namespace LanguageExt
         
         public static TryOption<TryOption<B>> Traverse<A, B>(this TryOption<TryOption<A>> ma, Func<A, B> f) => () =>
         {
-            var mb = ma();
-            if (mb.IsBottom) return default;
+            var mb = ma.Try();
+            if (mb.IsBottom) return OptionalResult<TryOption<B>>.None;
             if (mb.IsFaulted) return new OptionalResult<TryOption<B>>(mb.Exception);
             if (mb.Value.IsNone) return new OptionalResult<TryOption<B>>(TryOption<B>(Option<B>.None));
-            var mr = mb.Value.Value();
-            if (mr.IsBottom) return default;
+            var mr = mb.Value.Value.Try();
+            if (mr.IsBottom) return OptionalResult<TryOption<B>>.None;
             if (mr.IsFaulted) return new OptionalResult<TryOption<B>>(mr.Exception);
             if (mr.IsNone) return OptionalResult<TryOption<B>>.None;
             return new OptionalResult<TryOption<B>>(TryOption<B>(f(mr.Value.Value)));
@@ -240,7 +241,7 @@ namespace LanguageExt
         
         public static TryOption<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, TryOption<A>> ma, Func<A, B> f) => () =>
         {
-            if (ma.IsFail) return new OptionalResult<Validation<Fail, B>>(Validation<Fail, B>.Fail(ma.FailValue));
+            if (ma.IsFail) return default(MTryOption<Validation<Fail, B>>).Fail(ma.FailValue).Try();
             var mr = ma.SuccessValue();  
             if (mr.IsBottom) return new OptionalResult<Validation<Fail, B>>(BottomException.Default);
             if (mr.IsFaulted) return new OptionalResult<Validation<Fail, B>>(mr.Exception);
@@ -252,7 +253,7 @@ namespace LanguageExt
             this Validation<MonoidFail, Fail, TryOption<A>> ma, Func<A, B> f)
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail> => () =>
         {
-            if (ma.IsFail) return new OptionalResult<Validation<MonoidFail, Fail, B>>(Validation<MonoidFail, Fail, B>.Fail(ma.FailValue));
+            if (ma.IsFail) return default(MTryOption<Validation<MonoidFail, Fail, B>>).Fail(ma.FailValue).Try();
             var mr = ma.SuccessValue();  
             if (mr.IsBottom) return new OptionalResult<Validation<MonoidFail, Fail, B>>(BottomException.Default);
             if (mr.IsFaulted) return new OptionalResult<Validation<MonoidFail, Fail, B>>(mr.Exception);

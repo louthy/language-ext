@@ -6,14 +6,14 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.Option.Sync
 {
-    public class TryOption
+    public class TryOptionOption
     {
         [Fact]
         public void FailIsNone()
         {
-            var ma = Try<Option<int>>(new Exception("fail"));
+            var ma = TryOption<Option<int>>(new Exception("fail"));
             var mb = ma.Sequence();
-            var mc = Option<Try<int>>.None;
+            var mc = Option<TryOption<int>>.None;
 
             var mr = mb == mc;
             
@@ -23,9 +23,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.Option.Sync
         [Fact]
         public void SuccNoneIsNone()
         {
-            var ma = Try<Option<int>>(None);
+            var ma = TryOption<Option<int>>(None);
             var mb = ma.Sequence();
-            var mc = Option<Try<int>>.None;
+            var mc = Option<TryOption<int>>.None;
 
             var mr = mb == mc;
             
@@ -35,9 +35,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.Option.Sync
         [Fact]
         public void SuccSomeIsSomeSucc()
         {
-            var ma = Try(Some(1234));
+            var ma = TryOption<Option<int>>(Some(1234));
             var mb = ma.Sequence();
-            var mc = Some(Try(1234));
+            var mc = Some(TryOption(1234));
 
             var mr = mb == mc;
             

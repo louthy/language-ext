@@ -70,7 +70,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Either.Sync
         {
             var ma = Try<Either<Error, int>>(Right(1234));
             var mb = ma.Sequence();
-            var mc = Right<Error, Try<int>>(Try(1234));
+            var mc = Right<Error, Try<int>>(TrySucc(1234));
 
             var mr = mb == mc;
             

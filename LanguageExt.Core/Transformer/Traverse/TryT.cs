@@ -2,6 +2,7 @@
 using LanguageExt;
 using System.Linq;
 using System.Collections.Generic;
+using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -34,7 +35,7 @@ namespace LanguageExt
             }
             else if (ma.IsLeft)
             {
-                return new Result<Either<L, B>>(Either<L, B>.Left(ma.LeftValue));
+                return default(MTry<Either<L, B>>).Fail(ma.LeftValue).Try();
             }
             else
             {
@@ -53,7 +54,7 @@ namespace LanguageExt
             }
             else if (ma.IsLeft)
             {
-                return new Result<EitherUnsafe<L, B>>(EitherUnsafe<L, B>.Left(ma.LeftValue));
+                return default(MTry<EitherUnsafe<L, B>>).Fail(ma.LeftValue).Try();
             }
             else
             {
@@ -195,21 +196,23 @@ namespace LanguageExt
         
         public static Try<Try<B>> Traverse<A, B>(this Try<Try<A>> ma, Func<A, B> f) => () =>
         {
-            var mb = ma();
-            if (mb.IsBottom) return default;
-            var mr = mb.Value();
-            if (mr.IsBottom) return default;
+            var mb = ma.Try();
+            if (mb.IsBottom) return Result<Try<B>>.Bottom;
+            if (mb.IsFaulted) return new Result<Try<B>>(mb.Exception);
+            var mr = mb.Value.Try();
+            if (mr.IsBottom) return Result<Try<B>>.Bottom;
             if (mr.IsFaulted) return new Result<Try<B>>(mr.Exception);
             return new Result<Try<B>>(Try<B>(f(mr.Value)));
         };
         
         public static Try<TryOption<B>> Traverse<A, B>(this TryOption<Try<A>> ma, Func<A, B> f) => () =>
         {
-            var mb = ma();
-            if (mb.IsBottom) return default;
+            var mb = ma.Try();
+            if (mb.IsBottom) return Result<TryOption<B>>.Bottom;
+            if (mb.IsFaulted) return new Result<TryOption<B>>(mb.Exception);
             if (mb.Value.IsNone) return new Result<TryOption<B>>(TryOption<B>(Option<B>.None));
-            var mr = mb.Value.Value();
-            if (mr.IsBottom) return default;
+            var mr = mb.Value.Value.Try();
+            if (mr.IsBottom) return Result<TryOption<B>>.Bottom;
             if (mr.IsFaulted) return new Result<TryOption<B>>(mr.Exception);
             return new Result<TryOption<B>>(TryOption<B>(f(mr.Value)));
         };
@@ -218,7 +221,7 @@ namespace LanguageExt
         {
             if (ma.IsFail)
             {
-                return new Result<Validation<Fail, B>>(Validation<Fail, B>.Fail(ma.FailValue));
+                return default(MTry<Validation<Fail, B>>).Fail(ma.FailValue).Try();
             }
             else
             {
@@ -235,7 +238,7 @@ namespace LanguageExt
         {
             if (ma.IsFail)
             {
-                return new Result<Validation<MonoidFail, Fail, B>>(Validation<MonoidFail, Fail, B>.Fail(ma.FailValue));
+                return default(MTry<Validation<MonoidFail, Fail, B>>).Fail(ma.FailValue).Try();
             }
             else
             {

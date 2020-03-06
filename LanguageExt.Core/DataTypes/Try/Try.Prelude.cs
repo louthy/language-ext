@@ -36,8 +36,28 @@ namespace LanguageExt
         /// <param name="v">Bound value to return</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
+        public static Try<A> TrySucc<A>(A v) =>
+            () => v;
+
+        /// <summary>
+        /// Try identity constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
         public static Try<A> Try<A>(Exception ex) => () =>
             new Result<A>(ex);
+
+        /// <summary>
+        /// Try identity constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static Try<A> TryFail<A>(Exception ex) => () =>
+            new Result<A>(ex);        
 
         /// <summary>
         /// Returns the first successful computation 

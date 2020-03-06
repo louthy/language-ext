@@ -40,6 +40,16 @@ namespace LanguageExt
             new Result<A>(v).AsTask();
 
         /// <summary>
+        /// TryAsync identity constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryAsync<A> TryAsyncSucc<A>(A v) => () =>
+            new Result<A>(v).AsTask();
+
+        /// <summary>
         /// TryOptionAsync constructor function
         /// </summary>
         /// <typeparam name="A">Bound value type</typeparam>
@@ -47,6 +57,16 @@ namespace LanguageExt
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryAsync<A> TryAsync<A>(Exception ex) => () =>
+            new Result<A>(ex).AsTask();
+
+        /// <summary>
+        /// TryOptionAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryAsync<A> TryAsyncFail<A>(Exception ex) => () =>
             new Result<A>(ex).AsTask();
 
         /// <summary>

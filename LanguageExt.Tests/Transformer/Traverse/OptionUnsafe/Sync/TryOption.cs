@@ -6,14 +6,14 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.OptionUnsafe.Sync
 {
-    public class TryOptionUnsafe
+    public class TryOptionOptionUnsafe
     {
         [Fact]
         public void FailIsNone()
         {
-            var ma = Try<OptionUnsafe<int>>(new Exception("fail"));
+            var ma = TryOption<OptionUnsafe<int>>(new Exception("fail"));
             var mb = ma.Sequence();
-            var mc = OptionUnsafe<Try<int>>.None;
+            var mc = OptionUnsafe<TryOption<int>>.None;
 
             var mr = mb == mc;
             
@@ -23,9 +23,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionUnsafe.Sync
         [Fact]
         public void SuccNoneIsNone()
         {
-            var ma = Try<OptionUnsafe<int>>(None);
+            var ma = TryOption<OptionUnsafe<int>>(None);
             var mb = ma.Sequence();
-            var mc = OptionUnsafe<Try<int>>.None;
+            var mc = OptionUnsafe<TryOption<int>>.None;
 
             var mr = mb == mc;
             
@@ -35,9 +35,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionUnsafe.Sync
         [Fact]
         public void SuccSomeIsSomeSucc()
         {
-            var ma = Try(SomeUnsafe(1234));
+            var ma = TryOption<OptionUnsafe<int>>(SomeUnsafe(1234));
             var mb = ma.Sequence();
-            var mc = SomeUnsafe(Try(1234));
+            var mc = SomeUnsafe(TryOption(1234));
 
             var mr = mb == mc;
             

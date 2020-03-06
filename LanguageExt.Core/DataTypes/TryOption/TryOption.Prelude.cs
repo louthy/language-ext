@@ -33,6 +33,13 @@ namespace LanguageExt
         /// TryOption constructor
         /// </summary>
         [Pure]
+        public static TryOption<T> TryOptionSucc<T>(T value) => () => 
+            Optional(value);
+
+        /// <summary>
+        /// TryOption constructor
+        /// </summary>
+        [Pure]
         public static TryOption<T> TryOption<T>(Option<T> value) => () => 
             value;
 
@@ -40,7 +47,21 @@ namespace LanguageExt
         /// TryOption constructor
         /// </summary>
         [Pure]
+        public static TryOption<T> TryOptional<T>(Option<T> value) => () => 
+            value;
+
+        /// <summary>
+        /// TryOption constructor
+        /// </summary>
+        [Pure]
         public static TryOption<T> TryOption<T>(Exception ex) => () =>
+            new OptionalResult<T>(ex);
+
+        /// <summary>
+        /// TryOption constructor
+        /// </summary>
+        [Pure]
+        public static TryOption<T> TryOptionFail<T>(Exception ex) => () =>
             new OptionalResult<T>(ex);
 
         /// <summary>

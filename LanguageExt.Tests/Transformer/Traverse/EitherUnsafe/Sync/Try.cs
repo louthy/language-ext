@@ -70,7 +70,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.EitherUnsafe.Sync
         {
             var ma = Try<EitherUnsafe<Error, int>>(Right(1234));
             var mb = ma.Sequence();
-            var mc = RightUnsafe<Error, Try<int>>(Try(1234));
+            var mc = RightUnsafe<Error, Try<int>>(TrySucc(1234));
 
             var mr = mb == mc;
             
