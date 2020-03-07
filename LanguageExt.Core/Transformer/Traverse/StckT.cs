@@ -31,7 +31,7 @@ namespace LanguageExt
             toStack(ma.Value.Map(a => new Identity<B>(f(a))));
 
         public static Stck<Lst<B>> Traverse<A, B>(this Lst<Stck<A>> ma, Func<A, B> f) =>
-            toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+            toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToSystemArray(), f)
                 .Map(toList));
 
         public static Stck<Option<B>> Traverse<A, B>(this Option<Stck<A>> ma, Func<A, B> f) =>

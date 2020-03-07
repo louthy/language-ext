@@ -31,7 +31,7 @@ namespace LanguageExt
             toQueue(ma.Value.Map(a => new Identity<B>(f(a))));
 
         public static Que<Lst<B>> Traverse<A, B>(this Lst<Que<A>> ma, Func<A, B> f) =>
-            toQueue(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+            toQueue(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToSystemArray(), f)
                 .Map(toList));
 
         public static Que<Option<B>> Traverse<A, B>(this Option<Que<A>> ma, Func<A, B> f) =>

@@ -9,17 +9,9 @@ namespace LanguageExt
 {
     public static partial class IEnumerableT
     {
-        public static IEnumerable<Arr<B>> Traverse<A, B>(this Arr<IEnumerable<A>> ma, Func<A, B> f)
-        {
-            var res = new Arr<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = xs.Map(f).ToArray();
-                ix++;
-            }
-            return res;
-        }
+        public static IEnumerable<Arr<B>> Traverse<A, B>(this Arr<IEnumerable<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toArray);
 
         public static IEnumerable<Either<L, B>> Traverse<L, A, B>(this Either<L, IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
@@ -31,32 +23,16 @@ namespace LanguageExt
                 Left: e => new[] {LeftUnsafe<L, B>(e)},
                 Right: xs => xs.Map(x => RightUnsafe<L, B>(f(x))));
 
-        public static IEnumerable<HashSet<B>> Traverse<A, B>(this HashSet<IEnumerable<A>> ma, Func<A, B> f)
-        {
-            var res = new HashSet<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = toHashSet(xs.AsEnumerable().Map(f));
-                ix++;
-            }
-            return res;
-        }
+        public static IEnumerable<HashSet<B>> Traverse<A, B>(this HashSet<IEnumerable<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toHashSet);
 
         public static IEnumerable<Identity<B>> Traverse<A, B>(this Identity<IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Value.Map(a => new Identity<B>(f(a)));
 
-        public static IEnumerable<Lst<B>> Traverse<A, B>(this Lst<IEnumerable<A>> ma, Func<A, B> f)
-        {
-            var res = new Lst<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = toList(xs.AsEnumerable().Map(f));
-                ix++;
-            }
-            return res;
-        }
+        public static IEnumerable<Lst<B>> Traverse<A, B>(this Lst<IEnumerable<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToSystemArray(), f)
+                .Map(toList);
 
         public static IEnumerable<Option<B>> Traverse<A, B>(this Option<IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
@@ -68,84 +44,45 @@ namespace LanguageExt
                 None: () => new[] {OptionUnsafe<B>.None},
                 Some: xs => xs.Map(x => SomeUnsafe(f(x))));
 
-        public static IEnumerable<Que<B>> Traverse<A, B>(this Que<IEnumerable<A>> ma, Func<A, B> f)
-        {
-            var res = new Que<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = toQueue(xs.AsEnumerable().Map(f));
-                ix++;
-            }
-            return res;
-        }
+        public static IEnumerable<Que<B>> Traverse<A, B>(this Que<IEnumerable<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toQueue);
+        
+        public static IEnumerable<Seq<B>> Traverse<A, B>(this Seq<IEnumerable<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(xs => Seq(xs));
 
-        public static IEnumerable<Seq<B>> Traverse<A, B>(this Seq<IEnumerable<A>> ma, Func<A, B> f)
-        {
-            var res = new Seq<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = xs.Map(f).ToSeq();
-                ix++;
-            }
-            return res;
-        }
+        public static IEnumerable<IEnumerable<B>> Traverse<A, B>(this IEnumerable<IEnumerable<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f);
 
-        public static IEnumerable<IEnumerable<B>> Traverse<A, B>(this IEnumerable<IEnumerable<A>> ma, Func<A, B> f)
-        {
-            var res = new List<IEnumerable<B>>();
-            foreach (var xs in ma)
-            {
-                res.Add(xs.Map(f));
-            }
-            return res;
-        }
+        public static IEnumerable<Set<B>> Traverse<A, B>(this Set<IEnumerable<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toSet);
 
-        public static IEnumerable<Set<B>> Traverse<A, B>(this Set<IEnumerable<A>> ma, Func<A, B> f)
-        {
-            var res = new Set<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = toSet(xs.AsEnumerable().Map(f));
-                ix++;
-            }
-            return res;
-        }
-
-        public static IEnumerable<Stck<B>> Traverse<A, B>(this Stck<IEnumerable<A>> ma, Func<A, B> f)
-        {
-            var res = new Stck<B>[ma.Count];
-            var ix = ma.Count - 1;
-            foreach (var xs in ma)
-            {
-                res[ix] = toStack(xs.AsEnumerable().Map(f));
-                ix--;
-            }
-            return res;
-        }
+        public static IEnumerable<Stck<B>> Traverse<A, B>(this Stck<IEnumerable<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toStack);
 
         public static IEnumerable<Try<B>> Traverse<A, B>(this Try<IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Fail: ex => Seq<Try<B>>.Empty,
+                Fail: ex => new[] {TryFail<B>(ex)},
                 Succ: xs => xs.Map(x => Try<B>(f(x))));
 
         public static IEnumerable<TryOption<B>> Traverse<A, B>(this TryOption<IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Fail: ex => Seq<TryOption<B>>.Empty,
+                Fail: ex => new[] {TryOptionFail<B>(ex)},
                 None: () => Seq<TryOption<B>>.Empty,
                 Some: xs => xs.Map(x => TryOption<B>(f(x))));
 
         public static IEnumerable<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Fail: _ => Seq<Validation<Fail, B>>.Empty,
+                Fail: es => new[] {Validation<Fail, B>.Fail(es)},
                 Succ: xs => xs.Map(x => Success<Fail, B>(f(x))));
 
         public static IEnumerable<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, IEnumerable<A>> ma, Func<A, B> f) 
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
             ma.Match(
-                Fail: __ => Seq<Validation<MonoidFail, Fail, B>>.Empty,
+                Fail: es => new[] {Validation<MonoidFail, Fail, B>.Fail(es)},
                 Succ: xs => xs.Map(x => Success<MonoidFail, Fail, B>(f(x))));
     }
 }

@@ -31,7 +31,7 @@ namespace LanguageExt
             ma.Value.Map(a => new Identity<B>(f(a)));
 
         public static Set<Lst<B>> Traverse<A, B>(this Lst<Set<A>> ma, Func<A, B> f) =>
-            toSet(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+            toSet(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToSystemArray(), f)
                 .Map(toList));
 
         public static Set<Option<B>> Traverse<A, B>(this Option<Set<A>> ma, Func<A, B> f) =>

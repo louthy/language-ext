@@ -534,12 +534,12 @@ namespace LanguageExt
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Arr<A> ToArr() =>
+        public Arr<A> ToArray() =>
             toArray(this);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public A[] ToArray() =>
+        internal A[] ToSystemArray() =>
             Value.ToArray();
 
         [Pure]

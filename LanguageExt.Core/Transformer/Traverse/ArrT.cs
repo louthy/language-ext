@@ -33,7 +33,7 @@ namespace LanguageExt
             ma.Value.Map(a => new Identity<B>(f(a)));
 
         public static Arr<Lst<B>> Traverse<A, B>(this Lst<Arr<A>> xxs, Func<A, B> f) =>
-            CollT.AllCombinationsOf(xxs.Map(xs => xs.ToList()).ToArray(), f)
+            CollT.AllCombinationsOf(xxs.Map(xs => xs.ToList()).ToSystemArray(), f)
                 .Map(toList)
                 .ToArr();
 
