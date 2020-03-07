@@ -155,16 +155,6 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public static void EitherList2()
-        {
-            var x = Left<string, Lst<int>>("error");
-
-            var y = x.Sequence();
-
-            Assert.True(y.Count == 0);
-        }
-
-        [Fact]
         public static void ListEither1()
         {
             var x = List<Either<Exception, int>>(1, 2, 3, 4, 5);

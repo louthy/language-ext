@@ -139,6 +139,12 @@ namespace LanguageExt
         };
 
         /// <summary>
+        /// Construct identity monad
+        /// </summary>
+        public static Identity<A> Id<A>(A value) => 
+            new Identity<A>(value);
+
+        /// <summary>
         /// Identity function
         /// </summary>
         [Pure]

@@ -31,7 +31,7 @@ namespace LanguageExt
             SequenceFast(ma).Map(toHashSet);
 
         public static Writer<MonoidW, W, Stck<A>> Sequence<MonoidW, W, A>(this Stck<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma.Reverse()).Map(toStack);
+            SequenceFast(ma).Map(toStackRev);
 
         public static Writer<MonoidW, W, IEnumerable<A>> Sequence<MonoidW, W, A>(this IEnumerable<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
             SequenceFast(ma).Map(Enumerable.AsEnumerable);

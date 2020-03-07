@@ -62,7 +62,7 @@ namespace LanguageExt
 
         public static HashSet<Stck<B>> Traverse<A, B>(this Stck<HashSet<A>> ma, Func<A, B> f) =>
             toHashSet(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
-                .Map(toStack));
+                .Map(toStackRev));
 
         public static HashSet<Try<B>> Traverse<A, B>(this Try<HashSet<A>> ma, Func<A, B> f) =>
             ma.Match(

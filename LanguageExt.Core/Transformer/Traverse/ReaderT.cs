@@ -30,7 +30,7 @@ namespace LanguageExt
             SequenceFast(ma).Map(toHashSet);
 
         public static Reader<Env, Stck<A>> Sequence<Env, A>(this Stck<Reader<Env, A>> ma) =>
-            SequenceFast(ma.Reverse()).Map(toStack);
+            SequenceFast(ma).Map(toStackRev);
 
         public static Reader<Env, IEnumerable<A>> Sequence<Env, A>(this IEnumerable<Reader<Env, A>> ma) =>
             SequenceFast(ma).Map(Enumerable.AsEnumerable);

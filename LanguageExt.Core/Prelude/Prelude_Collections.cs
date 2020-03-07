@@ -585,6 +585,13 @@ namespace LanguageExt
             new Stck<T>(items);
 
         /// <summary>
+        /// Create an immutable stack
+        /// </summary>
+        [Pure]
+        public static Stck<T> toStackRev<T>(IEnumerable<T> items) =>
+            new Stck<T>(items.Reverse());
+
+        /// <summary>
         /// Create an immutable map, updating duplicates so that the final value of any key is retained
         /// </summary>
         [Pure]

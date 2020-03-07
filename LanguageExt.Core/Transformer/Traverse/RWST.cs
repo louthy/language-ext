@@ -61,7 +61,7 @@ namespace LanguageExt
             SequenceFast(ma).Map(toHashSet);
 
         public static RWS<MonoidW, R, W, S, Stck<A>> Sequence<MonoidW, R, W, S, A>(this Stck<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma.Reverse()).Map(toStack);
+            SequenceFast(ma).Map(toStackRev);
 
         public static RWS<MonoidW, R, W, S, IEnumerable<A>> Sequence<MonoidW, R, W, S, A>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> =>
             SequenceFast(ma).Map(Enumerable.AsEnumerable);
