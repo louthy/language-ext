@@ -16,12 +16,12 @@ namespace LanguageExt
         
         public static Lst<Either<L, B>> Traverse<L, A, B>(this Either<L, Lst<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Left: _ => Lst<Either<L, B>>.Empty,
+                Left: e => List(Either<L, B>.Left(e)),
                 Right: xs => xs.Map(x => Right<L, B>(f(x))));
 
         public static Lst<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Lst<A>> ma, Func<A, B> f) =>
             ma.MatchUnsafe(
-                Left: _ => Lst<EitherUnsafe<L, B>>.Empty,
+                Left: e => List(EitherUnsafe<L, B>.Left(e)),
                 Right: xs => xs.Map(x => RightUnsafe<L, B>(f(x))));
 
         public static Lst<HashSet<B>> Traverse<A, B>(this HashSet<Lst<A>> ma, Func<A, B> f) =>
@@ -39,12 +39,12 @@ namespace LanguageExt
 
         public static Lst<Option<B>> Traverse<A, B>(this Option<Lst<A>> ma, Func<A, B> f) =>
             ma.Match(
-                None: () => Lst<Option<B>>.Empty,
+                None: () => List(Option<B>.None),
                 Some: xs => xs.Map(x => Some(f(x))));
 
         public static Lst<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<Lst<A>> ma, Func<A, B> f) =>
             ma.MatchUnsafe(
-                None: () => Lst<OptionUnsafe<B>>.Empty,
+                None: () => List(OptionUnsafe<B>.None),
                 Some: xs => xs.Map(x => SomeUnsafe(f(x))));
 
         public static Lst<Que<B>> Traverse<A, B>(this Que<Lst<A>> ma, Func<A, B> f) =>
@@ -74,24 +74,24 @@ namespace LanguageExt
 
         public static Lst<Try<B>> Traverse<A, B>(this Try<Lst<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Fail: ex => Lst<Try<B>>.Empty,
+                Fail: ex => List(TryFail<B>(ex)),
                 Succ: xs => xs.Map(x => Try<B>(f(x))));
 
         public static Lst<TryOption<B>> Traverse<A, B>(this TryOption<Lst<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Fail: ex => Lst<TryOption<B>>.Empty,
-                None: () => Lst<TryOption<B>>.Empty,
+                Fail: ex => List(TryOptionFail<B>(ex)),
+                None: () => List(TryOptional<B>(None)),
                 Some: xs => xs.Map(x => TryOption<B>(f(x))));
 
         public static Lst<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Lst<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Fail: _ => Lst<Validation<Fail, B>>.Empty,
+                Fail: ex => List(Validation<Fail, B>.Fail(ex)),
                 Succ: xs => xs.Map(x => Success<Fail, B>(f(x))));
 
         public static Lst<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Lst<A>> ma, Func<A, B> f) 
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
             ma.Match(
-                Fail: __ => Lst<Validation<MonoidFail, Fail, B>>.Empty,
+                Fail: ex => List(Validation<MonoidFail, Fail, B>.Fail(ex)),
                 Succ: xs => xs.Map(x => Success<MonoidFail, Fail, B>(f(x))));
     }
 }

@@ -71,7 +71,7 @@ namespace LanguageExt
         public static IEnumerable<TryOption<B>> Traverse<A, B>(this TryOption<IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: ex => new[] {TryOptionFail<B>(ex)},
-                None: () => Seq<TryOption<B>>.Empty,
+                None: () => new[] {TryOptional<B>(None)},
                 Some: xs => xs.Map(x => TryOption<B>(f(x))));
 
         public static IEnumerable<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, IEnumerable<A>> ma, Func<A, B> f) =>
