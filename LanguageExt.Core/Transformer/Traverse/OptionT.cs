@@ -125,7 +125,7 @@ namespace LanguageExt
                 res[ix] = f(xs.Value);
                 ix++;
             }
-            return Option<Seq<B>>.Some(new Seq<B>(res));                
+            return Option<Seq<B>>.Some(Seq.FromArray<B>(res));                
         }
                 
         public static Option<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Option<A>> ma, Func<A, B> f)

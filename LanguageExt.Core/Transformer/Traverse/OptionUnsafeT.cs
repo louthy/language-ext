@@ -125,7 +125,7 @@ namespace LanguageExt
                 res[ix] = f(xs.Value);
                 ix++;
             }
-            return OptionUnsafe<Seq<B>>.Some(new Seq<B>(res));                
+            return OptionUnsafe<Seq<B>>.Some(Seq.FromArray<B>(res));                
         }
         
         public static OptionUnsafe<IEnumerable<B>> Traverse<A, B>(this IEnumerable<OptionUnsafe<A>> ma, Func<A, B> f)

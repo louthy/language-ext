@@ -194,7 +194,7 @@ namespace LanguageExt
                     ix++;
                 }
             }
-            return new Seq<B>(res);
+            return Seq.FromArray<B>(res);
         }
         
         public static EitherUnsafe<L, IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<EitherUnsafe<L, A>> ma, Func<A, B> f)
