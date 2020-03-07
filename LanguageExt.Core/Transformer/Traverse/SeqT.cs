@@ -9,17 +9,10 @@ namespace LanguageExt
 {
     public static partial class SeqT
     {
-        public static Seq<Arr<B>> Traverse<A, B>(this Arr<Seq<A>> ma, Func<A, B> f)
-        {
-            var res = new Arr<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = xs.Map(f).ToArray();
-                ix++;
-            }
-            return Seq.FromArray(res);            
-        }
+        public static Seq<Arr<B>> Traverse<A, B>(this Arr<Seq<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toArray)
+                .ToSeq();
         
         public static Seq<Either<L, B>> Traverse<L, A, B>(this Either<L, Seq<A>> ma, Func<A, B> f) =>
             ma.Match(
@@ -31,32 +24,18 @@ namespace LanguageExt
                 Left: _ => Seq<EitherUnsafe<L, B>>.Empty,
                 Right: xs => xs.Map(x => RightUnsafe<L, B>(f(x))));
 
-        public static Seq<HashSet<B>> Traverse<A, B>(this HashSet<Seq<A>> ma, Func<A, B> f)
-        {
-            var res = new HashSet<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = toHashSet(xs.AsEnumerable().Map(f));
-                ix++;
-            }
-            return Seq.FromArray<HashSet<B>>(res);
-        }
+        public static Seq<HashSet<B>> Traverse<A, B>(this HashSet<Seq<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toHashSet)
+                .ToSeq();
 
         public static Seq<Identity<B>> Traverse<A, B>(this Identity<Seq<A>> ma, Func<A, B> f) =>
             ma.Value.Map(a => new Identity<B>(f(a)));
 
-        public static Seq<Lst<B>> Traverse<A, B>(this Lst<Seq<A>> ma, Func<A, B> f)
-        {
-            var res = new Lst<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = toList(xs.AsEnumerable().Map(f));
-                ix++;
-            }
-            return Seq.FromArray<Lst<B>>(res);
-        }
+        public static Seq<Lst<B>> Traverse<A, B>(this Lst<Seq<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toList)
+                .ToSeq();
 
         public static Seq<Option<B>> Traverse<A, B>(this Option<Seq<A>> ma, Func<A, B> f) =>
             ma.Match(
@@ -68,63 +47,30 @@ namespace LanguageExt
                 None: () => Seq<OptionUnsafe<B>>.Empty,
                 Some: xs => xs.Map(x => SomeUnsafe(f(x))));
 
-        public static Seq<Que<B>> Traverse<A, B>(this Que<Seq<A>> ma, Func<A, B> f)
-        {
-            var res = new Que<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = toQueue(xs.AsEnumerable().Map(f));
-                ix++;
-            }
-            return Seq.FromArray<Que<B>>(res);
-        }
+        public static Seq<Que<B>> Traverse<A, B>(this Que<Seq<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toQueue)
+                .ToSeq();
 
-        public static Seq<Seq<B>> Traverse<A, B>(this Seq<Seq<A>> ma, Func<A, B> f)
-        {
-            var res = new Seq<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = xs.Map(f);
-                ix++;
-            }
-            return Seq.FromArray<Seq<B>>(res);
-        }
+        public static Seq<Seq<B>> Traverse<A, B>(this Seq<Seq<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(xs => Seq(xs))
+                .ToSeq();
 
-        public static Seq<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Seq<A>> ma, Func<A, B> f)
-        {
-            var res = new List<IEnumerable<B>>();
-            foreach (var xs in ma)
-            {
-                res.Add(xs.Map(f));
-            }
-            return Seq.FromArray(res.ToArray());
-        }
+        public static Seq<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Seq<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(xs => xs.AsEnumerable())
+                .ToSeq();
 
-        public static Seq<Set<B>> Traverse<A, B>(this Set<Seq<A>> ma, Func<A, B> f)
-        {
-            var res = new Set<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = toSet(xs.AsEnumerable().Map(f));
-                ix++;
-            }
-            return Seq.FromArray<Set<B>>(res);
-        }
+        public static Seq<Set<B>> Traverse<A, B>(this Set<Seq<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toSet)
+                .ToSeq();
 
-        public static Seq<Stck<B>> Traverse<A, B>(this Stck<Seq<A>> ma, Func<A, B> f)
-        {
-            var res = new Stck<B>[ma.Count];
-            var ix = ma.Count - 1;
-            foreach (var xs in ma)
-            {
-                res[ix] = toStack(xs.AsEnumerable().Map(f));
-                ix--;
-            }
-            return Seq.FromArray<Stck<B>>(res);
-        }
+        public static Seq<Stck<B>> Traverse<A, B>(this Stck<Seq<A>> ma, Func<A, B> f) =>
+            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toStack)
+                .ToSeq();
 
         public static Seq<Try<B>> Traverse<A, B>(this Try<Seq<A>> ma, Func<A, B> f) =>
             ma.Match(

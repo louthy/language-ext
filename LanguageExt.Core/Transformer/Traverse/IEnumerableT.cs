@@ -20,15 +20,15 @@ namespace LanguageExt
             }
             return res;
         }
-        
+
         public static IEnumerable<Either<L, B>> Traverse<L, A, B>(this Either<L, IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
-                Left: _ => Seq<Either<L, B>>.Empty,
+                Left: e => new[] {Left<L, B>(e)},
                 Right: xs => xs.Map(x => Right<L, B>(f(x))));
 
         public static IEnumerable<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, IEnumerable<A>> ma, Func<A, B> f) =>
             ma.MatchUnsafe(
-                Left: _ => Seq<EitherUnsafe<L, B>>.Empty,
+                Left: e => new[] {LeftUnsafe<L, B>(e)},
                 Right: xs => xs.Map(x => RightUnsafe<L, B>(f(x))));
 
         public static IEnumerable<HashSet<B>> Traverse<A, B>(this HashSet<IEnumerable<A>> ma, Func<A, B> f)
@@ -60,12 +60,12 @@ namespace LanguageExt
 
         public static IEnumerable<Option<B>> Traverse<A, B>(this Option<IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
-                None: () => Seq<Option<B>>.Empty,
+                None: () => new[] {Option<B>.None},
                 Some: xs => xs.Map(x => Some(f(x))));
 
         public static IEnumerable<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<IEnumerable<A>> ma, Func<A, B> f) =>
             ma.MatchUnsafe(
-                None: () => Seq<OptionUnsafe<B>>.Empty,
+                None: () => new[] {OptionUnsafe<B>.None},
                 Some: xs => xs.Map(x => SomeUnsafe(f(x))));
 
         public static IEnumerable<Que<B>> Traverse<A, B>(this Que<IEnumerable<A>> ma, Func<A, B> f)

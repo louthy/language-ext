@@ -9,17 +9,9 @@ namespace LanguageExt
 {
     public static partial class StckT
     {
-        public static Stck<Arr<B>> Traverse<A, B>(this Arr<Stck<A>> ma, Func<A, B> f)
-        {
-            var res = new Arr<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = xs.Map(f).ToArray();
-                ix++;
-            }
-            return toStack(res);            
-        }
+        public static Stck<Arr<B>> Traverse<A, B>(this Arr<Stck<A>> ma, Func<A, B> f) =>
+            toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toArray));
         
         public static Stck<Either<L, B>> Traverse<L, A, B>(this Either<L, Stck<A>> ma, Func<A, B> f) =>
             ma.Match(
@@ -31,32 +23,16 @@ namespace LanguageExt
                 Left: _ => Stck<EitherUnsafe<L, B>>.Empty,
                 Right: xs => toStack(xs.Map(x => RightUnsafe<L, B>(f(x)))));
 
-        public static Stck<HashSet<B>> Traverse<A, B>(this HashSet<Stck<A>> ma, Func<A, B> f)
-        {
-            var res = new HashSet<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = toHashSet(xs.AsEnumerable().Map(f));
-                ix++;
-            }
-            return toStack<HashSet<B>>(res);
-        }
+        public static Stck<HashSet<B>> Traverse<A, B>(this HashSet<Stck<A>> ma, Func<A, B> f) =>
+            toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toHashSet));
 
         public static Stck<Identity<B>> Traverse<A, B>(this Identity<Stck<A>> ma, Func<A, B> f) =>
             toStack(ma.Value.Map(a => new Identity<B>(f(a))));
 
-        public static Stck<Lst<B>> Traverse<A, B>(this Lst<Stck<A>> ma, Func<A, B> f)
-        {
-            var res = new Lst<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = toList(xs.AsEnumerable().Map(f));
-                ix++;
-            }
-            return toStack<Lst<B>>(res);
-        }
+        public static Stck<Lst<B>> Traverse<A, B>(this Lst<Stck<A>> ma, Func<A, B> f) =>
+            toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toList));
 
         public static Stck<Option<B>> Traverse<A, B>(this Option<Stck<A>> ma, Func<A, B> f) =>
             ma.Match(
@@ -68,63 +44,25 @@ namespace LanguageExt
                 None: () => Stck<OptionUnsafe<B>>.Empty,
                 Some: xs => toStack(xs.Map(x => SomeUnsafe(f(x)))));
 
-        public static Stck<Que<B>> Traverse<A, B>(this Que<Stck<A>> ma, Func<A, B> f)
-        {
-            var res = new Que<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = toQueue(xs.AsEnumerable().Map(f));
-                ix++;
-            }
-            return toStack<Que<B>>(res);
-        }
+        public static Stck<Que<B>> Traverse<A, B>(this Que<Stck<A>> ma, Func<A, B> f) =>
+            toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toQueue));
 
-        public static Stck<Seq<B>> Traverse<A, B>(this Seq<Stck<A>> ma, Func<A, B> f)
-        {
-            var res = new Seq<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = xs.AsEnumerable().Map(f).ToSeq();
-                ix++;
-            }
-            return toStack<Seq<B>>(res);
-        }
+        public static Stck<Seq<B>> Traverse<A, B>(this Seq<Stck<A>> ma, Func<A, B> f) =>
+            toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(xs => Seq(xs)));
 
-        public static Stck<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Stck<A>> ma, Func<A, B> f)
-        {
-            var res = new List<IEnumerable<B>>();
-            foreach (var xs in ma)
-            {
-                res.Add(xs.AsEnumerable().Map(f).ToSeq());
-            }
-            return toStack<IEnumerable<B>>(res);
-        }
+        public static Stck<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Stck<A>> ma, Func<A, B> f) =>
+            toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(xs => xs.AsEnumerable()));
 
-        public static Stck<Set<B>> Traverse<A, B>(this Set<Stck<A>> ma, Func<A, B> f)
-        {
-            var res = new Set<B>[ma.Count];
-            var ix = 0;
-            foreach (var xs in ma)
-            {
-                res[ix] = toSet(xs.AsEnumerable().Map(f));
-                ix++;
-            }
-            return toStack<Set<B>>(res);
-        }
+        public static Stck<Set<B>> Traverse<A, B>(this Set<Stck<A>> ma, Func<A, B> f) =>
+            toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toSet));
 
-        public static Stck<Stck<B>> Traverse<A, B>(this Stck<Stck<A>> ma, Func<A, B> f)
-        {
-            var res = new Stck<B>[ma.Count];
-            var ix = ma.Count - 1;
-            foreach (var xs in ma)
-            {
-                res[ix] = toStack(xs.Reverse().AsEnumerable().Map(f));
-                ix--;
-            }
-            return toStack<Stck<B>>(res);
-        }
+        public static Stck<Stck<B>> Traverse<A, B>(this Stck<Stck<A>> ma, Func<A, B> f) =>
+            toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toStack));
 
         public static Stck<Try<B>> Traverse<A, B>(this Try<Stck<A>> ma, Func<A, B> f) =>
             ma.Match(

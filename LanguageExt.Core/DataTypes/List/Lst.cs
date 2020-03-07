@@ -534,8 +534,13 @@ namespace LanguageExt
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Arr<A> ToArray() =>
+        public Arr<A> ToArr() =>
             toArray(this);
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public A[] ToArray() =>
+            Value.ToArray();
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
