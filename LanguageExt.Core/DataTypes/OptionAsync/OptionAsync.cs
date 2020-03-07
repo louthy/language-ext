@@ -9,6 +9,7 @@ using LanguageExt.ClassInstances;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -98,6 +99,7 @@ namespace LanguageExt
         /// <summary>
         /// Ctor that facilitates serialisation
         /// </summary>
+        /// </summary>
         /// <param name="option">None or Some A.</param>
         [Pure]
         public OptionAsync(IEnumerable<A> option)
@@ -156,6 +158,95 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<A> operator |(OptionAsync<A> lhs, OptionAsync<A> rhs) =>
             MOptionAsync<A>.Inst.Plus(lhs, rhs);
+        
+        /// <summary>
+        /// Equality operator
+        /// </summary>
+        [Pure]
+        public async Task<bool> Equals<EqA>(OptionAsync<A> rhs) where EqA : struct, Eq<A>
+        {
+            var a = await Data;
+            var b = await rhs.Data;
+            return a.IsSome == b.IsSome && default(EqA).Equals(a.Value, b.Value);
+        }
+
+        /// <summary>
+        /// Equality operator
+        /// </summary>
+        public override bool Equals(object _) =>
+            throw new NotSupportedException(
+                "The standard Equals override is not supported for OptionAsync because it's an asynchronous type and " +
+                "the return value is synchronous.  Use the typed version of Equals or the == operator to get a bool " +
+                " Task that can be awaited");
+
+        /// <summary>
+        /// Equality operator
+        /// </summary>
+        [Pure]
+        public Task<bool> Equals(OptionAsync<A> rhs) =>
+            Equals<EqDefault<A>>(rhs);
+
+        /// <summary>
+        /// Equality operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator ==(OptionAsync<A> lhs, OptionAsync<A> rhs) =>
+            lhs.Equals(rhs);
+
+        /// <summary>
+        /// Non-equality operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator !=(OptionAsync<A> lhs, OptionAsync<A> rhs) =>
+            lhs.Equals(rhs).Map(not);
+
+        /// <summary>
+        /// Ordering
+        /// </summary>
+        [Pure]
+        public async Task<int> CompareTo<OrdA>(OptionAsync<A> rhs) where OrdA : struct, Ord<A>
+        {
+            var a = await Data;
+            var b = await rhs.Data;
+            var c = default(OrdBool).Compare(a.IsSome, b.IsSome);
+            if (c != 0) return c;
+            return default(OrdA).Compare(a.Value, b.Value);
+        }
+
+        /// <summary>
+        /// Ordering
+        /// </summary>
+        [Pure]
+        public Task<int> CompareTo(OptionAsync<A> rhs) =>
+            CompareTo<OrdDefault<A>>(rhs);
+        
+        /// <summary>
+        /// Ordering operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator < (OptionAsync<A> lhs, OptionAsync<A> rhs) =>
+            lhs.CompareTo(rhs).Map(x => x < 0);
+        
+        /// <summary>
+        /// Ordering operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator <= (OptionAsync<A> lhs, OptionAsync<A> rhs) =>
+            lhs.CompareTo(rhs).Map(x => x <= 0);
+        
+        /// <summary>
+        /// Ordering operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator > (OptionAsync<A> lhs, OptionAsync<A> rhs) =>
+            lhs.CompareTo(rhs).Map(x => x > 0);
+        
+        /// <summary>
+        /// Ordering operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator >= (OptionAsync<A> lhs, OptionAsync<A> rhs) =>
+            lhs.CompareTo(rhs).Map(x => x >= 0);
 
         /// <summary>
         /// Calculate the hash-code from the bound value, unless the Option is in a None
