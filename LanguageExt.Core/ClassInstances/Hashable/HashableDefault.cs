@@ -20,10 +20,10 @@ namespace LanguageExt.ClassInstances
         {
             if (Reflect.IsFunc(typeof(A)))
             {
-                hash = GetHashable<A>("Try", typeof(HashableTry<>)) ?? 
-                       GetHashable<A>("TryOption", typeof(HashableTryOption<>)) ??
-                       GetHashable<A>("TryAsync", typeof(HashableTryAsync<>)) ??
-                       GetHashable<A>("TryOptionAsync", typeof(HashableTryOptionAsync<>)) ??
+                hash = GetHashable("Try", typeof(HashableTry<>)) ?? 
+                       GetHashable("TryOption", typeof(HashableTryOption<>)) ??
+                       GetHashable("TryAsync", typeof(HashableTryAsync<>)) ??
+                       GetHashable("TryOptionAsync", typeof(HashableTryOptionAsync<>)) ??
                        new Func<A, int>(x => x.IsNull() ? 0 : x.GetHashCode());
             }
             else if (Reflect.IsAnonymous(typeof(A)))
@@ -53,7 +53,7 @@ namespace LanguageExt.ClassInstances
         public int GetHashCode(A x) =>
             hash(x);
         
-        static Func<A, int> GetHashable<A>(string name, Type ordType)
+        static Func<A, int> GetHashable(string name, Type ordType)
         {
             if (typeof(A).FullName.StartsWith($"LanguageExt.{name}`"))
             {

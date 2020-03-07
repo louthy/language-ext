@@ -23,10 +23,10 @@ namespace LanguageExt.ClassInstances
         {
             if (Reflect.IsFunc(typeof(A)))
             {
-                eq = GetEq<A>("Try", typeof(EqTry<>)) ?? 
-                     GetEq<A>("TryOption", typeof(EqTryOption<>)) ??
-                     GetEq<A>("TryAsync", typeof(EqTryAsync<>)) ??
-                     GetEq<A>("TryOptionAsync", typeof(EqTryOptionAsync<>)) ??
+                eq = GetEq("Try", typeof(EqTry<>)) ?? 
+                     GetEq("TryOption", typeof(EqTryOption<>)) ??
+                     GetEq("TryAsync", typeof(EqTryAsync<>)) ??
+                     GetEq("TryOptionAsync", typeof(EqTryOptionAsync<>)) ??
                      new Func<A, A, bool>((a, b) => ReferenceEquals(a, b));
             }
             else if (Reflect.IsAnonymous(typeof(A)))
@@ -71,7 +71,7 @@ namespace LanguageExt.ClassInstances
         public int GetHashCode(A x) =>
             default(HashableDefault<A>).GetHashCode(x);
         
-        static Func<A, A, bool> GetEq<A>(string name, Type eqType)
+        static Func<A, A, bool> GetEq(string name, Type eqType)
         {
             if (typeof(A).FullName.StartsWith($"LanguageExt.{name}`"))
             {
