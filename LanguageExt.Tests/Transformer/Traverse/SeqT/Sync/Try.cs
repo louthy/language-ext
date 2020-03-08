@@ -8,12 +8,10 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
     public class TrySeq
     {
         [Fact]
-        public void FailIsSingletonFail()
+        public void FailIsSingletonNone()
         {
             var ma = TryFail<Seq<int>>(new Exception("fail"));
-
             var mb = ma.Sequence();
-
             var mc = Seq1(TryFail<int>(new Exception("fail")));
 
             Assert.True(mb == mc);
@@ -23,20 +21,20 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
         public void SuccEmptyIsEmpty()
         {
             var ma = TrySucc<Seq<int>>(Empty);
-
             var mb = ma.Sequence();
+            var mc = Seq<Try<int>>();
 
-            Assert.True(mb == Empty);
+            Assert.True(mb == mc);
         }
 
         [Fact]
-        public void SuccSeqIsSeqSucc()
+        public void SuccNonEmptySeqIsSeqSuccs()
         {
             var ma = TrySucc(Seq(1, 2, 3));
-
             var mb = ma.Sequence();
+            var mc = Seq(TrySucc(1), TrySucc(2), TrySucc(3));
 
-            Assert.True(mb == Seq(TrySucc(1), TrySucc(2), TrySucc(3)));
+            Assert.True(mb == mc);
         }
     }
 }

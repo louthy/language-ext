@@ -1,3 +1,4 @@
+using System;
 using LanguageExt.Common;
 using Xunit;
 using static LanguageExt.Prelude;
@@ -10,32 +11,34 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
         public void LeftIsSingletonLeft()
         {
             var ma = LeftUnsafe<Error, Seq<int>>(Error.New("alt"));
-
             var mb = ma.Sequence();
+            var mc = Seq1(LeftUnsafe<Error, int>(new Exception("alt")));
 
-            var mc = Seq1(LeftUnsafe<Error, int>(Error.New("alt")));
-            
             Assert.True(mb == mc);
         }
 
         [Fact]
-        public void RightUnsafeEmptyIsEmpty()
+        public void RightEmptyIsEmpty()
         {
             var ma = RightUnsafe<Error, Seq<int>>(Empty);
-
             var mb = ma.Sequence();
+            var mc = Seq<EitherUnsafe<Error, int>>();
 
-            Assert.True(mb == Empty);
+            Assert.True(mb == mc);
         }
 
         [Fact]
-        public void RightUnsafeSeqIsSeqRightUnsafe()
+        public void RightNonEmptySeqIsSeqRight()
         {
-            var ma = RightUnsafe<Error, Seq<int>>(Seq(1, 2, 3));
-
+            var ma = RightUnsafe<Error, Seq<int>>(Seq(1, 2, 3, 4));
             var mb = ma.Sequence();
+            var mc = Seq(
+                RightUnsafe<Error, int>(1),
+                RightUnsafe<Error, int>(2),
+                RightUnsafe<Error, int>(3),
+                RightUnsafe<Error, int>(4));
 
-            Assert.True(mb == Seq(RightUnsafe<Error, int>(1), RightUnsafe<Error, int>(2), RightUnsafe<Error, int>(3)));
+            Assert.True(mb == mc);
         }
     }
 }
