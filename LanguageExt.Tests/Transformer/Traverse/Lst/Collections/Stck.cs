@@ -5,10 +5,7 @@ using static LanguageExt.Prelude;
 namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
 {
     public class StckLst
-    { 
-        private readonly ITestOutputHelper _log;
-        public StckLst(ITestOutputHelper log) => _log = log;
-        
+    {
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
@@ -29,9 +26,6 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
             var mb = ma.Traverse(identity);
 
             var mc = List(Stack(1, 10), Stack(1, 20), Stack(1, 30), Stack(2, 10), Stack(2, 20), Stack(2, 30));
-            
-            _log.WriteLine(mb.ToFullString());
-            _log.WriteLine(mc.ToFullString());
             
             Assert.True(mb == mc);
         }

@@ -7,8 +7,6 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Sync
 {
     public class TryLst
     {
-        private readonly ITestOutputHelper _log;
-        public TryLst(ITestOutputHelper log) => _log = log;
         
         [Fact]
         public void FailIsSingletonNone()
@@ -16,9 +14,6 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Sync
             var ma = TryFail<Lst<int>>(new Exception("fail"));
             var mb = ma.Sequence();
             var mc = List(TryFail<int>(new Exception("fail")));
-
-            _log.WriteLine(mb.Map(t => t.AsString()).ToFullString());
-            _log.WriteLine(mc.Map(t => t.AsString()).ToFullString());
             
             Assert.True(mb == mc);
         }

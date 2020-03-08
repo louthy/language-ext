@@ -6,9 +6,6 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
 {
     public class HashSetLst
     {
-        private readonly ITestOutputHelper _log;
-        public HashSetLst(ITestOutputHelper log) => _log = log;
-
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
@@ -30,9 +27,6 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
             var mb = ma.Sequence();
 
             var mc = List(HashSet(1, 10), HashSet(1, 20), HashSet(1, 30), HashSet(2, 10), HashSet(2, 20), HashSet(2, 30));
-            
-            _log.WriteLine(mb.ToFullString());
-            _log.WriteLine(mc.ToFullString());
             
             Assert.True(mb == mc);
         }
