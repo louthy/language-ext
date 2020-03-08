@@ -9,49 +9,16 @@ namespace LanguageExt.Tests.Transformer.Traverse.EitherUnsafeT.Sync
     public class TryOptionEitherUnsafe
     {
         [Fact]
-        public void WithErrorLeft_FailIsLeft()
+        public void FailIsRightFail()
         {
             var ma = TryOption<EitherUnsafe<Error, int>>(new Exception("fail"));
             var mb = ma.Sequence();
-            var mc = LeftUnsafe<Error, TryOption<int>>(Error.New("fail"));
+            var mc = RightUnsafe<Error, TryOption<int>>(TryOptionFail<int>(Error.New("fail")));
 
             var mr = mb == mc;
             
             Assert.True(mr);
         }
-        
-        [Fact]
-        public void WithExceptionLeft_FailIsLeft()
-        {
-            var ma = TryOption<EitherUnsafe<Exception, int>>(new Exception("fail"));
-            var mb = ma.Sequence();
-            var mc = LeftUnsafe<Exception, TryOption<int>>(new Exception("fail"));
-
-            var mr = mb == mc;
-            
-            Assert.True(mr);
-        }
-        
-        [Fact]
-        public void WithStringLeft_FailIsLeft()
-        {
-            var ma = TryOption<EitherUnsafe<string, int>>(new Exception("fail"));
-            var mb = ma.Sequence();
-            var mc = LeftUnsafe<string, TryOption<int>>("fail");
-            
-            var mr = mb == mc;
-            
-            Assert.True(mr);
-        }        
-        
-        [Fact]
-        public void WithUnknownLeft_ResultIsBottom()
-        {
-            var ma = TryOption<EitherUnsafe<bool, int>>(new Exception("fail"));
-            var mb = ma.Sequence();
-
-            Assert.True(mb.IsBottom);
-        }        
         
         [Fact]
         public void SuccLeftIsLeft()

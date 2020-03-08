@@ -8,11 +8,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Sync
     public class EitherOption
     {
         [Fact]
-        public void LeftIsNone()
+        public void LeftIsSomeLeft()
         {
             var ma = Left<Error, Option<int>>(Error.New("alt"));
             var mb = ma.Sequence();
-            var mc = Option<Either<Error, int>>.None;
+            var mc = Some(Left<Error, int>(Error.New("alt")));
 
             var mr = mb == mc;
             

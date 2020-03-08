@@ -10,12 +10,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.TryT.Sync
     public class EitherTry
     {
         [Fact]
-        public void LeftIsFail()
+        public void LeftIsSuccLeft()
         {
             var ma = Left<Error, Try<int>>(Error.New("alt"));
             var mb = ma.Sequence();
-
-            var mc = TryFail<Either<Error, int>>(new Exception("alt"));
+            var mc = TrySucc(Left<Error, int>(Error.New("alt")));
 
             Assert.True(default(EqTry<Either<Error, int>>).Equals(mb, mc));
         }

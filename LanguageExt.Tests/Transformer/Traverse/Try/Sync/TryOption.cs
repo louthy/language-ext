@@ -10,11 +10,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.TryT.Sync
     public class TryOptionTry
     {
         [Fact]
-        public void FailIsFail()
+        public void FailIsSuccFail()
         {
             var ma = TryOption<Try<int>>(new Exception("fail"));
             var mb = ma.Sequence();
-            var mc = Try<TryOption<int>>(new Exception("fail"));
+            var mc = TrySucc(TryOption<int>(new Exception("fail")));
 
             Assert.True(default(EqTry<TryOption<int>>).Equals(mb, mc));
         }

@@ -25,7 +25,11 @@ namespace LanguageExt
 
         public static Option<Either<L, B>> Traverse<L, A, B>(this Either<L, Option<A>> ma, Func<A, B> f)
         {
-            if (ma.IsLeft || ma.RightValue.IsNone)
+            if (ma.IsLeft)
+            {
+                return Some(Either<L, B>.Left(ma.LeftValue));
+            }
+            else if (ma.RightValue.IsNone)
             {
                 return None;
             }
@@ -37,7 +41,11 @@ namespace LanguageExt
         
         public static Option<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Option<A>> ma, Func<A, B> f)
         {
-            if (ma.IsLeft || ma.RightValue.IsNone)
+            if (ma.IsLeft)
+            {
+                return Some(EitherUnsafe<L, B>.Left(ma.LeftValue));
+            }
+            else if (ma.RightValue.IsNone)
             {
                 return None;
             }
@@ -80,7 +88,11 @@ namespace LanguageExt
 
         public static Option<Option<B>> Traverse<A, B>(this Option<Option<A>> ma, Func<A, B> f)
         {
-            if (ma.IsNone || ma.Value.IsNone)
+            if (ma.IsNone)
+            {
+                return Some<Option<B>>(None);
+            }
+            else if (ma.Value.IsNone)
             {
                 return None;
             }
@@ -92,7 +104,11 @@ namespace LanguageExt
         
         public static Option<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<Option<A>> ma, Func<A, B> f)
         {
-            if (ma.IsNone || ma.Value.IsNone)
+            if (ma.IsNone)
+            {
+                return Some<OptionUnsafe<B>>(None);
+            }
+            else if (ma.Value.IsNone)
             {
                 return None;
             }
@@ -168,8 +184,16 @@ namespace LanguageExt
         public static Option<Try<B>> Traverse<A, B>(this Try<Option<A>> ma, Func<A, B> f)
         {
             var tres = ma.Try();
-            
-            if (tres.IsBottom || tres.IsFaulted || tres.Value.IsNone)
+
+            if (tres.IsBottom)
+            {
+                return None;
+            }
+            else if (tres.IsFaulted)
+            {
+                return Some(TryFail<B>(tres.Exception));
+            }
+            else if (tres.Value.IsNone)
             {
                 return None;
             }
@@ -183,7 +207,19 @@ namespace LanguageExt
         {
             var tres = ma.Try();
             
-            if (tres.IsBottom || tres.IsFaulted || tres.Value.IsNone|| tres.Value.Value.IsNone)
+            if (tres.IsBottom)
+            {
+                return None;
+            }
+            else if (tres.IsFaulted)
+            {
+                return Some(TryOptionFail<B>(tres.Exception));
+            }
+            else if (tres.Value.IsNone)
+            {
+                return Some(TryOptional<B>(None));
+            }
+            else if (tres.Value.Value.IsNone)
             {
                 return None;
             }
@@ -195,7 +231,11 @@ namespace LanguageExt
         
         public static Option<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Option<A>> ma, Func<A, B> f)
         {
-            if (ma.IsFail || ma.SuccessValue.IsNone)
+            if (ma.IsFail)
+            {
+                return Some(Fail<Fail, B>(ma.FailValue));
+            }
+            else if (ma.SuccessValue.IsNone)
             {
                 return None;
             }
@@ -209,7 +249,11 @@ namespace LanguageExt
             this Validation<MonoidFail, Fail, Option<A>> ma, Func<A, B> f)
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
-            if (ma.IsFail || ma.SuccessValue.IsNone)
+            if (ma.IsFail)
+            {
+                return Some(Fail<MonoidFail, Fail, B>(ma.FailValue));
+            }
+            else if (ma.SuccessValue.IsNone)
             {
                 return None;
             }

@@ -12,11 +12,12 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Sync
         {
             var ma = LeftUnsafe<Error, Option<int>>(Error.New("alt"));
             var mb = ma.Sequence();
-            var mc = Option<EitherUnsafe<Error, int>>.None;
+            var mc = Some(LeftUnsafe<Error, int>(Error.New("alt")));
 
             var mr = mb == mc;
             
             Assert.True(mr);
+
         }
         
         [Fact]

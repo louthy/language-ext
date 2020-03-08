@@ -10,12 +10,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.TryT.Sync
     public class EitherUnsafeTry
     {
         [Fact]
-        public void LeftIsFail()
+        public void LeftIsSuccLeft()
         {
             var ma = LeftUnsafe<Error, Try<int>>(Error.New("alt"));
             var mb = ma.Sequence();
-
-            var mc = TryFail<EitherUnsafe<Error, int>>(new Exception("alt"));
+            var mc = TrySucc(LeftUnsafe<Error, int>(Error.New("alt")));
 
             Assert.True(default(EqTry<EitherUnsafe<Error, int>>).Equals(mb, mc));
         }

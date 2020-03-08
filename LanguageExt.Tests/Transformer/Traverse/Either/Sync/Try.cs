@@ -9,49 +9,16 @@ namespace LanguageExt.Tests.Transformer.Traverse.EitherT.Sync
     public class TryEither
     {
         [Fact]
-        public void WithErrorLeft_FailIsLeft()
+        public void FailIsRightFail()
         {
             var ma = Try<Either<Error, int>>(new Exception("fail"));
             var mb = ma.Sequence();
-            var mc = Left<Error, Try<int>>(Error.New("fail"));
+            var mc = Right<Error, Try<int>>(TryFail<int>(Error.New("fail")));
 
             var mr = mb == mc;
             
             Assert.True(mr);
         }
-        
-        [Fact]
-        public void WithExceptionLeft_FailIsLeft()
-        {
-            var ma = Try<Either<Exception, int>>(new Exception("fail"));
-            var mb = ma.Sequence();
-            var mc = Left<Exception, Try<int>>(new Exception("fail"));
-
-            var mr = mb == mc;
-            
-            Assert.True(mr);
-        }
-        
-        [Fact]
-        public void WithStringLeft_FailIsLeft()
-        {
-            var ma = Try<Either<string, int>>(new Exception("fail"));
-            var mb = ma.Sequence();
-            var mc = Left<string, Try<int>>("fail");
-            
-            var mr = mb == mc;
-            
-            Assert.True(mr);
-        }        
-        
-        [Fact]
-        public void WithUnknownLeft_ResultIsBottom()
-        {
-            var ma = Try<Either<bool, int>>(new Exception("fail"));
-            var mb = ma.Sequence();
-
-            Assert.True(mb.IsBottom);
-        }        
         
         [Fact]
         public void SuccLeftIsLeft()

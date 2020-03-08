@@ -199,7 +199,7 @@ namespace LanguageExt
             {
                 var da = await ma.Data;
                 if (da.State == EitherStatus.IsBottom) return Result<EitherAsync<L, B>>.Bottom;
-                if (da.State == EitherStatus.IsLeft) return await default(MTryAsync<EitherAsync<L, B>>).Fail(da.Left).Try();
+                if (da.State == EitherStatus.IsLeft) return new Result<EitherAsync<L,B>>(da.Left);
                 var rb = await da.Right.Try();
                 if (rb.IsFaulted) return await default(MTryAsync<EitherAsync<L, B>>).Fail(rb.Value).Try();
                 return new Result<EitherAsync<L, B>>(EitherAsync<L, B>.Right(f(rb.Value)));
@@ -212,7 +212,7 @@ namespace LanguageExt
             async Task<Result<OptionAsync<B>>> Go(OptionAsync<TryAsync<A>> ma, Func<A, B> f)
             {
                 var (isSome, value) = await ma.Data;
-                if (!isSome) return Result<OptionAsync<B>>.Bottom;
+                if (!isSome) return new Result<OptionAsync<B>>(OptionAsync<B>.None);
                 var rb = await value.Try();
                 if (rb.IsFaulted) return await default(MTryAsync<OptionAsync<B>>).Fail(rb.Value).Try();
                 return new Result<OptionAsync<B>>(OptionAsync<B>.Some(f(rb.Value)));
@@ -268,7 +268,7 @@ namespace LanguageExt
             async Task<Result<Either<L, B>>> Go(Either<L, TryAsync<A>> ma, Func<A, B> f)
             {
                 if(ma.IsBottom) return Result<Either<L, B>>.Bottom;
-                if(ma.IsLeft) return await default(MTryAsync<Either<L, B>>).Fail(ma.LeftValue).Try();
+                if(ma.IsLeft) return new Result<Either<L, B>>(ma.LeftValue);
                 var rb = await ma.RightValue.Try();
                 if(rb.IsFaulted) return new Result<Either<L, B>>(rb.Exception);
                 return new Result<Either<L, B>>(f(rb.Value));
@@ -281,7 +281,7 @@ namespace LanguageExt
             async Task<Result<EitherUnsafe<L, B>>> Go(EitherUnsafe<L, TryAsync<A>> ma, Func<A, B> f)
             {
                 if(ma.IsBottom) return Result<EitherUnsafe<L, B>>.Bottom;
-                if(ma.IsLeft) return await default(MTryAsync<EitherUnsafe<L, B>>).Fail(ma.LeftValue).Try();
+                if(ma.IsLeft) return new Result<EitherUnsafe<L, B>>(ma.LeftValue);
                 var rb = await ma.RightValue.Try();
                 if(rb.IsFaulted) return new Result<EitherUnsafe<L, B>>(rb.Exception);
                 return new Result<EitherUnsafe<L, B>>(f(rb.Value));
@@ -330,7 +330,7 @@ namespace LanguageExt
             async Task<Result<Try<B>>> Go(Try<TryAsync<A>> ma, Func<A, B> f)
             {
                 var ra = ma.Try();
-                if (ra.IsFaulted) return new Result<Try<B>>(ra.Exception);
+                if (ra.IsFaulted) return new Result<Try<B>>(TryFail<B>(ra.Exception));
                 var rb = await ra.Value.Try();
                 if (rb.IsFaulted) return new Result<Try<B>>(rb.Exception);
                 return new Result<Try<B>>(Try<B>(f(rb.Value)));
@@ -344,7 +344,8 @@ namespace LanguageExt
             {
                 var ra = ma.Try();
                 if (ra.IsBottom) return Result<TryOption<B>>.Bottom;
-                if (ra.IsFaultedOrNone) return new Result<TryOption<B>>(ra.Exception);
+                if (ra.IsNone) return new Result<TryOption<B>>(TryOptional<B>(None));
+                if (ra.IsFaulted) return new Result<TryOption<B>>(TryOptionFail<B>(ra.Exception));
                 var rb = await ra.Value.Value.Try();
                 if (rb.IsFaulted) return new Result<TryOption<B>>(rb.Exception);
                 return new Result<TryOption<B>>(TryOption<B>(f(rb.Value)));
@@ -356,7 +357,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Validation<Fail, B>>> Go(Validation<Fail, TryAsync<A>> ma, Func<A, B> f)
             {
-                if(ma.IsFail) return await default(MTryAsync<Validation<Fail, B>>).Fail(ma.FailValue).Try();
+                if (ma.IsFail) return new Result<Validation<Fail, B>>(Fail<Fail, B>(ma.FailValue));
                 var rb = await ma.SuccessValue.Try();
                 if(rb.IsFaulted) return new Result<Validation<Fail, B>>(rb.Exception);
                 return new Result<Validation<Fail, B>>(f(rb.Value));
@@ -369,7 +370,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Validation<MonoidFail, Fail, B>>> Go(Validation<MonoidFail, Fail, TryAsync<A>> ma, Func<A, B> f)
             {
-                if(ma.IsFail) return await default(MTryAsync<Validation<MonoidFail, Fail, B>>).Fail(ma.FailValue).Try();
+                if (ma.IsFail) return new Result<Validation<MonoidFail, Fail, B>>(Fail<MonoidFail, Fail, B>(ma.FailValue));
                 var rb = await ma.SuccessValue.Try();
                 if(rb.IsFaulted) return new Result<Validation<MonoidFail, Fail, B>>(rb.Exception);
                 return new Result<Validation<MonoidFail, Fail, B>>(f(rb.Value));

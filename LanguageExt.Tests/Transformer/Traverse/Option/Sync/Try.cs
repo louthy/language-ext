@@ -9,11 +9,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Sync
     public class TryOption
     {
         [Fact]
-        public void FailIsNone()
+        public void FailIsSomeFail()
         {
             var ma = Try<Option<int>>(new Exception("fail"));
             var mb = ma.Sequence();
-            var mc = Option<Try<int>>.None;
+            var mc = Some(Try<int>(new Exception("fail")));
 
             var mr = mb == mc;
             

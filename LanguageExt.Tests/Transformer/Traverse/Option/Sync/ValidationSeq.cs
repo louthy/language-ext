@@ -8,11 +8,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Sync
     public class ValidationSeqOption
     {
         [Fact]
-        public void FailNoneIsNone()
+        public void FailIsSomeFail()
         {
             var ma = Fail<Error, Option<int>>(Error.New("alt"));
             var mb = ma.Sequence();
-            var mc = Option<Validation<Error, int>>.None;
+            var mc = Some(Fail<Error, int>(Error.New("alt")));
 
             var mr = mb == mc;
             

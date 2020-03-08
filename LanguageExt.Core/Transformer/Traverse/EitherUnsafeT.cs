@@ -33,7 +33,7 @@ namespace LanguageExt
         {
             if (ma.IsLeft)
             {
-                return EitherUnsafe<L, Either<L, B>>.Left((L)ma);
+                return Right(Either<L, B>.Left((L)ma));
             }
             else
             {
@@ -53,7 +53,7 @@ namespace LanguageExt
         {
             if (ma.IsLeft)
             {
-                return EitherUnsafe<L, EitherUnsafe<L, B>>.Left((L)ma);
+                return Right(EitherUnsafe<L, B>.Left((L)ma));
             }
             else
             {
@@ -123,7 +123,7 @@ namespace LanguageExt
         {
             if (ma.IsNone)
             {
-                return EitherUnsafe<L, Option<B>>.Right(Option<B>.None);
+                return Right(Option<B>.None);
             }
             else
             {
@@ -143,7 +143,7 @@ namespace LanguageExt
         {
             if (ma.IsNone)
             {
-                return EitherUnsafe<L, OptionUnsafe<B>>.Right(OptionUnsafe<B>.None);
+                return Right(OptionUnsafe<B>.None);
             }
             else
             {
@@ -262,7 +262,7 @@ namespace LanguageExt
             }
             else if (tres.IsFaulted)
             {
-                return default(MEitherUnsafe<L, Try<B>>).Fail(tres.Exception);
+                return Right(TryFail<B>(tres.Exception));
             }
             else if (tres.Value.IsLeft)
             {
@@ -284,11 +284,11 @@ namespace LanguageExt
             }
             else if (tres.IsFaulted)
             {
-                return default(MEitherUnsafe<L, TryOption<B>>).Fail(tres.Exception);
+                return Right(TryOptionFail<B>(tres.Exception));
             }
-            else if (tres.Value.IsNone)
+            else if (tres.IsNone)
             {
-                return EitherUnsafe<L, TryOption<B>>.Right(TryOption<B>(None));
+                return Right(TryOptional<B>(None));
             }
             else if (tres.Value.Value.IsLeft)
             {
@@ -308,7 +308,7 @@ namespace LanguageExt
             }
             if (ma.IsFail)
             {
-                return EitherUnsafe<Fail, Validation<Fail, B>>.Left(ma.FailValue.Head());
+                return Right(Validation<Fail, B>.Fail(ma.FailValue));
             }
             else
             {
@@ -329,7 +329,7 @@ namespace LanguageExt
         {
             if (ma.IsFail)
             {
-                return EitherUnsafe<Fail, Validation<MonoidFail, Fail, B>>.Left(ma.FailValue);
+                return Right(Validation<MonoidFail, Fail, B>.Fail(ma.FailValue));
             }
             else
             {
@@ -347,13 +347,9 @@ namespace LanguageExt
         
         public static EitherUnsafe<L, Validation<Fail, B>> Traverse<Fail, L, A, B>(this Validation<Fail, EitherUnsafe<L, A>> ma, Func<A, B> f)
         {
-            if (ma.IsFail && ma.FailValue.IsEmpty)
-            {
-                return EitherUnsafe<L, Validation<Fail, B>>.Bottom;
-            }
             if (ma.IsFail)
             {
-                return default(MEitherUnsafe<L, Validation<Fail, B>>).Fail(ma.FailValue.Head());
+                return Right(Validation<Fail, B>.Fail(ma.FailValue));
             }
             else
             {
@@ -374,7 +370,7 @@ namespace LanguageExt
         {
             if (ma.IsFail)
             {
-                return default(MEitherUnsafe<L, Validation<MonoidFail, Fail, B>>).Fail(ma.FailValue);
+                return Right(Validation<MonoidFail, Fail, B>.Fail(ma.FailValue));
             }
             else
             {

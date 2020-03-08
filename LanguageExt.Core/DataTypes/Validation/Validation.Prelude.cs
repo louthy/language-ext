@@ -40,6 +40,16 @@ namespace LanguageExt
         /// <summary>
         /// Represents a failed operation
         /// </summary>
+        /// <typeparam name="ERROR">Error type</typeparam>
+        /// <typeparam name="A">Value type</typeparam>
+        /// <param name="value">Error value</param>
+        /// <returns>Validation applicative</returns>
+        public static Validation<ERROR, A> Fail<ERROR, A>(Seq<ERROR> values) =>
+            Validation<ERROR, A>.Fail(values);
+
+        /// <summary>
+        /// Represents a failed operation
+        /// </summary>
         /// <typeparam name="MonoidError">Monoid for collecting the errors</typeparam>
         /// <typeparam name="ERROR">Error type</typeparam>
         /// <typeparam name="A">Value type</typeparam>

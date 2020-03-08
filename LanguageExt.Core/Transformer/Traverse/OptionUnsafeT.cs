@@ -25,7 +25,11 @@ namespace LanguageExt
 
         public static OptionUnsafe<Either<L, B>> Traverse<L, A, B>(this Either<L, OptionUnsafe<A>> ma, Func<A, B> f)
         {
-            if (ma.IsLeft || ma.RightValue.IsNone)
+            if (ma.IsLeft)
+            {
+                return SomeUnsafe(Either<L, B>.Left(ma.LeftValue));
+            }
+            else if (ma.RightValue.IsNone)
             {
                 return None;
             }
@@ -37,7 +41,11 @@ namespace LanguageExt
         
         public static OptionUnsafe<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, OptionUnsafe<A>> ma, Func<A, B> f)
         {
-            if (ma.IsLeft || ma.RightValue.IsNone)
+            if (ma.IsLeft)
+            {
+                return SomeUnsafe(EitherUnsafe<L, B>.Left(ma.LeftValue));
+            }
+            else if (ma.RightValue.IsNone)
             {
                 return None;
             }
@@ -80,7 +88,11 @@ namespace LanguageExt
 
         public static OptionUnsafe<Option<B>> Traverse<A, B>(this Option<OptionUnsafe<A>> ma, Func<A, B> f)
         {
-            if (ma.IsNone || ma.Value.IsNone)
+            if (ma.IsNone)
+            {
+                return SomeUnsafe<Option<B>>(None);
+            }
+            else if (ma.Value.IsNone)
             {
                 return None;
             }
@@ -92,7 +104,11 @@ namespace LanguageExt
         
         public static OptionUnsafe<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<OptionUnsafe<A>> ma, Func<A, B> f)
         {
-            if (ma.IsNone || ma.Value.IsNone)
+            if (ma.IsNone)
+            {
+                return SomeUnsafe<OptionUnsafe<B>>(None);
+            }
+            else if (ma.Value.IsNone)
             {
                 return None;
             }
@@ -169,7 +185,15 @@ namespace LanguageExt
         {
             var tres = ma.Try();
             
-            if (tres.IsBottom || tres.IsFaulted || tres.Value.IsNone)
+            if (tres.IsBottom)
+            {
+                return None;
+            }
+            else if (tres.IsFaulted)
+            {
+                return SomeUnsafe(TryFail<B>(tres.Exception));
+            }
+            else if (tres.Value.IsNone)
             {
                 return None;
             }
@@ -183,7 +207,19 @@ namespace LanguageExt
         {
             var tres = ma.Try();
             
-            if (tres.IsBottom || tres.IsFaulted || tres.Value.IsNone|| tres.Value.Value.IsNone)
+            if (tres.IsBottom)
+            {
+                return None;
+            }
+            else if (tres.IsFaulted)
+            {
+                return SomeUnsafe(TryOptionFail<B>(tres.Exception));
+            }
+            else if (tres.Value.IsNone)
+            {
+                return SomeUnsafe(TryOptional<B>(None));
+            }
+            else if (tres.Value.Value.IsNone)
             {
                 return None;
             }
@@ -195,7 +231,11 @@ namespace LanguageExt
         
         public static OptionUnsafe<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, OptionUnsafe<A>> ma, Func<A, B> f)
         {
-            if (ma.IsFail || ma.SuccessValue.IsNone)
+            if (ma.IsFail)
+            {
+                return SomeUnsafe(Fail<Fail, B>(ma.FailValue));
+            }
+            else if (ma.SuccessValue.IsNone)
             {
                 return None;
             }
@@ -209,7 +249,11 @@ namespace LanguageExt
             this Validation<MonoidFail, Fail, OptionUnsafe<A>> ma, Func<A, B> f)
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
-            if (ma.IsFail || ma.SuccessValue.IsNone)
+            if (ma.IsFail)
+            {
+                return SomeUnsafe(Fail<MonoidFail, Fail, B>(ma.FailValue));
+            }
+            else if (ma.SuccessValue.IsNone)
             {
                 return None;
             }

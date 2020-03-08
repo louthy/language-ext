@@ -8,11 +8,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionUnsafeT.Sync
     public class EitherUnsafeOptionUnsafe
     {
         [Fact]
-        public void LeftIsNone()
+        public void LeftIsSomeLeft()
         {
             var ma = LeftUnsafe<Error, OptionUnsafe<int>>(Error.New("alt"));
             var mb = ma.Sequence();
-            var mc = OptionUnsafe<EitherUnsafe<Error, int>>.None;
+            var mc = SomeUnsafe<EitherUnsafe<Error, int>>(Error.New("alt"));
 
             var mr = mb == mc;
             

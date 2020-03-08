@@ -35,7 +35,7 @@ namespace LanguageExt
             }
             else if (ma.IsLeft)
             {
-                return default(MTry<Either<L, B>>).Fail(ma.LeftValue).Try();
+                return new Result<Either<L, B>>(ma.LeftValue);
             }
             else
             {
@@ -54,7 +54,7 @@ namespace LanguageExt
             }
             else if (ma.IsLeft)
             {
-                return default(MTry<EitherUnsafe<L, B>>).Fail(ma.LeftValue).Try();
+                return new Result<EitherUnsafe<L, B>>(ma.LeftValue);
             }
             else
             {
@@ -198,7 +198,7 @@ namespace LanguageExt
         {
             var mb = ma.Try();
             if (mb.IsBottom) return Result<Try<B>>.Bottom;
-            if (mb.IsFaulted) return new Result<Try<B>>(mb.Exception);
+            if (mb.IsFaulted) return new Result<Try<B>>(TryFail<B>(mb.Exception));
             var mr = mb.Value.Try();
             if (mr.IsBottom) return Result<Try<B>>.Bottom;
             if (mr.IsFaulted) return new Result<Try<B>>(mr.Exception);
@@ -209,8 +209,8 @@ namespace LanguageExt
         {
             var mb = ma.Try();
             if (mb.IsBottom) return Result<TryOption<B>>.Bottom;
-            if (mb.IsFaulted) return new Result<TryOption<B>>(mb.Exception);
-            if (mb.Value.IsNone) return new Result<TryOption<B>>(TryOption<B>(Option<B>.None));
+            if (mb.IsFaulted) return new Result<TryOption<B>>(TryOptionFail<B>(mb.Exception));
+            if (mb.IsNone) return new Result<TryOption<B>>(TryOptional<B>(None));
             var mr = mb.Value.Value.Try();
             if (mr.IsBottom) return Result<TryOption<B>>.Bottom;
             if (mr.IsFaulted) return new Result<TryOption<B>>(mr.Exception);
@@ -221,7 +221,7 @@ namespace LanguageExt
         {
             if (ma.IsFail)
             {
-                return default(MTry<Validation<Fail, B>>).Fail(ma.FailValue).Try();
+                return new Result<Validation<Fail, B>>(Fail<Fail, B>(ma.FailValue));
             }
             else
             {
@@ -238,7 +238,7 @@ namespace LanguageExt
         {
             if (ma.IsFail)
             {
-                return default(MTry<Validation<MonoidFail, Fail, B>>).Fail(ma.FailValue).Try();
+                return new Result<Validation<MonoidFail, Fail, B>>(Fail<MonoidFail, Fail, B>(ma.FailValue));
             }
             else
             {

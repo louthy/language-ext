@@ -8,11 +8,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.EitherT.Sync
     public class EitherUnsafeEither
     {
         [Fact]
-        public void LeftLeftIsLeft()
+        public void LeftIsRightLeft()
         {
             var ma = LeftUnsafe<Error, Either<Error, int>>(Error.New("alt"));
             var mb = ma.Sequence();
-            var mc = Left<Error, EitherUnsafe<Error, int>>(Error.New("alt"));
+            var mc = Right<Error, EitherUnsafe<Error, int>>(Error.New("alt"));
 
             var mr = mb == mc;
             

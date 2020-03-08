@@ -201,7 +201,7 @@ namespace LanguageExt
             {
                 var da = await ma.Data;
                 if (da.State == EitherStatus.IsBottom) return EitherData<L, EitherAsync<L, B>>.Bottom;
-                if (da.State == EitherStatus.IsLeft) return EitherData.Left<L, EitherAsync<L, B>>(da.Left);
+                if (da.State == EitherStatus.IsLeft) return EitherData.Right<L, EitherAsync<L, B>>(EitherAsync<L, B>.Left(da.Left));
                 var db = await da.Right.Data;
                 if (db.State == EitherStatus.IsBottom) return EitherData<L, EitherAsync<L, B>>.Bottom;
                 if (db.State == EitherStatus.IsLeft) return EitherData.Left<L, EitherAsync<L, B>>(db.Left);
@@ -230,7 +230,7 @@ namespace LanguageExt
             {
                 var result = await ma.Try();
                 if (result.IsBottom) return EitherData<L, TryAsync<B>>.Bottom;
-                if (result.IsFaulted) return await default(MEitherAsync<L, TryAsync<B>>).Fail(result.Exception).Data;
+                if (result.IsFaulted) return EitherData.Right<L, TryAsync<B>>(TryAsyncFail<B>(result.Exception));
                 var db = await result.Value.Data;
                 if (db.State == EitherStatus.IsBottom) return EitherData<L, TryAsync<B>>.Bottom;
                 if (db.State == EitherStatus.IsLeft) return EitherData.Left<L, TryAsync<B>>(db.Left);
@@ -245,7 +245,7 @@ namespace LanguageExt
             {
                 var result = await ma.Try();
                 if (result.IsBottom) return EitherData<L, TryOptionAsync<B>>.Bottom;
-                if (result.IsFaulted) return await default(MEitherAsync<L, TryOptionAsync<B>>).Fail(result.Exception).Data;
+                if (result.IsFaulted) return EitherData.Right<L, TryOptionAsync<B>>(TryOptionAsyncFail<B>(result.Exception));
                 if (result.IsNone) return EitherData.Right<L, TryOptionAsync<B>>(TryOptionAsync<B>(None));
                 var db = await result.Value.Value.Data;
                 if (db.State == EitherStatus.IsBottom) return EitherData<L, TryOptionAsync<B>>.Bottom;
@@ -277,7 +277,7 @@ namespace LanguageExt
             async Task<EitherData<L, Either<L, B>>> Go(Either<L, EitherAsync<L, A>> ma, Func<A, B> f)
             {
                 if(ma.IsBottom) return EitherData<L, Either<L, B>>.Bottom;
-                if(ma.IsLeft) return EitherData.Left<L, Either<L, B>>(ma.LeftValue);
+                if(ma.IsLeft) return EitherData.Right<L, Either<L, B>>(Left(ma.LeftValue));
                 var da = await ma.RightValue.Data;
                 if(da.State == EitherStatus.IsBottom) return EitherData<L, Either<L, B>>.Bottom;
                 if(da.State == EitherStatus.IsLeft) return EitherData.Left<L, Either<L, B>>(da.Left);
@@ -291,7 +291,7 @@ namespace LanguageExt
             async Task<EitherData<L, EitherUnsafe<L, B>>> Go(EitherUnsafe<L, EitherAsync<L, A>> ma, Func<A, B> f)
             {
                 if(ma.IsBottom) return EitherData<L, EitherUnsafe<L, B>>.Bottom;
-                if(ma.IsLeft) return EitherData.Left<L, EitherUnsafe<L, B>>(ma.LeftValue);
+                if(ma.IsLeft) return EitherData.Right<L, EitherUnsafe<L, B>>(Left(ma.LeftValue));
                 var da = await ma.RightValue.Data;
                 if(da.State == EitherStatus.IsBottom) return EitherData<L, EitherUnsafe<L, B>>.Bottom;
                 if(da.State == EitherStatus.IsLeft) return EitherData.Left<L, EitherUnsafe<L, B>>(da.Left);
@@ -347,7 +347,7 @@ namespace LanguageExt
                 {
                     var ra = ma.Try();
                     if (ra.IsBottom) return EitherData<L, Try<B>>.Bottom;
-                    if (ra.IsFaulted) return await default(MEitherAsync<L, Try<B>>).Fail(ra.Exception).Data;
+                    if (ra.IsFaulted) return EitherData.Right<L, Try<B>>(TryFail<B>(ra.Exception));
                     var da = await ra.Value.Data;
                     if(da.State == EitherStatus.IsBottom) return EitherData<L, Try<B>>.Bottom;
                     if(da.State == EitherStatus.IsLeft) return EitherData.Left<L, Try<B>>(da.Left);
@@ -369,8 +369,8 @@ namespace LanguageExt
                 {
                     var ra = ma.Try();
                     if (ra.IsBottom) return EitherData<L, TryOption<B>>.Bottom;
-                    if (ra.IsFaulted) return await default(MEitherAsync<L, TryOption<B>>).Fail(ra.Exception).Data;
-                    if (ra.IsNone) return EitherData.Right<L, TryOption<B>>(TryOption<B>(None));
+                    if (ra.IsNone) return EitherData.Right<L, TryOption<B>>(TryOptional<B>(None));
+                    if (ra.IsFaulted) return EitherData.Right<L, TryOption<B>>(TryOptionFail<B>(ra.Exception));
                     var da = await ra.Value.Value.Data;
                     if(da.State == EitherStatus.IsBottom) return EitherData<L, TryOption<B>>.Bottom;
                     if(da.State == EitherStatus.IsLeft) return EitherData.Left<L, TryOption<B>>(da.Left);
@@ -388,7 +388,7 @@ namespace LanguageExt
             return new EitherAsync<L, Validation<L, B>>(Go(ma, f));
             async Task<EitherData<L, Validation<L, B>>> Go(Validation<L, EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                if(ma.IsFail) return EitherData.Left<L, Validation<L, B>>(ma.FailValue.Head());
+                if(ma.IsFail) return EitherData.Right<L, Validation<L, B>>(Fail<L, B>(ma.FailValue));
                 var da = await ma.SuccessValue.Data;
                 if(da.State == EitherStatus.IsBottom) return EitherData<L, Validation<L, B>>.Bottom;
                 if(da.State == EitherStatus.IsLeft) return EitherData.Left<L, Validation<L, B>>(da.Left);
@@ -401,7 +401,7 @@ namespace LanguageExt
             return new EitherAsync<L, Validation<Fail, B>>(Go(ma, f));
             async Task<EitherData<L, Validation<Fail, B>>> Go(Validation<Fail, EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                if(ma.IsFail) return await default(MEitherAsync<L, Validation<Fail, B>>).Fail(ma.FailValue.Head()).Data;
+                if(ma.IsFail) return EitherData.Right<L, Validation<Fail, B>>(Fail<Fail, B>(ma.FailValue));
                 var da = await ma.SuccessValue.Data;
                 if(da.State == EitherStatus.IsBottom) return EitherData<L, Validation<Fail, B>>.Bottom;
                 if(da.State == EitherStatus.IsLeft) return EitherData.Left<L, Validation<Fail, B>>(da.Left);
@@ -415,7 +415,7 @@ namespace LanguageExt
             return new EitherAsync<Fail, Validation<MonoidFail, Fail, B>>(Go(ma, f));
             async Task<EitherData<Fail, Validation<MonoidFail, Fail, B>>> Go(Validation<MonoidFail, Fail, EitherAsync<Fail, A>> ma, Func<A, B> f)
             {
-                if(ma.IsFail) return EitherData.Left<Fail, Validation<MonoidFail, Fail, B>>(ma.FailValue);
+                if(ma.IsFail) return EitherData.Right<Fail, Validation<MonoidFail, Fail, B>>(Fail<MonoidFail, Fail, B>(ma.FailValue));
                 var da = await ma.SuccessValue.Data;
                 if(da.State == EitherStatus.IsBottom) return EitherData<Fail, Validation<MonoidFail, Fail, B>>.Bottom;
                 if(da.State == EitherStatus.IsLeft) return EitherData.Left<Fail, Validation<MonoidFail, Fail, B>>(da.Left);
@@ -429,7 +429,7 @@ namespace LanguageExt
             return new EitherAsync<L, Validation<MonoidFail, Fail, B>>(Go(ma, f));
             async Task<EitherData<L, Validation<MonoidFail, Fail, B>>> Go(Validation<MonoidFail, Fail, EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                if(ma.IsFail) return await default(MEitherAsync<L, Validation<MonoidFail, Fail, B>>).Fail(ma.FailValue).Data;
+                if(ma.IsFail) return EitherData.Right<L, Validation<MonoidFail, Fail, B>>(Fail<MonoidFail, Fail, B>(ma.FailValue));
                 var da = await ma.SuccessValue.Data;
                 if(da.State == EitherStatus.IsBottom) return EitherData<L, Validation<MonoidFail, Fail, B>>.Bottom;
                 if(da.State == EitherStatus.IsLeft) return EitherData.Left<L, Validation<MonoidFail, Fail, B>>(da.Left);
