@@ -27,9 +27,6 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
 
             var mc = List(Stack(1, 10), Stack(1, 20), Stack(1, 30), Stack(2, 10), Stack(2, 20), Stack(2, 30));
 
-            var tb = mb.ToString();
-            var tc = mc.ToString();
-
             Assert.True(mb == mc);
         }
         
