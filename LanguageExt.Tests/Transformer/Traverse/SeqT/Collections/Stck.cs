@@ -22,7 +22,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
 
             var mb = ma.Traverse(identity);
 
-            Assert.True(mb == Seq(Stack(1), Stack(2), Stack(3)));
+            Assert.True(mb == Seq1(Stack(1, 2, 3)));
         }
     }
 }

@@ -22,10 +22,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
 
             var mb = ma.Sequence();
 
-            Assert.Equal(3, mb.Count);
-            Assert.True(mb.Contains(HashSet(1)));
-            Assert.True(mb.Contains(HashSet(2)));
-            Assert.True(mb.Contains(HashSet(3)));
+            var mc = Seq<HashSet<int>>(HashSet(1, 2, 3));
+            
+            Assert.True(mb == mc);
         }
     }
 }

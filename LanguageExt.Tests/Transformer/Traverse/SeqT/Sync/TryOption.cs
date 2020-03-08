@@ -7,23 +7,27 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
     public class TryOptionSeq
     {
         [Fact]
-        public void FailIsEmpty()
+        public void FailIsSingletonFail()
         {
             var ma = TryOptionFail<Seq<int>>(new Exception("fail"));
 
             var mb = ma.Sequence();
+            
+            var mc = Seq1(TryOptionFail<int>(new Exception("fail")));
 
-            Assert.True(mb == Empty);
+            Assert.True(mb == mc);
         }
 
         [Fact]
-        public void NoneIsEmpty()
+        public void NoneIsSingletonNone()
         {
             var ma = TryOption<Seq<int>>(None);
 
             var mb = ma.Sequence();
 
-            Assert.True(mb == Empty);
+            var mc = Seq1(TryOptional<int>(None));
+
+            Assert.True(mb == mc);
         }
 
         [Fact]

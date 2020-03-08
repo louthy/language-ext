@@ -7,13 +7,15 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
     public class EitherSeq
     {
         [Fact]
-        public void LeftIsEmpty()
+        public void LeftIsSingletonLeft()
         {
             var ma = Left<Error, Seq<int>>(Error.New("alt"));
 
             var mb = ma.Sequence();
 
-            Assert.True(mb == Empty);
+            var mc = Seq1(Left<Error, int>(Error.New("alt")));
+            
+            Assert.True(mb == mc);
         }
 
         [Fact]

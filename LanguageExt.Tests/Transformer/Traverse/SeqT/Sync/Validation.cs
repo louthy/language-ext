@@ -7,13 +7,15 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
     public class ValidationSeq
     {
         [Fact]
-        public void FailIsEmpty()
+        public void FailIsSingletonFail()
         {
             var ma = Fail<Error, Seq<int>>(Error.New("alt"));
 
             var mb = ma.Sequence();
 
-            Assert.True(mb == Empty);
+            var mc = Seq1(Fail<Error, int>(Error.New("alt")));
+
+            Assert.True(mb == mc);
         }
 
         [Fact]

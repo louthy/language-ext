@@ -24,7 +24,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
 
             var mb = ma.Sequence();
 
-            Assert.True(mb == Seq<IEnumerable<int>>(Seq1(1), Seq1(2), Seq1(3)));
+            var mc = Seq1(new[] {1, 2, 3}.AsEnumerable());
         }
     }
 }

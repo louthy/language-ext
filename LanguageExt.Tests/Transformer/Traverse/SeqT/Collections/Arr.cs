@@ -22,7 +22,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
 
             var mb = ma.Sequence();
 
-            Assert.True(mb == Seq(Array(1), Array(2), Array(3)));
+            var mc = Seq<Arr<int>>(Array(1, 2, 3));
+
+            Assert.True(mb == mc);
         }
     }
 }

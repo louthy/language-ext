@@ -7,13 +7,15 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
     public class OptionUnsafeSeq
     {
         [Fact]
-        public void NoneIsEmpty()
+        public void NoneIsSingletonNone()
         {
             var ma = OptionUnsafe<Seq<int>>.None;
 
             var mb = ma.Sequence();
 
-            Assert.True(mb == Empty);
+            var mc = Seq1<OptionUnsafe<int>>(None);
+            
+            Assert.True(mb == mc);        
         }
 
         [Fact]

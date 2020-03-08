@@ -14,7 +14,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
 
             var mb = ma.Traverse(identity);
 
-            Assert.True(mb == Empty);
+            var mc = Seq1(Fail<MSeq<Error>, Seq<Error>, int>(Seq1(Error.New("alt"))));
+            
+            Assert.True(mb == mc);
         }
 
         [Fact]

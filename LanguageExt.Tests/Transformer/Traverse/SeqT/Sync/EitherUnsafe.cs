@@ -7,13 +7,15 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
     public class EitherUnsafeSeq
     {
         [Fact]
-        public void LeftIsEmpty()
+        public void LeftIsSingletonLeft()
         {
             var ma = LeftUnsafe<Error, Seq<int>>(Error.New("alt"));
 
             var mb = ma.Sequence();
 
-            Assert.True(mb == Empty);
+            var mc = Seq1(LeftUnsafe<Error, int>(Error.New("alt")));
+            
+            Assert.True(mb == mc);
         }
 
         [Fact]
