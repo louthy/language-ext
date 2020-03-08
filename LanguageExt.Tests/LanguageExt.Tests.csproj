@@ -44,7 +44,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Transformer\Traverse\OptionAsync\Async" />
-    <Folder Include="Transformer\Traverse\OptionAsync\Collections" />
     <Folder Include="Transformer\Traverse\OptionAsync\Sync" />
   </ItemGroup>
 </Project>

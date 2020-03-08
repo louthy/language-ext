@@ -386,7 +386,7 @@ namespace LanguageExt
                 var ix = i;
                 tasks.Add(outerTask.Iter(async oa =>
                 {
-                    f(oa);
+                    results[ix].Add(f(oa));
 
                     while (true)
                     {

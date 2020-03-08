@@ -281,8 +281,13 @@ namespace LanguageExt
         /// </summary>
         /// <returns>String representation of the Option</returns>
         [Pure]
-        public Task<string> ToStringAsync() =>
-            data?.Map(toString) ?? "".AsTask();
+        public async Task<string> ToStringAsync()
+        {
+            var (isSome, value) = await data;
+            return isSome
+                ? $"Some({value})"
+                : "None";
+        }
 
         /// <summary>
         /// Is the option in a Some state
