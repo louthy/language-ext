@@ -23,7 +23,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
         
         // TODO: failing
         [Fact]
-        public void HashSetHashSetCrossProduct()
+        public void HashSetLstCrossProduct()
         {
             var ma = HashSet(List(1, 2), List(10, 20, 30));
 
