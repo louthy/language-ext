@@ -8,23 +8,57 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
     public class IEnumerableSeq
     {
         [Fact]
-        public void EmptyIEnumerableIsEmptySeq()
+        public void EmptyEmptyIsEmptyEmpty()
         {
             var ma = Enumerable.Empty<Seq<int>>();
 
             var mb = ma.Sequence();
 
-            Assert.True(mb == Empty);
+            var mc = Seq<IEnumerable<int>>.Empty;
+
+            Assert.True(mb == mc);
         }
 
         [Fact]
-        public void IEnumerableSeqIsSeqIEnumerable()
+        public void IEnumerableSeqCrossProduct()
         {
-            var ma = Enumerable.Range(1, 3).Map(Seq1);
+            var ma = new[] { Seq(1, 2), Seq(10, 20, 30) }.AsEnumerable();
 
             var mb = ma.Sequence();
 
-            var mc = Seq1(new[] {1, 2, 3}.AsEnumerable());
+            var mc = Seq<IEnumerable<int>>(
+                Seq(1, 10),
+                Seq(1, 20),
+                Seq(1, 30),
+                Seq(2, 10),
+                Seq(2, 20),
+                Seq(2, 30));
+
+            Assert.True(mb.Map(Prelude.Seq) == mc.Map(Prelude.Seq));
+        }
+
+        [Fact]
+        public void IEnumerableOfEmptiesAndNonEmptiesIsEmpty()
+        {
+            var ma = new[] { Seq<int>(), Seq<int>(1, 2, 3) }.AsEnumerable();
+
+            var mb = ma.Sequence();
+
+            var mc = Seq<IEnumerable<int>>.Empty;
+
+            Assert.True(mb == mc);
+        }
+
+        [Fact]
+        public void IEnumerableOfEmptiesIsEmpty()
+        {
+            var ma = new[] { Seq<int>(), Seq<int>() }.AsEnumerable();
+
+            var mb = ma.Sequence();
+
+            var mc = Seq<IEnumerable<int>>.Empty;
+
+            Assert.True(mb == mc);
         }
     }
 }
