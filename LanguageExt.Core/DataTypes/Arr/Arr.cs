@@ -638,7 +638,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(Arr<A> lhs, Arr<A> rhs) =>
-            Equals(lhs, rhs);
+            lhs.Equals(rhs);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
