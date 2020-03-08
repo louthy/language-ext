@@ -18,7 +18,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.ArrT.Collections
         }
 
         [Fact]
-        public void SeqHashSetCrossProduct()
+        public void SeqArrCrossProduct()
         {
             var ma = Seq(Array(1, 2), Array(10, 20, 30));
 

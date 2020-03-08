@@ -18,7 +18,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.ArrT.Collections
         }
 
         [Fact]
-        public void SetHashSetCrossProduct()
+        public void SetArrCrossProduct()
         {
             var ma = Set(Array(1, 2), Array(10, 20, 30));
 
