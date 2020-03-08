@@ -746,7 +746,7 @@ public static class TryOptionExtensions
         {
             var selfRes = self().Value;
             var innerRes = inner().Value;
-            return selfRes.IsSome && innerRes.IsSome && EqualityComparer<K>.Default.Equals(outerKeyMap(selfRes.Value), innerKeyMap(innerRes.Value))
+            return selfRes.IsSome && innerRes.IsSome && default(EqDefault<K>).Equals(outerKeyMap(selfRes.Value), innerKeyMap(innerRes.Value))
                 ? project(selfRes.Value, innerRes.Value)
                 : raise<V>(new BottomException());
         });

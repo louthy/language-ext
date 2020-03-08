@@ -68,8 +68,8 @@ namespace LanguageExt
                 .Freeze();
 
         public static Lst<Stck<B>> Traverse<A, B>(this Stck<Lst<A>> ma, Func<A, B> f) =>
-            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
-                .Map(toStackRev)
+            CollT.AllCombinationsOf(ma.Reverse().Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toStack)
                 .Freeze();
 
         public static Lst<Try<B>> Traverse<A, B>(this Try<Lst<A>> ma, Func<A, B> f) =>

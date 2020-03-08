@@ -2090,7 +2090,7 @@ public static class TryOptionAsyncExtensions
                 if (selfTask.Result.IsFaultedOrNone) return new OptionalResult<D>(selfTask.Result.Exception);
                 if (innerTask.IsFaulted) return new OptionalResult<D>(innerTask.Exception);
                 if (innerTask.Result.IsFaultedOrNone) return new OptionalResult<D>(innerTask.Result.Exception);
-                return EqualityComparer<C>.Default.Equals(outerKeyMap(selfTask.Result.Value.Value), innerKeyMap(innerTask.Result.Value.Value))
+                return default(EqDefault<C>).Equals(outerKeyMap(selfTask.Result.Value.Value), innerKeyMap(innerTask.Result.Value.Value))
                     ? project(selfTask.Result.Value.Value, innerTask.Result.Value.Value)
                     : throw new BottomException();
             });

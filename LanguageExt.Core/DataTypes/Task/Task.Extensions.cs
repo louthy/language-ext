@@ -235,7 +235,7 @@ namespace LanguageExt
             Func<T, U, V> project)
         {
             await Task.WhenAll(source, inner);
-            if (!EqualityComparer<K>.Default.Equals(outerKeyMap(source.Result), innerKeyMap(inner.Result)))
+            if (!default(EqDefault<K>).Equals(outerKeyMap(source.Result), innerKeyMap(inner.Result)))
             {
                 throw new OperationCanceledException();
             }
@@ -251,7 +251,7 @@ namespace LanguageExt
             Func<T, Task<U>, V> project)
         {
             T t = await source;
-            return project(t, inner.Where(u => EqualityComparer<K>.Default.Equals(outerKeyMap(t), innerKeyMap(u))));
+            return project(t, inner.Where(u => default(EqDefault<K>).Equals(outerKeyMap(t), innerKeyMap(u))));
         }
 
         [Pure]

@@ -476,7 +476,7 @@ public static class SeqExtensions
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
     public static Seq<T> Distinct<T, K>(this Seq<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
-         Seq(Enumerable.Distinct(list, new EqCompare<T>((a, b) => compare.IfNone(EqualityComparer<K>.Default.Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0)));
+         Seq(Enumerable.Distinct(list, new EqCompare<T>((a, b) => compare.IfNone(default(EqDefault<K>).Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0)));
 
     /// <summary>
     /// Apply a sequence of values to a sequence of functions

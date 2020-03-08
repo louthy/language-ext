@@ -7,7 +7,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Sync
 {
     public class EitherAsyncOption
     {
-        /*[Fact]
+        [Fact]
         public async void LeftIsSomeLeft()
         {
             var ma = LeftAsync<Error, OptionAsync<int>>(Error.New("alt"));
@@ -41,6 +41,6 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Sync
             var mr = await (mb == mc);
             
             Assert.True(mr);
-        }*/
+        }
     }
 }

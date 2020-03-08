@@ -30,7 +30,7 @@ namespace LanguageExt
             SequenceFast(ma).Map(toHashSet);
 
         public static State<S, Stck<A>> Sequence<S, A>(this Stck<State<S, A>> ma) =>
-            SequenceFast(ma).Map(toStackRev);
+            SequenceFast(ma.Reverse()).Map(toStack);
 
         public static State<S, IEnumerable<A>> Sequence<S, A>(this IEnumerable<State<S, A>> ma) =>
             SequenceFast(ma).Map(Enumerable.AsEnumerable);

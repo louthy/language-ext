@@ -61,8 +61,8 @@ namespace LanguageExt
                 .Map(toSet));
 
         public static Set<Stck<B>> Traverse<A, B>(this Stck<Set<A>> ma, Func<A, B> f) =>
-            toSet(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
-                .Map(toStackRev));
+            toSet(CollT.AllCombinationsOf(ma.Reverse().Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toStack));
 
         public static Set<Try<B>> Traverse<A, B>(this Try<Set<A>> ma, Func<A, B> f) =>
             ma.Match(

@@ -61,8 +61,8 @@ namespace LanguageExt
                 .Map(toSet));
 
         public static Que<Stck<B>> Traverse<A, B>(this Stck<Que<A>> ma, Func<A, B> f) =>
-            toQueue(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
-                .Map(toStackRev));
+            toQueue(CollT.AllCombinationsOf(ma.Reverse().Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toStack));
 
         public static Que<Try<B>> Traverse<A, B>(this Try<Que<A>> ma, Func<A, B> f) =>
             ma.Match(

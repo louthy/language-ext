@@ -1018,7 +1018,7 @@ namespace LanguageExt
         /// <returns>A new enumerable with all duplicate values removed</returns>
         [Pure]
         public static IEnumerable<T> distinct<T, K>(IEnumerable<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
-             list.Distinct(new EqCompare<T>((a, b) => compare.IfNone(EqualityComparer<K>.Default.Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0));
+             list.Distinct(new EqCompare<T>((a, b) => compare.IfNone(default(EqDefault<K>).Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0));
 
         /// <summary>
         /// Returns a new enumerable with the first 'count' items from the enumerable provided

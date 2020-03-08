@@ -603,7 +603,7 @@ public static class TryExtensions
         {
             var selfRes = self();
             var innerRes = inner();
-            return EqualityComparer<K>.Default.Equals(outerKeyMap(selfRes.Value), innerKeyMap(innerRes.Value))
+            return default(EqDefault<K>).Equals(outerKeyMap(selfRes.Value), innerKeyMap(innerRes.Value))
                 ? project(selfRes.Value, innerRes.Value)
                 : throw new BottomException();
         });

@@ -68,8 +68,8 @@ namespace LanguageExt
                 .ToArr();
 
         public static Arr<Stck<B>> Traverse<A, B>(this Stck<Arr<A>> xxs, Func<A, B> f) =>
-            CollT.AllCombinationsOf(xxs.Map(xs => xs.ToList()).ToArray(), f)
-                .Map(toStackRev)
+            CollT.AllCombinationsOf(xxs.Reverse().Map(xs => xs.ToList()).ToArray(), f)
+                .Map(toStack)
                 .ToArr();
 
         public static Arr<Try<B>> Traverse<A, B>(this Try<Arr<A>> ma, Func<A, B> f) =>

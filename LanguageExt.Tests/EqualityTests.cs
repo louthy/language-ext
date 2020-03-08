@@ -135,7 +135,7 @@ namespace LanguageExt.Tests
         }
 
         public static bool IsDefault<T>(T obj) =>
-            EqualityComparer<T>.Default.Equals(obj, default(T));
+            default(EqDefault<T>).Equals(obj, default(T));
 
 
         [Fact]

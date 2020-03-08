@@ -78,7 +78,7 @@ namespace LanguageExt
         [Pure]
         public static Func<T, Option<R>> with<T, R>(T value, Func<T, R> map) =>
             (T input) =>
-                EqualityComparer<T>.Default.Equals(input, value)
+                default(EqDefault<T>).Equals(input, value)
                     ? Some(map(input))
                     : None;
 
