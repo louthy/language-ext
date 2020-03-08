@@ -4,7 +4,7 @@ using LanguageExt;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.EitherUnsafe.Sync
+namespace LanguageExt.Tests.Transformer.Traverse.EitherUnsafeT.Sync
 {
     public class TryEitherUnsafe
     {

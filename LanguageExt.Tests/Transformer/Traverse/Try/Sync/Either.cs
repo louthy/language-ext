@@ -5,7 +5,7 @@ using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.Try.Sync
+namespace LanguageExt.Tests.Transformer.Traverse.TryT.Sync
 {
     public class EitherTry
     {

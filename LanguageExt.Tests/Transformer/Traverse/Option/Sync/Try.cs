@@ -4,7 +4,7 @@ using LanguageExt;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.Option.Sync
+namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Sync
 {
     public class TryOption
     {

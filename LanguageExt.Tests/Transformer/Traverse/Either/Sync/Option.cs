@@ -3,7 +3,7 @@ using LanguageExt;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.Either.Sync
+namespace LanguageExt.Tests.Transformer.Traverse.EitherT.Sync
 {
     public class OptionEither
     {

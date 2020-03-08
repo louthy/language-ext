@@ -3,7 +3,7 @@ using LanguageExt.Common;
 using Xunit;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.OptionUnsafe.Collections
+namespace LanguageExt.Tests.Transformer.Traverse.OptionUnsafeT.Collections
 {
     public class HashSetOptionUnsafe
     {

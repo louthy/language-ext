@@ -5,7 +5,7 @@ using LanguageExt.Common;
 using Xunit;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.Try.Collections
+namespace LanguageExt.Tests.Transformer.Traverse.TryT.Collections
 {
     public class StckTry
     {
