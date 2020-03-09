@@ -35,63 +35,35 @@ class Program
         //                                                                                                    //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        TraverseTest();
-    }
+        var t = new[] {1, 2, 3}.GetType();
+        var tn = t.FullName;
+        var tg = t.GetGenericArguments();
+        
 
-    static void TraverseTest()
-    {
-        var xxs = Seq(Seq(1, 2, 3, 4), Seq(10, 20, 30), Seq(100, 200));
-
-        // var size = xxs.Fold(1, (s, xs) => s * xs.Count);
-        // var blocks = new int[][size];
-        // for(var ix = 0; ix < blocks.Length; ix++)
-        // {
-        //     blocks[ix] = new int[xxs.Count];
-        // }
-        //
-
-        var combs = AllCombinationsOf(xxs.Map(xs => new List<int>(xs)).ToArray())
-                        .Map(Seq)
-                        .ToSeq();
-
+        var j = OrdClass.Compare(new[] {1, 2, 3}, new[] {1, 2});
         /*
-        var xxs2 = xxs.FoldBack(Seq<Seq<int>>(), 
-            (ss, xs) => 
-            */
+        var k = fn2(new[] {1, 2, 3}, new[] {1, 2, 3});
+        
+        var fn1 = MakeEquals<byte>().Item2;
 
-        // var xxs2 = xxs.FoldBack(Seq<Seq<int>>(),
-        //     (ss, xs) => xs.FoldBack(ss.Add(Seq<int>()), 
-        //         (s, x) => s.Head.Add(x).Cons(s.Tail)));
+        var fn = MakeEquals<int>().Item2;
+
+        var x = fn(1, 1);
+        var y = fn(1, 2);
+        
+        MakeEquals<double>();      
+        MakeEquals<decimal>();      
+        MakeEquals<bool>();        // Boolean   System.Boolean
+        MakeEquals<byte>();        // Byte      System.Byte
+        MakeEquals<char>();        // Char      System.Char
+        MakeEquals<int>();         // Int32     System.Int32
+        MakeEquals<string>();      // String    System.String
+        MakeEquals<Guid>();        // Guid      System.Guid
+        MakeEquals<Option<int>>(); // Option`1  LanguageExt.Option`1[[System.Int32 ...]]
+    */
     }
 
-    static List<List<A>> AllCombinationsOf<A>(params List<A>[] sets)
-    {
-        // need array bounds checking etc for production
-        var combinations = new List<List<A>>();
-        if (sets.Length == 0) return combinations;
 
-        // prime the data
-        foreach (var value in sets[0])
-        {
-            combinations.Add(new List<A> {value});
-        }
 
-        foreach (var set in sets.Skip(1))
-        {
-            combinations = AddExtraSet(combinations, set);
-        }
 
-        return combinations;
-    }
-
-    static List<List<A>> AddExtraSet<A>
-        (List<List<A>> combinations, List<A> set)
-    {
-        var newCombinations = 
-            from combination in combinations
-            from value in set
-            select new List<A>(combination) { value };
-
-        return newCombinations.ToList();
-    }
 }

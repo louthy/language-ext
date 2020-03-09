@@ -2,6 +2,8 @@
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -131,5 +133,15 @@ namespace LanguageExt.ClassInstances
             fa.IsSome && fb.IsSome
                 ? Some(f(fa.Value, fb.Value))
                 : default;
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(OptionUnsafe<A> x, OptionUnsafe<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(OptionUnsafe<A> x) =>
+            GetHashCode(x).AsTask();         
     }
 }

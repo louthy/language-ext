@@ -737,7 +737,7 @@ namespace LanguageExt
         /// <returns>Hash code</returns>
         [Pure]
         public override int GetHashCode() =>
-            throw new NotImplementedException("Call GetHashCodeAsync instead");
+            throw new NotSupportedException("Call GetHashCodeAsync instead");
 
         /// <summary>
         /// Returns a hash code of the wrapped value of the Either

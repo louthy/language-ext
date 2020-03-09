@@ -10,7 +10,7 @@ namespace LanguageExt.TypeClasses
     /// The type for which equality is defined
     /// </typeparam>
     [Typeclass("Eq*")]
-    public interface Eq<A> : Hashable<A>, Typeclass
+    public interface Eq<A> : Hashable<A>, EqAsync<A>, Typeclass
     {
         /// <summary>
         /// Equality test

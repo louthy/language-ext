@@ -1,6 +1,8 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 
@@ -148,5 +150,15 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionAsync<A> ToAsync(Option<A> sa) =>
             sa.ToAsync();
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(Option<A> x, Option<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(Option<A> x) =>
+            GetHashCode(x).AsTask();         
     }
 }

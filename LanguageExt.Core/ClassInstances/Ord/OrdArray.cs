@@ -1,5 +1,7 @@
 ﻿using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 
@@ -63,6 +65,16 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(A[] x) =>
             hash(x);
+  
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(A[] x, A[] y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(A[] x) =>
+            GetHashCode(x).AsTask();    
     }
 
     /// <summary>
@@ -103,5 +115,15 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(A[] x) =>
             default(OrdArray<OrdDefault<A>, A>).GetHashCode(x);
+  
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(A[] x, A[] y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(A[] x) =>
+            GetHashCode(x).AsTask();    
     }
 }

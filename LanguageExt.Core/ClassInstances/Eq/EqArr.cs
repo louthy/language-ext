@@ -1,5 +1,6 @@
 ﻿using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 
@@ -24,10 +25,11 @@ namespace LanguageExt.ClassInstances
             if (x.Count != y.Count) return false;
             var xiter = x.GetEnumerator();
             var yiter = y.GetEnumerator();
-            while(xiter.MoveNext() && yiter.MoveNext())
+            while (xiter.MoveNext() && yiter.MoveNext())
             {
                 if (!equals<EqA, A>(xiter.Current, yiter.Current)) return false;
             }
+
             return true;
         }
 
@@ -39,6 +41,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Arr<A> x) =>
             default(HashableArr<A>).GetHashCode(x);
+
+        [Pure]
+        public Task<bool> EqualsAsync(Arr<A> x, Arr<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(Arr<A> x) =>
+            GetHashCode(x).AsTask();
     }
 
     /// <summary>
@@ -66,6 +76,13 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Arr<A> x) =>
             default(HashableArr<HashableDefault<A>, A>).GetHashCode(x);
-    }
 
+        [Pure]
+        public Task<bool> EqualsAsync(Arr<A> x, Arr<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(Arr<A> x) =>
+            GetHashCode(x).AsTask();
+    }
 }

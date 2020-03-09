@@ -163,11 +163,13 @@ namespace LanguageExt
         /// Equality operator
         /// </summary>
         [Pure]
-        public async Task<bool> Equals<EqA>(OptionAsync<A> rhs) where EqA : struct, Eq<A>
+        public async Task<bool> Equals<EqA>(OptionAsync<A> rhs) where EqA : struct, EqAsync<A>
         {
             var a = await Data;
             var b = await rhs.Data;
-            return a.IsSome == b.IsSome && default(EqA).Equals(a.Value, b.Value);
+            if(a.IsSome != b.IsSome) return false; 
+            if(!a.IsSome && !b.IsSome) return true; 
+            return await default(EqA).EqualsAsync(a.Value, b.Value);
         }
 
         /// <summary>
@@ -184,7 +186,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public Task<bool> Equals(OptionAsync<A> rhs) =>
-            Equals<EqDefault<A>>(rhs);
+            Equals<EqDefaultAsync<A>>(rhs);
 
         /// <summary>
         /// Equality operator
@@ -256,7 +258,7 @@ namespace LanguageExt
         /// state, in which case the hash-code will be 0</returns>
         [Pure]
         public override int GetHashCode() =>
-            throw new NotImplementedException("Call GetHashCodeAsync instead");
+            throw new NotSupportedException("Call GetHashCodeAsync instead");
 
         /// <summary>
         /// Calculate the hash-code from the bound value, unless the Option is in a None
@@ -1331,7 +1333,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public OptionAsync<Func<B, C>> ParMap<B, C>(Func<A, B, C> func) =>
             Map(curry(func));
@@ -1339,7 +1340,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public OptionAsync<Func<B, Func<C, D>>> ParMap<B, C, D>(Func<A, B, C, D> func) =>
             Map(curry(func));

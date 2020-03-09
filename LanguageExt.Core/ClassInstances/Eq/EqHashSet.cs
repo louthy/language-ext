@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -30,11 +31,10 @@ namespace LanguageExt.ClassInstances
             {
                 enumx.MoveNext();
                 enumy.MoveNext();
-                if (default(EQ).Equals(enumx.Current, enumy.Current)) return false;
+                if (!default(EQ).Equals(enumx.Current, enumy.Current)) return false;
             }
             return true;
         }
-
 
         /// <summary>
         /// Get hash code of the value
@@ -44,6 +44,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(HashSet<A> x) =>
             default(HashableHashSet<EQ, A>).GetHashCode(x);
+  
+        [Pure]
+        public Task<bool> EqualsAsync(HashSet<A> x, HashSet<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(HashSet<A> x) => 
+            GetHashCode(x).AsTask();      
     }
 
     /// <summary>
@@ -61,7 +69,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>True if x and y are equal</returns>
         [Pure]
         public bool Equals(HashSet<A> x, HashSet<A> y) =>
-            default(EqHashSet<EqDefault<A>, A>).Equals(x);
+            default(EqHashSet<EqDefault<A>, A>).Equals(x, y);
 
         /// <summary>
         /// Get hash code of the value
@@ -71,6 +79,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(HashSet<A> x) =>
             default(HashableHashSet<A>).GetHashCode(x);
+  
+        [Pure]
+        public Task<bool> EqualsAsync(HashSet<A> x, HashSet<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(HashSet<A> x) => 
+            GetHashCode(x).AsTask();      
     }
 
 }

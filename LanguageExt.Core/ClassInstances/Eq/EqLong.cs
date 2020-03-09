@@ -1,5 +1,6 @@
 ﻿using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -29,5 +30,13 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(long x) =>
             default(HashableLong).GetHashCode(x);
+  
+        [Pure]
+        public Task<bool> EqualsAsync(long x, long y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(long x) => 
+            GetHashCode(x).AsTask();      
     }
 }

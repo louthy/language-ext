@@ -368,7 +368,6 @@ public static class ListExtensions
     /// <summary>
     /// Partial application map
     /// </summary>
-    /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
     public static IEnumerable<Func<T2, R>> ParMap<T1, T2, R>(this IEnumerable<T1> list, Func<T1, T2, R> func) =>
         list.Map(curry(func));
@@ -376,7 +375,6 @@ public static class ListExtensions
     /// <summary>
     /// Partial application map
     /// </summary>
-    /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
     public static IEnumerable<Func<T2, Func<T3, R>>> ParMap<T1, T2, T3, R>(this IEnumerable<T1> list, Func<T1, T2, T3, R> func) =>
         list.Map(curry(func));

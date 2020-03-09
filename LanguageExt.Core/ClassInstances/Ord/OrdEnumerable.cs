@@ -2,6 +2,8 @@
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 
@@ -45,7 +47,7 @@ namespace LanguageExt.ClassInstances
             var enumx = x.GetEnumerator();
             var enumy = y.GetEnumerator();
 
-            while(true)
+            while (true)
             {
                 bool r1 = enumx.MoveNext();
                 bool r2 = enumy.MoveNext();
@@ -65,6 +67,16 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(IEnumerable<A> x) =>
             hash(x);
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(IEnumerable<A> x, IEnumerable<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(IEnumerable<A> x) =>
+            GetHashCode(x).AsTask();
     }
 
     /// <summary>
@@ -105,6 +117,15 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(IEnumerable<A> x) =>
             default(OrdEnumerable<OrdDefault<A>, A>).GetHashCode(x);
-    }
 
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(IEnumerable<A> x, IEnumerable<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(IEnumerable<A> x) =>
+            GetHashCode(x).AsTask();
+    }
 }

@@ -2,6 +2,7 @@
 using static LanguageExt.Prelude;
 using System.Numerics;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -31,5 +32,13 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(bigint x) =>
             default(HashableBigInt).GetHashCode(x);
+
+        [Pure]
+        public Task<bool> EqualsAsync(bigint x, bigint y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(bigint x) => 
+            GetHashCode(x).AsTask();
     }
 }

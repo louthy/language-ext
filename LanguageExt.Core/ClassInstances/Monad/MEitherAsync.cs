@@ -16,7 +16,7 @@ namespace LanguageExt.ClassInstances
         FoldableAsync<EitherAsync<L, R>, R>,
         BiFoldableAsync<EitherAsync<L, R>, L, R>
     {
-        public EitherAsync<L, R> None => throw new NotImplementedException();
+        public EitherAsync<L, R> None => throw new NotSupportedException();
 
         [Pure]
         public EitherAsync<L, R> Append(EitherAsync<L, R> ma, EitherAsync<L, R> mb) =>

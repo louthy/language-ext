@@ -3,6 +3,7 @@ using LanguageExt.ClassInstances.Pred;
 using LanguageExt.TypeClasses;
 using System;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
@@ -38,6 +39,14 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         public int GetHashCode(NewType<NEWTYPE, A> x) =>
             x.IsNull() ? 0 : x.GetHashCode();
+  
+        [Pure]
+        public Task<bool> EqualsAsync(NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(NewType<NEWTYPE, A> x) => 
+            GetHashCode(x).AsTask();      
     }
 
     /// <summary>
@@ -65,6 +74,14 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         public int GetHashCode(NewType<NEWTYPE, A> x) =>
             default(EqNewType<NEWTYPE, OrdDefault<A>, A, True<A>>).GetHashCode(x);
+  
+        [Pure]
+        public Task<bool> EqualsAsync(NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(NewType<NEWTYPE, A> x) => 
+            GetHashCode(x).AsTask();      
     }
 
     /// <summary>
@@ -101,5 +118,13 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(NewType<NEWTYPE, A, PRED, ORD> x) =>
             x.IsNull() ? 0 : x.GetHashCode();
+  
+        [Pure]
+        public Task<bool> EqualsAsync(NewType<NEWTYPE, A, PRED, ORD> x, NewType<NEWTYPE, A, PRED, ORD> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(NewType<NEWTYPE, A, PRED, ORD> x) => 
+            GetHashCode(x).AsTask();      
     }
 }

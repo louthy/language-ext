@@ -7,7 +7,6 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Sync
 {
     public class EitherAsyncOption
     {
-        /*
         [Fact]
         public async void LeftIsSomeLeft()
         {
@@ -43,6 +42,5 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Sync
             
             Assert.True(mr);
         }
-    */
     }
 }

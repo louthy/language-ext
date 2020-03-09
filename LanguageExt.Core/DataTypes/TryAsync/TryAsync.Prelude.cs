@@ -466,7 +466,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static TryAsync<Func<T2, R>> parmap<T1, T2, R>(TryAsync<T1> self, Func<T1, T2, R> func) =>
             self.ParMap(func);
@@ -474,7 +473,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static TryAsync<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(TryAsync<T1> self, Func<T1, T2, T3, R> func) =>
             self.ParMap(func);

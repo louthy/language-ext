@@ -1,4 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt.ClassInstances
@@ -18,5 +22,15 @@ namespace LanguageExt.ClassInstances
             if (ReferenceEquals(y, null)) return 1;
             return x.Message.CompareTo(y.Message);
         }
+       
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(Exception x, Exception y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(Exception x) =>
+            GetHashCode(x).AsTask();        
     }
 }

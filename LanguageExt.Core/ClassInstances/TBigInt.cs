@@ -2,6 +2,8 @@
 using LanguageExt.TypeClasses;
 using System.Numerics;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -234,5 +236,15 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public bigint BiCondition(bigint a, bigint b) =>
             Not(XOr(a, b));
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(bigint x, bigint y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(bigint x) =>
+            GetHashCode(x).AsTask();         
     }
 }

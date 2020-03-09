@@ -16,7 +16,7 @@ namespace LanguageExt
         }
 
         public A this[int index] => 
-            throw new NotImplementedException();
+            throw new NotSupportedException();
 
         public SeqType Type =>
             SeqType.Concat;

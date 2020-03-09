@@ -1,6 +1,7 @@
 ﻿using LanguageExt;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
@@ -23,6 +24,10 @@ namespace LanguageExt.ClassInstances
             default(CHOICE).Match(x,
                 Left: default(HashA).GetHashCode,
                 Right: default(HashB).GetHashCode);
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(CH x) =>
+            GetHashCode(x).AsTask();
     }
 
     /// <summary>
@@ -40,6 +45,10 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(CH x) =>
             default(HashableChoice<EqDefault<A>, HashB, CHOICE, CH, A, B>).GetHashCode(x);
+    
+        [Pure]
+        public Task<int> GetHashCodeAsync(CH x) =>
+            GetHashCode(x).AsTask();
     }
 
     /// <summary>
@@ -56,5 +65,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(CH x) =>
             default(HashableChoice<HashableDefault<A>, HashableDefault<B>, CHOICE, CH, A, B>).GetHashCode(x);
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(CH x) =>
+            GetHashCode(x).AsTask();
     }
 }

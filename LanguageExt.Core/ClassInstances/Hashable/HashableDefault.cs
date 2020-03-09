@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -16,33 +17,8 @@ namespace LanguageExt.ClassInstances
     {
         static readonly Func<A, int> hash;
 
-        static HashableDefault()
-        {
-            if (Reflect.IsFunc(typeof(A)))
-            {
-                hash = GetHashable("Try", typeof(HashableTry<>)) ?? 
-                       GetHashable("TryOption", typeof(HashableTryOption<>)) ??
-                       GetHashable("TryAsync", typeof(HashableTryAsync<>)) ??
-                       GetHashable("TryOptionAsync", typeof(HashableTryOptionAsync<>)) ??
-                       new Func<A, int>(x => x.IsNull() ? 0 : x.GetHashCode());
-            }
-            else if (Reflect.IsAnonymous(typeof(A)))
-            {
-                hash = IL.GetHashCode<A>(false);
-            }
-            else
-            {
-                var def = Class<Hashable<A>>.Default;
-                if (def == null)
-                {
-                    hash = x => x.IsNull() ? 0 : x.GetHashCode();
-                }
-                else
-                {
-                    hash = def.GetHashCode;
-                }
-            }
-        }
+        static HashableDefault() =>
+            hash = HashableClass<A>.GetHashCode;
 
         /// <summary>
         /// Get hash code of the value
@@ -52,24 +28,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(A x) =>
             hash(x);
-        
-        static Func<A, int> GetHashable(string name, Type ordType)
-        {
-            if (typeof(A).FullName.StartsWith($"LanguageExt.{name}`"))
-            {
-                var arg = typeof(A).GenericTypeArguments[0];
-                var genA = ordType.MakeGenericType(arg);
-                var mthd = genA.GetMethod("GetHashCode", new Type[] {typeof(A)});
-            
-                var val = Expression.Parameter(typeof(A), "x");
 
-                var lambda = Expression.Lambda<Func<A, int>>(Expression.Call(Expression.Default(genA), mthd, val), val);
-                return lambda.Compile();
-            }
-            else
-            {
-                return null;
-            }
-        }
+        [Pure]
+        public Task<int> GetHashCodeAsync(A x) =>
+            default(HashableDefaultAsync<A>).GetHashCodeAsync(x);
     }
 }

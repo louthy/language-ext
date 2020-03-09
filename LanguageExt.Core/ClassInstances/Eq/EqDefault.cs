@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -19,33 +20,8 @@ namespace LanguageExt.ClassInstances
 
         static readonly Func<A, A, bool> eq;
 
-        static EqDefault()
-        {
-            if (Reflect.IsFunc(typeof(A)))
-            {
-                eq = GetEq("Try", typeof(EqTry<>)) ?? 
-                     GetEq("TryOption", typeof(EqTryOption<>)) ??
-                     GetEq("TryAsync", typeof(EqTryAsync<>)) ??
-                     GetEq("TryOptionAsync", typeof(EqTryOptionAsync<>)) ??
-                     new Func<A, A, bool>((a, b) => ReferenceEquals(a, b));
-            }
-            else if (Reflect.IsAnonymous(typeof(A)))
-            {
-                eq = IL.EqualsTyped<A>(false);
-            }
-            else
-            {
-                var def = Class<Eq<A>>.Default;
-                if (def == null)
-                {
-                    eq = EqualityComparer<A>.Default.Equals;
-                }
-                else
-                {
-                    eq = def.Equals;
-                }
-            }
-        }
+        static EqDefault() =>
+            eq = EqClass<A>.Equals;
 
         /// <summary>
         /// Equality test
@@ -70,25 +46,13 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(A x) =>
             default(HashableDefault<A>).GetHashCode(x);
-        
-        static Func<A, A, bool> GetEq(string name, Type eqType)
-        {
-            if (typeof(A).FullName.StartsWith($"LanguageExt.{name}`"))
-            {
-                var genA = typeof(A).GenericTypeArguments[0];
-                var tryA = eqType.MakeGenericType(genA);
-                var eq = tryA.GetMethod("Equals", new Type[] {typeof(A), typeof(A)});
-            
-                var lhs = Expression.Parameter(typeof(A), "lhs");
-                var rhs = Expression.Parameter(typeof(A), "rhs");
 
-                var lambda = Expression.Lambda<Func<A, A, bool>>(Expression.Call(Expression.Default(tryA), eq, lhs, rhs), lhs, rhs);
-                return lambda.Compile();
-            }
-            else
-            {
-                return null;
-            }
-        }
+        [Pure]
+        public Task<bool> EqualsAsync(A x, A y) =>
+            default(EqDefaultAsync<A>).EqualsAsync(x, y);
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(A x) => 
+            default(HashableDefaultAsync<A>).GetHashCodeAsync(x);
     }
 }

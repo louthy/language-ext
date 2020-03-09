@@ -1,6 +1,7 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -29,6 +30,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(string x) =>
             default(HashableString).GetHashCode(x);
+            
+        [Pure]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();
     }
 
     /// <summary>
@@ -56,6 +65,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(string x) =>
             default(HashableStringOrdinalIgnoreCase).GetHashCode(x);
+            
+        [Pure]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();
     }
 
     /// <summary>
@@ -83,6 +100,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(string x) =>
             default(HashableStringOrdinal).GetHashCode(x);
+            
+        [Pure]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();
     }
 
     /// <summary>
@@ -110,6 +135,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(string x) =>
             default(HashableStringCurrentCultureIgnoreCase).GetHashCode(x);
+            
+        [Pure]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();
     }
 
     /// <summary>
@@ -137,5 +170,13 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(string x) =>
             default(HashableStringCurrentCulture).GetHashCode(x);
+                
+        [Pure]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();
     }
 }

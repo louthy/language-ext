@@ -3,6 +3,8 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -67,6 +69,16 @@ namespace LanguageExt.ClassInstances
             default(ChoiceAB).MatchUnsafe(x,
                 Left: a => a.IsNull() ? 0 : a.GetHashCode(),
                 Right: b => b.IsNull() ? 0 : b.GetHashCode());
+   
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(CH x, CH y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(CH x) =>
+            GetHashCode(x).AsTask();        
     }
 
     /// <summary>
@@ -110,6 +122,16 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(CH x) =>
             default(OrdChoiceUnsafe<OrdDefault<A>, OrdB, ChoiceAB, CH, A, B>).GetHashCode(x);
+   
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(CH x, CH y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(CH x) =>
+            GetHashCode(x).AsTask();        
     }
 
     /// <summary>
@@ -152,5 +174,15 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(CH x) =>
             default(OrdChoiceUnsafe<OrdDefault<A>, OrdDefault<B>, ChoiceAB, CH, A, B>).GetHashCode(x);
+   
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(CH x, CH y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(CH x) =>
+            GetHashCode(x).AsTask();        
     }
 }

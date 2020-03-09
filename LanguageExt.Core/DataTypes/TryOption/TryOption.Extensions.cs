@@ -575,7 +575,6 @@ public static class TryOptionExtensions
     /// <summary>
     /// Partial application map
     /// </summary>
-    /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
     public static TryOption<Func<B, R>> ParMap<A, B, R>(this TryOption<A> self, Func<A, B, R> func) =>
         self.Map(curry(func));
@@ -583,7 +582,6 @@ public static class TryOptionExtensions
     /// <summary>
     /// Partial application map
     /// </summary>
-    /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
     public static TryOption<Func<B, Func<C, R>>> ParMap<A, B, C, R>(this TryOption<A> self, Func<A, B, C, R> func) =>
         self.Map(curry(func));

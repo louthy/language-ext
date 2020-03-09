@@ -294,7 +294,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static IEnumerable<Func<T2, R>> parmap<T1, T2, R>(IEnumerable<T1> list, Func<T1, T2, R> func) =>
             list.Map(curry(func));
@@ -302,7 +301,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static IEnumerable<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(IEnumerable<T1> list, Func<T1, T2, T3, R> func) =>
             list.Map(curry(func));

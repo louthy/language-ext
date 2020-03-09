@@ -785,7 +785,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static OptionAsync<Func<T2, R>> parmap<T1, T2, R>(OptionAsync<T1> ma, Func<T1, T2, R> mapper) =>
             ma.ParMap(mapper);
@@ -793,7 +792,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static OptionAsync<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(OptionAsync<T1> ma, Func<T1, T2, T3, R> mapper) =>
             ma.ParMap(mapper);
