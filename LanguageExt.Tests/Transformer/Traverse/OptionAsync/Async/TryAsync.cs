@@ -1,3 +1,4 @@
+using System;
 using Xunit;
 using LanguageExt;
 using LanguageExt.Common;
@@ -5,14 +6,14 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Async
 {
-    public class EitherAsyncOptionAsync
+    public class TryAsyncOptionAsync
     {
         [Fact]
-        public async void LeftIsSomeLeft()
+        public async void FailIsSomeFail()
         {
-            var ma = LeftAsync<Error, OptionAsync<int>>(Error.New("alt"));
+            var ma = TryAsyncFail<OptionAsync<int>>(new Exception("fail"));
             var mb = ma.Sequence();
-            var mc = SomeAsync(LeftAsync<Error, int>(Error.New("alt")));
+            var mc = SomeAsync(TryAsyncFail<int>(new Exception("fail")));
 
             var mr = await (mb == mc);
             
@@ -20,11 +21,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Async
         }
         
         [Fact]
-        public async void RightNoneIsNone()
+        public async void SuccNoneIsNone()
         {
-            var ma = RightAsync<Error, OptionAsync<int>>(None);
+            var ma = TryAsyncSucc<OptionAsync<int>>(None);
             var mb = ma.Sequence();
-            var mc = OptionAsync<EitherAsync<Error, int>>.None;
+            var mc = OptionAsync<TryAsync<int>>.None;
 
             var mr = await (mb == mc);
             
@@ -32,11 +33,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Async
         }
         
         [Fact]
-        public async void RightSomeIsSomeRight()
+        public async void SuccSomeIsSomeSucc()
         {
-            var ma = RightAsync<Error, OptionAsync<int>>(SomeAsync(1234));
+            var ma = TryAsync(SomeAsync(1234));
             var mb = ma.Sequence();
-            var mc = SomeAsync(RightAsync<Error, int>(1234));
+            var mc = SomeAsync(TryAsync(1234));
 
             var mr = await (mb == mc);
             

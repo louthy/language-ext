@@ -30,5 +30,10 @@ namespace LanguageExt.ClassInstances
             from a in x
             from r in default(HashableDefaultAsync<A>).GetHashCodeAsync(a)
             select r;
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(Task<A> x, Task<A> y) =>
+            Compare(x, y).AsTask();    
     }
 }

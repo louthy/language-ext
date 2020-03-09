@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace LanguageExt.TypeClasses
 {
     [Typeclass("Ord*Async")]
-    public interface OrdAsync<A> : EqAsync<A>
+    public interface OrdAsync<A> : EqAsync<A>, Typeclass
     {
         /// <summary>
         /// Compare two values

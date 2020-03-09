@@ -61,7 +61,12 @@ namespace LanguageExt.ClassInstances
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<int> GetHashCodeAsync(NumType<NUMTYPE, NUM, A> x) =>
-            GetHashCode(x).AsTask();        
+            GetHashCode(x).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(NumType<NUMTYPE, NUM, A> x, NumType<NUMTYPE, NUM, A> y) =>
+            Compare(x, y).AsTask();
     }
 
     /// <summary>
@@ -121,5 +126,10 @@ namespace LanguageExt.ClassInstances
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<int> GetHashCodeAsync(NumType<NUMTYPE, NUM, A, PRED> x) =>
             GetHashCode(x).AsTask();        
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(NumType<NUMTYPE, NUM, A, PRED> x, NumType<NUMTYPE, NUM, A, PRED> y) =>
+            Compare(x, y).AsTask();    
     }
 }

@@ -132,5 +132,10 @@ namespace LanguageExt.ClassInstances
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<int> GetHashCodeAsync((bool, bool) x) =>
             GetHashCode(x).AsTask();         
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync((bool, bool) x, (bool, bool) y) =>
+            Compare(x, y).AsTask();
     }
 }

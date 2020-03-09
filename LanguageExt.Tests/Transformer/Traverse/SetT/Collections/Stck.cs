@@ -16,16 +16,15 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
         }
         
         // TODO: OrdDefault
-        // [Fact]
-        // public void StckSetCrossProduct()
-        // {
-        //     var ma = Stack(Set(1, 2), Set(10, 20, 30));
-        //     var mb = ma.Traverse(identity);
-        //     var mc = Set(Stack(1, 10), Stack(1, 20), Stack(1, 30), Stack(2, 10), Stack(2, 20), Stack(2, 30));
-        //     
-        //     Assert.True(mb == mc);
-        // }
-        
+        [Fact]
+        public void StckSetCrossProduct()
+        {
+            var ma = Stack(Set(1, 2), Set(10, 20, 30));
+            var mb = ma.Traverse(identity);
+            var mc = Set(Stack(1, 10), Stack(1, 20), Stack(1, 30), Stack(2, 10), Stack(2, 20), Stack(2, 30));
+            
+            Assert.True(mb == mc);
+        }
                 
         [Fact]
         public void StckOfEmptiesAndNonEmptiesIsEmpty()

@@ -76,5 +76,8 @@ namespace Records
 
         public Task<int> GetHashCodeAsync(JObject x) =>
             GetHashCode(x).AsTask();
+
+        public Task<int> CompareAsync(JObject x, JObject y) =>
+            Compare(x, y).AsTask();    
     }
 }

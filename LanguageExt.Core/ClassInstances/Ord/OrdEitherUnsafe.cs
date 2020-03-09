@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 
@@ -64,6 +65,11 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Task<bool> EqualsAsync(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) => 
             Equals(x, y).AsTask();
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) =>
+            Compare(x, y).AsTask();
     }
     
     /// <summary>
@@ -109,5 +115,10 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Task<bool> EqualsAsync(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) => 
             Equals(x, y).AsTask();    
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) =>
+            Compare(x, y).AsTask();
     }
 }

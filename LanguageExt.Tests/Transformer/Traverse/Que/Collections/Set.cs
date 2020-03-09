@@ -17,9 +17,6 @@ namespace LanguageExt.Tests.Transformer.Traverse.QueT.Collections
             Assert.True(mb == mc);
         }
 
-        // TODO: OrdQue needs implementing
-        // TODO: OrdDefault to recognise OrdQue
-        /*
         [Fact]
         public void SetQueCrossProduct()
         {
@@ -61,6 +58,5 @@ namespace LanguageExt.Tests.Transformer.Traverse.QueT.Collections
 
             Assert.True(mb == mc);
         }
-        */
     }
 }

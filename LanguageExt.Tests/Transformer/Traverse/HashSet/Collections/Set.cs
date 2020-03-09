@@ -21,10 +21,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.HashSetT.Collections
             Assert.True(mb == mc);
         }
         
-        // TODO: OrdHashSet needs implementing 
-        // TODO: OrdDefault to recognise OrdHashSet
-        
-        /*[Fact]
+        [Fact]
         public void SetHashSetCrossProduct()
         {
             var ma = Set(HashSet(1, 2), HashSet(10, 20, 30));
@@ -59,6 +56,6 @@ namespace LanguageExt.Tests.Transformer.Traverse.HashSetT.Collections
             var mc = HashSet<Set<int>>.Empty;
             
             Assert.True(mb == mc);
-        }*/
+        }
     }
 }

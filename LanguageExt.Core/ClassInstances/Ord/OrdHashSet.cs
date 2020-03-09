@@ -4,16 +4,17 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using static LanguageExt.TypeClass;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.ClassInstances
 {
     /// <summary>
     /// Equality and ordering
     /// </summary>
-    public struct OrdQue<OrdA, A> : Ord<Que<A>>
+    public struct OrdHashSet<OrdA, A> : Ord<HashSet<A>>
         where OrdA : struct, Ord<A>
     {
-        public static readonly OrdQue<OrdA, A> Inst = default(OrdQue<OrdA, A>);
+        public static readonly OrdHashSet<OrdA, A> Inst = default(OrdHashSet<OrdA, A>);
 
         /// <summary>
         /// Equality test
@@ -22,8 +23,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public bool Equals(Que<A> x, Que<A> y) =>
-            default(EqQue<OrdA, A>).Equals(x, y);
+        public bool Equals(HashSet<A> x, HashSet<A> y) =>
+            default(EqHashSet<OrdA, A>).Equals(x, y);
 
         /// <summary>
         /// Compare two values
@@ -36,28 +37,24 @@ namespace LanguageExt.ClassInstances
         /// if x equals y       : 0
         /// </returns>
         [Pure]
-        public int Compare(Que<A> x, Que<A> y)
+        public int Compare(HashSet<A> x, HashSet<A> y)
         {
-            var cmp = x.Count.CompareTo(y.Count);
-            if (cmp == 0)
+            if (x.Count > y.Count) return 1;
+            if (x.Count < y.Count) return -1;
+            var sa = toSet<A>(x);
+            var sb = toSet<A>(y);
+            using (var iterA = sa.GetEnumerator())
             {
-                var enumx = x.GetEnumerator();
-                var enumy = y.GetEnumerator();
-                var count = x.Count;
-
-                for (int i = 0; i < count; i++)
+                using (var iterB = sb.GetEnumerator())
                 {
-                    enumx.MoveNext();
-                    enumy.MoveNext();
-                    cmp = default(OrdA).Compare(enumx.Current, enumy.Current);
-                    if (cmp != 0) return cmp;
+                    while (iterA.MoveNext() && iterB.MoveNext())
+                    {
+                        var cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
+                        if (cmp != 0) return cmp;
+                    }
                 }
-                return 0;
             }
-            else
-            {
-                return cmp;
-            }
+            return 0;
         }
 
         /// <summary>
@@ -65,31 +62,31 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <returns>Hash code of x</returns>
         [Pure]
-        public int GetHashCode(Que<A> x) =>
+        public int GetHashCode(HashSet<A> x) =>
             x.GetHashCode();
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task<bool> EqualsAsync(Que<A> x, Que<A> y) =>
+        public Task<bool> EqualsAsync(HashSet<A> x, HashSet<A> y) =>
             Equals(x, y).AsTask();
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task<int> GetHashCodeAsync(Que<A> x) =>
+        public Task<int> GetHashCodeAsync(HashSet<A> x) =>
             GetHashCode(x).AsTask();       
-        
+          
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task<int> CompareAsync(Que<A> x, Que<A> y) =>
-            Compare(x, y).AsTask();    
+        public Task<int> CompareAsync(HashSet<A> x, HashSet<A> y) =>
+            Compare(x, y).AsTask();   
     }
 
     /// <summary>
     /// Equality and ordering
     /// </summary>
-    public struct OrdQue<A> : Ord<Que<A>>
+    public struct OrdHashSet<A> : Ord<HashSet<A>>
     {
-        public static readonly OrdQue<A> Inst = default(OrdQue<A>);
+        public static readonly OrdHashSet<A> Inst = default(OrdHashSet<A>);
 
         /// <summary>
         /// Equality test
@@ -98,8 +95,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public bool Equals(Que<A> x, Que<A> y) =>
-            default(OrdQue<OrdDefault<A>, A>).Equals(x, y);
+        public bool Equals(HashSet<A> x, HashSet<A> y) =>
+            default(OrdHashSet<OrdDefault<A>, A>).Equals(x, y);
 
         /// <summary>
         /// Compare two values
@@ -112,30 +109,30 @@ namespace LanguageExt.ClassInstances
         /// if x equals y       : 0
         /// </returns>
         [Pure]
-        public int Compare(Que<A> x, Que<A> y) =>
-            default(OrdQue<OrdDefault<A>, A>).Compare(x, y);
+        public int Compare(HashSet<A> x, HashSet<A> y) =>
+            default(OrdHashSet<OrdDefault<A>, A>).Compare(x, y);
 
         /// <summary>
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
         [Pure]
-        public int GetHashCode(Que<A> x) =>
-            default(OrdQue<OrdDefault<A>, A>).GetHashCode(x);
+        public int GetHashCode(HashSet<A> x) =>
+            default(OrdHashSet<OrdDefault<A>, A>).GetHashCode(x);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task<bool> EqualsAsync(Que<A> x, Que<A> y) =>
+        public Task<bool> EqualsAsync(HashSet<A> x, HashSet<A> y) =>
             Equals(x, y).AsTask();
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task<int> GetHashCodeAsync(Que<A> x) =>
+        public Task<int> GetHashCodeAsync(HashSet<A> x) =>
             GetHashCode(x).AsTask();       
-        
+          
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task<int> CompareAsync(Que<A> x, Que<A> y) =>
-            Compare(x, y).AsTask();    
+        public Task<int> CompareAsync(HashSet<A> x, HashSet<A> y) =>
+            Compare(x, y).AsTask();   
     }
 }

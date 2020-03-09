@@ -40,7 +40,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }
 
-        [Fact(Skip = "IEnumerable comparison throws NRE")]
+        [Fact]
         public void SetOfEmptiesAndNonEmptiesIsEmpty()
         {
             var ma = Set<IEnumerable<int>>(Seq<int>(), Seq<int>(1, 2, 3));
@@ -52,7 +52,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }
 
-        [Fact(Skip = "IEnumerable comparison throws NRE")]
+        [Fact]
         public void SetOfEmptiesIsEmpty()
         {
             var ma = Set<IEnumerable<int>>(Seq<int>(), Seq<int>());

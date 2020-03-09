@@ -77,6 +77,11 @@ namespace LanguageExt.ClassInstances
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<int> GetHashCodeAsync(Stck<A> x) =>
             GetHashCode(x).AsTask();       
+            
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(Stck<A> x, Stck<A> y) =>
+            Compare(x, y).AsTask();   
     }
 
     /// <summary>
@@ -127,5 +132,10 @@ namespace LanguageExt.ClassInstances
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<int> GetHashCodeAsync(Stck<A> x) =>
             GetHashCode(x).AsTask();       
+            
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(Stck<A> x, Stck<A> y) =>
+            Compare(x, y).AsTask();  
     }
 }

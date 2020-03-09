@@ -67,6 +67,11 @@ namespace LanguageExt.ClassInstances
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<int> GetHashCodeAsync(string x) =>
             GetHashCode(x).AsTask();     
+          
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();   
     }
 
     public struct TStringOrdinalIgnoreCase : Ord<string>, Monoid<string>
@@ -131,6 +136,11 @@ namespace LanguageExt.ClassInstances
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<int> GetHashCodeAsync(string x) =>
             GetHashCode(x).AsTask();     
+          
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();   
     }
 
     public struct TStringOrdinal : Ord<string>, Monoid<string>
@@ -195,6 +205,11 @@ namespace LanguageExt.ClassInstances
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<int> GetHashCodeAsync(string x) =>
             GetHashCode(x).AsTask();     
+          
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();   
     }
 
     public struct TStringCurrentCultureIgnoreCase : Ord<string>, Monoid<string>
@@ -259,6 +274,11 @@ namespace LanguageExt.ClassInstances
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<int> GetHashCodeAsync(string x) =>
             GetHashCode(x).AsTask();     
+          
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();   
     }
 
     public struct TStringCurrentCulture : Ord<string>, Monoid<string>
@@ -323,5 +343,10 @@ namespace LanguageExt.ClassInstances
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<int> GetHashCodeAsync(string x) =>
             GetHashCode(x).AsTask();     
+          
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();   
     }
 }

@@ -25,17 +25,16 @@ namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
             Assert.True(mb == mc);
         }
         
-        // TODO: OrdDefault
-        // [Fact]
-        // public void EnumSetCrossProduct()
-        // {
-        //     var ma = mkEnum(Set(1, 2), Set(10, 20, 30));
-        //     var mb = ma.Sequence();
-        //     var mc = Set(mkEnum(1, 10), mkEnum(1, 20), mkEnum(1, 30), mkEnum(2, 10), mkEnum(2, 20), mkEnum(2, 30));
-        //     
-        //     Assert.True(toArray(mb.Map(toArray)) == toArray(mc.Map(toArray)));
-        //     
-        // }
+        [Fact]
+        public void EnumSetCrossProduct()
+        {
+            var ma = mkEnum(Set(1, 2), Set(10, 20, 30));
+            var mb = ma.Sequence();
+            var mc = Set(mkEnum(1, 10), mkEnum(1, 20), mkEnum(1, 30), mkEnum(2, 10), mkEnum(2, 20), mkEnum(2, 30));
+            
+            Assert.True(toArray(mb.Map(toArray)) == toArray(mc.Map(toArray)));
+            
+        }
                 
         [Fact]
         public void SeqOfEmptiesAndNonEmptiesIsEmpty()

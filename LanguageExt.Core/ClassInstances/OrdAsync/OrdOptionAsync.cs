@@ -21,7 +21,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Option type equality
     /// </summary>
-    public struct OrdOptionAsync<OrdA, A> : EqAsync<OptionAsync<A>> where OrdA : struct, OrdAsync<A>
+    public struct OrdOptionAsync<OrdA, A> : OrdAsync<OptionAsync<A>> where OrdA : struct, OrdAsync<A>
     {
         public async Task<int> CompareAsync(OptionAsync<A> x, OptionAsync<A> y)
         {

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct OrdTaskAsync<A> : EqAsync<Task<A>>
+    public struct OrdTaskAsync<A> : OrdAsync<Task<A>>
     {
         public Task<int> CompareAsync(Task<A> x, Task<A> y) =>
             default(OrdTaskAsync<OrdDefaultAsync<A>, A>).CompareAsync(x, y);
@@ -15,7 +15,7 @@ namespace LanguageExt.ClassInstances
             default(HashableTaskAsync<A>).GetHashCodeAsync(x);
     }
 
-    public struct OrdTaskAsync<OrdA, A> : EqAsync<Task<A>> where OrdA : struct, OrdAsync<A>
+    public struct OrdTaskAsync<OrdA, A> : OrdAsync<Task<A>> where OrdA : struct, OrdAsync<A>
     {
         public async Task<int> CompareAsync(Task<A> x, Task<A> y)
         {

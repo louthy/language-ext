@@ -3,7 +3,7 @@ using LanguageExt.TypeClasses;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct OrdTryAsync<OrdA, A> : EqAsync<TryAsync<A>> where OrdA : struct, OrdAsync<A>
+    public struct OrdTryAsync<OrdA, A> : OrdAsync<TryAsync<A>> where OrdA : struct, OrdAsync<A>
     {
         public async Task<int> CompareAsync(TryAsync<A> x, TryAsync<A> y)
         {
@@ -34,7 +34,7 @@ namespace LanguageExt.ClassInstances
             default(HashableTryAsync<OrdA, A>).GetHashCodeAsync(x);
     }
 
-    public struct OrdTryAsync<A> : EqAsync<TryAsync<A>>
+    public struct OrdTryAsync<A> : OrdAsync<TryAsync<A>>
     {
         public Task<int> CompareAsync(TryAsync<A> x, TryAsync<A> y) =>
             default(OrdTryAsync<OrdDefaultAsync<A>, A>).CompareAsync(x, y);

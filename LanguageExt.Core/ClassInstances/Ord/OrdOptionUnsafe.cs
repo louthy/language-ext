@@ -26,6 +26,11 @@ namespace LanguageExt.ClassInstances
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<int> GetHashCodeAsync(OptionUnsafe<A> x) =>
             GetHashCode(x).AsTask();       
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(OptionUnsafe<A> x, OptionUnsafe<A> y) =>
+            Compare(x, y).AsTask();    
     }
 
     public struct OrdOptionUnsafe<A> : Ord<OptionUnsafe<A>>
@@ -48,5 +53,10 @@ namespace LanguageExt.ClassInstances
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<int> GetHashCodeAsync(OptionUnsafe<A> x) =>
             GetHashCode(x).AsTask();       
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(OptionUnsafe<A> x, OptionUnsafe<A> y) =>
+            Compare(x, y).AsTask();    
     }
 }

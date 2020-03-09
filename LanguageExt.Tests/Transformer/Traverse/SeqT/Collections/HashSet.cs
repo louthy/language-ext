@@ -24,9 +24,6 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
             var ma = HashSet(Seq(1, 2), Seq(10, 20, 30));
 
             var mb = ma.Sequence();
-            mb = mb.OrderBy(x => x.ToArray()[1])
-                .OrderBy(x => x.ToArray()[0])
-                .ToSeq();
 
             var mc = Seq(
                 HashSet(1, 10),

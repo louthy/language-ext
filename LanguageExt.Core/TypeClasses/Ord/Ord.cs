@@ -4,7 +4,7 @@ using System.Diagnostics.Contracts;
 namespace LanguageExt.TypeClasses
 {
     [Typeclass("Ord*")]
-    public interface Ord<A> : Eq<A>
+    public interface Ord<A> : Eq<A>, OrdAsync<A>, Typeclass
     {
         /// <summary>
         /// Compare two values
