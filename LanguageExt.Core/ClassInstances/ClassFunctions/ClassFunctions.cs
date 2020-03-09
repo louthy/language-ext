@@ -58,6 +58,7 @@ namespace LanguageExt.ClassInstances
             }
 
             var mthd = inst.GetMethod(methodName, new Type[] {typeof(Arg)});
+            if (mthd == null) return null;
             var arg = Expression.Parameter(typeof(Arg), "x");
             var lambda = Expression.Lambda<Func<Arg, Ret>>(Expression.Call(Expression.Default(inst), mthd, arg), arg);
             return lambda.Compile();
@@ -74,6 +75,7 @@ namespace LanguageExt.ClassInstances
             }
 
             var mthd = inst.GetMethod(methodName, new Type[] {typeof(Arg1), typeof(Arg2)});
+            if (mthd == null) return null;
             var arg1 = Expression.Parameter(typeof(Arg1), "x");
             var arg2 = Expression.Parameter(typeof(Arg2), "y");
             var lambda =
@@ -93,6 +95,7 @@ namespace LanguageExt.ClassInstances
             }
 
             var mthd = inst.GetMethod(methodName, new Type[] {typeof(Arg1), typeof(Arg2), typeof(Arg3)});
+            if (mthd == null) return null;
             var arg1 = Expression.Parameter(typeof(Arg1), "x");
             var arg2 = Expression.Parameter(typeof(Arg2), "y");
             var arg3 = Expression.Parameter(typeof(Arg3), "z");
@@ -118,6 +121,7 @@ namespace LanguageExt.ClassInstances
             }
 
             var mthd = inst.GetMethod(methodName, new Type[] {typeof(Arg1), typeof(Arg2), typeof(Arg3), typeof(Arg4)});
+            if (mthd == null) return null;
             var arg1 = Expression.Parameter(typeof(Arg1), "x");
             var arg2 = Expression.Parameter(typeof(Arg2), "y");
             var arg3 = Expression.Parameter(typeof(Arg3), "z");

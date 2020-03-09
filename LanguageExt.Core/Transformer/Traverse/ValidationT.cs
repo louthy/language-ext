@@ -114,7 +114,7 @@ namespace LanguageExt
             }
             else
             {
-                return Validation<MonoidFail, Fail, Identity<B>>.Success(new Identity<B>(f((A)ma.Value)));
+                return Validation<MonoidFail, Fail, Identity<B>>.Success(Id<B>(f((A)ma.Value)));
             }
         }
 

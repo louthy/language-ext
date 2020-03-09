@@ -21,6 +21,18 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Async
         }
         
         [Fact]
+        public async void NoneIsSomeNone()
+        {
+            var ma = TryOptionalAsync<OptionAsync<int>>(None);
+            var mb = ma.Sequence();
+            var mc = SomeAsync(TryOptionalAsync<int>(None));
+
+            var mr = await (mb == mc);
+            
+            Assert.True(mr);
+        }
+        
+        [Fact]
         public async void SuccNoneIsNone()
         {
             var ma = TryOptionAsyncSucc<OptionAsync<int>>(None);

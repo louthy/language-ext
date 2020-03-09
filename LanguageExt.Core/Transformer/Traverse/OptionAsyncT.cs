@@ -269,7 +269,7 @@ namespace LanguageExt
             async Task<(bool, Either<L, B>)> Go(Either<L, OptionAsync<A>> ma, Func<A, B> f)
             {
                 if(ma.IsBottom) return (false, default);
-                if(ma.IsLeft) return (false, Left<L, B>(ma.LeftValue));
+                if(ma.IsLeft) return (true, Left<L, B>(ma.LeftValue));
                 var (isSome, value) = await ma.RightValue.Data;
                 if(!isSome) return (false, default);
                 return (true, f(value));
