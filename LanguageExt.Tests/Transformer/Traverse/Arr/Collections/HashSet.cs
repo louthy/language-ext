@@ -1,21 +1,11 @@
-using System;
-using System.IO;
 using System.Linq;
 using Xunit;
-using Xunit.Abstractions;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.ArrT.Collections
 {
     public class HashSetArr
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
-        public HashSetArr(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
-
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
