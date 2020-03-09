@@ -28,7 +28,7 @@ namespace LanguageExt.ClassInstances
         public static (string FullName, string Name, Type[] Gens) GetTypeInfo<A>()
         {
             var typeA = typeof(A);
-            if (typeA.BaseType.ToString() == "System.Array")
+            if (typeA.BaseType?.FullName == "System.Array")
             {
                 return ("System.Array", "Array", new[] {typeA.GetElementType()});
             }

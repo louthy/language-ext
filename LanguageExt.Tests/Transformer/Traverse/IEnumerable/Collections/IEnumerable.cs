@@ -20,8 +20,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Collections
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }
 
-        //todo: remove Skip when IEnumerable comparison is fixed
-        [Fact(Skip = "IEnumerable comparison throws NRE")]
+        [Fact]
         public void IEnumerableIEnumerableCrossProduct()
         {
             var ma = new IEnumerable<int>[] { Seq(1, 2), Seq(10, 20, 30) }.AsEnumerable();
