@@ -27,13 +27,26 @@ namespace LanguageExt.ClassInstances
             try
             {
                 var (fullName, name, gens) = ClassFunctions.GetTypeInfo<A>();
-                CompareAsync = ClassFunctions.MakeFunc2<A, A, Task<int>>(name, "CompareAsync", gens, 
-                    ("Ord", "Async"), 
+                CompareAsync = ClassFunctions.MakeFunc2<A, A, Task<int>>(name, "CompareAsync", gens,
+                    ("Ord", "Async"),
                     ("Ord", ""));
+                
+                if (CompareAsync == null && OrdClass<A>.Error.IsNone)
+                {
+                    CompareAsync = OrdClass<A>.CompareAsync;
+                }
+
+                if (CompareAsync == null)
+                {
+                    CompareAsync = new Func<A, A, Task<int>>((A x, A y) =>
+                        throw new NotSupportedException(
+                            $"Neither Ord{name}Async, nor Ord{name} instance found for {fullName} (CompareAsync)"));
+                }
             }
             catch (Exception e)
             {
                 Error = Some(Common.Error.New(e));
+                CompareAsync = (A x, A y) => throw e;
             }
         }
     }

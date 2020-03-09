@@ -29,10 +29,23 @@ namespace LanguageExt.ClassInstances
                     ("Eq", "Async"), ("Ord", "Async"),
                     ("Eq", ""), ("Ord", "")
                     );
+
+                if (EqualsAsync == null && EqClass<A>.Error.IsNone)
+                {
+                    EqualsAsync = EqClass<A>.EqualsAsync;
+                }
+
+                if (EqualsAsync == null)
+                {
+                    EqualsAsync = (A x, A y) => throw new NotSupportedException(
+                        $"Neither Eq{name}Async, Ord{name}Async, Eq{name}, nor Ord{name} instance found for {fullName} (EqualsAsync)"
+                    );
+                }
             }
             catch (Exception e)
             {
                 Error = Some(Common.Error.New(e));
+                EqualsAsync = (A x, A y) => throw e;
             }
         }
     }

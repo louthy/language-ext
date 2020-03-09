@@ -46,10 +46,18 @@ namespace LanguageExt.ClassInstances
                 {
                     Equals = primFun;
                 }
+
+                if (Equals == null)
+                {
+                    Equals = (A x, A y) => throw new NotSupportedException(
+                        $"Neither Eq{name}, nor Ord{name} instance found for {fullName} (Equals)"
+                    );
+                }
             }
             catch (Exception e)
             {
                 Error = Some(Common.Error.New(e));
+                Equals = (A x, A y) => throw e;
             }
         }
 

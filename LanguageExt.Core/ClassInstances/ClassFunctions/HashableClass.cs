@@ -35,10 +35,16 @@ namespace LanguageExt.ClassInstances
                 {
                     GetHashCode = primFun;
                 }
+
+                if (GetHashCode == null)
+                {
+                    GetHashCode = (A x) => throw new NotSupportedException($"Neither Hashable{name}, Eq{name}, nor Ord{name} instance found for {fullName} (GetHashCode)");
+                }
             }
             catch (Exception e)
             {
                 Error = Some(Common.Error.New(e));
+                GetHashCode = (A x) => throw e;
             }
         }
 

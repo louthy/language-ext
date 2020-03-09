@@ -5,14 +5,14 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Sync
 {
-    public class EitherAsyncOptionAsync
+    public class OptionAsyncOptionAsync
     {
         [Fact]
-        public async void LeftIsSomeLeft()
+        public async void NoneIsSomeNone()
         {
-            var ma = LeftAsync<Error, OptionAsync<int>>(Error.New("alt"));
+            var ma = OptionAsync<OptionAsync<int>>.None;
             var mb = ma.Sequence();
-            var mc = SomeAsync(LeftAsync<Error, int>(Error.New("alt")));
+            var mc = SomeAsync(OptionAsync<int>.None);
 
             var mr = await (mb == mc);
             
@@ -20,11 +20,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Sync
         }
         
         [Fact]
-        public async void RightNoneIsNone()
+        public async void SomeNoneIsNone()
         {
-            var ma = RightAsync<Error, OptionAsync<int>>(None);
+            var ma = SomeAsync<OptionAsync<int>>(None);
             var mb = ma.Sequence();
-            var mc = OptionAsync<EitherAsync<Error, int>>.None;
+            var mc = OptionAsync<OptionAsync<int>>.None;
 
             var mr = await (mb == mc);
             
@@ -32,11 +32,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Sync
         }
         
         [Fact]
-        public async void RightSomeIsSomeRight()
+        public async void SomeSomeIsSomeSome()
         {
-            var ma = RightAsync<Error, OptionAsync<int>>(SomeAsync(1234));
+            var ma = SomeAsync(SomeAsync(1234));
             var mb = ma.Sequence();
-            var mc = SomeAsync(RightAsync<Error, int>(1234));
+            var mc = SomeAsync(SomeAsync(1234));
 
             var mr = await (mb == mc);
             

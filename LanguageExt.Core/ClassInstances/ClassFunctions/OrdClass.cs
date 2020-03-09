@@ -33,6 +33,7 @@ namespace LanguageExt.ClassInstances
             try
             {
                 var (fullName, name, gens) = ClassFunctions.GetTypeInfo<A>();
+                
                 var primFun = MakePrimitiveCompare(fullName);
                 if (primFun == null)
                 {
@@ -50,10 +51,16 @@ namespace LanguageExt.ClassInstances
                 {
                     Compare = primFun;
                 }
+
+                if (Compare == null)
+                {
+                    Compare = (A x, A y) => throw new NotSupportedException($"Ord{name} instance not found for {fullName} (Compare)");
+                }
             }
             catch (Exception e)
             {
                 Error = Some(Common.Error.New(e));
+                Compare = (A x, A y) => throw e;
             }
         }
 

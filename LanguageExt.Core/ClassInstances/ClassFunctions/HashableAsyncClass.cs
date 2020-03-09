@@ -27,10 +27,23 @@ namespace LanguageExt.ClassInstances
                     ("Hashable", "Async"), ("Eq", "Async"), ("Ord", "Async"),
                     ("Hashable", ""), ("Eq", ""), ("Ord", "")
                     );
+
+                if (GetHashCodeAsync == null && HashableClass<A>.Error.IsNone)
+                {
+                    GetHashCodeAsync = HashableClass<A>.GetHashCodeAsync;
+                }
+ 
+                if (GetHashCodeAsync == null)
+                {
+                    GetHashCodeAsync = (A x) => throw new NotSupportedException(
+                        $"Neither Hashable{name}Async, Eq{name}Async, Ord{name}Async , Hashable{name}, Eq{name}, nor Ord{name} instance found for {fullName} (GetHashCodeAsync)"
+                        );
+                }
             }
             catch (Exception e)
             {
                 Error = Some(Common.Error.New(e));
+                GetHashCodeAsync = (A x) => throw e;
             }
         }
     }
