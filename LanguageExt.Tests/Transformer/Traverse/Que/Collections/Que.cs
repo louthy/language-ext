@@ -1,30 +1,30 @@
 using Xunit;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
+namespace LanguageExt.Tests.Transformer.Traverse.QueT.Collections
 {
-    public class QueSeq
+    public class QueQue
     {
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
-            Que<Seq<int>> ma = Empty;
+            Que<Que<int>> ma = Empty;
 
             var mb = ma.Traverse(identity);
 
-            var mc = Seq<Que<int>>.Empty;
+            var mc = Que<Que<int>>.Empty;
 
             Assert.True(mb == mc);
         }
 
         [Fact]
-        public void QueSeqCrossProduct()
+        public void QueQueCrossProduct()
         {
-            var ma = Queue(Seq(1, 2), Seq(10, 20, 30));
+            var ma = Queue(Queue(1, 2), Queue(10, 20, 30));
 
             var mb = ma.Traverse(identity);
 
-            var mc = Seq(
+            var mc = Queue(
                 Queue(1, 10),
                 Queue(1, 20),
                 Queue(1, 30),
@@ -38,11 +38,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         [Fact]
         public void QueOfEmptiesAndNonEmptiesIsEmpty()
         {
-            var ma = Queue(Seq<int>(), Seq<int>(1, 2, 3));
+            var ma = Queue(Queue<int>(), Queue<int>(1, 2, 3));
 
             var mb = ma.Traverse(identity);
 
-            var mc = Seq<Que<int>>.Empty;
+            var mc = Que<Que<int>>.Empty;
 
             Assert.True(mb == mc);
         }
@@ -50,11 +50,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         [Fact]
         public void QueOfEmptiesIsEmpty()
         {
-            var ma = Queue(Seq<int>(), Seq<int>());
+            var ma = Queue(Queue<int>(), Queue<int>());
 
             var mb = ma.Traverse(identity);
 
-            var mc = Seq<Que<int>>.Empty;
+            var mc = Que<Que<int>>.Empty;
 
             Assert.True(mb == mc);
         }

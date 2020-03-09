@@ -1,18 +1,17 @@
 using System;
-using LanguageExt.Common;
 using Xunit;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
+namespace LanguageExt.Tests.Transformer.Traverse.ArrT.Sync
 {
-    public class TrySeq
+    public class TryArr
     {
         [Fact]
         public void FailIsSingletonNone()
         {
-            var ma = TryFail<Seq<int>>(new Exception("fail"));
+            var ma = TryFail<Arr<int>>(new Exception("fail"));
             var mb = ma.Sequence();
-            var mc = Seq1(TryFail<int>(new Exception("fail")));
+            var mc = Array(TryFail<int>(new Exception("fail")));
 
             Assert.True(mb == mc);
         }
@@ -20,19 +19,19 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
         [Fact]
         public void SuccEmptyIsEmpty()
         {
-            var ma = TrySucc<Seq<int>>(Empty);
+            var ma = TrySucc<Arr<int>>(Empty);
             var mb = ma.Sequence();
-            var mc = Seq<Try<int>>();
+            var mc = Array<Try<int>>();
 
             Assert.True(mb == mc);
         }
 
         [Fact]
-        public void SuccNonEmptySeqIsSeqSuccs()
+        public void SuccNonEmptyArrIsArrSuccs()
         {
-            var ma = TrySucc(Seq(1, 2, 3));
+            var ma = TrySucc(Array(1, 2, 3));
             var mb = ma.Sequence();
-            var mc = Seq(TrySucc(1), TrySucc(2), TrySucc(3));
+            var mc = Array(TrySucc(1), TrySucc(2), TrySucc(3));
 
             Assert.True(mb == mc);
         }

@@ -3,16 +3,16 @@ using LanguageExt.Common;
 using Xunit;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
+namespace LanguageExt.Tests.Transformer.Traverse.ArrT.Sync
 {
-    public class EitherUnsafeSeq
+    public class EitherUnsafeArr
     {
         [Fact]
         public void LeftIsSingletonLeft()
         {
-            var ma = LeftUnsafe<Error, Seq<int>>(Error.New("alt"));
+            var ma = LeftUnsafe<Error, Arr<int>>(Error.New("alt"));
             var mb = ma.Sequence();
-            var mc = Seq1(LeftUnsafe<Error, int>(new Exception("alt")));
+            var mc = Array(LeftUnsafe<Error, int>(new Exception("alt")));
 
             Assert.True(mb == mc);
         }
@@ -20,19 +20,19 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
         [Fact]
         public void RightEmptyIsEmpty()
         {
-            var ma = RightUnsafe<Error, Seq<int>>(Empty);
+            var ma = RightUnsafe<Error, Arr<int>>(Empty);
             var mb = ma.Sequence();
-            var mc = Seq<EitherUnsafe<Error, int>>();
+            var mc = Array<EitherUnsafe<Error, int>>();
 
             Assert.True(mb == mc);
         }
 
         [Fact]
-        public void RightNonEmptySeqIsSeqRight()
+        public void RightNonEmptyArrIsArrRight()
         {
-            var ma = RightUnsafe<Error, Seq<int>>(Seq(1, 2, 3, 4));
+            var ma = RightUnsafe<Error, Arr<int>>(Array(1, 2, 3, 4));
             var mb = ma.Sequence();
-            var mc = Seq(
+            var mc = Array(
                 RightUnsafe<Error, int>(1),
                 RightUnsafe<Error, int>(2),
                 RightUnsafe<Error, int>(3),

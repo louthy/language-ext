@@ -1,26 +1,26 @@
 using Xunit;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
+namespace LanguageExt.Tests.Transformer.Traverse.QueT.Sync
 {
-    public class IdentitySeq
+    public class IdentityQue
     {
         [Fact]
         public void IdEmptyIsEmpty()
         {
-            var ma = Id<Seq<int>>(Empty);
+            var ma = Id<Que<int>>(Empty);
             var mb = ma.Traverse(identity);
-            var mc = Seq<Identity<int>>();
+            var mc = Queue<Identity<int>>();
 
             Assert.True(mb == mc);
         }
 
         [Fact]
-        public void IdNonEmptySeqIsSeqId()
+        public void IdNonEmptyQueIsQueId()
         {
-            var ma = Id(Seq(1, 2, 3));
+            var ma = Id(Queue(1, 2, 3));
             var mb = ma.Traverse(identity);
-            var mc = Seq(Id(1), Id(2), Id(3));
+            var mc = Queue(Id(1), Id(2), Id(3));
 
             Assert.True(mb == mc);
         }

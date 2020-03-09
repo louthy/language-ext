@@ -1,34 +1,44 @@
+using System;
+using System.IO;
 using System.Linq;
 using Xunit;
+using Xunit.Abstractions;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
+namespace LanguageExt.Tests.Transformer.Traverse.ArrT.Collections
 {
-    public class HashSetSeq
+    public class HashSetArr
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public HashSetArr(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
-            HashSet<Seq<int>> ma = Empty;
+            HashSet<Arr<int>> ma = Empty;
 
             var mb = ma.Sequence();
 
-            var mc = Seq<HashSet<int>>.Empty;
+            var mc = Arr<HashSet<int>>.Empty;
 
             Assert.True(mb == mc);
         }
 
         [Fact]
-        public void HashSetSeqCrossProduct()
+        public void HashSetArrCrossProduct()
         {
-            var ma = HashSet(Seq(1, 2), Seq(10, 20, 30));
+            var ma = HashSet(Array(1, 2), Array(10, 20, 30));
 
             var mb = ma.Sequence();
             mb = mb.OrderBy(x => x.ToArray()[1])
                 .OrderBy(x => x.ToArray()[0])
-                .ToSeq();
+                .ToArr();
 
-            var mc = Seq(
+            var mc = Array(
                 HashSet(1, 10),
                 HashSet(1, 20),
                 HashSet(1, 30),
@@ -42,11 +52,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         [Fact]
         public void HashSetOfEmptiesAndNonEmptiesIsEmpty()
         {
-            var ma = HashSet(Seq<int>(), Seq<int>(1, 2, 3));
-
+            var ma = HashSet(Array<int>(), Array<int>(1, 2, 3));
             var mb = ma.Sequence();
-
-            var mc = Seq<HashSet<int>>.Empty;
+            var mc = Arr<HashSet<int>>.Empty;
 
             Assert.True(mb == mc);
         }
@@ -54,11 +62,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         [Fact]
         public void HashSetOfEmptiesIsEmpty()
         {
-            var ma = HashSet(Seq<int>(), Seq<int>());
-
+            var ma = HashSet(Array<int>(), Array<int>());
             var mb = ma.Sequence();
-
-            var mc = Seq<HashSet<int>>.Empty;
+            var mc = Arr<HashSet<int>>.Empty;
 
             Assert.True(mb == mc);
         }

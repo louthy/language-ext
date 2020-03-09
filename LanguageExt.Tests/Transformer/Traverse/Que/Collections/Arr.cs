@@ -1,30 +1,30 @@
 using Xunit;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
+namespace LanguageExt.Tests.Transformer.Traverse.QueT.Collections
 {
-    public class ArrSeq
+    public class ArrQue
     {
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
-            Arr<Seq<int>> ma = Empty;
+            Arr<Que<int>> ma = Empty;
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(identity);
 
-            var mc = Seq<Arr<int>>.Empty;
+            var mc = Que<Arr<int>>.Empty;
 
             Assert.True(mb == mc);
         }
 
         [Fact]
-        public void ArrSeqCrossProduct()
+        public void ArrQueCrossProduct()
         {
-            var ma = Array(Seq(1, 2), Seq(10, 20, 30));
+            var ma = Array(Queue(1, 2), Queue(10, 20, 30));
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(identity);
 
-            var mc = Seq(
+            var mc = Queue(
                 Array(1, 10),
                 Array(1, 20),
                 Array(1, 30),
@@ -38,11 +38,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         [Fact]
         public void ArrOfEmptiesAndNonEmptiesIsEmpty()
         {
-            var ma = Array(Seq<int>(), Seq<int>(1, 2, 3));
+            var ma = Array(Queue<int>(), Queue<int>(1, 2, 3));
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(identity);
 
-            var mc = Seq<Arr<int>>.Empty;
+            var mc = Que<Arr<int>>.Empty;
 
             Assert.True(mb == mc);
         }
@@ -50,11 +50,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         [Fact]
         public void ArrOfEmptiesIsEmpty()
         {
-            var ma = Array(Seq<int>(), Seq<int>());
+            var ma = Array(Queue<int>(), Queue<int>());
 
-            var mb = ma.Sequence();
+            var mb = ma.Traverse(identity);
 
-            var mc = Seq<Arr<int>>.Empty;
+            var mc = Que<Arr<int>>.Empty;
 
             Assert.True(mb == mc);
         }

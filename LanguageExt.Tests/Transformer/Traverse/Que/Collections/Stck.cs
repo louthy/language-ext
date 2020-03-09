@@ -1,30 +1,30 @@
 using Xunit;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
+namespace LanguageExt.Tests.Transformer.Traverse.QueT.Collections
 {
-    public class StckSeq
+    public class StckQue
     {
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
-            Stck<Seq<int>> ma = Empty;
+            Stck<Que<int>> ma = Empty;
 
             var mb = ma.Traverse(identity);
 
-            var mc = Seq<Stck<int>>.Empty;
+            var mc = Que<Stck<int>>.Empty;
 
             Assert.True(mb == mc);
         }
 
         [Fact]
-        public void StckSeqCrossProduct()
+        public void StckQueCrossProduct()
         {
-            var ma = Stack(Seq(1, 2), Seq(10, 20, 30));
+            var ma = Stack(Queue(1, 2), Queue(10, 20, 30));
 
             var mb = ma.Traverse(identity);
 
-            var mc = Seq(
+            var mc = Queue(
                 Stack(1, 10),
                 Stack(1, 20),
                 Stack(1, 30),
@@ -38,11 +38,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         [Fact]
         public void StckOfEmptiesAndNonEmptiesIsEmpty()
         {
-            var ma = Stack(Seq<int>(), Seq<int>(1, 2, 3));
+            var ma = Stack(Queue<int>(), Queue<int>(1, 2, 3));
 
             var mb = ma.Traverse(identity);
 
-            var mc = Seq<Stck<int>>.Empty;
+            var mc = Que<Stck<int>>.Empty;
 
             Assert.True(mb == mc);
         }
@@ -50,11 +50,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         [Fact]
         public void StckOfEmptiesIsEmpty()
         {
-            var ma = Stack(Seq<int>(), Seq<int>());
+            var ma = Stack(Queue<int>(), Queue<int>());
 
             var mb = ma.Traverse(identity);
 
-            var mc = Seq<Stck<int>>.Empty;
+            var mc = Que<Stck<int>>.Empty;
 
             Assert.True(mb == mc);
         }

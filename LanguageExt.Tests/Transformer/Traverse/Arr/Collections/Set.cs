@@ -1,30 +1,30 @@
 using Xunit;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
+namespace LanguageExt.Tests.Transformer.Traverse.ArrT.Collections
 {
-    public class SetSeq
+    public class SetArr
     {
         [Fact]
         public void EmptyEmptyIsEmptyEmpty()
         {
-            Set<Seq<int>> ma = Empty;
+            Set<Arr<int>> ma = Empty;
 
             var mb = ma.Sequence();
 
-            var mc = Seq<Set<int>>.Empty;
+            var mc = Arr<Set<int>>.Empty;
 
             Assert.True(mb == mc);
         }
 
         [Fact]
-        public void SetSeqCrossProduct()
+        public void SetArrCrossProduct()
         {
-            var ma = Set(Seq(1, 2), Seq(10, 20, 30));
+            var ma = Set(Array(1, 2), Array(10, 20, 30));
 
             var mb = ma.Sequence();
 
-            var mc = Seq(
+            var mc = Array(
                 Set(1, 10),
                 Set(1, 20),
                 Set(1, 30),
@@ -38,11 +38,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         [Fact]
         public void SetOfEmptiesAndNonEmptiesIsEmpty()
         {
-            var ma = Set(Seq<int>(), Seq<int>(1, 2, 3));
+            var ma = Set(Array<int>(), Array<int>(1, 2, 3));
 
             var mb = ma.Sequence();
 
-            var mc = Seq<Set<int>>.Empty;
+            var mc = Arr<Set<int>>.Empty;
 
             Assert.True(mb == mc);
         }
@@ -50,11 +50,11 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
         [Fact]
         public void SetOfEmptiesIsEmpty()
         {
-            var ma = Set(Seq<int>(), Seq<int>());
+            var ma = Set(Array<int>(), Array<int>());
 
             var mb = ma.Sequence();
 
-            var mc = Seq<Set<int>>.Empty;
+            var mc = Arr<Set<int>>.Empty;
 
             Assert.True(mb == mc);
         }
