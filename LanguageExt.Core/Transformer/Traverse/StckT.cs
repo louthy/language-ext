@@ -24,7 +24,7 @@ namespace LanguageExt
                 Right: xs => toStack(xs.Map(x => RightUnsafe<L, B>(f(x)))));
 
         public static Stck<HashSet<B>> Traverse<A, B>(this HashSet<Stck<A>> ma, Func<A, B> f) =>
-            toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+            toStack(CollT.AllCombinationsOf(ma.ToArray().Map(xs => xs.ToList()).ToArray(), f)
                 .Map(toHashSet));
 
         public static Stck<Identity<B>> Traverse<A, B>(this Identity<Stck<A>> ma, Func<A, B> f) =>
@@ -57,7 +57,7 @@ namespace LanguageExt
                 .Map(xs => xs.AsEnumerable()));
 
         public static Stck<Set<B>> Traverse<A, B>(this Set<Stck<A>> ma, Func<A, B> f) =>
-            toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+            toStack(CollT.AllCombinationsOf(ma.ToArray().Map(xs => xs.ToList()).ToArray(), f)
                 .Map(toSet));
 
         public static Stck<Stck<B>> Traverse<A, B>(this Stck<Stck<A>> ma, Func<A, B> f) =>

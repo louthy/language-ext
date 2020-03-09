@@ -24,7 +24,7 @@ namespace LanguageExt
                 Right: xs => xs.Map(x => RightUnsafe<L, B>(f(x))));
 
         public static IEnumerable<HashSet<B>> Traverse<A, B>(this HashSet<IEnumerable<A>> ma, Func<A, B> f) =>
-            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+            CollT.AllCombinationsOf(ma.ToArray().Map(xs => xs.ToList()).ToArray(), f)
                 .Map(toHashSet);
 
         public static IEnumerable<Identity<B>> Traverse<A, B>(this Identity<IEnumerable<A>> ma, Func<A, B> f) =>
@@ -56,7 +56,7 @@ namespace LanguageExt
             CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f);
 
         public static IEnumerable<Set<B>> Traverse<A, B>(this Set<IEnumerable<A>> ma, Func<A, B> f) =>
-            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+            CollT.AllCombinationsOf(ma.ToArray().Map(xs => xs.ToList()).ToArray(), f)
                 .Map(toSet);
 
         public static IEnumerable<Stck<B>> Traverse<A, B>(this Stck<IEnumerable<A>> ma, Func<A, B> f) =>

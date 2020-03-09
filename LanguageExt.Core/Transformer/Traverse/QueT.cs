@@ -24,7 +24,7 @@ namespace LanguageExt
                 Right: xs => new Que<EitherUnsafe<L, B>>(xs.Map(x => RightUnsafe<L, B>(f(x)))));
 
         public static Que<HashSet<B>> Traverse<A, B>(this HashSet<Que<A>> ma, Func<A, B> f) =>
-            toQueue(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+            toQueue(CollT.AllCombinationsOf(ma.ToArray().Map(xs => xs.ToList()).ToArray(), f)
                 .Map(toHashSet));
 
         public static Que<Identity<B>> Traverse<A, B>(this Identity<Que<A>> ma, Func<A, B> f) =>
@@ -57,7 +57,7 @@ namespace LanguageExt
                 .Map(xs => xs.AsEnumerable()));
 
         public static Que<Set<B>> Traverse<A, B>(this Set<Que<A>> ma, Func<A, B> f) =>
-            toQueue(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+            toQueue(CollT.AllCombinationsOf(ma.ToArray().Map(xs => xs.ToList()).ToArray(), f)
                 .Map(toSet));
 
         public static Que<Stck<B>> Traverse<A, B>(this Stck<Que<A>> ma, Func<A, B> f) =>

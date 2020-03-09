@@ -25,7 +25,7 @@ namespace LanguageExt
                 Right: xs => xs.Map(x => RightUnsafe<L, B>(f(x))));
 
         public static Seq<HashSet<B>> Traverse<A, B>(this HashSet<Seq<A>> ma, Func<A, B> f) =>
-            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+            CollT.AllCombinationsOf(ma.ToArray().Map(xs => xs.ToList()).ToArray(), f)
                 .Map(toHashSet)
                 .ToSeq();
 
@@ -63,7 +63,7 @@ namespace LanguageExt
                 .ToSeq();
 
         public static Seq<Set<B>> Traverse<A, B>(this Set<Seq<A>> ma, Func<A, B> f) =>
-            CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+            CollT.AllCombinationsOf(ma.ToArray().Map(xs => xs.ToList()).ToArray(), f)
                 .Map(toSet)
                 .ToSeq();
 

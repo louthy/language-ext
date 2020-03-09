@@ -24,7 +24,7 @@ namespace LanguageExt
                 Right: xs => xs.Map(x => RightUnsafe<L, B>(f(x))));
 
         public static HashSet<HashSet<B>> Traverse<A, B>(this HashSet<HashSet<A>> ma, Func<A, B> f) =>
-            toHashSet(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+            toHashSet(CollT.AllCombinationsOf(ma.ToArray().Map(xs => xs.ToList()).ToArray(), f)
                 .Map(toHashSet));
 
         public static HashSet<Identity<B>> Traverse<A, B>(this Identity<HashSet<A>> ma, Func<A, B> f) =>
@@ -57,7 +57,7 @@ namespace LanguageExt
                 .Map(xs => xs.AsEnumerable()));
 
         public static HashSet<Set<B>> Traverse<A, B>(this Set<HashSet<A>> ma, Func<A, B> f) =>
-            toHashSet(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
+            toHashSet(CollT.AllCombinationsOf(ma.ToArray().Map(xs => xs.ToList()).ToArray(), f)
                 .Map(toSet));
 
         public static HashSet<Stck<B>> Traverse<A, B>(this Stck<HashSet<A>> ma, Func<A, B> f) =>
