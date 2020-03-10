@@ -38,15 +38,66 @@ public static class TryOptionAsyncExtensions
     public static TryOptionAsync<A> Memo<A>(this TryOptionAsync<A> ma)
     {
         bool run = false;
-        var result = OptionalResult<A>.Bottom.AsTask();
-        return new TryOptionAsync<A>(() =>
+        var result = OptionalResult<A>.Bottom;
+        return new TryOptionAsync<A>(async () =>
         {
             if (run) return result;
-            result = ma.Try();
-            run = true;
-            return result;
+            var ra = await ma.Try();
+            if (ra.IsSome || ra.IsNone)
+            {
+                run = true;
+                result = ra;
+            }
+            return ra;
         });
     }
+        
+    /// <summary>
+    /// If the TryOptionAsync fails, retry `amount` times
+    /// </summary>
+    /// <param name="ma">TryOptionAsync</param>
+    /// <param name="amount">Amount of retries</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    /// <returns>TryOptionAsync</returns>
+    public static TryOptionAsync<A> Retry<A>(TryOptionAsync<A> ma, int amount = 3) => async () =>
+    {
+        while (true)
+        {
+            var ra = await ma.Try();
+            if (ra.IsSome || ra.IsNone)
+            {
+                return ra;
+            }
+
+            amount--;
+            if (amount <= 0) return ra;
+        }
+    };
+        
+    /// <summary>
+    /// If the TryOptionAsync fails, retry `amount` times whilst backing off `backOffMilliSeconds`
+    /// </summary>
+    /// <param name="ma">TryOptionAsync</param>
+    /// <param name="backOffMilliSeconds">Amount of time in milliseconds to back-off upon failure.  The back-off
+    /// time is added to itself on each retry.  i.e. 100, 200, 400, 800, 1600...</param>
+    /// <param name="amount">Amount of retries</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    /// <returns>TryOptionAsync</returns>
+    public static TryOptionAsync<A> RetryBackOff<A>(TryOptionAsync<A> ma, int backOffMilliSeconds, int amount = 3) => async () =>
+    {
+        while (true)
+        {
+            var ra = await ma.Try();
+            if (ra.IsSome || ra.IsNone)
+            {
+                return ra;
+            }
+            amount--;
+            if (amount <= 0) return ra;
+            await Task.Delay(backOffMilliSeconds);
+            backOffMilliSeconds += backOffMilliSeconds;
+        }
+    };      
 
     /// <summary>
     /// Forces evaluation of the lazy TryOptionAsync

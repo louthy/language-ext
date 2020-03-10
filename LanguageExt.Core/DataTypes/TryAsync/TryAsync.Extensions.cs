@@ -36,15 +36,67 @@ public static class TryAsyncExtensions
     public static TryAsync<A> Memo<A>(this TryAsync<A> ma)
     {
         bool run = false;
-        var result = Result<A>.Bottom.AsTask();
-        return new TryAsync<A>(() =>
+        var result = Result<A>.Bottom;
+        return new TryAsync<A>(async () =>
         {
             if (run) return result;
-            result = ma.Try();
-            run = true;
+            var tra = ma.Try();
+            var ra = await tra;
+            if (ra.IsSuccess)
+            {
+                result = ra;
+                run = true;
+            }
             return result;
         });
     }
+        
+    /// <summary>
+    /// If the TryAsync fails, retry `amount` times
+    /// </summary>
+    /// <param name="ma">TryAsync</param>
+    /// <param name="amount">Amount of retries</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    /// <returns>TryAsync</returns>
+    public static TryAsync<A> Retry<A>(TryAsync<A> ma, int amount = 3) => async () =>
+    {
+        while (true)
+        {
+            var ra = await ma.Try();
+            if (ra.IsSuccess)
+            {
+                return ra;
+            }
+
+            amount--;
+            if (amount <= 0) return ra;
+        }
+    };
+        
+    /// <summary>
+    /// If the TryOptionAsync fails, retry `amount` times whilst backing off `backOffMilliSeconds`
+    /// </summary>
+    /// <param name="ma">TryOptionAsync</param>
+    /// <param name="backOffMilliSeconds">Amount of time in milliseconds to back-off upon failure.  The back-off
+    /// time is added to itself on each retry.  i.e. 100, 200, 400, 800, 1600...</param>
+    /// <param name="amount">Amount of retries</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    /// <returns>TryOptionAsync</returns>
+    public static TryAsync<A> RetryBackOff<A>(TryAsync<A> ma, int backOffMilliSeconds, int amount = 3) => async () =>
+    {
+        while (true)
+        {
+            var ra = await ma.Try();
+            if (ra.IsSuccess)
+            {
+                return ra;
+            }
+            amount--;
+            if (amount <= 0) return ra;
+            await Task.Delay(backOffMilliSeconds);
+            backOffMilliSeconds += backOffMilliSeconds;
+        }
+    };      
 
     /// <summary>
     /// Custom awaiter that turns an TryAsync into an Try

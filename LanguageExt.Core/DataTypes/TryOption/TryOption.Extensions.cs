@@ -41,11 +41,37 @@ public static class TryOptionExtensions
         return (() =>
         {
             if (run) return result;
-            result = ma.Try();
-            run = true;
-            return result;
+            var ra = ma.Try();
+            if (ra.IsSome || ra.IsNone)
+            {
+                result = ra;
+                run = true;
+            }
+            return ra;
         });
     }
+        
+    /// <summary>
+    /// If the TryOption fails, retry `amount` times
+    /// </summary>
+    /// <param name="ma">TryOption</param>
+    /// <param name="amount">Amount of retries</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    /// <returns>TryOption</returns>
+    public static TryOption<A> Retry<A>(TryOption<A> ma, int amount = 3) => () =>
+    {
+        while (true)
+        {
+            var ra = ma.Try();
+            if (ra.IsSome || ra.IsNone)
+            {
+                return ra;
+            }
+
+            amount--;
+            if (amount <= 0) return ra;
+        }
+    };
 
     /// <summary>
     /// Forces evaluation of the lazy TryOption

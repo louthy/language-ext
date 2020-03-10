@@ -29,6 +29,7 @@ public static class TryExtensions
 
     /// <summary>
     /// Memoize the computation so that it's only run once
+    /// Memoize the computation so that it's only run once
     /// </summary>
     public static Try<A> Memo<A>(this Try<A> ma)
     {
@@ -37,11 +38,37 @@ public static class TryExtensions
         return (() =>
         {
             if (run) return result;
-            result = ma.Try();
-            run = true;
-            return result;
+            var ra = ma.Try();
+            if (result.IsSuccess)
+            {
+                run = true;
+                result = ra;
+            }
+            return ra;
         });
     }
+    
+    /// <summary>
+    /// If the Try fails, retry `amount` times
+    /// </summary>
+    /// <param name="ma">Try</param>
+    /// <param name="amount">Amount of retries</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    /// <returns>Try</returns>
+    public static Try<A> Retry<A>(Try<A> ma, int amount = 3) => () =>
+    {
+        while (true)
+        {
+            var ra = ma.Try();
+            if (ra.IsSuccess)
+            {
+                return ra;
+            }
+
+            amount--;
+            if (amount <= 0) return ra;
+        }
+    };    
 
     /// <summary>
     /// Forces evaluation of the lazy try
