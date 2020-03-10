@@ -35,35 +35,9 @@ class Program
         //                                                                                                    //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        var t = new[] {1, 2, 3}.GetType();
-        var tn = t.FullName;
-        var tg = t.GetGenericArguments();
-        
+        var sx = MonadClass<Option<string>, string>.Return("123");
+        var sy = MonadClass<Option<string>, string>.Bind<Option<int>>(sx, parseInt);
+        var sz = FunctorClass<Option<int>, int>.Map<Option<int>, int>(sy, x => x * 2);
 
-        var j = OrdClass.Compare(new[] {1, 2, 3}, new[] {1, 2});
-        /*
-        var k = fn2(new[] {1, 2, 3}, new[] {1, 2, 3});
-        
-        var fn1 = MakeEquals<byte>().Item2;
-
-        var fn = MakeEquals<int>().Item2;
-
-        var x = fn(1, 1);
-        var y = fn(1, 2);
-        
-        MakeEquals<double>();      
-        MakeEquals<decimal>();      
-        MakeEquals<bool>();        // Boolean   System.Boolean
-        MakeEquals<byte>();        // Byte      System.Byte
-        MakeEquals<char>();        // Char      System.Char
-        MakeEquals<int>();         // Int32     System.Int32
-        MakeEquals<string>();      // String    System.String
-        MakeEquals<Guid>();        // Guid      System.Guid
-        MakeEquals<Option<int>>(); // Option`1  LanguageExt.Option`1[[System.Int32 ...]]
-    */
     }
-
-
-
-
 }

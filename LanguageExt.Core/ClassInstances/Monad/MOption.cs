@@ -23,7 +23,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Option<A> None => 
             default;
-
+ 
         [Pure]
         public MB Bind<MonadB, MB, B>(Option<A> ma, Func<A, MB> f) where MonadB : struct, Monad<Unit, Unit, MB, B> =>
             ma.IsSome
