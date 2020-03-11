@@ -6,19 +6,19 @@ using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.TryAsyncT.Sync
+namespace LanguageExt.Tests.Transformer.Traverse.TryOptionAsyncT.Sync
 {
-    public class ValidationSeqTryAsync
+    public class ValidationSeqTryOptionAsync
     {
-        static Task<bool> Eq<L, R>(TryAsync<Validation<L, R>> ma, TryAsync<Validation<L, R>> mb) =>
-            EqAsyncClass<TryAsync<Validation<L, R>>>.EqualsAsync(ma, mb);
+        static Task<bool> Eq<L, R>(TryOptionAsync<Validation<L, R>> ma, TryOptionAsync<Validation<L, R>> mb) =>
+            EqAsyncClass<TryOptionAsync<Validation<L, R>>>.EqualsAsync(ma, mb);
         
         [Fact]
         public async void FailIsSuccLeft()
         {
-            var ma = Fail<Error, TryAsync<int>>(Error.New("fail"));
+            var ma = Fail<Error, TryOptionAsync<int>>(Error.New("fail"));
             var mb = ma.Sequence();
-            var mc = TryAsync(Fail<Error, int>(Error.New("fail")));
+            var mc = TryOptionAsync(Fail<Error, int>(Error.New("fail")));
 
             var mr = await Eq(mb, mc);
             Assert.True(mr);
@@ -27,9 +27,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.TryAsyncT.Sync
         [Fact]
         public async void SuccessFailIsFail()
         {
-            var ma = Success<Error, TryAsync<int>>(TryAsync<int>(new Exception("fail")));
+            var ma = Success<Error, TryOptionAsync<int>>(TryOptionAsync<int>(None));
             var mb = ma.Sequence();
-            var mc = TryAsync<Validation<Error, int>>(new Exception("fail"));
+            var mc = TryOptionAsync<Validation<Error, int>>(None);
 
             var mr = await Eq(mb, mc);
             Assert.True(mr);
@@ -38,9 +38,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.TryAsyncT.Sync
         [Fact]
         public async void RightSuccIsSuccRight()
         {
-            var ma = Success<Error, TryAsync<int>>(TryAsync(1234));
+            var ma = Success<Error, TryOptionAsync<int>>(TryOptionAsync(1234));
             var mb = ma.Sequence();
-            var mc = TryAsync(Success<Error, int>(1234));
+            var mc = TryOptionAsync(Success<Error, int>(1234));
 
             var mr = await Eq(mb, mc);
             Assert.True(mr);

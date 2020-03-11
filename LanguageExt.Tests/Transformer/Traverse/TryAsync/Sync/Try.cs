@@ -8,7 +8,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.TryAsyncT.Sync
 {
-    public class TryOptionAsync
+    public class TryTryAsync
     {
         static Task<bool> Eq<A>(TryAsync<Try<A>> ma, TryAsync<Try<A>> mb) =>
             EqAsyncClass<TryAsync<Try<A>>>.EqualsAsync(ma, mb);

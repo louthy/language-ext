@@ -204,7 +204,7 @@ namespace LanguageExt
                 if (da.State == EitherStatus.IsBottom) return OptionalResult<EitherAsync<L, B>>.Bottom;
                 if (da.State == EitherStatus.IsLeft) return new OptionalResult<EitherAsync<L, B>>(EitherAsync<L,B>.Left(da.Left));
                 var rb = await da.Right.Try();
-                if (rb.IsFaulted) return await default(MTryOptionAsync<EitherAsync<L, B>>).Fail(rb.Value).Try();
+                if (rb.IsFaulted) return new OptionalResult<EitherAsync<L, B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<EitherAsync<L, B>>.None;
                 return new OptionalResult<EitherAsync<L, B>>(EitherAsync<L, B>.Right(f(rb.Value.Value)));
             }
@@ -218,7 +218,7 @@ namespace LanguageExt
                 var (isSome, value) = await ma.Data;
                 if (!isSome) return new OptionalResult<OptionAsync<B>>(OptionAsync<B>.None);
                 var rb = await value.Try();
-                if (rb.IsFaulted) return await default(MTryOptionAsync<OptionAsync<B>>).Fail(rb.Value).Try();
+                if (rb.IsFaulted) return new OptionalResult<OptionAsync<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<OptionAsync<B>>.None;
                 return new OptionalResult<OptionAsync<B>>(OptionAsync<B>.Some(f(rb.Value.Value)));
             }
@@ -232,7 +232,7 @@ namespace LanguageExt
                 var ra = await ma.Try();
                 if (ra.IsFaulted) return new OptionalResult<TryAsync<B>>(TryAsync<B>(ra.Exception));
                 var rb = await ra.Value.Try();
-                if (rb.IsFaulted) return new OptionalResult<TryAsync<B>>(TryAsync<B>(rb.Exception));
+                if (rb.IsFaulted) return new OptionalResult<TryAsync<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<TryAsync<B>>.None;
                 return new OptionalResult<TryAsync<B>>(TryAsync<B>(f(rb.Value.Value)));
             }
@@ -247,7 +247,7 @@ namespace LanguageExt
                 if (ra.IsFaulted) return new OptionalResult<TryOptionAsync<B>>(TryOptionAsync<B>(ra.Exception));
                 if (ra.IsNone) return new OptionalResult<TryOptionAsync<B>>(TryOptionAsync<B>(None));
                 var rb = await ra.Value.Value.Try();
-                if (rb.IsFaulted) return new OptionalResult<TryOptionAsync<B>>(TryOptionAsync<B>(rb.Exception));
+                if (rb.IsFaulted) return new OptionalResult<TryOptionAsync<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<TryOptionAsync<B>>.None;
                 return new OptionalResult<TryOptionAsync<B>>(TryOptionAsync<B>(f(rb.Value.Value)));
             }
@@ -316,7 +316,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<OptionalResult<Option<B>>> Go(Option<TryOptionAsync<A>> ma, Func<A, B> f)
             {
-                if(ma.IsNone) return new OptionalResult<Option<B>>(None);
+                if(ma.IsNone) return OptionalResult<Option<B>>.Some(Option<B>.None);
                 var rb = await ma.Value.Try();
                 if(rb.IsFaulted) return new OptionalResult<Option<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<Option<B>>.None;
@@ -329,7 +329,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<OptionalResult<OptionUnsafe<B>>> Go(OptionUnsafe<TryOptionAsync<A>> ma, Func<A, B> f)
             {
-                if(ma.IsNone) return new OptionalResult<OptionUnsafe<B>>(None);
+                if(ma.IsNone) return OptionalResult<OptionUnsafe<B>>.Some(OptionUnsafe<B>.None);
                 var rb = await ma.Value.Try();
                 if(rb.IsFaulted) return new OptionalResult<OptionUnsafe<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<OptionUnsafe<B>>.None;
