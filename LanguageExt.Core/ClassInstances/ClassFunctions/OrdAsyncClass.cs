@@ -27,6 +27,7 @@ namespace LanguageExt.ClassInstances
             try
             {
                 var (fullName, name, gens) = ClassFunctions.GetTypeInfo<A>();
+                name = ClassFunctions.RemoveAsync(name);
                 CompareAsync = ClassFunctions.MakeFunc2<A, A, Task<int>>(name, "CompareAsync", gens,
                     ("Ord", "Async"),
                     ("Ord", ""));

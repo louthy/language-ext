@@ -201,7 +201,7 @@ namespace LanguageExt
                 if (da.State == EitherStatus.IsBottom) return Result<EitherAsync<L, B>>.Bottom;
                 if (da.State == EitherStatus.IsLeft) return new Result<EitherAsync<L,B>>(da.Left);
                 var rb = await da.Right.Try();
-                if (rb.IsFaulted) return await default(MTryAsync<EitherAsync<L, B>>).Fail(rb.Value).Try();
+                if (rb.IsFaulted) return new Result<EitherAsync<L, B>>(rb.Exception);
                 return new Result<EitherAsync<L, B>>(EitherAsync<L, B>.Right(f(rb.Value)));
             }
         }
@@ -214,7 +214,7 @@ namespace LanguageExt
                 var (isSome, value) = await ma.Data;
                 if (!isSome) return new Result<OptionAsync<B>>(OptionAsync<B>.None);
                 var rb = await value.Try();
-                if (rb.IsFaulted) return await default(MTryAsync<OptionAsync<B>>).Fail(rb.Value).Try();
+                if (rb.IsFaulted) return new Result<OptionAsync<B>>(rb.Exception);
                 return new Result<OptionAsync<B>>(OptionAsync<B>.Some(f(rb.Value)));
             }
         }
@@ -227,7 +227,7 @@ namespace LanguageExt
                 var ra = await ma.Try();
                 if (ra.IsFaulted) return new Result<TryAsync<B>>(TryAsync<B>(ra.Exception));
                 var rb = await ra.Value.Try();
-                if (rb.IsFaulted) return new Result<TryAsync<B>>(TryAsync<B>(rb.Exception));
+                if (rb.IsFaulted) return new Result<TryAsync<B>>(rb.Exception);
                 return new Result<TryAsync<B>>(TryAsync<B>(f(rb.Value)));
             }
         }
@@ -241,7 +241,7 @@ namespace LanguageExt
                 if (ra.IsFaulted) return new Result<TryOptionAsync<B>>(TryOptionAsync<B>(ra.Exception));
                 if (ra.IsNone) return new Result<TryOptionAsync<B>>(TryOptionAsync<B>(None));
                 var rb = await ra.Value.Value.Try();
-                if (rb.IsFaulted) return new Result<TryOptionAsync<B>>(TryOptionAsync<B>(rb.Exception));
+                if (rb.IsFaulted) return new Result<TryOptionAsync<B>>(rb.Exception);
                 return new Result<TryOptionAsync<B>>(TryOptionAsync<B>(f(rb.Value)));
             }
         }

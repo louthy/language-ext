@@ -23,6 +23,7 @@ namespace LanguageExt.ClassInstances
             try
             {
                 var (fullName, name, gens) = ClassFunctions.GetTypeInfo<A>();
+                name = ClassFunctions.RemoveAsync(name);
                 GetHashCodeAsync = ClassFunctions.MakeFunc1<A, Task<int>>(name, "GetHashCodeAsync", gens, 
                     ("Hashable", "Async"), ("Eq", "Async"), ("Ord", "Async"),
                     ("Hashable", ""), ("Eq", ""), ("Ord", "")

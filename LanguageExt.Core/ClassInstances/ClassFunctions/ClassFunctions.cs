@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -24,6 +25,11 @@ namespace LanguageExt.ClassInstances
 
             Types = types;
         }
+
+        public static string RemoveAsync(string name) =>
+            name.EndsWith("Async")
+                ? name.Substring(0, name.Length - "Async".Length)
+                : name;
 
         public static (string FullName, string Name, Type[] Gens) GetTypeInfo<A>()
         {

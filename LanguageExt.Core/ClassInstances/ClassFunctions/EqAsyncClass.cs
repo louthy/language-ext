@@ -25,6 +25,8 @@ namespace LanguageExt.ClassInstances
             try
             {
                 var (fullName, name, gens) = ClassFunctions.GetTypeInfo<A>();
+                name = ClassFunctions.RemoveAsync(name);
+                
                 EqualsAsync = ClassFunctions.MakeFunc2<A, A, Task<bool>>(name, "EqualsAsync", gens, 
                     ("Eq", "Async"), ("Ord", "Async"),
                     ("Eq", ""), ("Ord", "")

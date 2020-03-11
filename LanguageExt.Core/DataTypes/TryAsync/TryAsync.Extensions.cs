@@ -47,7 +47,7 @@ public static class TryAsyncExtensions
                 result = ra;
                 run = true;
             }
-            return result;
+            return ra;
         });
     }
         

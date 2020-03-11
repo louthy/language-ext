@@ -38,6 +38,5 @@ class Program
         var sx = MonadClass<Option<string>, string>.Return("123");
         var sy = MonadClass<Option<string>, string>.Bind<Option<int>>(sx, parseInt);
         var sz = FunctorClass<Option<int>, int>.Map<Option<int>, int>(sy, x => x * 2);
-
     }
 }
