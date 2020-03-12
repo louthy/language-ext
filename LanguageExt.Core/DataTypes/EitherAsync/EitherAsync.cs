@@ -178,14 +178,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public async Task<bool> Equals<EqL, EqR>(EitherAsync<L, R> rhs) 
-            where EqL : struct, Eq<L>
-            where EqR : struct, Eq<R>
+            where EqL : struct, EqAsync<L>
+            where EqR : struct, EqAsync<R>
         {
             var a = await Data;
             var b = await rhs.Data;
             return a.State == b.State &&
-                   default(EqL).Equals(a.Left, b.Left) &&
-                   default(EqR).Equals(a.Right, b.Right);
+                   await default(EqL).EqualsAsync(a.Left, b.Left) &&
+                   await default(EqR).EqualsAsync(a.Right, b.Right);
         }
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public Task<bool> Equals(EitherAsync<L, R> rhs) =>
-            Equals<EqDefault<L>, EqDefault<R>>(rhs);
+            Equals<EqDefaultAsync<L>, EqDefaultAsync<R>>(rhs);
 
         /// <summary>
         /// Equality operator

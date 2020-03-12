@@ -1126,7 +1126,7 @@ public static class TryAsyncExtensions
                 if (selfTask.Result.IsFaulted) return new Result<V>(selfTask.Result.Exception);
                 if (innerTask.IsFaulted) return new Result<V>(innerTask.Exception);
                 if (innerTask.Result.IsFaulted) return new Result<V>(innerTask.Result.Exception);
-                return default(EqDefault<K>).Equals(outerKeyMap(selfTask.Result.Value), innerKeyMap(innerTask.Result.Value))
+                return await default(EqDefaultAsync<K>).EqualsAsync(outerKeyMap(selfTask.Result.Value), innerKeyMap(innerTask.Result.Value))
                     ? project(selfTask.Result.Value, innerTask.Result.Value)
                     : throw new BottomException();
             });
