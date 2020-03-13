@@ -105,6 +105,17 @@ namespace LanguageExt
         /// <returns>OptionAsync<T> in a Some state or throws ValueIsNullException
         /// if isnull(value).</returns>
         [Pure]
+        public static OptionAsync<Task<A>> SomeValueAsync<A>(Task<A> taskValue) =>
+            OptionAsync<Task<A>>.SomeAsync(taskValue.AsTask());
+        
+        /// <summary>
+        /// Create a lazy Some of T (OptionAsync<T>)
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="value">Non-null value to be made OptionAsyncal</param>
+        /// <returns>OptionAsync<T> in a Some state or throws ValueIsNullException
+        /// if isnull(value).</returns>
+        [Pure]
         public static OptionAsync<T> SomeAsync<T>(Func<Unit, Task<T>> f) =>
             OptionAsync<T>.SomeAsync(f(default));
 

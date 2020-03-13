@@ -798,19 +798,6 @@ namespace LanguageExt
                    Some,
                    None);
 
-
-        /// <summary>
-        /// Construct a sequence from any value
-        ///     T     : [x]
-        ///     null  : []
-        /// </summary>
-        [Pure]
-        [Obsolete("SeqOne has been deprecated for the more concise Seq1")]
-        public static Seq<A> SeqOne<A>(A value) =>
-            value.IsNull()
-                ? Empty
-                : LSeq.FromSingleValue(value);
-
         /// <summary>
         /// Construct a sequence from any value
         ///     T     : [x]

@@ -2,6 +2,7 @@ using System;
 using LanguageExt;
 using System.Linq;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -120,30 +121,55 @@ namespace LanguageExt
         // Async types
         //
 
-        public static Task<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, B> f) =>
-            ma.MatchAsync(
-                RightAsync: async ta => EitherAsync<L, B>.Right(f(await ta)), 
-                Left: EitherAsync<L, B>.Left);
+        public static async Task<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, B> f)
+        {
+            var da = await ma.Data;
+            if (da.State == EitherStatus.IsBottom) throw new BottomException();
+            if (da.State == EitherStatus.IsLeft) return EitherAsync<L, B>.Left(da.Left);
+            var a = await da.Right;
+            if(da.Right.IsFaulted) ExceptionDispatchInfo.Capture(da.Right.Exception.InnerException).Throw();
+            return EitherAsync<L, B>.Right(f(a));
+        }
 
-        public static Task<OptionAsync<B>> Traverse<A, B>(this OptionAsync<Task<A>> ma, Func<A, B> f) =>
-            ma.MatchAsync(
-                Some: async ta => OptionAsync<B>.Some(f(await ta)), 
-                None: () => OptionAsync<B>.None);
+        public static async Task<OptionAsync<B>> Traverse<A, B>(this OptionAsync<Task<A>> ma, Func<A, B> f)
+        {
+            var (s, v) = await ma.Data;
+            if (!s) return OptionAsync<B>.None;
+            var a = await v;
+            if (v.IsFaulted) ExceptionDispatchInfo.Capture(v.Exception.InnerException).Throw();
+            return OptionAsync<B>.Some(f(a));
+        }
         
-        public static Task<TryAsync<B>> Traverse<A, B>(this TryAsync<Task<A>> ma, Func<A, B> f) =>
-            ma.Match(
-                Succ: async ta => TryAsync<B>(f(await ta)), 
-                Fail: ex => TryAsync<B>(ex));
+        public static async Task<TryAsync<B>> Traverse<A, B>(this TryAsync<Task<A>> ma, Func<A, B> f)
+        {
+            var da = await ma.Try();
+            if (da.IsBottom) throw new BottomException();
+            if (da.IsFaulted) return TryAsyncFail<B>(da.Exception);
+            var a = await da.Value;
+            if(da.Value.IsFaulted) ExceptionDispatchInfo.Capture(da.Value.Exception.InnerException).Throw();
+            return TryAsyncSucc(f(a));
+        }
         
-        public static Task<TryOptionAsync<B>> Traverse<A, B>(this TryOptionAsync<Task<A>> ma, Func<A, B> f) =>
-            ma.MatchAsync(
-                SomeAsync: async ta => TryOptionAsync<B>(f(await ta)),
-                None: () => TryOptionAsync<B>(None),
-                Fail: ex => TryOptionAsync<B>(ex));
+        public static async Task<TryOptionAsync<B>> Traverse<A, B>(this TryOptionAsync<Task<A>> ma, Func<A, B> f)
+        {
+            var da = await ma.Try();
+            if (da.IsBottom) throw new BottomException();
+            if (da.IsNone) return TryOptionalAsync<B>(None);
+            if (da.IsFaulted) return TryOptionAsyncFail<B>(da.Exception);
+            var a = await da.Value.Value;
+            if(da.Value.Value.IsFaulted) ExceptionDispatchInfo.Capture(da.Value.Value.Exception.InnerException).Throw();
+            return TryOptionAsyncSucc(f(a));
+        }
 
-        public static Task<Task<B>> Traverse<A, B>(this Task<Task<A>> ma, Func<A, B> f) =>
-            ma.MapT(f);
-        
+        public static async Task<Task<B>> Traverse<A, B>(this Task<Task<A>> ma, Func<A, B> f)
+        {
+            var da = await ma;
+            if (ma.IsFaulted) return TaskFail<B>(da.Exception);
+            var a = await da;
+            if (da.IsFaulted) ExceptionDispatchInfo.Capture(da.Exception.InnerException).Throw();
+            return TaskSucc(f(a));
+        }
+
         //
         // Sync types
         // 

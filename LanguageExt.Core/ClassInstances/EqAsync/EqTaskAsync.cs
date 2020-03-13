@@ -1,4 +1,7 @@
-﻿using LanguageExt.TypeClasses;
+﻿using System;
+using System.Linq;
+using System.Runtime.ExceptionServices;
+using LanguageExt.TypeClasses;
 using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
@@ -17,6 +20,20 @@ namespace LanguageExt.ClassInstances
         public async Task<bool> EqualsAsync(Task<A> x, Task<A> y)
         {
             var ts = await Task.WhenAll(x, y);
+
+            if (x.IsFaulted && y.IsFaulted)
+            {
+                throw new AggregateException(x.Exception.InnerExceptions.Concat(y.Exception.InnerExceptions));
+            }
+            else if (x.IsFaulted)
+            {
+                ExceptionDispatchInfo.Capture(x.Exception.InnerException).Throw();
+            }
+            else if (y.IsFaulted)
+            {
+                ExceptionDispatchInfo.Capture(y.Exception.InnerException).Throw();
+            }
+
             return await default(EqA).EqualsAsync(ts[0], ts[1]);
         }
 

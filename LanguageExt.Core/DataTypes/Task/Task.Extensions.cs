@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 
@@ -303,39 +304,42 @@ namespace LanguageExt
         public static async Task<Unit> WindowIter<A>(this IEnumerable<Task<A>> ma, int windowSize, Action<A> f)
         {
             object sync = new object();
-            var iter = ma.GetEnumerator();
-
-            (bool Success, Task<A> Task) GetNext()
+            using (var iter = ma.GetEnumerator())
             {
-                lock (sync)
+
+                (bool Success, Task<A> Task) GetNext()
                 {
-                    return iter.MoveNext()
-                        ? (true, iter.Current)
-                        : default;
-                }
-            }
-
-            var tasks = new List<Task<Unit>>();
-            for (var i = 0; i < windowSize; i++)
-            {
-                var (s, outerTask) = GetNext();
-                if (!s) break;
-
-                tasks.Add(outerTask.Iter(async oa =>
-                {
-                    f(oa);
-
-                    while (true)
+                    lock (sync)
                     {
-                        var next = GetNext();
-                        if (!next.Success) return;
-                        var a = await next.Task;
-                        f(a);
+                        return iter.MoveNext()
+                            ? (true, iter.Current)
+                            : default;
                     }
-                }));
+                }
+
+                var tasks = new List<Task<Unit>>();
+                for (var i = 0; i < windowSize; i++)
+                {
+                    var (s, outerTask) = GetNext();
+                    if (!s) break;
+
+                    tasks.Add(outerTask.Iter(async oa =>
+                    {
+                        f(oa);
+
+                        while (true)
+                        {
+                            var next = GetNext();
+                            if (!next.Success) return;
+                            var a = await next.Task;
+                            f(a);
+                        }
+                    }));
+                }
+
+                await Task.WhenAll(tasks);
+                return unit;
             }
-            await Task.WhenAll(tasks);
-            return unit;
         }
         
         /// <summary>
@@ -358,54 +362,87 @@ namespace LanguageExt
         internal static async Task<IList<B>> WindowMap<A, B>(this IEnumerable<Task<A>> ma, int windowSize, Func<A, B> f)
         {
             object sync = new object();
-            var iter = ma.GetEnumerator();
-
-            (bool Success, Task<A> Task) GetNext()
+            using (var iter = ma.GetEnumerator())
             {
-                lock (sync)
+
+                (bool Success, Task<A> Task) GetNext()
                 {
-                    return iter.MoveNext()
-                        ? (true, iter.Current)
-                        : default;
-                }
-            }
-
-            var tasks = new List<Task<Unit>>();
-            var results = new List<B>[windowSize];
-
-            for (var i = 0; i < windowSize; i++)
-            {
-                results[i] = new List<B>();
-            }
-
-            for (var i = 0; i < windowSize; i++)
-            {
-                var (s, outerTask) = GetNext();
-                if (!s) break;
-
-                var ix = i;
-                tasks.Add(outerTask.Iter(async oa =>
-                {
-                    results[ix].Add(f(oa));
-
-                    while (true)
+                    lock (sync)
                     {
-                        var next = GetNext();
-                        if (!next.Success) return;
-                        var a = await next.Task;
-                        results[ix].Add(f(a));
+                        return iter.MoveNext()
+                            ? (true, iter.Current)
+                            : default;
                     }
-                }));
-            }
-            await Task.WhenAll(tasks);
+                }
 
-            // Move all results into one list
-            for (var i = 1; i < windowSize; i++)
-            {
-                results[0].AddRange(results[i]);
-            }
+                var tasks = new List<Task<Unit>>();
+                var results = new List<B>[windowSize];
+                var errors = new List<AggregateException>[windowSize];
 
-            return results[0];
+                for (var i = 0; i < windowSize; i++)
+                {
+                    results[i] = new List<B>();
+                    errors[i] = new List<AggregateException>();
+                }
+
+                for (var i = 0; i < windowSize; i++)
+                {
+                    var (s, outerTask) = GetNext();
+                    if (!s) break;
+
+                    var ix = i;
+                    tasks.Add(outerTask.Iter(async oa =>
+                    {
+                        results[ix].Add(f(oa));
+
+                        while (true)
+                        {
+                            try
+                            {
+                                var next = GetNext();
+                                if (!next.Success) return;
+                                var a = await next.Task;
+                                if (next.Task.IsFaulted)
+                                {
+                                    errors[ix].Add(next.Task.Exception);
+                                    return;
+                                }
+                                else
+                                {
+                                    results[ix].Add(f(a));
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                errors[ix].Add(new AggregateException(e));
+                                return;
+                            }
+                        }
+                    }));
+                }
+
+                await Task.WhenAll(tasks);
+
+                // Move all errors into one list
+                for (var i = 1; i < windowSize; i++)
+                {
+                    errors[0].AddRange(errors[i]);
+                }
+
+                if (errors[0].Count > 0)
+                {
+                    // Throw an aggregate of all exceptions
+                    throw new AggregateException(errors[0].SelectMany(e => e.InnerExceptions));
+                }
+
+                // Move all results into one list
+                for (var i = 1; i < windowSize; i++)
+                {
+                    results[0].AddRange(results[i]);
+                }
+
+                return results[0];
+            }
         }
     }
 }

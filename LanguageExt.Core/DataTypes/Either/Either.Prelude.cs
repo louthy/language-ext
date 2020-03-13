@@ -651,18 +651,6 @@ namespace LanguageExt
         /// <typeparam name="R">Right</typeparam>
         /// <param name="either">Either to project</param>
         /// <returns>If the Either is in a Right state, an IQueryable of R with one item.  A zero length IQueryable R otherwise</returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("ToQuery has been deprecated.  Please use RightToQuery.")]
-        public static IQueryable<R> toQuery<L, R>(Either<L, R> either) =>
-            either.RightAsEnumerable().AsQueryable();
-
-        /// <summary>
-        /// Project the Either into an IQueryable of R
-        /// </summary>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <param name="either">Either to project</param>
-        /// <returns>If the Either is in a Right state, an IQueryable of R with one item.  A zero length IQueryable R otherwise</returns>
         [Pure]
         public static IQueryable<R> rightToQuery<L, R>(Either<L, R> either) =>
             either.RightAsEnumerable().AsQueryable();
