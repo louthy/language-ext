@@ -58,6 +58,13 @@ namespace LanguageExt.CodeGen
                 node.GetLocation()));
         }
 
+        public static SyntaxToken VisibilityModifier(SyntaxTokenList tokens) =>
+            tokens.Where(t => t.Kind() == SyntaxKind.PublicKeyword ||
+                              t.Kind() == SyntaxKind.PrivateKeyword ||
+                              t.Kind() == SyntaxKind.InternalKeyword)
+                  .DefaultIfEmpty(Token(SyntaxKind.PrivateKeyword))
+                 .FirstOrDefault();
+
         public static (TypeDeclarationSyntax PartialType, TypeSyntax ReturnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> Fields) GetState(TransformationContext context, IProgress<Diagnostic> progress, AllowedType allowedTypes, string codeGenCategory)
         {
             // Our generator is applied to any class that our attribute is applied to.

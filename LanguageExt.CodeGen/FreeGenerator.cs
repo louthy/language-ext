@@ -112,7 +112,8 @@ namespace LanguageExt.CodeGen
                         applyTo.TypeParameterList, 
                         applyTo.ConstraintClauses,
                         firstPure,
-                        mapIsStatic);
+                        mapIsStatic,
+                        CodeGenUtil.VisibilityModifier(applyTo.Modifiers));
 
                     if (ok)
                     {
@@ -375,13 +376,14 @@ namespace LanguageExt.CodeGen
             TypeParameterListSyntax applyToTypeParams,
             SyntaxList<TypeParameterConstraintClauseSyntax> applyToConstraints,
             MethodDeclarationSyntax pure,
-            bool mapIsStatic
+            bool mapIsStatic,
+            SyntaxToken visibilityModifier
             )
         {
             var name = applyToIdentifier;
             var @class = ClassDeclaration(name)
                             .WithModifiers(
-                                TokenList(new[] { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.PartialKeyword) }));
+                                TokenList(new[] { visibilityModifier, Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.PartialKeyword) }));
 
             var returnType = ParseTypeName($"{applyToIdentifier}{applyToTypeParams}");
 
