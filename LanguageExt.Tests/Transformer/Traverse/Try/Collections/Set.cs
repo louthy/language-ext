@@ -20,33 +20,30 @@ namespace LanguageExt.Tests.Transformer.Traverse.TryT.Collections
             
             Assert.True(default(EqTry<Set<int>>).Equals(mb, mc));
         }
-        
-        // TODO: OrdTry needs implementing 
-        // TODO: OrdDefault to recognise OrdTry
-        
-        // [Fact]
-        // public void SetSuccsIsSuccSets()
-        // {
-        //     var ma = Set(TrySucc(1), TrySucc(2), TrySucc(3));
-        //
-        //     var mb = ma.Sequence();
-        //
-        //     var mc = TrySucc(Set(1, 2, 3));
-        //     
-        //     Assert.True(default(EqTry<Set<int>>).Equals(mb, mc));
-        //
-        // }
-        //
-        // [Fact]
-        // public void SetSuccAndFailIsFail()
-        // {
-        //     var ma = Set(TrySucc(1), TrySucc(2), TryFail<int>(new Exception("fail")));
-        //
-        //     var mb = ma.Sequence();
-        //
-        //     var mc = TryFail<Set<int>>(new Exception("fail"));
-        //
-        //     Assert.True(default(EqTry<Set<int>>).Equals(mb, mc));
-        // }
+
+        [Fact]
+        public void SetSuccsIsSuccSets()
+        {
+            var ma = Set(TrySucc(1), TrySucc(2), TrySucc(3));
+
+            var mb = ma.Sequence();
+
+            var mc = TrySucc(Set(1, 2, 3));
+
+            Assert.True(default(EqTry<Set<int>>).Equals(mb, mc));
+
+        }
+
+        [Fact]
+        public void SetSuccAndFailIsFail()
+        {
+            var ma = Set(TrySucc(1), TrySucc(2), TryFail<int>(new Exception("fail")));
+
+            var mb = ma.Sequence();
+
+            var mc = TryFail<Set<int>>(new Exception("fail"));
+
+            Assert.True(default(EqTry<Set<int>>).Equals(mb, mc));
+        }
     }
 }
