@@ -26,8 +26,8 @@ namespace LanguageExt.ClassInstances
             if (x == null) return y == null;
             if (y == null) return false;
 
-            var enumx = x.GetEnumerator();
-            var enumy = y.GetEnumerator();
+            using var enumx = x.GetEnumerator();
+            using var enumy = y.GetEnumerator();
             while(true)
             {
                 bool a = enumx.MoveNext();

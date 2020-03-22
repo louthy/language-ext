@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace LanguageExt
 {
-    class MapEnumerator<K, V> : IEnumerator<(K Key, V Value)>
+    public struct MapEnumerator<K, V> : IEnumerator<(K Key, V Value)>
     {
         internal struct NewStack : New<MapItem<K, V>[]>
         {
@@ -14,17 +14,20 @@ namespace LanguageExt
 
         int stackDepth;
         MapItem<K, V>[] stack;
-        MapItem<K, V> map;
+        readonly MapItem<K, V> map;
         int left;
-        bool rev;
-        int start;
+        readonly bool rev;
+        readonly int start;
 
-        public MapEnumerator(MapItem<K, V> root, bool rev, int start)
+        internal MapEnumerator(MapItem<K, V> root, bool rev, int start)
         {
             this.rev = rev;
             this.start = start;
             map = root;
             stack = Pool<NewStack, MapItem<K, V>[]>.Pop();
+            stackDepth = default;
+            left = default;
+            NodeCurrent = default;
             Reset();
         }
 
@@ -34,8 +37,8 @@ namespace LanguageExt
             set;
         }
 
-        public (K Key, V Value) Current => NodeCurrent.KeyValue;
-        object IEnumerator.Current => NodeCurrent.KeyValue;
+        public readonly (K Key, V Value) Current => NodeCurrent.KeyValue;
+        readonly object IEnumerator.Current => NodeCurrent.KeyValue;
 
         public void Dispose()
         {

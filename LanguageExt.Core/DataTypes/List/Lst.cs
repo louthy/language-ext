@@ -258,8 +258,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerator<A> GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, false, 0);
+        public ListEnumerator<A> GetEnumerator() =>
+            new ListEnumerator<A>(Root, false, 0);
 
         /// <summary>
         /// Find the index of an item
@@ -358,12 +358,12 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, false, 0);
+            new ListEnumerator<A>(Root, false, 0);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, false, 0);
+            new ListEnumerator<A>(Root, false, 0);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

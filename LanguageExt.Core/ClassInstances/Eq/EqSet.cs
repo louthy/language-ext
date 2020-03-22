@@ -21,8 +21,8 @@ namespace LanguageExt.ClassInstances
         {
             if (x.Count != y.Count) return false;
 
-            var enumx = x.GetEnumerator();
-            var enumy = y.GetEnumerator();
+            using var enumx = x.GetEnumerator();
+            using var enumy = y.GetEnumerator();
             for (int i = 0; i < x.Count; i++)
             {
                 enumx.MoveNext();

@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Diagnostics.Contracts;
 using LanguageExt;
+using System.Collections.Generic;
 
 namespace LanguageExt.ClassInstances
 {
@@ -42,23 +43,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public bool Equals(Arr<A> x, Arr<A> y) =>
-            Enumerable.SequenceEqual(x, y);
+            ((System.Collections.IStructuralEquatable)x.Value).Equals(y.Value, EqualityComparer<A>.Default);
 
         [Pure]
-        public int Compare(Arr<A> x, Arr<A> y)
-        {
-            int cmp = x.Value.Length.CompareTo(y.Value.Length);
-            if (cmp != 0) return cmp;
-
-            var iterA = x.Value.AsEnumerable().GetEnumerator();
-            var iterB = y.Value.AsEnumerable().GetEnumerator();
-            while(iterA.MoveNext() && iterB.MoveNext())
-            {
-                cmp = default(OrdDefault<A>).Compare(iterA.Current, iterB.Current);
-                if (cmp != 0) return cmp;
-            }
-            return 0;
-        }
+        public int Compare(Arr<A> x, Arr<A> y) =>
+            ((System.Collections.IStructuralComparable)x.Value).CompareTo(y.Value, Comparer<A>.Default);
 
         [Pure]
         public Arr<A> Fail(object err = null) =>

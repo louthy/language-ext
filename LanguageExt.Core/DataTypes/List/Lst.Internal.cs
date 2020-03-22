@@ -171,8 +171,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerator<A> GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, false, 0);
+        public ListEnumerator<A> GetEnumerator() =>
+            new ListEnumerator<A>(Root, false, 0);
 
         /// <summary>
         /// Find the index of an item
@@ -315,18 +315,18 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, false, 0);
+            new ListEnumerator<A>(Root, false, 0);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, false, 0);
+            new ListEnumerator<A>(Root, false, 0);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<A> Skip(int amount)
         {
-            var iter = new ListModule.ListEnumerator<A>(Root, false, amount);
+            var iter = new ListEnumerator<A>(Root, false, amount);
             while (iter.MoveNext())
             {
                 yield return iter.Current;
@@ -369,7 +369,7 @@ namespace LanguageExt
         {
             if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             if (count < 0) throw new ArgumentOutOfRangeException(nameof(index));
-            var iter = new ListModule.ListEnumerator<A>(Root, false, index, count);
+            var iter = new ListEnumerator<A>(Root, false, index, count);
             while (iter.MoveNext())
             {
                 yield return iter.Current;
@@ -752,7 +752,7 @@ namespace LanguageExt
         {
             var root = node;
             var subIndex = index;
-            foreach(var item in items)
+            foreach (var item in items)
             {
                 if (!pred.True(item)) throw new ArgumentOutOfRangeException("item in items");
                 root = Insert(root, item, subIndex);
@@ -932,7 +932,7 @@ namespace LanguageExt
             }
             else
             {
-                if(!ReferenceEquals(left, node.Left) || !ReferenceEquals(right, node.Right))
+                if (!ReferenceEquals(left, node.Left) || !ReferenceEquals(right, node.Right))
                 {
                     result = Balance(Make(node.Key, left, right));
                 }
@@ -1017,7 +1017,7 @@ namespace LanguageExt
             else if (compare > 0)
             {
                 int adjcount = count - (nodeIndex - index) - 1;
-                int result = adjcount < 0 ? -1 : Find(node.Right,key, 0, adjcount, comparer);
+                int result = adjcount < 0 ? -1 : Find(node.Right, key, 0, adjcount, comparer);
                 int offset = nodeIndex + 1;
                 return result < 0 ? result - offset : result + offset;
             }
@@ -1027,7 +1027,7 @@ namespace LanguageExt
                 {
                     return ~index;
                 }
-                return Find(node.Left,key,index,count,comparer);
+                return Find(node.Left, key, index, count, comparer);
             }
         }
 
@@ -1105,128 +1105,131 @@ namespace LanguageExt
             node.IsEmpty
                 ? node
                 : RotLeft(Make(node.Key, node.Left, RotRight(node.Right)));
+    }
 
-        public class ListEnumerator<T> : IEnumerator<T>
+    public struct ListEnumerator<T> : IEnumerator<T>
+    {
+        internal struct NewStack : New<ListItem<T>[]>
         {
-            internal struct NewStack : New<ListItem<T>[]>
-            {
-                public ListItem<T>[] New() =>
-                    new ListItem<T>[32];
-            }
+            public ListItem<T>[] New() =>
+                new ListItem<T>[32];
+        }
 
-            ListItem<T>[] stack = null;
-            int stackDepth;
-            ListItem<T> map;
-            int left;
-            bool rev;
-            int start;
-            int count;
+        ListItem<T>[] stack;
+        int stackDepth;
+        readonly ListItem<T> map;
+        int left;
+        readonly bool rev;
+        readonly int start;
+        int count;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal ListEnumerator(ListItem<T> root, bool rev, int start, int count = Int32.MaxValue)
+        {
+            this.rev = rev;
+            this.start = start;
+            map = root;
+            stack = Pool<NewStack, ListItem<T>[]>.Pop();
+            this.count = count;
+            stackDepth = default;
+            left = default;
+            NodeCurrent = default;
+            Reset();
+        }
+
+        private ListItem<T> NodeCurrent
+        {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public ListEnumerator(ListItem<T> root, bool rev, int start, int count = Int32.MaxValue)
-            {
-                this.rev = rev;
-                this.start = start;
-                map = root;
-                stack = Pool<NewStack, ListItem<T>[]>.Pop();
-                this.count = count;
-                Reset();
-            }
-
-            private ListItem<T> NodeCurrent
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get;
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                set;
-            }
-
-            public T Current
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => NodeCurrent.Key;
-            }
-
-            object IEnumerator.Current
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => NodeCurrent.Key;
-            }
-
-            public void Dispose()
-            {
-                if (stack != null)
-                {
-                    Pool<NewStack, ListItem<T>[]>.Push(stack);
-                    stack = null;
-                }
-            }
-
+            get;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private ListItem<T> Next(ListItem<T> node) =>
-                rev ? node.Left : node.Right;
+            set;
+        }
 
+        public readonly T Current
+        {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private ListItem<T> Prev(ListItem<T> node) =>
-                rev ? node.Right : node.Left;
+            get => NodeCurrent.Key;
+        }
 
+        object IEnumerator.Current
+        {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void Push(ListItem<T> node)
+            get => NodeCurrent.Key;
+        }
+
+        public void Dispose()
+        {
+            if (stack != null)
             {
-                while (!node.IsEmpty)
-                {
-                    stack[stackDepth] = node;
-                    stackDepth++;
-                    node = Prev(node);
-                }
+                Pool<NewStack, ListItem<T>[]>.Push(stack);
+                stack = null;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ListItem<T> Next(ListItem<T> node) =>
+            rev ? node.Left : node.Right;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ListItem<T> Prev(ListItem<T> node) =>
+            rev ? node.Right : node.Left;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Push(ListItem<T> node)
+        {
+            while (!node.IsEmpty)
+            {
+                stack[stackDepth] = node;
+                stackDepth++;
+                node = Prev(node);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool MoveNext()
+        {
+            if (count > 0 && left > 0 && stackDepth > 0)
+            {
+                stackDepth--;
+                NodeCurrent = stack[stackDepth];
+                Push(Next(NodeCurrent));
+                left--;
+                count--;
+                return true;
             }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool MoveNext()
+            NodeCurrent = null;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Reset()
+        {
+            var skip = rev ? map.Count - start - 1 : start;
+
+            stackDepth = 0;
+            NodeCurrent = map;
+            left = map.Count;
+
+            while (!NodeCurrent.IsEmpty && skip != Prev(NodeCurrent).Count)
             {
-                if (count > 0 && left > 0 && stackDepth > 0)
-                {
-                    stackDepth--;
-                    NodeCurrent = stack[stackDepth];
-                    Push(Next(NodeCurrent));
-                    left--;
-                    count--;
-                    return true;
-                }
-
-                NodeCurrent = null;
-                return false;
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Reset()
-            {
-                var skip = rev ? map.Count - start - 1 : start;
-
-                stackDepth = 0;
-                NodeCurrent = map;
-                left = map.Count;
-
-                while (!NodeCurrent.IsEmpty && skip != Prev(NodeCurrent).Count)
-                {
-                    if (skip < Prev(NodeCurrent).Count)
-                    {
-                        stack[stackDepth] = NodeCurrent;
-                        stackDepth++;
-                        NodeCurrent = Prev(NodeCurrent);
-                    }
-                    else
-                    {
-                        skip -= Prev(NodeCurrent).Count + 1;
-                        NodeCurrent = Next(NodeCurrent);
-                    }
-                }
-
-                if (!NodeCurrent.IsEmpty)
+                if (skip < Prev(NodeCurrent).Count)
                 {
                     stack[stackDepth] = NodeCurrent;
                     stackDepth++;
+                    NodeCurrent = Prev(NodeCurrent);
                 }
+                else
+                {
+                    skip -= Prev(NodeCurrent).Count + 1;
+                    NodeCurrent = Next(NodeCurrent);
+                }
+            }
+
+            if (!NodeCurrent.IsEmpty)
+            {
+                stack[stackDepth] = NodeCurrent;
+                stackDepth++;
             }
         }
     }
