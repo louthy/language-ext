@@ -37,7 +37,7 @@ namespace LanguageExt
         }
 
         public ISeqInternal<A> Tail =>
-            ms.Last.Tail;
+            new SeqLazy<A>(this.Skip(1));
 
         public bool IsEmpty => 
             ms.ForAll(s => s.IsEmpty);
