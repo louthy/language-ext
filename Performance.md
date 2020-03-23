@@ -16,7 +16,7 @@ References to `Sys.Coll.Imm` are Microsoft's `ImmutableCollections` library.
 * `Sys.Coll.Imm.List` is `System.Collections.Immutable.ImmutableList`
 * `Sys.Coll.Imm.Dictionary` is `System.Collections.Immutable.ImmutableDictionary`
 * `Sys.Coll.Imm.SortedDictionary` is `System.Collections.Immutable.ImmutableSortedDictionary`
-* `Sys.Coll.Imm.SortedDictionary` is `System.Collections.Immutable.ImmutableSortedDictionary`
+* `Sys.Coll.Imm.SortedSet` is `System.Collections.Immutable.ImmutableSortedSet`
       
 
 ## Lists

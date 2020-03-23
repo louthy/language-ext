@@ -426,53 +426,54 @@ namespace LanguageExt.CodeGen
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         InvocationExpression(
-                            MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                typeA,
-                                IdentifierName("Map")))
-                        .WithArgumentList(
-                            ArgumentList(
-                                SeparatedList<ArgumentSyntax>(
-                                    new SyntaxNodeOrToken[]{
-                                        Argument(
-                                            InvocationExpression(
-                                                MemberAccessExpression(
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    IdentifierName("v"),
-                                                    IdentifierName("Next")))
-                                            .WithArgumentList(
-                                                ArgumentList(
-                                                    SingletonSeparatedList<ArgumentSyntax>(
-                                                        Argument(
-                                                            IdentifierName("n")))))),
-                                        Token(SyntaxKind.CommaToken),
-                                        Argument(
-                                            ParenthesizedExpression(
-                                                IdentifierName("f")))}))),
-                        IdentifierName("Bind")))
-                : InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        InvocationExpression(
                                 MemberAccessExpression(
                                     SyntaxKind.SimpleMemberAccessExpression,
-                                    InvocationExpression(
-                                            MemberAccessExpression(
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                IdentifierName("v"),
-                                                IdentifierName("Next")))
-                                        .WithArgumentList(
-                                            ArgumentList(
-                                                SingletonSeparatedList<ArgumentSyntax>(
-                                                    Argument(
-                                                        IdentifierName("n"))))),
+                                    typeA,
                                     IdentifierName("Map")))
                             .WithArgumentList(
                                 ArgumentList(
-                                    SingletonSeparatedList<ArgumentSyntax>(
-                                        Argument(
-                                            IdentifierName("f"))))),
-                        IdentifierName("Bind")));            
+                                    SeparatedList<ArgumentSyntax>(
+                                        new SyntaxNodeOrToken[]
+                                        {
+                                            Argument(
+                                                InvocationExpression(
+                                                        MemberAccessExpression(
+                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                            IdentifierName("v"),
+                                                            IdentifierName("Next")))
+                                                    .WithArgumentList(
+                                                        ArgumentList(
+                                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                                Argument(
+                                                                    IdentifierName("n")))))),
+                                            Token(SyntaxKind.CommaToken), Argument(
+                                                ParenthesizedExpression(
+                                                    IdentifierName("f")))
+                                        }))),
+                        IdentifierName("Bind")))
+                : InvocationExpression(IdentifierName("Flatten")).WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList<ArgumentSyntax>(
+                            Argument(
+                    InvocationExpression(
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                InvocationExpression(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName("v"),
+                                            IdentifierName("Next")))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                Argument(
+                                                    IdentifierName("n"))))),
+                                IdentifierName("Map")))
+                        .WithArgumentList(
+                            ArgumentList(
+                                SingletonSeparatedList<ArgumentSyntax>(
+                                    Argument(
+                                        IdentifierName("f")))))))));
 
             var pureFunc =
                     new SyntaxNodeOrToken[]
@@ -545,23 +546,7 @@ namespace LanguageExt.CodeGen
                                                             Token(SyntaxKind.CommaToken) 
                                                         }),
                                                 new SyntaxNodeOrToken [1] {
-                                                    Argument(
-                                                        SimpleLambdaExpression(
-                                                            Parameter(
-                                                                Identifier("n")),
-                                                           mapFunc
-                                                            .WithArgumentList(
-                                                                ArgumentList(
-                                                                    SingletonSeparatedList<ArgumentSyntax>(
-                                                                        Argument(
-                                                                            MemberAccessExpression(
-                                                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                                                MemberAccessExpression(
-                                                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                                                    IdentifierName("LanguageExt"),
-                                                                                    IdentifierName("Prelude")),
-                                                                                IdentifierName("identity"))
-                                                                            ))))))
+                                                    Argument(SimpleLambdaExpression(Parameter(Identifier("n")), mapFunc))
                                                 }))))),
                         Token(SyntaxKind.CommaToken)
                     });
