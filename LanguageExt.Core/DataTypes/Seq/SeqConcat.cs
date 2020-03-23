@@ -21,8 +21,20 @@ namespace LanguageExt
         public SeqType Type =>
             SeqType.Concat;
 
-        public A Head =>
-            ms.Head.Head;
+        public A Head 
+        {
+            get 
+            {
+                foreach (var s in ms)
+                {
+                    foreach (var a in s)
+                    {
+                        return a;
+                    }
+                } 
+                throw new InvalidOperationException("Sequence is empty");
+            }
+        }
 
         public ISeqInternal<A> Tail =>
             ms.Last.Tail;
