@@ -1,0 +1,13 @@
+version: '1.0.{build}'
+image: Visual Studio 2019
+init:
+  - cmd: git config --global core.autocrlf true
+before_build:
+  - cmd: dotnet --version
+  - cmd: dotnet restore --verbosity m
+build_script:
+  - cmd: dotnet build .\LanguageExt.Core\LanguageExt.Core.csproj
+clone_depth: 1
+test_script:
+  - cmd: dotnet test
+deploy: off

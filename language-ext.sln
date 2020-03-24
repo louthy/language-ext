@@ -22,8 +22,16 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.Rx", "LanguageExt.Rx\LanguageExt.Rx.csproj", "{A191CF80-FC53-4142-9769-CF949F3277B9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.CodeGen", "LanguageExt.CodeGen\LanguageExt.CodeGen.csproj", "{D36A9A47-5820-4B6B-97EF-3AA1341A6E72}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4537B8A8-6CA4-4DCB-B30E-7CADD29A324F} = {4537B8A8-6CA4-4DCB-B30E-7CADD29A324F}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.Benchmarks", "LanguageExt.Benchmarks\LanguageExt.Benchmarks.csproj", "{4F7FCDBC-F37A-493B-A648-107F69F10EFF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1E6BD591-EE06-4416-9199-0E40C17563FB}"
+	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
