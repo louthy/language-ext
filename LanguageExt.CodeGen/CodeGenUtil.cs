@@ -2526,5 +2526,60 @@ namespace LanguageExt.CodeGen
             }
             return method;
         }
+
+        public static TypeParameterSyntax[] FindUsedGenerics(TypeParameterListSyntax gens, ParameterListSyntax ps)
+        {
+            var list = new List<TypeParameterSyntax>();
+ 
+            foreach (var p in ps.Parameters)
+            {
+                list.AddRange(FindUsedGenerics(gens, p.Type));
+            }
+
+            // Enforce a distinct result, maintaining the order of the generics
+            // in the supplied generics list
+            var dlist = new List<TypeParameterSyntax>();
+            foreach (var gen in gens.Parameters)
+            {
+                if(list.Any(tp => tp.Identifier.Text == gen.Identifier.Text))
+                {
+                    dlist.Add(gen);
+                }
+            }
+
+            return dlist.ToArray();
+        }
+
+        static List<TypeParameterSyntax> FindUsedGenerics(TypeParameterListSyntax gens, TypeSyntax type)
+        {
+            var list = new List<TypeParameterSyntax>();
+            switch (type)
+            {
+                case IdentifierNameSyntax id:
+                    list.AddRange(gens.Parameters.Where(g => g.Identifier.Text == id.Identifier.Text));
+                    break;                        
+                       
+                case GenericNameSyntax gen:
+                    list.AddRange(gen.TypeArgumentList.Arguments.SelectMany(t => FindUsedGenerics(gens, t)));
+                    break;
+                
+                case ArrayTypeSyntax arr:
+                    list.AddRange(FindUsedGenerics(gens, arr.ElementType));
+                    break;
+                
+                case QualifiedNameSyntax qual:
+                    list.AddRange(FindUsedGenerics(gens, qual.Right));
+                    break;
+                
+                case PredefinedTypeSyntax pre:
+                    // Do nothing
+                    break;
+                
+                default:
+                    throw new Exception($"Unkown TypeSyntax derivation: {type.GetType()}");
+            }
+
+            return list;
+        }
     }
 }

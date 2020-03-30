@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.ExceptionServices;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Common
@@ -48,16 +49,30 @@ namespace LanguageExt.Common
           : value is Option<Error> oerr ? oerr.IfNone(Bottom)
           : Bottom;
 
-        internal Exception ToException() =>
+        public Exception ToException() =>
             Exception.IsSome
                 ? (Exception)Exception
                 : Message == null
-                    ? new Exception("Bottom")
+                    ? new BottomException()
                     : new Exception(Message);
+
+        /// <summary>
+        /// Throw as an exception
+        /// </summary>
+        public Unit Throw()
+        {
+            ExceptionDispatchInfo.Capture(ToException()).Throw();
+            return default;
+        }
 
         public override string ToString() =>
             message;
 
+        public string StackTrace =>
+            Exception.IsSome
+                ? ((Exception)Exception).StackTrace
+                : "";
+        
         public static implicit operator Error(Exception e) =>
             New(e);
 

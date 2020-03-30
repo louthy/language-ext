@@ -869,10 +869,7 @@ namespace LanguageExt.CodeGen
                             new[]{
                                 Token(SyntaxKind.PublicKeyword),
                                 Token(SyntaxKind.StaticKeyword)}))
-                    .WithParameterList(
-                        isPure
-                            ? method.ParameterList
-                            : method.ParameterList.WithParameters(method.ParameterList.Parameters.RemoveAt(method.ParameterList.Parameters.Count - 1)))
+                    .WithParameterList(method.ParameterList)
                     .WithConstraintClauses(applyToConstraints)
                     .WithExpressionBody(
                         ArrowExpressionClause(
@@ -891,6 +888,9 @@ namespace LanguageExt.CodeGen
             }
             else
             {
+                // var typeParams = CodeGenUtil.FindUsedGenerics(applyToTypeParams, method.ParameterList);
+                // var typeParamList = typeParams.Length == 0 ? null : TypeParameterList(SeparatedList(typeParams));
+                
                 var nextType = ((GenericNameSyntax)((QualifiedNameSyntax)method.ParameterList.Parameters.Last().Type).Right)
                                     .TypeArgumentList
                                     .Arguments
@@ -928,6 +928,10 @@ namespace LanguageExt.CodeGen
                     .WithSemicolonToken(
                         Token(SyntaxKind.SemicolonToken));
                 
+                // if(typeParamList != null)
+                // {
+                //     @case = @case.WithTypeParameterList(typeParamList);
+                // }
                 return @case;                
             }
         }
