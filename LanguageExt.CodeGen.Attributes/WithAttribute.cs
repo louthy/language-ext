@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using CodeGeneration.Roslyn;
-using LanguageExt.CodeGen;
 
 namespace LanguageExt
 {
@@ -10,7 +9,7 @@ namespace LanguageExt
     /// public readonly fields in a type
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    [CodeGenerationAttribute(typeof(RecordWithGenerator))]
+    [CodeGenerationAttribute("LanguageExt.CodeGen.RecordWithGenerator, LanguageExt.CodeGen")]
     [Conditional("CodeGeneration")]
     public class WithAttribute : Attribute
     {
@@ -23,7 +22,7 @@ namespace LanguageExt
     /// bidirectional immutable transformations. 
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    [CodeGenerationAttribute(typeof(RecordWithAndLensGenerator))]
+    [CodeGenerationAttribute("LanguageExt.CodeGen.RecordWithAndLensGenerator, LanguageExt.CodeGen")]
     [Conditional("CodeGeneration")]
     public class WithLensAttribute : Attribute
     {

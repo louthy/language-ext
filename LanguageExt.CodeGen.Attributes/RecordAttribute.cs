@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using CodeGeneration.Roslyn;
-using LanguageExt.CodeGen;
 
 namespace LanguageExt
 {
@@ -11,7 +8,7 @@ namespace LanguageExt
     /// Union attribute
     /// </summary>
     [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-    [CodeGenerationAttribute(typeof(RecordGenerator))]
+    [CodeGenerationAttribute("LanguageExt.CodeGen.RecordGenerator, LanguageExt.CodeGen")]
     [Conditional("CodeGeneration")]
     public class RecordAttribute : Attribute
     {

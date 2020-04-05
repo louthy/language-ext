@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using CodeGeneration.Roslyn;
-using LanguageExt.CodeGen;
 
 namespace LanguageExt
 {
@@ -11,9 +8,9 @@ namespace LanguageExt
     /// Union attribute
     /// </summary>
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-    [CodeGenerationAttribute(typeof(UnionGenerator))]
+    [CodeGenerationAttribute("LanguageExt.CodeGen.FreeGenerator, LanguageExt.CodeGen")]
     [Conditional("CodeGeneration")]
-    public class UnionAttribute : Attribute
+    public class FreeAttribute : Attribute
     {
     }
 }
