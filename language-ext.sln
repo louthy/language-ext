@@ -25,9 +25,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.CodeGen", "Lang
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.Benchmarks", "LanguageExt.Benchmarks\LanguageExt.Benchmarks.csproj", "{4F7FCDBC-F37A-493B-A648-107F69F10EFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.CodeGen.Attributes", "LanguageExt.CodeGen.Attributes\LanguageExt.CodeGen.Attributes.csproj", "{4AB7636E-4044-46A7-BA77-3CC12336568E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.CodeGen.Attributes", "LanguageExt.CodeGen.Attributes\LanguageExt.CodeGen.Attributes.csproj", "{4AB7636E-4044-46A7-BA77-3CC12336568E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeGen", "CodeGen", "{955F2313-A41D-4EF1-A8F5-C6E840BFB0DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.CodeGen.Generator", "LanguageExt.CodeGen.Generator\LanguageExt.CodeGen.Generator.csproj", "{A6CB3BF0-B29D-412E-B417-F19E7E62AA52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -171,6 +173,18 @@ Global
 		{4AB7636E-4044-46A7-BA77-3CC12336568E}.Release|x64.Build.0 = Release|Any CPU
 		{4AB7636E-4044-46A7-BA77-3CC12336568E}.Release|x86.ActiveCfg = Release|Any CPU
 		{4AB7636E-4044-46A7-BA77-3CC12336568E}.Release|x86.Build.0 = Release|Any CPU
+		{A6CB3BF0-B29D-412E-B417-F19E7E62AA52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6CB3BF0-B29D-412E-B417-F19E7E62AA52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6CB3BF0-B29D-412E-B417-F19E7E62AA52}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A6CB3BF0-B29D-412E-B417-F19E7E62AA52}.Debug|x64.Build.0 = Debug|Any CPU
+		{A6CB3BF0-B29D-412E-B417-F19E7E62AA52}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A6CB3BF0-B29D-412E-B417-F19E7E62AA52}.Debug|x86.Build.0 = Debug|Any CPU
+		{A6CB3BF0-B29D-412E-B417-F19E7E62AA52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6CB3BF0-B29D-412E-B417-F19E7E62AA52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6CB3BF0-B29D-412E-B417-F19E7E62AA52}.Release|x64.ActiveCfg = Release|Any CPU
+		{A6CB3BF0-B29D-412E-B417-F19E7E62AA52}.Release|x64.Build.0 = Release|Any CPU
+		{A6CB3BF0-B29D-412E-B417-F19E7E62AA52}.Release|x86.ActiveCfg = Release|Any CPU
+		{A6CB3BF0-B29D-412E-B417-F19E7E62AA52}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
