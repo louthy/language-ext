@@ -1,15 +1,20 @@
 ﻿using System;
 using LanguageExt;
+using LibraryWithCodeGen;
 
-namespace CliConsumer
+namespace CliWithCodeGen
 {
-	class Program
-	{
-		static void Main(string[] args)
-		{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // from this project
             Console.WriteLine(new Person("asd", "asd") == new Person("asd", "asd"));
+            // from library
+            Console.WriteLine(new Device("asd", 1) == new Device("asd", 1));
             Console.WriteLine(GetArea(new Rectangle(10, 20)));
             Console.ReadKey();
+
         }
 
         static double GetArea(Shape shape)
