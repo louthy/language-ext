@@ -8,7 +8,7 @@ namespace LanguageExt
     /// Union attribute
     /// </summary>
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-    [CodeGenerationAttribute("LanguageExt.CodeGen.FreeGenerator, LanguageExt.CodeGen.Generator")]
+    [CodeGenerationAttribute("LanguageExt.CodeGen.FreeGenerator, LanguageExt.CodeGen.Generators")]
     [Conditional("CodeGeneration")]
     public class FreeAttribute : Attribute
     {

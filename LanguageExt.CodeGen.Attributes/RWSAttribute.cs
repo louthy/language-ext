@@ -5,7 +5,7 @@ using CodeGeneration.Roslyn;
 namespace LanguageExt
 {
     [AttributeUsage(AttributeTargets.Struct, Inherited = false, AllowMultiple = true)]
-    [CodeGenerationAttribute("LanguageExt.CodeGen.RWSGenerator, LanguageExt.CodeGen.Generator")]
+    [CodeGenerationAttribute("LanguageExt.CodeGen.RWSGenerator, LanguageExt.CodeGen.Generators")]
     [Conditional("CodeGeneration")]
     public class RWSAttribute : Attribute
     {
