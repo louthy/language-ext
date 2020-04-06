@@ -9,7 +9,7 @@ namespace LanguageExt
     /// public readonly fields in a type
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    [CodeGenerationAttribute("LanguageExt.CodeGen.RecordWithGenerator, LanguageExt.CodeGen")]
+    [CodeGenerationAttribute("LanguageExt.CodeGen.RecordWithGenerator, LanguageExt.CodeGen.Generator")]
     [Conditional("CodeGeneration")]
     public class WithAttribute : Attribute
     {
@@ -22,7 +22,7 @@ namespace LanguageExt
     /// bidirectional immutable transformations. 
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    [CodeGenerationAttribute("LanguageExt.CodeGen.RecordWithAndLensGenerator, LanguageExt.CodeGen")]
+    [CodeGenerationAttribute("LanguageExt.CodeGen.RecordWithAndLensGenerator, LanguageExt.CodeGen.Generator")]
     [Conditional("CodeGeneration")]
     public class WithLensAttribute : Attribute
     {

@@ -8,7 +8,7 @@ namespace LanguageExt
     /// Union attribute
     /// </summary>
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-    [CodeGenerationAttribute("LanguageExt.CodeGen.UnionGenerator, LanguageExt.CodeGen")]
+    [CodeGenerationAttribute("LanguageExt.CodeGen.UnionGenerator, LanguageExt.CodeGen.Generator")]
     [Conditional("CodeGeneration")]
     public class UnionAttribute : Attribute
     {
