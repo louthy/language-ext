@@ -43,7 +43,7 @@ namespace LanguageExt
             return new Identity<HashSet<B>>(new HashSet<B>(res));            
         }
 
-        public static Identity<Identity<B>> Traverse<L, A, B>(this Identity<Identity<A>> ma, Func<A, B> f) =>
+        public static Identity<Identity<B>> Traverse<A, B>(this Identity<Identity<A>> ma, Func<A, B> f) =>
             new Identity<Identity<B>>(new Identity<B>(f(ma.Value.Value)));
         
         public static Identity<Lst<B>> Traverse<A, B>(this Lst<Identity<A>> ma, Func<A, B> f)
@@ -126,12 +126,12 @@ namespace LanguageExt
             return new Identity<Stck<B>>(new Stck<B>(res));            
         }
         
-        public static Identity<Try<B>> Traverse<L, A, B>(this Try<Identity<A>> ma, Func<A, B> f) =>
+        public static Identity<Try<B>> Traverse<A, B>(this Try<Identity<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Succ: x => new Identity<Try<B>>(Try(f(x.Value))),
                 Fail: e => new Identity<Try<B>>(Try<B>(e)));
         
-        public static Identity<TryOption<B>> Traverse<L, A, B>(this TryOption<Identity<A>> ma, Func<A, B> f) =>
+        public static Identity<TryOption<B>> Traverse<A, B>(this TryOption<Identity<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Some: x  => new Identity<TryOption<B>>(TryOption(f(x.Value))),
                 None: () => new Identity<TryOption<B>>(TryOption<B>(Option<B>.None)),
