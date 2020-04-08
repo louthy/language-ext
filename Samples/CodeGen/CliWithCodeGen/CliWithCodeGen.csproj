@@ -1,25 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<OutputType>Exe</OutputType>
-		<TargetFramework>netcoreapp3.1</TargetFramework>
-	</PropertyGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="CodeGeneration.Roslyn.Tool" Version="0.7.63">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CodeGeneration.Roslyn.Tool" Version="0.7.63">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
-	<ItemGroup>
-		<!-- Note: Metapackage is only applicable for nuget consumption -->
-		<ProjectReference Include="..\..\..\LanguageExt.CodeGen.Attributes\LanguageExt.CodeGen.Attributes.csproj" />
-		<ProjectReference Include="..\..\..\LanguageExt.CodeGen.Generators\LanguageExt.CodeGen.Generators.csproj"
-		                  ReferenceOutputAssembly="false" SetTargetFramework="TargetFramework=netcoreapp2.1"
-		                  OutputItemType="CodeGenerationRoslynPlugin" />
-		<ProjectReference Include="..\..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
-		<ProjectReference Include="..\LibraryWithCodeGen\LibraryWithCodeGen.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <!-- Note: Metapackage is only applicable for nuget consumption -->
+    <ProjectReference Include="..\..\..\LanguageExt.CodeGen.Attributes\LanguageExt.CodeGen.Attributes.csproj" />
+    <ProjectReference Include="..\..\..\LanguageExt.CodeGen.Generators\LanguageExt.CodeGen.Generators.csproj"
+              ReferenceOutputAssembly="false" SetTargetFramework="TargetFramework=netcoreapp2.1"
+              OutputItemType="CodeGenerationRoslynPlugin" />
+    <ProjectReference Include="..\..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
+    <ProjectReference Include="..\LibraryWithCodeGen\LibraryWithCodeGen.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -5,7 +5,7 @@
     <PackageVersion>3.4.13</PackageVersion>
     <PackageId>LanguageExt.CodeGen</PackageId>
     <Title>LanguageExt.CodeGen</Title>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard1.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
     <Authors>Paul Louth</Authors>
     <Summary>Functional language code-generation for C#</Summary>
@@ -20,7 +20,6 @@
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <FileVersion>3.0.0.0</FileVersion>
     <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
   
   <ItemGroup>
