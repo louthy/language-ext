@@ -5,6 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CodeGeneration.Roslyn.Attributes" Version="0.7.43-alpha" />
+    <PackageReference Include="CodeGeneration.Roslyn.Attributes" Version="0.7.63" />
   </ItemGroup>
 </Project>
