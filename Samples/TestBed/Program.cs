@@ -251,7 +251,7 @@ class Program
         xyz = TestWith.surname.Set("Test2", xyz);
 
 
-        var asq = typeof(LanguageExt.CodeGen.RecordWithAndLensGenerator).AssemblyQualifiedName;
+        // var asq = typeof(RecordWithAndLensGenerator).AssemblyQualifiedName
 
         var r = MonadicGetGenderByIdAsync(Guid.NewGuid()).Result;
 
