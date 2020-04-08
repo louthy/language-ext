@@ -13,8 +13,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<!-- Note: Metapackage is only applicable for nuget consumption -->
 		<ProjectReference Include="..\..\..\LanguageExt.CodeGen.Attributes\LanguageExt.CodeGen.Attributes.csproj" />
-		<ProjectReference Include="..\..\..\LanguageExt.CodeGen.Generators\LanguageExt.CodeGen.Generators.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" OutputItemType="CodeGenerationRoslynPlugin" />
+		<ProjectReference Include="..\..\..\LanguageExt.CodeGen.Generators\LanguageExt.CodeGen.Generators.csproj"
+		                  ReferenceOutputAssembly="false" SetTargetFramework="TargetFramework=netcoreapp2.1"
+		                  OutputItemType="CodeGenerationRoslynPlugin" />
 		<ProjectReference Include="..\..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
 		<ProjectReference Include="..\LibraryWithCodeGen\LibraryWithCodeGen.csproj" />
 	</ItemGroup>
