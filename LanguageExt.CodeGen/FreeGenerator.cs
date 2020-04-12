@@ -516,6 +516,62 @@ namespace LanguageExt.CodeGen
                                     Argument(
                                         IdentifierName("f")))))))));
 
+
+
+            var mapFailFunc = mapIsStatic
+                ? InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        InvocationExpression(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    typeA,
+                                    IdentifierName("Map")))
+                            .WithArgumentList(
+                                ArgumentList(
+                                    SeparatedList<ArgumentSyntax>(
+                                        new SyntaxNodeOrToken[]
+                                        {
+                                            Argument(
+                                                InvocationExpression(
+                                                        MemberAccessExpression(
+                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                            IdentifierName("v"),
+                                                            IdentifierName("FailNext")))
+                                                    .WithArgumentList(
+                                                        ArgumentList(
+                                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                                Argument(
+                                                                    IdentifierName("fn")))))),
+                                            Token(SyntaxKind.CommaToken), Argument(
+                                                ParenthesizedExpression(
+                                                    IdentifierName("f")))
+                                        }))),
+                        IdentifierName("Bind")))
+                : InvocationExpression(IdentifierName("Flatten")).WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList<ArgumentSyntax>(
+                            Argument(
+                                InvocationExpression(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            InvocationExpression(
+                                                    MemberAccessExpression(
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        IdentifierName("v"),
+                                                        IdentifierName("FailNext")))
+                                                .WithArgumentList(
+                                                    ArgumentList(
+                                                        SingletonSeparatedList<ArgumentSyntax>(
+                                                            Argument(
+                                                                IdentifierName("fn"))))),
+                                            IdentifierName("Map")))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                Argument(
+                                                    IdentifierName("f")))))))));
+
             var pureFunc =
                     new SyntaxNodeOrToken[]
                     {
@@ -576,7 +632,7 @@ namespace LanguageExt.CodeGen
                                             Enumerable.Concat(
                                                 m.ParameterList
                                                     .Parameters
-                                                    .Take(m.ParameterList.Parameters.Count - 1)
+                                                    .Take(m.ParameterList.Parameters.Count - 2)
                                                     .SelectMany(p =>
                                                         new SyntaxNodeOrToken[]{
                                                             Argument(
@@ -586,8 +642,10 @@ namespace LanguageExt.CodeGen
                                                                     IdentifierName(CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text)))),
                                                             Token(SyntaxKind.CommaToken) 
                                                         }),
-                                                new SyntaxNodeOrToken [1] {
-                                                    Argument(SimpleLambdaExpression(Parameter(Identifier("n")), mapFunc))
+                                                new SyntaxNodeOrToken [3] {
+                                                    Argument(SimpleLambdaExpression(Parameter(Identifier("n")), mapFunc)),
+                                                    Token(SyntaxKind.CommaToken),
+                                                    Argument(SimpleLambdaExpression(Parameter(Identifier("fn")), mapFailFunc))
                                                 }))))),
                         Token(SyntaxKind.CommaToken)
                     });
@@ -740,6 +798,22 @@ namespace LanguageExt.CodeGen
                             Argument(
                                 IdentifierName("f")))));
 
+            var mapFailFunc = InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        InvocationExpression(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("v"),
+                                    IdentifierName("FailNext")))
+                            .WithArgumentList(ArgumentList(SingletonSeparatedList<ArgumentSyntax>(Argument(IdentifierName("fn"))))),
+                        IdentifierName("Map")))
+                .WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList<ArgumentSyntax>(
+                            Argument(
+                                IdentifierName("f")))));
+
             var pureFunc =
                     new SyntaxNodeOrToken[]
                     {
@@ -790,33 +864,42 @@ namespace LanguageExt.CodeGen
 
 
             var freeFuncs = applyToMembers
-                .Where(m => m.AttributeLists == null || !m.AttributeLists.SelectMany(a => a.Attributes).Any(a => a.Name.ToString() == "Pure"))
-                .SelectMany(m => 
+                .Where(m => m.AttributeLists == null ||
+                            !m.AttributeLists.SelectMany(a => a.Attributes).Any(a => a.Name.ToString() == "Pure"))
+                .SelectMany(m =>
                     new SyntaxNodeOrToken[]
                     {
                         SwitchExpressionArm(
                             DeclarationPattern(
                                 ParseTypeName($"{m.Identifier.Text}<{genA}>"),
                                 SingleVariableDesignation(Identifier("v"))),
-                                ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
+                            ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
                                 .WithArgumentList(
                                     ArgumentList(
                                         SeparatedList<ArgumentSyntax>(
                                             Enumerable.Concat(
                                                 m.ParameterList
                                                     .Parameters
-                                                    .Take(m.ParameterList.Parameters.Count - 1)
+                                                    .Take(m.ParameterList.Parameters.Count - 2)
                                                     .SelectMany(p =>
-                                                        new SyntaxNodeOrToken[]{
+                                                        new SyntaxNodeOrToken[]
+                                                        {
                                                             Argument(
                                                                 MemberAccessExpression(
                                                                     SyntaxKind.SimpleMemberAccessExpression,
                                                                     IdentifierName("v"),
-                                                                    IdentifierName(CodeGenUtil.MakeFirstCharUpper(p.Identifier.Text)))),
-                                                            Token(SyntaxKind.CommaToken) 
+                                                                    IdentifierName(
+                                                                        CodeGenUtil.MakeFirstCharUpper(
+                                                                            p.Identifier.Text)))),
+                                                            Token(SyntaxKind.CommaToken)
                                                         }),
-                                                new SyntaxNodeOrToken [1] {
-                                                    Argument(SimpleLambdaExpression(Parameter(Identifier("n")), mapFunc))
+                                                new SyntaxNodeOrToken [3]
+                                                {
+                                                    Argument(SimpleLambdaExpression(Parameter(Identifier("n")),
+                                                        mapFunc)),
+                                                    Token(SyntaxKind.CommaToken), Argument(SimpleLambdaExpression(
+                                                        Parameter(Identifier("fn")),
+                                                        mapFailFunc))
                                                 }))))),
                         Token(SyntaxKind.CommaToken)
                     });
