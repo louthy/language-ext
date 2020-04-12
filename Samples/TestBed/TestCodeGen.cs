@@ -27,102 +27,102 @@ namespace TestBed
         Unit WriteAllText(string path, string text);
     }
 
-    public static partial class FreeIO
-    {
-        public static FreeIO<T> Flatten2<T>(this FreeIO<FreeIO<T>> ma) => ma switch
-        {
-            Pure<FreeIO<T>> v => v.Value, 
-            Fail<FreeIO<T>> v => new Fail<T>(v.Error),
-            ReadAllText<FreeIO<T>> v => new ReadAllText<T>(v.Path, n => Flatten(v.Next(n))),
-            WriteAllText<FreeIO<T>> v => new WriteAllText<T>(v.Path, v.Text, n => Flatten(v.Next(n))),
-            _ => throw new System.NotSupportedException()
-        };
-    }
+    //public static partial class FreeIO
+    //{
+    //    public static FreeIO<T> Flatten2<T>(this FreeIO<FreeIO<T>> ma) => ma switch
+    //    {
+    //        Pure<FreeIO<T>> v => v.Value, 
+    //        Fail<FreeIO<T>> v => new Fail<T>(v.Error),
+    //        ReadAllText<FreeIO<T>> v => new ReadAllText<T>(v.Path, n => Flatten(v.Next(n))),
+    //        WriteAllText<FreeIO<T>> v => new WriteAllText<T>(v.Path, v.Text, n => Flatten(v.Next(n))),
+    //        _ => throw new System.NotSupportedException()
+    //    };
+    //}
 
-    public static class FreeIOTest
-    {
-        public async static Task Test1()
-        {
-            var dsl = from t in FreeIO.ReadAllText("I:\\temp\\test.txt")
-                      from _ in FreeIO.WriteAllText("I:\\temp\\test2.txt", t)
-                      select unit;
+    //public static class FreeIOTest
+    //{
+    //    public async static Task Test1()
+    //    {
+    //        var dsl = from t in FreeIO.ReadAllText("I:\\temp\\test.txt")
+    //                  from _ in FreeIO.WriteAllText("I:\\temp\\test2.txt", t)
+    //                  select unit;
 
 
-            var res1 = Interpret(dsl);
+    //        var res1 = Interpret(dsl);
             
-            var res2 = await InterpretAsync(dsl);
-        }
+    //        var res2 = await InterpretAsync(dsl);
+    //    }
 
-        public static Either<Error, A> Interpret<A>(FreeIO<A> ma) => ma switch
-        {
-            Pure<A> (var value)                            => value,
-            Fail<A> (var error)                            => error,  
-            ReadAllText<A> (var path, var next)            => Interpret(next(Read(path))),
-            WriteAllText<A> (var path, var text, var next) => Interpret(next(Write(path, text))),
-            _                                              => throw new NotSupportedException()
-        };
+    //    public static Either<Error, A> Interpret<A>(FreeIO<A> ma) => ma switch
+    //    {
+    //        Pure<A> (var value)                            => value,
+    //        Fail<A> (var error)                            => error,  
+    //        ReadAllText<A> (var path, var next)            => Interpret(next(Read(path))),
+    //        WriteAllText<A> (var path, var text, var next) => Interpret(next(Write(path, text))),
+    //        _                                              => throw new NotSupportedException()
+    //    };
 
-        static string Read(string path) => 
-            File.ReadAllText(path);
+    //    static string Read(string path) => 
+    //        File.ReadAllText(path);
 
-        static Unit Write(string path, string text)
-        {
-            File.WriteAllText(path, text);
-            return unit;
-        }
+    //    static Unit Write(string path, string text)
+    //    {
+    //        File.WriteAllText(path, text);
+    //        return unit;
+    //    }
 
-        public static async Task<A> InterpretAsync<A>(FreeIO<A> ma) => ma switch
-        {
-            Pure<A> (var value)                            => value,
-            Fail<A> (var error)                            => await Task.FromException<A>(error),  
-            ReadAllText<A> (var path, var next)            => await InterpretAsync(next(await File.ReadAllTextAsync(path))),
-            WriteAllText<A> (var path, var text, var next) => await InterpretAsync(next(await File.WriteAllTextAsync(path, text).ToUnit())),
-            _                                              => throw new NotSupportedException()
-        };
-    }
+    //    public static async Task<A> InterpretAsync<A>(FreeIO<A> ma) => ma switch
+    //    {
+    //        Pure<A> (var value)                            => value,
+    //        Fail<A> (var error)                            => await Task.FromException<A>(error),  
+    //        ReadAllText<A> (var path, var next)            => await InterpretAsync(next(await File.ReadAllTextAsync(path))),
+    //        WriteAllText<A> (var path, var text, var next) => await InterpretAsync(next(await File.WriteAllTextAsync(path, text).ToUnit())),
+    //        _                                              => throw new NotSupportedException()
+    //    };
+    //}
 
-    [Free]
-    public interface Maybe<A>
-    {
-        [Pure] A Just(A value);
-        [Pure] A Nothing();
+    //[Free]
+    //public interface Maybe<A>
+    //{
+    //    [Pure] A Just(A value);
+    //    [Pure] A Nothing();
 
-        public static Maybe<B> Map<B>(Maybe<A> ma, Func<A, B> f) => ma switch
-        {
-            Just<A>(var x) => Maybe.Just(f(x)),
-            _              => Maybe.Nothing<B>()
-        };
-    }
+    //    public static Maybe<B> Map<B>(Maybe<A> ma, Func<A, B> f) => ma switch
+    //    {
+    //        Just<A>(var x) => Maybe.Just(f(x)),
+    //        _              => Maybe.Nothing<B>()
+    //    };
+    //}
 
-    public static class MaybeFreeTest
-    {
-        public static void Test1()
-        {
-            var ma = Maybe.Just(10);
-            var mb = Maybe.Just(20);
-            var mn = Maybe.Nothing<int>();
+    //public static class MaybeFreeTest
+    //{
+    //    public static void Test1()
+    //    {
+    //        var ma = Maybe.Just(10);
+    //        var mb = Maybe.Just(20);
+    //        var mn = Maybe.Nothing<int>();
 
-            var mr =
-                from a in ma
-                from b in mb
-                select a + b;
+    //        var mr =
+    //            from a in ma
+    //            from b in mb
+    //            select a + b;
 
-            var mnn =
-                from a in ma
-                from b in mb
-                from _ in mn
-                select a + b;
+    //        var mnn =
+    //            from a in ma
+    //            from b in mb
+    //            from _ in mn
+    //            select a + b;
             
-            var r3 = mr switch
-            {
-                Just<int> (var x) => $"Value is {x}",
-                _                 => "No value"
-            };
+    //        var r3 = mr switch
+    //        {
+    //            Just<int> (var x) => $"Value is {x}",
+    //            _                 => "No value"
+    //        };
             
-            Console.WriteLine(mr);
-            Console.WriteLine(mnn);
-        }
-    }
+    //        Console.WriteLine(mr);
+    //        Console.WriteLine(mnn);
+    //    }
+    //}
 
 
     [WithLens]

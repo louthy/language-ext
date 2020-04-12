@@ -123,8 +123,8 @@ class Program
         var tries = from ixx in Range(0, 1_000_000) select Try(() => ixx);
         var _ = tries.Sequence().Map(Enumerable.Sum).IfFailThrow();
         
-        await FreeIOTest.Test1();
-        MaybeFreeTest.Test1(); 
+        //await FreeIOTest.Test1();
+        //MaybeFreeTest.Test1(); 
         
         var nseq = new Seq<int> { 1, 2, 3 };
 

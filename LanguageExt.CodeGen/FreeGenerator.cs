@@ -61,7 +61,18 @@ namespace LanguageExt.CodeGen
                         // .Where(m => m.ParameterList.Parameters[0].Type.IsEquivalentTo(typeA))
                         // .Where(m => m.ParameterList.Parameters[1].Type.IsEquivalentTo(mapFunc))
                         .Any();
+
+
+                    //var failType = ParseTypeName("LanguageExt.Common.Error");
                     
+                    //applyTo.Members
+                    //    .OfType<MethodDeclarationSyntax>()
+                    //    .Where(m => m.ParameterList.Parameters.Count == 1)
+                    //    .Where(m => m.ReturnType.IsEquivalentTo(typeA))
+                    //    .Where(m => m.ParameterList.Parameters.First().Type.ToString() != genA)
+                    //    .Select(m => m.ParameterList.Parameters.First().Type)
+                    //    .FirstOrDefault();
+
                     var caseMethods = applyTo.Members
                         .OfType<MethodDeclarationSyntax>()
                         .Where(m => !m.Modifiers.Any(mo => mo.IsKind(SyntaxKind.StaticKeyword)))
@@ -73,6 +84,12 @@ namespace LanguageExt.CodeGen
                                                .Where(m => m.ReturnType.IsEquivalentTo(typeA))
                                                .Where(m => m.ParameterList.Parameters.First().Type.ToString() == genA)
                                                .FirstOrDefault();
+
+                    var firstFailPure = caseMethods.Where(HasPureAttr)
+                        .Where(m => m.ParameterList.Parameters.Count == 1)
+                        .Where(m => m.ReturnType.IsEquivalentTo(typeA))
+                        .Where(m => m.ParameterList.Parameters.First().Type == CodeGenUtil.ExceptionType)
+                        .FirstOrDefault();
 
                     if (firstPure == null)
                     {
@@ -112,6 +129,7 @@ namespace LanguageExt.CodeGen
                         applyTo.TypeParameterList, 
                         applyTo.ConstraintClauses,
                         firstPure,
+                        firstFailPure,
                         mapIsStatic);
 
                     if (ok)
@@ -354,7 +372,7 @@ namespace LanguageExt.CodeGen
             }
             else
             {
-                var type = QualifiedName(
+                var nextType = QualifiedName(
                     IdentifierName("System"),
                     GenericName(
                             Identifier("Func"))
@@ -363,9 +381,20 @@ namespace LanguageExt.CodeGen
                                 SeparatedList<TypeSyntax>(
                                     new SyntaxNodeOrToken[] {m.ReturnType, Token(SyntaxKind.CommaToken), freeType}))));
 
+                var failNextType = QualifiedName(
+                    IdentifierName("System"),
+                    GenericName(
+                            Identifier("Func"))
+                        .WithTypeArgumentList(
+                            TypeArgumentList(
+                                SeparatedList<TypeSyntax>(
+                                    new SyntaxNodeOrToken[] { CodeGenUtil.ExceptionType, Token(SyntaxKind.CommaToken), freeType }))));
+
                 return m.WithParameterList(m.ParameterList
-                                            .AddParameters(Parameter(Identifier("next")).WithType(type)))
-                        .WithReturnType(freeType);
+                        .AddParameters(Parameter(Identifier("next")).WithType(nextType))
+                        .AddParameters(Parameter(Identifier("failNext")).WithType(failNextType))
+                    )
+                    .WithReturnType(freeType);
             }
         }
 
@@ -375,6 +404,7 @@ namespace LanguageExt.CodeGen
             TypeParameterListSyntax applyToTypeParams,
             SyntaxList<TypeParameterConstraintClauseSyntax> applyToConstraints,
             MethodDeclarationSyntax pure,
+            MethodDeclarationSyntax fail,
             bool mapIsStatic
             )
         {
@@ -386,7 +416,7 @@ namespace LanguageExt.CodeGen
             var returnType = ParseTypeName($"{applyToIdentifier}{applyToTypeParams}");
 
             var cases = applyToMembers
-                               .Select(m => MakeCaseCtorFunction(applyToIdentifier, applyToTypeParams, applyToConstraints, returnType, m, pure))
+                               .Select(m => MakeCaseCtorFunction(applyToIdentifier, applyToTypeParams, applyToConstraints, returnType, m, pure, fail))
                                .ToArray();
 
 
@@ -836,7 +866,8 @@ namespace LanguageExt.CodeGen
             SyntaxList<TypeParameterConstraintClauseSyntax> applyToConstraints,
             TypeSyntax returnType, 
             MethodDeclarationSyntax method,
-            MethodDeclarationSyntax pure)
+            MethodDeclarationSyntax pure,
+            MethodDeclarationSyntax fail)
         {
             bool isPure = method.AttributeLists
                                 .SelectMany(a => a.Attributes)
@@ -889,11 +920,11 @@ namespace LanguageExt.CodeGen
             }
             else
             {
-                var nextType = ((GenericNameSyntax)((QualifiedNameSyntax)method.ParameterList.Parameters.Last().Type).Right)
+                var nextType = ((GenericNameSyntax)((QualifiedNameSyntax)method.ParameterList.Parameters.Reverse().Skip(1).First().Type).Right)
                                     .TypeArgumentList
                                     .Arguments
                                     .First();
-
+                
                 var thisType = ParseTypeName($"{method.Identifier.Text}<{nextType}>");
                 returnType = ParseTypeName($"{applyToIdentifier}<{nextType}>");
 
@@ -902,7 +933,22 @@ namespace LanguageExt.CodeGen
                     .Select(p => (SyntaxNodeOrToken)Argument(IdentifierName(p.Identifier.Text)))
                     .ToArray();
 
-                paramIdents[paramIdents.Length - 1] = Argument(IdentifierName(pure.Identifier.Text));
+                //var nextType = QualifiedName(
+                //    IdentifierName("System"),
+                //    GenericName(
+                //            Identifier("Func"))
+                //        .WithTypeArgumentList(
+                //            TypeArgumentList(
+                //                SeparatedList<TypeSyntax>(
+                //                    new SyntaxNodeOrToken[] { m.ReturnType, Token(SyntaxKind.CommaToken), freeType }))));
+
+
+
+                paramIdents[paramIdents.Length - 1] = Argument(GenericName(fail.Identifier.Text)
+                    .WithTypeArgumentList(
+                        TypeArgumentList(SeparatedList<TypeSyntax>(
+                            new SyntaxNodeOrToken[] { nextType }))));
+                paramIdents[paramIdents.Length - 2] = Argument(IdentifierName(pure.Identifier.Text));
 
                 var args = CodeGenUtil.Interleave(
                     paramIdents,
@@ -915,7 +961,7 @@ namespace LanguageExt.CodeGen
                                 Token(SyntaxKind.PublicKeyword),
                                 Token(SyntaxKind.StaticKeyword)}))
                     .WithParameterList(
-                        method.ParameterList.WithParameters(method.ParameterList.Parameters.RemoveAt(method.ParameterList.Parameters.Count - 1)))
+                        method.ParameterList.WithParameters(method.ParameterList.Parameters.RemoveAt(method.ParameterList.Parameters.Count - 1).RemoveAt(method.ParameterList.Parameters.Count - 2)))
                     .WithConstraintClauses(applyToConstraints)
                     .WithExpressionBody(
                         ArrowExpressionClause(
