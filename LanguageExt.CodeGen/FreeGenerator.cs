@@ -63,32 +63,36 @@ namespace LanguageExt.CodeGen
                         .Any();
 
 
-                    //var failType = ParseTypeName("LanguageExt.Common.Error");
-                    
-                    //applyTo.Members
-                    //    .OfType<MethodDeclarationSyntax>()
-                    //    .Where(m => m.ParameterList.Parameters.Count == 1)
-                    //    .Where(m => m.ReturnType.IsEquivalentTo(typeA))
-                    //    .Where(m => m.ParameterList.Parameters.First().Type.ToString() != genA)
-                    //    .Select(m => m.ParameterList.Parameters.First().Type)
-                    //    .FirstOrDefault();
+                    var failType = applyTo.Members
+                        .OfType<MethodDeclarationSyntax>()
+                        .Where(HasPureAttr)
+                        .Where(m => m.ParameterList.Parameters.Count == 1)
+                        .Where(m => m.ParameterList.Parameters.First().Type.ToString() != genA)
+                        .Select(m => m.ParameterList.Parameters.First().Type)
+                        .FirstOrDefault();
+
+                    if (failType == null)
+                    {
+                        CodeGenUtil.ReportError($"Type can't be made into a free monad because no method in the interface has [Pure] attribute that takes a single argument of base type 'Exception' and returns a '{genA}'", "Free monad Code-Gen", context.ProcessingNode, progress);
+                        return Task.FromResult(List<MemberDeclarationSyntax>());
+                    }
 
                     var caseMethods = applyTo.Members
                         .OfType<MethodDeclarationSyntax>()
                         .Where(m => !m.Modifiers.Any(mo => mo.IsKind(SyntaxKind.StaticKeyword)))
-                        .Select(m => MakeFree(m, thisType))
+                        .Select(m => MakeFree(m, thisType, failType))
                         .ToArray();
-                    
+
                     var firstPure = caseMethods.Where(HasPureAttr)
-                                               .Where(m => m.ParameterList.Parameters.Count == 1)
-                                               .Where(m => m.ReturnType.IsEquivalentTo(typeA))
-                                               .Where(m => m.ParameterList.Parameters.First().Type.ToString() == genA)
-                                               .FirstOrDefault();
+                        .Where(m => m.ParameterList.Parameters.Count == 1)
+                        .Where(m => m.ReturnType.IsEquivalentTo(typeA))
+                        .Where(m => m.ParameterList.Parameters.First().Type.ToString() == genA)
+                        .FirstOrDefault();
 
                     var firstFailPure = caseMethods.Where(HasPureAttr)
                         .Where(m => m.ParameterList.Parameters.Count == 1)
                         .Where(m => m.ReturnType.IsEquivalentTo(typeA))
-                        .Where(m => m.ParameterList.Parameters.First().Type == CodeGenUtil.ExceptionType)
+                        .Where(m => m.ParameterList.Parameters.First().Type.ToString() != genA)
                         .FirstOrDefault();
 
                     if (firstPure == null)
@@ -96,6 +100,15 @@ namespace LanguageExt.CodeGen
                         CodeGenUtil.ReportError($"Type can't be made into a free monad because no method in the interface has [Pure] attribute that takes a single argument of type '{genA}' and returns a '{genA}'", "Free monad Code-Gen", context.ProcessingNode, progress);
                         return Task.FromResult(List<MemberDeclarationSyntax>());
                     }
+
+                    if (firstFailPure == null)
+                    {
+                        CodeGenUtil.ReportError($"Type can't be made into a free monad because no method in the interface has [Pure] attribute that takes a single argument of base type 'Exception' and returns a '{genA}'", "Free monad Code-Gen", context.ProcessingNode, progress);
+                        return Task.FromResult(List<MemberDeclarationSyntax>());
+                    }
+
+                   //CodeGenUtil.ReportError($"Fail type: {failType.ToString()}", "Free monad Code-Gen", context.ProcessingNode, progress);
+                   //return Task.FromResult(List<MemberDeclarationSyntax>());
 
                     var caseRes = caseMethods
                         .Zip(Enumerable.Range(1, int.MaxValue), (m, i) => (m, i))
@@ -360,7 +373,7 @@ namespace LanguageExt.CodeGen
                 };
         }
 
-        static MethodDeclarationSyntax MakeFree(MethodDeclarationSyntax m, TypeSyntax freeType)
+        static MethodDeclarationSyntax MakeFree(MethodDeclarationSyntax m, TypeSyntax freeType, TypeSyntax failType)
         {
             bool isPure = m.AttributeLists != null && m.AttributeLists
                            .SelectMany(a => a.Attributes)
@@ -388,7 +401,7 @@ namespace LanguageExt.CodeGen
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SeparatedList<TypeSyntax>(
-                                    new SyntaxNodeOrToken[] { CodeGenUtil.ExceptionType, Token(SyntaxKind.CommaToken), freeType }))));
+                                    new SyntaxNodeOrToken[] { failType, Token(SyntaxKind.CommaToken), freeType }))));
 
                 return m.WithParameterList(m.ParameterList
                         .AddParameters(Parameter(Identifier("next")).WithType(nextType))
