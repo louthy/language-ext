@@ -1,11 +1,9 @@
 ﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
+using LanguageExt.ClassInstances;
 using Xunit;
 using static LanguageExt.Prelude;
-using LanguageExt.ClassInstances;
-using LanguageExt;
-using System.Net.Http;
-using Nito.AsyncEx;
 
 namespace LanguageExt.Tests
 {
