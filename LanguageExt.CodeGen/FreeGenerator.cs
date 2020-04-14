@@ -722,81 +722,49 @@ namespace LanguageExt.CodeGen
                     });
 
 
-            var freeFuncs = fail != null
-                ? applyToMembers
-                    .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
-                    .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsFailAttr))
-                    .SelectMany(m =>
-                        new SyntaxNodeOrToken[]
-                        {
-                            SwitchExpressionArm(
-                                DeclarationPattern(
-                                    ParseTypeName($"{m.Identifier.Text}<{genA}>"),
-                                    SingleVariableDesignation(Identifier("v"))),
-                                ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
-                                    .WithArgumentList(
-                                        ArgumentList(
-                                            SeparatedList<ArgumentSyntax>(
-                                                m.ParameterList
-                                                    .Parameters
-                                                    .Take(m.ParameterList.Parameters.Count - 2)
-                                                    .SelectMany(p =>
-                                                        new SyntaxNodeOrToken[]
-                                                        {
-                                                            Argument(
-                                                                MemberAccessExpression(
-                                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                                    IdentifierName("v"),
-                                                                    IdentifierName(
-                                                                        CodeGenUtil.MakeFirstCharUpper(p.Identifier
-                                                                            .Text)))),
-                                                            Token(SyntaxKind.CommaToken)
-                                                        })
-                                                    .Concat(new SyntaxNodeOrToken[]
+            var freeFuncParams = fail == null
+                ? new SyntaxNodeOrToken[] {Argument(SimpleLambdaExpression(Parameter(Identifier("n")), mapNextFunc))}
+                : new SyntaxNodeOrToken[]
+                {
+                    Argument(SimpleLambdaExpression(Parameter(Identifier("n")), mapNextFunc)),
+                    Token(SyntaxKind.CommaToken),
+                    Argument(SimpleLambdaExpression(Parameter(Identifier("fn")), mapFailFunc))
+                };
+
+            var freeFuncParamsCount = fail == null ? 1 : 2;
+
+            var freeFuncs = applyToMembers
+                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
+                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsFailAttr))
+                .SelectMany(m =>
+                    new SyntaxNodeOrToken[]
+                    {
+                        SwitchExpressionArm(
+                            DeclarationPattern(
+                                ParseTypeName($"{m.Identifier.Text}<{genA}>"),
+                                SingleVariableDesignation(Identifier("v"))),
+                            ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SeparatedList<ArgumentSyntax>(
+                                            m.ParameterList
+                                                .Parameters
+                                                .Take(m.ParameterList.Parameters.Count - freeFuncParamsCount)
+                                                .SelectMany(p =>
+                                                    new SyntaxNodeOrToken[]
                                                     {
-                                                        Argument(SimpleLambdaExpression(Parameter(Identifier("n")),
-                                                            mapNextFunc)),
-                                                        Token(SyntaxKind.CommaToken), Argument(SimpleLambdaExpression(
-                                                            Parameter(Identifier("fn")),
-                                                            mapFailFunc))
-                                                    }))))),
-                            Token(SyntaxKind.CommaToken)
-                        })
-                : applyToMembers
-                    .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
-                    .SelectMany(m =>
-                        new SyntaxNodeOrToken[]
-                        {
-                            SwitchExpressionArm(
-                                DeclarationPattern(
-                                    ParseTypeName($"{m.Identifier.Text}<{genA}>"),
-                                    SingleVariableDesignation(Identifier("v"))),
-                                ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
-                                    .WithArgumentList(
-                                        ArgumentList(
-                                            SeparatedList<ArgumentSyntax>(
-                                                m.ParameterList
-                                                    .Parameters
-                                                    .Take(m.ParameterList.Parameters.Count - 1)
-                                                    .SelectMany(p =>
-                                                        new SyntaxNodeOrToken[]
-                                                        {
-                                                            Argument(
-                                                                MemberAccessExpression(
-                                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                                    IdentifierName("v"),
-                                                                    IdentifierName(
-                                                                        CodeGenUtil.MakeFirstCharUpper(p.Identifier
-                                                                            .Text)))),
-                                                            Token(SyntaxKind.CommaToken)
-                                                        })
-                                                    .Concat(new SyntaxNodeOrToken[]
-                                                    {
-                                                        Argument(SimpleLambdaExpression(Parameter(Identifier("n")),
-                                                            mapNextFunc))
-                                                    }))))),
-                            Token(SyntaxKind.CommaToken)
-                        });
+                                                        Argument(
+                                                            MemberAccessExpression(
+                                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                                IdentifierName("v"),
+                                                                IdentifierName(
+                                                                    CodeGenUtil.MakeFirstCharUpper(p.Identifier
+                                                                        .Text)))),
+                                                        Token(SyntaxKind.CommaToken)
+                                                    })
+                                                .Concat(freeFuncParams))))),
+                        Token(SyntaxKind.CommaToken)
+                    });
 
             var tokens = new List<SyntaxNodeOrToken>();
             tokens.AddRange(pureFunc);
@@ -872,7 +840,7 @@ namespace LanguageExt.CodeGen
             var bindFailFuncType = failType != null
                 ? ParseTypeName($"System.Func<{failType}, {typeB}>")
                 : ParseTypeName($"System.Func<{typeB}>");
-            
+
             var pureTypeA = MakeTypeName(pure.Identifier.Text, genA);
             var failTypeA = MakeTypeName(fail.Identifier.Text, genA);
 
@@ -1354,81 +1322,49 @@ namespace LanguageExt.CodeGen
                     });
 
 
-            var freeFuncs = fail != null
-                ? applyToMembers
-                    .Where(m => m != fail)
-                    .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
-                    .SelectMany(m =>
-                        new SyntaxNodeOrToken[]
-                        {
-                            SwitchExpressionArm(
-                                DeclarationPattern(
-                                    ParseTypeName($"{m.Identifier.Text}<{genA}>"),
-                                    SingleVariableDesignation(Identifier("v"))),
-                                ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
-                                    .WithArgumentList(
-                                        ArgumentList(
-                                            SeparatedList<ArgumentSyntax>(
-                                                m.ParameterList
-                                                    .Parameters
-                                                    .Take(m.ParameterList.Parameters.Count - 2)
-                                                    .SelectMany(p =>
-                                                        new SyntaxNodeOrToken[]
-                                                        {
-                                                            Argument(
-                                                                MemberAccessExpression(
-                                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                                    IdentifierName("v"),
-                                                                    IdentifierName(
-                                                                        CodeGenUtil.MakeFirstCharUpper(
-                                                                            p.Identifier.Text)))),
-                                                            Token(SyntaxKind.CommaToken)
-                                                        })
-                                                    .Concat(new SyntaxNodeOrToken[]
+            var freeFuncParams = fail == null
+                ? new SyntaxNodeOrToken[] {Argument(SimpleLambdaExpression(Parameter(Identifier("n")), mapNextFunc))}
+                : new SyntaxNodeOrToken[]
+                {
+                    Argument(SimpleLambdaExpression(Parameter(Identifier("n")), mapNextFunc)),
+                    Token(SyntaxKind.CommaToken),
+                    Argument(SimpleLambdaExpression(Parameter(Identifier("fn")), mapFailFunc))
+                };
+
+            var freeFuncParamsCount = fail == null ? 1 : 2;
+
+            var freeFuncs = applyToMembers
+                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
+                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsFailAttr))
+                .SelectMany(m =>
+                    new SyntaxNodeOrToken[]
+                    {
+                        SwitchExpressionArm(
+                            DeclarationPattern(
+                                ParseTypeName($"{m.Identifier.Text}<{genA}>"),
+                                SingleVariableDesignation(Identifier("v"))),
+                            ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SeparatedList<ArgumentSyntax>(
+                                            m.ParameterList
+                                                .Parameters
+                                                .Take(m.ParameterList.Parameters.Count - freeFuncParamsCount)
+                                                .SelectMany(p =>
+                                                    new SyntaxNodeOrToken[]
                                                     {
-                                                        Argument(SimpleLambdaExpression(Parameter(Identifier("n")),
-                                                            mapNextFunc)),
-                                                        Token(SyntaxKind.CommaToken), Argument(SimpleLambdaExpression(
-                                                            Parameter(Identifier("fn")),
-                                                            mapFailFunc))
-                                                    }))))),
-                            Token(SyntaxKind.CommaToken)
-                        })
-                : applyToMembers
-                    .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
-                    .SelectMany(m =>
-                        new SyntaxNodeOrToken[]
-                        {
-                            SwitchExpressionArm(
-                                DeclarationPattern(
-                                    ParseTypeName($"{m.Identifier.Text}<{genA}>"),
-                                    SingleVariableDesignation(Identifier("v"))),
-                                ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
-                                    .WithArgumentList(
-                                        ArgumentList(
-                                            SeparatedList<ArgumentSyntax>(
-                                                m.ParameterList
-                                                    .Parameters
-                                                    .Take(m.ParameterList.Parameters.Count - 1)
-                                                    .SelectMany(p =>
-                                                        new SyntaxNodeOrToken[]
-                                                        {
-                                                            Argument(
-                                                                MemberAccessExpression(
-                                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                                    IdentifierName("v"),
-                                                                    IdentifierName(
-                                                                        CodeGenUtil.MakeFirstCharUpper(
-                                                                            p.Identifier.Text)))),
-                                                            Token(SyntaxKind.CommaToken)
-                                                        })
-                                                    .Concat(new SyntaxNodeOrToken[]
-                                                    {
-                                                        Argument(SimpleLambdaExpression(Parameter(Identifier("n")),
-                                                            mapNextFunc))
-                                                    }))))),
-                            Token(SyntaxKind.CommaToken)
-                        });
+                                                        Argument(
+                                                            MemberAccessExpression(
+                                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                                IdentifierName("v"),
+                                                                IdentifierName(
+                                                                    CodeGenUtil.MakeFirstCharUpper(
+                                                                        p.Identifier.Text)))),
+                                                        Token(SyntaxKind.CommaToken)
+                                                    })
+                                                .Concat(freeFuncParams))))),
+                        Token(SyntaxKind.CommaToken)
+                    });
 
             var tokens = new List<SyntaxNodeOrToken>();
             tokens.AddRange(pureFunc);
@@ -1700,9 +1636,8 @@ namespace LanguageExt.CodeGen
 
 
             var freeFuncs = applyToMembers
-                .Where(m => m != pure)
-                .Where(m => m != fail)
                 .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
+                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsFailAttr))
                 .SelectMany(m =>
                     new SyntaxNodeOrToken[]
                     {
@@ -1846,9 +1781,7 @@ namespace LanguageExt.CodeGen
             }
             else
             {
-                var skip = fail != null
-                    ? 1
-                    : 0;
+                var skip = fail != null ? 1 : 0;
 
                 var nextType = ((GenericNameSyntax)((QualifiedNameSyntax)method.ParameterList.Parameters
                             .Reverse()
