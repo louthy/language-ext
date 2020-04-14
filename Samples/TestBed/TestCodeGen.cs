@@ -27,13 +27,6 @@ namespace TestBed
         Unit WriteAllText(string path, string text);
     }
 
-    [Free]
-    public interface Try<A>
-    {
-        [Pure] A Succ(A value);
-        [Fail] A NiceTry(Exception e);
-    }
-
     public static partial class FreeIO
     {
         public static FreeIO<T> Flatten2<T>(this FreeIO<FreeIO<T>> ma) => ma switch
@@ -42,13 +35,13 @@ namespace TestBed
             Fail<FreeIO<T>> v => new Fail<T>(v.Error),
             ReadAllText<FreeIO<T>> v => new ReadAllText<T>(v.Path, n => Flatten(v.Next(n)), fn => Flatten(v.FailNext(fn))),
             WriteAllText<FreeIO<T>> v => new WriteAllText<T>(v.Path, v.Text, n => Flatten(v.Next(n)), fn => Flatten(v.FailNext(fn))),
-            _ => throw new NotSupportedException()
+            _ => throw new System.NotSupportedException()
         };
     }
 
     public static class FreeIOTest
     {
-        public static async Task Test1()
+        public async static Task Test1()
         {
             var dsl = from t in FreeIO.ReadAllText("I:\\temp\\test.txt")
                       from _ in FreeIO.WriteAllText("I:\\temp\\test2.txt", t)
@@ -92,19 +85,13 @@ namespace TestBed
     public interface Maybe<A>
     {
         [Pure] A Just(A value);
-        [Fail] A Nothing();
+        [Pure] A Nothing();
 
-        //public static Maybe<B> Map<B>(Maybe<A> ma, Func<A, B> f) => ma switch
-        //{
-        //    Just<A>(var x) => Maybe.Just(f(x)),
-        //    _ => Maybe.Nothing<B>()
-        //};
-
-        //public static Maybe<B> BiMap<B>(Maybe<A> ma, Func<A, B> succ, Func<B> none) => ma switch
-        //{
-        //    Just<A>(var x) => Maybe.Just(succ(x)),
-        //    _ => Maybe.Just(none())
-        //};
+        public static Maybe<B> Map<B>(Maybe<A> ma, Func<A, B> f) => ma switch
+        {
+            Just<A>(var x) => Maybe.Just(f(x)),
+            _ => Maybe.Nothing<B>()
+        };
     }
 
     public static class MaybeFreeTest
@@ -169,7 +156,7 @@ namespace TestBed
         }
         public Person ReadFromDB() => new Person("Spider", "Man");
         public int Zero => 0;
-    } 
+    }
 
     public static class TestSubs
     {
@@ -177,7 +164,7 @@ namespace TestBed
         {
             var comp = from ze in Subsystem.Zero
                        from ls in Subsystem.ReadAllLines("c:/test.txt")
-                       from _  in Subsystem.WriteAllLines("c:/test-copy.txt", ls)
+                       from _ in Subsystem.WriteAllLines("c:/test-copy.txt", ls)
                        select ls.Count;
 
             var res = comp.Run(new RealIO()).IfFail(0);
@@ -197,11 +184,11 @@ namespace TestBed
     //}
 
 
-    [RWS(WriterMonoid: typeof(MSeq<string>), 
-         Env:          typeof(IO), 
-         State:        typeof(Person), 
-         Constructor:  "Pure", 
-         Fail:         "Error" )]
+    [RWS(WriterMonoid: typeof(MSeq<string>),
+         Env: typeof(IO),
+         State: typeof(Person),
+         Constructor: "Pure",
+         Fail: "Error")]
     public partial struct Subsys<T>
     {
     }
@@ -315,5 +302,3 @@ namespace TestBed
         public readonly string Surname;
     }
 }
-
-
