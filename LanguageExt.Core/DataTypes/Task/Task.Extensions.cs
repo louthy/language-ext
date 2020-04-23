@@ -21,7 +21,7 @@ namespace LanguageExt
             if (ma == null) return FailCase<A>.New(Common.Error.Bottom);
             try
             {
-                return SuccCase<A>.New(await ma);
+                return SuccCase<A>.New(await ma.ConfigureAwait(false));
             }
             catch(Exception ex)
             {
@@ -50,8 +50,8 @@ namespace LanguageExt
         [Pure]
         public static async Task<A> Flatten<A>(this Task<Task<A>> self)
         {
-            var t = await self;
-            var u = await t;
+            var t = await self.ConfigureAwait(false);
+            var u = await t.ConfigureAwait(false);
             return u;
         }
 
@@ -61,9 +61,9 @@ namespace LanguageExt
         [Pure]
         public static async Task<A> Flatten<A>(this Task<Task<Task<A>>> self)
         {
-            var t = await self;
-            var u = await t;
-            var v = await u;
+            var t = await self.ConfigureAwait(false);
+            var u = await t.ConfigureAwait(false);
+            var v = await u.ConfigureAwait(false);
             return v;
         }
 
@@ -72,7 +72,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static async Task<U> Select<T, U>(this Task<T> self, Func<T, U> map) =>
-            map(await self);
+            map(await self.ConfigureAwait(false));
 
         /// <summary>
         /// Standard LINQ Where implementation for Task
@@ -80,7 +80,7 @@ namespace LanguageExt
         [Pure]
         public static async Task<T> Where<T>(this Task<T> self, Func<T, bool> pred)
         {
-            var resT = await self;
+            var resT = await self.ConfigureAwait(false);
             var res = pred(resT);
             if (!res)
             {
@@ -97,7 +97,7 @@ namespace LanguageExt
             this Task<T> self,
             Func<T, Task<U>> bind
             ) =>
-            await bind(await self);
+            await bind(await self.ConfigureAwait(false)).ConfigureAwait(false);
 
         /// <summary>
         /// Standard LINQ SelectMany implementation for Task
@@ -109,8 +109,8 @@ namespace LanguageExt
             Func<T, U, V> project
             )
         {
-            var resT = await self;
-            var resU = await bind(resT);
+            var resT = await self.ConfigureAwait(false);
+            var resU = await bind(resT).ConfigureAwait(false);
             return project(resT, resU);
         }
 
@@ -122,7 +122,7 @@ namespace LanguageExt
         {
             try
             {
-                await self;
+                await self.ConfigureAwait(false);
                 return 1;
             }
             catch(Exception)
@@ -144,7 +144,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static async Task<bool> Exists<T>(this Task<T> self, Func<T, bool> pred) =>
-            pred(await self);
+            pred(await self.ConfigureAwait(false));
 
         /// <summary>
         /// Returns false if the Task is cancelled or faulted, otherwise
@@ -152,7 +152,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static async Task<bool> ExistsAsync<T>(this Task<T> self, Func<T, Task<bool>> pred) =>
-            await pred(await self);
+            await pred(await self.ConfigureAwait(false)).ConfigureAwait(false);
 
         /// <summary>
         /// Returns false if the Task is cancelled or faulted, otherwise
@@ -160,7 +160,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static async Task<bool> ForAll<T>(this Task<T> self, Func<T, bool> pred) =>
-            pred(await self);
+            pred(await self.ConfigureAwait(false));
 
         /// <summary>
         /// Returns false if the Task is cancelled or faulted, otherwise
@@ -168,7 +168,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static async Task<bool> ForAllAsync<T>(this Task<T> self, Func<T, Task<bool>> pred) =>
-            await pred(await self);
+            await pred(await self.ConfigureAwait(false)).ConfigureAwait(false);
 
         /// <summary>
         /// Filters the task.  This throws a BottomException when pred(Result)
@@ -184,7 +184,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static async Task<S> Fold<T, S>(this Task<T> self, S state, Func<S, T, S> folder) =>
-            folder(state, await self);
+            folder(state, await self.ConfigureAwait(false));
 
         /// <summary>
         /// Folds the Task.  Returns folder(state,Result) if not faulted or
@@ -192,14 +192,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static async Task<S> FoldAsync<T, S>(this Task<T> self, S state, Func<S, T, Task<S>> folder) =>
-            await folder(state, await self);
+            await folder(state, await self.ConfigureAwait(false)).ConfigureAwait(false);
 
         /// <summary>
         /// Iterates the Task.  Invokes f(Result) if not faulted or cancelled
         /// </summary>
         public static async Task<Unit> Iter<T>(this Task<T> self, Action<T> f)
         {
-            f(await self);
+            f(await self.ConfigureAwait(false));
             return unit;
         }
 
@@ -217,14 +217,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static async Task<U> Map<T, U>(this Task<T> self, Func<T, U> map) =>
-            map(await self);
+            map(await self.ConfigureAwait(false));
 
         /// <summary>
         /// Returns map(Result) if not faulted or cancelled.
         /// </summary>
         [Pure]
         public static async Task<U> MapAsync<T, U>(this Task<T> self, Func<T, Task<U>> map) =>
-            await map(await self);
+            await map(await self.ConfigureAwait(false)).ConfigureAwait(false);
 
         [Pure]
         public static async Task<V> Join<T, U, K, V>(
@@ -234,7 +234,7 @@ namespace LanguageExt
             Func<U, K> innerKeyMap,
             Func<T, U, V> project)
         {
-            await Task.WhenAll(source, inner);
+            await Task.WhenAll(source, inner).ConfigureAwait(false);
             if (!EqualityComparer<K>.Default.Equals(outerKeyMap(source.Result), innerKeyMap(inner.Result)))
             {
                 throw new OperationCanceledException();
@@ -250,7 +250,7 @@ namespace LanguageExt
             Func<U, K> innerKeyMap,
             Func<T, Task<U>, V> project)
         {
-            T t = await source;
+            T t = await source.ConfigureAwait(false);
             return project(t, inner.Where(u => EqualityComparer<K>.Default.Equals(outerKeyMap(t), innerKeyMap(u))));
         }
 
@@ -270,7 +270,7 @@ namespace LanguageExt
         public static async Task<A> Cast<A>(this Task source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
-            await source;
+            await source.ConfigureAwait(false);
             var prop = PropCache<A>.Info;
             return prop != null
                 ? (A)prop.GetValue(source)
@@ -279,7 +279,7 @@ namespace LanguageExt
 
         public static async Task<Unit> ToUnit(this Task source)
         {
-            await source;
+            await source.ConfigureAwait(false);
             return unit;
         }
 
@@ -329,12 +329,12 @@ namespace LanguageExt
                     {
                         var next = GetNext();
                         if (!next.Success) return;
-                        var a = await next.Task;
+                        var a = await next.Task.ConfigureAwait(false);
                         f(a);
                     }
                 }));
             }
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(false);
             return unit;
         }
     }
