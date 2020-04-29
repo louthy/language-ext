@@ -6,7 +6,7 @@ using System;
 namespace LanguageExt.DataTypes.Serialisation
 {
     [Serializable]
-    public class ValidationData<FAIL, SUCCESS> : Record<ValidationData<FAIL, SUCCESS>>, ISerializable
+    public class ValidationData<FAIL, SUCCESS> : Record<ValidationData<FAIL, SUCCESS>>
     {
         public readonly Validation.StateType State;
         public readonly SUCCESS Success;
@@ -18,8 +18,5 @@ namespace LanguageExt.DataTypes.Serialisation
             Success = success;
             Fail = fail;
         }
-
-        public ValidationData(SerializationInfo info, StreamingContext ctx)
-            : base(info, ctx) { }
     }
 }

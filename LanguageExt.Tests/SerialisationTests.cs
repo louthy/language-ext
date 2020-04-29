@@ -190,5 +190,37 @@ namespace LanguageExt.Tests
             public ActionType(string value) : base(value) { }
             protected ActionType(SerializationInfo info, StreamingContext context) : base(info, context) { }
         }
+
+        [Fact]
+        public void DateTimeTypeWithEither()
+        {
+            var val = Right<string, DateTime>(new DateTime(2020, 4, 18, 14, 28, 42, 985));
+            var res = JsonConvert.DeserializeObject<Either<string, DateTime>>(JsonConvert.SerializeObject(val));
+            Assert.Equal(val, res);
+        }
+
+        [Fact]
+        public void DateTimeTypeWithValidation()
+        {
+            var val = Success<string, DateTime>(new DateTime(2020, 4, 18, 14, 28, 42, 985));
+            var res = JsonConvert.DeserializeObject<Validation<string, DateTime>>(JsonConvert.SerializeObject(val));
+            Assert.Equal(val, res);
+        }
+
+        [Fact]
+        public void DateStringWithEither()
+        {
+            var val = Right<string, string>("2020-04-18T14:28:42.985");
+            var res = JsonConvert.DeserializeObject<Either<string, string>>(JsonConvert.SerializeObject(val));
+            Assert.Equal(val, res);
+        }
+
+        [Fact]
+        public void DateStringWithValidation()
+        {
+            var val = Success<string, string>("2020-04-18T14:28:42.985");
+            var res = JsonConvert.DeserializeObject<Validation<string, string>>(JsonConvert.SerializeObject(val));
+            Assert.Equal(val, res);
+        }
     }
 }
