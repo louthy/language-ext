@@ -39,9 +39,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(CH x) =>
-            default(CHOICE).Match(x,
-                Left: a => a.IsNull() ? 0 : a.GetHashCode(),
-                Right: a => a.IsNull() ? 0 : a.GetHashCode());
+            default(HashableChoice<EQA, EQB, CHOICE, CH, A, B>).GetHashCode(x);
     }
 
     /// <summary>
@@ -70,7 +68,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(CH x) =>
-            default(EqChoice<EqDefault<A>, EQB, CHOICE, CH, A, B>).GetHashCode(x);
+            default(HashableChoice<EQB, CHOICE, CH, A, B>).GetHashCode(x);
     }
 
     /// <summary>
@@ -98,6 +96,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(CH x) =>
-            default(EqChoice<EqDefault<A>, EqDefault<B>, CHOICE, CH, A, B>).GetHashCode(x);
+            default(HashableChoice<CHOICE, CH, A, B>).GetHashCode(x);
     }
 }

@@ -3,7 +3,7 @@ using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("Semi*")]
     public interface Semigroup<A> : Typeclass
     {
         /// <summary>

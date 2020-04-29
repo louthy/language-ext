@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -17,20 +17,20 @@ namespace LanguageExt
         IEquatable<HashSet<EqA, A>>
         where EqA : struct, Eq<A>
     {
-        public static readonly HashSet<EqA, A> Empty = new HashSet<EqA, A>(TrieMap<EqA, A, Unit>.Empty);
+        public static readonly HashSet<EqA, A> Empty = new HashSet<EqA, A>(TrieSet<EqA, A>.Empty);
 
-        readonly TrieMap<EqA, A, Unit> value;
-        TrieMap<EqA, A, Unit> Value => value ?? TrieMap<EqA, A, Unit>.Empty;
+        readonly TrieSet<EqA, A> value;
+        TrieSet<EqA, A> Value => value ?? TrieSet<EqA, A>.Empty;
 
-        internal HashSet(TrieMap<EqA, A, Unit> value)
+        internal HashSet(TrieSet<EqA, A> value)
         {
             this.value = value;
         }
 
-        HashSet<EqA, A> Wrap(TrieMap<EqA, A, Unit> value) =>
+        HashSet<EqA, A> Wrap(TrieSet<EqA, A> value) =>
             new HashSet<EqA, A>(value);
 
-        static HashSet<B> Wrap<B>(TrieMap<EqDefault<B>, B, Unit> value) =>
+        static HashSet<B> Wrap<B>(TrieSet<EqDefault<B>, B> value) =>
             new HashSet<B>(value);
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace LanguageExt
         /// Ctor that takes an initial (distinct) set of items
         /// </summary>
         internal HashSet(IEnumerable<A> items, bool tryAdd) =>
-            value = new TrieMap<EqA, A, Unit>(items.Map(x => (x, default(Unit))), tryAdd);
+            value = new TrieSet<EqA, A>(items, tryAdd);
 
         /// <summary>
         /// Item at index lens
@@ -73,13 +73,20 @@ namespace LanguageExt
                 });
 
         /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            Seq(this).Case;
+
+        /// <summary>
         /// 'this' accessor
         /// </summary>
         /// <param name="key">Key</param>
         /// <returns>Optional value</returns>
         [Pure]
         public A this[A key] =>
-            Value.Get(key).Key;
+            Value[key];
 
         /// <summary>
         /// Is the map empty
@@ -125,9 +132,9 @@ namespace LanguageExt
         [Pure]
         public HashSet<EqR, R> Map<EqR, R>(Func<A, R> mapper) where EqR : struct, Eq<R>
         {
-            IEnumerable<R> Yield(TrieMap<EqA, A, Unit> map, Func<A, R> f)
+            IEnumerable<R> Yield(TrieSet<EqA, A> map, Func<A, R> f)
             {
-                foreach (var item in map.Keys)
+                foreach (var item in map)
                 {
                     yield return f(item);
                 }
@@ -158,9 +165,9 @@ namespace LanguageExt
         [Pure]
         public HashSet<EqA, A> Filter(Func<A, bool> pred)
         {
-            IEnumerable<A> Yield(TrieMap<EqA, A, Unit> map, Func<A, bool> f)
+            IEnumerable<A> Yield(TrieSet<EqA, A> map, Func<A, bool> f)
             {
-                foreach (var item in map.Keys)
+                foreach (var item in map)
                 {
                     if (f(item))
                     {
@@ -201,7 +208,7 @@ namespace LanguageExt
         /// <returns>New set with the item added</returns>
         [Pure]
         public HashSet<EqA, A> Add(A key) =>
-            Wrap(Value.Add(key, default));
+            Wrap(Value.Add(key));
 
         /// <summary>
         /// Attempt to add an item to the set.  If an item already
@@ -211,7 +218,7 @@ namespace LanguageExt
         /// <returns>New set with the item maybe added</returns>
         [Pure]
         public HashSet<EqA, A> TryAdd(A key) =>
-            Wrap(Value.TryAdd(key, default));
+            Wrap(Value.TryAdd(key));
 
         /// <summary>
         /// Add an item to the set.  If an item already
@@ -221,7 +228,7 @@ namespace LanguageExt
         /// <returns>New set with the item maybe added</returns>
         [Pure]
         public HashSet<EqA, A> AddOrUpdate(A key) =>
-            Wrap(Value.AddOrUpdate(key, default));
+            Wrap(Value.AddOrUpdate(key));
 
         /// <summary>
         /// Atomically adds a range of items to the set.
@@ -233,7 +240,7 @@ namespace LanguageExt
         /// <returns>New HSet with the items added</returns>
         [Pure]
         public HashSet<EqA, A> AddRange(IEnumerable<A> range) =>
-            Wrap(Value.AddRange(range.Map(x => (x, default(Unit)))));
+            Wrap(Value.AddRange(range));
 
         /// <summary>
         /// Atomically adds a range of items to the set.  If an item already exists, it's ignored.
@@ -245,7 +252,7 @@ namespace LanguageExt
         /// <returns>New HSet with the items added</returns>
         [Pure]
         public HashSet<EqA, A> TryAddRange(IEnumerable<A> range) =>
-            Wrap(Value.TryAddRange(range.Map(x => (x, default(Unit)))));
+            Wrap(Value.TryAddRange(range));
 
         /// <summary>
         /// Atomically adds a range of items to the set.  If any items already exist, they're ignored.
@@ -257,7 +264,7 @@ namespace LanguageExt
         /// <returns>New HSet with the items added</returns>
         [Pure]
         public HashSet<EqA, A> AddOrUpdateRange(IEnumerable<A> range) =>
-            Wrap(Value.AddOrUpdateRange(range.Map(x => (x, default(Unit)))));
+            Wrap(Value.AddOrUpdateRange(range));
 
         /// <summary>
         /// Atomically removes an item from the set
@@ -276,7 +283,7 @@ namespace LanguageExt
         /// <returns>Found value</returns>
         [Pure]
         public Option<A> Find(A key) =>
-            Value.GetKeyOption(key);
+            Value.Find(key);
 
         /// <summary>
         /// Retrieve a value from the set by key as an enumerable
@@ -306,7 +313,7 @@ namespace LanguageExt
         /// <returns>New HSet with the item added</returns>
         [Pure]
         public HashSet<EqA, A> SetItem(A key) =>
-            Wrap(Value.SetItem(key, default(Unit)));
+            Wrap(Value.SetItem(key));
 
         /// <summary>
         /// Atomically updates an existing item, unless it doesn't exist, in which case 
@@ -319,7 +326,7 @@ namespace LanguageExt
         /// <returns>New HSet with the item added</returns>
         [Pure]
         public HashSet<EqA, A> TrySetItem(A key) =>
-            Wrap(Value.TrySetItem(key, default(Unit)));
+            Wrap(Value.TrySetItem(key));
 
         /// <summary>
         /// Checks for existence of a key in the set
@@ -347,7 +354,7 @@ namespace LanguageExt
         /// <returns>New HSet with the items set</returns>
         [Pure]
         public HashSet<EqA, A> SetItems(IEnumerable<A> items) =>
-            Wrap(Value.SetItems(items.Map(x => (x, default(Unit)))));
+            Wrap(Value.SetItems(items));
 
         /// <summary>
         /// Atomically sets a series of items.  If any of the items don't exist then they're silently ignored.
@@ -356,7 +363,7 @@ namespace LanguageExt
         /// <returns>New HSet with the items set</returns>
         [Pure]
         public HashSet<EqA, A> TrySetItems(IEnumerable<A> items) =>
-            Wrap(Value.TrySetItems(items.Map(x => (x, default(Unit)))));
+            Wrap(Value.TrySetItems(items));
 
         /// <summary>
         /// Atomically removes a list of keys from the set
@@ -372,18 +379,42 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public IEnumerator<A> GetEnumerator() =>
-            Value.Keys.GetEnumerator();
+            Value.GetEnumerator();
 
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
         [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
-            Value.Keys.GetEnumerator();
+            Value.GetEnumerator();
 
         [Pure]
         public Seq<A> ToSeq() =>
             Prelude.Seq(this);
+
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// The elipsis is used for collections over 50 items
+        /// To get a formatted string with all the items, use `ToFullString`
+        /// or `ToFullArrayString`.
+        /// </summary>
+        [Pure]
+        public override string ToString() =>
+            CollectionFormat.ToShortArrayString(this, Count);
+
+        /// <summary>
+        /// Format the collection as `a, b, c, ...`
+        /// </summary>
+        [Pure]
+        public string ToFullString(string separator = ", ") =>
+            CollectionFormat.ToFullString(this, separator);
+
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// </summary>
+        [Pure]
+        public string ToFullArrayString(string separator = ", ") =>
+            CollectionFormat.ToFullArrayString(this, separator);
 
         [Pure]
         public IEnumerable<A> AsEnumerable() =>
@@ -485,7 +516,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public HashSet<EqA, A> SymmetricExcept(IEnumerable<A> rhs) =>
-            Wrap(Value.SymmetricExcept(rhs.Map(x => (x, default(Unit)))));
+            Wrap(Value.SymmetricExcept(rhs));
 
         /// <summary>
         /// Finds the union of two sets and produces a new set with 
@@ -496,9 +527,6 @@ namespace LanguageExt
         [Pure]
         public HashSet<EqA, A> Union(IEnumerable<A> rhs) =>
             this.TryAddRange(rhs);
-
-        public bool SetEquals(IEnumerable<A> other) =>
-            Value == new TrieMap<EqA, A, Unit>(other.Map(x => (x, default(Unit))));
 
         /// <summary>
         /// Copy the items from the set into the specified array
@@ -534,7 +562,7 @@ namespace LanguageExt
 
         [Pure]
         public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) && obj is HashSet<EqA, A> && Equals((HashSet<EqA, A>)obj);
+            obj is HashSet<EqA, A> hs && Equals(hs);
 
         [Pure]
         public override int GetHashCode() =>

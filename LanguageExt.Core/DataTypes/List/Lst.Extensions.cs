@@ -145,6 +145,75 @@ public static class ListExtensions
         where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
         LanguageExt.List.headOrInvalid<MonoidFail, Fail, Success>(list, fail);
 
+
+    /// <summary>
+    /// Get the last item of the list
+    /// </summary>
+    /// <param name="list">List</param>
+    /// <returns>Last item</returns>
+    [Pure]
+    public static Option<A> LastOrNone<A>(this IEnumerable<A> list) =>
+        list.Select(Option<A>.Some)
+            .DefaultIfEmpty(Option<A>.None)
+            .LastOrDefault();
+
+    /// <summary>
+    /// Get the last item of the list
+    /// </summary>
+    /// <param name="list">List</param>
+    /// <returns>Last item</returns>
+    [Pure]
+    public static Either<L, R> LastOrLeft<L, R>(this IEnumerable<R> list, L left) =>
+        list.Select(Either<L, R>.Right)
+            .DefaultIfEmpty(Either<L, R>.Left(left))
+            .LastOrDefault();
+
+    /// <summary>
+    /// Get the last item of the list
+    /// </summary>
+    /// <param name="list">List</param>
+    /// <returns>Last item</returns>
+    [Pure]
+    public static Validation<Fail, Success> LastOrInvalid<Fail, Success>(this IEnumerable<Success> list, Fail fail) =>
+        list.Select(Validation<Fail, Success>.Success)
+            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq1(fail)))
+            .LastOrDefault();
+
+    /// <summary>
+    /// Get the last item of the list
+    /// </summary>
+    /// <param name="list">List</param>
+    /// <returns>Last item</returns>
+    [Pure]
+    public static Validation<Fail, Success> LastOrInvalid<Fail, Success>(this IEnumerable<Success> list, Seq<Fail> fail) =>
+        list.Select(Validation<Fail, Success>.Success)
+            .DefaultIfEmpty(Validation<Fail, Success>.Fail(fail))
+            .LastOrDefault();
+
+    /// <summary>
+    /// Get the last item of the list
+    /// </summary>
+    /// <param name="list">List</param>
+    /// <returns>Last item</returns>
+    [Pure]
+    public static Validation<MonoidFail, Fail, Success> LastOrInvalid<MonoidFail, Fail, Success>(this IEnumerable<Success> list, Fail fail)
+        where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+        list.Select(Validation<MonoidFail, Fail, Success>.Success)
+            .DefaultIfEmpty(Validation<MonoidFail, Fail, Success>.Fail(fail))
+            .LastOrDefault();
+
+    /// <summary>
+    /// Get all items in the list except the last one
+    /// </summary>
+    /// <remarks>
+    /// Must evaluate the last item to know it's the last, but won't return it
+    /// </remarks>
+    /// <param name="list">List</param>
+    /// <returns>The initial items (all but the last)</returns>
+    [Pure]
+    public static Seq<A> Init<A>(this IEnumerable<A> list) =>
+        LanguageExt.List.init(list);
+
     /// <summary>
     /// Get the tail of the list (skips the head item)
     /// </summary>
@@ -752,6 +821,15 @@ public static class ListExtensions
     /// <returns>Unit</returns>
     public static Unit Iter<T>(this IEnumerable<T> list, Action<int, T> action) =>
         LanguageExt.List.iter(list, action);
+
+    /// <summary>
+    /// Iterate each item in the enumerable in order (consume items)
+    /// </summary>
+    /// <typeparam name="T">Enumerable item type</typeparam>
+    /// <param name="list">Enumerable to consume</param>
+    /// <returns>Unit</returns>
+    public static Unit Consume<T>(this IEnumerable<T> list) =>
+        LanguageExt.List.consume(list);
 
     /// <summary>
     /// Returns true if all items in the enumerable match a predicate (Any in LINQ)

@@ -1,6 +1,6 @@
-﻿
-using LanguageExt.TypeClasses;
+﻿using LanguageExt.TypeClasses;
 using System.Reflection;
+using LanguageExt.Common;
 
 namespace LanguageExt.ClassInstances
 {
@@ -12,9 +12,7 @@ namespace LanguageExt.ClassInstances
             (default(EqDefault<A>).Equals(x.Value, y.Value));
 
         public int GetHashCode(Result<A> x) =>
-            x.IsBottom ? -2
-          : x.IsFaulted ? -1
-          : x.Value?.GetHashCode() ?? 0;
+            default(HashableResult<A>).GetHashCode(x);
     }
 
     public struct EqOptionalResult<A> : Eq<OptionalResult<A>>
@@ -25,8 +23,6 @@ namespace LanguageExt.ClassInstances
             (default(EqOption<A>).Equals(x.Value, y.Value));
 
         public int GetHashCode(OptionalResult<A> x) =>
-            x.IsBottom ? -2
-          : x.IsFaulted ? -1
-          : default(EqOption<A>).GetHashCode(x.Value);
+            default(HashableOptionalResult<A>).GetHashCode(x);
     }
 }

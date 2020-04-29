@@ -5,7 +5,7 @@ using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("BiFold*Async")]
     public interface BiFoldableAsync<F, A, B> : Typeclass
     {
         /// <summary>
@@ -145,7 +145,7 @@ namespace LanguageExt.TypeClasses
         Task<S> BiFoldBackAsync<S>(F foldable, S state, Func<S, A, Task<S>> fa, Func<S, B, Task<S>> fb);
     }
 
-    [Typeclass]
+    [Typeclass("BiFold*Async")]
     public interface BiFoldableAsync<F, A> : Typeclass
     {
         /// <summary>

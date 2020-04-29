@@ -358,9 +358,17 @@ namespace LanguageExt
         /// </remarks>
         public static Func<A, int> GetHashCode<A>(bool includeBase)
         {
-            if (Class<Eq<A>>.Default != null)
+            if (Class<Hashable<A>>.Default != null)
+            {
+                return Class<Hashable<A>>.Default.GetHashCode;
+            }
+            else if (Class<Eq<A>>.Default != null)
             {
                 return Class<Eq<A>>.Default.GetHashCode;
+            }
+            else if (Class<Ord<A>>.Default != null)
+            {
+                return Class<Ord<A>>.Default.GetHashCode;
             }
 
             var fields = GetPublicInstanceFields<A>(
@@ -373,30 +381,58 @@ namespace LanguageExt
                 typeof(NonRecordAttribute));
 
             var self = Expression.Parameter(typeof(A));
-            var hash = Expression.Constant(-2128831035);
-            var add = Expression.Constant(16777619);
+
+            // Use 32-bit FNV hash parameters as signed values since .net GetHashCode returns a signed 32-bit integer.
+            var fnvOffsetBasis = Expression.Constant(-2128831035);
+            var fnvPrime = Expression.Constant(16777619);
             var zero = Expression.Constant(0);
 
             var Null = Expression.Constant(null, typeof(A));
             var refEq = Expression.ReferenceEqual(self, Null);
 
-            var fieldEq = fun((FieldInfo f) =>
+            (MemberExpression MemExpr, MethodInfo HashMethod) fieldHash(FieldInfo f)
             {
-                var typ = typeof(Class<>)
-                    .MakeGenericType(typeof(Eq<>).MakeGenericType(f.FieldType))
-                    .GetTypeInfo();
+                var kinds = new[] { typeof(Hashable<>), typeof(Eq<>), typeof(Ord<>) };
 
-                var fld = typ.DeclaredFields.Where(m => m.Name == "Default").Single();
+                foreach(var kind in kinds)
+                {
+                    var typ = typeof(Class<>)
+                        .MakeGenericType(kind.MakeGenericType(f.FieldType))
+                        .GetTypeInfo();
 
-                return fld.GetValue(null);
-            });
+                    var fld = typ.DeclaredFields.Where(m => m.Name == "Default").Single();
+
+                    var fres = fld.GetValue(null);
+
+                    if(fres != null)
+                    {
+                        var method = kind
+                            .GetTypeInfo()
+                            .MakeGenericType(f.FieldType)
+                            .GetTypeInfo()
+                            .GetAllMethods(true)
+                            .Where(m => m.Name == "GetHashCode")
+                            .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq1(f.FieldType))
+                            .Head();
+
+                        return (Expression.Field(
+                            null,
+                            typ.DeclaredFields
+                               .Where(m => m.Name == "Default")
+                               .Single()), method);
+                    }
+                }
+
+                return (null, null);
+            }
 
             IEnumerable<Expression> Fields()
             {
                 foreach (var field in fields)
                 {
+                    var target = fieldHash(field);
 
-                    if (fieldEq(field) == null)
+                    if (target.MemExpr == null)
                     {
                         var propOrField = Expression.PropertyOrField(self, PrettyFieldName(field));
 
@@ -421,33 +457,21 @@ namespace LanguageExt
                     }
                     else
                     {
-                        yield return Expression.Call(
-                                  Expression.Field(null,
-                                      typeof(Class<>)
-                                          .MakeGenericType(typeof(Eq<>).MakeGenericType(field.FieldType))
-                                          .GetTypeInfo()
-                                          .DeclaredFields.Where(m => m.Name == "Default")
-                                          .Single()),
-
-                                  typeof(Eq<>)
-                                      .GetTypeInfo()
-                                      .MakeGenericType(field.FieldType)
-                                      .GetTypeInfo()
-                                      .GetAllMethods(true)
-                                      .Where(m => m.Name == "GetHashCode")
-                                      .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq1(field.FieldType))
-                                      .Head(),
+                         yield return Expression.Call(
+                                  target.MemExpr,
+                                  target.HashMethod,
                                   Expression.PropertyOrField(self, field.Name)
                                   );
                     }
                 }
             }
 
-            var expr = Fields().Fold(hash as Expression, (state, field) =>
-                Expression.ExclusiveOr(
-                    state,
-                    Expression.Add(
-                        add,
+            // Implement FNV 1a hashing algoritm - https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
+            var expr = Fields().Fold(fnvOffsetBasis as Expression, (state, field) =>
+                Expression.Multiply(
+                    fnvPrime,
+                    Expression.ExclusiveOr(
+                        state,
                         field)));
 
             var lambda = Expression.Lambda<Func<A, int>>(
@@ -471,9 +495,13 @@ namespace LanguageExt
         /// </remarks>
         public static Func<A, object, bool> Equals<A>(bool includeBase)
         {
-            if( Class<Eq<A>>.Default != null)
+            if (Class<Eq<A>>.Default != null)
             {
                 return new Func<A, object, bool>((a, obj) => obj is A b && Class<Eq<A>>.Default.Equals(a, b));
+            }
+            else if (Class<Ord<A>>.Default != null)
+            {
+                return new Func<A, object, bool>((a, obj) => obj is A b && Class<Ord<A>>.Default.Equals(a, b));
             }
 
             var fields = GetPublicInstanceFields<A>(

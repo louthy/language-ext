@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Linq;
-using System.ComponentModel;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
-using System.Collections.Generic;
-using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 
 /// <summary>
 /// Extension methods for the Try monad
@@ -144,11 +141,11 @@ public static class TryExtensionsAsync
         self.ToAsync().ToOptionUnsafe();
 
     [Pure]
-    public static Task<Either<Exception, A>> ToEitherAsync<A>(this Try<A> self) =>
+    public static EitherAsync<Error, A> ToEitherAsync<A>(this Try<A> self) =>
         self.ToAsync().ToEither();
 
     [Pure]
-    public static Task<EitherUnsafe<Exception, A>> ToEitherUnsafeAsync<A>(this Try<A> self) =>
+    public static Task<EitherUnsafe<Error, A>> ToEitherUnsafeAsync<A>(this Try<A> self) =>
         self.ToAsync().ToEitherUnsafe();
 
     [Pure]

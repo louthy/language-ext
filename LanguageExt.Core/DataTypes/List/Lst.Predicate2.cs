@@ -6,6 +6,7 @@ using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
@@ -15,7 +16,7 @@ namespace LanguageExt
     /// <typeparam name="PredItem">Predicate instance to run when the type is constructed</typeparam>
     /// <typeparam name="A">Value type</typeparam>
     [Serializable]
-    public struct Lst<PredList, PredItem, A> :
+    public class Lst<PredList, PredItem, A> :
         IEnumerable<A>, 
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
@@ -47,17 +48,28 @@ namespace LanguageExt
             if (!default(PredList).True(this)) throw new ArgumentOutOfRangeException(nameof(value));
         }
 
-        LstInternal<A> Value
+        internal LstInternal<A> Value
         {
-            get
-            {
-                if (value.IsNull()) throw new BottomException();
-                return value;
-            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value ?? LstInternal<A>.Empty;
         }
 
-        ListItem<A> Root =>
-            Value.Root;
+        ListItem<A> Root
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Value.Root;
+        }
+
+        [Pure]
+        public bool IsEmpty =>
+            Count == 0;
+
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            Seq(Value).Case;
 
         Lst<PredList, PredItem, A> Wrap(LstInternal<A> list)=>
             new Lst<PredList, PredItem, A>(list);
@@ -165,6 +177,30 @@ namespace LanguageExt
         [Pure]
         public Seq<A> ToSeq() =>
             Seq(this);
+
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// The elipsis is used for collections over 50 items
+        /// To get a formatted string with all the items, use `ToFullString`
+        /// or `ToFullArrayString`.
+        /// </summary>
+        [Pure]
+        public override string ToString() =>
+            CollectionFormat.ToShortArrayString(this, Count);
+
+        /// <summary>
+        /// Format the collection as `a, b, c, ...`
+        /// </summary>
+        [Pure]
+        public string ToFullString(string separator = ", ") =>
+            CollectionFormat.ToFullString(this, separator);
+
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// </summary>
+        [Pure]
+        public string ToFullArrayString(string separator = ", ") =>
+            CollectionFormat.ToFullArrayString(this, separator);
 
         [Pure]
         public IEnumerable<A> AsEnumerable() =>

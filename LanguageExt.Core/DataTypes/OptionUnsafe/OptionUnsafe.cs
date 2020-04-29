@@ -98,6 +98,15 @@ namespace LanguageExt
             if (IsSome) info.AddValue("Value", Value);
         }
 
+        /// <summary>
+        /// Reference version of option for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public OptionCase<A> Case =>
+            IsSome
+                ? SomeCase<A>.New(Value)
+                : NoneCase<A>.Default;
+
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerator<A> GetEnumerator() =>

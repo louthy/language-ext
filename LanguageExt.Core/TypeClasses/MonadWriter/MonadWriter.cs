@@ -7,7 +7,7 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// State monad type class
     /// </summary>
-    [Typeclass]
+    [Typeclass("M*")]
     public interface MonadWriter<MonoidW, W, A> : Typeclass
         where MonoidW  : struct, Monoid<W>
     {

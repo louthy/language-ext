@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -40,6 +41,13 @@ namespace LanguageExt
             value = new StckInternal<A>(initial);
             this.hashCode = 0;
         }
+
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            Seq(Value).Case;
 
         /// <summary>
         /// Number of items in the stack
@@ -86,6 +94,30 @@ namespace LanguageExt
         [Pure]
         public Seq<A> ToSeq() =>
             Seq(Value);
+
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// The elipsis is used for collections over 50 items
+        /// To get a formatted string with all the items, use `ToFullString`
+        /// or `ToFullArrayString`.
+        /// </summary>
+        [Pure]
+        public override string ToString() =>
+            CollectionFormat.ToShortArrayString(this, Count);
+
+        /// <summary>
+        /// Format the collection as `a, b, c, ...`
+        /// </summary>
+        [Pure]
+        public string ToFullString(string separator = ", ") =>
+            CollectionFormat.ToFullString(this, separator);
+
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// </summary>
+        [Pure]
+        public string ToFullArrayString(string separator = ", ") =>
+            CollectionFormat.ToFullArrayString(this, separator);
 
         /// <summary>
         /// Returns the stack as an IEnumerable.  The first item in the enumerable
@@ -258,7 +290,7 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             hashCode == 0
-                ? hashCode = hash(this)
+                ? hashCode = FNV32.Hash<HashableDefault<A>, A>(this)
                 : hashCode;
 
         [Pure]

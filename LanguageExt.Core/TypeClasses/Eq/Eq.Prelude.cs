@@ -113,7 +113,7 @@ namespace LanguageExt
         /// <returns>True if x and y are equal</returns>
         [Pure]
         public static bool equals<EQ, A>(TryOption<A> x, TryOption<A> y) where EQ : struct, Eq<A> =>
-            EqTryOpt<EQ, A>.Inst.Equals(x, y);
+            EqTryOption<EQ, A>.Inst.Equals(x, y);
 
         /// <summary>
         /// Structural equality test

@@ -9,6 +9,6 @@ namespace LanguageExt.ClassInstances
             x.Equals(y);
 
         public int GetHashCode(TypeInfo x) =>
-            x.GetHashCode();
+            default(HashableTypeInfo).GetHashCode(x);
     }
 }

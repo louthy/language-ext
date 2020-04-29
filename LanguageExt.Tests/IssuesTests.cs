@@ -80,6 +80,24 @@ namespace LanguageExt.Tests
             let c = input.Map(i => Writer(i * 10, Seq1($"Number: {i}")))
             from r in c.Sequence()
             select r;
+
+        [Fact]
+        public void Issue675()
+        {
+            var l1 = LanguageExt.Prelude.List<int>(1, 2, 3);
+            var l2 = LanguageExt.Prelude.List<int>(4, 5, 6);
+
+            var a = l1.AddRange(l2); // Count 6, [1,2,3,4,5,6]
+            var b = l1.AddRange(l2); // Count 5, [1,2,4,5,6]
+            var c = l1.AddRange(l2); // Count 8, [1,2,4,5,6,4,5,6]
+            var d = l1.AddRange(l2); // Count 7, [1,2,4,5,4,5,6]
+            var e = l1.AddRange(l2); // Count 6, [1,2,4,4,5,6]
+
+            Assert.True(a == b);
+            Assert.True(a == c);
+            Assert.True(a == d);
+            Assert.True(a == e);
+        }
     }
 
     public class ADUser : NewType<ADUser, string> { public ADUser(string u) : base(u) { } }

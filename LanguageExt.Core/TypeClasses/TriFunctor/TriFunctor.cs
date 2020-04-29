@@ -7,7 +7,7 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// Functor type-class
     /// </summary>
-    [Typeclass]
+    [Typeclass("TriF*")]
     public interface TriFunctor<FABC, FR, A, B, C, R> : Typeclass
     {
         /// <summary>
@@ -33,7 +33,7 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// Functor type-class
     /// </summary>
-    [Typeclass]
+    [Typeclass("TriF*")]
     public interface TriFunctor<FABC, FTUV, A, B, C, T, U, V> : Typeclass
     {
         /// <summary>

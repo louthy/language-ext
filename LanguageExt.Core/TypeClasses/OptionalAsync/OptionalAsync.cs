@@ -5,7 +5,7 @@ using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("Opt*Async")]
     public interface OptionalAsync<OA, A> : Typeclass
     {
         /// <summary>

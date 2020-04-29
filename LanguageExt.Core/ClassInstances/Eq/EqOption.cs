@@ -11,6 +11,6 @@ namespace LanguageExt.ClassInstances
             default(EqOptional<MOption<A>, Option<A>, A>).Equals(x, y);
 
         public int GetHashCode(Option<A> x) =>
-            default(EqOptional<MOption<A>, Option<A>, A>).GetHashCode(x);
+            default(HashableOption<A>).GetHashCode(x);
     }
 }

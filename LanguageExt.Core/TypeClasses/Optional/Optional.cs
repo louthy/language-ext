@@ -4,7 +4,7 @@ using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("Opt*")]
     public interface Optional<OA, A> : Typeclass
     {
         /// <summary>

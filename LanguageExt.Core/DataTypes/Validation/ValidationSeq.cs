@@ -99,7 +99,19 @@ namespace LanguageExt
 
         internal Seq<FAIL> FailValue => isnull(fail) ? Seq<FAIL>.Empty : fail;
         internal SUCCESS SuccessValue => success;
-        
+
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public ValidationCase<Seq<FAIL>, SUCCESS> Case =>
+            state switch
+            {
+                Validation.StateType.Success => SuccCase<Seq<FAIL>, SUCCESS>.New(success),
+                Validation.StateType.Fail    => FailCase<Seq<FAIL>, SUCCESS>.New(fail),
+                _                            => null
+            };
+
         [Pure]
         public bool IsFail =>
             state == Validation.StateType.Fail;

@@ -6,7 +6,7 @@ namespace LanguageExt.TypeClasses
     /// Constant value type-class
     /// </summary>
     /// <typeparam name="TYPE"></typeparam>
-    [Typeclass]
+    [Typeclass("Const*")]
     public interface Const<TYPE> : Typeclass
     {
         TYPE Value { get; }

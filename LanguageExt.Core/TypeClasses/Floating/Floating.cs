@@ -7,7 +7,7 @@ namespace LanguageExt.TypeClasses
     /// Floating point number type-class
     /// </summary>
     /// <typeparam name="A">The floating point value type</typeparam>
-    [Typeclass]
+    [Typeclass("Float*")]
     public interface Floating<A> : Fraction<A>
     {
         /// <summary>

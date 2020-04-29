@@ -7,7 +7,10 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     public struct EqEdit<EqA, A> : Eq<Edit<EqA, A>> where EqA : struct, Eq<A>
     {
-        public bool Equals(Edit<EqA, A> x, Edit<EqA, A> y) => x == y;
-        public int GetHashCode(Edit<EqA, A> x) => x?.GetHashCode() ?? 0;
+        public bool Equals(Edit<EqA, A> x, Edit<EqA, A> y) => 
+            x == y;
+
+        public int GetHashCode(Edit<EqA, A> x) =>
+            default(HashableEdit<EqA, A>).GetHashCode(x);
     }
 }

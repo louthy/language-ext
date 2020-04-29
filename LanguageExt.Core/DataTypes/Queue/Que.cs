@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -42,6 +43,13 @@ namespace LanguageExt
             this.Iter(f);
             return this;
         }
+
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            Seq(Value).Case;
 
         [Pure]
         public int Count =>
@@ -122,7 +130,7 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             hashCode == 0
-                ? hashCode = hash(this)
+                ? hashCode = FNV32.Hash<HashableDefault<A>, A>(this)
                 : hashCode;
 
         [Pure]

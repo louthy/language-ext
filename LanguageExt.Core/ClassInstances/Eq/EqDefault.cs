@@ -16,6 +16,32 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly EqDefault<A> Inst = default(EqDefault<A>);
 
+        static readonly Func<A, A, bool> eq;
+
+        static EqDefault()
+        {
+            if (Reflect.IsFunc(typeof(A)))
+            {
+                eq = (a, b) => ReferenceEquals(a, b);
+            }
+            else if (Reflect.IsAnonymous(typeof(A)))
+            {
+                eq = IL.EqualsTyped<A>(false);
+            }
+            else
+            {
+                var def = Class<Eq<A>>.Default;
+                if (def == null)
+                {
+                    eq = EqualityComparer<A>.Default.Equals;
+                }
+                else
+                {
+                    eq = def.Equals;
+                }
+            }
+        }
+
         /// <summary>
         /// Equality test
         /// </summary>
@@ -28,9 +54,7 @@ namespace LanguageExt.ClassInstances
             if (isnull(a)) return isnull(b);
             if (isnull(b)) return false;
             if (ReferenceEquals(a, b)) return true;
-            return IsFunc
-                ? Comparer.Equals(a, b)
-                : Class<Eq<A>>.Default?.Equals(a, b) ?? Comparer.Equals(a, b);
+            return eq(a, b);
         }
 
         /// <summary>
@@ -40,30 +64,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(A x) =>
-             IsFunc
-                ? x.IsNull() ? 0 : Comparer.GetHashCode(x)
-                : Class<Eq<A>>.Default?.GetHashCode(x) ?? (x.IsNull() ? 0 : Comparer.GetHashCode(x));
-
-        // Below is a shameless hack to make Func and anonymous Funcs equality comparable
-        // This is primarily to support Sets being used as applicatives, where the functor
-        // must be in a set itself.  A smarter solution is required.
-
-        static readonly bool IsFunc =
-            typeof(A).GetTypeInfo().ToString().StartsWith("System.Func") ||
-            typeof(A).GetTypeInfo().ToString().StartsWith("<>");
-
-        static readonly IEqualityComparer<A> Comparer =
-            IsFunc
-                ? new DelEq() as IEqualityComparer<A>
-                : EqualityComparer<A>.Default;
-
-        class DelEq : IEqualityComparer<A>
-        {
-            public bool Equals(A x, A y) =>
-                ReferenceEquals(x, y);
-
-            public int GetHashCode(A x) =>
-                x?.GetHashCode() ?? 0;
-        }
+            default(HashableDefault<A>).GetHashCode(x);
     }
 }

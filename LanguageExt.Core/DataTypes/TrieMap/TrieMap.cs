@@ -16,7 +16,7 @@ namespace LanguageExt
     /// https://michael.steindorfer.name/publications/phd-thesis-efficient-immutable-collections.pdf
     /// </summary>
     /// <remarks>
-    /// Used by internally by `LanguageExt.HashMap` and `LanguageExt.HashSet`
+    /// Used by internally by `LanguageExt.HashMap`
     /// </remarks>
     internal class TrieMap<EqK, K, V> :
         IEnumerable<(K Key, V Value)>,
@@ -450,7 +450,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() =>
             hash == 0
-                ? (hash = hash(AsEnumerable()))
+                ? (hash = FNV32.Hash<HashablePair<EqK, HashableDefault<V>, K, V>, (K, V)>(AsEnumerable()))
                 : hash;
 
         /// <summary>
@@ -775,8 +775,23 @@ namespace LanguageExt
         /// Returns True if 'other' is a superset of this set
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
-        public bool IsSubsetOf(IEnumerable<(K Key, V Value)> other) =>
-            IsSubsetOf(other.Map(x => x.Key));
+        public bool IsSubsetOf(IEnumerable<(K Key, V Value)> other)
+        {
+            if (IsEmpty)
+            {
+                return true;
+            }
+
+            int matches = 0;
+            foreach (var item in other)
+            {
+                if (ContainsKey(item.Key))
+                {
+                    matches++;
+                }
+            }
+            return matches == Count;
+        }
 
         /// <summary>
         /// Returns True if 'other' is a superset of this set
@@ -798,6 +813,33 @@ namespace LanguageExt
                 }
             }
             return matches == Count;
+        }
+
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
+        public bool IsSubsetOf(TrieMap<EqK, K, V> other)
+        {
+            if (IsEmpty)
+            {
+                // All empty sets are subsets
+                return true;
+            }
+            if(Count > other.Count)
+            {
+                // A subset must be smaller or equal in size
+                return false;
+            }
+
+            foreach(var item in this)
+            {
+                if(!other.Contains(item))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         /// <summary>
@@ -1048,6 +1090,8 @@ namespace LanguageExt
                     //If key lies in a sub-node
                     var ind = Index(NodeMap, mask);
                     var (cd, subNode) = Nodes[ind].Remove(key, hash, section.Next());
+                    if (cd == 0) return (0, this);
+
                     switch (subNode.Type)
                     {
                         case Tag.Entries:
@@ -1059,7 +1103,13 @@ namespace LanguageExt
                                 // If the node only has one subnode, make that subnode the new node
                                 if (Items.Length == 0 && Nodes.Length == 1)
                                 {
-                                    return (cd, subEntries);
+                                    // Build a new Entries for this level with the sublevel mask fixed
+                                    return (cd, new Entries(
+                                        Mask(Bit.Get((uint)default(EqK).GetHashCode(subEntries.Items[0].Key), section)),
+                                        0,
+                                        Clone(subEntries.Items),
+                                        new Node[0]
+                                        ));
                                 }
                                 else
                                 {

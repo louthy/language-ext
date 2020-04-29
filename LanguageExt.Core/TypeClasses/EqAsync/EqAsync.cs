@@ -10,7 +10,7 @@ namespace LanguageExt.TypeClasses
     /// <typeparam name="A">
     /// The type for which equality is defined
     /// </typeparam>
-    [Typeclass]
+    [Typeclass("Eq*Async")]
     public interface EqAsync<A> : Typeclass
     {
         /// <summary>
@@ -20,13 +20,13 @@ namespace LanguageExt.TypeClasses
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        Task<bool> Equals(A x, A y);
+        Task<bool> EqualsAsync(A x, A y);
 
         /// <summary>
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
         [Pure]
-        Task<int> GetHashCode(A x);
+        Task<int> GetHashCodeAsync(A x);
     }
 }

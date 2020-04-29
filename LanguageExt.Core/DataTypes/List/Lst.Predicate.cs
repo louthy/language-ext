@@ -7,6 +7,7 @@ using static LanguageExt.Prelude;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances.Pred;
 using LanguageExt.ClassInstances;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
@@ -16,13 +17,12 @@ namespace LanguageExt
     /// <typeparam name="PRED">Predicate instance to run when the type is constructed</typeparam>
     /// <typeparam name="A">Value type</typeparam>
     [Serializable]
-    public struct Lst<PRED, A> :
+    public class Lst<PRED, A> :
         IEnumerable<A>, 
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
         IEquatable<Lst<PRED, A>>,
-        IComparable<Lst<PRED, A>>,
-        ListInfo
+        IComparable<Lst<PRED, A>>
         where PRED : struct, Pred<ListInfo>
     {
         readonly LstInternal<A> value;
@@ -34,7 +34,7 @@ namespace LanguageExt
         {
             if (initial == null) throw new NullReferenceException(nameof(initial));
             value = new LstInternal<A>(initial, default(True<A>));
-            if (!default(PRED).True(this)) throw new ArgumentOutOfRangeException(nameof(value));
+            if (!default(PRED).True(value)) throw new ArgumentOutOfRangeException(nameof(value));
         }
 
         /// <summary>
@@ -44,20 +44,31 @@ namespace LanguageExt
         {
             value = root;
             if (root == null) throw new NullReferenceException(nameof(root));
-            if (!default(PRED).True(this)) throw new ArgumentOutOfRangeException(nameof(value));
+            if (!default(PRED).True(value)) throw new ArgumentOutOfRangeException(nameof(value));
         }
 
-        LstInternal<A> Value
+        internal LstInternal<A> Value
         {
-            get
-            {
-                if (value.IsNull()) throw new BottomException();
-                return value;
-            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value ?? LstInternal<A>.Empty;
         }
 
-        ListItem<A> Root =>
-            Value.Root;
+        ListItem<A> Root
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Value.Root;
+        }
+
+        [Pure]
+        public bool IsEmpty =>
+            Count == 0;
+
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            Seq(Value).Case;
 
         Lst<PRED, A> Wrap(LstInternal<A> list) =>
             new Lst<PRED, A>(list);
@@ -233,6 +244,30 @@ namespace LanguageExt
         [Pure]
         public Seq<A> ToSeq() =>
             Seq(this);
+
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// The elipsis is used for collections over 50 items
+        /// To get a formatted string with all the items, use `ToFullString`
+        /// or `ToFullArrayString`.
+        /// </summary>
+        [Pure]
+        public override string ToString() =>
+            CollectionFormat.ToShortArrayString(this, Count);
+
+        /// <summary>
+        /// Format the collection as `a, b, c, ...`
+        /// </summary>
+        [Pure]
+        public string ToFullString(string separator = ", ") =>
+            CollectionFormat.ToFullString(this, separator);
+
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// </summary>
+        [Pure]
+        public string ToFullArrayString(string separator = ", ") =>
+            CollectionFormat.ToFullArrayString(this, separator);
 
         [Pure]
         public IEnumerable<A> AsEnumerable() =>

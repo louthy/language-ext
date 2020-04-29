@@ -24,7 +24,7 @@ namespace LanguageExt.CodeGen
 
         public Task<SyntaxList<MemberDeclarationSyntax>> GenerateAsync(TransformationContext context, IProgress<Diagnostic> progress, CancellationToken cancellationToken)
         {
-            var (partialClass, returnType, fields) = CodeGenUtil.GetState(context);
+            var (partialClass, returnType, fields) = CodeGenUtil.GetState(context, progress, AllowedType.ClassOrStruct, "WithLens code-gen");
 
             partialClass = CodeGenUtil.AddWith(context, partialClass, returnType, fields);
             partialClass = CodeGenUtil.AddLenses(partialClass, returnType, fields);

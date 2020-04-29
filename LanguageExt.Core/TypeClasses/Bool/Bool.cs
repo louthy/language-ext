@@ -7,7 +7,7 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// Typeclass for things that have true and false values.
     /// </summary>
-    [Typeclass]
+    [Typeclass("Bool*")]
     public interface Bool<A> : Typeclass
     {
         /// <summary>

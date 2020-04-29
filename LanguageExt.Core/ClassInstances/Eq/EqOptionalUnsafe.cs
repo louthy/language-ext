@@ -52,7 +52,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(OA x) =>
-            x.IsNull() ? 0 : x.GetHashCode();
+            default(HashableOptionalUnsafe<EQ, OPTION, OA, A>).GetHashCode(x);
     }
 
     /// <summary>
@@ -80,7 +80,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(OA x) =>
-            default(EqOptionalUnsafe<EqDefault<A>, OPTION, OA, A>).GetHashCode(x);
+            default(HashableOptionalUnsafe<OPTION, OA, A>).GetHashCode(x);
     }
 
 }

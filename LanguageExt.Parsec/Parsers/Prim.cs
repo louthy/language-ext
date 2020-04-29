@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
@@ -380,9 +380,7 @@ namespace LanguageExt.Parsec
                     }
 
                     // eerr
-                    return count == n
-                        ? ConsumedError<Seq<T>>(mergeError(error, t.Reply.Error))
-                        : EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                    return EmptyError<Seq<T>>(mergeError(error, t.Reply.Error));
                 }
             };
 
@@ -398,49 +396,52 @@ namespace LanguageExt.Parsec
         /// Enumerable of the returned values of p.
         /// </returns>
         public static Parser<Seq<T>> manyn0<T>(Parser<T> p, int n) =>
-            inp =>
-            {
-                var current = inp;
-                var results = new List<T>();
-                ParserError error = null;
-
-                int count = 0;
-
-                while (true)
+            n <= 0 
+                ? result(Seq<T>.Empty)
+                : inp =>
                 {
-                    var t = p(current);
-                    count++;
+                    var current = inp;
+                    var results = new List<T>();
+                    ParserError error = null;
 
-                    // cok
-                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
+                    int count = 0;
+
+                    while (true)
                     {
-                        results.Add(t.Reply.Result);
-                        current = t.Reply.State;
-                        error = t.Reply.Error;
-                        if (count == n)
+                        var t = p(current);
+                        count++;
+
+                        // cok
+                        if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
                         {
-                            return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                            results.Add(t.Reply.Result);
+                            current = t.Reply.State;
+                            error = t.Reply.Error;
+                            if (count == n)
+                            {
+                                return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                            }
+
+                            continue;
                         }
-                        continue;
-                    }
 
-                    // eok
-                    if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
-                    {
-                        // eok, eerr
-                        return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'manyn' is applied to a parser that accepts an empty string.", List.empty<string>()));
-                    }
+                        // eok
+                        if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
+                        {
+                            // eok, eerr
+                            return EmptyError<Seq<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'manyn0' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                        }
 
-                    // cerr
-                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
-                    {
-                        return ConsumedError<Seq<T>>(mergeError(error, t.Reply.Error));
-                    }
+                        // cerr
+                        if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
+                        {
+                            return ConsumedError<Seq<T>>(mergeError(error, t.Reply.Error));
+                        }
 
-                    // eerr
-                    return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
-                }
-            };
+                        // eerr
+                        return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                    }
+                };
 
         /// <summary>
         /// manyn1(p) applies the parser p one or up to a maximum of n times.

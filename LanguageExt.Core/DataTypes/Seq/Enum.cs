@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -99,30 +100,8 @@ namespace LanguageExt
             }
         }
 
-        //public (int Taken, bool IsMore, A[] Data) GetRange(A[] data, int dataIndex, int index, int count)
-        //{
-        //    int taken = 0;
-        //    while(taken < count)
-        //    {
-        //        var (succ, val) = Get(index);
-        //        if (succ)
-        //        {
-        //            if (dataIndex >= data.Length)
-        //            {
-        //                var ndata = new A[data.Length << 1];
-        //                Array.Copy(data, ndata, data.Length);
-        //                data = ndata;
-        //            }
-        //            data[dataIndex++] = val;
-        //            taken++;
-        //            index++;
-        //        }
-        //        else
-        //        {
-        //            return (taken, false, data);
-        //        }
-        //    }
-        //    return (taken, true, data);
-        //}
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode() =>
+            FNV32.Hash<HashableDefault<A>, A>(data, 0, count);
     }
 }

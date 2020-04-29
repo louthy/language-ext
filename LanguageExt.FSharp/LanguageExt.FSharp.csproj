@@ -1,49 +1,51 @@
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration">
-      <DefineConstants>CONTRACTS_FULL</DefineConstants>
-      <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
-    <PackageVersion>3.3.7</PackageVersion>
-    <PackageId>LanguageExt.FSharp</PackageId>
-    <Title>LanguageExt.FSharp</Title>
-    <Authors>Paul Louth</Authors>
-    <Summary>Functional language extensions for C#</Summary>
-    <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
-    <Description>Helper library for LanguageExt.Core that facilitates conversion between F# native types like Option, Map, List, etc to .NET and Language Ext types.</Description>
-    <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
-    <PackageIconUrl>https://raw.githubusercontent.com/louthy/language-ext/master/backers-images/lang-ext-thumb.png</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-    <OutputType>library</OutputType>
-    <AssemblyVersion>3.0.0.0</AssemblyVersion>
-    <FileVersion>3.0.0.0</FileVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-    <LangVersion>7.1</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <LangVersion>7.1</LangVersion>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="**\*.cs" />
-    <EmbeddedResource Include="**\*.resx" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="obj\**" />
-    <EmbeddedResource Remove="obj\**" />
-    <None Remove="obj\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="FSharp.Core" Version="4.1.12" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
-  </ItemGroup>
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
+        <DefineConstants>TRACE;DEBUG</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Label="Configuration">
+        <DefineConstants>CONTRACTS_FULL</DefineConstants>
+        <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
+    </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+        <PackageVersion>3.4.13</PackageVersion>
+        <PackageId>LanguageExt.FSharp</PackageId>
+        <Title>LanguageExt.FSharp</Title>
+        <Authors>Paul Louth</Authors>
+        <Summary>Functional language extensions for C#</Summary>
+        <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
+        <Description>Helper library for LanguageExt.Core that facilitates conversion between F# native types like Option, Map, List, etc to .NET and Language Ext types.</Description>
+        <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
+        <PackageIcon>lang-ext-small.png</PackageIcon>
+        <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+        <OutputType>library</OutputType>
+        <AssemblyVersion>3.0.0.0</AssemblyVersion>
+        <FileVersion>3.0.0.0</FileVersion>
+        <LangVersion>8.0</LangVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="..\Images\lang-ext-small.png">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="**\*.cs" />
+        <EmbeddedResource Include="**\*.resx" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Remove="obj\**" />
+        <EmbeddedResource Remove="obj\**" />
+        <None Remove="obj\**" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="FSharp.Core" Version="[4.1.12,)" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
+    </ItemGroup>
 </Project>

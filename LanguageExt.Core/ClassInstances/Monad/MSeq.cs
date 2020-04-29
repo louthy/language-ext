@@ -23,7 +23,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Seq<A> Append(Seq<A> x, Seq<A> y) =>
-            Seq(x.ConcatFast(y));
+            x.Concat(y);
 
         [Pure]
         public MB Bind<MONADB, MB, B>(Seq<A> ma, Func<A, MB> f) where MONADB : struct, Monad<Unit, Unit, MB, B> =>

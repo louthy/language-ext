@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -282,5 +283,14 @@ namespace LanguageExt
                 })
                 .FirstOrDefault();
 
+        public static bool IsFunc(Type type) =>
+            type != null && typeof(MulticastDelegate).IsAssignableFrom(type);
+
+        public static bool IsAnonymous(Type type) =>
+            type != null && 
+            Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false) && 
+            type.IsGenericType && type.Name.Contains("AnonymousType") &&
+            (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$")) &&
+            type.Attributes.HasFlag(TypeAttributes.NotPublic);
     }
 }

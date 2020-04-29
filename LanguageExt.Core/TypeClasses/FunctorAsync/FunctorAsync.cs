@@ -8,7 +8,7 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// Functor type-class
     /// </summary>
-    [Typeclass]
+    [Typeclass("F*Async")]
     public interface FunctorAsync<FA, FB, A, B> : Functor<FA, FB, A, B>
     {
         /// <summary>

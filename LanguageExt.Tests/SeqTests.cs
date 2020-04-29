@@ -239,5 +239,128 @@ namespace LanguageExt.Tests
 
             Assert.True(eq);
         }
+
+        [Fact]
+        public void AddTest()
+        {
+            var a = Seq1("a");
+
+            var b = a.Add("b");
+
+            var c = a.Add("c");
+
+            Assert.Equal("a", string.Join("|", a));
+            Assert.Equal("a|b", string.Join("|", b));
+            Assert.Equal("a|c", string.Join("|", c));
+
+        }
+
+        [Fact]
+        public void ConsTest()
+        {
+            var a = Seq1("a");
+
+            var b = "b".Cons(a);
+
+            var c = "c".Cons(a);
+
+            Assert.Equal("a", string.Join("|", a));
+            Assert.Equal("b|a", string.Join("|", b));
+            Assert.Equal("c|a", string.Join("|", c));
+
+        }
+
+        [Fact]
+        public void InitStrictTest()
+        {
+            var sa = Seq(1, 2, 3, 4, 5);
+
+            var sb = sa.Init;  // [1,2,3,4]
+            var sc = sb.Init;  // [1,2,3]
+            var sd = sc.Init;  // [1,2]
+            var se = sd.Init;  // [1]
+            var sf = se.Init;  // []
+
+            Assert.True(sb == Seq(1, 2, 3, 4));
+            Assert.True(sc == Seq(1, 2, 3));
+            Assert.True(sd == Seq(1, 2));
+            Assert.True(se == Seq1(1));
+            Assert.True(sf == Empty);
+        }
+
+        [Fact]
+        public void InitLazyTest()
+        {
+            var sa = Seq(Range(1, 5));
+
+            var sb = sa.Init;  // [1,2,3,4]
+            var sc = sb.Init;  // [1,2,3]
+            var sd = sc.Init;  // [1,2]
+            var se = sd.Init;  // [1]
+            var sf = se.Init;  // []
+
+            Assert.True(sb == Seq(1, 2, 3, 4));
+            Assert.True(sc == Seq(1, 2, 3));
+            Assert.True(sd == Seq(1, 2));
+            Assert.True(se == Seq1(1));
+            Assert.True(sf == Empty);
+        }
+
+        [Fact]
+        public void InitConcatTest()
+        {
+            var sa = Seq(Range(1, 2)) + Seq(Range(3, 3));
+
+            var sb = sa.Init;  // [1,2,3,4]
+            var sc = sb.Init;  // [1,2,3]
+            var sd = sc.Init;  // [1,2]
+            var se = sd.Init;  // [1]
+            var sf = se.Init;  // []
+
+            Assert.True(sb == Seq(1, 2, 3, 4));
+            Assert.True(sc == Seq(1, 2, 3));
+            Assert.True(sd == Seq(1, 2));
+            Assert.True(se == Seq1(1));
+            Assert.True(sf == Empty);
+        }
+
+        [Fact]
+        public void HashTest()
+        {
+            var s1 = Seq1("test");
+            var s2 = Seq1("test");
+
+            Assert.True(s1.GetHashCode() == s2.GetHashCode());
+        }
+        
+        [Fact]
+        public void TakeWhileTest()
+        {
+            var str = "                          <p>The</p>";
+            Assert.Equal("                          ",
+                String.Join("", str.ToSeq().TakeWhile(ch => ch == ' ')));
+        }
+
+        [Fact]
+        public void TakeWhileIndex()
+        {
+            var str = "                          <p>The</p>";
+            Assert.Equal("                          ",
+                String.Join("", str.ToSeq().TakeWhile((ch, index) => index != 26)));
+        }
+
+        [Fact]
+        public void TakeWhile_HalfDefaultCapacityTest()
+        {
+            var str = "1234";
+            Assert.Equal("1234", String.Join("", str.ToSeq().TakeWhile(ch => true)));
+        }
+
+        [Fact]
+        public void TakeWhileIndex_HalfDefaultCapacityTest()
+        {
+            var str = "1234";
+            Assert.Equal("1234", String.Join("", str.ToSeq().TakeWhile((ch, index) => true)));
+        }
     }
 }

@@ -5,6 +5,8 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
 using LanguageExt.DataTypes.Serialisation;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace LanguageExt
 {
@@ -29,6 +31,10 @@ namespace LanguageExt
     /// <typeparam name="R">Right</typeparam>
     [Serializable]
     public struct EitherAsync<L, R> :
+// TODO: Re-add when we move to netstandard2.1
+//#if NETCORE
+//        IAsyncEnumerable<R>,
+//#endif
         IEitherAsync
     {
         public readonly static EitherAsync<L, R> Bottom = new EitherAsync<L, R>();
@@ -36,6 +42,9 @@ namespace LanguageExt
 
         internal EitherAsync(Task<EitherData<L, R>> data) =>
             this.data = data ?? EitherData<L, R>.Bottom.AsTask();
+
+        internal Task<EitherData<L, R>> Data =>
+            data ?? EitherData<L, R>.Bottom.AsTask();
 
         /// <summary>
         /// State of the Either
@@ -45,21 +54,21 @@ namespace LanguageExt
         ///     IsBottom
         /// </summary>
         public Task<EitherStatus> State =>
-            data.Select(x => x.State);
+            Data.Select(x => x.State);
 
         /// <summary>
         /// Is the Either in a Right state?
         /// </summary>
         [Pure]
         public Task<bool> IsRight =>
-            data.Map(x => x.State == EitherStatus.IsRight);
+            Data.Map(x => x.State == EitherStatus.IsRight);
 
         /// <summary>
         /// Is the Either in a Left state?
         /// </summary>
         [Pure]
         public Task<bool> IsLeft =>
-            data.Map(x => x.State == EitherStatus.IsLeft);
+            Data.Map(x => x.State == EitherStatus.IsLeft);
 
         /// <summary>
         /// Is the Either in a Bottom state?
@@ -76,7 +85,26 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public Task<bool> IsBottom =>
-            data.Map(x => x.State == EitherStatus.IsBottom);
+            Data.Map(x => x.State == EitherStatus.IsBottom);
+
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public Task<EitherCase<L, R>> Case =>
+            GetCase();
+
+        [Pure]
+        async Task<EitherCase<L, R>> GetCase()
+        {
+            var data = await Data;
+            return data.State switch
+            {
+                EitherStatus.IsRight => RightCase<L, R>.New(data.Right),
+                EitherStatus.IsLeft  => LeftCase<L, R>.New(data.Left),
+                _                    => null
+            };
+        }
 
         /// <summary>
         /// Implicit conversion operator from R to Either R L
@@ -187,10 +215,10 @@ namespace LanguageExt
                 : await IsLeft
                     ? Left == null
                         ? throw new ArgumentNullException(nameof(Left))
-                        : Left((await data).Left)
+                        : Left((await Data).Left)
                     : Right == null
                         ? throw new ArgumentNullException(nameof(Right))
-                        : Right((await data).Right);
+                        : Right((await Data).Right);
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the Either
@@ -209,10 +237,10 @@ namespace LanguageExt
                 : await IsLeft
                     ? Left == null
                         ? throw new ArgumentNullException(nameof(Left))
-                        : Left((await data).Left)
+                        : Left((await Data).Left)
                     : RightAsync == null
                         ? throw new ArgumentNullException(nameof(RightAsync))
-                        : await RightAsync((await data).Right);
+                        : await RightAsync((await Data).Right);
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the Either
@@ -231,10 +259,10 @@ namespace LanguageExt
                 : await IsLeft
                     ? LeftAsync == null
                         ? throw new ArgumentNullException(nameof(LeftAsync))
-                        : await LeftAsync((await data).Left)
+                        : await LeftAsync((await Data).Left)
                     : RightAsync == null
                         ? throw new ArgumentNullException(nameof(RightAsync))
-                        : await RightAsync((await data).Right);
+                        : await RightAsync((await Data).Right);
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the Either
@@ -253,10 +281,10 @@ namespace LanguageExt
                 : await IsLeft
                     ? LeftAsync == null
                         ? throw new ArgumentNullException(nameof(LeftAsync))
-                        : await LeftAsync((await data).Left)
+                        : await LeftAsync((await Data).Left)
                     : Right == null
                         ? throw new ArgumentNullException(nameof(Right))
-                        : Right((await data).Right);
+                        : Right((await Data).Right);
 
         /// <summary>
         /// Invokes the Right or Left action depending on the state of the Either
@@ -269,11 +297,11 @@ namespace LanguageExt
         {
             if (await IsRight)
             {
-                Right?.Invoke((await data).Right);
+                Right?.Invoke((await Data).Right);
             }
             else if (await IsLeft)
             {
-                Left?.Invoke((await data).Left);
+                Left?.Invoke((await Data).Left);
             }
             else if (await IsBottom)
             {
@@ -300,11 +328,11 @@ namespace LanguageExt
         {
             if (await IsRight)
             {
-                Right?.Invoke((await data).Right);
+                Right?.Invoke((await Data).Right);
             }
             else if (await IsLeft)
             {
-                await LeftAsync?.Invoke((await data).Left);
+                await LeftAsync?.Invoke((await Data).Left);
             }
             else if (await IsBottom)
             {
@@ -331,11 +359,11 @@ namespace LanguageExt
         {
             if (await IsRight)
             {
-                await RightAsync?.Invoke((await data).Right);
+                await RightAsync?.Invoke((await Data).Right);
             }
             else if (await IsLeft)
             {
-                Left?.Invoke((await data).Left);
+                Left?.Invoke((await Data).Left);
             }
             else if (await IsBottom)
             {
@@ -362,11 +390,11 @@ namespace LanguageExt
         {
             if (await IsRight)
             {
-                await RightAsync?.Invoke((await data).Right);
+                await RightAsync?.Invoke((await Data).Right);
             }
             else if (await IsLeft)
             {
-                await LeftAsync?.Invoke((await data).Left);
+                await LeftAsync?.Invoke((await Data).Left);
             }
             else if (await IsBottom)
             {
@@ -797,14 +825,14 @@ namespace LanguageExt
         internal async Task<R> RightValue() =>
             Check.NullReturn(
                 (await IsRight)
-                    ? (await data).Right
+                    ? (await Data).Right
                     : raise<R>(new EitherIsNotRightException()));
 
         [Pure]
         internal async Task<L> LeftValue() =>
             Check.NullReturn(
                 (await IsLeft)
-                    ? (await data).Left
+                    ? (await Data).Left
                     : raise<L>(new EitherIsNotLeftException()));
 
         [Pure]
@@ -1431,7 +1459,7 @@ namespace LanguageExt
                 if (await self.IsRight)
                 {
                     var mb = ff(await self.RightValue());
-                    return await mb.data;
+                    return await mb.Data;
                 }
                 else
                 {
@@ -1461,7 +1489,7 @@ namespace LanguageExt
                 if (await self.IsRight)
                 {
                     var mb = await ff(await self.RightValue());
-                    return await mb.data;
+                    return await mb.Data;
                 }
                 else
                 {
@@ -1485,12 +1513,12 @@ namespace LanguageExt
                 if (await self.IsRight)
                 {
                     var mb = right(await self.RightValue());
-                    return await mb.data;
+                    return await mb.Data;
                 }
                 if (await self.IsLeft)
                 {
                     var mb = left(await self.LeftValue());
-                    return await mb.data;
+                    return await mb.Data;
                 }
                 else
                 {
@@ -1511,12 +1539,12 @@ namespace LanguageExt
                 if (await self.IsRight)
                 {
                     var mb = await right(await self.RightValue());
-                    return await mb.data;
+                    return await mb.Data;
                 }
                 if (await self.IsLeft)
                 {
                     var mb = left(await self.LeftValue());
-                    return await mb.data;
+                    return await mb.Data;
                 }
                 else
                 {
@@ -1537,12 +1565,12 @@ namespace LanguageExt
                 if (await self.IsRight)
                 {
                     var mb = right(await self.RightValue());
-                    return await mb.data;
+                    return await mb.Data;
                 }
                 if (await self.IsLeft)
                 {
                     var mb = await left(await self.LeftValue());
-                    return await mb.data;
+                    return await mb.Data;
                 }
                 else
                 {
@@ -1563,12 +1591,12 @@ namespace LanguageExt
                 if (await self.IsRight)
                 {
                     var mb = await right(await self.RightValue());
-                    return await mb.data;
+                    return await mb.Data;
                 }
                 if (await self.IsLeft)
                 {
                     var mb = await left(await self.LeftValue());
-                    return await mb.data;
+                    return await mb.Data;
                 }
                 else
                 {
@@ -1592,7 +1620,7 @@ namespace LanguageExt
                 if (await self.IsLeft)
                 {
                     var mb = Left(await self.LeftValue());
-                    return await mb.data;
+                    return await mb.Data;
                 }
                 else
                 {
@@ -1616,7 +1644,7 @@ namespace LanguageExt
                 if (await self.IsLeft)
                 {
                     var mb = await LeftAsync(await self.LeftValue());
-                    return await mb.data;
+                    return await mb.Data;
                 }
                 else
                 {
@@ -1717,6 +1745,23 @@ namespace LanguageExt
         [Pure]
         public EitherAsync<L, V> SelectMany<U, V>(Func<R, EitherAsync<L, U>> bind, Func<R, U, V> project) =>
             Bind(a => bind(a).Bind(b => EitherAsync<L, V>.Right(project(a, b))));
+
+
+// TODO: Re-add when we move to netstandard2.1
+//#if NETCORE
+//        /// <summary>
+//        /// Enumerate asynchronously
+//        /// </summary>
+//        [Pure]
+//        public async IAsyncEnumerator<R> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+//        {
+//            var data = await Data;
+//            if (data.State == EitherStatus.IsRight)
+//            {
+//                yield return data.Right;
+//            }
+//        }
+//#endif
     }
 
     /// <summary>

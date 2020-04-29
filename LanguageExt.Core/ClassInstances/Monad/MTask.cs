@@ -6,6 +6,19 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
+    /// <summary>
+    /// Class instance to give `Task<A>` the following traits: 
+    ///     
+    ///     MonadAsync
+    ///     FoldableAsync
+    ///     BiFoldableAsync
+    ///     OptionalAsymc
+    ///     OptionalUnsafeAsync
+    /// </summary>
+    /// <remarks>
+    /// The `Plus` function will return `ma` if successful, `mb` otherwise
+    /// </remarks>
+    /// <typeparam name="A">Bound value type</typeparam>
     public struct MTask<A> :
         OptionalAsync<Task<A>, A>,
         OptionalUnsafeAsync<Task<A>, A>,
@@ -31,6 +44,9 @@ namespace LanguageExt.ClassInstances
         public Task<A> Fail(object err = null) =>
             default(MTaskFirst<A>).Fail(err);
 
+        /// <summary>
+        /// The `Plus` function will return `ma` if successful, `mb` otherwise
+        /// </summary>
         [Pure]
         public async Task<A> Plus(Task<A> ma, Task<A> mb)
         {

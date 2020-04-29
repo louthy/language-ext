@@ -3,7 +3,7 @@ using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("M*Trans")]
     public interface MonadTrans<OuterMonad, OuterType, InnerMonad, InnerType, A> : Typeclass
         where OuterMonad : struct, Monad<OuterType, InnerType>
         where InnerMonad : struct, Monad<InnerType, A>

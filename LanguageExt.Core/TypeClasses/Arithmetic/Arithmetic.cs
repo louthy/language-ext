@@ -4,7 +4,7 @@ using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("Num*")]
     public interface Arithmetic<A> : Typeclass
     {
         /// <summary>

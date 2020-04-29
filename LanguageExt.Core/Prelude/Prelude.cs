@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -145,6 +146,38 @@ namespace LanguageExt
             x;
 
         /// <summary>
+        /// Constant function
+        /// Always returns the first argument
+        /// </summary>
+        [Pure]
+        public static Func<B, A> constant<A, B>(A x) =>
+            _ => x;
+
+        /// <summary>
+        /// Constant function
+        /// Always returns the first argument
+        /// </summary>
+        [Pure]
+        public static A constant<A, B>(A x, B _) =>
+            x;
+
+        /// <summary>
+        /// Constant function
+        /// Always returns the first argument
+        /// </summary>
+        [Pure]
+        public static Func<A, A> constantA<A>(A x) =>
+            _ => x;
+
+        /// <summary>
+        /// Constant function
+        /// Always returns the first argument
+        /// </summary>
+        [Pure]
+        public static A constantA<A>(A x, A _) =>
+            x;
+
+        /// <summary>
         /// Raises a lazy Exception with the message provided
         /// </summary>
         /// <param name="message">Exception message</param>
@@ -197,44 +230,6 @@ namespace LanguageExt
             if (e is E) return true;
             if (e.InnerException == null) return false;
             return exceptionIs<E>(e.InnerException);
-        }
-
-        /// <summary>
-        /// Calculate a hash-code for an enumerable
-        /// </summary>
-        public static int hash<A>(IEnumerable<A> xs)
-        {
-            if (xs == null) return 0;
-            unchecked
-            {
-                int hash = 1;
-                foreach(var x in xs)
-                {
-                    hash = ReferenceEquals(x, null)
-                        ? hash * 31
-                        : hash * 31 + x.GetHashCode();
-                }
-                return hash;
-            }
-        }
-
-        /// <summary>
-        /// Calculate a hash-code for an enumerable
-        /// </summary>
-        public static int hash<A>(Seq<A> xs)
-        {
-            if (xs == null) return 0;
-            unchecked
-            {
-                int hash = 1;
-                foreach (var x in xs)
-                {
-                    hash = ReferenceEquals(x, null)
-                        ? hash * 31
-                        : hash * 31 + x.GetHashCode();
-                }
-                return hash;
-            }
         }
 
         /// <summary>

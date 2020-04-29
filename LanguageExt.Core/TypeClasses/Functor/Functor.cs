@@ -11,7 +11,7 @@ namespace LanguageExt.TypeClasses
     /// <typeparam name="FB">Target functor type</typeparam>
     /// <typeparam name="A">Source functor bound value type</typeparam>
     /// <typeparam name="B">Target functor bound value type</typeparam>
-    [Typeclass]
+    [Typeclass("F*")]
     public interface Functor<FA, FB, A, B> : Typeclass
     {
         /// <summary>

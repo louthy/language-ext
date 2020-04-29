@@ -11,6 +11,70 @@ namespace LanguageExt
     public static class MapExtensions
     {
         /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Pure]
+        public static Map<K, V> ToMap<K, V>(this IEnumerable<(K, V)> items) =>
+            LanguageExt.Map.createRange(items);
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Pure]
+        public static Map<K, V> ToMap<K, V>(this IEnumerable<Tuple<K, V>> items) =>
+            LanguageExt.Map.createRange(items);
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Pure]
+        public static Map<K, V> ToMap<K, V>(this IEnumerable<KeyValuePair<K, V>> items) =>
+            LanguageExt.Map.createRange(items);
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Pure]
+        public static Map<K1, Map<K2, V>> ToMap<K1, K2, V>(this IEnumerable<(K1, K2, V)> items) =>
+            items.Fold(Map<K1, Map<K2, V>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3));
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Pure]
+        public static Map<K1, Map<K2, V>> ToMap<K1, K2, V>(this IEnumerable<Tuple<K1, K2, V>> items) =>
+            items.Fold(Map<K1, Map<K2, V>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3));
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Pure]
+        public static Map<K1, Map<K2, Map<K3, V>>> ToMap<K1, K2, K3, V>(this IEnumerable<(K1, K2, K3, V)> items) =>
+            items.Fold(Map<K1, Map<K2, Map<K3, V>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4));
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Pure]
+        public static Map<K1, Map<K2, Map<K3, V>>> ToMap<K1, K2, K3, V>(this IEnumerable<Tuple<K1, K2, K3, V>> items) =>
+            items.Fold(Map<K1, Map<K2, Map<K3, V>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4));
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Pure]
+        public static Map<K1, Map<K2, Map<K3, Map<K4, V>>>> ToMap<K1, K2, K3, K4, V>(this IEnumerable<(K1, K2, K3, K4, V)> items) =>
+            items.Fold(Map<K1, Map<K2, Map<K3, Map<K4, V>>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5));
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Pure]
+        public static Map<K1, Map<K2, Map<K3, Map<K4, V>>>> ToMap<K1, K2, K3, K4, V>(this IEnumerable<Tuple<K1, K2, K3, K4, V>> items) =>
+            items.Fold(Map<K1, Map<K2, Map<K3, Map<K4, V>>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5));
+
+
+        /// <summary>
         /// Atomically maps the map to a new map
         /// </summary>
         /// <returns>Mapped items in a new map</returns>

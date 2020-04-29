@@ -22,7 +22,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public async Task<bool> Equals(OA x, OA y)
+        public async Task<bool> EqualsAsync(OA x, OA y)
         {
             if (x.IsNull()) return y.IsNull();
             if (y.IsNull()) return false;
@@ -54,12 +54,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         [Pure]
-        public async Task<int> GetHashCode(OA x) =>
-            x.IsNull() 
-                ? 0 
-                : (await default(OPTION).Match(x, 
-                        Some: a  => a?.GetHashCode() ?? 0, 
-                        None: () => 0));
+        public Task<int> GetHashCodeAsync(OA x) =>
+            default(HashableOptionalAsync<EQ, OPTION, OA, A>).GetHashCodeAsync(x);
     }
 
     /// <summary>
@@ -77,8 +73,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public Task<bool> Equals(OA x, OA y) =>
-            default(EqOptionalAsync<EqDefault<A>, OPTION, OA, A>).Equals(x, y);
+        public Task<bool> EqualsAsync(OA x, OA y) =>
+            default(EqOptionalAsync<EqDefault<A>, OPTION, OA, A>).EqualsAsync(x, y);
 
         /// <summary>
         /// Get hash code of the value
@@ -86,8 +82,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         [Pure]
-        public Task<int> GetHashCode(OA x) =>
-            default(EqOptionalAsync<EqDefault<A>, OPTION, OA, A>).GetHashCode(x);
+        public Task<int> GetHashCodeAsync(OA x) =>
+            default(HashableOptionalAsync<OPTION, OA, A>).GetHashCodeAsync(x);
     }
-
 }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
         <DefineConstants>TRACE;DEBUG</DefineConstants>
     </PropertyGroup>
@@ -7,8 +7,8 @@
         <DefineConstants>CONTRACTS_FULL</DefineConstants>
     </PropertyGroup>
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
-        <PackageVersion>3.3.7</PackageVersion>
+        <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+        <PackageVersion>3.4.13</PackageVersion>
         <PackageId>LanguageExt.Rx</PackageId>
         <Title>LanguageExt.Rx</Title>
         <Authors>Paul Louth</Authors>
@@ -16,7 +16,7 @@
         <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
         <Description>Support for Reactive Extensions overloads for various types in the LanguageExt.Core</Description>
         <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
-        <PackageIconUrl>https://raw.githubusercontent.com/louthy/language-ext/master/backers-images/lang-ext-thumb.png</PackageIconUrl>
+        <PackageIcon>lang-ext-small.png</PackageIcon>
         <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
@@ -24,13 +24,14 @@
         <OutputType>library</OutputType>
         <AssemblyVersion>3.0.0.0</AssemblyVersion>
         <FileVersion>3.0.0.0</FileVersion>
+        <LangVersion>8.0</LangVersion>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-        <LangVersion>7.1</LangVersion>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-        <LangVersion>7.1</LangVersion>
-    </PropertyGroup>
+    <ItemGroup>
+        <None Include="..\Images\lang-ext-small.png">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
     <ItemGroup>
         <Compile Include="**\*.cs" />
         <EmbeddedResource Include="**\*.resx" />
@@ -41,27 +42,27 @@
         <None Remove="obj\**" />
     </ItemGroup>
     <ItemGroup>
-      <Compile Remove="EitherUnsafe.Extensions.cs" />
+        <Compile Remove="EitherUnsafe.Extensions.cs" />
     </ItemGroup>
     <ItemGroup>
-      <None Remove="Cast.cs" />
-      <None Remove="Check.cs" />
-      <None Remove="Either.Extensions.cs" />
-      <None Remove="Nullable.Extensions.cs" />
-      <None Remove="Option.Extensions.cs" />
-      <None Remove="OptionUnsafe.Extensions.cs" />
-      <None Remove="PreludeRx.cs" />
-      <None Remove="Task.Try.Extensions.cs" />
-      <None Remove="Try.Extensions.cs" />
-      <None Remove="TryAsync.Extensions.cs" />
-      <None Remove="TryOption.Extensions.cs" />
-      <None Remove="TryOptionAsync.Extensions.cs" />
-      <None Remove="Validation.Extensions.cs" />
-      <None Remove="ValidationSeq.Extensions.cs" />
+        <None Remove="Cast.cs" />
+        <None Remove="Check.cs" />
+        <None Remove="Either.Extensions.cs" />
+        <None Remove="Nullable.Extensions.cs" />
+        <None Remove="Option.Extensions.cs" />
+        <None Remove="OptionUnsafe.Extensions.cs" />
+        <None Remove="PreludeRx.cs" />
+        <None Remove="Task.Try.Extensions.cs" />
+        <None Remove="Try.Extensions.cs" />
+        <None Remove="TryAsync.Extensions.cs" />
+        <None Remove="TryOption.Extensions.cs" />
+        <None Remove="TryOptionAsync.Extensions.cs" />
+        <None Remove="Validation.Extensions.cs" />
+        <None Remove="ValidationSeq.Extensions.cs" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-        <PackageReference Include="System.Reactive" Version="[3.0.0,5.0]" />
+        <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
+        <PackageReference Include="System.Reactive" Version="[3.0.0,)" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />

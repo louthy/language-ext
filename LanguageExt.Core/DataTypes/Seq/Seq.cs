@@ -26,9 +26,6 @@ namespace LanguageExt
 #pragma warning restore CS0618
         IComparable<Seq<A>>, IEquatable<Seq<A>>
     {
-        const int DefaultCapacity = 8;
-        const int HalfDefaultCapacity = DefaultCapacity >> 1;
-
         /// <summary>
         /// Empty sequence
         /// </summary>
@@ -68,6 +65,17 @@ namespace LanguageExt
             this.value = value;
             this.hash = 0;
         }
+
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            IsEmpty 
+                ? EmptyCase<A>.Default
+                : Tail.IsEmpty 
+                    ? HeadCase<A>.New(Head)
+                    : HeadTailCase<A>.New(Head, Tail);
 
         public void Deconstruct(out A head, out Seq<A> tail)
         {
@@ -156,6 +164,99 @@ namespace LanguageExt
             new Seq<A>(EnumerableOptimal.ConcatFast(this, items));
 
         /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Concat(Seq<A> rhs)
+        {
+            switch(Value.Type)
+            {
+                case SeqType.Empty:
+                    // lhs is empty, so just return rhs
+                    return rhs;
+
+                case SeqType.Lazy:
+
+                    switch (rhs.Value.Type)
+                    {
+                        // lhs lazy, rhs empty
+                        // return lhs
+                        case SeqType.Empty:
+                            return this;
+
+                        // lhs lazy, rhs lazy
+                        // return SeqConcat
+                        case SeqType.Lazy:
+                            return new Seq<A>(new SeqConcat<A>(Seq(value, rhs.Value)));
+
+                        // lhs lazy, rhs strict
+                        // force lhs to be strict and concat the two 
+                        case SeqType.Strict:
+                            return new Seq<A>(((SeqStrict<A>)value.Strict()).Append((SeqStrict<A>)rhs.Value));
+
+                        // lhs lazy, rhs concat
+                        // prepend rhs with lhs
+                        case SeqType.Concat:
+                            return new Seq<A>(((SeqConcat<A>)rhs.value).ConsSeq(Value));
+                    }
+                    break;
+
+                case SeqType.Strict:
+
+                    switch (rhs.Value.Type)
+                    {
+                        // lhs strict, rhs empty
+                        // return lhs
+                        case SeqType.Empty:
+                            return this;
+
+                        // lhs strict, rhs lazy
+                        // return SeqConcat
+                        case SeqType.Lazy:
+                            return new Seq<A>(new SeqConcat<A>(Seq(value, rhs.Value)));
+
+                        // lhs strict, rhs strict
+                        // append the two
+                        case SeqType.Strict:
+                            return new Seq<A>(((SeqStrict<A>)value).Append((SeqStrict<A>)rhs.Value));
+
+                        // lhs strict, rhs concat
+                        // prepend rhs with lhs
+                        case SeqType.Concat:
+                            return new Seq<A>(((SeqConcat<A>)rhs.value).ConsSeq(Value));
+                    }
+                    break;
+
+                case SeqType.Concat:
+
+                    switch (rhs.Value.Type)
+                    {
+                        // lhs concat, rhs empty
+                        // return lhs
+                        case SeqType.Empty:
+                            return this;
+
+                        // lhs concat, rhs lazy || lhs concat, rhs strict
+                        // add rhs to concat
+                        case SeqType.Lazy:
+                        case SeqType.Strict:
+                            return new Seq<A>(((SeqConcat<A>)value).AddSeq(Value));
+
+                        // lhs concat, rhs concat
+                        // add rhs to concat
+                        case SeqType.Concat:
+                            return new Seq<A>(((SeqConcat<A>)value).AddSeqRange(((SeqConcat<A>)Value).ms));
+                    }
+                    break;
+            }
+            throw new NotSupportedException();
+        }
+
+        /// <summary>
         /// Prepend an item to the sequence
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -179,6 +280,15 @@ namespace LanguageExt
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => new Seq<A>(Value.Tail);
+        }
+
+        /// <summary>
+        /// Get all items except the last one
+        /// </summary>
+        public Seq<A> Init
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new Seq<A>(Value.Init);
         }
 
         /// <summary>
@@ -289,10 +399,18 @@ namespace LanguageExt
         /// <typeparam name="L"></typeparam>
         /// <param name="left">Left case</param>
         /// <returns>Head of the sequence or left</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Either<L, A> HeadOrLeft<L>(L left) =>
             IsEmpty
                 ? Left<L, A>(left)
+                : Right<L, A>(Head);
+
+        /// <summary>
+        /// Head of the sequence if this node isn't the empty node
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Either<L, A> HeadOrLeft<L>(Func<L> Left) =>
+            IsEmpty
+                ? Left<L, A>(Left())
                 : Right<L, A>(Head);
 
         /// <summary>
@@ -552,10 +670,37 @@ namespace LanguageExt
         /// Get the hash code for all of the items in the sequence, or 0 if empty
         /// </summary>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() =>
             hash = hash == 0
-                ? hash(this)
+                ? (hash = Value.GetHashCode(FNV32.OffsetBasis))
                 : hash;
+
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// The elipsis is used for collections over 50 items
+        /// To get a formatted string with all the items, use `ToFullString`
+        /// or `ToFullArrayString`.
+        /// </summary>
+        [Pure]
+        public override string ToString() =>
+            Value is SeqLazy<A>
+                ? CollectionFormat.ToShortArrayString(this)
+                : CollectionFormat.ToShortArrayString(this, Count);
+
+        /// <summary>
+        /// Format the collection as `a, b, c, ...`
+        /// </summary>
+        [Pure]
+        public string ToFullString(string separator = ", ") =>
+            CollectionFormat.ToFullString(this, separator);
+
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// </summary>
+        [Pure]
+        public string ToFullArrayString(string separator = ", ") =>
+            CollectionFormat.ToFullArrayString(this, separator);
 
         /// <summary>
         /// Append operator
@@ -682,27 +827,15 @@ namespace LanguageExt
         /// predicate</returns>
         public Seq<A> TakeWhile(Func<A, bool> pred)
         {
-            var data = new A[DefaultCapacity];
-            var index = HalfDefaultCapacity;
-
-            foreach (var item in this)
+            return new Seq<A>(new SeqLazy<A>(Yield(Value, pred)));
+            IEnumerable<A> Yield(IEnumerable<A> xs, Func<A, bool> f)
             {
-                if (pred(item))
+                foreach (var x in xs)
                 {
-                    if (index == data.Length)
-                    {
-                        var ndata = new A[Math.Max(1, data.Length << 1)];
-                        System.Array.Copy(data, ndata, data.Length);
-                        data = ndata;
-                    }
-
-                    data[index] = item;
-                    index++;
+                    if (!f(x)) break;
+                    yield return x;
                 }
             }
-            return index == HalfDefaultCapacity
-                ? Empty
-                : new Seq<A>(new SeqStrict<A>(data, HalfDefaultCapacity, index, 0, 0));
         }
 
         /// <summary>
@@ -714,27 +847,17 @@ namespace LanguageExt
         /// predicate</returns>
         public Seq<A> TakeWhile(Func<A, int, bool> pred)
         {
-            var data = new A[DefaultCapacity];
-            var index = HalfDefaultCapacity;
-
-            foreach (var item in this)
+            return new Seq<A>(new SeqLazy<A>(Yield(Value, pred)));
+            IEnumerable<A> Yield(IEnumerable<A> xs, Func<A, int, bool> f)
             {
-                if (pred(item, index))
+                var i = 0;
+                foreach (var x in xs)
                 {
-                    if (index == data.Length)
-                    {
-                        var ndata = new A[Math.Max(1, data.Length << 1)];
-                        System.Array.Copy(data, ndata, data.Length);
-                        data = ndata;
-                    }
-
-                    data[index] = item;
-                    index++;
+                    if (!f(x, i)) break;
+                    yield return x;
+                    i++;
                 }
             }
-            return index == HalfDefaultCapacity
-                ? Empty
-                : new Seq<A>(new SeqStrict<A>(data, HalfDefaultCapacity, index, 0, 0));
         }
 
         /// <summary>

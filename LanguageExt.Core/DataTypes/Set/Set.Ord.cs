@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -62,6 +63,13 @@ namespace LanguageExt
 
         static Set<OrdB, B> Wrap<OrdB, B>(SetInternal<OrdB, B> set) where OrdB : struct, Ord<B>  =>
             new Set<OrdB, B>(set);
+
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            Seq(this).Case;
 
         /// <summary>
         /// Number of items in the set
@@ -151,6 +159,48 @@ namespace LanguageExt
         [Pure]
         public Option<A> Find(A value) =>
             Value.Find(value);
+
+        /// <summary>
+        /// Retrieve the value from previous item to specified key
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindPredecessor(A key) => Value.FindPredecessor(key);
+
+        /// <summary>
+        /// Retrieve the value from exact key, or if not found, the previous item 
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindExactOrPredecessor(A key) => Value.FindOrPredecessor(key);
+
+        /// <summary>
+        /// Retrieve the value from next item to specified key
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindSuccessor(A key) => Value.FindSuccessor(key);
+
+        /// <summary>
+        /// Retrieve the value from exact key, or if not found, the next item 
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindExactOrSuccessor(A key) => Value.FindOrSuccessor(key);
+
+        /// <summary>
+        /// Retrieve a range of values 
+        /// </summary>
+        /// <param name="keyFrom">Range start (inclusive)</param>
+        /// <param name="keyTo">Range to (inclusive)</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
+        /// <returns>Range of values</returns>
+        [Pure]
+        public IEnumerable<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
 
         /// <summary>
         /// Returns the elements that are in both this and other
@@ -473,7 +523,7 @@ namespace LanguageExt
         /// <returns>True if the two sets are equal</returns>
         [Pure]
         public static bool operator !=(Set<OrdA, A> lhs, Set<OrdA, A> rhs) =>
-            lhs.Equals(rhs);
+            !lhs.Equals(rhs);
 
         [Pure]
         public static bool operator <(Set<OrdA, A> lhs, Set<OrdA, A> rhs) =>
@@ -574,5 +624,27 @@ namespace LanguageExt
         /// </summary>
         public static implicit operator Set<OrdA, A>(SeqEmpty _) =>
             Empty;
+
+        /// <summary>
+        /// Creates a new map from a range/slice of this map
+        /// </summary>
+        /// <param name="keyFrom">Range start (inclusive)</param>
+        /// <param name="keyTo">Range to (inclusive)</param>
+        /// <returns></returns>
+        [Pure]
+        public Set<OrdA, A> Slice(A keyFrom, A keyTo) =>
+            new Set<OrdA, A>(FindRange(keyFrom, keyTo));
+
+        /// <summary>
+        /// Find the lowest ordered item in the set
+        /// </summary>
+        [Pure]
+        public Option<A> Min => Value.Min;
+
+        /// <summary>
+        /// Find the highest ordered item in the set
+        /// </summary>
+        [Pure]
+        public Option<A> Max => Value.Max;
     }
 }

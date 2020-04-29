@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.Rx", "LanguageE
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.CodeGen", "LanguageExt.CodeGen\LanguageExt.CodeGen.csproj", "{D36A9A47-5820-4B6B-97EF-3AA1341A6E72}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanguageExt.Benchmarks", "LanguageExt.Benchmarks\LanguageExt.Benchmarks.csproj", "{4F7FCDBC-F37A-493B-A648-107F69F10EFF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,6 +143,18 @@ Global
 		{D36A9A47-5820-4B6B-97EF-3AA1341A6E72}.Release|x64.Build.0 = Release|Any CPU
 		{D36A9A47-5820-4B6B-97EF-3AA1341A6E72}.Release|x86.ActiveCfg = Release|Any CPU
 		{D36A9A47-5820-4B6B-97EF-3AA1341A6E72}.Release|x86.Build.0 = Release|Any CPU
+		{4F7FCDBC-F37A-493B-A648-107F69F10EFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F7FCDBC-F37A-493B-A648-107F69F10EFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F7FCDBC-F37A-493B-A648-107F69F10EFF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4F7FCDBC-F37A-493B-A648-107F69F10EFF}.Debug|x64.Build.0 = Debug|Any CPU
+		{4F7FCDBC-F37A-493B-A648-107F69F10EFF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4F7FCDBC-F37A-493B-A648-107F69F10EFF}.Debug|x86.Build.0 = Debug|Any CPU
+		{4F7FCDBC-F37A-493B-A648-107F69F10EFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F7FCDBC-F37A-493B-A648-107F69F10EFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F7FCDBC-F37A-493B-A648-107F69F10EFF}.Release|x64.ActiveCfg = Release|Any CPU
+		{4F7FCDBC-F37A-493B-A648-107F69F10EFF}.Release|x64.Build.0 = Release|Any CPU
+		{4F7FCDBC-F37A-493B-A648-107F69F10EFF}.Release|x86.ActiveCfg = Release|Any CPU
+		{4F7FCDBC-F37A-493B-A648-107F69F10EFF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

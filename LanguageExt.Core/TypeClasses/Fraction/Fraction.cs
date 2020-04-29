@@ -8,7 +8,7 @@ namespace LanguageExt.TypeClasses
     /// </summary>
     /// <typeparam name="A">The type for which fractional 
     /// operations are being defined.</typeparam>
-    [Typeclass]
+    [Typeclass("Fraction*")]
     public interface Fraction<A> : Num<A>
     {
         /// <summary>

@@ -64,19 +64,16 @@ namespace LanguageExt
         /// each item.
         /// </summary>
         [Pure]
-        public static IEnumerable<T> init<T>(int count, Func<int, T> generator) =>
+        public static IEnumerable<T> generate<T>(int count, Func<int, T> generator) =>
             from i in Range(0, count)
             select generator(i);
 
         /// <summary>
-        /// Generates an infinite sequence of T using the provided delegate to initialise
+        /// Generates an int.MaxValue sequence of T using the provided delegate to initialise
         /// each item.
-        /// 
-        ///   Remarks: Not truly infinite, will end at Int32.MaxValue
-        /// 
         /// </summary>
         [Pure]
-        public static IEnumerable<T> initInfinite<T>(Func<int, T> generator) =>
+        public static IEnumerable<T> generate<T>(Func<int, T> generator) =>
             from i in Range(0, Int32.MaxValue)
             select generator(i);
 
@@ -134,8 +131,8 @@ namespace LanguageExt
         /// <param name="list">List</param>
         /// <returns>Head item</returns>
         [Pure]
-        public static T head<T>(IEnumerable<T> list) => list.First();
-
+        public static T head<T>(IEnumerable<T> list) => 
+            list.First();
         /// <summary>
         /// Get the item at the head (first) of the list or None if the list is empty
         /// </summary>
@@ -191,6 +188,87 @@ namespace LanguageExt
             list.Select(Validation<MonoidFail, Fail, Success>.Success)
                 .DefaultIfEmpty(Validation<MonoidFail, Fail, Success>.Fail(fail))
                 .FirstOrDefault();
+
+        /// <summary>
+        /// Get the last item of the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Last item</returns>
+        [Pure]
+        public static A last<A>(IEnumerable<A> list) =>
+            list.Last();
+
+        /// <summary>
+        /// Get the last item of the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Last item</returns>
+        [Pure]
+        public static Option<A> lastOrNone<A>(IEnumerable<A> list) =>
+            list.Select(Option<A>.Some)
+                .DefaultIfEmpty(Option<A>.None)
+                .LastOrDefault();
+
+        /// <summary>
+        /// Get the last item of the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Last item</returns>
+        [Pure]
+        public static Either<L, R> lastOrLeft<L, R>(IEnumerable<R> list, L left) =>
+            list.Select(Either<L, R>.Right)
+                .DefaultIfEmpty(Either<L, R>.Left(left))
+                .LastOrDefault();
+
+        /// <summary>
+        /// Get the last item of the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Last item</returns>
+        [Pure]
+        public static Validation<Fail, Success> lastOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail) =>
+            list.Select(Validation<Fail, Success>.Success)
+                .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq1(fail)))
+                .LastOrDefault();
+
+        /// <summary>
+        /// Get the last item of the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Last item</returns>
+        [Pure]
+        public static Validation<Fail, Success> lastOrInvalid<Fail, Success>(IEnumerable<Success> list, Seq<Fail> fail) =>
+            list.Select(Validation<Fail, Success>.Success)
+                .DefaultIfEmpty(Validation<Fail, Success>.Fail(fail))
+                .LastOrDefault();
+
+        /// <summary>
+        /// Get the last item of the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Last item</returns>
+        [Pure]
+        public static Validation<MonoidFail, Fail, Success> lastOrInvalid<MonoidFail, Fail, Success>(IEnumerable<Success> list, Fail fail)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+            list.Select(Validation<MonoidFail, Fail, Success>.Success)
+                .DefaultIfEmpty(Validation<MonoidFail, Fail, Success>.Fail(fail))
+                .LastOrDefault();
+
+        /// <summary>
+        /// Get all items in the list except the last one
+        /// </summary>
+        /// <remarks>
+        /// Must evaluate the last item to know it's the last, but won't return it
+        /// </remarks>
+        /// <param name="list">List</param>
+        /// <returns>The initial items (all but the last)</returns>
+        [Pure]
+        public static Seq<A> init<A>(IEnumerable<A> list)
+        {
+            var items = list.ToArray();
+            return new Seq<A>(new SeqStrict<A>(items, 0, Math.Max(0, items.Length - 1), 0, 0));
+        }
+
 
         /// <summary>
         /// Get the tail of the list (skips the head item)
@@ -888,6 +966,20 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Iterate each item in the enumerable in order (consume items)
+        /// </summary>
+        /// <typeparam name="T">Enumerable item type</typeparam>
+        /// <param name="list">Enumerable to consume</param>
+        /// <returns>Unit</returns>
+        public static Unit consume<T>(IEnumerable<T> list)
+        {
+            foreach (var item in list)
+            {
+            }
+            return unit;
+        }
+
+        /// <summary>
         /// Returns true if all items in the enumerable match a predicate (Any in LINQ)
         /// </summary>
         /// <typeparam name="T">Enumerable item type</typeparam>
@@ -985,7 +1077,6 @@ namespace LanguageExt
                 else
                 {
                     state = res.Value;
-                    yield return res.Value;
                 }
             }
         }
@@ -995,12 +1086,13 @@ namespace LanguageExt
         /// state value is threaded through separately to the yielded value.
         /// The unfold function generates the items in the resulting list until None is returned.
         /// </summary>
+        /// <typeparam name="A">Bound value of resulting enumerable</typeparam>
         /// <typeparam name="S">State type</typeparam>
         /// <param name="state">Initial state</param>
         /// <param name="unfolder">Unfold function</param>
         /// <returns>Unfolded enumerable</returns>
         [Pure]
-        public static IEnumerable<T> unfold<S, T>(S state, Func<S, Option<Tuple<T, S>>> unfolder)
+        public static IEnumerable<A> unfold<S, A>(S state, Func<S, Option<(A, S)>> unfolder)
         {
             while (true)
             {
@@ -1022,12 +1114,14 @@ namespace LanguageExt
         /// state value is threaded through separately to the yielded value.
         /// The unfold function generates the items in the resulting list until None is returned.
         /// </summary>
-        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value of resulting enumerable</typeparam>
+        /// <typeparam name="S1">State type</typeparam>
+        /// <typeparam name="S2">State type</typeparam>
         /// <param name="state">Initial state</param>
         /// <param name="unfolder">Unfold function</param>
         /// <returns>Unfolded enumerable</returns>
         [Pure]
-        public static IEnumerable<T> unfold<S1, S2, T>(Tuple<S1, S2> state, Func<S1, S2, Option<Tuple<T, S1, S2>>> unfolder)
+        public static IEnumerable<A> unfold<S1, S2, A>((S1, S2) state, Func<S1, S2, Option<(A, S1, S2)>> unfolder)
         {
             while (true)
             {
@@ -1038,7 +1132,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    state = System.Tuple.Create(res.Value.Item2, res.Value.Item3);
+                    state = (res.Value.Item2, res.Value.Item3);
                     yield return res.Value.Item1;
                 }
             }
@@ -1049,12 +1143,15 @@ namespace LanguageExt
         /// state value is threaded through separately to the yielded value.
         /// The unfold function generates the items in the resulting list until None is returned.
         /// </summary>
-        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value of resulting enumerable</typeparam>
+        /// <typeparam name="S1">State type</typeparam>
+        /// <typeparam name="S2">State type</typeparam>
+        /// <typeparam name="S3">State type</typeparam>
         /// <param name="state">Initial state</param>
         /// <param name="unfolder">Unfold function</param>
         /// <returns>Unfolded enumerable</returns>
         [Pure]
-        public static IEnumerable<T> unfold<S1, S2, S3, T>(Tuple<S1, S2, S3> state, Func<S1, S2, S3, Option<Tuple<T, S1, S2, S3>>> unfolder)
+        public static IEnumerable<A> unfold<S1, S2, S3, A>((S1, S2, S3) state, Func<S1, S2, S3, Option<(A, S1, S2, S3)>> unfolder)
         {
             while (true)
             {
@@ -1065,7 +1162,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    state = System.Tuple.Create(res.Value.Item2, res.Value.Item3, res.Value.Item4);
+                    state = (res.Value.Item2, res.Value.Item3, res.Value.Item4);
                     yield return res.Value.Item1;
                 }
             }
@@ -1076,12 +1173,16 @@ namespace LanguageExt
         /// state value is threaded through separately to the yielded value.
         /// The unfold function generates the items in the resulting list until None is returned.
         /// </summary>
-        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value of resulting enumerable</typeparam>
+        /// <typeparam name="S1">State type</typeparam>
+        /// <typeparam name="S2">State type</typeparam>
+        /// <typeparam name="S3">State type</typeparam>
+        /// <typeparam name="S4">State type</typeparam>
         /// <param name="state">Initial state</param>
         /// <param name="unfolder">Unfold function</param>
         /// <returns>Unfolded enumerable</returns>
         [Pure]
-        public static IEnumerable<T> unfold<S1, S2, S3, S4, T>(Tuple<S1, S2, S3, S4> state, Func<S1, S2, S3, S4, Option<Tuple<T, S1, S2, S3, S4>>> unfolder)
+        public static IEnumerable<A> unfold<S1, S2, S3, S4, A>((S1, S2, S3, S4) state, Func<S1, S2, S3, S4, Option<(A, S1, S2, S3, S4)>> unfolder)
         {
             while (true)
             {
@@ -1092,7 +1193,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    state = System.Tuple.Create(res.Value.Item2, res.Value.Item3, res.Value.Item4, res.Value.Item5);
+                    state = (res.Value.Item2, res.Value.Item3, res.Value.Item4, res.Value.Item5);
                     yield return res.Value.Item1;
                 }
             }

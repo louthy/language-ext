@@ -4,7 +4,7 @@ using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("Choice*")]
     public interface Choice<CH, L, R> : Typeclass
     {
         /// <summary>

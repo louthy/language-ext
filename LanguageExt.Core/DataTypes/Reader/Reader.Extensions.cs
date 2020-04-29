@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Linq;
 using LanguageExt;
-using LanguageExt.TypeClasses;
+using LanguageExt.Common;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.ComponentModel;
 using LanguageExt.ClassInstances;
+using System.Collections.Generic;
 
 /// <summary>
 /// Reader monad extensions
@@ -26,25 +22,17 @@ public static class ReaderExt
     /// Runs the Reader monad and memoizes the result in a TryOption monad.  Use
     /// Match, IfSucc, IfNone, etc to extract.
     /// </summary>
-    public static TryOption<A> Run<Env, A>(this Reader<Env, A> self, Env env)
+    public static ReaderResult<A> Run<Env, A>(this Reader<Env, A> self, Env env)
     {
         try
         {
-            if (self == null) return () => Option<A>.None; ;
-            if (env == null) return () => Option<A>.None; ;
-            var (a, b) = self(env);
-            if(b)
-            {
-                return () => Option<A>.None;
-            }
-            else
-            {
-                return () => Optional(a);
-            }
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            if (env == null) throw new ArgumentNullException(nameof(env));
+            return self(env);
         }
         catch(Exception e)
         {
-            return () => new OptionalResult<A>(e);
+            return ReaderResult<A>.New(Error.New(e));
         }
     }
 
@@ -54,10 +42,58 @@ public static class ReaderExt
 
     [Pure]
     public static Seq<A> ToSeq<Env, A>(this Reader<Env, A> self, Env env) =>
-        self.Map(x => x.Cons()).Run(env).IfNoneOrFail(Empty);
+        self.Run(env).ToSeq();
 
     [Pure]
-    public static Seq<A> AsEnumerable<Env, A>(this Reader<Env, A> self, Env env) =>
+    public static Lst<A> ToList<Env, A>(this Reader<Env, A> self, Env env) =>
+        self.Run(env).ToList();
+
+    [Pure]
+    public static Option<A> ToOption<Env, A>(this Reader<Env, A> self, Env env) =>
+        self.Run(env).ToOption();
+
+    [Pure]
+    public static OptionUnsafe<A> ToOptionUnsafe<Env, A>(this Reader<Env, A> self, Env env) =>
+        self.Run(env).ToOptionUnsafe();
+
+    [Pure]
+    public static OptionAsync<A> ToOptionAsync<Env, A>(this Reader<Env, A> self, Env env) =>
+        self.Run(env).ToOptionAsync();
+
+    [Pure]
+    public static Either<Error, A> ToEither<Env, A>(this Reader<Env, A> self, Env env) =>
+        self.Run(env).ToEither();
+
+    [Pure]
+    public static Either<L, A> ToEither<Env, L, A>(this Reader<Env, A> self, Env env, Func<Error, L> Left) =>
+        self.Run(env).ToEither(Left);
+
+    [Pure]
+    public static EitherUnsafe<Error, A> ToEitherUnsafe<Env, A>(this Reader<Env, A> self, Env env) =>
+        self.Run(env).ToEitherUnsafe();
+
+    [Pure]
+    public static EitherUnsafe<L, A> ToEitherUnsafe<Env, L, A>(this Reader<Env, A> self, Env env, Func<Error, L> Left) =>
+        self.Run(env).ToEitherUnsafe(Left);
+
+    [Pure]
+    public static EitherAsync<Error, A> ToEitherAsync<Env, A>(this Reader<Env, A> self, Env env) =>
+        self.Run(env).ToEitherAsync();
+
+    [Pure]
+    public static EitherAsync<L, A> ToEitherAsync<Env, L, A>(this Reader<Env, A> self, Env env, Func<Error, L> Left) =>
+        self.Run(env).ToEitherAsync(Left);
+
+    [Pure]
+    public static Try<A> ToTry<Env, A>(this Reader<Env, A> self, Env env) =>
+        self.Run(env).ToTry();
+
+    [Pure]
+    public static TryAsync<A> ToTryAsync<Env, A>(this Reader<Env, A> self, Env env) =>
+        self.Run(env).ToTryAsync();
+
+    [Pure]
+    public static IEnumerable<A> AsEnumerable<Env, A>(this Reader<Env, A> self, Env env) =>
         ToSeq(self, env);
 
     public static Reader<Env, Unit> Iter<Env, A>(this Reader<Env, A> self, Action<A> action) =>
@@ -87,26 +123,14 @@ public static class ReaderExt
     public static Reader<Env, R> Map<Env, A, R>(this Reader<Env, A> self, Func<A, R> mapper) =>
         self.Select(mapper);
 
-    [Pure]
-    public static Reader<Env, A> Filter<Env, A>(this Reader<Env, A> self, Func<A, bool> pred) =>
-        self.Where(pred);
-
-    [Pure]
-    public static Reader<Env, A> Where<Env, A>(this Reader<Env, A> self, Func<A, bool> pred) => env =>
-    {
-        var (a, faulted) = self(env);
-        if (faulted || !pred(a)) return (a, true);
-        return (a, false);
-    };
-
     /// <summary>
     /// Force evaluation of the monad (once only)
     /// </summary>
     [Pure]
     public static Reader<Env, A> Strict<Env, A>(this Reader<Env, A> ma)
     {
-        Option<(A, bool)> cache = default;
-        object sync = new object();
+        Option<ReaderResult<A>> cache = default;
+        var sync = new object();
         return env =>
         {
             if (cache.IsSome) return cache.Value;
@@ -165,10 +189,10 @@ public static class ReaderExt
     public static Reader<Env, Env> Fold<Env, A>(this Reader<Env, A> self, Func<Env, A, Env> f) =>
         env =>
         {
-            var (x, b) = self(env);
-            return b
-                ? (default(Env), true)
-                : (f(env, x), false);
+            var resA = self(env);
+            return resA.IsFaulted
+                ? ReaderResult<Env>.New(resA.ErrorInt)
+                : ReaderResult<Env>.New(f(env, resA.Value));
         };
 }
 

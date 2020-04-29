@@ -681,6 +681,14 @@ namespace LanguageExt
         /// <summary>
         /// Function composition
         /// </summary>
+        /// <returns>b(a(()))</returns>
+        [Pure]
+        public static Func<T2> compose<T1, T2>(Func<T1> a, Func<T1, T2> b) =>
+            () => b(a());
+        
+        /// <summary>
+        /// Function composition
+        /// </summary>
         /// <returns>b(a(v))</returns>
         [Pure]
         public static Func<T1, T3> compose<T1, T2, T3>(Func<T1, T2> a, Func<T2, T3> b) =>

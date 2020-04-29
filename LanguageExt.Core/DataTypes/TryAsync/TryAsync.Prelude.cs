@@ -1,9 +1,8 @@
 ﻿using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
-using static LanguageExt.TypeClass;
+using LanguageExt.Common;
 using System;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace LanguageExt

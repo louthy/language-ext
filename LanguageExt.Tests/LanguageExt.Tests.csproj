@@ -1,43 +1,39 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net461</TargetFrameworks>
     <FileVersion>3.0.0.0</FileVersion>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.0|AnyCPU'">
-    <LangVersion>7.1</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.0|AnyCPU'">
-    <LangVersion>7.1</LangVersion>
+    <LangVersion>8.0</LangVersion>
+    <RoslynCodeGenVersion>0.6.1</RoslynCodeGenVersion>
   </PropertyGroup>
   <ItemGroup>
-     <DotNetCliToolReference Include="dotnet-codegen" Version="0.6.1" />
+    <DotNetCliToolReference Include="dotnet-codegen" Version="$(RoslynCodeGenVersion)" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="LanguageExt.Tests.nuget.props" />
     <None Remove="LanguageExt.Tests.project.lock.json" />
   </ItemGroup>
   <ItemGroup>
-      <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="0.6.1">
+      <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="$(RoslynCodeGenVersion)">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="System.Reactive" Version="[3,5]" />
-      <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="Nito.AsyncEx.Core" Version="1.0.0-rc2-001" />
-    <PackageReference Include="System.Net.Http" Version="4.3.3" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.0-preview-20171211-02" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
+      <PackageReference Include="System.Reactive" Version="[3,)" />
+      <PackageReference Include="Newtonsoft.Json" Version="[10.0.3,)" />
+    <PackageReference Include="Nito.AsyncEx" Version="[5.0.0,)" />
+    <PackageReference Include="System.Net.Http" Version="[4.3.3,)" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="[15.6.0-preview-20171211-02,)" />
+    <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
+    <PackageReference Include="xunit" Version="[2.4.1,)" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="[2.4.1,)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="System.Dynamic.Runtime" Version="[4.3.0,)" />
+    <PackageReference Include="Microsoft.CSharp" Version="[4.5.0,)" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" />
+    <ProjectReference Include="..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
     <ProjectReference Include="..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
     <ProjectReference Include="..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />

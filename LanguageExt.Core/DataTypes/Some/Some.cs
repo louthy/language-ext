@@ -144,7 +144,7 @@ namespace LanguageExt
     public static class Some
     {
         [Pure]
-        public static Some<T> Create<T>(T x) =>
-            new Some<T>(x);
+        public static SomeCase<T> Create<T>(T x) =>
+            new SomeCase<T>(x);
     }
 }

@@ -8,7 +8,7 @@ namespace LanguageExt.TypeClasses
     /// </summary>
     /// <typeparam name="A">The type for which the number operations are
     /// defined.</typeparam>
-    [Typeclass]
+    [Typeclass("Num*")]
     public interface Num<A> : Ord<A>, Monoid<A>, Arithmetic<A>
     {
         /// <summary>

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("M*TransAsyncSync")]
     public interface MonadTransAsyncSync<OuterMonad, OuterType, InnerMonad, InnerType, A> : Typeclass
         where OuterMonad : struct, MonadAsync<OuterType, InnerType>
         where InnerMonad : struct, Monad<InnerType, A>

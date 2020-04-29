@@ -9,6 +9,69 @@ using System.Diagnostics.Contracts;
 public static class HashMapExtensions
 {
     /// <summary>
+    /// Create an immutable hash-map
+    /// </summary>
+    [Pure]
+    public static HashMap<K, V> ToHashMap<K, V>(this IEnumerable<(K, V)> items) =>
+        LanguageExt.HashMap.createRange(items);
+
+    /// <summary>
+    /// Create an immutable hash-map
+    /// </summary>
+    [Pure]
+    public static HashMap<K, V> ToHashMap<K, V>(this IEnumerable<Tuple<K, V>> items) =>
+        LanguageExt.HashMap.createRange(items);
+
+    /// <summary>
+    /// Create an immutable hash-map
+    /// </summary>
+    [Pure]
+    public static HashMap<K, V> ToHashMap<K, V>(this IEnumerable<KeyValuePair<K, V>> items) =>
+        LanguageExt.HashMap.createRange(items);
+
+    /// <summary>
+    /// Create an immutable hash-map
+    /// </summary>
+    [Pure]
+    public static HashMap<K1, HashMap<K2, V>> ToHashMap<K1, K2, V>(this IEnumerable<(K1, K2, V)> items) =>
+        items.Fold(HashMap<K1, HashMap<K2, V>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3));
+
+    /// <summary>
+    /// Create an immutable hash-map
+    /// </summary>
+    [Pure]
+    public static HashMap<K1, HashMap<K2, V>> ToHashMap<K1, K2, V>(this IEnumerable<Tuple<K1, K2, V>> items) =>
+        items.Fold(HashMap<K1, HashMap<K2, V>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3));
+
+    /// <summary>
+    /// Create an immutable hash-map
+    /// </summary>
+    [Pure]
+    public static HashMap<K1, HashMap<K2, HashMap<K3, V>>> ToHashMap<K1, K2, K3, V>(this IEnumerable<(K1, K2, K3, V)> items) =>
+        items.Fold(HashMap<K1, HashMap<K2, HashMap<K3, V>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4));
+
+    /// <summary>
+    /// Create an immutable hash-map
+    /// </summary>
+    [Pure]
+    public static HashMap<K1, HashMap<K2, HashMap<K3, V>>> ToHashMap<K1, K2, K3, V>(this IEnumerable<Tuple<K1, K2, K3, V>> items) =>
+        items.Fold(HashMap<K1, HashMap<K2, HashMap<K3, V>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4));
+
+    /// <summary>
+    /// Create an immutable hash-map
+    /// </summary>
+    [Pure]
+    public static HashMap<K1, HashMap<K2, HashMap<K3, HashMap<K4, V>>>> ToHashMap<K1, K2, K3, K4, V>(this IEnumerable<(K1, K2, K3, K4, V)> items) =>
+        items.Fold(HashMap<K1, HashMap<K2, HashMap<K3, HashMap<K4, V>>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5));
+
+    /// <summary>
+    /// Create an immutable hash-map
+    /// </summary>
+    [Pure]
+    public static HashMap<K1, HashMap<K2, HashMap<K3, HashMap<K4, V>>>> ToHashMap<K1, K2, K3, K4, V>(this IEnumerable<Tuple<K1, K2, K3, K4, V>> items) =>
+        items.Fold(HashMap<K1, HashMap<K2, HashMap<K3, HashMap<K4, V>>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5));
+
+    /// <summary>
     /// Number of items in the map
     /// </summary>
     [Pure]

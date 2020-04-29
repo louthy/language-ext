@@ -1,40 +1,47 @@
 <Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build">
 
-    <PropertyGroup>
-        <PackageVersion>3.3.7</PackageVersion>
-        <PackageId>LanguageExt.CodeGen</PackageId>
-        <Title>LanguageExt.CodeGen</Title>
-        <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
-        <LangVersion>7.3</LangVersion>
-        <Authors>Paul Louth</Authors>
-        <Summary>Functional language code-generation for C#</Summary>
-        <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
-        <Description>Design and build-time code-gen for lenses and immutable With functions</Description>
-        <PackageTags>C#, Functional, Language Extension, Lenses, Records, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
-        <PackageIconUrl>https://raw.githubusercontent.com/louthy/language-ext/master/backers-images/lang-ext-thumb.png</PackageIconUrl>
-        <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
-        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-        <DocumentationFile></DocumentationFile>
-        <OutputType>library</OutputType>
-        <AssemblyVersion>3.0.0.0</AssemblyVersion>
-        <FileVersion>3.0.0.0</FileVersion>
-        <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
-    </PropertyGroup>
-    
-    <ItemGroup>
-        <PackageReference Include="CodeGeneration.Roslyn" Version="0.6.1" />
-    </ItemGroup>
+  <PropertyGroup>
+    <RoslynCodeGenVersion>0.6.1</RoslynCodeGenVersion>
+  </PropertyGroup>
+  
+  <!--<Sdk Name="CodeGeneration.Roslyn.Plugin.Sdk" Version="0.7.5-alpha" />-->
 
-    <ItemGroup>
-        <Compile Include="**\*.cs" />
-        <EmbeddedResource Include="**\*.resx" />
-    </ItemGroup>
-    
-    <ItemGroup>
-        <Compile Remove="obj\**" />
-        <EmbeddedResource Remove="obj\**" />
-        <None Remove="obj\**" />
-    </ItemGroup>
+  <PropertyGroup>
+    <PackageVersion>3.4.13</PackageVersion>
+    <PackageId>LanguageExt.CodeGen</PackageId>
+    <Title>LanguageExt.CodeGen</Title>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <LangVersion>8.0</LangVersion>
+    <Authors>Paul Louth</Authors>
+    <Summary>Functional language code-generation for C#</Summary>
+    <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
+    <Description>Design and build-time code-gen for records, unions, lenses and immutable With functions</Description>
+    <PackageTags>C#, Functional, Language Extension, Lenses, Records, Unions, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
+    <PackageIconUrl>https://github.com/louthy/language-ext/blob/master/Images/lang-ext-small.png?raw=true</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DocumentationFile></DocumentationFile>
+    <OutputType>library</OutputType>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <FileVersion>3.0.0.0</FileVersion>
+    <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CodeGeneration.Roslyn" Version="$(RoslynCodeGenVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="**\*.cs" />
+    <EmbeddedResource Include="**\*.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <None Remove="obj\**" />
+  </ItemGroup>
 
 </Project>

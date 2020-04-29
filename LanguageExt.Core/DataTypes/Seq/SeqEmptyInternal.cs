@@ -21,6 +21,9 @@ namespace LanguageExt
         public bool IsEmpty => 
             true;
 
+        public ISeqInternal<A> Init =>
+            this;
+
         public A Last =>
             throw new InvalidOperationException("Sequence is empty");
 
@@ -47,7 +50,7 @@ namespace LanguageExt
 
         public ISeqInternal<A> Take(int amount) =>
             this;
-
+        
         public IEnumerator<A> GetEnumerator()
         {
             yield break;
@@ -73,5 +76,9 @@ namespace LanguageExt
         public bool ForAll(Func<A, bool> f) =>
             true;
 
+        public SeqType Type => SeqType.Empty;
+
+        public int GetHashCode(int offsetBasis) =>
+            offsetBasis;
     }
 }

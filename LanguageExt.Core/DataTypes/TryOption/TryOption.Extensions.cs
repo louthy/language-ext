@@ -9,12 +9,28 @@ using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using System.ComponentModel;
 using System.Collections.Generic;
+using LanguageExt.Common;
 
 /// <summary>
 /// Extension methods for the Try monad
 /// </summary>
 public static class TryOptionExtensions
 {
+    /// <summary>
+    /// Use for pattern-matching the case of the target
+    /// </summary>
+    [Pure]
+    public static TryCase<A> Case<A>(this TryOption<A> ma)
+    {
+        if (ma == null) return FailCase<A>.New(Error.Bottom);
+        var res = ma.Try();
+        return res.IsSome
+            ? SuccCase<A>.New(res.Value.Value)
+            : res.IsNone 
+                ? NoneCase<A>.Default
+                : FailCase<A>.New(res.Exception);
+    }
+
     /// <summary>
     /// Memoize the computation so that it's only run once
     /// </summary>
@@ -337,8 +353,18 @@ public static class TryOptionExtensions
     }
 
     [Pure]
-    public static Try<A> ToTry<A>(this TryOption<A> self) => () => 
-        self.IfFailThrow();
+    public static Try<Option<A>> ToTry<A>(this TryOption<A> self) => () =>
+        self.Match(
+            Some: x  => new Result<Option<A>>(Option<A>.Some(x)),
+            None: () => new Result<Option<A>>(Option<A>.None),
+            Fail: ex => new Result<Option<A>>(ex));
+
+    [Pure]
+    public static Try<A> ToTry<A>(this TryOption<A> self, Func<A> None) => () =>
+        self.Match(
+            Some: x => new Result<A>(x),
+            None: () => new Result<A>(None()),
+            Fail: ex => new Result<A>(ex));
 
     [Pure]
     public static A IfFailThrow<A>(this TryOption<A> self)
@@ -580,8 +606,30 @@ public static class TryOptionExtensions
         self.Filter(pred);
 
     [Pure]
-    public static TryOption<B> Bind<A, B>(this TryOption<A> self, Func<A, TryOption<B>> binder) =>
-        MTryOption<A>.Inst.Bind<MTryOption<B>, TryOption<B>, B>(self, binder);
+    public static TryOption<B> Bind<A, B>(this TryOption<A> ma, Func<A, TryOption<B>> f) => Memo(() =>
+    {
+        try
+        {
+            var ra = ma();
+            if (ra.IsSome)
+            {
+                return f(ra.Value.Value)();
+            }
+            else if(ra.IsNone)
+            {
+                return OptionalResult<B>.None;
+            }
+            else
+            {
+                return new OptionalResult<B>(ra.Exception);
+            }
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return new OptionalResult<B>(e);
+        }
+    });
 
     [Pure]
     public static TryOption<R> BiBind<A, R>(this TryOption<A> self, Func<A, TryOption<R>> Some, Func<TryOption<R>> Fail)
@@ -649,21 +697,52 @@ public static class TryOptionExtensions
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static TryOption<C> SelectMany<A, B, C>(
-        this TryOption<A> self,
+        this TryOption<A> ma,
         Func<A, TryOption<B>> bind,
-        Func<A, B, C> project) =>
-            MTryOption<A>.Inst.Bind<MTryOption<C>, TryOption<C>, C>(self, a =>
-            MTryOption<B>.Inst.Bind<MTryOption<C>, TryOption<C>, C>(bind(a), b =>
-            MTryOption<C>.Inst.Return(project(a, b))));
+        Func<A, B, C> project) => Memo(() =>
+        {
+            try
+            {
+                var ra = ma();
+                if (ra.IsSome)
+                {
+                    var rb = bind(ra.Value.Value)();
+                    if (rb.IsSome)
+                    {
+                        return new OptionalResult<C>(project(ra.Value.Value, rb.Value.Value));
+                    }
+                    else if (rb.IsNone)
+                    {
+                        return OptionalResult<C>.None;
+                    }
+                    else
+                    {
+                        return new OptionalResult<C>(rb.Exception);
+                    }
+
+                }
+                else if (ra.IsNone)
+                {
+                    return OptionalResult<C>.None;
+                }
+                else
+                {
+                    return new OptionalResult<C>(ra.Exception);
+                }
+            }
+            catch (Exception e)
+            {
+                TryConfig.ErrorLogger(e);
+                return new OptionalResult<C>(e);
+            }
+        });
 
     public static TryOption<V> Join<A, U, K, V>(
         this TryOption<A> self,
         TryOption<U> inner,
         Func<A, K> outerKeyMap,
         Func<U, K> innerKeyMap,
-        Func<A, U, V> project)
-    {
-        return Memo<V>(() =>
+        Func<A, U, V> project) => Memo<V>(() =>
         {
             var selfRes = self().Value;
             var innerRes = inner().Value;
@@ -671,7 +750,6 @@ public static class TryOptionExtensions
                 ? project(selfRes.Value, innerRes.Value)
                 : raise<V>(new BottomException());
         });
-    }
 
     /// <summary>
     /// Savely invokes the TryOption computation

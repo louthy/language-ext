@@ -7,6 +7,7 @@ using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
+using LanguageExt.Common;
 
 /// <summary>
 /// Extension methods for the Try monad
@@ -14,12 +15,25 @@ using static LanguageExt.TypeClass;
 public static class TryExtensions
 {
     /// <summary>
+    /// Use for pattern-matching the case of the target
+    /// </summary>
+    [Pure]
+    public static TryCase<A> Case<A>(this Try<A> ma)
+    {
+        if (ma == null) return FailCase<A>.New(Error.Bottom);
+        var res = ma.Try();
+        return res.IsSuccess
+            ? SuccCase<A>.New(res.Value)
+            : FailCase<A>.New(res.Exception);
+    }
+
+    /// <summary>
     /// Memoize the computation so that it's only run once
     /// </summary>
     public static Try<A> Memo<A>(this Try<A> ma)
     {
         bool run = false;
-        Result<A> result = new Result<A>();
+        var result = new Result<A>();
         return (() =>
         {
             if (run) return result;
@@ -459,7 +473,7 @@ public static class TryExtensions
     public static Try<A> Filter<A>(this Try<A> self, Func<A, bool> pred) => Memo(() =>
     {
         var res = self();
-        return pred(res.Value)
+        return res.IsFaulted || pred(res.Value)
             ? res
             : raise<A>(new BottomException());
     });
@@ -470,7 +484,7 @@ public static class TryExtensions
         var res = self.Try();
         return res.IsFaulted
             ? Fail(res.Exception)
-                ? res.Value
+                ? res
                 : raise<A>(new BottomException())
             : Succ(res.Value)
                 ? res.Value
@@ -482,8 +496,26 @@ public static class TryExtensions
         self.Filter(pred);
 
     [Pure]
-    public static Try<B> Bind<A, B>(this Try<A> self, Func<A, Try<B>> binder) =>
-        MTry<A>.Inst.Bind<MTry<B>, Try<B>, B>(self, binder);
+    public static Try<B> Bind<A, B>(this Try<A> ma, Func<A, Try<B>> f) => Memo(() =>
+    {
+        try
+        {
+            var ra = ma();
+            if (ra.IsSuccess)
+            {
+                return f(ra.Value)();
+            }
+            else
+            {
+                return new Result<B>(ra.Exception);
+            }
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return new Result<B>(e);
+        }
+    });
 
     [Pure]
     public static Try<R> BiBind<A, R>(this Try<A> self, Func<A, Try<R>> Succ, Func<Exception, Try<R>> Fail) => Memo(() =>
@@ -529,12 +561,37 @@ public static class TryExtensions
 
     [Pure]
     public static Try<C> SelectMany<A, B, C>(
-        this Try<A> self,
+        this Try<A> ma,
         Func<A, Try<B>> bind,
-        Func<A, B, C> project) =>
-            MTry<A>.Inst.Bind<MTry<C>, Try<C>, C>(self, a =>
-         MTry<B>.Inst.Bind<MTry<C>, Try<C>, C>(bind(a), b =>
-         MTry<C>.Inst.Return(project(a, b))));
+        Func<A, B, C> project) => Memo(() =>
+        {
+            try
+            {
+                var ra = ma();
+                if (ra.IsSuccess)
+                {
+                    var rb = bind(ra.Value)();
+                    if(rb.IsSuccess)
+                    {
+                        return project(ra.Value, rb.Value);
+                    }
+                    else
+                    {
+                        return new Result<C>(rb.Exception);
+                    }
+                }
+                else
+                {
+                    return new Result<C>(ra.Exception);
+                }
+            }
+            catch (Exception e)
+            {
+                TryConfig.ErrorLogger(e);
+                return new Result<C>(e);
+            }
+        });
+
 
     [Pure]
     public static Try<V> Join<A, U, K, V>(

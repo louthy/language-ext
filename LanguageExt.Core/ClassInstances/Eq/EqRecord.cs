@@ -12,6 +12,6 @@ namespace LanguageExt.ClassInstances
             RecordType<A>.EqualityTyped(x, y);
 
         public int GetHashCode(A x) =>
-            RecordType<A>.Hash(x);
+            default(HashableRecord<A>).GetHashCode(x);
     }
 }

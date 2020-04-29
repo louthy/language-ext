@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -46,6 +47,13 @@ namespace LanguageExt
 
         internal MapInternal<OrdK, K, V> Value =>
             value ?? MapInternal<OrdK, K, V>.Empty;
+
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<(K Key, V Value)> Case =>
+            Seq<(K Key, V Value)>(Value).Case;
 
         /// <summary>
         /// 'this' accessor
@@ -236,6 +244,38 @@ namespace LanguageExt
         public R Find<R>(K key, Func<V, R> Some, Func<R> None) => Value.Find(key, Some, None);
 
         /// <summary>
+        /// Retrieve the value from previous item to specified key
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key/value</returns>
+        [Pure]
+        public Option<(K Key, V Value)> FindPredecessor(K key) => Value.FindPredecessor(key);
+
+        /// <summary>
+        /// Retrieve the value from exact key, or if not found, the previous item 
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key/value</returns>
+        [Pure]
+        public Option<(K Key, V Value)> FindExactOrPredecessor(K key) => Value.FindOrPredecessor(key);
+
+        /// <summary>
+        /// Retrieve the value from next item to specified key
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key/value</returns>
+        [Pure]
+        public Option<(K Key, V Value)> FindSuccessor(K key) => Value.FindSuccessor(key);
+
+        /// <summary>
+        /// Retrieve the value from exact key, or if not found, the next item 
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key/value</returns>
+        [Pure]
+        public Option<(K Key, V Value)> FindExactOrSuccessor(K key) => Value.FindOrSuccessor(key);
+
+        /// <summary>
         /// Try to find the key in the map, if it doesn't exist, add a new 
         /// item by invoking the delegate provided.
         /// </summary>
@@ -382,6 +422,16 @@ namespace LanguageExt
         /// <returns>Range of values</returns>
         [Pure]
         public IEnumerable<V> FindRange(K keyFrom, K keyTo) => Value.FindRange(keyFrom, keyTo);
+
+        /// <summary>
+        /// Retrieve a range of values 
+        /// </summary>
+        /// <param name="keyFrom">Range start (inclusive)</param>
+        /// <param name="keyTo">Range to (inclusive)</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
+        /// <returns>Range of values</returns>
+        [Pure]
+        public IEnumerable<(K Key, V Value)> FindRangePairs(K keyFrom, K keyTo) => Value.FindRangePairs(keyFrom, keyTo);
 
         /// <summary>
         /// Skips 'amount' values and returns a new tree without the 
@@ -573,6 +623,31 @@ namespace LanguageExt
         public Seq<(K Key, V Value)> ToSeq() =>
             Seq(this);
 
+        /// <summary>
+        /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
+        /// The elipsis is used for collections over 50 items
+        /// To get a formatted string with all the items, use `ToFullString`
+        /// or `ToFullArrayString`.
+        /// </summary>
+        [Pure]
+        public override string ToString() =>
+            CollectionFormat.ToShortArrayString(ValueTuples.Map(kv => $"({kv.Key}: {kv.Value})"), Count);
+
+        /// <summary>
+        /// Format the collection as `(key: value), (key: value), (key: value), ...`
+        /// </summary>
+        [Pure]
+        public string ToFullString(string separator = ", ") =>
+            CollectionFormat.ToFullString(ValueTuples.Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+
+        /// <summary>
+        /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
+        /// </summary>
+        [Pure]
+        public string ToFullArrayString(string separator = ", ") =>
+            CollectionFormat.ToFullArrayString(ValueTuples.Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+
+
         [Pure]
         public IEnumerable<(K Key, V Value)> AsEnumerable() => 
             Value.AsEnumerable();
@@ -582,10 +657,6 @@ namespace LanguageExt
 
         public static Map<OrdK, K, V> Empty = 
             new Map<OrdK, K, V>(MapInternal<OrdK, K, V>.Empty);
-
-        [Pure]
-        public bool Equals(Map<OrdK, K, V> y) =>
-            Value == y.Value;
 
         [Pure]
         public static bool operator ==(Map<OrdK, K, V> lhs, Map<OrdK, K, V> rhs) =>
@@ -619,9 +690,33 @@ namespace LanguageExt
         public static Map<K, V> operator -(Map<OrdK, K, V> lhs, Map<OrdK, K, V> rhs) =>
             new Map<K, V>(lhs.Value - rhs.Value);
 
+        /// <summary>
+        /// Equality of keys and values with `EqDefault<V>` used for values
+        /// </summary>
         [Pure]
         public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) && obj is Map<K, V> && Equals((Map<K, V>)obj);
+            obj is Map<OrdK, K, V> m && Equals(m);
+
+        /// <summary>
+        /// Equality of keys and values with `EqDefault<V>` used for values
+        /// </summary>
+        [Pure]
+        public bool Equals(Map<OrdK, K, V> y) =>
+            Value.Equals<EqDefault<V>>(y.Value);
+
+        /// <summary>
+        /// Equality of keys and values
+        /// </summary>
+        [Pure]
+        public bool Equals<EqV>(Map<OrdK, K, V> y) where EqV : struct, Eq<V> =>
+            Value.Equals<EqV>(y.Value);
+
+        /// <summary>
+        /// Equality of keys only
+        /// </summary>
+        [Pure]
+        public bool EqualsKeys(Map<OrdK, K, V> y) =>
+            Value.Equals<EqTrue<V>>(y.Value);
 
         [Pure]
         public override int GetHashCode() =>
@@ -1024,14 +1119,53 @@ namespace LanguageExt
         public Map<OrdK, K, V> SymmetricExcept(Map<OrdK, K, V> other) =>
             new Map<OrdK, K, V>(Value.SymmetricExcept(other.Value));
 
+        /// <summary>
+        /// Compare keys and values (values use `OrdDefault<V>` for ordering)
+        /// </summary>
         [Pure]
         public int CompareTo(Map<OrdK, K, V> other) =>
-            Value.CompareTo(other.Value);
+            Value.CompareTo<OrdDefault<V>>(other.Value);
+
+        /// <summary>
+        /// Compare keys and values (values use `OrdV` for ordering)
+        /// </summary>
+        [Pure]
+        public int CompareTo<OrdV>(Map<OrdK, K, V> other) where OrdV : struct, Ord<V> =>
+            Value.CompareTo<OrdV>(other.Value);
+
+        /// <summary>
+        /// Compare keys only
+        /// </summary>
+        [Pure]
+        public int CompareKeysTo(Map<OrdK, K, V> other) =>
+            Value.CompareTo<OrdTrue<V>>(other.Value);
 
         /// <summary>
         /// Implicit conversion from an untyped empty list
         /// </summary>
         public static implicit operator Map<OrdK, K, V>(SeqEmpty _) =>
             Empty;
+
+        /// <summary>
+        /// Creates a new map from a range/slice of this map
+        /// </summary>
+        /// <param name="keyFrom">Range start (inclusive)</param>
+        /// <param name="keyTo">Range to (inclusive)</param>
+        /// <returns></returns>
+        [Pure]
+        public Map<OrdK, K, V> Slice(K keyFrom, K keyTo) =>
+            new Map<OrdK, K, V>(FindRangePairs(keyFrom, keyTo));
+
+        /// <summary>
+        /// Find the lowest ordered item in the map
+        /// </summary>
+        [Pure]
+        public Option<(K Key, V Value)> Min => Value.Min;
+
+        /// <summary>
+        /// Find the highest ordered item in the map
+        /// </summary>
+        [Pure]
+        public Option<(K Key, V Value)> Max => Value.Max;
     }
 }

@@ -73,7 +73,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Seq<A> init<A>(int count, Func<int, A> generator) =>
+        public static Seq<A> generate<A>(int count, Func<int, A> generator) =>
             Seq(Range(0, count).Map(generator));
 
         /// <summary>
@@ -136,6 +136,29 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Either<L, A> headOrLeft<L, A>(Seq<A> list, L left) =>
             list.HeadOrLeft(left);
+
+        /// <summary>
+        /// Get the last item of the sequence
+        /// </summary>
+        /// <param name="list">sequence</param>
+        /// <returns>Last item</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static A last<A>(Seq<A> list) =>
+            list.Last;
+
+        /// <summary>
+        /// Get all items in the list except the last one
+        /// </summary>
+        /// <remarks>
+        /// Must evaluate the last item to know it's the last, but won't return it
+        /// </remarks>
+        /// <param name="list">List</param>
+        /// <returns>The initial items (all but the last)</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Seq<A> init<A>(Seq<A> list) =>
+            list.Init;
 
         /// <summary>
         /// Get the tail of the sequence (skips the head item)
@@ -283,9 +306,7 @@ namespace LanguageExt
         /// <returns>Concatenated sequence</returns>
         [Pure]
         public static Seq<T> append<T>(Seq<T> lhs, Seq<T> rhs) =>
-            lhs.IsEmpty      ? rhs
-          : lhs.Tail.IsEmpty ? lhs.Head.Cons(rhs)
-          : Seq(lhs.ConcatFast(rhs));
+            lhs.Concat(rhs);
 
         /// <summary>
         /// Concatenate a sequence and a sequence of sequences

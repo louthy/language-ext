@@ -28,6 +28,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(int x) =>
-            x.GetHashCode();
+            default(HashableInt).GetHashCode(x);
     }
 }

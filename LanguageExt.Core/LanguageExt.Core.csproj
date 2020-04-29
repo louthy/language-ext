@@ -1,143 +1,152 @@
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
-    <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
-        <DefineConstants>TRACE;DEBUG</DefineConstants>
-    </PropertyGroup>
-    <PropertyGroup Label="Configuration">
-        <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
-        <DefineConstants>CONTRACTS_FULL</DefineConstants>
-    </PropertyGroup>
-    <PropertyGroup Label="Configuration" Condition="'$(TargetFramework)' == 'netstandard2.0'">
-        <DefineConstants>NETCORE</DefineConstants>
-        <DefineConstants>COREFX20</DefineConstants>
-    </PropertyGroup>
-    <PropertyGroup>
-        <PackageVersion>3.3.7</PackageVersion>
-        <PackageId>LanguageExt.Core</PackageId>
-        <Title>LanguageExt.Core</Title>
-        <Authors>Paul Louth</Authors>
-        <Summary>Functional language extensions for C#</Summary>
-        <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
-        <Description>This library uses and abuses the features of C# 6 and 7 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself.</Description>
-        <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
-        <PackageIconUrl>https://raw.githubusercontent.com/louthy/language-ext/master/backers-images/lang-ext-thumb.png</PackageIconUrl>
-        <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
-        <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
-        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-        <OutputType>library</OutputType>
-        <AssemblyVersion>3.0.0.0</AssemblyVersion>
-        <FileVersion>3.0.0.0</FileVersion>
-        <LangVersion>7.3</LangVersion>
-    </PropertyGroup>
-    <ItemGroup>
-        <Compile Include="**\*.cs" />
-        <EmbeddedResource Include="**\*.resx" />
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Remove="obj\**" />
-        <EmbeddedResource Remove="obj\**" />
-        <None Remove="obj\**" />
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
-        <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-        <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
-    </ItemGroup>
-    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-        <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
-        <PackageReference Include="System.Globalization.Extensions">
-            <Version>4.3.0</Version>
-        </PackageReference>
-        <PackageReference Include="System.Linq" Version="4.3.0" />
-        <PackageReference Include="System.Linq.Queryable" Version="4.3.0" />
-        <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
-        <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
-    </ItemGroup>
-    <ItemGroup>
-        <None Include="README.md" />
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Update="HKT\Async\HKT.Async.Extensions.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>HKT.Async.Extensions.tt</DependentUpon>
-        </Compile>
-        <Compile Update="HKT\AsyncSync\HKT.AsyncSync.Extensions.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>HKT.AsyncSync.Extensions.tt</DependentUpon>
-        </Compile>
-        <Compile Update="HKT\SyncAsync\HKT.SyncAsync.Extensions.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>HKT.SyncAsync.Extensions.tt</DependentUpon>
-        </Compile>
-        <Compile Update="HKT\Sync\HKT.Extensions.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>HKT.Extensions.tt</DependentUpon>
-        </Compile>
-        <Compile Update="HKT\Sync\HKT.Prelude.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>HKT.Prelude.tt</DependentUpon>
-        </Compile>
-        <None Update="HKT\AsyncSync\HKT.AsyncSync.Extensions.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>HKT.AsyncSync.Extensions.tt</DependentUpon>
-        </None>
-        <None Update="HKT\Async\HKT.Async.Extensions.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>HKT.Async.Extensions.tt</DependentUpon>
-        </None>
-        <None Update="HKT\SyncAsync\HKT.Async.Extensions.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-        </None>
-        <None Update="HKT\SyncAsync\HKT.Async.Extensions.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>HKT.Async.Extensions.cs</LastGenOutput>
-        </None>
-        <None Update="HKT\SyncAsync\HKT.SyncAsync.Extensions.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>HKT.SyncAsync.Extensions.tt</DependentUpon>
-        </None>
-        <None Update="HKT\SyncAsync\HKT.SyncAsync.Extensions.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>HKT.SyncAsync.Extensions.cs</LastGenOutput>
-        </None>
-        <None Update="HKT\Sync\HKT.Extensions.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>HKT.Extensions.tt</DependentUpon>
-        </None>
-        <None Update="HKT\Sync\HKT.Prelude.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>HKT.Prelude.tt</DependentUpon>
-        </None>
-        <None Update="HKT\Sync\HKT.Prelude.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>HKT.Prelude.cs</LastGenOutput>
-        </None>
-        <None Update="HKT\Sync\HKT.Extensions.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>HKT.Extensions.cs</LastGenOutput>
-        </None>
-        <None Update="HKT\Async\HKT.Async.Extensions.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>HKT.Async.Extensions.cs</LastGenOutput>
-        </None>
-        <None Update="HKT\AsyncSync\HKT.AsyncSync.Extensions.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>HKT.AsyncSync.Extensions.cs</LastGenOutput>
-        </None>
-    </ItemGroup>
-    <ItemGroup>
-        <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-    </ItemGroup>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
+    <DefineConstants>CONTRACTS_FULL</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(TargetFramework)' == 'net461'">
+    <DefineConstants>NETFX</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>NETCORE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageVersion>3.4.13</PackageVersion>
+    <PackageId>LanguageExt.Core</PackageId>
+    <Title>LanguageExt.Core</Title>
+    <Authors>Paul Louth</Authors>
+    <Summary>Functional language extensions for C#</Summary>
+    <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
+    <Description>This library uses and abuses the features of C# 6 and 7 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself.</Description>
+    <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
+    <PackageIcon>lang-ext-small.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <OutputType>library</OutputType>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <FileVersion>3.0.0.0</FileVersion>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\Images\lang-ext-small.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Include="**\*.cs" />
+    <EmbeddedResource Include="**\*.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <None Remove="obj\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Reflection.Emit" Version="[4.3.0,)" />
+    <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
+    <PackageReference Include="Microsoft.CSharp" Version="[4.5.0,)" />
+      <PackageReference Include="System.Memory" Version="[4.5.3,)" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Diagnostics.Contracts" Version="[4.3.0,)" />
+    <PackageReference Include="System.Globalization.Extensions" Version="[4.3.0,)" />
+    <PackageReference Include="System.Linq" Version="[4.3.0,)" />
+    <PackageReference Include="System.Linq.Queryable" Version="[4.3.0,)" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="[4.3.0,)" />
+    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="[4.3.0,)" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="HKT\Async\HKT.Async.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.Async.Extensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="HKT\AsyncSync\HKT.AsyncSync.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.AsyncSync.Extensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="HKT\SyncAsync\HKT.SyncAsync.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.SyncAsync.Extensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="HKT\Sync\HKT.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.Extensions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="HKT\Sync\HKT.Prelude.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.Prelude.tt</DependentUpon>
+    </Compile>
+    <None Update="HKT\AsyncSync\HKT.AsyncSync.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.AsyncSync.Extensions.tt</DependentUpon>
+    </None>
+    <None Update="HKT\Async\HKT.Async.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.Async.Extensions.tt</DependentUpon>
+    </None>
+    <None Update="HKT\SyncAsync\HKT.Async.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </None>
+    <None Update="HKT\SyncAsync\HKT.Async.Extensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.Async.Extensions.cs</LastGenOutput>
+    </None>
+    <None Update="HKT\SyncAsync\HKT.SyncAsync.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.SyncAsync.Extensions.tt</DependentUpon>
+    </None>
+    <None Update="HKT\SyncAsync\HKT.SyncAsync.Extensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.SyncAsync.Extensions.cs</LastGenOutput>
+    </None>
+    <None Update="HKT\Sync\HKT.Extensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.Extensions.tt</DependentUpon>
+    </None>
+    <None Update="HKT\Sync\HKT.Prelude.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.Prelude.tt</DependentUpon>
+    </None>
+    <None Update="HKT\Sync\HKT.Prelude.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.Prelude.cs</LastGenOutput>
+    </None>
+    <None Update="HKT\Sync\HKT.Extensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.Extensions.cs</LastGenOutput>
+    </None>
+    <None Update="HKT\Async\HKT.Async.Extensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.Async.Extensions.cs</LastGenOutput>
+    </None>
+    <None Update="HKT\AsyncSync\HKT.AsyncSync.Extensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.AsyncSync.Extensions.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
 </Project>

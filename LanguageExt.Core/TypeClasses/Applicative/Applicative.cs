@@ -7,7 +7,7 @@ namespace LanguageExt.TypeClasses
     /// Applicative type-class
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
-    [Typeclass]
+    [Typeclass("Appl*")]
     public interface ApplicativePure<FA, A> : Typeclass
     {
         /// <summary>
@@ -28,7 +28,7 @@ namespace LanguageExt.TypeClasses
     /// <typeparam name="FB">Type of the applicative to return</typeparam>
     /// <typeparam name="A">Bound value</typeparam>
     /// <typeparam name="B">Type of the bound return value</typeparam>
-    [Typeclass]
+    [Typeclass("Appl*")]
     public interface Applicative<FAB, FA, FB, A, B> : ApplicativePure<FA, A>
     {
         /// <summary>
@@ -60,7 +60,7 @@ namespace LanguageExt.TypeClasses
     /// <typeparam name="FC">Type of the applicative to return</typeparam>
     /// <typeparam name="A">Bound value</typeparam>
     /// <typeparam name="B">Type of the bound return value</typeparam>
-    [Typeclass]
+    [Typeclass("Appl*")]
     public interface Applicative<FABC, FBC, FA, FB, FC, A, B, C> : ApplicativePure<FA, A>
     {
         /// <summary>

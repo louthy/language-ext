@@ -47,7 +47,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(Seq<A> x) =>
-            hash(x);
+            default(HashableSeq<EqA, A>).GetHashCode(x);
     }
 
     /// <summary>
@@ -74,6 +74,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(Seq<A> x) =>
-            default(EqSeq<EqDefault<A>, A>).GetHashCode(x);
+            default(HashableSeq<A>).GetHashCode(x);
     }
 }

@@ -6,6 +6,20 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
+    /// <summary>
+    /// Class instance to give `Task<A>` the following traits: 
+    ///     
+    ///     MonadAsync
+    ///     FoldableAsync
+    ///     BiFoldableAsync
+    ///     OptionalAsymc
+    ///     OptionalUnsafeAsync
+    /// </summary>
+    /// <remarks>
+    /// The `Plus` function will allow `ma` and `mb` to run in parallel and 
+    /// will return the result of the first to complete successfully.
+    /// </remarks>
+    /// <typeparam name="A">Bound value type</typeparam>
     public struct MTaskFirst<A> :
         OptionalAsync<Task<A>, A>,
         OptionalUnsafeAsync<Task<A>, A>,
@@ -33,10 +47,14 @@ namespace LanguageExt.ClassInstances
                 ? ((Exception)err).AsFailedTask<A>()
                 : None;
 
+        /// <summary>
+        /// The `Plus` function will allow `ma` and `mb` to run in parallel and 
+        /// will return the result of the first to complete successfully.
+        /// </summary>
         [Pure]
         public async Task<A> Plus(Task<A> ma, Task<A> mb)
         {
-            var tasks = Set<OrdTask<A>, Task<A>>(ma, mb);
+            var tasks = HashSet<OrdTask<A>, Task<A>>(ma, mb);
 
             // Run in parallel
             while(tasks.Count > 0)

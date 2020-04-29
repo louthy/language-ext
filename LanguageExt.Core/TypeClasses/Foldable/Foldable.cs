@@ -4,12 +4,12 @@ using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("Fold*")]
     public interface Foldable<FA, A> : Foldable<Unit, FA, A>
     {
     }
 
-    [Typeclass]
+    [Typeclass("Fold*")]
     public interface Foldable<Env, FA, A> : Typeclass
     {
         /// <summary>

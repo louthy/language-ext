@@ -10,7 +10,7 @@ namespace LanguageExt.TypeClasses
     /// </summary>
     /// <typeparam name="MA">The data-type to make monadic</typeparam>
     /// <typeparam name="A">The data-type bound value</typeparam>
-    [Typeclass]
+    [Typeclass("M*Async")]
     public interface MonadAsync<MA, A> :
         MonadAsync<Unit, Unit, MA, A>, 
         FoldableAsync<MA, A>,
@@ -32,7 +32,7 @@ namespace LanguageExt.TypeClasses
     /// <typeparam name="Out">The output type of the monadic computation</typeparam>
     /// <typeparam name="MA">The data-type to make monadic</typeparam>
     /// <typeparam name="A">The data-type bound value</typeparam>
-    [Typeclass]
+    [Typeclass("M*Async")]
     public interface MonadAsync<Env, Out, MA, A> : 
         FoldableAsync<Env, MA, A>,
         Typeclass

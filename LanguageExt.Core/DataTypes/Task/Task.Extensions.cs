@@ -12,6 +12,23 @@ namespace LanguageExt
 {
     public static class TaskExtensions
     {
+        /// <summary>
+        /// Use for pattern-matching the case of the target
+        /// </summary>
+        [Pure]
+        public static async Task<TryCase<A>> Case<A>(this Task<A> ma)
+        {
+            if (ma == null) return FailCase<A>.New(Common.Error.Bottom);
+            try
+            {
+                return SuccCase<A>.New(await ma);
+            }
+            catch(Exception ex)
+            {
+                return FailCase<A>.New(ex);
+            }
+        }
+
         [Pure]
         public static Task<A> AsFailedTask<A>(this Exception ex)
         {
@@ -263,6 +280,61 @@ namespace LanguageExt
         public static async Task<Unit> ToUnit(this Task source)
         {
             await source;
+            return unit;
+        }
+
+        /// <summary>
+        /// Tasks a lazy sequence of tasks and iterates them in a 'measured way'.  A default window size of
+        /// `Environment.ProcessorCount / 2` tasks is used, which means there are `Environment.ProcessorCount / 2`
+        /// 'await streams'.  An await stream essentially awaits one task from the sequence, and on completion
+        /// goes and gets the next task from the lazy sequence and awaits that too.  This continues until the end
+        /// of the lazy sequence, or forever for infinite streams.
+        /// </summary>
+        public static Task<Unit> WindowIter<A>(this IEnumerable<Task<A>> ma, Action<A> f) =>
+            WindowIter(ma, Math.Max(1, Environment.ProcessorCount >> 1), f);
+
+        /// <summary>
+        /// Tasks a lazy sequence of tasks and iterates them in a 'measured way'.  A default window size of
+        /// `windowSize` tasks is used, which means there are `windowSize` 'await streams'.  An await stream 
+        /// essentially awaits one task from the sequence, and on completion goes and gets the next task from 
+        /// the lazy sequence and awaits that too.  This continues until the end of the lazy sequence, or forever 
+        /// for infinite streams.
+        /// </summary>
+        public static async Task<Unit> WindowIter<A>(this IEnumerable<Task<A>> ma, int windowSize, Action<A> f)
+        {
+            object sync = new object();
+            var iter = ma.GetEnumerator();
+
+            (bool Success, Task<A> Task) GetNext()
+            {
+                lock (sync)
+                {
+                    return iter.MoveNext()
+                        ? (true, iter.Current)
+                        : default;
+                }
+            }
+
+            var tasks = new List<Task<Unit>>();
+            for (var i = 0; i < windowSize; i++)
+            {
+                var (s, outerTask) = GetNext();
+                if (!s) break;
+
+                tasks.Add(outerTask.Iter(async oa =>
+                {
+                    f(oa);
+
+                    while (true)
+                    {
+                        var next = GetNext();
+                        if (!next.Success) return;
+                        var a = await next.Task;
+                        f(a);
+                    }
+                }));
+            }
+            await Task.WhenAll(tasks);
             return unit;
         }
     }

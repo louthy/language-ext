@@ -3,28 +3,32 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
     internal class SeqStrict<A> : ISeqInternal<A>
     {
+        const int DefaultCapacity = 8;
+        const int HalfDefaultCapacity = DefaultCapacity >> 1;
+
         const int NoCons = 1;
         const int NoAdd = 1;
 
         /// <summary>
         /// Backing data
         /// </summary>
-        readonly A[] data;
+        internal readonly A[] data;
 
         /// <summary>
         /// Index into data where the Head is
         /// </summary>
-        readonly int start;
+        internal readonly int start;
 
         /// <summary>
         /// Known size of the sequence
         /// </summary>
-        readonly int count;
+        internal readonly int count;
 
         /// <summary>
         /// 1 if no more consing is allowed
@@ -179,8 +183,12 @@ namespace LanguageExt
 
         SeqStrict<A> CloneAdd(A value)
         {
+            var end = start + count;
+
             // Find the new size of the data array
-            var nlength = Math.Max(data.Length << 1, 1);
+            var nlength = data.Length == end
+                ? Math.Max(data.Length << 1, 1)
+                : data.Length;
 
             // Allocate it
             var ndata = new A[nlength];
@@ -191,7 +199,7 @@ namespace LanguageExt
             System.Array.Copy(data, 0, ndata, 0, data.Length);
 
             // Set the value in the new data block
-            ndata[data.Length] = value;
+            ndata[end] = value;
 
             // Return everything 
             return new SeqStrict<A>(ndata, start, count + 1, 0, 0);
@@ -220,7 +228,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Head item in the sequence.  NOTE:  If `IsEmpty` is true then Head 
+        /// Head item in the sequence.  NOTE:  If `IsEmpty` is true then Head
         /// is undefined.  Call HeadOrNone() if for maximum safety.
         /// </summary>
         public A Head
@@ -240,6 +248,18 @@ namespace LanguageExt
             get => count < 1
                 ? SeqEmptyInternal<A>.Default
                 : new SeqStrict<A>(data, start + 1, count - 1, NoCons, NoAdd);
+        }
+
+        public ISeqInternal<A> Init
+        {
+            get
+            {
+                var take = count - 1;
+
+                return take <= 0
+                    ? SeqEmptyInternal<A>.Default
+                    : new SeqStrict<A>(data, start, take, NoCons, NoAdd);
+            }
         }
 
         /// <summary>
@@ -450,5 +470,35 @@ namespace LanguageExt
             }
             return true;
         }
+
+        public SeqType Type => SeqType.Strict;
+
+        public SeqStrict<A> Append(SeqStrict<A> right)
+        {
+            var end = start + count + right.count;
+            if (end > data.Length || 1 == Interlocked.Exchange(ref addDisallowed, 1))
+            {
+                // Clone
+                var nsize = 8;
+                while(nsize < end)
+                {
+                    nsize = nsize << 1;
+                }
+
+                var ndata = new A[nsize];
+                Array.Copy(data, start, ndata, start, count);
+                Array.Copy(right.data, right.start, ndata, start + count, right.count);
+                return new SeqStrict<A>(ndata, start, count + right.count, 0, 0);
+            }
+            else
+            {
+                Array.Copy(right.data, right.start, data, start + count, right.count);
+                return new SeqStrict<A>(data, start, count + right.count, NoCons, 0);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetHashCode(int offsetBasis) =>
+            FNV32.Hash<HashableDefault<A>, A>(data, start, count, offsetBasis);
     }
 }

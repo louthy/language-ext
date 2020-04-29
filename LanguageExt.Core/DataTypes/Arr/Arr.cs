@@ -6,6 +6,7 @@ using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
@@ -28,14 +29,19 @@ namespace LanguageExt
         /// Empty array
         /// </summary>
         public static readonly Arr<A> Empty = new Arr<A>(new A[0] { });
-
         readonly A[] value;
-        internal A[] Value => value ?? Empty.Value;
         int hashCode;
+
+        internal A[] Value
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value ?? Empty.Value;
+        }
 
         /// <summary>
         /// Ctor
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr(IEnumerable<A> initial)
         {
             hashCode = 0;
@@ -45,12 +51,14 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal Arr(A[] value)
         {
             hashCode = 0;
             this.value = value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Arr<A>(A[] xs) =>
             new Arr<A>(xs);
 
@@ -94,6 +102,7 @@ namespace LanguageExt
         /// Item at index lens
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Lens<Arr<A>, A> item(int index) => Lens<Arr<A>, A>.New(
             Get: la => la.Count == 0 ? throw new IndexOutOfRangeException() : la[index],
             Set: a => la => la.Count == 0 ? throw new IndexOutOfRangeException() : la.SetItem(index, a)
@@ -103,6 +112,7 @@ namespace LanguageExt
         /// Item or none at index lens
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Lens<Arr<A>, Option<A>> itemOrNone(int index) => Lens<Arr<A>, Option<A>>.New(
             Get: la => la.Count < index - 1 ? None : Some(la[index]),
             Set: a => la => la.Count < index - 1 || a.IsSome ? la : la.SetItem(index, a.Value)
@@ -112,6 +122,7 @@ namespace LanguageExt
         /// Lens map
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Lens<Arr<A>, Arr<B>> map<B>(Lens<A, B> lens) => Lens<Arr<A>, Arr<B>>.New(
             Get: la => la.Map(lens.Get),
             Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Item2, ab.Item1)).ToArr()
@@ -121,26 +132,50 @@ namespace LanguageExt
         /// Index accessor
         /// </summary>
         [Pure]
-        public A this[int index] => Value[index];
+        public A this[int index]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Value[index];
+        }
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Seq.FromArray(Value).Case;
+        }
 
         /// <summary>
         /// Number of items in the array
         /// </summary>
         [Pure]
-        public int Count =>
-            Value.Length;
+        public int Count
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Value.Length;
+        }
 
         [Pure]
-        int IReadOnlyCollection<A>.Count =>
-            Count;
+        int IReadOnlyCollection<A>.Count
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Count;
+        }
 
         [Pure]
-        A IReadOnlyList<A>.this[int index] => Value[index];
+        A IReadOnlyList<A>.this[int index]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Value[index];
+        }
 
         /// <summary>
         /// Add an item to the end of the array
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> Add(A value)
         {
             var self = Value;
@@ -155,6 +190,7 @@ namespace LanguageExt
         /// Add a range of items to the end of the array
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> AddRange(IEnumerable<A> items) =>
             InsertRange(Count, items);
 
@@ -162,6 +198,7 @@ namespace LanguageExt
         /// Clear the array
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> Clear() =>
             Empty;
 
@@ -169,6 +206,7 @@ namespace LanguageExt
         /// Get enumerator
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerator<A> GetEnumerator() =>
             Value.AsEnumerable().GetEnumerator();
 
@@ -309,6 +347,7 @@ namespace LanguageExt
         /// Remove an item from the array
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> Remove(A value) =>
             Remove<EqDefault<A>>(value);
 
@@ -316,6 +355,7 @@ namespace LanguageExt
         /// Remove an item from the array
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> Remove(A value, IEqualityComparer<A> equalityComparer)
         {
             int index = IndexOf(value, 0, -1, equalityComparer);
@@ -328,6 +368,7 @@ namespace LanguageExt
         /// Remove an item from the array
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> Remove<EQ>(A value) where EQ : struct, Eq<A>
         {
             int index = IndexOf<EQ>(value);
@@ -337,8 +378,11 @@ namespace LanguageExt
         }
 
         [Pure]
-        public bool IsEmpty =>
-            Value.Length == 0;
+        public bool IsEmpty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Value.Length == 0;
+        }
 
         /// <summary>
         /// Remove all items that match a predicate
@@ -396,6 +440,7 @@ namespace LanguageExt
         /// <param name="index"></param>
         /// <returns></returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> RemoveAt(int index) =>
             RemoveRange(index, 1);
 
@@ -432,22 +477,54 @@ namespace LanguageExt
         }
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator() =>
             Value.GetEnumerator();
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
             Value.AsEnumerable().GetEnumerator();
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<A> AsEnumerable() =>
             this;
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> ToSeq() =>
             Seq(this);
 
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// The elipsis is used for collections over 50 items
+        /// To get a formatted string with all the items, use `ToFullString`
+        /// or `ToFullArrayString`.
+        /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override string ToString() =>
+            CollectionFormat.ToShortArrayString(this, Count);
+
+        /// <summary>
+        /// Format the collection as `a, b, c, ...`
+        /// </summary>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string ToFullString(string separator = ", ") =>
+            CollectionFormat.ToFullString(this, separator);
+
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// </summary>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string ToFullArrayString(string separator = ", ") =>
+            CollectionFormat.ToFullArrayString(this, separator);
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<A> Skip(int amount) =>
             Value.Skip(amount);
 
@@ -455,6 +532,7 @@ namespace LanguageExt
         /// Reverse the order of the items in the array
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> Reverse() =>
             new Arr<A>(Value.Reverse().ToArray());
 
@@ -462,6 +540,7 @@ namespace LanguageExt
         /// Fold
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S Fold<S>(S state, Func<S, A, S> folder)
         {
             foreach (var item in Value)
@@ -477,6 +556,7 @@ namespace LanguageExt
         /// <returns>
         /// Returns the original unmodified structure
         /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> Do(Action<A> f)
         {
             this.Iter(f);
@@ -487,6 +567,7 @@ namespace LanguageExt
         /// Map
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<B> Map<B>(Func<A, B> map)
         {
             var arr = Value;
@@ -503,26 +584,32 @@ namespace LanguageExt
         /// Filter
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> Filter(Func<A, bool> pred) =>
             RemoveAll(x => !pred(x));
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Arr<A> operator +(Arr<A> lhs, A rhs) =>
             lhs.Add(rhs);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Arr<A> operator +(A lhs, Arr<A> rhs) =>
             rhs.Insert(0, lhs);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Arr<A> operator +(Arr<A> lhs, Arr<A> rhs) =>
             rhs.InsertRange(0, lhs);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> Append(Arr<A> rhs) =>
             rhs.InsertRange(0, this);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object obj) =>
             obj is Arr<A> && Equals((Arr<A>)obj);
 
@@ -532,28 +619,34 @@ namespace LanguageExt
         /// Empty array hash == 0
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() =>
             hashCode == 0
-                ? hashCode = hash(Value)
+                ? (hashCode = FNV32.Hash<HashableDefault<A>, A>(Value))
                 : hashCode;
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(Arr<A> other) =>
             default(MArr<A>).Equals(this, other);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(Arr<A> other) =>
             default(MArr<A>).Compare(this, other);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(Arr<A> lhs, Arr<A> rhs) =>
             Equals(lhs, rhs);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(Arr<A> lhs, Arr<A> rhs) =>
             !(lhs == rhs);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<B> Bind<B>(Func<A, Arr<B>> f)
         {
             var res = new List<B>();
@@ -571,6 +664,7 @@ namespace LanguageExt
         /// <summary>
         /// Implicit conversion from an untyped empty list
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Arr<A>(SeqEmpty _) =>
             Empty;
 

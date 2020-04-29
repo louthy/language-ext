@@ -79,6 +79,13 @@ namespace LanguageExt
             new HashMap<K, U>(value);
 
         /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<(K Key, V Value)> Case =>
+            Seq<(K Key, V Value)>(Value).Case;
+
+        /// <summary>
         /// 'this' accessor
         /// </summary>
         /// <param name="key">Key</param>
@@ -639,14 +646,44 @@ namespace LanguageExt
         public Seq<(K Key, V Value)> ToSeq() =>
             Seq(AsEnumerable());
 
+        /// <summary>
+        /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
+        /// The elipsis is used for collections over 50 items
+        /// To get a formatted string with all the items, use `ToFullString`
+        /// or `ToFullArrayString`.
+        /// </summary>
+        [Pure]
+        public override string ToString() =>
+            CollectionFormat.ToShortArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), Count);
+
+        /// <summary>
+        /// Format the collection as `(key: value), (key: value), (key: value), ...`
+        /// </summary>
+        [Pure]
+        public string ToFullString(string separator = ", ") =>
+            CollectionFormat.ToFullString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+
+        /// <summary>
+        /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
+        /// </summary>
+        [Pure]
+        public string ToFullArrayString(string separator = ", ") =>
+            CollectionFormat.ToFullArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+
         [Pure]
         public IEnumerable<(K Key, V Value)> AsEnumerable() =>
             Value;
 
+        /// <summary>
+        /// Equality of keys and values with `EqDefault<V>` used for values
+        /// </summary>
         [Pure]
         public static bool operator ==(HashMap<K, V> lhs, HashMap<K, V> rhs) =>
-            lhs.Value == rhs.Value;
+            lhs.Equals(rhs);
 
+        /// <summary>
+        /// In-equality of keys and values with `EqDefault<V>` used for values
+        /// </summary>
         [Pure]
         public static bool operator !=(HashMap<K, V> lhs, HashMap<K, V> rhs) =>
             !(lhs == rhs);
@@ -714,6 +751,14 @@ namespace LanguageExt
         [Pure]
         public bool IsSubsetOf(IEnumerable<K> other) =>
             Value.IsSubsetOf(other);
+
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
+        [Pure]
+        public bool IsSubsetOf(HashMap<K, V> other) =>
+            Value.IsSubsetOf(other.Value);
 
         /// <summary>
         /// Returns True if 'other' is a superset of this set
@@ -801,10 +846,33 @@ namespace LanguageExt
         public HashMap<K, V> Union(IEnumerable<(K, V)> rhs) =>
             this.TryAddRange(rhs);
 
-
+        /// <summary>
+        /// Equality of keys and values with `EqDefault<V>` used for values
+        /// </summary>
         [Pure]
         public override bool Equals(object obj) =>
-            obj is HashMap<K, V> && Equals((HashMap<K, V>)obj);
+            obj is HashMap<K, V> hm && Equals(hm);
+
+        /// <summary>
+        /// Equality of keys and values with `EqDefault<V>` used for values
+        /// </summary>
+        [Pure]
+        public bool Equals(HashMap<K, V> other) =>
+            Value.Equals<EqDefault<V>>(other.Value);
+
+        /// <summary>
+        /// Equality of keys and values with `EqV` used for values
+        /// </summary>
+        [Pure]
+        public bool Equals<EqV>(HashMap<K, V> other) where EqV : struct, Eq<V> =>
+            Value.Equals<EqV>(other.Value);
+
+        /// <summary>
+        /// Equality of keys only
+        /// </summary>
+        [Pure]
+        public bool EqualsKeys(HashMap<K, V> other) =>
+            Value.Equals<EqTrue<V>>(other.Value);
 
         [Pure]
         public override int GetHashCode() =>
@@ -1055,10 +1123,6 @@ namespace LanguageExt
         [Pure]
         public S Fold<S>(S state, Func<S, V, S> folder) =>
             Values.Fold(state, folder);
-
-        [Pure]
-        public bool Equals(HashMap<K, V> other) =>
-            Value == other.Value;
 
         [Pure]
         public static implicit operator HashMap<K, V>(ValueTuple<(K, V)> items) =>

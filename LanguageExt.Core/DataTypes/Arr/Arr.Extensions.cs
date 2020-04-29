@@ -1133,4 +1133,71 @@ public static class ArrExtensions
     [Pure]
     public static IEnumerable<TResult> Zip<TFirst, TSecond, TResult>(this Arr<TFirst> first, IEnumerable<TSecond> second, Func<TFirst, TSecond, TResult> resultSelector) =>
         Enumerable.Zip(first.Value, second, resultSelector);
+
+    [Pure]
+    public static Arr<A> Filter<A>(this Arr<A> ma, Func<A, bool> f) =>
+        Where(ma, f);
+
+    [Pure]
+    public static Arr<A> Where<A>(this Arr<A> ma, Func<A, bool> f)
+    {
+        var mb = new List<A>();
+        foreach (var a in ma)
+        {
+            if (f(a))
+            {
+                mb.Add(a);
+            }
+        }
+        return new Arr<A>(mb);
+    }
+
+    [Pure]
+    public static Arr<B> Map<A, B>(this Arr<A> ma, Func<A, B> f) =>
+        Select(ma, f);
+
+    [Pure]
+    public static Arr<B> Select<A, B>(this Arr<A> ma, Func<A, B> f)
+    {
+        var mb = new B[ma.Count];
+        int index = 0;
+        foreach (var a in ma)
+        {
+            mb[index] = f(a);
+            index++;
+        }
+        return new Arr<B>(mb);
+    }
+
+    [Pure]
+    public static Arr<B> Bind<A, B>(this Arr<A> ma, Func<A, Arr<B>> f) =>
+        SelectMany(ma, f);
+
+    [Pure]
+    public static Arr<B> SelectMany<A, B>(this Arr<A> ma, Func<A, Arr<B>> f)
+    {
+        var mb = new List<B>();
+        foreach (var a in ma)
+        {
+            foreach (var b in f(a))
+            {
+                mb.Add(b);
+            }
+        }
+        return new Arr<B>(mb.ToArray());
+    }
+
+    [Pure]
+    public static Arr<C> SelectMany<A, B, C>(this Arr<A> ma, Func<A, Arr<B>> bind, Func<A, B, C> project)
+    {
+        var mc = new List<C>();
+        foreach (var a in ma)
+        {
+            foreach (var b in bind(a))
+            {
+                mc.Add(project(a, b));
+            }
+        }
+        return new Arr<C>(mc.ToArray());
+    }
 }

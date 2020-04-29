@@ -7,6 +7,8 @@ using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace LanguageExt
 {
@@ -28,6 +30,10 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
     public struct OptionAsync<A> :
+// TODO: Re-add when we move to netstandard2.1
+//#if NETCORE
+//        IAsyncEnumerable<A>,
+//#endif
         IOptionalAsync
     {
         internal readonly Task<(bool IsSome, A Value)> data;
@@ -100,6 +106,22 @@ namespace LanguageExt
             this.data = first.Length == 0
                 ? (false, default(A)).AsTask()
                 : (true, first[0]).AsTask();
+        }
+
+        /// <summary>
+        /// Reference version of option for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public Task<OptionCase<A>> Case =>
+            GetCase();
+
+        [Pure]
+        async Task<OptionCase<A>> GetCase()
+        {
+            var (isSome, value) = await data;
+            return isSome
+                ? SomeCase<A>.New(value)
+                : NoneCase<A>.Default;
         }
 
         /// <summary>
@@ -1219,5 +1241,21 @@ namespace LanguageExt
         [Pure]
         public OptionAsync<Func<B, Func<C, D>>> ParMap<B, C, D>(Func<A, B, C, D> func) =>
             Map(curry(func));
+
+// TODO: Re-add when we move to netstandard2.1
+//#if NETCORE
+//        /// <summary>
+//        /// Enumerate asynchronously
+//        /// </summary>
+//        [Pure]
+//        public async IAsyncEnumerator<A> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+//        {
+//            var (isSome, value) = await Data;
+//            if(isSome)
+//            {
+//                yield return value;
+//            }
+//        }
+//#endif
     }
 }

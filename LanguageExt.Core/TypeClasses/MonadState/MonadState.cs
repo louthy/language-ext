@@ -7,7 +7,7 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// State monad type class
     /// </summary>
-    [Typeclass]
+    [Typeclass("M*")]
     public interface MonadState<S, A> : Typeclass
     {
         /// <summary>

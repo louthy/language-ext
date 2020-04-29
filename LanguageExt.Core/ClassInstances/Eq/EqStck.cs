@@ -39,7 +39,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(Stck<A> x) =>
-            x.GetHashCode();
+            default(HashableStck<EQ, A>).GetHashCode(x);
     }
 
     /// <summary>
@@ -63,7 +63,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(Stck<A> x) =>
-            default(EqStck<EqDefault<A>, A>).GetHashCode(x);
+            default(HashableStck<A>).GetHashCode(x);
     }
-
 }

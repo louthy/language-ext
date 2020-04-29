@@ -7,7 +7,7 @@ namespace LanguageExt.TypeClasses
     /// Predicate type-class
     /// </summary>
     /// <typeparam name="A">Type of value to run the predication operation against</typeparam>
-    [Typeclass]
+    [Typeclass("Pred*")]
     public interface Pred<A> : Typeclass
     {
         /// <summary>

@@ -5,12 +5,12 @@ using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass]
+    [Typeclass("Fold*Async")]
     public interface FoldableAsync<FA, A> : FoldableAsync<Unit, FA, A>
     {
     }
 
-    [Typeclass]
+    [Typeclass("Fold*Async")]
     public interface FoldableAsync<Env, FA, A> : Typeclass
     {
         /// <summary>

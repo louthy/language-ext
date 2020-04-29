@@ -93,11 +93,11 @@ namespace LanguageExt
             var values = new List<A>();
             foreach (var item in ma)
             {
-                var (a, bottom) = item(env);
-                if (bottom) return (Value: new List<A>(), IsFaulted: true);
-                values.Add(a);
+                var resA = item(env);
+                if (resA.IsFaulted) return ReaderResult<List<A>>.New(resA.ErrorInt);
+                values.Add(resA.Value);
             }
-            return (Value: values, IsFaulted: false);
+            return ReaderResult<List<A>>.New(values);
         };
 
         internal static Reader<Env, List<B>> TraverseFast<Env, A, B>(this IEnumerable<Reader<Env, A>> ma, Func<A, B> f) => env =>
@@ -105,11 +105,11 @@ namespace LanguageExt
             var values = new List<B>();
             foreach (var item in ma)
             {
-                var (a, bottom) = item(env);
-                if (bottom) return (Value: new List<B>(), IsFaulted: true);
-                values.Add(f(a));
+                var resA = item(env);
+                if (resA.IsFaulted) return ReaderResult<List<B>>.New(resA.ErrorInt);
+                values.Add(f(resA.Value));
             }
-            return (Value: values, IsFaulted: false);
+            return ReaderResult<List<B>>.New(values);
         };
 
         public static Reader<Env, Seq<A>> Sequence<Env, A>(this Seq<Reader<Env, A>> ma) =>
@@ -248,13 +248,13 @@ namespace LanguageExt
             var output = default(MonoidW).Empty();
             foreach (var item in ma)
             {
-                var (a, o, s, bottom) = item(env, state);
-                if (bottom) return (Value: new List<A>(), Output: default(MonoidW).Empty(), State: state, IsFaulted: true);
-                values.Add(a);
-                state = s;
-                output = default(MonoidW).Append(output, o);
+                var res = item(env, state);
+                if (res.IsFaulted) return RWSResult<MonoidW, R, W, S, List<A>>.New(state, res.Error);
+                values.Add(res.Value);
+                state = res.State;
+                output = default(MonoidW).Append(output, res.Output);
             }
-            return (Value: values, Output: output, State: state, IsFaulted: false);
+            return RWSResult<MonoidW, R, W, S, List<A>>.New(output, state, values);
         };
 
         internal static RWS<MonoidW, R, W, S, List<B>> TraverseFast<MonoidW, R, W, S, A, B>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> => (env, state) =>
@@ -263,13 +263,13 @@ namespace LanguageExt
             var output = default(MonoidW).Empty();
             foreach (var item in ma)
             {
-                var (a, o, s, bottom) = item(env, state);
-                if (bottom) return (Value: new List<B>(), Output: default(MonoidW).Empty(), State: state, IsFaulted: true);
-                values.Add(f(a));
-                state = s;
-                output = default(MonoidW).Append(output, o);
+                var res = item(env, state);
+                if (res.IsFaulted) return RWSResult<MonoidW, R, W, S, List<B>>.New(state, res.Error);
+                values.Add(f(res.Value));
+                state = res.State;
+                output = default(MonoidW).Append(output, res.Output);
             }
-            return (Value: values, Output: output, State: state, IsFaulted: false);
+            return RWSResult<MonoidW, R, W, S, List<B>>.New(output, state, values);
         };
 
         public static RWS<MonoidW, R, W, S, Seq<A>> Sequence<MonoidW, R, W, S, A>(this Seq<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> =>
@@ -321,6 +321,4 @@ namespace LanguageExt
         public static RWS<MonoidW, R, W, S, IEnumerable<B>> Traverse<MonoidW, R, W, S, A, B>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
             TraverseFast(ma, f).Map(Enumerable.AsEnumerable);
     }
-
-
 }

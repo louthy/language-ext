@@ -31,11 +31,8 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public int GetHashCode(Try<A> x)
-        {
-            var res = x.Try();
-            return res.IsFaulted || res.Value.IsNull() ? 0 : res.Value.GetHashCode();
-        }
+        public int GetHashCode(Try<A> x) =>
+            default(HashableTry<EQ, A>).GetHashCode(x);
     }
 
     /// <summary>
@@ -57,6 +54,6 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public int GetHashCode(Try<A> x) =>
-            default(EqTry<EqDefault<A>, A>).GetHashCode(x);
+            default(HashableTry<A>).GetHashCode(x);
     }
 }

@@ -60,7 +60,7 @@ namespace LanguageExt.Tests
                 ? Some("Hello")
                 : None;
 
-        void Foo( Some<string> value )
+        void Foo(Some<string> value )
         {
             if (value.Value == null)
             {

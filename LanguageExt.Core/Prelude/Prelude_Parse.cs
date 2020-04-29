@@ -101,20 +101,36 @@ namespace LanguageExt
         [Pure]
         public static Option<DateTimeOffset> parseDateTimeOffset(string value) =>
             Parse<DateTimeOffset>(DateTimeOffset.TryParse, value);
+        
+        [Pure]
+        public static Option<TimeSpan> parseTimeSpan(string value) =>
+            Parse<TimeSpan>(TimeSpan.TryParse, value);
 
         [Pure]
         public static Option<TEnum> parseEnum<TEnum>(string value)
             where TEnum : struct =>
             Parse<TEnum>(Enum.TryParse, value);
 
-[Pure]
-public static Option<IPAddress> parseIPAddress(string value) =>
+        [Pure]
+        public static Option<TEnum> parseEnumIgnoreCase<TEnum>(string value)
+            where TEnum : struct =>
+            ParseIgnoreCase<TEnum>(Enum.TryParse, value);
+
+        [Pure]
+        public static Option<IPAddress> parseIPAddress(string value) =>
             Parse<IPAddress>(IPAddress.TryParse, value);
 
         private delegate bool TryParse<T>(string value, out T result);
 
+        private delegate bool TryParseIgnoreCase<T>(string value, bool ignoreCase, out T result);
+
         private static Option<T> Parse<T>(TryParse<T> tryParse, string value) =>
             tryParse(value, out T result)
+                ? Some(result)
+                : None;
+
+        private static Option<T> ParseIgnoreCase<T>(TryParseIgnoreCase<T> tryParse, string value) =>
+            tryParse(value, true, out T result)
                 ? Some(result)
                 : None;
     }

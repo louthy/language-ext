@@ -17,31 +17,31 @@ namespace LanguageExt.ClassInstances
         public MB Bind<MONADB, MB, B>(Reader<Env, A> ma, Func<A, MB> f) where MONADB : struct, Monad<Env, Unit, MB, B> =>
             default(MONADB).Run(env =>
             {
-                var (a, faulted) = ma(env);
-                if (faulted) return default(MONADB).Fail();
-                return f(a);
+                var resA = ma(env);
+                if (resA.IsFaulted) return default(MONADB).Fail(resA.ErrorInt);
+                return f(resA.Value);
             });
 
         [Pure]
         public MB BindAsync<MONADB, MB, B>(Reader<Env, A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Env, Unit, MB, B> =>
             default(MONADB).RunAsync(env =>
             {
-                var (a, faulted) = ma(env);
-                if (faulted) return default(MONADB).Fail().AsTask();
-                return f(a).AsTask();
+                var resA = ma(env);
+                if (resA.IsFaulted) return default(MONADB).Fail(resA.ErrorInt).AsTask();
+                return f(resA.Value).AsTask();
             });
 
         [Pure]
-        public Reader<Env, A> Fail(object err = null) =>
-            new Reader<Env, A>(_ => (default(A), true));
+        public Reader<Env, A> Fail(object err = null) => _ =>
+            ReaderResult<A>.New(Common.Error.FromObject(err));
 
         [Pure]
-        public Reader<Env, A> Reader(Func<Env, A> f) => env => 
-            (f(env), false);
+        public Reader<Env, A> Reader(Func<Env, A> f) => env =>
+            ReaderResult<A>.New(f(env));
 
         [Pure]
         public Reader<Env, Env> Ask() => env =>
-            (env, false);
+            ReaderResult<Env>.New(env);
 
         [Pure]
         public Reader<Env, A> Local(Reader<Env, A> ma, Func<Env, Env> f) => env =>
@@ -49,7 +49,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Reader<Env, A> Return(Func<Env, A> f) => env =>
-            (f(env), false);
+            ReaderResult<A>.New(f(env));
 
         [Pure]
         public Reader<Env, A> Run(Func<Env, Reader<Env, A>> f) => env =>
@@ -58,23 +58,23 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Reader<Env, A> Plus(Reader<Env, A> ma, Reader<Env, A> mb) => env =>
         {
-            var (a, faulted) = ma(env);
-            return faulted
+            var resA = ma(env);
+            return resA.IsFaulted
                 ? mb(env)
-                : (a, faulted);
+                : resA;
         };
 
         [Pure]
         public Reader<Env, A> Zero() =>
-            _ => (default(A), true);
+            _ => ReaderResult<A>.Bottom;
 
         [Pure]
         public Func<Env, S> Fold<S>(Reader<Env, A> fa, S state, Func<S, A, S> f) => env =>
         {
-            var (a, faulted) = fa(env);
-            return faulted
+            var resA = fa(env);
+            return resA.IsFaulted
                 ? state
-                : f(state, a);
+                : f(state, resA.Value);
         };
 
         [Pure]

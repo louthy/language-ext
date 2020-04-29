@@ -158,9 +158,9 @@ namespace LanguageExt.Tests
 
 
         [Fact]
-        public void InitTest()
+        public void GenerateTest()
         {
-            var r = init(10, i => "Hello " + i );
+            var r = generate(10, i => "Hello " + i );
 
             for (int i = 0; i < 10; i++)
             {
@@ -174,7 +174,7 @@ namespace LanguageExt.Tests
         {
             var test = List(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181);
 
-            var fibs = take(unfold(Tuple(0, 1), tup => map(tup, (a, b) => Some(Tuple(a, Tuple(b, a + b))))), 20);
+            var fibs = take(unfold((0, 1), tup => map(tup, (a, b) => Some((a, (b, a + b))))), 20);
 
             Assert.True( test.SequenceEqual(fibs) );
         }
@@ -184,7 +184,7 @@ namespace LanguageExt.Tests
         {
             var test = List(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181);
 
-            var fibs = take( unfold( Tuple(0, 1), (a, b) => Some(Tuple(a, b, a + b)) ), 20);
+            var fibs = take( unfold( (0, 1), (a, b) => Some((a, b, a + b)) ), 20);
 
             Assert.True(test.SequenceEqual(fibs));
         }
@@ -260,6 +260,56 @@ namespace LanguageExt.Tests
             }));
         }
 
+        [Fact]
+        public void IterSimpleTest()
+        {
+            var embeddedSideEffectResult = 0;
+            var expression = from dummy in Some(unit)
+                from i in List(2, 3, 5)
+                let _ = fun(() => embeddedSideEffectResult += i)()
+                select i;
+
+            Assert.Equal(0, embeddedSideEffectResult);
+
+            var sideEffectByAction = 0;
+
+            expression.Iter(i => sideEffectByAction += i * i);
+            Assert.Equal(2 + 3 + 5, embeddedSideEffectResult);
+            Assert.Equal(2 * 2 + 3 * 3 + 5 * 5, sideEffectByAction);
+        }
+
+        [Fact]
+        public void IterPositionalTest()
+        {
+            var embeddedSideEffectResult = 0;
+            var expression = from dummy in Some(unit)
+                from i in List(2, 3, 5)
+                let _ = fun(() => embeddedSideEffectResult += i)()
+                select i;
+
+            Assert.Equal(0, embeddedSideEffectResult);
+
+            var sideEffectByAction = 0;
+
+            expression.Iter((pos, i) => sideEffectByAction += i * pos);
+            Assert.Equal(2 + 3 + 5, embeddedSideEffectResult);
+            Assert.Equal(2 * 0 + 3 * 1 + 5 * 2, sideEffectByAction);
+        }
+
+        [Fact]
+        public void ConsumeTest()
+        {
+            var embeddedSideEffectResult = 0;
+            System.Collections.Generic.IEnumerable<int> expression = from dummy in Some(unit)
+                from i in List(2, 3, 5)
+                let _ = fun(() => embeddedSideEffectResult += i)()
+                select i;
+
+            Assert.Equal(0, embeddedSideEffectResult);
+            expression.Consume();
+            Assert.Equal(2 + 3+ 5, embeddedSideEffectResult);
+        }
+        
         [Fact]
         public void SkipLastTest1()
         {

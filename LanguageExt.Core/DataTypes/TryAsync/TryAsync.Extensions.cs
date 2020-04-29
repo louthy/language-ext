@@ -8,12 +8,27 @@ using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
+using LanguageExt.DataTypes.Serialisation;
 
 /// <summary>
 /// Extension methods for the TryAsync monad
 /// </summary>
 public static class TryAsyncExtensions
 {
+    /// <summary>
+    /// Use for pattern-matching the case of the target
+    /// </summary>
+    [Pure]
+    public static async Task<TryCase<A>> Case<A>(this TryAsync<A> ma)
+    {
+        if (ma == null) return FailCase<A>.New(Error.Bottom);
+        var res = await ma.Try();
+        return res.IsSuccess
+            ? SuccCase<A>.New(res.Value)
+            : FailCase<A>.New(res.Exception);
+    }
+
     /// <summary>
     /// Memoize the computation so that it's only run once
     /// </summary>
@@ -378,28 +393,28 @@ public static class TryAsyncExtensions
         async () => (await self.Try()).ToOptional();
 
     [Pure]
-    public static Task<EitherUnsafe<Exception, A>> ToEitherUnsafe<A>(this TryAsync<A> self) =>
+    public static Task<EitherUnsafe<Error, A>> ToEitherUnsafe<A>(this TryAsync<A> self) =>
         self.Match(
-              Succ: v => EitherUnsafe<Exception, A>.Right(v),
-              Fail: x => EitherUnsafe<Exception, A>.Left(x));
+              Succ: v => EitherUnsafe<Error, A>.Right(v),
+              Fail: x => EitherUnsafe<Error, A>.Left(Error.New(x)));
 
     [Pure]
-    public static Task<EitherUnsafe<L, A>> ToEitherUnsafe<A, L>(this TryAsync<A> self, Func<Exception, L> Fail) =>
+    public static Task<EitherUnsafe<L, A>> ToEitherUnsafe<A, L>(this TryAsync<A> self, Func<Error, L> Fail) =>
         self.Match(
               Succ: v => EitherUnsafe<L, A>.Right(v),
-              Fail: x => EitherUnsafe<L, A>.Left(Fail(x)));
+              Fail: x => EitherUnsafe<L, A>.Left(Fail(Error.New(x))));
 
     [Pure]
-    public static Task<Either<Exception, A>> ToEither<A>(this TryAsync<A> self) =>
+    public static EitherAsync<Error, A> ToEither<A>(this TryAsync<A> self) => new EitherAsync<Error, A>(
         self.Match(
-              Succ: v => Either<Exception, A>.Right(v),
-              Fail: x => Either<Exception, A>.Left(x));
+              Succ: v => EitherData.Right<Error, A>(v),
+              Fail: x => EitherData.Left<Error, A>(Error.New(x))));
 
     [Pure]
-    public static Task<Either<L, A>> ToEither<A, L>(this TryAsync<A> self, Func<Exception, L> Fail) =>
+    public static EitherAsync<L, A> ToEither<A, L>(this TryAsync<A> self, Func<Error, L> Fail) => new EitherAsync<L, A>(
         self.Match(
-              Succ: v => Either<L, A>.Right(v),
-              Fail: x => Either<L, A>.Left(Fail(x)));
+              Succ: v => EitherData.Right<L, A>(v),
+              Fail: x => EitherData.Left<L, A>(Fail(Error.New(x)))));
 
     [Pure]
     public static async Task<A> IfFailThrow<A>(this TryAsync<A> self)
@@ -804,15 +819,50 @@ public static class TryAsyncExtensions
         self.Filter(pred);
 
     [Pure]
-    public static TryAsync<B> Bind<A, B>(this TryAsync<A> self, Func<A, TryAsync<B>> binder) =>
-        default(MTryAsync<A>).Bind<MTryAsync<B>, TryAsync<B>, B>(self, binder);
+    public static TryAsync<B> Bind<A, B>(this TryAsync<A> ma, Func<A, TryAsync<B>> f) => Memo(async () =>
+    {
+        try
+        {
+            var ra = await ma();
+            if(ra.IsSuccess)
+            {
+                return await f(ra.Value)();
+            }
+            else
+            {
+                return new Result<B>(ra.Exception);
+            }
+        }
+        catch(Exception e)
+        {
+            return new Result<B>(e);
+        }
+    });
 
     [Pure]
-    public static TryAsync<B> BindAsync<A, B>(this TryAsync<A> self, Func<A, Task<TryAsync<B>>> binder) =>
-        default(MTryAsync<A>).BindAsync<MTryAsync<B>, TryAsync<B>, B>(self, binder);
+    public static TryAsync<B> BindAsync<A, B>(this TryAsync<A> ma, Func<A, Task<TryAsync<B>>> f) => Memo(async () =>
+    {
+        try
+        {
+            var ra = await ma();
+            if (ra.IsSuccess)
+            {
+                return await (await f(ra.Value))();
+            }
+            else
+            {
+                return new Result<B>(ra.Exception);
+            }
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return new Result<B>(e);
+        }
+    });
 
     [Pure]
-    public static TryAsync<R> BiBind<A, R>(this TryAsync<A> self, Func<A, TryAsync<R>> Succ, Func<Exception, TryAsync<R>> Fail) => Memo<R>(async () =>
+    public static TryAsync<R> BiBind<A, R>(this TryAsync<A> self, Func<A, TryAsync<R>> Succ, Func<Exception, TryAsync<R>> Fail) => Memo(async () =>
     {
         var res = await self.Try();
         return res.IsFaulted
@@ -866,39 +916,139 @@ public static class TryAsyncExtensions
 
     [Pure]
     public static TryAsync<C> SelectMany<A, B, C>(
-        this TryAsync<A> self,
+        this TryAsync<A> ma,
         Func<A, TryAsync<B>> bind,
-        Func<A, B, C> project) =>
-            default(MTryAsync<A>).Bind<MTryAsync<C>, TryAsync<C>, C>(self, a =>
-            default(MTryAsync<B>).Bind<MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
-            default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
+        Func<A, B, C> project) => Memo(async () =>
+        {
+            try
+            {
+                var ra = await ma();
+                if (ra.IsSuccess)
+                {
+                    var mb = bind(ra.Value);
+                    var rb = await mb();
+
+                    if (rb.IsSuccess)
+                    {
+                        return new Result<C>(project(ra.Value, rb.Value));
+                    }
+                    else
+                    {
+                        return new Result<C>(rb.Exception);
+                    }
+                }
+                else
+                {
+                    return new Result<C>(ra.Exception);
+                }
+            }
+            catch (Exception e)
+            {
+                return new Result<C>(e);
+            }
+        });
 
     [Pure]
     public static TryAsync<C> SelectMany<A, B, C>(
-        this TryAsync<A> self,
+        this TryAsync<A> ma,
         Func<A, Task<TryAsync<B>>> bind,
-        Func<A, B, C> project) =>
-            default(MTryAsync<A>).BindAsync<MTryAsync<C>, TryAsync<C>, C>(self, async a =>
-            default(MTryAsync<B>).Bind<MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
-            default(MTryAsync<C>).ReturnAsync(project(a, b).AsTask())));
+        Func<A, B, C> project) => Memo(async () =>
+        {
+            try
+            {
+                var ra = await ma();
+                if (ra.IsSuccess)
+                {
+                    var mb = await bind(ra.Value);
+                    var rb = await mb();
+
+                    if (rb.IsSuccess)
+                    {
+                        return new Result<C>(project(ra.Value, rb.Value));
+                    }
+                    else
+                    {
+                        return new Result<C>(rb.Exception);
+                    }
+                }
+                else
+                {
+                    return new Result<C>(ra.Exception);
+                }
+            }
+            catch (Exception e)
+            {
+                return new Result<C>(e);
+            }
+        });
 
     [Pure]
     public static TryAsync<C> SelectMany<A, B, C>(
-        this TryAsync<A> self,
+        this TryAsync<A> ma,
         Func<A, Task<TryAsync<B>>> bind,
-        Func<A, B, Task<C>> project) =>
-            default(MTryAsync<A>).BindAsync<MTryAsync<C>, TryAsync<C>, C>(self, async a =>
-            default(MTryAsync<B>).Bind<MTryAsync<C>, TryAsync<C>, C>(await bind(a), b =>
-            default(MTryAsync<C>).ReturnAsync(project(a, b))));
+        Func<A, B, Task<C>> project) => Memo(async () =>
+        {
+            try
+            {
+                var ra = await ma();
+                if (ra.IsSuccess)
+                {
+                    var mb = await bind(ra.Value);
+                    var rb = await mb();
+
+                    if (rb.IsSuccess)
+                    {
+                        return new Result<C>(await project(ra.Value, rb.Value));
+                    }
+                    else
+                    {
+                        return new Result<C>(rb.Exception);
+                    }
+                }
+                else
+                {
+                    return new Result<C>(ra.Exception);
+                }
+            }
+            catch (Exception e)
+            {
+                return new Result<C>(e);
+            }
+        });
 
     [Pure]
     public static TryAsync<C> SelectMany<A, B, C>(
-        this TryAsync<A> self,
+        this TryAsync<A> ma,
         Func<A, TryAsync<B>> bind,
-        Func<A, B, Task<C>> project) =>
-            default(MTryAsync<A>).Bind<MTryAsync<C>, TryAsync<C>, C>(self, a =>
-            default(MTryAsync<B>).Bind<MTryAsync<C>, TryAsync<C>, C>(bind(a), b =>
-            default(MTryAsync<C>).ReturnAsync(project(a, b))));
+        Func<A, B, Task<C>> project) => Memo(async () =>
+        {
+            try
+            {
+                var ra = await ma();
+                if (ra.IsSuccess)
+                {
+                    var mb = bind(ra.Value);
+                    var rb = await mb();
+
+                    if (rb.IsSuccess)
+                    {
+                        return new Result<C>(await project(ra.Value, rb.Value));
+                    }
+                    else
+                    {
+                        return new Result<C>(rb.Exception);
+                    }
+                }
+                else
+                {
+                    return new Result<C>(ra.Exception);
+                }
+            }
+            catch (Exception e)
+            {
+                return new Result<C>(e);
+            }
+        });
 
     [Pure]
     public static TryAsync<V> Join<A, U, K, V>(

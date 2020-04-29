@@ -93,6 +93,13 @@ namespace LanguageExt
             new Set<B>(set);
 
         /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public SeqCase<A> Case =>
+            Seq(Value).Case;
+
+        /// <summary>
         /// Number of items in the set
         /// </summary>
         [Pure]
@@ -182,6 +189,48 @@ namespace LanguageExt
             Value.Find(value);
 
         /// <summary>
+        /// Retrieve a range of values 
+        /// </summary>
+        /// <param name="keyFrom">Range start (inclusive)</param>
+        /// <param name="keyTo">Range to (inclusive)</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
+        /// <returns>Range of values</returns>
+        [Pure]
+        public IEnumerable<A> FindRange(A keyFrom, A keyTo) => Value.FindRange(keyFrom, keyTo);
+
+        /// <summary>
+        /// Retrieve the value from previous item to specified key
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindPredecessor(A key) => Value.FindPredecessor(key);
+
+        /// <summary>
+        /// Retrieve the value from exact key, or if not found, the previous item 
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindExactOrPredecessor(A key) => Value.FindOrPredecessor(key);
+
+        /// <summary>
+        /// Retrieve the value from next item to specified key
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindSuccessor(A key) => Value.FindSuccessor(key);
+
+        /// <summary>
+        /// Retrieve the value from exact key, or if not found, the next item 
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found key</returns>
+        [Pure]
+        public Option<A> FindExactOrSuccessor(A key) => Value.FindOrSuccessor(key);
+
+        /// <summary>
         /// Returns the elements that are in both this and other
         /// </summary>
         [Pure]
@@ -261,11 +310,27 @@ namespace LanguageExt
         /// <summary>
         /// Removes an item from the set (if it exists)
         /// </summary>
-        /// <param name="value">Value to check</param>
+        /// <param name="value">Value to remove</param>
         /// <returns>New set with item removed</returns>
         [Pure]
         public Set<A> Remove(A value) =>
             Wrap(Value.Remove(value));
+
+        /// <summary>
+        /// Removes a range of items from the set (if they exist)
+        /// </summary>
+        /// <param name="value">Value to remove</param>
+        /// <returns>New set with items removed</returns>
+        [Pure]
+        public Set<A> RemoveRange(IEnumerable<A> values)
+        {
+            var set = Value;
+            foreach(var x in values)
+            {
+                set = set.Remove(x);
+            }
+            return Wrap(set);
+        }
 
         /// <summary>
         /// Applies a function 'folder' to each element of the collection, threading an accumulator 
@@ -491,7 +556,7 @@ namespace LanguageExt
         /// <returns>True if the two sets are equal</returns>
         [Pure]
         public static bool operator !=(Set<A> lhs, Set<A> rhs) =>
-            lhs.Equals(rhs);
+            !lhs.Equals(rhs);
 
         [Pure]
         public static bool operator <(Set<A> lhs, Set<A> rhs) =>
@@ -528,9 +593,29 @@ namespace LanguageExt
         public override int GetHashCode() =>
             Value.GetHashCode();
 
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// The elipsis is used for collections over 50 items
+        /// To get a formatted string with all the items, use `ToFullString`
+        /// or `ToFullArrayString`.
+        /// </summary>
         [Pure]
         public override string ToString() =>
-            $"Set[{Count}]";
+            CollectionFormat.ToShortArrayString(this, Count);
+
+        /// <summary>
+        /// Format the collection as `a, b, c, ...`
+        /// </summary>
+        [Pure]
+        public string ToFullString(string separator = ", ") =>
+            CollectionFormat.ToFullString(this, separator);
+
+        /// <summary>
+        /// Format the collection as `[a, b, c, ...]`
+        /// </summary>
+        [Pure]
+        public string ToFullArrayString(string separator = ", ") =>
+            CollectionFormat.ToFullArrayString(this, separator);
 
         [Pure]
         public Seq<A> ToSeq() =>
@@ -599,7 +684,30 @@ namespace LanguageExt
         /// <summary>
         /// Implicit conversion from an untyped empty list
         /// </summary>
+        [Pure]
         public static implicit operator Set<A>(SeqEmpty _) =>
             Empty;
+
+        /// <summary>
+        /// Creates a new map from a range/slice of this map
+        /// </summary>
+        /// <param name="keyFrom">Range start (inclusive)</param>
+        /// <param name="keyTo">Range to (inclusive)</param>
+        /// <returns></returns>
+        [Pure]
+        public Set<A> Slice(A keyFrom, A keyTo) =>
+            new Set<A>(FindRange(keyFrom, keyTo));
+
+        /// <summary>
+        /// Find the lowest ordered item in the set
+        /// </summary>
+        [Pure]
+        public Option<A> Min => Value.Min;
+
+        /// <summary>
+        /// Find the highest ordered item in the set
+        /// </summary>
+        [Pure]
+        public Option<A> Max => Value.Max;
     }
 }

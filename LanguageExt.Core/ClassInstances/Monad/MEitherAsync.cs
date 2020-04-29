@@ -245,7 +245,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         async Task<EitherData<L, R>> RunAsyncImpl(Func<Unit, Task<EitherAsync<L, R>>> ma) =>
-            await(await ma(unit)).data;
+            await(await ma(unit)).Data;
 
         [Pure]
         public EitherAsync<L, R> Some(R value) =>
