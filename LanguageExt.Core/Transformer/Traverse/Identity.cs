@@ -31,7 +31,7 @@ namespace LanguageExt
                 Right: x => new Identity<EitherUnsafe<L, B>>(f(x.Value)),
                 Left: e => new Identity<EitherUnsafe<L, B>>(EitherUnsafe<L, B>.Left(e)));
 
-        public static Identity<HashSet<B>> Traverse<L, A, B>(this HashSet<Identity<A>> ma, Func<A, B> f)
+        public static Identity<HashSet<B>> Traverse<A, B>(this HashSet<Identity<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -43,10 +43,10 @@ namespace LanguageExt
             return new Identity<HashSet<B>>(new HashSet<B>(res));            
         }
 
-        public static Identity<Identity<B>> Traverse<L, A, B>(this Identity<Identity<A>> ma, Func<A, B> f) =>
+        public static Identity<Identity<B>> Traverse<A, B>(this Identity<Identity<A>> ma, Func<A, B> f) =>
             new Identity<Identity<B>>(new Identity<B>(f(ma.Value.Value)));
         
-        public static Identity<Lst<B>> Traverse<L, A, B>(this Lst<Identity<A>> ma, Func<A, B> f)
+        public static Identity<Lst<B>> Traverse<A, B>(this Lst<Identity<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -68,7 +68,7 @@ namespace LanguageExt
                 Some: x => new Identity<OptionUnsafe<B>>(f(x.Value)),
                 None: () => new Identity<OptionUnsafe<B>>(OptionUnsafe<B>.None));
         
-        public static Identity<Que<B>> Traverse<L, A, B>(this Que<Identity<A>> ma, Func<A, B> f)
+        public static Identity<Que<B>> Traverse<A, B>(this Que<Identity<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -80,7 +80,7 @@ namespace LanguageExt
             return new Identity<Que<B>>(new Que<B>(res));            
         }
         
-        public static Identity<Seq<B>> Traverse<L, A, B>(this Seq<Identity<A>> ma, Func<A, B> f)
+        public static Identity<Seq<B>> Traverse<A, B>(this Seq<Identity<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -92,7 +92,7 @@ namespace LanguageExt
             return new Identity<Seq<B>>(Seq.FromArray(res));            
         }
         
-        public static Identity<IEnumerable<B>> Traverse<L, A, B>(this IEnumerable<Identity<A>> ma, Func<A, B> f)
+        public static Identity<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Identity<A>> ma, Func<A, B> f)
         {
             var res = new List<B>();
             foreach (var xs in ma)
@@ -102,7 +102,7 @@ namespace LanguageExt
             return new Identity<IEnumerable<B>>(Seq.FromArray(res.ToArray()));            
         }
         
-        public static Identity<Set<B>> Traverse<L, A, B>(this Set<Identity<A>> ma, Func<A, B> f)
+        public static Identity<Set<B>> Traverse<A, B>(this Set<Identity<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = 0;
@@ -114,7 +114,7 @@ namespace LanguageExt
             return new Identity<Set<B>>(new Set<B>(res));            
         }
         
-        public static Identity<Stck<B>> Traverse<L, A, B>(this Stck<Identity<A>> ma, Func<A, B> f)
+        public static Identity<Stck<B>> Traverse<A, B>(this Stck<Identity<A>> ma, Func<A, B> f)
         {
             var res = new B[ma.Count];
             var ix = ma.Count - 1;
@@ -126,12 +126,12 @@ namespace LanguageExt
             return new Identity<Stck<B>>(new Stck<B>(res));            
         }
         
-        public static Identity<Try<B>> Traverse<L, A, B>(this Try<Identity<A>> ma, Func<A, B> f) =>
+        public static Identity<Try<B>> Traverse<A, B>(this Try<Identity<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Succ: x => new Identity<Try<B>>(Try(f(x.Value))),
                 Fail: e => new Identity<Try<B>>(Try<B>(e)));
         
-        public static Identity<TryOption<B>> Traverse<L, A, B>(this TryOption<Identity<A>> ma, Func<A, B> f) =>
+        public static Identity<TryOption<B>> Traverse<A, B>(this TryOption<Identity<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Some: x  => new Identity<TryOption<B>>(TryOption(f(x.Value))),
                 None: () => new Identity<TryOption<B>>(TryOption<B>(Option<B>.None)),
