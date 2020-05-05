@@ -323,14 +323,14 @@ namespace LanguageExt
                     var (s, outerTask) = GetNext();
                     if (!s) break;
 
-                    tasks.Add(outerTask.Iter(async oa =>
+                    tasks.Add(outerTask.Bind(async oa =>
                     {
                         f(oa);
 
                         while (true)
                         {
                             var next = GetNext();
-                            if (!next.Success) return;
+                            if (!next.Success) return unit;
                             var a = await next.Task;
                             f(a);
                         }
@@ -391,7 +391,7 @@ namespace LanguageExt
                     if (!s) break;
 
                     var ix = i;
-                    tasks.Add(outerTask.Iter(async oa =>
+                    tasks.Add(outerTask.Bind(async oa =>
                     {
                         results[ix].Add(f(oa));
 
@@ -400,12 +400,12 @@ namespace LanguageExt
                             try
                             {
                                 var next = GetNext();
-                                if (!next.Success) return;
+                                if (!next.Success) return unit;
                                 var a = await next.Task;
                                 if (next.Task.IsFaulted)
                                 {
                                     errors[ix].Add(next.Task.Exception);
-                                    return;
+                                    return unit;
                                 }
                                 else
                                 {
@@ -415,7 +415,7 @@ namespace LanguageExt
                             catch (Exception e)
                             {
                                 errors[ix].Add(new AggregateException(e));
-                                return;
+                                return unit;
                             }
                         }
                     }));
