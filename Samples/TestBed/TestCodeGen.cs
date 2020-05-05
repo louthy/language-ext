@@ -22,7 +22,7 @@ namespace TestBed
     public interface FreeIO<T>
     {
         [Pure] T Pure(T value);
-        [Pure] T Fail(Error error);
+        [Fail] T Fail(Error error);
         string ReadAllText(string path);
         Unit WriteAllText(string path, string text);
     }
@@ -31,10 +31,10 @@ namespace TestBed
     {
         public static FreeIO<T> Flatten2<T>(this FreeIO<FreeIO<T>> ma) => ma switch
         {
-            Pure<FreeIO<T>> v => v.Value, 
+            Pure<FreeIO<T>> v => v.Value,
             Fail<FreeIO<T>> v => new Fail<T>(v.Error),
-            ReadAllText<FreeIO<T>> v => new ReadAllText<T>(v.Path, n => Flatten(v.Next(n))),
-            WriteAllText<FreeIO<T>> v => new WriteAllText<T>(v.Path, v.Text, n => Flatten(v.Next(n))),
+            ReadAllText<FreeIO<T>> v => new ReadAllText<T>(v.Path, n => Flatten(v.Next(n)), fn => Flatten(v.FailNext(fn))),
+            WriteAllText<FreeIO<T>> v => new WriteAllText<T>(v.Path, v.Text, n => Flatten(v.Next(n)), fn => Flatten(v.FailNext(fn))),
             _ => throw new System.NotSupportedException()
         };
     }
@@ -49,20 +49,20 @@ namespace TestBed
 
 
             var res1 = Interpret(dsl);
-            
+
             var res2 = await InterpretAsync(dsl);
         }
 
         public static Either<Error, A> Interpret<A>(FreeIO<A> ma) => ma switch
         {
-            Pure<A> (var value)                            => value,
-            Fail<A> (var error)                            => error,  
-            ReadAllText<A> (var path, var next)            => Interpret(next(Read(path))),
-            WriteAllText<A> (var path, var text, var next) => Interpret(next(Write(path, text))),
-            _                                              => throw new NotSupportedException()
+            Pure<A>(var value) => value,
+            Fail<A>(var error) => error,
+            ReadAllText<A>(var path, var next, var failNext) => Interpret(next(Read(path))),
+            WriteAllText<A>(var path, var text, var next, var failNext) => Interpret(next(Write(path, text))),
+            _ => throw new NotSupportedException()
         };
 
-        static string Read(string path) => 
+        static string Read(string path) =>
             File.ReadAllText(path);
 
         static Unit Write(string path, string text)
@@ -73,11 +73,11 @@ namespace TestBed
 
         public static async Task<A> InterpretAsync<A>(FreeIO<A> ma) => ma switch
         {
-            Pure<A> (var value)                            => value,
-            Fail<A> (var error)                            => await Task.FromException<A>(error),  
-            ReadAllText<A> (var path, var next)            => await InterpretAsync(next(await File.ReadAllTextAsync(path))),
-            WriteAllText<A> (var path, var text, var next) => await InterpretAsync(next(await File.WriteAllTextAsync(path, text).ToUnit())),
-            _                                              => throw new NotSupportedException()
+            Pure<A>(var value) => value,
+            Fail<A>(var error) => await Task.FromException<A>(error),
+            ReadAllText<A>(var path, var next, var failNext) => await InterpretAsync(next(await File.ReadAllTextAsync(path))),
+            WriteAllText<A>(var path, var text, var next, var failNext) => await InterpretAsync(next(await File.WriteAllTextAsync(path, text).ToUnit())),
+            _ => throw new NotSupportedException()
         };
     }
 
@@ -90,7 +90,7 @@ namespace TestBed
         public static Maybe<B> Map<B>(Maybe<A> ma, Func<A, B> f) => ma switch
         {
             Just<A>(var x) => Maybe.Just(f(x)),
-            _              => Maybe.Nothing<B>()
+            _ => Maybe.Nothing<B>()
         };
     }
 
@@ -112,13 +112,13 @@ namespace TestBed
                 from b in mb
                 from _ in mn
                 select a + b;
-            
+
             var r3 = mr switch
             {
-                Just<int> (var x) => $"Value is {x}",
-                _                 => "No value"
+                Just<int>(var x) => $"Value is {x}",
+                _ => "No value"
             };
-            
+
             Console.WriteLine(mr);
             Console.WriteLine(mnn);
         }
@@ -156,7 +156,7 @@ namespace TestBed
         }
         public Person ReadFromDB() => new Person("Spider", "Man");
         public int Zero => 0;
-    } 
+    }
 
     public static class TestSubs
     {
@@ -164,7 +164,7 @@ namespace TestBed
         {
             var comp = from ze in Subsystem.Zero
                        from ls in Subsystem.ReadAllLines("c:/test.txt")
-                       from _  in Subsystem.WriteAllLines("c:/test-copy.txt", ls)
+                       from _ in Subsystem.WriteAllLines("c:/test-copy.txt", ls)
                        select ls.Count;
 
             var res = comp.Run(new RealIO()).IfFail(0);
@@ -184,11 +184,11 @@ namespace TestBed
     //}
 
 
-    [RWS(WriterMonoid: typeof(MSeq<string>), 
-         Env:          typeof(IO), 
-         State:        typeof(Person), 
-         Constructor:  "Pure", 
-         Fail:         "Error" )]
+    [RWS(WriterMonoid: typeof(MSeq<string>),
+         Env: typeof(IO),
+         State: typeof(Person),
+         Constructor: "Pure",
+         Fail: "Error")]
     public partial struct Subsys<T>
     {
     }
@@ -302,5 +302,3 @@ namespace TestBed
         public readonly string Surname;
     }
 }
-
-

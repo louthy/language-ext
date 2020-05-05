@@ -994,7 +994,7 @@ namespace LanguageExt.CodeGen
                                     IsPatternExpression(
                                         IdentifierName("obj"),
                                         DeclarationPattern(
-                                            baseType,
+                                            thisType,
                                             SingleVariableDesignation(
                                                 Identifier("p")))),
                                     InvocationExpression(
