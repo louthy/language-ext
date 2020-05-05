@@ -5,6 +5,7 @@ using static LanguageExt.Prelude;
 using Xunit;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using LanguageExt.Common;
 
 namespace LanguageExt.Tests
 {
@@ -189,6 +190,16 @@ namespace LanguageExt.Tests
         {
             public ActionType(string value) : base(value) { }
             protected ActionType(SerializationInfo info, StreamingContext context) : base(info, context) { }
+        }
+
+        [Fact]
+        public void ErrorSerialisationTest()
+        {
+            var error = Error.New("Test");
+            var json = JsonConvert.SerializeObject(error);
+            var error1 = JsonConvert.DeserializeObject<Error>(json);
+
+            Assert.True(error == error1);
         }
     }
 }
