@@ -16,4 +16,10 @@ namespace LanguageExt
     public class FreeAttribute : Attribute
     {
     }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    [Conditional("CodeGeneration")]
+    public sealed class FailAttribute : Attribute
+    {
+    }
 }
