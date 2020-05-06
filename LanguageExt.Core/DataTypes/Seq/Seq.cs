@@ -538,6 +538,7 @@ namespace LanguageExt
         /// <typeparam name="B"></typeparam>
         /// <param name="f">Mapping function</param>
         /// <returns>Mapped sequence</returns>
+        [Pure]
         public Seq<B> Map<B>(Func<A, B> f) =>
             new Seq<B>(Value.Map(f));
 
@@ -547,6 +548,7 @@ namespace LanguageExt
         /// <typeparam name="B"></typeparam>
         /// <param name="f">Mapping function</param>
         /// <returns>Mapped sequence</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<B> Select<B>(Func<A, B> f) =>
             Map(f);
@@ -557,6 +559,7 @@ namespace LanguageExt
         /// <typeparam name="B">Bound return value type</typeparam>
         /// <param name="f">Bind function</param>
         /// <returns>Flatmapped sequence</returns>
+        [Pure]
         public Seq<B> Bind<B>(Func<A, Seq<B>> f)
         {
             IEnumerable<B> Yield(Seq<A> ma, Func<A, Seq<B>> bnd)
@@ -578,6 +581,7 @@ namespace LanguageExt
         /// <typeparam name="B">Bound return value type</typeparam>
         /// <param name="bind">Bind function</param>
         /// <returns>Flatmapped sequence</returns>
+        [Pure]
         public Seq<C> SelectMany<B, C>(Func<A, Seq<B>> bind, Func<A, B, C> project)
         {
             IEnumerable<C> Yield(Seq<A> ma, Func<A, Seq<B>> bnd, Func<A, B, C> prj)
@@ -598,6 +602,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Predicate to apply to the items</param>
         /// <returns>Filtered sequence</returns>
+        [Pure]
         public Seq<A> Filter(Func<A, bool> f) =>
             new Seq<A>(Value.Filter(f));
 
@@ -606,6 +611,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Predicate to apply to the items</param>
         /// <returns>Filtered sequence</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Where(Func<A, bool> f) =>
             Filter(f);
@@ -617,6 +623,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="f">Fold function</param>
         /// <returns>Aggregated state</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S Fold<S>(S state, Func<S, A, S> f) =>
             Value.Fold(state, f);
@@ -630,6 +637,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="f">Fold function</param>
         /// <returns>Aggregated state</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S FoldBack<S>(S state, Func<S, A, S> f) =>
             Value.FoldBack(state, f);
@@ -641,6 +649,7 @@ namespace LanguageExt
         /// <param name="f">Predicate to apply</param>
         /// <returns>True if the supplied predicate returns true for any
         /// item in the sequence.  False otherwise.</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Exists(Func<A, bool> f) =>
             Value.Exists(f);
@@ -654,6 +663,7 @@ namespace LanguageExt
         /// <returns>True if the supplied predicate returns true for all
         /// items in the sequence.  False otherwise.  If there is an 
         /// empty sequence then true is returned.</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ForAll(Func<A, bool> f) =>
             Value.ForAll(f);
@@ -662,6 +672,7 @@ namespace LanguageExt
         /// Returns true if the sequence has items in it
         /// </summary>
         /// <returns>True if the sequence has items in it</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Any() =>
             !IsEmpty;
@@ -670,6 +681,7 @@ namespace LanguageExt
         /// Get the hash code for all of the items in the sequence, or 0 if empty
         /// </summary>
         /// <returns></returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() =>
             hash = hash == 0
@@ -705,6 +717,7 @@ namespace LanguageExt
         /// <summary>
         /// Append operator
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<A> operator +(Seq<A> x, Seq<A> y) =>
             x.Concat(y);
@@ -712,6 +725,7 @@ namespace LanguageExt
         /// <summary>
         /// Ordering operator
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator >(Seq<A> x, Seq<A> y) =>
             x.CompareTo(y) > 0;
@@ -719,6 +733,7 @@ namespace LanguageExt
         /// <summary>
         /// Ordering operator
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator >=(Seq<A> x, Seq<A> y) =>
             x.CompareTo(y) >= 0;
@@ -726,6 +741,7 @@ namespace LanguageExt
         /// <summary>
         /// Ordering  operator
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator <(Seq<A> x, Seq<A> y) =>
             x.CompareTo(y) < 0;
@@ -733,6 +749,7 @@ namespace LanguageExt
         /// <summary>
         /// Ordering  operator
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator <=(Seq<A> x, Seq<A> y) =>
             x.CompareTo(y) <= 0;
@@ -740,6 +757,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality operator
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(Seq<A> x, Seq<A> y) =>
             x.Equals(y);
@@ -747,6 +765,7 @@ namespace LanguageExt
         /// <summary>
         /// Non-equality operator
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(Seq<A> x, Seq<A> y) =>
             !(x == y);
@@ -754,6 +773,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality test
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object obj) =>
             obj is Seq<A> seq && Equals(seq);
@@ -761,6 +781,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality test
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Obsolete(ISeqObsolete.Message)]
         public bool Equals(ISeq<A> rhs) =>
@@ -769,6 +790,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality test
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(Seq<A> rhs) =>
             Equals<EqDefault<A>>(rhs);
@@ -776,6 +798,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality test
         /// </summary>
+        [Pure]
         public bool Equals<EqA>(Seq<A> rhs) where EqA : struct, Eq<A>
         {
             // Differing lengths?
@@ -804,6 +827,7 @@ namespace LanguageExt
         /// <summary>
         /// Skip count items
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Skip(int amount) =>
             amount < 1
@@ -813,6 +837,7 @@ namespace LanguageExt
         /// <summary>
         /// Take count items
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Take(int amount) =>
             amount < 1
@@ -825,6 +850,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
+        [Pure]
         public Seq<A> TakeWhile(Func<A, bool> pred)
         {
             return new Seq<A>(new SeqLazy<A>(Yield(Value, pred)));
@@ -845,6 +871,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
+        [Pure]
         public Seq<A> TakeWhile(Func<A, int, bool> pred)
         {
             return new Seq<A>(new SeqLazy<A>(Yield(Value, pred)));
@@ -863,6 +890,7 @@ namespace LanguageExt
         /// <summary>
         /// Compare to another sequence
         /// </summary>
+        [Pure]
         [Obsolete(ISeqObsolete.Message)]
         public int CompareTo(ISeq<A> rhs) =>
             CompareTo<OrdDefault<A>>(rhs);
@@ -870,6 +898,7 @@ namespace LanguageExt
         /// <summary>
         /// Compare to another sequence
         /// </summary>
+        [Pure]
         [Obsolete(ISeqObsolete.Message)]
         public int CompareTo<OrdA>(ISeq<A> rhs) where OrdA : struct, Ord<A>
         {
@@ -893,12 +922,14 @@ namespace LanguageExt
         /// <summary>
         /// Compare to another sequence
         /// </summary>
+        [Pure]
         public int CompareTo(Seq<A> rhs) =>
             CompareTo<OrdDefault<A>>(rhs);
 
         /// <summary>
         /// Compare to another sequence
         /// </summary>
+        [Pure]
         public int CompareTo<OrdA>(Seq<A> rhs) where OrdA : struct, Ord<A>
         {
             if (rhs == null) return 1;
@@ -921,14 +952,17 @@ namespace LanguageExt
         /// <summary>
         /// Force all items lazy to stream
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Strict() => 
             new Seq<A>(Value.Strict());
 
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerator<A> GetEnumerator() =>
             Value.GetEnumerator();
 
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator() =>
             Value.GetEnumerator();
@@ -936,6 +970,7 @@ namespace LanguageExt
         /// <summary>
         /// Implicit conversion from an untyped empty list
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Seq<A>(SeqEmpty _) =>
             Empty;
