@@ -7,7 +7,7 @@
   <!--<Sdk Name="CodeGeneration.Roslyn.Plugin.Sdk" Version="0.7.5-alpha" />-->
 
   <PropertyGroup>
-    <PackageVersion>3.4.13</PackageVersion>
+    <PackageVersion>3.4.14</PackageVersion>
     <PackageId>LanguageExt.CodeGen</PackageId>
     <Title>LanguageExt.CodeGen</Title>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
