@@ -752,7 +752,7 @@ namespace LanguageExt
         {
             var root = node;
             var subIndex = index;
-            foreach (var item in items)
+            foreach(var item in items)
             {
                 if (!pred.True(item)) throw new ArgumentOutOfRangeException("item in items");
                 root = Insert(root, item, subIndex);
@@ -932,7 +932,7 @@ namespace LanguageExt
             }
             else
             {
-                if (!ReferenceEquals(left, node.Left) || !ReferenceEquals(right, node.Right))
+                if(!ReferenceEquals(left, node.Left) || !ReferenceEquals(right, node.Right))
                 {
                     result = Balance(Make(node.Key, left, right));
                 }
@@ -1017,7 +1017,7 @@ namespace LanguageExt
             else if (compare > 0)
             {
                 int adjcount = count - (nodeIndex - index) - 1;
-                int result = adjcount < 0 ? -1 : Find(node.Right, key, 0, adjcount, comparer);
+                int result = adjcount < 0 ? -1 : Find(node.Right,key, 0, adjcount, comparer);
                 int offset = nodeIndex + 1;
                 return result < 0 ? result - offset : result + offset;
             }
@@ -1027,7 +1027,7 @@ namespace LanguageExt
                 {
                     return ~index;
                 }
-                return Find(node.Left, key, index, count, comparer);
+                return Find(node.Left,key,index,count,comparer);
             }
         }
 

@@ -1,5 +1,4 @@
 ﻿using LanguageExt.TypeClasses;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
@@ -20,8 +19,17 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public bool Equals(Arr<A> x, Arr<A> y) =>
-            ((System.Collections.IStructuralEquatable) x.Value).Equals(y.Value, EqualityComparer<A>.Default);
+        public bool Equals(Arr<A> x, Arr<A> y)
+        {
+            if (x.Count != y.Count) return false;
+            var xiter = x.GetEnumerator();
+            var yiter = y.GetEnumerator();
+            while(xiter.MoveNext() && yiter.MoveNext())
+            {
+                if (!equals<EqA, A>(xiter.Current, yiter.Current)) return false;
+            }
+            return true;
+        }
 
         /// <summary>
         /// Get hash code of the value

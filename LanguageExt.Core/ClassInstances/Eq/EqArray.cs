@@ -1,5 +1,4 @@
 ﻿using LanguageExt.TypeClasses;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
@@ -20,8 +19,18 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public bool Equals(A[] x, A[] y) =>
-            ((System.Collections.IStructuralEquatable)x).Equals(y, EqualityComparer<A>.Default);
+        public bool Equals(A[] x, A[] y)
+        {
+            if (x == null) return y == null;
+            if (y == null) return false;
+            if (x.Length != y.Length) return false;
+
+            for (var i = 0; i < x.Length; i++)
+            {
+                if (!equals<EqA, A>(x[i], y[i])) return false;
+            }
+            return true;
+        }
 
         /// <summary>
         /// Get hash code of the value

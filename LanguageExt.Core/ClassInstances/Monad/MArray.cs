@@ -45,11 +45,23 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public bool Equals(A[] x, A[] y) =>
-            ((System.Collections.IStructuralEquatable)x).Equals(y, EqualityComparer<A>.Default);
+            Enumerable.SequenceEqual(x, y);
 
         [Pure]
-        public int Compare(A[] x, A[] y) =>
-            ((System.Collections.IStructuralComparable)x).CompareTo(y, Comparer<A>.Default);
+        public int Compare(A[] x, A[] y)
+        {
+            int cmp = x.Length.CompareTo(y.Length);
+            if (cmp != 0) return cmp;
+
+            using var iterA = x.AsEnumerable().GetEnumerator();
+            using var iterB = y.AsEnumerable().GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
+            {
+                cmp = default(OrdDefault<A>).Compare(iterA.Current, iterB.Current);
+                if (cmp != 0) return cmp;
+            }
+            return 0;
+        }
 
         [Pure]
         public A[] Fail(object err = null) =>
