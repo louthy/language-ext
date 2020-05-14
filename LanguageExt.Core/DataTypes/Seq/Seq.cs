@@ -160,8 +160,124 @@ namespace LanguageExt
         /// can be appended.  
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Concat(IEnumerable<A> items) =>
-            new Seq<A>(EnumerableOptimal.ConcatFast(this, items));
+        public Seq<A> Concat(IEnumerable<A> items) => items switch
+        {
+            Lst<A> lst              => Concat(lst),
+            Set<A> set              => Concat(set),
+            HashSet<A> hset         => Concat(hset),
+            Arr<A> arr              => Concat(arr),
+            Stck<A> stck            => Concat(stck),
+            IReadOnlyList<A> rolist => Concat(rolist),
+            _                       => new Seq<A>(EnumerableOptimal.ConcatFast(this, items))
+        };
+                           
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Concat(Lst<A> items)
+        {
+            if (items.Count == 0)
+            {
+                return this;
+            }
+            var arr = items.Value.ToArray();
+            return Concat(Seq.FromArray(arr));
+        }
+        
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Concat(Set<A> items)
+        {
+            if (items.Count == 0)
+            {
+                return this;
+            }
+            var arr = items.Value.ToArray();
+            return Concat(Seq.FromArray(arr));
+        }
+                
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Concat(HashSet<A> items)
+        {
+            if (items.Count == 0)
+            {
+                return this;
+            }
+            var arr = items.ToArray();
+            return Concat(Seq.FromArray(arr));
+        }
+                
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Concat(Arr<A> items)
+        {
+            if (items.Count == 0)
+            {
+                return this;
+            }
+            return Concat(Seq.FromArray(items.Value));
+        }
+        
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Concat(Stck<A> items)
+        {
+            if (items.Count == 0)
+            {
+                return this;
+            }
+            var arr = items.ToArray();
+            return Concat(Seq.FromArray(arr));
+        }
+
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Concat(IReadOnlyCollection<A> items)
+        {
+            if ((items?.Count ?? 0) == 0)
+            {
+                return this;
+            }
+
+            var arr = items.ToArray();
+            return Concat(Seq.FromArray(arr));
+        }
 
         /// <summary>
         /// Add a range of items to the end of the sequence

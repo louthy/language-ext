@@ -120,6 +120,8 @@ class Program
         //                                                                                                    //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        Issue778();
+        
         var tries = from ixx in Range(0, 1_000_000) select Try(() => ixx);
         var _ = tries.Sequence().Map(Enumerable.Sum).IfFailThrow();
         
@@ -281,6 +283,20 @@ class Program
 
 
         Console.WriteLine("Coming soon");
+    }
+
+    static void Issue778()
+    {
+        var ranges = LanguageExt.Seq<int>.Empty;
+
+        for (var i = 0; i < 15000; i++) //Loop through items to process
+        {
+            var additions = new List<int>(); //Processing an item returns an empty list
+            ranges = ranges.Concat(additions); //Merge into main Seq
+        }
+
+        //Some time later transform to an array for data transfer
+        var dtoArray= ranges.ToArray(); //<-- Exception crashes application        
     }
 
     static void Issue634()
