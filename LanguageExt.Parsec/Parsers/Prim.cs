@@ -204,6 +204,26 @@ namespace LanguageExt.Parsec
             chaini(ps);
 
         /// <summary>
+        /// Cons for parser results
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="ps"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static Parser<Seq<T>> cons<T>(Parser<T> p, Parser<Seq<T>> ps) =>
+            from x in p
+            from xs in ps
+            select x.Cons(xs);
+        
+        /// <summary>
+        /// Flattens parser result: Seq of Seq of T => Seq of T
+        /// </summary>
+        /// <returns>Parser with flattened result sequence</returns>
+        public static Parser<Seq<T>> flatten<T>(Parser<Seq<Seq<T>>> ssp) =>
+            from xss in ssp
+            select xss.Flatten();
+
+        /// <summary>
         /// The parser attempt(p) behaves like parser p, except that it
         /// pretends that it hasn't consumed any input when an error occurs.
         /// 
@@ -622,7 +642,7 @@ namespace LanguageExt.Parsec
                   select x);
 
         /// <summary>
-        /// endBy(p,sep) parses zerp or more occurrences of p, separated
+        /// endBy(p,sep) parses zero or more occurrences of p, separated
         /// and ended by sep.
         /// </summary>
         /// <returns>
