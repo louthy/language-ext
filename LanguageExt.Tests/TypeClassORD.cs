@@ -2,6 +2,7 @@
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using static LanguageExt.TypeClass;
+using System.Threading.Tasks;
 
 namespace LanguageExt.Tests
 {
@@ -96,6 +97,12 @@ namespace LanguageExt.Tests
             public bool Equals(T x, T y) => default(ORD).Equals(x, y);
 
             public int Compare(T x, T y) => default(ORD).Compare(y, x);
+
+            public Task<int> CompareAsync(T x, T y) => throw new System.NotImplementedException();
+
+            public Task<bool> EqualsAsync(T x, T y) => throw new System.NotImplementedException();
+
+            public Task<int> GetHashCodeAsync(T x) => throw new System.NotImplementedException();
         }
 
         [Fact]
