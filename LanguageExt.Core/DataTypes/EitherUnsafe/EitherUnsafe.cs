@@ -692,6 +692,19 @@ namespace LanguageExt
                 : 1;
 
         /// <summary>
+        /// Flips the left and right tagged values
+        /// </summary>
+        /// <returns>Either with the types swapped</returns>
+        [Pure]
+        public EitherUnsafe<R, L> Swap() =>
+            State switch
+            {
+                EitherStatus.IsRight => EitherUnsafe<R, L>.Left(RightValue),
+                EitherStatus.IsLeft  => EitherUnsafe<R, L>.Right(LeftValue),
+                _                    => EitherUnsafe<R, L>.Bottom
+            };        
+
+        /// <summary>
         /// Iterate the EitherUnsafe
         /// action is invoked if in the Right state
         /// </summary>

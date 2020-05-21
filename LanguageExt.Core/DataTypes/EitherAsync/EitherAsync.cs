@@ -854,6 +854,29 @@ namespace LanguageExt
                 Bottom: () => 0);
 
         /// <summary>
+        /// Flips the left and right tagged values
+        /// </summary>
+        /// <returns>Either with the types swapped</returns>
+        [Pure]
+        public EitherAsync<R, L> Swap()
+        {
+            return new EitherAsync<R, L>(Go(Data));
+            
+            async Task<EitherData<R, L>> Go(Task<EitherData<L, R>> self)
+            {
+                var data = await self;
+
+                return data.State switch
+                {
+                    EitherStatus.IsRight => EitherData.Left<R, L>(data.Right),
+                    EitherStatus.IsLeft  => EitherData.Right<R, L>(data.Left),
+                    _                    => EitherData<R, L>.Bottom
+                };
+            }
+        }
+
+
+        /// <summary>
         /// Iterate the Either
         /// action is invoked if in the Right state
         /// </summary>
