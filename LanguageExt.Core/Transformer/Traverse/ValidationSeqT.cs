@@ -57,7 +57,7 @@ namespace LanguageExt
         {
             if (ma.IsLeft)
             {
-                return default(MValidation<Fail, Either<L, B>>).Fail(ma.LeftValue);
+                return Validation<Fail, Either<L, B>>.Success(Left(ma.LeftValue));
             }
             else
             {
@@ -97,7 +97,7 @@ namespace LanguageExt
         {
             if (ma.IsLeft)
             {
-                return default(MValidation<Fail, EitherUnsafe<L, B>>).Fail(ma.LeftValue);
+                return Validation<Fail, EitherUnsafe<L, B>>.Success(ma.LeftValue);
             }
             else
             {
@@ -330,7 +330,7 @@ namespace LanguageExt
             
             if (tres.IsBottom || tres.IsFaulted)
             {
-                return default(MValidation<Fail, Try<B>>).Fail(tres.Exception);
+                return Validation<Fail, Try<B>>.Success(TryFail<B>(tres.Exception));
             }
             else if (tres.Value.IsFail)
             {
@@ -348,7 +348,7 @@ namespace LanguageExt
             
             if (tres.IsBottom || tres.IsFaulted)
             {
-                return default(MValidation<Fail, TryOption<B>>).Fail(tres.Exception);
+                return Validation<Fail, TryOption<B>>.Success(TryOption<B>(tres.Exception));
             }
             else if (tres.Value.IsNone)
             {
@@ -368,7 +368,7 @@ namespace LanguageExt
         {
             if (ma.IsFail)
             {
-                return Validation<Fail, Validation<Fail, B>>.Fail(ma.FailValue);
+                return Validation<Fail, Validation<Fail, B>>.Success(ma.FailValue);
             }
             else
             {
