@@ -3,6 +3,7 @@ using Xunit;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using static LanguageExt.TypeClass;
+using System.Threading.Tasks;
 
 namespace LanguageExt.Tests
 {
