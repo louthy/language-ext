@@ -501,7 +501,7 @@ To take this much further, all of the monads in this library implement a standar
     Map                 // Part of the definition of any 'functor'. Select in LINQ
     Lift / LiftUnsafe   // Different meaning to Haskell, this returns the wrapped value. Dangerous, should be used sparingly.
     Select
-    SeletMany
+    SelectMany
     Where
 ```
 This makes them into what would be known in Haskell as a Type Class (although more of a catch-all type-class than a set of well-defined type-classes). 
