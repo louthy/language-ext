@@ -53,8 +53,20 @@ namespace LanguageExt
             }
         }
 
-        public A Last =>
-            ms.Last.Last;
+        public A Last
+        {
+            get 
+            {
+                foreach (var s in ms.Reverse())
+                {
+                    foreach (var a in s.Reverse())
+                    {
+                        return a;
+                    }
+                } 
+                throw new InvalidOperationException("Sequence is empty");
+            }
+        }
 
         public int Count => 
             ms.Sum(s => s.Count);

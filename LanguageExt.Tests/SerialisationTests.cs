@@ -5,6 +5,7 @@ using static LanguageExt.Prelude;
 using Xunit;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using LanguageExt.Common;
 
 namespace LanguageExt.Tests
 {
@@ -192,35 +193,13 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void DateTimeTypeWithEither()
+        public void ErrorSerialisationTest()
         {
-            var val = Right<string, DateTime>(new DateTime(2020, 4, 18, 14, 28, 42, 985));
-            var res = JsonConvert.DeserializeObject<Either<string, DateTime>>(JsonConvert.SerializeObject(val));
-            Assert.Equal(val, res);
-        }
+            var error = Error.New("Test");
+            var json = JsonConvert.SerializeObject(error);
+            var error1 = JsonConvert.DeserializeObject<Error>(json);
 
-        [Fact]
-        public void DateTimeTypeWithValidation()
-        {
-            var val = Success<string, DateTime>(new DateTime(2020, 4, 18, 14, 28, 42, 985));
-            var res = JsonConvert.DeserializeObject<Validation<string, DateTime>>(JsonConvert.SerializeObject(val));
-            Assert.Equal(val, res);
-        }
-
-        [Fact]
-        public void DateStringWithEither()
-        {
-            var val = Right<string, string>("2020-04-18T14:28:42.985");
-            var res = JsonConvert.DeserializeObject<Either<string, string>>(JsonConvert.SerializeObject(val));
-            Assert.Equal(val, res);
-        }
-
-        [Fact]
-        public void DateStringWithValidation()
-        {
-            var val = Success<string, string>("2020-04-18T14:28:42.985");
-            var res = JsonConvert.DeserializeObject<Validation<string, string>>(JsonConvert.SerializeObject(val));
-            Assert.Equal(val, res);
+            Assert.True(error == error1);
         }
     }
 }

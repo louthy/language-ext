@@ -103,11 +103,11 @@ namespace LanguageExt.Tests
         {
             var items = Prelude.Seq("2", "1", "10");
             
-            Assert.Equal(Prelude.Seq("1", "10", "2"), items.OrderBy(Prelude.identity,  default(OrdDefault<string>)));
-            Assert.Equal(Prelude.Seq("1", "2", "10"), items.OrderBy(System.Convert.ToInt32,  default(OrdDefault<int>)));
+            Assert.Equal(Prelude.Seq("1", "10", "2"), items.OrderBy(Prelude.identity,  default(OrdDefault<string>).ToComparable()));
+            Assert.Equal(Prelude.Seq("1", "2", "10"), items.OrderBy(System.Convert.ToInt32,  default(OrdDefault<int>).ToComparable()));
             
-            Assert.Equal(Prelude.Seq("2", "10", "1"), items.OrderBy(Prelude.identity,  default(OrdDesc<OrdDefault<string>, string>)));
-            Assert.Equal(Prelude.Seq("10", "2", "1"), items.OrderBy(System.Convert.ToInt32,  default(OrdDesc<OrdDefault<int>, int>)));
+            Assert.Equal(Prelude.Seq("2", "10", "1"), items.OrderBy(Prelude.identity,  default(OrdDesc<OrdDefault<string>, string>).ToComparable()));
+            Assert.Equal(Prelude.Seq("10", "2", "1"), items.OrderBy(System.Convert.ToInt32,  default(OrdDesc<OrdDefault<int>, int>).ToComparable()));
         }
     }
 }

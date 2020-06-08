@@ -11,5 +11,7 @@ namespace LanguageExt
         [Pure]
         public static Validation<FAIL, SUCCESS> Flatten<FAIL, SUCCESS>(this Validation<FAIL, Validation<FAIL, SUCCESS>> self) =>
             self.Bind(identity);
+        
+        public static Seq<SUCCESS>
     }
 }

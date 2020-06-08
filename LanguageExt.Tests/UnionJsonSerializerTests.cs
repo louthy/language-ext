@@ -21,7 +21,7 @@ namespace LanguageExt.Tests
             Assert.Equal(100, x.Value);
         }
         
-        [Fact]
+        [Fact(Skip="not yet supported")]
         public void UnionInstanceToJson()
         {
             var json = JsonConvert.SerializeObject(LightControlCon.Dimmer(100));
