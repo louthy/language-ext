@@ -292,9 +292,25 @@ namespace LanguageExt
         /// <returns>An enumerable of L</returns>
         [Pure]
         public static Seq<A> lefts<CHOICE, CH, A, B>(Seq<CH> ma)
-            where CHOICE : struct, Choice<CH, A, B> =>
-            Seq(lefts<CHOICE, CH, A, B>(ma.AsEnumerable()));
+            where CHOICE : struct, Choice<CH, A, B>
+        {
+            var lst = new List<A>();
 
+            foreach (var item in ma)
+            {
+                if (default(CHOICE).IsLeft(item))
+                {
+                    lst.Add(default(CHOICE).Match(
+                        item,
+                        Left: x => x,
+                        Right: y => default(A),
+                        Bottom: () => default(A)));
+                }
+            }
+
+            return Seq(lst);
+        }
+        
         /// <summary>
         /// Extracts from a list of 'Either' all the 'Right' elements.
         /// All the 'Right' elements are extracted in order.
@@ -330,8 +346,24 @@ namespace LanguageExt
         /// <returns>An enumerable of L</returns>
         [Pure]
         public static Seq<B> rights<CHOICE, CH, A, B>(Seq<CH> ma)
-            where CHOICE : struct, Choice<CH, A, B> =>
-            Seq(rights<CHOICE, CH, A, B>(ma.AsEnumerable()));
+            where CHOICE : struct, Choice<CH, A, B>
+        {
+            var lst = new List<B>();
+            foreach (var item in ma)
+            {
+                if (default(CHOICE).IsRight(item))
+                {
+                    lst.Add(default(CHOICE).Match(
+                        item,
+                        Left: x => default(B),
+                        Right: y => y,
+                        Bottom: () => default(B)));
+                }
+            }
+
+            return Seq(lst);
+        }
+
 
         /// <summary>
         /// Partitions a list of 'Either' into two lists.
@@ -345,8 +377,11 @@ namespace LanguageExt
         /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
         [Pure]
         public static (IEnumerable<A> Lefts, IEnumerable<B> Rights) partition<CHOICE, CH, A, B>(IEnumerable<CH> ma)
-            where CHOICE : struct, Choice<CH, A, B> =>
-            (lefts<CHOICE, CH, A, B>(ma), rights<CHOICE, CH, A, B>(ma));
+            where CHOICE : struct, Choice<CH, A, B>
+        {
+            var la = ma.ToList();
+            return (lefts<CHOICE, CH, A, B>(la), rights<CHOICE, CH, A, B>(la));
+        }
 
         /// <summary>
         /// Partitions a list of 'Either' into two lists.
