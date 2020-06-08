@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System.Threading.Tasks;
+using Xunit;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using static LanguageExt.TypeClass;
@@ -96,6 +97,12 @@ namespace LanguageExt.Tests
             public bool Equals(T x, T y) => default(ORD).Equals(x, y);
 
             public int Compare(T x, T y) => default(ORD).Compare(y, x);
+
+            public Task<int> GetHashCodeAsync(T x) => default(ORD).GetHashCode(x).AsTask();
+
+            public Task<bool> EqualsAsync(T x, T y) => default(ORD).Equals(x, y).AsTask();
+
+            public Task<int> CompareAsync(T x, T y) => default(ORD).Compare(y, x).AsTask();
         }
 
         [Fact]
