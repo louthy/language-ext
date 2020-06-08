@@ -389,7 +389,7 @@ namespace LanguageExt
         {
             if (ma.IsFail)
             {
-                return Validation<Fail, Validation<MonoidFail, Fail, B>>.Fail(Seq1(ma.FailValue));
+                return Validation<Fail, Validation<MonoidFail, Fail, B>>.Success(ma.FailValue);
             }
             else
             {

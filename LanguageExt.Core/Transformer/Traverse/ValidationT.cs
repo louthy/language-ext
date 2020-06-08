@@ -42,7 +42,7 @@ namespace LanguageExt
         {
             if (ma.IsLeft)
             {
-                return Validation<MonoidFail, Fail, Either<Fail, B>>.Fail(ma.LeftValue);
+                return Validation<MonoidFail, Fail, Either<Fail, B>>.Success(ma.LeftValue);
             }
             else
             {
@@ -63,7 +63,7 @@ namespace LanguageExt
         {
             if (ma.IsLeft)
             {
-                return Validation<MonoidFail, Fail, EitherUnsafe<Fail, B>>.Fail(ma.LeftValue);
+                return Validation<MonoidFail, Fail, EitherUnsafe<Fail, B>>.Success(ma.LeftValue);
             }
             else
             {
@@ -321,7 +321,7 @@ namespace LanguageExt
             
             if (tres.IsBottom || tres.IsFaulted)
             {
-                return default(MValidation<MonoidFail, Fail, Try<B>>).Fail(tres.Exception);
+                return Validation<MonoidFail, Fail, Try<B>>.Success(TryFail<B>(tres.Exception));
             }
             else if (tres.Value.IsFail)
             {
@@ -340,7 +340,7 @@ namespace LanguageExt
             
             if (tres.IsBottom || tres.IsFaulted)
             {
-                return default(MValidation<MonoidFail, Fail, TryOption<B>>).Fail(tres.Exception);
+                return Validation<MonoidFail, Fail, TryOption<B>>.Success(TryOptionFail<B>(tres.Exception));
             }
             else if (tres.Value.IsNone)
             {
@@ -361,7 +361,7 @@ namespace LanguageExt
         {
             if (ma.IsFail)
             {
-                return Validation<MonoidFail, Fail, Validation<Fail, B>>.Fail(mconcat<MonoidFail, Fail>(ma.FailValue));
+                return Validation<MonoidFail, Fail, Validation<Fail, B>>.Success(ma.FailValue);
             }
             else
             {
@@ -382,7 +382,7 @@ namespace LanguageExt
         {
             if (ma.IsFail)
             {
-                return Validation<MonoidFail, Fail, Validation<MonoidFail, Fail, B>>.Fail(ma.FailValue);
+                return Validation<MonoidFail, Fail, Validation<MonoidFail, Fail, B>>.Success(ma.FailValue);
             }
             else
             {

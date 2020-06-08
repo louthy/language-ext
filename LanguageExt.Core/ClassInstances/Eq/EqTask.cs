@@ -26,7 +26,7 @@ namespace LanguageExt.ClassInstances
             }
             catch (Exception)
             {
-                if (x.IsFaulted && y.IsFaulted && (x?.Exception?.Message ?? "") == (y?.Exception?.Message ?? "")) return true;
+                if (x.IsFaulted && y.IsFaulted) return true;
                 if (x.IsFaulted || y.IsFaulted) return false;
                 if (x.IsCanceled && y.IsCanceled) return true;
                 return false;
