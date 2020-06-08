@@ -38,7 +38,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.TaskT.Collections
             var mb = ma.Traverse(identity);
             var mc = TaskFail<Stck<int>>(new Exception("fail"));
 
-            await Assert.ThrowsAsync<SystemException>(() => Eq(mb, mc));
+            var mr = await Eq(mb, mc);
+            
+            Assert.True(mr);
         }
     }
 }

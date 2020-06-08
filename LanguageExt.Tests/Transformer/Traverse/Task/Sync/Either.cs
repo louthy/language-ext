@@ -1,47 +1,52 @@
+using System;
 using Xunit;
 using LanguageExt;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
 using System.Threading.Tasks;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt.Tests.Transformer.Traverse.TaskT.Sync
 {
     public class EitherTask
     {
-        /*[Fact]
-        public async void LeftIsSomeLeft()
+        static Task<bool> Eq<L, R>(Task<Either<L, R>> ma, Task<Either<L, R>> mb) =>
+            EqAsyncClass<Task<Either<L, R>>>.EqualsAsync(ma, mb);
+ 
+        [Fact]
+        public async void LeftIsSuccLeft()
         {
             var ma = Left<Error, Task<int>>(Error.New("alt"));
             var mb = ma.Sequence();
-            var mc = SomeAsync(Left<Error, int>(Error.New("alt")));
+            var mc = TaskSucc(Left<Error, int>(Error.New("alt")));
 
-            var mr = await (mb == mc);
+            var mr = await Eq(mb, mc);
             
             Assert.True(mr);
         }
         
         [Fact]
-        public async void RightNoneIsNone()
+        public async void RightFailIsFail()
         {
-            var ma = Right<Error, Task<int>>(None);
+            var ma = Right<Error, Task<int>>(TaskFail<int>(new Exception("err")));
             var mb = ma.Sequence();
-            var mc = Task<Either<Error, int>>.None;
+            var mc = TaskFail<Either<Error, int>>(new Exception("err"));
 
-            var mr = await (mb == mc);
+            var mr = await Eq(mb, mc);
             
             Assert.True(mr);
         }
         
         [Fact]
-        public async void RightSomeIsSomeRight()
+        public async void RightSuccIsSuccRight()
         {
-            var ma = Right<Error, Task<int>>(SomeAsync(1234));
+            var ma = Right<Error, Task<int>>(TaskSucc(1234));
             var mb = ma.Sequence();
-            var mc = SomeAsync(Right<Error, int>(1234));
+            var mc = TaskSucc(Right<Error, int>(1234));
 
-            var mr = await (mb == mc);
+            var mr = await Eq(mb, mc);
             
             Assert.True(mr);
-        }*/
+        }
     }
 }

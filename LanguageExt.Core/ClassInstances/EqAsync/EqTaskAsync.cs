@@ -19,22 +19,18 @@ namespace LanguageExt.ClassInstances
     {
         public async Task<bool> EqualsAsync(Task<A> x, Task<A> y)
         {
-            var ts = await Task.WhenAll(x, y);
-
-            if (x.IsFaulted && y.IsFaulted)
+            try
             {
-                throw new AggregateException(x.Exception.InnerExceptions.Concat(y.Exception.InnerExceptions));
+                var ts = await Task.WhenAll(x, y).ConfigureAwait(false);
+                return await default(EqA).EqualsAsync(ts[0], ts[1]).ConfigureAwait(false);
             }
-            else if (x.IsFaulted)
+            catch (Exception)
             {
-                ExceptionDispatchInfo.Capture(x.Exception.InnerException).Throw();
+                if (x.IsFaulted && y.IsFaulted && (x?.Exception?.Message ?? "") == (y?.Exception?.Message ?? "")) return true;
+                if (x.IsFaulted || y.IsFaulted) return false;
+                if (x.IsCanceled && y.IsCanceled) return true;
+                return false;
             }
-            else if (y.IsFaulted)
-            {
-                ExceptionDispatchInfo.Capture(y.Exception.InnerException).Throw();
-            }
-
-            return await default(EqA).EqualsAsync(ts[0], ts[1]);
         }
 
         public Task<int> GetHashCodeAsync(Task<A> x) =>

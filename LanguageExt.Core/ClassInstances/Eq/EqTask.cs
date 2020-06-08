@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.Contracts;
+﻿using System;
+using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
 using System.Threading.Tasks;
 
@@ -16,11 +17,21 @@ namespace LanguageExt.ClassInstances
             default(HashableTask<A>).GetHashCode(x);
 
         [Pure]
-        public Task<bool> EqualsAsync(Task<A> x, Task<A> y) =>
-            from a in x
-            from b in y
-            from r in default(EqDefaultAsync<A>).EqualsAsync(a, b)  
-            select r;
+        public async Task<bool> EqualsAsync(Task<A> x, Task<A> y)
+        {
+            try
+            {
+                var ts = await Task.WhenAll(x, y).ConfigureAwait(false);
+                return default(EqDefault<A>).Equals(ts[0], ts[1]);
+            }
+            catch (Exception)
+            {
+                if (x.IsFaulted && y.IsFaulted && (x?.Exception?.Message ?? "") == (y?.Exception?.Message ?? "")) return true;
+                if (x.IsFaulted || y.IsFaulted) return false;
+                if (x.IsCanceled && y.IsCanceled) return true;
+                return false;
+            }
+        }
 
         [Pure]
         public Task<int> GetHashCodeAsync(Task<A> x) =>

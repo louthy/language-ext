@@ -32,7 +32,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.TaskT.Async
             var mb = ma.Sequence();
             var mc = TaskFail<Task<int>>(new SystemException("alt"));
 
-            await Assert.ThrowsAsync<SystemException>(() => Eq(mb, mc));
+            var mr = await Eq(mb, mc);
+            
+            Assert.True(mr);
         }        
     }
 }

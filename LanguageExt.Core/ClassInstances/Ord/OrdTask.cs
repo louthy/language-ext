@@ -11,25 +11,20 @@ namespace LanguageExt.ClassInstances
             x.Id.CompareTo(y.Id);
 
         public bool Equals(Task<A> x, Task<A> y) =>
-            x.Id == y.Id;
+            default(EqTask<A>).Equals(x, y);
 
         public int GetHashCode(Task<A> x) =>
-            x.Id.GetHashCode();
+            default(HashableTask<A>).GetHashCode(x);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<bool> EqualsAsync(Task<A> x, Task<A> y) =>
-            from a in x
-            from b in y
-            from r in default(EqDefaultAsync<A>).EqualsAsync(a, b)
-            select r;
+            default(EqTask<A>).EqualsAsync(x, y);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<int> GetHashCodeAsync(Task<A> x) =>
-            from a in x
-            from r in default(HashableDefaultAsync<A>).GetHashCodeAsync(a)
-            select r;
+            default(HashableTask<A>).GetHashCodeAsync(x);
         
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

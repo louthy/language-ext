@@ -205,33 +205,19 @@ namespace LanguageExt
         
         public static async Task<Try<B>> Traverse<A, B>(this Try<Task<A>> ma, Func<A, B> f)
         {
-            try
-            {
-                var mr = ma.Try();
-                if (mr.IsBottom) return Try<B>(() => throw new BottomException());
-                else if (mr.IsFaulted) return Try<B>(mr.Exception);
-                return Try<B>(f(await mr.Value));
-            }
-            catch (Exception e)
-            {
-                return Try<B>(e);
-            }
+            var mr = ma.Try();
+            if (mr.IsBottom) return Try<B>(BottomException.Default);
+            else if (mr.IsFaulted) return Try<B>(mr.Exception);
+            return Try<B>(f(await mr.Value));
         }
         
         public static async Task<TryOption<B>> Traverse<A, B>(this TryOption<Task<A>> ma, Func<A, B> f)
         {
-            try
-            {
-                var mr = ma.Try();
-                if (mr.IsBottom) return TryOption<B>(() => throw new BottomException());
-                else if (mr.IsNone) return TryOption<B>(None);
-                else if (mr.IsFaulted) return TryOption<B>(mr.Exception);
-                return TryOption<B>(f(await mr.Value.Value));
-            }
-            catch (Exception e)
-            {
-                return TryOption<B>(e);
-            }
+            var mr = ma.Try();
+            if (mr.IsBottom) return TryOptionFail<B>(BottomException.Default);
+            else if (mr.IsNone) return TryOption<B>(None);
+            else if (mr.IsFaulted) return TryOption<B>(mr.Exception);
+            return TryOption<B>(f(await mr.Value.Value));
         }
         
         public static async Task<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Task<A>> ma, Func<A, B> f)

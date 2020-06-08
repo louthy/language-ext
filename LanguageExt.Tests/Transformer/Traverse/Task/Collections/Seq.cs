@@ -58,7 +58,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.TaskT.Collections
             var mb = ma.SequenceParallel();
             var mc = TaskFail<Seq<int>>(new Exception("fail"));
 
-            await Assert.ThrowsAsync<AggregateException>(() => Eq(mb, mc));
+            var mr = await Eq(mb, mc);
+            
+            Assert.True(mr);
         }
         
                 
@@ -69,7 +71,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.TaskT.Collections
             var mb = ma.SequenceSerial();
             var mc = TaskFail<Seq<int>>(new Exception("fail"));
 
-            await Assert.ThrowsAsync<SystemException>(() => Eq(mb, mc));
+            var mr = await Eq(mb, mc);
+            
+            Assert.True(mr);
         }
     }
 }
