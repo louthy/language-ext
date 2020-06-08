@@ -20,8 +20,6 @@ using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq.Expressions;
 using TestBed;
 
 class Program
@@ -34,10 +32,10 @@ class Program
         //     NOTE: This is just my scratch pad for quickly testing stuff, not for human consumption         //
         //                                                                                                    //
         //                                                                                                    //
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        var sx = MonadClass<Option<string>, string>.Return("123");
-        var sy = MonadClass<Option<string>, string>.Bind<Option<int>>(sx, parseInt);
-        var sz = FunctorClass<Option<int>, int>.Map<Option<int>, int>(sy, x => x * 2);
+        var vs = new[] {Success<string, int>(1), Success<string, int>(2), Success<string, int>(3)};
+
+        var xs = Choice.rights<MValidation<string, int>, Validation<string, int>, Seq<string>, int>(vs);
     }
 }

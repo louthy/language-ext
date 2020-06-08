@@ -471,9 +471,7 @@ namespace LanguageExt
             if (!self.HasValue) return default(V?);
             var resU = bind(self.Value);
             if (!resU.HasValue) return default(V?);
-
-            var res = Optional(project(self.Value, resU.Value));
-            return default(V?);
+            return project(self.Value, resU.Value);
         }
     }
 }

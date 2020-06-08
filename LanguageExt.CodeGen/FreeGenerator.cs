@@ -159,7 +159,8 @@ namespace LanguageExt.CodeGen
                         pure: firstPure,
                         fail: firstFail,
                         failType: failType,
-                        mapIsStatic: mapIsStatic
+                        mapIsStatic: mapIsStatic,
+                        CodeGenUtil.VisibilityModifier(applyTo.Modifiers)
                     );
 
                     return Task.FromResult(ok
@@ -441,16 +442,15 @@ namespace LanguageExt.CodeGen
             MethodDeclarationSyntax pure,
             MethodDeclarationSyntax fail,
             TypeSyntax failType,
-            bool mapIsStatic
+            bool mapIsStatic,
+            SyntaxToken visibilityModifier
         )
         {
             var name = applyToIdentifier;
             var @class = ClassDeclaration(name)
                 .WithModifiers(
                     TokenList(
-                        Token(SyntaxKind.PublicKeyword),
-                        Token(SyntaxKind.StaticKeyword),
-                        Token(SyntaxKind.PartialKeyword)));
+                        TokenList(new[] { visibilityModifier, Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.PartialKeyword) })));                        
 
             var returnType = ParseTypeName($"{applyToIdentifier}{applyToTypeParams}");
 
