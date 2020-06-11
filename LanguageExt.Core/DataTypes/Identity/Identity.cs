@@ -64,5 +64,23 @@ namespace LanguageExt
 
         public int CompareTo(Identity<A> other) =>
             default(OrdDefault<A>).Compare(value, other.value);
+
+        public Identity<B> Map<B>(Func<A, B> f) =>
+            new Identity<B>(f(Value));
+
+        public Identity<B> Select<B>(Func<A, B> f) =>
+            new Identity<B>(f(Value));
+
+        public Identity<B> Bind<B>(Func<A, Identity<B>> f) =>
+            f(Value);
+
+        public Identity<B> SelectMany<B>(Func<A, Identity<B>> f) =>
+            f(Value);
+
+        public Identity<C> SelectMany<B, C>(Func<A, Identity<B>> bind, Func<A, B, C> project)
+        {
+            var a = Value;
+            return bind(a).Map(b => project(a, b));
+        }
     }
 }
