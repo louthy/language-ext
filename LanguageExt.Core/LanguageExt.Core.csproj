@@ -13,7 +13,7 @@
     <DefineConstants>NETCORE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageVersion>3.4.21-beta</PackageVersion>
+    <PackageVersion>3.4.22-beta</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
