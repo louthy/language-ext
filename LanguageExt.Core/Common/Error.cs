@@ -82,9 +82,7 @@ namespace LanguageExt.Common
                     : new Exception(Message);
 
         public override string ToString() =>
-            code == 0 
-                ? Message
-                : $"0x{code:X}: {Message}";
+            Message;
 
         public static implicit operator Error(Exception e) =>
             New(e);
@@ -93,7 +91,7 @@ namespace LanguageExt.Common
             e.ToException();
 
         public bool Equals(Error other) =>
-            code == other.code && message == other.message;
+            message == other.message;
 
         public override bool Equals(object obj) =>
             obj is Error other && Equals(other);
@@ -113,5 +111,19 @@ namespace LanguageExt.Common
                 return hashCode;
             }
         }
+        
+        internal static Option<FAIL> Convert<FAIL>(object err) => err switch
+        {
+            // Messy, but we're doing our best to recover an error rather than return Bottom
+                
+            FAIL fail                                                   => fail,
+            Exception e     when typeof(FAIL) == typeof(Common.Error)   => (FAIL)(object)Common.Error.New(e),
+            Exception e     when typeof(FAIL) == typeof(string)         => (FAIL)(object)e.Message,
+            Common.Error e  when typeof(FAIL) == typeof(Exception)      => (FAIL)(object)e.ToException(),
+            Common.Error e  when typeof(FAIL) == typeof(string)         => (FAIL)(object)e.ToString(),
+            string e        when typeof(FAIL) == typeof(Exception)      => (FAIL)(object)new Exception(e),
+            string e        when typeof(FAIL) == typeof(Common.Error)   => (FAIL)(object)Common.Error.New(e),
+            _ => None
+        }; 
     }
 }

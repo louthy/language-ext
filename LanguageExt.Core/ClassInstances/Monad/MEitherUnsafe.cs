@@ -30,10 +30,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public EitherUnsafe<L, R> Fail(object err = null) =>
-            err != null && err is L
-                ? EitherUnsafe<L, R>.Left((L)err)
-                : EitherUnsafe<L, R>.Bottom;
-
+            Common.Error
+                  .Convert<L>(err)
+                  .Map(EitherUnsafe<L, R>.Left)
+                  .IfNone(EitherUnsafe<L, R>.Bottom);                
+        
         [Pure]
         public EitherUnsafe<L, R> Plus(EitherUnsafe<L, R> ma, EitherUnsafe<L, R> mb) =>
             MatchUnsafe(ma,

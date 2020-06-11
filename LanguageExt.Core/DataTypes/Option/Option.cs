@@ -1166,7 +1166,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<Func<B, C>> ParMap<B, C>(Func<A, B, C> func) =>
@@ -1175,7 +1174,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<Func<B, Func<C, D>>> ParMap<B, C, D>(Func<A, B, C, D> func) =>

@@ -1,6 +1,8 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 
@@ -21,7 +23,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Option<A> None => 
             default;
-
+ 
         [Pure]
         public MB Bind<MonadB, MB, B>(Option<A> ma, Func<A, MB> f) where MonadB : struct, Monad<Unit, Unit, MB, B> =>
             ma.IsSome
@@ -148,5 +150,20 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionAsync<A> ToAsync(Option<A> sa) =>
             sa.ToAsync();
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(Option<A> x, Option<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(Option<A> x) =>
+            GetHashCode(x).AsTask();         
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(Option<A> x, Option<A> y) =>
+            Compare(x, y).AsTask();
     }
 }

@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
 using LanguageExt.DataTypes.Serialisation;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -30,6 +32,7 @@ namespace LanguageExt
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
     [Serializable]
+    //[AsyncMethodBuilder(typeof(EitherAsyncBuilder<,>))]
     public struct EitherAsync<L, R> :
 // TODO: Re-add when we move to netstandard2.1
 //#if NETCORE
@@ -107,6 +110,17 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Custom awaiter that turns an EitherAsync into an Either
+        /// </summary>
+        public TaskAwaiter<Either<L, R>> GetAwaiter() =>
+            Data.Map(d => d.State switch
+            {
+                EitherStatus.IsRight => Either<L, R>.Right(d.Right),
+                EitherStatus.IsLeft  => Either<L, R>.Left(d.Left),
+                _                    => Either<L, R>.Bottom
+            }).GetAwaiter();
+
+        /// <summary>
         /// Implicit conversion operator from R to Either R L
         /// </summary>
         /// <param name="value">Value, must not be null.</param>
@@ -149,6 +163,104 @@ namespace LanguageExt
             isnull(value)
                 ? throw new ValueIsNullException()
                 : LeftAsync(value);
+        
+        /// <summary>
+        /// Equality operator
+        /// </summary>
+        public override bool Equals(object _) =>
+            throw new NotSupportedException(
+                "The standard Equals override is not supported for EitherAsync because it's an asynchronous type and " +
+                "the return value is synchronous.  Use the typed version of Equals or the == operator to get a bool " +
+                " Task that can be awaited");
+        
+        /// <summary>
+        /// Equality operator
+        /// </summary>
+        [Pure]
+        public async Task<bool> Equals<EqL, EqR>(EitherAsync<L, R> rhs) 
+            where EqL : struct, EqAsync<L>
+            where EqR : struct, EqAsync<R>
+        {
+            var a = await Data;
+            var b = await rhs.Data;
+            return a.State == b.State &&
+                   await default(EqL).EqualsAsync(a.Left, b.Left) &&
+                   await default(EqR).EqualsAsync(a.Right, b.Right);
+        }
+
+        /// <summary>
+        /// Equality operator
+        /// </summary>
+        [Pure]
+        public Task<bool> Equals(EitherAsync<L, R> rhs) =>
+            Equals<EqDefaultAsync<L>, EqDefaultAsync<R>>(rhs);
+
+        /// <summary>
+        /// Equality operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator ==(EitherAsync<L, R> lhs, EitherAsync<L, R> rhs) =>
+            lhs.Equals(rhs);
+
+        /// <summary>
+        /// Non-equality operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator !=(EitherAsync<L, R> lhs, EitherAsync<L, R> rhs) =>
+            lhs.Equals(rhs).Map(not);
+
+        /// <summary>
+        /// Ordering
+        /// </summary>
+        [Pure]
+        public async Task<int> CompareTo<OrdL, OrdR>(EitherAsync<L, R> rhs) 
+            where OrdL : struct, Ord<L>
+            where OrdR : struct, Ord<R>
+        {
+            var a = await Data;
+            var b = await rhs.Data;
+            var c = default(OrdInt).Compare((int)a.State, (int)b.State);
+            if (c != 0) return c;
+            c = default(OrdL).Compare(a.Left, b.Left);
+            if (c != 0) return c;
+            return default(OrdR).Compare(a.Right, b.Right);
+        }
+
+        /// <summary>
+        /// Ordering
+        /// </summary>
+        [Pure]
+        public Task<int> CompareTo(EitherAsync<L, R> rhs) =>
+            CompareTo<OrdDefault<L>, OrdDefault<R>>(rhs);
+        
+        /// <summary>
+        /// Ordering operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator < (EitherAsync<L, R> lhs, EitherAsync<L, R> rhs) =>
+            lhs.CompareTo(rhs).Map(x => x < 0);
+        
+        /// <summary>
+        /// Ordering operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator <= (EitherAsync<L, R> lhs, EitherAsync<L, R> rhs) =>
+            lhs.CompareTo(rhs).Map(x => x <= 0);
+        
+        /// <summary>
+        /// Ordering operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator > (EitherAsync<L, R> lhs, EitherAsync<L, R> rhs) =>
+            lhs.CompareTo(rhs).Map(x => x > 0);
+        
+        /// <summary>
+        /// Ordering operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator >= (EitherAsync<L, R> lhs, EitherAsync<L, R> rhs) =>
+            lhs.CompareTo(rhs).Map(x => x >= 0);
+        
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the Either
@@ -625,7 +737,7 @@ namespace LanguageExt
         /// <returns>Hash code</returns>
         [Pure]
         public override int GetHashCode() =>
-            throw new NotImplementedException("Call GetHashCodeAsync instead");
+            throw new NotSupportedException("Call GetHashCodeAsync instead");
 
         /// <summary>
         /// Returns a hash code of the wrapped value of the Either

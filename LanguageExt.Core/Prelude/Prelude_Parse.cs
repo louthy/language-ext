@@ -7,17 +7,17 @@ namespace LanguageExt
     public static partial class Prelude
     {
         [Pure]
-        public static Option<T> convert<T>(string text)
+        public static Option<T> convert<T>(object value)
         {
-            if (text == null)
+            if (value == null)
             {
                 return None;
             }
 
             try
             {
-                var val = (T)Convert.ChangeType(text, typeof(T));
-                return val;
+                var nvalue = (T)Convert.ChangeType(value, typeof(T));
+                return nvalue;
             }
             catch
             {

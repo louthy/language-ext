@@ -7,6 +7,7 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.DataTypes.Serialisation;
 using LanguageExt.Common;
@@ -37,15 +38,66 @@ public static class TryOptionAsyncExtensions
     public static TryOptionAsync<A> Memo<A>(this TryOptionAsync<A> ma)
     {
         bool run = false;
-        var result = OptionalResult<A>.Bottom.AsTask();
-        return new TryOptionAsync<A>(() =>
+        var result = OptionalResult<A>.Bottom;
+        return new TryOptionAsync<A>(async () =>
         {
             if (run) return result;
-            result = ma.Try();
-            run = true;
-            return result;
+            var ra = await ma.Try();
+            if (ra.IsSome || ra.IsNone)
+            {
+                run = true;
+                result = ra;
+            }
+            return ra;
         });
     }
+        
+    /// <summary>
+    /// If the TryOptionAsync fails, retry `amount` times
+    /// </summary>
+    /// <param name="ma">TryOptionAsync</param>
+    /// <param name="amount">Amount of retries</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    /// <returns>TryOptionAsync</returns>
+    public static TryOptionAsync<A> Retry<A>(TryOptionAsync<A> ma, int amount = 3) => async () =>
+    {
+        while (true)
+        {
+            var ra = await ma.Try();
+            if (ra.IsSome || ra.IsNone)
+            {
+                return ra;
+            }
+
+            amount--;
+            if (amount <= 0) return ra;
+        }
+    };
+        
+    /// <summary>
+    /// If the TryOptionAsync fails, retry `amount` times whilst backing off `backOffMilliSeconds`
+    /// </summary>
+    /// <param name="ma">TryOptionAsync</param>
+    /// <param name="backOffMilliSeconds">Amount of time in milliseconds to back-off upon failure.  The back-off
+    /// time is added to itself on each retry.  i.e. 100, 200, 400, 800, 1600...</param>
+    /// <param name="amount">Amount of retries</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    /// <returns>TryOptionAsync</returns>
+    public static TryOptionAsync<A> RetryBackOff<A>(TryOptionAsync<A> ma, int backOffMilliSeconds, int amount = 3) => async () =>
+    {
+        while (true)
+        {
+            var ra = await ma.Try();
+            if (ra.IsSome || ra.IsNone)
+            {
+                return ra;
+            }
+            amount--;
+            if (amount <= 0) return ra;
+            await Task.Delay(backOffMilliSeconds);
+            backOffMilliSeconds += backOffMilliSeconds;
+        }
+    };      
 
     /// <summary>
     /// Forces evaluation of the lazy TryOptionAsync
@@ -58,6 +110,15 @@ public static class TryOptionAsyncExtensions
         var res = ma.Try();
         return () => res;
     }
+    
+    /// <summary>
+    /// Custom awaiter that turns an TryOptionAsync into an TryOption
+    /// </summary>
+    public static TaskAwaiter<TryOption<A>> GetAwaiter<A>(this TryOptionAsync<A> ma) =>
+        ma.Match(
+            Some: Prelude.TryOption<A>,
+            None: () => Prelude.TryOption<A>(None),
+            Fail: Prelude.TryOption<A>).GetAwaiter();
 
     /// <summary>
     /// Test if the TryOptionAsync is in a success state
@@ -1719,7 +1780,6 @@ public static class TryOptionAsyncExtensions
     /// <summary>
     /// Partial application map
     /// </summary>
-    /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
     public static TryOptionAsync<Func<B, R>> ParMap<A, B, R>(this TryOptionAsync<A> self, Func<A, B, R> func) =>
         self.Map(curry(func));
@@ -1727,7 +1787,6 @@ public static class TryOptionAsyncExtensions
     /// <summary>
     /// Partial application map
     /// </summary>
-    /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
     public static TryOptionAsync<Func<B, Func<C, R>>> ParMap<A, B, C, R>(this TryOptionAsync<A> self, Func<A, B, C, R> func) =>
         self.Map(curry(func));
@@ -2080,7 +2139,7 @@ public static class TryOptionAsyncExtensions
                 if (selfTask.Result.IsFaultedOrNone) return new OptionalResult<D>(selfTask.Result.Exception);
                 if (innerTask.IsFaulted) return new OptionalResult<D>(innerTask.Exception);
                 if (innerTask.Result.IsFaultedOrNone) return new OptionalResult<D>(innerTask.Result.Exception);
-                return EqualityComparer<C>.Default.Equals(outerKeyMap(selfTask.Result.Value.Value), innerKeyMap(innerTask.Result.Value.Value))
+                return default(EqDefault<C>).Equals(outerKeyMap(selfTask.Result.Value.Value), innerKeyMap(innerTask.Result.Value.Value))
                     ? project(selfTask.Result.Value.Value, innerTask.Result.Value.Value)
                     : throw new BottomException();
             });

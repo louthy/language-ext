@@ -36,8 +36,28 @@ namespace LanguageExt
         /// <param name="v">Bound value to return</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
+        public static Try<A> TrySucc<A>(A v) =>
+            () => v;
+
+        /// <summary>
+        /// Try identity constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
         public static Try<A> Try<A>(Exception ex) => () =>
             new Result<A>(ex);
+
+        /// <summary>
+        /// Try identity constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static Try<A> TryFail<A>(Exception ex) => () =>
+            new Result<A>(ex);        
 
         /// <summary>
         /// Returns the first successful computation 
@@ -460,7 +480,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static Try<Func<T2, R>> parmap<T1, T2, R>(Try<T1> self, Func<T1, T2, R> func) =>
             self.ParMap(func);
@@ -468,7 +487,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static Try<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(Try<T1> self, Func<T1, T2, T3, R> func) =>
             self.ParMap(func);

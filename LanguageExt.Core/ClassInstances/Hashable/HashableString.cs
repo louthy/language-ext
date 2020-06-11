@@ -1,6 +1,8 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -15,8 +17,19 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetHashCode(string x) =>
             x == null ? 0 : x.GetHashCode();
+         
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();    
     }
 
     /// <summary>
@@ -30,8 +43,19 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetHashCode(string x) =>
             StringComparer.OrdinalIgnoreCase.GetHashCode(x);
+        
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();    
     }
 
     /// <summary>
@@ -45,8 +69,19 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetHashCode(string x) =>
             StringComparer.Ordinal.GetHashCode(x);
+        
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();    
     }
 
     /// <summary>
@@ -60,8 +95,19 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetHashCode(string x) =>
             StringComparer.CurrentCultureIgnoreCase.GetHashCode(x);
+        
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();    
     }
 
     /// <summary>
@@ -75,7 +121,18 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetHashCode(string x) =>
             StringComparer.CurrentCulture.GetHashCode(x);
+        
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();    
     }
 }

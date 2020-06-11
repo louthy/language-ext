@@ -13,10 +13,14 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Option<B> BiMap(Option<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
-            FOptional<MOption<A>, MOption<B>, Option<A>, Option<B>, A, B>.Inst.BiMap(ma, fa, fb);
+            ma.IsSome
+                ? Some(fa(ma.Value))
+                : Some(fb(unit));
 
         [Pure]
         public Option<B> Map(Option<A> ma, Func<A, B> f) =>
-            MOption<A>.Inst.Bind<MOption<B>, Option<B>, B>(ma, a => Some(f(a)));
+            ma.IsSome
+                ? Some(f(ma.Value))
+                : None;
     }
 }

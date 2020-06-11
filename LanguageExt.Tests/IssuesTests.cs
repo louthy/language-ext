@@ -556,7 +556,7 @@ namespace Issues
                         from f in Command.GetCommand<R>(commandMap, cmd).ToAsync()
                         from r in Command.ExecuteCommand(f, cmd)
                         select r)
-                       .Sequence();
+                       .SequenceParallel();
         }
     }
 }

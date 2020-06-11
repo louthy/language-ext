@@ -3,6 +3,7 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -33,6 +34,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(TryOption<A> x) =>
             default(HashableTryOption<EQ, A>).GetHashCode(x);
+
+        [Pure]
+        public Task<bool> EqualsAsync(TryOption<A> x, TryOption<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(TryOption<A> x) =>
+            GetHashCode(x).AsTask();
     }
 
     /// <summary>
@@ -55,5 +64,13 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(TryOption<A> x) =>
             default(HashableTryOption<A>).GetHashCode(x);
+
+        [Pure]
+        public Task<bool> EqualsAsync(TryOption<A> x, TryOption<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(TryOption<A> x) =>
+            GetHashCode(x).AsTask();
     }
 }

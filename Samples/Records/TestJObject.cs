@@ -52,6 +52,12 @@ namespace Records
 
         public int GetHashCode(JObject x) =>
             x.GetHashCode();
+
+        public Task<bool> EqualsAsync(JObject x, JObject y) =>
+            Equals(x, y).AsTask();
+
+        public Task<int> GetHashCodeAsync(JObject x) =>
+            GetHashCode(x).AsTask();
     }
 
     public struct OrdJObject : Ord<JObject>
@@ -64,5 +70,14 @@ namespace Records
 
         public int GetHashCode(JObject x) =>
             x.GetHashCode();
+
+        public Task<bool> EqualsAsync(JObject x, JObject y) =>
+            Equals(x, y).AsTask();
+
+        public Task<int> GetHashCodeAsync(JObject x) =>
+            GetHashCode(x).AsTask();
+
+        public Task<int> CompareAsync(JObject x, JObject y) =>
+            Compare(x, y).AsTask();    
     }
 }

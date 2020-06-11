@@ -1,6 +1,7 @@
 ﻿using LanguageExt;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
@@ -9,7 +10,7 @@ namespace LanguageExt.ClassInstances
     /// Compare the equality of any type in the Optional type-class
     /// </summary>
     public struct EqOptionalUnsafe<EQ, OPTION, OA, A> : Eq<OA>
-        where EQ     : struct, Eq<A>
+        where EQ : struct, Eq<A>
         where OPTION : struct, OptionalUnsafe<OA, A>
     {
         public static readonly EqOptionalUnsafe<EQ, OPTION, OA, A> Inst = default(EqOptionalUnsafe<EQ, OPTION, OA, A>);
@@ -32,16 +33,12 @@ namespace LanguageExt.ClassInstances
             var xIsNone = !xIsSome;
             var yIsNone = !yIsSome;
 
-            return xIsNone && yIsNone
-                ? true
-                : xIsNone || yIsNone
-                    ? false
-                    : default(OPTION).MatchUnsafe(x,
-                        Some: a =>
-                            default(OPTION).MatchUnsafe(y,
-                                Some: b => @equals<EQ, A>(a, b),
-                                None: () => false),
-                        None: () => false);
+            return xIsNone && yIsNone || !xIsNone && !yIsNone && default(OPTION).MatchUnsafe(x,
+                Some: a =>
+                    default(OPTION).MatchUnsafe(y,
+                        Some: b => @equals<EQ, A>(a, b),
+                        None: () => false),
+                None: () => false);
         }
 
 
@@ -53,6 +50,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(OA x) =>
             default(HashableOptionalUnsafe<EQ, OPTION, OA, A>).GetHashCode(x);
+
+        [Pure]
+        public Task<bool> EqualsAsync(OA x, OA y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(OA x) =>
+            GetHashCode(x).AsTask();
     }
 
     /// <summary>
@@ -81,6 +86,13 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(OA x) =>
             default(HashableOptionalUnsafe<OPTION, OA, A>).GetHashCode(x);
-    }
 
+        [Pure]
+        public Task<bool> EqualsAsync(OA x, OA y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(OA x) =>
+            GetHashCode(x).AsTask();
+    }
 }

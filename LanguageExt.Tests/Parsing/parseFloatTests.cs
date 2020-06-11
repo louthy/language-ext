@@ -12,7 +12,7 @@ namespace LanguageExt.Tests.Parsing
         [InlineData(float.Epsilon)]
         [InlineData(float.NegativeInfinity)]
         [InlineData(float.PositiveInfinity)]
-        [InlineData(float.NaN)]
+        //[InlineData(float.NaN)] TODO -- Why is this here?
         public void parseFloat_ValidStringFromGiven_SomeAsGiven(float value) =>
             ParseT_ValidStringFromGiven_SomeAsGiven(value);
     }

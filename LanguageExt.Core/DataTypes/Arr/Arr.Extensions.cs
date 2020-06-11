@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using LanguageExt;
+using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 
 public static class ArrExtensions
@@ -824,7 +825,7 @@ public static class ArrExtensions
     /// </summary>
     [Pure]
     public static bool SequenceEqual<TSource>(this Arr<TSource> first, IEnumerable<TSource> second) =>
-        Enumerable.SequenceEqual(first.Value, second);
+        default(EqEnumerable<TSource>).Equals(first.Value, second);
 
     /// <summary>
     /// Determines whether two sequences are equal by comparing their elements by using a specified IEqualityComparer<T>.

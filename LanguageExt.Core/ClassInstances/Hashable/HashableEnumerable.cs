@@ -3,6 +3,7 @@ using static LanguageExt.Prelude;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -20,6 +21,10 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(IEnumerable<A> x) =>
             hash<HashA, A>(x);
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(IEnumerable<A> x) =>
+            GetHashCode(x).AsTask();
     }
 
     /// <summary>
@@ -35,5 +40,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(IEnumerable<A> x) =>
             default(HashableEnumerable<HashableDefault<A>, A>).GetHashCode(x);
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(IEnumerable<A> x) =>
+            GetHashCode(x).AsTask();
     }
 }

@@ -66,6 +66,16 @@ namespace LanguageExt
         /// <param name="v">Bound value to return</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
+        public static TryOptionAsync<A> TryOptionAsyncSucc<A>(A v) => () =>
+            new OptionalResult<A>(v).AsTask();
+
+        /// <summary>
+        /// TryOptionAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
         public static TryOptionAsync<A> TryOptionAsync<A>(Option<A> v) => () =>
             new OptionalResult<A>(v).AsTask();
 
@@ -76,7 +86,27 @@ namespace LanguageExt
         /// <param name="v">Bound value to return</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
+        public static TryOptionAsync<A> TryOptionalAsync<A>(Option<A> v) => () =>
+            new OptionalResult<A>(v).AsTask();
+
+        /// <summary>
+        /// TryOptionAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
         public static TryOptionAsync<A> TryOptionAsync<A>(Exception ex) => () =>
+            new OptionalResult<A>(ex).AsTask();
+
+        /// <summary>
+        /// TryOptionAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryOptionAsync<A> TryOptionAsyncFail<A>(Exception ex) => () =>
             new OptionalResult<A>(ex).AsTask();
 
         /// <summary>
@@ -568,7 +598,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static TryOptionAsync<Func<T2, R>> parmap<T1, T2, R>(TryOptionAsync<T1> self, Func<T1, T2, R> func) =>
             self.ParMap(func);
@@ -576,7 +605,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static TryOptionAsync<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(TryOptionAsync<T1> self, Func<T1, T2, T3, R> func) =>
             self.ParMap(func);

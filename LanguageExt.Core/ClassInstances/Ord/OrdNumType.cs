@@ -1,5 +1,7 @@
 ﻿using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
@@ -50,6 +52,21 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(NumType<NUMTYPE, NUM, A> x) =>
             x.IsNull() ? 0 : x.GetHashCode();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(NumType<NUMTYPE, NUM, A> x, NumType<NUMTYPE, NUM, A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(NumType<NUMTYPE, NUM, A> x) =>
+            GetHashCode(x).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(NumType<NUMTYPE, NUM, A> x, NumType<NUMTYPE, NUM, A> y) =>
+            Compare(x, y).AsTask();
     }
 
     /// <summary>
@@ -99,5 +116,20 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(NumType<NUMTYPE, NUM, A, PRED> x) =>
             x.IsNull() ? 0 : x.GetHashCode();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(NumType<NUMTYPE, NUM, A, PRED> x, NumType<NUMTYPE, NUM, A, PRED> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(NumType<NUMTYPE, NUM, A, PRED> x) =>
+            GetHashCode(x).AsTask();        
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(NumType<NUMTYPE, NUM, A, PRED> x, NumType<NUMTYPE, NUM, A, PRED> y) =>
+            Compare(x, y).AsTask();    
     }
 }

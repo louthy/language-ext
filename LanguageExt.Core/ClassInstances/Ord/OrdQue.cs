@@ -1,6 +1,8 @@
 ﻿using LanguageExt;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
@@ -65,6 +67,21 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Que<A> x) =>
             x.GetHashCode();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(Que<A> x, Que<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(Que<A> x) =>
+            GetHashCode(x).AsTask();       
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(Que<A> x, Que<A> y) =>
+            Compare(x, y).AsTask();    
     }
 
     /// <summary>
@@ -105,5 +122,20 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Que<A> x) =>
             default(OrdQue<OrdDefault<A>, A>).GetHashCode(x);
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(Que<A> x, Que<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(Que<A> x) =>
+            GetHashCode(x).AsTask();       
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(Que<A> x, Que<A> y) =>
+            Compare(x, y).AsTask();    
     }
 }

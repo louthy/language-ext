@@ -64,7 +64,12 @@ namespace LanguageExt.CodeGen
                 var ok = caseRes.All(x => x.Success);
                 var cases = caseRes.Select(c => c.Type);
 
-                var staticCtorClass = MakeStaticConstructorClass(applyTo.Identifier, applyTo.Members, applyTo.TypeParameterList, applyTo.ConstraintClauses);
+                var staticCtorClass = MakeStaticConstructorClass(
+                    applyTo.Identifier, 
+                    applyTo.Members,
+                    applyTo.TypeParameterList, 
+                    applyTo.ConstraintClauses,
+                    CodeGenUtil.VisibilityModifier(applyTo.Modifiers));
 
                 if (ok)
                 {
@@ -121,7 +126,12 @@ namespace LanguageExt.CodeGen
                 var ok = caseRes.All(x => x.Success);
                 var cases = caseRes.Select(c => c.Type);
 
-                var staticCtorClass = MakeStaticConstructorClass(applyToClass.Identifier, applyToClass.Members, applyToClass.TypeParameterList, applyToClass.ConstraintClauses);
+                var staticCtorClass = MakeStaticConstructorClass(
+                    applyToClass.Identifier, 
+                    applyToClass.Members, 
+                    applyToClass.TypeParameterList, 
+                    applyToClass.ConstraintClauses,
+                    CodeGenUtil.VisibilityModifier(applyToClass.Modifiers));
 
                 var partialClass = MakeAbstractClass(applyToClass);
                 var unionBase = MakeBaseFromAbstractClass(applyToClass);
@@ -183,7 +193,8 @@ namespace LanguageExt.CodeGen
             SyntaxToken applyToIdentifier,
             SyntaxList<MemberDeclarationSyntax> applyToMembers,
             TypeParameterListSyntax applyToTypeParams,
-            SyntaxList<TypeParameterConstraintClauseSyntax> applyToConstraints
+            SyntaxList<TypeParameterConstraintClauseSyntax> applyToConstraints,
+            SyntaxToken visibilityModifier
             )
         {
             var name = applyToIdentifier;
@@ -194,7 +205,7 @@ namespace LanguageExt.CodeGen
 
             var @class = ClassDeclaration(name)
                             .WithModifiers(
-                                TokenList(new[] { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.PartialKeyword) }));
+                                TokenList(new[] { visibilityModifier, Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.PartialKeyword) }));
 
             var returnType = ParseTypeName($"{applyToIdentifier}{applyToTypeParams}");
 

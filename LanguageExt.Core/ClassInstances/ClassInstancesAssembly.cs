@@ -137,5 +137,34 @@ namespace LanguageExt.ClassInstances
 #endif
             return unit;
         }
+
+        //static readonly HashSet<A> primativeTypes = HashSet()
+        
+        public static Func<A, A, bool> MakeEquals<A>()
+        {
+            return null;
+            
+            /*var typeA = typeof(A);
+            var name = typeA.Name;
+            var prim = MakePrimativeEq()
+            
+            
+            if (typeof(A).FullName.StartsWith($"LanguageExt.{name}`"))
+            {
+                var genA = typeof(A).GenericTypeArguments[0];
+                var tryA = eqType.MakeGenericType(genA);
+                var eq = tryA.GetMethod("Equals", new Type[] {typeof(A), typeof(A)});
+            
+                var lhs = Expression.Parameter(typeof(A), "lhs");
+                var rhs = Expression.Parameter(typeof(A), "rhs");
+
+                var lambda = Expression.Lambda<Func<A, A, bool>>(Expression.Call(Expression.Default(tryA), eq, lhs, rhs), lhs, rhs);
+                return lambda.Compile();
+            }
+            else
+            {
+                return null;
+            }*/
+        }
     }
 }

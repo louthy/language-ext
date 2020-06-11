@@ -16,7 +16,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void UnionInstanceFromJson()
         {
-            var json = @"{""Value"":100}";
+            var json = @"{""Value"":100,""Tag"":2}";
             var x = JsonConvert.DeserializeObject<Dimmer>(json);
             Assert.Equal(100, x.Value);
         }
@@ -24,7 +24,8 @@ namespace LanguageExt.Tests
         [Fact(Skip="not yet supported")]
         public void UnionInstanceToJson()
         {
-            Assert.Equal(@"{""Value"":100}", JsonConvert.SerializeObject(LightControlCon.Dimmer(100)));
+            var json = JsonConvert.SerializeObject(LightControlCon.Dimmer(100));
+            Assert.Equal(@"{""Value"":100,""Tag"":2}", json);
         }        
         
         [Fact]

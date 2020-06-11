@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 
@@ -38,7 +39,7 @@ namespace LanguageExt
         /// </summary>
         public Stck(IEnumerable<A> initial)
         {
-            value = new StckInternal<A>(initial);
+            value = initial.Any() ? new StckInternal<A>(initial) : StckInternal<A>.Empty;
             this.hashCode = 0;
         }
 
@@ -234,6 +235,14 @@ namespace LanguageExt
         [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
+        
+        /// <summary>
+        /// Implicit conversion from an untyped empty list
+        /// </summary>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator Stck<A>(SeqEmpty _) =>
+            Empty;        
 
         /// <summary>
         /// Append another stack to the top of this stack
@@ -299,6 +308,7 @@ namespace LanguageExt
 
         [Pure]
         public bool Equals(Stck<A> other) =>
-            hashCode == other.hashCode && Enumerable.Equals(this.Value, other.Value);
+            (hashCode == 0 || other.hashCode == 0 || hashCode == other.hashCode) &&
+            default(EqEnumerable<A>).Equals(this.Value, other.Value);
     }
 }

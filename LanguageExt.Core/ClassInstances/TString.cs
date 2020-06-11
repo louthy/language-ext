@@ -1,6 +1,8 @@
 ﻿using LanguageExt.TypeClasses;
 using System;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -56,6 +58,20 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(string x) =>
             default(OrdString).GetHashCode(x);
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();     
+          
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();   
     }
 
     public struct TStringOrdinalIgnoreCase : Ord<string>, Monoid<string>
@@ -110,6 +126,21 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(string x) => 
             x.IsNull() ? 0 : x.GetHashCode();
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();     
+          
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();   
     }
 
     public struct TStringOrdinal : Ord<string>, Monoid<string>
@@ -164,6 +195,21 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(string x) =>
             x?.GetHashCode() ?? 0;
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();     
+          
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();   
     }
 
     public struct TStringCurrentCultureIgnoreCase : Ord<string>, Monoid<string>
@@ -218,6 +264,21 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(string x) =>
             x.IsNull() ? 0 : x.GetHashCode();
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();     
+          
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();   
     }
 
     public struct TStringCurrentCulture : Ord<string>, Monoid<string>
@@ -272,5 +333,20 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(string x) =>
             x.IsNull() ? 0 : x.GetHashCode();
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();     
+          
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();   
     }
 }

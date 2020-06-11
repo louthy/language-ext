@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -47,18 +48,16 @@ namespace LanguageExt
         {
             static readonly bool IsReferenceType;
             static readonly bool IsNullable;
-            static readonly EqualityComparer<A> DefaultEqualityComparer;
 
             static Check()
             {
                 IsNullable = Nullable.GetUnderlyingType(typeof(A)) != null;
                 IsReferenceType = !typeof(A).GetTypeInfo().IsValueType;
-                DefaultEqualityComparer = EqualityComparer<A>.Default;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal static bool IsDefault(A value) =>
-                DefaultEqualityComparer.Equals(value, default);
+                default(EqDefault<A>).Equals(value, default);
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal static bool IsNull(A value) =>

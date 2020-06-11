@@ -29,6 +29,7 @@ public static class TryExtensions
 
     /// <summary>
     /// Memoize the computation so that it's only run once
+    /// Memoize the computation so that it's only run once
     /// </summary>
     public static Try<A> Memo<A>(this Try<A> ma)
     {
@@ -37,11 +38,37 @@ public static class TryExtensions
         return (() =>
         {
             if (run) return result;
-            result = ma.Try();
-            run = true;
-            return result;
+            var ra = ma.Try();
+            if (result.IsSuccess)
+            {
+                run = true;
+                result = ra;
+            }
+            return ra;
         });
     }
+    
+    /// <summary>
+    /// If the Try fails, retry `amount` times
+    /// </summary>
+    /// <param name="ma">Try</param>
+    /// <param name="amount">Amount of retries</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    /// <returns>Try</returns>
+    public static Try<A> Retry<A>(Try<A> ma, int amount = 3) => () =>
+    {
+        while (true)
+        {
+            var ra = ma.Try();
+            if (ra.IsSuccess)
+            {
+                return ra;
+            }
+
+            amount--;
+            if (amount <= 0) return ra;
+        }
+    };    
 
     /// <summary>
     /// Forces evaluation of the lazy try
@@ -456,7 +483,6 @@ public static class TryExtensions
     /// <summary>
     /// Partial application map
     /// </summary>
-    /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
     public static Try<Func<B, R>> ParMap<A, B, R>(this Try<A> self, Func<A, B, R> func) =>
         self.Map(curry(func));
@@ -464,7 +490,6 @@ public static class TryExtensions
     /// <summary>
     /// Partial application map
     /// </summary>
-    /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
     public static Try<Func<B, Func<C, R>>> ParMap<A, B, C, R>(this Try<A> self, Func<A, B, C, R> func) =>
         self.Map(curry(func));
@@ -603,7 +628,7 @@ public static class TryExtensions
         {
             var selfRes = self();
             var innerRes = inner();
-            return EqualityComparer<K>.Default.Equals(outerKeyMap(selfRes.Value), innerKeyMap(innerRes.Value))
+            return default(EqDefault<K>).Equals(outerKeyMap(selfRes.Value), innerKeyMap(innerRes.Value))
                 ? project(selfRes.Value, innerRes.Value)
                 : throw new BottomException();
         });

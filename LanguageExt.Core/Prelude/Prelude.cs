@@ -78,7 +78,7 @@ namespace LanguageExt
         [Pure]
         public static Func<T, Option<R>> with<T, R>(T value, Func<T, R> map) =>
             (T input) =>
-                EqualityComparer<T>.Default.Equals(input, value)
+                default(EqDefault<T>).Equals(input, value)
                     ? Some(map(input))
                     : None;
 
@@ -137,6 +137,12 @@ namespace LanguageExt
              }
              throw new Exception("Match not exhaustive");
         };
+
+        /// <summary>
+        /// Construct identity monad
+        /// </summary>
+        public static Identity<A> Id<A>(A value) => 
+            new Identity<A>(value);
 
         /// <summary>
         /// Identity function

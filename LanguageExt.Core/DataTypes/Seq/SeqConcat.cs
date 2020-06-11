@@ -16,7 +16,7 @@ namespace LanguageExt
         }
 
         public A this[int index] => 
-            throw new NotImplementedException();
+            throw new NotSupportedException();
 
         public SeqType Type =>
             SeqType.Concat;
@@ -94,10 +94,7 @@ namespace LanguageExt
 
         public bool Exists(Func<A, bool> f) =>
             ms.Exists(s => s.Exists(f));
-
-        public ISeqInternal<A> Filter(Func<A, bool> f) =>
-            new SeqConcat<A>(ms.Map(s => s.Filter(f)));
-
+        
         public S Fold<S>(S state, Func<S, A, S> f) =>
             ms.Fold(state, (s, x) => x.Fold(s, f));
 
@@ -129,9 +126,6 @@ namespace LanguageExt
             }
             return default;
         }
-
-        public ISeqInternal<B> Map<B>(Func<A, B> f) =>
-            new SeqConcat<B>(ms.Map(s => s.Map(f)));
 
         public ISeqInternal<A> Skip(int amount) =>
             new SeqLazy<A>(((IEnumerable<A>)this).Skip(amount));

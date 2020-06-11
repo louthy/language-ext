@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -419,6 +420,14 @@ namespace LanguageExt
         [Pure]
         public IEnumerable<A> AsEnumerable() =>
             this;
+
+        /// <summary>
+        /// Implicit conversion from an untyped empty list
+        /// </summary>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator HashSet<EqA, A>(SeqEmpty _) =>
+            Empty;
 
         [Pure]
         public static HashSet<EqA, A> operator +(HashSet<EqA, A> lhs, HashSet<EqA, A> rhs) =>

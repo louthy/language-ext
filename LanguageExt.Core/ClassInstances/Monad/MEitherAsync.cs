@@ -16,7 +16,7 @@ namespace LanguageExt.ClassInstances
         FoldableAsync<EitherAsync<L, R>, R>,
         BiFoldableAsync<EitherAsync<L, R>, L, R>
     {
-        public EitherAsync<L, R> None => throw new NotImplementedException();
+        public EitherAsync<L, R> None => throw new NotSupportedException();
 
         [Pure]
         public EitherAsync<L, R> Append(EitherAsync<L, R> ma, EitherAsync<L, R> mb) =>
@@ -107,9 +107,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public EitherAsync<L, R> Fail(object err = null) =>
-            err != null && err is L
-                ? EitherAsync<L, R>.Left((L)err)
-                : EitherAsync<L, R>.Bottom;
+            Common.Error
+                  .Convert<L>(err)
+                  .Map(EitherAsync<L, R>.Left)
+                  .IfNone(EitherAsync<L, R>.Bottom);                
+
 
         [Pure]
         public Func<Unit, Task<S>> Fold<S>(EitherAsync<L, R> fa, S state, Func<S, R, S> f) => _ =>

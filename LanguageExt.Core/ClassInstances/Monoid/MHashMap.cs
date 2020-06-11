@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.ClassInstances
@@ -45,5 +47,15 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(HashMap<K, V> x) =>
             x.GetHashCode();
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(HashMap<K, V> x, HashMap<K, V> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(HashMap<K, V> x) =>
+            GetHashCode(x).AsTask();       
     }
 }

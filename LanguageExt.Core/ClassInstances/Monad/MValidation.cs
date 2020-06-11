@@ -102,9 +102,14 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Validation<MonoidFail, FAIL, SUCCESS> Fail(object err = null) =>
-            err != null && err is FAIL
-                ? Validation<MonoidFail, FAIL, SUCCESS>.Fail((FAIL)err)
-                : Validation<MonoidFail, FAIL, SUCCESS>.Fail(default(MonoidFail).Empty());
+            err switch
+            {
+                FAIL fail => Validation<MonoidFail, FAIL, SUCCESS>.Fail(fail),
+                _ => Common.Error
+                           .Convert<FAIL>(err)
+                           .Map(Validation<MonoidFail, FAIL, SUCCESS>.Fail)
+                           .IfNone(Validation<MonoidFail, FAIL, SUCCESS>.Fail(default(MonoidFail).Empty()))
+            };            
 
         [Pure]
         public Validation<MonoidFail, FAIL, SUCCESS> Run(Func<Unit, Validation<MonoidFail, FAIL, SUCCESS>> ma) =>

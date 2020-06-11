@@ -15,7 +15,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public static Task<bool> equalsAsync<EqA, A>(Task<A> x, Task<A> y) where EqA : struct, Eq<A> =>
+        public static Task<bool> equalsAsync<EqA, A>(Task<A> x, Task<A> y) where EqA : struct, EqAsync<A> =>
             default(EqTaskAsync<EqA, A>).EqualsAsync(x, y);
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public static Task<bool> equalsAsync<EqA, A>(OptionAsync<A> x, OptionAsync<A> y) where EqA : struct, Eq<A> =>
-            default(EqOptionalAsync<EqA, MOptionAsync<A>, OptionAsync<A>, A>).EqualsAsync(x, y);
+        public static Task<bool> equalsAsync<EqA, A>(OptionAsync<A> x, OptionAsync<A> y) where EqA : struct, EqAsync<A> =>
+            default(EqOptionAsync<EqA, A>).EqualsAsync(x, y);
     }
 }

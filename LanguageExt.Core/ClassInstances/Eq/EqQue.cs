@@ -1,5 +1,6 @@
 ﻿using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -26,7 +27,7 @@ namespace LanguageExt.ClassInstances
             {
                 enumx.MoveNext();
                 enumy.MoveNext();
-                if (default(EQ).Equals(enumx.Current, enumy.Current)) return false;
+                if (!default(EQ).Equals(enumx.Current, enumy.Current)) return false;
             }
             return true;
         }
@@ -40,6 +41,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Que<A> x) =>
             default(HashableQue<EQ, A>).GetHashCode(x);
+        
+        [Pure]
+        public Task<bool> EqualsAsync(Que<A> x, Que<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(Que<A> x) =>
+            GetHashCode(x).AsTask();
     }
 
     /// <summary>
@@ -64,6 +73,13 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Que<A> x) =>
             default(HashableQue<A>).GetHashCode(x);
-    }
+        
+        [Pure]
+        public Task<bool> EqualsAsync(Que<A> x, Que<A> y) =>
+            Equals(x, y).AsTask();
 
+        [Pure]
+        public Task<int> GetHashCodeAsync(Que<A> x) =>
+            GetHashCode(x).AsTask();
+    }
 }

@@ -9,20 +9,19 @@ namespace LanguageExt
 {
     public static partial class Prelude
     {
+        /// <summary>
+        /// Convert a value to a Task that completes immediately
+        /// </summary>
         [Pure]
-        public static Task<A> asFailedTask<A>(Exception ex)
-        {
-            var tcs = new TaskCompletionSource<A>();
-            tcs.SetException(ex);
-            return tcs.Task;
-        }
+        public static Task<A> TaskSucc<A>(A self) =>
+            Task.FromResult(self);
 
         /// <summary>
         /// Convert a value to a Task that completes immediately
         /// </summary>
         [Pure]
-        public static Task<T> asTask<T>(T self) =>
-            Task.FromResult(self);
+        public static Task<A> TaskFail<A>(Exception ex) =>
+            Task.FromException<A>(ex);
 
         /// <summary>
         /// Flatten the nested Task type
@@ -42,14 +41,14 @@ namespace LanguageExt
         /// Get the Count of a Task T.  Returns either 1 or 0 if cancelled or faulted.
         /// </summary>
         [Pure]
-        public static Task<int> count<T>(Task<T> self) =>
+        public static Task<int> count<A>(Task<A> self) =>
             self.Count();
 
         /// <summary>
         /// Monadic bind operation for Task
         /// </summary>
         [Pure]
-        public static Task<U> bind<T, U>(Task<T> self, Func<T, Task<U>> bind) =>
+        public static Task<B> bind<A, B>(Task<A> self, Func<A, Task<B>> bind) =>
             self.Bind(bind);
 
         /// <summary>
@@ -57,7 +56,7 @@ namespace LanguageExt
         /// it returns the result of pred(Result)
         /// </summary>
         [Pure]
-        public static Task<bool> exists<T>(Task<T> self, Func<T, bool> pred) =>
+        public static Task<bool> exists<A>(Task<A> self, Func<A, bool> pred) =>
             self.Exists(pred);
 
         /// <summary>
@@ -65,7 +64,7 @@ namespace LanguageExt
         /// it returns the result of pred(Result)
         /// </summary>
         [Pure]
-        public static Task<bool> existsAsync<T>(Task<T> self, Func<T, Task<bool>> pred) =>
+        public static Task<bool> existsAsync<A>(Task<A> self, Func<A, Task<bool>> pred) =>
             self.ExistsAsync(pred);
 
         /// <summary>
@@ -73,7 +72,7 @@ namespace LanguageExt
         /// it returns the result of pred(Result)
         /// </summary>
         [Pure]
-        public static Task<bool> forall<T>(Task<T> self, Func<T, bool> pred) =>
+        public static Task<bool> forall<A>(Task<A> self, Func<A, bool> pred) =>
             self.ForAll(pred);
 
         /// <summary>
@@ -81,7 +80,7 @@ namespace LanguageExt
         /// it returns the result of pred(Result)
         /// </summary>
         [Pure]
-        public static Task<bool> forallAsync<T>(Task<T> self, Func<T, Task<bool>> pred) =>
+        public static Task<bool> forallAsync<A>(Task<A> self, Func<A, Task<bool>> pred) =>
             self.ForAllAsync(pred);
 
         /// <summary>
@@ -89,7 +88,7 @@ namespace LanguageExt
         /// returns false
         /// </summary>
         [Pure]
-        public static Task<T> filter<T>(Task<T> self, Func<T, bool> pred) =>
+        public static Task<A> filter<A>(Task<A> self, Func<A, bool> pred) =>
             self.Filter(pred);
 
         /// <summary>
@@ -97,7 +96,7 @@ namespace LanguageExt
         /// cancelled.  Returns state otherwise.
         /// </summary>
         [Pure]
-        public static Task<S> fold<T, S>(Task<T> self, S state, Func<S, T, S> folder) =>
+        public static Task<S> fold<S, A>(Task<A> self, S state, Func<S, A, S> folder) =>
             self.Fold(state, folder);
 
         /// <summary>
@@ -105,27 +104,27 @@ namespace LanguageExt
         /// cancelled.  Returns state otherwise.
         /// </summary>
         [Pure]
-        public static Task<S> foldAsync<T, S>(Task<T> self, S state, Func<S, T, Task<S>> folder) =>
+        public static Task<S> foldAsync<S, A>(Task<A> self, S state, Func<S, A, Task<S>> folder) =>
             self.FoldAsync(state, folder);
 
         /// <summary>
         /// Iterates the Task.  Invokes f(Result) if not faulted or cancelled
         /// </summary>
-        public static Task<Unit> iter<T>(Task<T> self, Action<T> f) =>
+        public static Task<Unit> iter<A>(Task<A> self, Action<A> f) =>
             self.Iter(f);
 
         /// <summary>
         /// Returns map(Result) if not faulted or cancelled.
         /// </summary>
         [Pure]
-        public static Task<U> map<T, U>(Task<T> self, Func<T, U> map) =>
+        public static Task<B> map<A, B>(Task<A> self, Func<A, B> map) =>
             self.Map(map);
 
         /// <summary>
         /// Returns map(Result) if not faulted or cancelled.
         /// </summary>
         [Pure]
-        public static Task<U> mapAsync<T, U>(Task<T> self, Func<T, Task<U>> map) =>
+        public static Task<B> mapAsync<A, B>(Task<A> self, Func<A, Task<B>> map) =>
             self.MapAsync(map);
 
         [Pure]

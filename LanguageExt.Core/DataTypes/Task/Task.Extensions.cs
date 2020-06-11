@@ -23,7 +23,7 @@ namespace LanguageExt
             {
                 return SuccCase<A>.New(await ma.ConfigureAwait(false));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return FailCase<A>.New(ex);
             }
@@ -86,6 +86,7 @@ namespace LanguageExt
             {
                 throw new TaskCanceledException();
             }
+
             return resT;
         }
 
@@ -93,21 +94,17 @@ namespace LanguageExt
         /// Standard LINQ SelectMany implementation for Task
         /// </summary>
         [Pure]
-        public async static Task<U> SelectMany<T, U>(
-            this Task<T> self,
-            Func<T, Task<U>> bind
-            ) =>
+        public async static Task<U> SelectMany<T, U>(this Task<T> self,
+            Func<T, Task<U>> bind) =>
             await bind(await self.ConfigureAwait(false)).ConfigureAwait(false);
 
         /// <summary>
         /// Standard LINQ SelectMany implementation for Task
         /// </summary>
         [Pure]
-        public static async Task<V> SelectMany<T, U, V>(
-            this Task<T> self,
+        public static async Task<V> SelectMany<T, U, V>(this Task<T> self,
             Func<T, Task<U>> bind,
-            Func<T, U, V> project
-            )
+            Func<T, U, V> project)
         {
             var resT = await self.ConfigureAwait(false);
             var resU = await bind(resT).ConfigureAwait(false);
@@ -125,7 +122,7 @@ namespace LanguageExt
                 await self.ConfigureAwait(false);
                 return 1;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return 0;
             }
@@ -210,7 +207,10 @@ namespace LanguageExt
         /// Returns the original unmodified structure
         /// </returns>
         public static Task<A> Do<A>(this Task<A> ma, Action<A> f) =>
-            ma.Map(x => { f(x); return x; });
+            ma.Map(x => {
+                f(x);
+                return x;
+            });
 
         /// <summary>
         /// Returns map(Result) if not faulted or cancelled.
@@ -227,31 +227,30 @@ namespace LanguageExt
             await map(await self.ConfigureAwait(false)).ConfigureAwait(false);
 
         [Pure]
-        public static async Task<V> Join<T, U, K, V>(
-            this Task<T> source,
+        public static async Task<V> Join<T, U, K, V>(this Task<T> source,
             Task<U> inner,
             Func<T, K> outerKeyMap,
             Func<U, K> innerKeyMap,
             Func<T, U, V> project)
         {
             await Task.WhenAll(source, inner).ConfigureAwait(false);
-            if (!EqualityComparer<K>.Default.Equals(outerKeyMap(source.Result), innerKeyMap(inner.Result)))
+            if (!default(EqDefault<K>).Equals(outerKeyMap(source.Result), innerKeyMap(inner.Result)))
             {
                 throw new OperationCanceledException();
             }
+
             return project(source.Result, inner.Result);
         }
 
         [Pure]
-        public static async Task<V> GroupJoin<T, U, K, V>(
-            this Task<T> source,
+        public static async Task<V> GroupJoin<T, U, K, V>(this Task<T> source,
             Task<U> inner,
             Func<T, K> outerKeyMap,
             Func<U, K> innerKeyMap,
             Func<T, Task<U>, V> project)
         {
             T t = await source.ConfigureAwait(false);
-            return project(t, inner.Where(u => EqualityComparer<K>.Default.Equals(outerKeyMap(t), innerKeyMap(u))));
+            return project(t, inner.Where(u => default(EqDefault<K>).Equals(outerKeyMap(t), innerKeyMap(u))));
         }
 
         [Pure]
@@ -273,7 +272,7 @@ namespace LanguageExt
             await source.ConfigureAwait(false);
             var prop = PropCache<A>.Info;
             return prop != null
-                ? (A)prop.GetValue(source)
+                ? (A) prop.GetValue(source)
                 : default(A);
         }
 
@@ -285,57 +284,161 @@ namespace LanguageExt
 
         /// <summary>
         /// Tasks a lazy sequence of tasks and iterates them in a 'measured way'.  A default window size of
-        /// `Environment.ProcessorCount / 2` tasks is used, which means there are `Environment.ProcessorCount / 2`
-        /// 'await streams'.  An await stream essentially awaits one task from the sequence, and on completion
-        /// goes and gets the next task from the lazy sequence and awaits that too.  This continues until the end
-        /// of the lazy sequence, or forever for infinite streams.
+        /// `Sys.DefaultAsyncSequenceConcurrency` tasks is used, which by default means there are
+        /// `Sys.DefaultAsyncSequenceConcurrency / 2` 'await streams'.  An await stream essentially awaits one
+        /// task from the sequence, and on completion goes and gets the next task from the lazy sequence and
+        /// awaits that too.  This continues until the end of the lazy sequence, or forever for infinite streams.
         /// </summary>
         public static Task<Unit> WindowIter<A>(this IEnumerable<Task<A>> ma, Action<A> f) =>
-            WindowIter(ma, Math.Max(1, Environment.ProcessorCount >> 1), f);
+            WindowIter(ma, Sys.DefaultAsyncSequenceConcurrency, f);
 
         /// <summary>
         /// Tasks a lazy sequence of tasks and iterates them in a 'measured way'.  A default window size of
         /// `windowSize` tasks is used, which means there are `windowSize` 'await streams'.  An await stream 
         /// essentially awaits one task from the sequence, and on completion goes and gets the next task from 
         /// the lazy sequence and awaits that too.  This continues until the end of the lazy sequence, or forever 
-        /// for infinite streams.
+        /// for infinite streams.  Therefore there are at most `windowSize` tasks running concurrently.
         /// </summary>
         public static async Task<Unit> WindowIter<A>(this IEnumerable<Task<A>> ma, int windowSize, Action<A> f)
         {
             object sync = new object();
-            var iter = ma.GetEnumerator();
-
-            (bool Success, Task<A> Task) GetNext()
+            using (var iter = ma.GetEnumerator())
             {
-                lock (sync)
+
+                (bool Success, Task<A> Task) GetNext()
                 {
-                    return iter.MoveNext()
-                        ? (true, iter.Current)
-                        : default;
-                }
-            }
-
-            var tasks = new List<Task<Unit>>();
-            for (var i = 0; i < windowSize; i++)
-            {
-                var (s, outerTask) = GetNext();
-                if (!s) break;
-
-                tasks.Add(outerTask.Iter(async oa =>
-                {
-                    f(oa);
-
-                    while (true)
+                    lock (sync)
                     {
-                        var next = GetNext();
-                        if (!next.Success) return;
-                        var a = await next.Task.ConfigureAwait(false);
-                        f(a);
+                        return iter.MoveNext()
+                            ? (true, iter.Current)
+                            : default;
                     }
-                }));
+                }
+
+                var tasks = new List<Task<Unit>>();
+                for (var i = 0; i < windowSize; i++)
+                {
+                    var (s, outerTask) = GetNext();
+                    if (!s) break;
+
+                    tasks.Add(outerTask.Bind(async oa => {
+                        f(oa);
+
+                        while (true)
+                        {
+                            var next = GetNext();
+                            if (!next.Success) return unit;
+                            var a = await next.Task.ConfigureAwait(false);
+                            f(a);
+                        }
+                    }));
+                }
+
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+                return unit;
             }
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-            return unit;
+        }
+
+        /// <summary>
+        /// Tasks a lazy sequence of tasks and iterates them in a 'measured way'.  A default window size of
+        /// `Sys.DefaultAsyncSequenceConcurrency` tasks is used, which means there are `Environment.ProcessorCount / 2`
+        /// 'await streams' (by default).  An await stream essentially awaits one task from the sequence, and on
+        /// completion goes and gets the next task from the lazy sequence and awaits that too.  This continues until the
+        /// end of the lazy sequence, or forever for infinite streams.
+        /// </summary>
+        internal static Task<IList<B>> WindowMap<A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f) =>
+            WindowMap(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+
+        /// <summary>
+        /// Tasks a lazy sequence of tasks and maps them in a 'measured way'.  A default window size of
+        /// `windowSize` tasks is used, which means there are `windowSize` 'await streams'.  An await stream 
+        /// essentially awaits one task from the sequence, and on completion goes and gets the next task from 
+        /// the lazy sequence and awaits that too.  This continues until the end of the lazy sequence, or forever 
+        /// for infinite streams.  Therefore there are at most `windowSize` tasks running concurrently.
+        /// </summary>
+        internal static async Task<IList<B>> WindowMap<A, B>(this IEnumerable<Task<A>> ma, int windowSize, Func<A, B> f)
+        {
+            object sync = new object();
+            using (var iter = ma.GetEnumerator())
+            {
+
+                (bool Success, Task<A> Task) GetNext()
+                {
+                    lock (sync)
+                    {
+                        return iter.MoveNext()
+                            ? (true, iter.Current)
+                            : default;
+                    }
+                }
+
+                var tasks = new List<Task<Unit>>();
+                var results = new List<B>[windowSize];
+                var errors = new List<AggregateException>[windowSize];
+
+                for (var i = 0; i < windowSize; i++)
+                {
+                    results[i] = new List<B>();
+                    errors[i] = new List<AggregateException>();
+                }
+
+                for (var i = 0; i < windowSize; i++)
+                {
+                    var (s, outerTask) = GetNext();
+                    if (!s) break;
+
+                    var ix = i;
+                    tasks.Add(outerTask.Bind(async oa => {
+                        results[ix].Add(f(oa));
+
+                        while (true)
+                        {
+                            try
+                            {
+                                var next = GetNext();
+                                if (!next.Success) return unit;
+                                var a = await next.Task.ConfigureAwait(false);
+                                if (next.Task.IsFaulted)
+                                {
+                                    errors[ix].Add(next.Task.Exception);
+                                    return unit;
+                                }
+                                else
+                                {
+                                    results[ix].Add(f(a));
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                errors[ix].Add(new AggregateException(e));
+                                return unit;
+                            }
+                        }
+                    }));
+                }
+
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+
+                // Move all errors into one list
+                for (var i = 1; i < windowSize; i++)
+                {
+                    errors[0].AddRange(errors[i]);
+                }
+
+                if (errors[0].Count > 0)
+                {
+                    // Throw an aggregate of all exceptions
+                    throw new AggregateException(errors[0].SelectMany(e => e.InnerExceptions));
+                }
+
+                // Move all results into one list
+                for (var i = 1; i < windowSize; i++)
+                {
+                    results[0].AddRange(results[i]);
+                }
+
+                return results[0];
+            }
         }
     }
 }

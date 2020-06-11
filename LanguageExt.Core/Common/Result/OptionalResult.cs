@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using System.Net;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
@@ -71,6 +72,12 @@ namespace LanguageExt.Common
             exception = e;
             Value = Option<A>.None;
         }
+
+        public static OptionalResult<A> Some(A value) =>
+            new OptionalResult<A>(Option<A>.Some(value));
+
+        public static OptionalResult<A> Optional(A value) =>
+            new OptionalResult<A>(Prelude.Optional(value));
 
         /// <summary>
         /// Implicit conversion operator from A to Result<A>

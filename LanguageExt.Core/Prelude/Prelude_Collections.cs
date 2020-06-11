@@ -585,6 +585,13 @@ namespace LanguageExt
             new Stck<T>(items);
 
         /// <summary>
+        /// Create an immutable stack
+        /// </summary>
+        [Pure]
+        public static Stck<T> toStackRev<T>(IEnumerable<T> items) =>
+            new Stck<T>(items.Reverse());
+
+        /// <summary>
         /// Create an immutable map, updating duplicates so that the final value of any key is retained
         /// </summary>
         [Pure]
@@ -790,19 +797,6 @@ namespace LanguageExt
             match(LanguageExt.HashMap.find(map, key),
                    Some,
                    None);
-
-
-        /// <summary>
-        /// Construct a sequence from any value
-        ///     T     : [x]
-        ///     null  : []
-        /// </summary>
-        [Pure]
-        [Obsolete("SeqOne has been deprecated for the more concise Seq1")]
-        public static Seq<A> SeqOne<A>(A value) =>
-            value.IsNull()
-                ? Empty
-                : LSeq.FromSingleValue(value);
 
         /// <summary>
         /// Construct a sequence from any value

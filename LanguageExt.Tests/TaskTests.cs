@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+using LanguageExt;
+using LanguageExt.ClassInstances;
 using Xunit;
 using static LanguageExt.Prelude;
-using LanguageExt.ClassInstances;
-using LanguageExt;
-using System.Net.Http;
-using Nito.AsyncEx;
 
 namespace LanguageExt.Tests
 {
@@ -115,6 +115,25 @@ namespace LanguageExt.Tests
             var task = none.BindT(_ => none);
 
             await task;
+        }
+
+        [Fact]
+        public async Task SequenceParallel_SingleWindowWithPositiveDelayTasks_AllTaskResultsReturned()
+        {
+            var expected = 100;
+            var tries = from i in Range(0, expected) select Task.Delay(1).ToUnit();
+            var actual = await tries.SequenceParallel(1).Map(Enumerable.Count);
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public async Task WindowIter_SingleWindowWithPositiveDelayTasks_ActionExecutedOnceForEveryTask()
+        {
+            var expected = 100;
+            var tries = from i in Range(0, expected) select Task.Delay(1).ToUnit();
+            var actual = 0;
+            await tries.WindowIter(1, _ => actual++);
+            Assert.Equal(expected, actual);
         }
     }
 }

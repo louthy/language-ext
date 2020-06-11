@@ -1,4 +1,6 @@
-﻿using LanguageExt.TypeClasses;
+﻿using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using LanguageExt.TypeClasses;
 using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
@@ -9,9 +11,24 @@ namespace LanguageExt.ClassInstances
             x.Id.CompareTo(y.Id);
 
         public bool Equals(Task<A> x, Task<A> y) =>
-            x.Id == y.Id;
+            default(EqTask<A>).Equals(x, y);
 
         public int GetHashCode(Task<A> x) =>
-            x.Id.GetHashCode();
+            default(HashableTask<A>).GetHashCode(x);
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(Task<A> x, Task<A> y) =>
+            default(EqTask<A>).EqualsAsync(x, y);
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(Task<A> x) =>
+            default(HashableTask<A>).GetHashCodeAsync(x);
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(Task<A> x, Task<A> y) =>
+            Compare(x, y).AsTask();    
     }
 }

@@ -458,8 +458,7 @@ namespace LanguageExt
         {
             if (ReferenceEquals(this, other)) return true;
             if (ReferenceEquals(other, null)) return false;
-            var comparer = EqualityComparer<A>.Default;
-            return Count == other.Count && this.Zip(other, (x, y) => comparer.Equals(x, y)).ForAll(x => x);
+            return Count == other.Count && default(EqEnumerable<A>).Equals(this, other);
         }
 
         [Pure]
