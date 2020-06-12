@@ -9,7 +9,7 @@ namespace LanguageExt.Tests
     public class ExceptionMatching
     {
         [Fact]
-        public void ExTest1()
+        public void ExTestMatchSuccess()
         {
             string x = match( Number<InvalidOperationException>(10),
                               Succ: v  => "Worked",
@@ -22,7 +22,7 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void ExTest2()
+        public void ExTestMatchException1()
         {
             string x = match( Number<InvalidOperationException>(9),
                               Succ: v  => "Worked",
@@ -35,7 +35,7 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void ExTest3()
+        public void ExTestMatchException2()
         {
             string x = match( Number<ArgumentNullException>(9),
                               Succ: v  => "Worked",
@@ -48,7 +48,7 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
-        public void ExTest4()
+        public void ExTestMatchExceptionOtherwise()
         {
             string x = match( Number<Exception>(9),
                               Succ: v  => "Worked",
