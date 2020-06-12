@@ -75,7 +75,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void ExTestThrowStacktrace()
         {
-            var ex = Assert.Throws<Exception>(() => Try<Unit>(() => throw new Exception("originally unthrown"))
+            var ex = Assert.Throws<Exception>(() => Try<Unit>(() => throw new Exception("originally thrown"))
                 .IfFail()
                 .OtherwiseReThrow());
 
