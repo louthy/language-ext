@@ -44,7 +44,7 @@ namespace LanguageExt
             ta.Map(f).SequenceParallel();
         
         public static Task<Seq<B>> SequenceParallel<A, B>(this Seq<A> ta, Func<A, Task<B>> f, int windowSize) =>
-            ta.Map(f).SequenceParallel();
+            ta.Map(f).SequenceParallel(windowSize);
         
         public static Task<Set<B>> Sequence<A, B>(this Set<A> ta, Func<A, Task<B>> f) =>
             ta.Map(f).Sequence();
