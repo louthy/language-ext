@@ -26,7 +26,7 @@ namespace LanguageExt
             ta.Map(f).SequenceParallel();
 
         public static TryAsync<IEnumerable<B>> SequenceParallel<A, B>(this IEnumerable<A> ta, Func<A, TryAsync<B>> f, int windowSize) =>
-            ta.Map(f).SequenceParallel();
+            ta.Map(f).SequenceParallel(windowSize);
         
         public static TryAsync<Lst<B>> Sequence<A, B>(this Lst<A> ta, Func<A, TryAsync<B>> f) =>
             ta.Map(f).Sequence();
