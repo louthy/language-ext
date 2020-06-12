@@ -1,5 +1,7 @@
 ﻿using Xunit;
 using System;
+using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
@@ -59,6 +61,39 @@ namespace LanguageExt.Tests
 
             Assert.True(x == "Not handled");
         }
+
+        [Fact]
+        public void ExTestThrowNoStacktrace()
+        {
+            var ex = Assert.Throws<Exception>(() => Try<Unit>(new Exception("originally unthrown"))
+                .IfFail()
+                .OtherwiseReThrow());
+
+            Assert.DoesNotContain("End of stack trace from previous location where exception was thrown", ex.StackTrace);
+        }
+        
+        [Fact]
+        public void ExTestThrowStacktrace()
+        {
+            var ex = Assert.Throws<Exception>(() => Try<Unit>(() => throw new Exception("originally unthrown"))
+                .IfFail()
+                .OtherwiseReThrow());
+
+            Assert.Contains("End of stack trace from previous location where exception was thrown", ex.StackTrace);
+        }
+        
+        [Fact]
+        public void ExTestRethrowStacktrace()
+        {
+            var ex = Assert.Throws<Exception>(() => Try(WillFail)
+                .IfFail()
+                .OtherwiseReThrow());
+
+            Assert.Contains("WillFail", ex.StackTrace);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private Unit WillFail() => throw new Exception("fail");
 
         private static Try<int> Number<T>(int x) where T : Exception, new() => () =>
             x % 2 == 0
