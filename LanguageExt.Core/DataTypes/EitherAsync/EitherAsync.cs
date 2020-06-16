@@ -40,7 +40,7 @@ namespace LanguageExt
 //#endif
         IEitherAsync
     {
-        public readonly static EitherAsync<L, R> Bottom = new EitherAsync<L, R>();
+        public readonly static EitherAsync<L, R> Bottom = new EitherAsync<L, R>(null);
         internal readonly Task<EitherData<L, R>> data;
 
         internal EitherAsync(Task<EitherData<L, R>> data) =>
@@ -693,6 +693,39 @@ namespace LanguageExt
             MatchAsync(
                 RightAsync: r => RightAsync(r),
                 Left: l => l);
+
+        /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns the result of Bottom if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">Function to generate a value if in the Bottom state</param>
+        /// <returns>Returns an Either value</returns>
+        [Pure]
+        public EitherAsync<L, R> BindBottom(Func<EitherAsync<L, R>> Bottom)
+        {
+            async Task<EitherData<L, R>> Do(EitherAsync<L, R> self)
+            {
+                if (await self.IsBottom)
+                {
+                    return await Bottom().data;
+                }
+                else
+                {
+                    return await self.data;
+                }
+            }
+            return new EitherAsync<L, R>(Do(this));
+        }
+
+        /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns Bottom if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">value to return if in the Bottom state</param>
+        /// <returns>Returns an Either value</returns>
+        [Pure]
+        public EitherAsync<L, R> BindBottom(EitherAsync<L, R> Bottom) =>
+            BindBottom(() => Bottom);
 
         /// <summary>
         /// Match Right and return a context.  You must follow this with .Left(...) to complete the match

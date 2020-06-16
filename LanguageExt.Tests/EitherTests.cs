@@ -122,6 +122,22 @@ namespace LanguageExt.Tests
             );
         }
 
+        [Fact]
+        public void FilterBottomTest()
+        {
+            var x = Right<string, int>(1)
+                .Filter(isDefault);
+
+            Assert.True(x.IsBottom);
+            Assert.Equal(Right<string, int>(0), x.BindBottom(0));
+            Assert.Equal(Right<string, int>(0), x.BindBottom(() => 0));
+            Assert.Equal(Right<string, int>(0), x.BindBottom(Right<string, int>(0)));
+            Assert.Equal(Right<string, int>(0), x.BindBottom(() => Right<string, int>(0)));
+
+            Assert.Equal(Left("is not default"), x.BindBottom("is not default"));
+            Assert.Equal(Left("is not default"), x.BindBottom(() => "is not default"));
+            Assert.Equal(Left("is not default"), x.BindBottom(Left<string, int>("is not default")));
+        }
 
         private Either<string, int> GetValue(bool select)
         {

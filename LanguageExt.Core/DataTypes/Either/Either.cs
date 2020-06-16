@@ -412,6 +412,26 @@ namespace LanguageExt
             ifRight<MEither<L, R>, Either<L, R>, L, R>(this, rightMap);
 
         /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns the result of Bottom if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">Function to generate a value if in the Bottom state</param>
+        /// <returns>Returns an Either value</returns>
+        [Pure]
+        public Either<L,R> BindBottom(Func<Either<L, R>> Bottom) =>
+            bindBottom<MEither<L, R>, Either<L, R>, L, R>(this, Bottom);
+
+        /// <summary>
+        /// Returns the Left/Right value if the Either is in Left/Right state.
+        /// Returns Bottom if in bottom state.
+        /// </summary>
+        /// <param name="Bottom">value to return if in the Bottom state</param>
+        /// <returns>Returns an Either value</returns>
+        [Pure]
+        public Either<L, R> BindBottom(Either<L, R> Bottom) =>
+            bindBottom<MEither<L, R>, Either<L, R>, L, R>(this, Bottom);
+        
+        /// <summary>
         /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
         /// </summary>
         /// <param name="right">Action to invoke if the Either is in a Right state</param>
