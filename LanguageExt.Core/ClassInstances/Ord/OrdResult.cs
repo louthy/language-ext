@@ -1,6 +1,9 @@
-﻿using LanguageExt.Common;
+﻿using System.Diagnostics.Contracts;
+using LanguageExt.Common;
 using LanguageExt.TypeClasses;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -26,6 +29,21 @@ namespace LanguageExt.ClassInstances
             x.IsBottom ? -2
           : x.IsFaulted ? -1
           : x.Value?.GetHashCode() ?? 0;
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(Result<A> x, Result<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(Result<A> x) =>
+            GetHashCode(x).AsTask();       
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(Result<A> x, Result<A> y) =>
+            Compare(x, y).AsTask();    
     }
 
     public struct OrdOptionalResult<A> : Ord<OptionalResult<A>>
@@ -50,5 +68,20 @@ namespace LanguageExt.ClassInstances
             x.IsBottom ? -2
           : x.IsFaulted ? -1
           : default(EqOption<A>).GetHashCode(x.Value);
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(OptionalResult<A> x, OptionalResult<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(OptionalResult<A> x) =>
+            GetHashCode(x).AsTask();       
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(OptionalResult<A> x, OptionalResult<A> y) =>
+            Compare(x, y).AsTask();    
     }
 }

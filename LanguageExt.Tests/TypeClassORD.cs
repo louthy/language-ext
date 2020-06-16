@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System.Threading.Tasks;
+using Xunit;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using static LanguageExt.TypeClass;
@@ -87,6 +88,33 @@ namespace LanguageExt.Tests
             Assert.True(max<OrdInt, int>(4, 3, 2, 1) == 4);
             Assert.True(min<OrdInt, int>(1, 1, 1, 1) == 1);
             Assert.True(max<OrdInt, int>(1, 1, 1, 1) == 1);
+        }
+
+        private struct OrdDesc<ORD, T> : Ord<T> where ORD : struct, Ord<T>
+        {
+            public int GetHashCode(T x) => default(ORD).GetHashCode(x);
+
+            public bool Equals(T x, T y) => default(ORD).Equals(x, y);
+
+            public int Compare(T x, T y) => default(ORD).Compare(y, x);
+
+            public Task<int> GetHashCodeAsync(T x) => default(ORD).GetHashCode(x).AsTask();
+
+            public Task<bool> EqualsAsync(T x, T y) => default(ORD).Equals(x, y).AsTask();
+
+            public Task<int> CompareAsync(T x, T y) => default(ORD).Compare(y, x).AsTask();
+        }
+
+        [Fact]
+        public void OrderBy()
+        {
+            var items = Prelude.Seq("2", "1", "10");
+            
+            Assert.Equal(Prelude.Seq("1", "10", "2"), items.OrderBy(Prelude.identity,  default(OrdDefault<string>).ToComparable()));
+            Assert.Equal(Prelude.Seq("1", "2", "10"), items.OrderBy(System.Convert.ToInt32,  default(OrdDefault<int>).ToComparable()));
+            
+            Assert.Equal(Prelude.Seq("2", "10", "1"), items.OrderBy(Prelude.identity,  default(OrdDesc<OrdDefault<string>, string>).ToComparable()));
+            Assert.Equal(Prelude.Seq("10", "2", "1"), items.OrderBy(System.Convert.ToInt32,  default(OrdDesc<OrdDefault<int>, int>).ToComparable()));
         }
     }
 }

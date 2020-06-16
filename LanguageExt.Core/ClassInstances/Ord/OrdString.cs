@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt.ClassInstances
@@ -38,6 +41,21 @@ namespace LanguageExt.ClassInstances
         /// <returns>Hash code of x</returns>
         public int GetHashCode(string x) =>
             x?.GetHashCode() ??0;
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();       
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();    
     }
 
     /// <summary>
@@ -75,6 +93,21 @@ namespace LanguageExt.ClassInstances
         /// <returns>Hash code of x</returns>
         public int GetHashCode(string x) =>
             x.IsNull() ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(x);
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();       
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();    
     }
 
     /// <summary>
@@ -112,6 +145,21 @@ namespace LanguageExt.ClassInstances
         /// <returns>Hash code of x</returns>
         public int GetHashCode(string x) =>
             x.IsNull() ? 0 : StringComparer.Ordinal.GetHashCode(x);
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();       
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();    
     }
 
     /// <summary>
@@ -149,6 +197,21 @@ namespace LanguageExt.ClassInstances
         /// <returns>Hash code of x</returns>
         public int GetHashCode(string x) =>
             x.IsNull() ? 0 : StringComparer.CurrentCultureIgnoreCase.GetHashCode(x);
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();       
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();    
     }
 
     /// <summary>
@@ -186,5 +249,20 @@ namespace LanguageExt.ClassInstances
         /// <returns>Hash code of x</returns>
         public int GetHashCode(string x) =>
             x.IsNull() ? 0 : StringComparer.CurrentCulture.GetHashCode(x);
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(string x, string y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();       
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(string x, string y) =>
+            Compare(x, y).AsTask();    
     }
 }

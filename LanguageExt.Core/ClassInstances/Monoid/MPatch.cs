@@ -1,7 +1,9 @@
 ﻿using LanguageExt.TypeClasses;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -106,5 +108,13 @@ namespace LanguageExt.ClassInstances
 
         public int GetHashCode(Patch<EqA, A> x) =>
             default(EqPatch<EqA, A>).GetHashCode(x);
+ 
+        [Pure]
+        public Task<bool> EqualsAsync(Patch<EqA, A> x, Patch<EqA, A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(Patch<EqA, A> x) =>
+            GetHashCode(x).AsTask();    
     }
 }

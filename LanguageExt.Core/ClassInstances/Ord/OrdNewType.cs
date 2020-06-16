@@ -1,6 +1,8 @@
 ﻿using LanguageExt.TypeClasses;
 using System;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -51,6 +53,21 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(NewType<NEWTYPE, A> x) =>
             x.IsNull() ? 0 : x.GetHashCode();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(NewType<NEWTYPE, A> x) =>
+            GetHashCode(x).AsTask();        
+           
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) =>
+            Compare(x, y).AsTask();   
     }
 
     /// <summary>
@@ -94,6 +111,21 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(NewType<NEWTYPE, A> x) =>
             default(OrdNewType<NEWTYPE, OrdDefault<A>, A>).GetHashCode(x);
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(NewType<NEWTYPE, A> x) =>
+            GetHashCode(x).AsTask();         
+           
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) =>
+            Compare(x, y).AsTask();   
     }
 
     /// <summary>
@@ -148,5 +180,20 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(NewType<NEWTYPE, A, PRED, ORD> x) =>
             x.IsNull() ? 0 : default(ORD).GetHashCode(x.Value);
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(NewType<NEWTYPE, A, PRED, ORD> x, NewType<NEWTYPE, A, PRED, ORD> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(NewType<NEWTYPE, A, PRED, ORD> x) =>
+            GetHashCode(x).AsTask();        
+            
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(NewType<NEWTYPE, A, PRED, ORD> x, NewType<NEWTYPE, A, PRED, ORD> y) =>
+            Compare(x, y).AsTask();   
     }
 }

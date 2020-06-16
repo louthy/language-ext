@@ -40,10 +40,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Try<A> Fail(object err = null) =>
-            err != null && err is Exception
-                ? Try<A>((Exception)err)
-                : Try<A>(BottomException.Default);
-
+            Common.Error
+                  .Convert<Exception>(err)
+                  .Map(f => Try<A>(f))
+                  .IfNone(Try<A>(BottomException.Default));            
+    
         [Pure]
         public Try<A> Plus(Try<A> ma, Try<A> mb) => () =>
         {

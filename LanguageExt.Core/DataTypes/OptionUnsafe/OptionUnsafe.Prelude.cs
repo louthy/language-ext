@@ -459,7 +459,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static OptionUnsafe<Func<T2, R>> parmap<T1, T2, R>(OptionUnsafe<T1> option, Func<T1, T2, R> mapper) =>
             option.ParMap(mapper);
@@ -467,7 +466,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static OptionUnsafe<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(OptionUnsafe<T1> option, Func<T1, T2, T3, R> mapper) =>
             option.ParMap(mapper);

@@ -59,38 +59,6 @@
                 .BindAsync<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
         /// <summary>
-        /// Traverse operation.  Takes a value of type `OUTER_A`, traverses the inner
-        /// values of type `A`, and returns `FLIPPED_OUTER_B` (by applying `a` to `f`).  So 
-        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
-        /// types.  
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`FLIPPED_OUTER_B`</returns>
-        [Pure]
-        public static FLIPPED_OUTER_B Traverse<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
-            default(FLIP_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .Traverse<M_FLIPPED_OUTER_B, FLIPPED_OUTER_B, M_FLIPPED_INNER_B, FLIPPED_INNER_B, B>(ma, f);
-
-        /// <summary>
-        /// Traverse operation.  Takes a value of type `OUTER_A`, traverses the inner
-        /// values of type `A`, and returns `FLIPPED_OUTER_B` (by applying `a` to `f`).  So 
-        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
-        /// types.  
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <typeparam name="B">Resulting inner bound value type</typeparam>
-        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`FLIPPED_OUTER_B`</returns>
-        [Pure]
-        public static FLIPPED_OUTER_B TraverseAsync<GENS, A, B>(this OUTER_A ma, Func<A, Task<B>> f) =>
-            default(FLIP_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .TraverseAsync<M_FLIPPED_OUTER_B, FLIPPED_OUTER_B, M_FLIPPED_INNER_B, FLIPPED_INNER_B, B>(ma, f);
-
-        /// <summary>
         /// Sequence operation.  Takes a value of type `OUTER_A`, traverses the inner
         /// values of type `A`, and returns `FLIPPED_OUTER_A`.  So it 'flips' the types
         /// whilst maintaining the rules of the inner and outer types.  This is the
@@ -102,8 +70,7 @@
         /// <returns>`FLIPPED_OUTER_A`</returns>
         [Pure]
         public static FLIPPED_OUTER_A Sequence<GENS, A>(this OUTER_A ma) =>
-            default(FLIP_TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>)
-                .Sequence<M_FLIPPED_OUTER_A, FLIPPED_OUTER_A, M_FLIPPED_INNER_A, FLIPPED_INNER_A>(ma);
+            ma.Traverse(Prelude.identity);
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads

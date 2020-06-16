@@ -1043,6 +1043,19 @@ namespace LanguageExt
                 : 1;
 
         /// <summary>
+        /// Flips the left and right tagged values
+        /// </summary>
+        /// <returns>Either with the types swapped</returns>
+        [Pure]
+        public Either<R, L> Swap() =>
+            State switch
+            {
+                EitherStatus.IsRight => Either<R, L>.Left(RightValue),
+                EitherStatus.IsLeft  => Either<R, L>.Right(LeftValue),
+                _                    => Either<R, L>.Bottom
+            };        
+
+        /// <summary>
         /// Iterate the Either
         /// action is invoked if in the Right state
         /// </summary>

@@ -501,7 +501,7 @@ To take this much further, all of the monads in this library implement a standar
     Map                 // Part of the definition of any 'functor'. Select in LINQ
     Lift / LiftUnsafe   // Different meaning to Haskell, this returns the wrapped value. Dangerous, should be used sparingly.
     Select
-    SeletMany
+    SelectMany
     Where
 ```
 This makes them into what would be known in Haskell as a Type Class (although more of a catch-all type-class than a set of well-defined type-classes). 
@@ -661,6 +661,16 @@ Functional languages have a concept of a type that has one possible value (itsel
 ```
 
 `Unit` is the type and `unit` is the value. It is used throughout the `LanguageExt` library instead of `void`. The primary reason is that if you want to program functionally then all functions should return a value and `void` is a type with zero possible values - and that's the type-theory reason why `void` is a pain in the arse in C#. This can help a lot with LINQ expressions.
+
+Any `void` function or its asynchronous equivalent `Task` can be converted using `fun` and `ToUnit` as follows:
+
+```C#
+    public static Func<string, Unit> GetConsoleWrite() => fun<string>(Console.Write);
+    public static Func<string, Task<Unit>> GetConsoleWriteAsync() => (string v) => Console.Out.WriteAsync(v).ToUnit();
+
+    public static Unit WriteToConsole(string v) => fun(() => Console.Write(v))();
+    public static Task<Unit> WriteToConsoleAsync(string v) => Console.Out.WriteAsync(v).ToUnit(); 
+```
 
 * [Unit reference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Unit_.htm)
 

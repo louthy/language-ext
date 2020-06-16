@@ -1,6 +1,8 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -44,5 +46,20 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Guid x) =>
             x.GetHashCode();
+       
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(Guid x, Guid y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(Guid x) =>
+            GetHashCode(x).AsTask();        
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(Guid x, Guid y) =>
+            Compare(x, y).AsTask();
     }
 }

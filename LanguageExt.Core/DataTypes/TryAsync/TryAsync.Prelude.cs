@@ -40,6 +40,16 @@ namespace LanguageExt
             new Result<A>(v).AsTask();
 
         /// <summary>
+        /// TryAsync identity constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryAsync<A> TryAsyncSucc<A>(A v) => () =>
+            new Result<A>(v).AsTask();
+
+        /// <summary>
         /// TryOptionAsync constructor function
         /// </summary>
         /// <typeparam name="A">Bound value type</typeparam>
@@ -47,6 +57,16 @@ namespace LanguageExt
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryAsync<A> TryAsync<A>(Exception ex) => () =>
+            new Result<A>(ex).AsTask();
+
+        /// <summary>
+        /// TryOptionAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryAsync<A> TryAsyncFail<A>(Exception ex) => () =>
             new Result<A>(ex).AsTask();
 
         /// <summary>
@@ -446,7 +466,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static TryAsync<Func<T2, R>> parmap<T1, T2, R>(TryAsync<T1> self, Func<T1, T2, R> func) =>
             self.ParMap(func);
@@ -454,7 +473,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static TryAsync<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(TryAsync<T1> self, Func<T1, T2, T3, R> func) =>
             self.ParMap(func);

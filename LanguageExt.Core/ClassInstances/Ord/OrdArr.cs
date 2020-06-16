@@ -1,5 +1,7 @@
 ﻿using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -59,6 +61,21 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Arr<A> x) =>
             x.GetHashCode();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(Arr<A> x, Arr<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(Arr<A> x) =>
+            GetHashCode(x).AsTask();       
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(Arr<A> x, Arr<A> y) =>
+            Compare(x, y).AsTask();
     }
 
     /// <summary>
@@ -99,5 +116,18 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Arr<A> x) =>
             default(OrdArr<OrdDefault<A>, A>).GetHashCode(x);
+ 
+        [Pure]
+        public Task<bool> EqualsAsync(Arr<A> x, Arr<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(Arr<A> x) =>
+            GetHashCode(x).AsTask();    
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(Arr<A> x, Arr<A> y) =>
+            Compare(x, y).AsTask();
     }
 }

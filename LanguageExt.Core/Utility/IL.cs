@@ -1076,6 +1076,78 @@ namespace LanguageExt
 
             return (Action<A, SerializationInfo>)dynamic.CreateDelegate(typeof(Action<A, SerializationInfo>));
         }
+        
+        public static Func<A, B> GetPropertyOrField<A, B>(string name) =>
+            GetProperty<A, B>(name) ?? GetField<A, B>(name);
+
+        public static Func<A, B> GetProperty<A, B>(string name)
+        {
+            var m = typeof(A).GetMethod($"get_{name}");
+            if (m == null) return null;
+            if (m.ReturnType != typeof(B)) return null;
+
+            var arg = typeof(A);
+            var dynamic = new DynamicMethod($"{typeof(A).Name}_{name}",
+                typeof(B),
+                new[] {arg},
+                true);
+
+            var il = dynamic.GetILGenerator();
+            il.DeclareLocal(typeof(B));
+            if (arg.IsValueType)
+            {
+                il.Emit(OpCodes.Ldarga_S, 0);
+            }
+            else
+            {
+                il.Emit(OpCodes.Ldarg_0);
+            }
+
+            if (m.IsVirtual)
+            {
+                il.Emit(OpCodes.Callvirt, m);
+            }
+            else
+            {
+                il.Emit(OpCodes.Call, m);
+            }
+
+            il.Emit(OpCodes.Stloc_0);
+            il.Emit(OpCodes.Ldloc_0);
+            il.Emit(OpCodes.Ret);
+
+            return (Func<A, B>) dynamic.CreateDelegate(typeof(Func<A, B>));
+        }
+ 
+        public static Func<A, B> GetField<A, B>(string name)
+        {
+            var fld = typeof(A).GetField(name);
+            if (fld == null) return null;
+            if (fld.FieldType != typeof(B)) return null;
+
+            var arg = typeof(A);
+            var dynamic = new DynamicMethod($"{typeof(A).Name}_{name}",
+                typeof(B),
+                new[] {arg},
+                true);
+
+            var il = dynamic.GetILGenerator();
+            il.DeclareLocal(typeof(B));
+            if (arg.IsValueType)
+            {
+                il.Emit(OpCodes.Ldarga_S, 0);
+            }
+            else
+            {
+                il.Emit(OpCodes.Ldarg_0);
+            }
+            il.Emit(OpCodes.Ldfld, fld);
+            il.Emit(OpCodes.Stloc_0);
+            il.Emit(OpCodes.Ldloc_0);
+            il.Emit(OpCodes.Ret);
+
+            return (Func<A, B>) dynamic.CreateDelegate(typeof(Func<A, B>));
+        }
 
         static string PrettyFieldName(FieldInfo field) =>
             field.Name.Split('<', '>').Match(

@@ -514,7 +514,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static Either<L, Func<T2, R>> parmap<L, T1, T2, R>(Either<L, T1> either, Func<T1, T2, R> func) =>
             either.ParMap(func);
@@ -522,7 +521,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static Either<L, Func<T2, Func<T3, R>>> parmap<L, T1, T2, T3, R>(Either<L, T1> either, Func<T1, T2, T3, R> func) =>
             either.ParMap(func);
@@ -645,18 +643,6 @@ namespace LanguageExt
         [Pure]
         public static Arr<L> leftToArray<L, R>(Either<L, R> either) =>
             either.LeftToArray();
-
-        /// <summary>
-        /// Project the Either into an IQueryable of R
-        /// </summary>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <param name="either">Either to project</param>
-        /// <returns>If the Either is in a Right state, an IQueryable of R with one item.  A zero length IQueryable R otherwise</returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("ToQuery has been deprecated.  Please use RightToQuery.")]
-        public static IQueryable<R> toQuery<L, R>(Either<L, R> either) =>
-            either.RightAsEnumerable().AsQueryable();
 
         /// <summary>
         /// Project the Either into an IQueryable of R

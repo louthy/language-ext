@@ -139,7 +139,8 @@ namespace LanguageExt
 
         [Pure]
         public bool Equals(Que<A> other) =>
-            hashCode == other.hashCode && Enumerable.Equals(this.Value, other.Value);
+            (hashCode == 0 || other.hashCode == 0 || hashCode == other.hashCode) &&
+            default(EqEnumerable<A>).Equals(this.Value, other.Value);
 
         /// <summary>
         /// Implicit conversion from an untyped empty list

@@ -7,6 +7,7 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.DataTypes.Serialisation;
@@ -35,15 +36,75 @@ public static class TryAsyncExtensions
     public static TryAsync<A> Memo<A>(this TryAsync<A> ma)
     {
         bool run = false;
-        var result = Result<A>.Bottom.AsTask();
-        return new TryAsync<A>(() =>
+        var result = Result<A>.Bottom;
+        return new TryAsync<A>(async () =>
         {
             if (run) return result;
-            result = ma.Try();
-            run = true;
-            return result;
+            var tra = ma.Try();
+            var ra = await tra;
+            if (ra.IsSuccess)
+            {
+                result = ra;
+                run = true;
+            }
+            return ra;
         });
     }
+        
+    /// <summary>
+    /// If the TryAsync fails, retry `amount` times
+    /// </summary>
+    /// <param name="ma">TryAsync</param>
+    /// <param name="amount">Amount of retries</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    /// <returns>TryAsync</returns>
+    public static TryAsync<A> Retry<A>(TryAsync<A> ma, int amount = 3) => async () =>
+    {
+        while (true)
+        {
+            var ra = await ma.Try();
+            if (ra.IsSuccess)
+            {
+                return ra;
+            }
+
+            amount--;
+            if (amount <= 0) return ra;
+        }
+    };
+        
+    /// <summary>
+    /// If the TryOptionAsync fails, retry `amount` times whilst backing off `backOffMilliSeconds`
+    /// </summary>
+    /// <param name="ma">TryOptionAsync</param>
+    /// <param name="backOffMilliSeconds">Amount of time in milliseconds to back-off upon failure.  The back-off
+    /// time is added to itself on each retry.  i.e. 100, 200, 400, 800, 1600...</param>
+    /// <param name="amount">Amount of retries</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    /// <returns>TryOptionAsync</returns>
+    public static TryAsync<A> RetryBackOff<A>(TryAsync<A> ma, int backOffMilliSeconds, int amount = 3) => async () =>
+    {
+        while (true)
+        {
+            var ra = await ma.Try();
+            if (ra.IsSuccess)
+            {
+                return ra;
+            }
+            amount--;
+            if (amount <= 0) return ra;
+            await Task.Delay(backOffMilliSeconds);
+            backOffMilliSeconds += backOffMilliSeconds;
+        }
+    };      
+
+    /// <summary>
+    /// Custom awaiter that turns an TryAsync into an Try
+    /// </summary>
+    public static TaskAwaiter<Try<A>> GetAwaiter<A>(this TryAsync<A> ma) =>
+        ma.Match(
+            Succ: x => Prelude.Try<A>(x),
+            Fail: e => Prelude.Try<A>(e)).GetAwaiter();
 
     /// <summary>
     /// Forces evaluation of the lazy TryAsync
@@ -724,7 +785,6 @@ public static class TryAsyncExtensions
     /// <summary>
     /// Partial application map
     /// </summary>
-    /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
     public static TryAsync<Func<B, R>> ParMap<A, B, R>(this TryAsync<A> self, Func<A, B, R> func) =>
         self.Map(curry(func));
@@ -732,7 +792,6 @@ public static class TryAsyncExtensions
     /// <summary>
     /// Partial application map
     /// </summary>
-    /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
     public static TryAsync<Func<B, Func<C, R>>> ParMap<A, B, C, R>(this TryAsync<A> self, Func<A, B, C, R> func) =>
         self.Map(curry(func));
@@ -1067,7 +1126,7 @@ public static class TryAsyncExtensions
                 if (selfTask.Result.IsFaulted) return new Result<V>(selfTask.Result.Exception);
                 if (innerTask.IsFaulted) return new Result<V>(innerTask.Exception);
                 if (innerTask.Result.IsFaulted) return new Result<V>(innerTask.Result.Exception);
-                return EqualityComparer<K>.Default.Equals(outerKeyMap(selfTask.Result.Value), innerKeyMap(innerTask.Result.Value))
+                return await default(EqDefaultAsync<K>).EqualsAsync(outerKeyMap(selfTask.Result.Value), innerKeyMap(innerTask.Result.Value))
                     ? project(selfTask.Result.Value, innerTask.Result.Value)
                     : throw new BottomException();
             });

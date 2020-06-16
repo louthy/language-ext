@@ -9,6 +9,7 @@ using LanguageExt.ClassInstances;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -98,6 +99,7 @@ namespace LanguageExt
         /// <summary>
         /// Ctor that facilitates serialisation
         /// </summary>
+        /// </summary>
         /// <param name="option">None or Some A.</param>
         [Pure]
         public OptionAsync(IEnumerable<A> option)
@@ -156,6 +158,97 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<A> operator |(OptionAsync<A> lhs, OptionAsync<A> rhs) =>
             MOptionAsync<A>.Inst.Plus(lhs, rhs);
+        
+        /// <summary>
+        /// Equality operator
+        /// </summary>
+        [Pure]
+        public async Task<bool> Equals<EqA>(OptionAsync<A> rhs) where EqA : struct, EqAsync<A>
+        {
+            var a = await Data;
+            var b = await rhs.Data;
+            if(a.IsSome != b.IsSome) return false; 
+            if(!a.IsSome && !b.IsSome) return true; 
+            return await default(EqA).EqualsAsync(a.Value, b.Value);
+        }
+
+        /// <summary>
+        /// Equality operator
+        /// </summary>
+        public override bool Equals(object _) =>
+            throw new NotSupportedException(
+                "The standard Equals override is not supported for OptionAsync because it's an asynchronous type and " +
+                "the return value is synchronous.  Use the typed version of Equals or the == operator to get a bool " +
+                " Task that can be awaited");
+
+        /// <summary>
+        /// Equality operator
+        /// </summary>
+        [Pure]
+        public Task<bool> Equals(OptionAsync<A> rhs) =>
+            Equals<EqDefaultAsync<A>>(rhs);
+
+        /// <summary>
+        /// Equality operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator ==(OptionAsync<A> lhs, OptionAsync<A> rhs) =>
+            lhs.Equals(rhs);
+
+        /// <summary>
+        /// Non-equality operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator !=(OptionAsync<A> lhs, OptionAsync<A> rhs) =>
+            lhs.Equals(rhs).Map(not);
+
+        /// <summary>
+        /// Ordering
+        /// </summary>
+        [Pure]
+        public async Task<int> CompareTo<OrdA>(OptionAsync<A> rhs) where OrdA : struct, Ord<A>
+        {
+            var a = await Data;
+            var b = await rhs.Data;
+            var c = default(OrdBool).Compare(a.IsSome, b.IsSome);
+            if (c != 0) return c;
+            return default(OrdA).Compare(a.Value, b.Value);
+        }
+
+        /// <summary>
+        /// Ordering
+        /// </summary>
+        [Pure]
+        public Task<int> CompareTo(OptionAsync<A> rhs) =>
+            CompareTo<OrdDefault<A>>(rhs);
+        
+        /// <summary>
+        /// Ordering operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator < (OptionAsync<A> lhs, OptionAsync<A> rhs) =>
+            lhs.CompareTo(rhs).Map(x => x < 0);
+        
+        /// <summary>
+        /// Ordering operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator <= (OptionAsync<A> lhs, OptionAsync<A> rhs) =>
+            lhs.CompareTo(rhs).Map(x => x <= 0);
+        
+        /// <summary>
+        /// Ordering operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator > (OptionAsync<A> lhs, OptionAsync<A> rhs) =>
+            lhs.CompareTo(rhs).Map(x => x > 0);
+        
+        /// <summary>
+        /// Ordering operator
+        /// </summary>
+        [Pure]
+        public static Task<bool> operator >= (OptionAsync<A> lhs, OptionAsync<A> rhs) =>
+            lhs.CompareTo(rhs).Map(x => x >= 0);
 
         /// <summary>
         /// Calculate the hash-code from the bound value, unless the Option is in a None
@@ -165,7 +258,7 @@ namespace LanguageExt
         /// state, in which case the hash-code will be 0</returns>
         [Pure]
         public override int GetHashCode() =>
-            throw new NotImplementedException("Call GetHashCodeAsync instead");
+            throw new NotSupportedException("Call GetHashCodeAsync instead");
 
         /// <summary>
         /// Calculate the hash-code from the bound value, unless the Option is in a None
@@ -190,8 +283,13 @@ namespace LanguageExt
         /// </summary>
         /// <returns>String representation of the Option</returns>
         [Pure]
-        public Task<string> ToStringAsync() =>
-            data?.Map(toString) ?? "".AsTask();
+        public async Task<string> ToStringAsync()
+        {
+            var (isSome, value) = await data;
+            return isSome
+                ? $"Some({value})"
+                : "None";
+        }
 
         /// <summary>
         /// Is the option in a Some state
@@ -213,6 +311,12 @@ namespace LanguageExt
         internal Task<A> Value =>
             Data.Map(a => a.Value);
 
+        /// <summary>
+        /// Custom awaiter that turns an OptionAsync into an Option
+        /// </summary>
+        public TaskAwaiter<Option<A>> GetAwaiter() =>
+            Data.Map(d => d.IsSome ? Option<A>.Some(d.Value) : Option<A>.None).GetAwaiter();
+        
         /// <summary>
         /// Impure iteration of the bound value in the structure
         /// </summary>
@@ -1229,7 +1333,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public OptionAsync<Func<B, C>> ParMap<B, C>(Func<A, B, C> func) =>
             Map(curry(func));
@@ -1237,7 +1340,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public OptionAsync<Func<B, Func<C, D>>> ParMap<B, C, D>(Func<A, B, C, D> func) =>
             Map(curry(func));

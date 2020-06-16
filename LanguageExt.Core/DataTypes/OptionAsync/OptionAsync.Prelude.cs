@@ -105,6 +105,17 @@ namespace LanguageExt
         /// <returns>OptionAsync<T> in a Some state or throws ValueIsNullException
         /// if isnull(value).</returns>
         [Pure]
+        public static OptionAsync<Task<A>> SomeValueAsync<A>(Task<A> taskValue) =>
+            OptionAsync<Task<A>>.SomeAsync(taskValue.AsTask());
+        
+        /// <summary>
+        /// Create a lazy Some of T (OptionAsync<T>)
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="value">Non-null value to be made OptionAsyncal</param>
+        /// <returns>OptionAsync<T> in a Some state or throws ValueIsNullException
+        /// if isnull(value).</returns>
+        [Pure]
         public static OptionAsync<T> SomeAsync<T>(Func<Unit, Task<T>> f) =>
             OptionAsync<T>.SomeAsync(f(default));
 
@@ -785,7 +796,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static OptionAsync<Func<T2, R>> parmap<T1, T2, R>(OptionAsync<T1> ma, Func<T1, T2, R> mapper) =>
             ma.ParMap(mapper);
@@ -793,7 +803,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static OptionAsync<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(OptionAsync<T1> ma, Func<T1, T2, T3, R> mapper) =>
             ma.ParMap(mapper);

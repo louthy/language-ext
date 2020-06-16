@@ -459,7 +459,7 @@ namespace LanguageExt
                     : list.Head is Edit<EqA, A>.Insert ia ? Edit<EqA, A>.Insert.New(ia.Position + o, ia.Element).Cons(adjust(o - 1, list.Tail))
                     : list.Head is Edit<EqA, A>.Delete da ? Edit<EqA, A>.Delete.New(da.Position + o, da.Element).Cons(adjust(o + 1, list.Tail))
                     : list.Head is Edit<EqA, A>.Replace ra ? Edit<EqA, A>.Replace.New(ra.Position + o, ra.Element, ra.ReplaceElement).Cons(adjust(o, list.Tail))
-                    : throw new NotImplementedException();
+                    : throw new NotSupportedException();
         }
     }
 }

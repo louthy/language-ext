@@ -4,6 +4,7 @@ using static LanguageExt.Prelude;
 using System;
 using System.Linq;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -91,5 +92,13 @@ namespace LanguageExt.ClassInstances
             from a in fa
             from b in fb
             select f(a, b);
+ 
+        [Pure]
+        public Task<bool> EqualsAsync(Set<A> x, Set<A> y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(Set<A> x) =>
+            GetHashCode(x).AsTask();    
     }
 }

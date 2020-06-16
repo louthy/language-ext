@@ -875,7 +875,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static EitherAsync<L, Func<T2, R>> parmap<L, T1, T2, R>(EitherAsync<L, T1> either, Func<T1, T2, R> func) =>
             either.ParMap(func);
@@ -883,7 +882,6 @@ namespace LanguageExt
         /// <summary>
         /// Partial application map
         /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
         public static EitherAsync<L, Func<T2, Func<T3, R>>> parmap<L, T1, T2, T3, R>(EitherAsync<L, T1> either, Func<T1, T2, T3, R> func) =>
             either.ParMap(func);

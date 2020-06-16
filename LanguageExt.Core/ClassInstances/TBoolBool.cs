@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -121,5 +122,20 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public (bool, bool) BiCondition((bool, bool) a, (bool, bool) b) =>
             (a.Item1 == b.Item1, a.Item2 == b.Item2);
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync((bool, bool) x, (bool, bool) y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync((bool, bool) x) =>
+            GetHashCode(x).AsTask();         
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync((bool, bool) x, (bool, bool) y) =>
+            Compare(x, y).AsTask();
     }
 }

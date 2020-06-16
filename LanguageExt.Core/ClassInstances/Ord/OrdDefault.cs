@@ -4,6 +4,8 @@ using static LanguageExt.Prelude;
 using System;
 using System.Diagnostics.Contracts;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -17,25 +19,8 @@ namespace LanguageExt.ClassInstances
 
         static readonly Func<A, A, int> ord;
 
-        static OrdDefault()
-        {
-            if(Reflect.IsAnonymous(typeof(A)))
-            {
-                ord = IL.Compare<A>(false);
-            }
-            else
-            {
-                var def = Class<Ord<A>>.Default;
-                if (def == null)
-                {
-                    ord = Comparer<A>.Default.Compare;
-                }
-                else
-                {
-                    ord = def.Compare;
-                }
-            }
-        }
+        static OrdDefault() =>
+            ord = OrdClass<A>.Compare;
 
         /// <summary>
         /// Equality test
@@ -58,5 +43,20 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(A x) =>
             default(EqDefault<A>).GetHashCode(x);
+   
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(A x, A y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(A x) =>
+            GetHashCode(x).AsTask();
+           
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(A x, A y) =>
+            Compare(x, y).AsTask();   
     }
 }

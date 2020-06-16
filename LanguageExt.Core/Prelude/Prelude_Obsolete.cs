@@ -4,6 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
+using LSeq = LanguageExt.Seq;
 
 namespace LanguageExt
 {
@@ -396,6 +398,47 @@ namespace LanguageExt
             func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5, self.Item6, self.Item7);
             return Unit.Default;
         }
+        
+        [Pure]
+        [Obsolete("Use TaskFail")]
+        public static Task<A> asFailedTask<A>(Exception ex)
+        {
+            var tcs = new TaskCompletionSource<A>();
+            tcs.SetException(ex);
+            return tcs.Task;
+        }
 
+        /// <summary>
+        /// Convert a value to a Task that completes immediately
+        /// </summary>
+        [Pure]
+        [Obsolete("Use TaskSucc")]
+        public static Task<A> asTask<A>(A self) =>
+            Task.FromResult(self);
+
+        /// <summary>
+        /// Project the Either into an IQueryable of R
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="either">Either to project</param>
+        /// <returns>If the Either is in a Right state, an IQueryable of R with one item.  A zero length IQueryable R otherwise</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("ToQuery has been deprecated.  Please use RightToQuery.")]
+        public static IQueryable<R> toQuery<L, R>(Either<L, R> either) =>
+            either.RightAsEnumerable().AsQueryable();    
+
+        /// <summary>
+        /// Construct a sequence from any value
+        ///     T     : [x]
+        ///     null  : []
+        /// </summary>
+        [Pure]
+        [Obsolete("SeqOne has been deprecated for the more concise Seq1")]
+        public static Seq<A> SeqOne<A>(A value) =>
+            value.IsNull()
+                ? Empty
+                : LSeq.FromSingleValue(value);
+        
     }
 }

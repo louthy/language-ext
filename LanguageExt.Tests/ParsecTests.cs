@@ -612,6 +612,52 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        public void FlattenCheck()
+        {
+            Parser<string> HexDigitParser() =>
+                from hexDigitString in asString(flatten(sepBy1(many1(hexDigit), ch('-'))))
+                from end in eof
+                select hexDigitString;
+
+            Assert.Equal("17CBA779DF1E4794A4992AAB59802C19", parse(HexDigitParser(), "17CBA779-DF1E-4794-A499-2AAB59802C19").ToOption());
+            Assert.Equal("17CBA779DF1E4794A4992AAB59802C19", parse(HexDigitParser(), "17CBA779DF1E4794A4992AAB59802C19").ToOption());
+            Assert.Equal(Option<string>.None, parse(HexDigitParser(), "-17CBA779-DF1E-4794-A499-2AAB59802C19").ToOption());       
+            Assert.Equal(Option<string>.None, parse(HexDigitParser(), "17CBA779-DF1E-4794-A499--2AAB59802C19").ToOption());
+        }
+        
+        [Fact]
+        public void ConsCheck()
+        {
+            Parser<string> HexDigitBlocksParser() =>
+                from guidString in asString(flatten(cons(many1(hexDigit), many(cons(ch('-'), many1(hexDigit))))))
+                from end in eof
+                select guidString;
+
+            Assert.Equal("17CBA779-DF1E-4794-A499-2AAB59802C19", parse(HexDigitBlocksParser(), "17CBA779-DF1E-4794-A499-2AAB59802C19").ToOption());
+            Assert.Equal("17CBA779DF1E4794A4992AAB59802C19", parse(HexDigitBlocksParser(), "17CBA779DF1E4794A4992AAB59802C19").ToOption());
+            Assert.Equal(Option<string>.None, parse(HexDigitBlocksParser(), "-17CBA779-DF1E-4794-A499-2AAB59802C19").ToOption());       
+            Assert.Equal(Option<string>.None, parse(HexDigitBlocksParser(), "17CBA779-DF1E-4794-A499--2AAB59802C19").ToOption());
+        }
+        
+        [Fact]
+        public void EMailParserCheck()
+        {
+            // Note: This e-mail parser is not correct! See https://tools.ietf.org/html/rfc5322#section-3.4.1 and related RFCs
+            Parser<string> QuickAndDirtyEMailParser() =>
+                from localpart in asString(flatten(cons(many1(alphaNum), many(cons(oneOf('-','.'), many1(alphaNum)))))) // simple name
+                from at in ch('@')
+                from domain in asString(flatten(cons(many1(alphaNum), many1(cons(ch('.'), many1(alphaNum)))))) // domain with at least one dot
+             select $"{localpart}{at}{domain.ToLower()}";
+
+            Assert.Equal("john@example.org", parse(QuickAndDirtyEMailParser(), "john@EXAMPLE.org").ToOption());
+            Assert.EndsWith("expecting letter or digit or '@'", parse(QuickAndDirtyEMailParser(), "john @EXAMPLE.org").ToEither().IfRight(""));
+            Assert.EndsWith("expecting letter or digit", parse(QuickAndDirtyEMailParser(), ".john @EXAMPLE.org").ToEither().IfRight(""));
+            Assert.EndsWith("expecting letter or digit or '.'", parse(QuickAndDirtyEMailParser(), "john.doe@EXAMPLE").ToEither().IfRight(""));
+            Assert.Equal("john-doe@example.org", parse(QuickAndDirtyEMailParser(), "john-doe@EXAMPLE.org").ToOption());
+            Assert.Equal("john.doe@example.org", parse(QuickAndDirtyEMailParser(), "john.doe@EXAMPLE.org").ToOption());
+        }
+        
+        [Fact]
         public void ExpressionResultShouldBeSixDueToMultiplicationOperationPriority()
         {
             // Arrange

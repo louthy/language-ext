@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using LanguageExt.ClassInstances;
 
 namespace LanguageExt
@@ -78,7 +79,7 @@ namespace LanguageExt
         [Pure]
         public static Func<T, Option<R>> with<T, R>(T value, Func<T, R> map) =>
             (T input) =>
-                EqualityComparer<T>.Default.Equals(input, value)
+                default(EqDefault<T>).Equals(input, value)
                     ? Some(map(input))
                     : None;
 
@@ -137,6 +138,12 @@ namespace LanguageExt
              }
              throw new Exception("Match not exhaustive");
         };
+
+        /// <summary>
+        /// Construct identity monad
+        /// </summary>
+        public static Identity<A> Id<A>(A value) => 
+            new Identity<A>(value);
 
         /// <summary>
         /// Identity function
@@ -215,8 +222,11 @@ namespace LanguageExt
         /// example</typeparam>
         /// <param name="ex">Exception to throw</param>
         /// <returns>Throws an exception</returns>
-        public static R raise<R>(Exception ex) =>
-            throw ex;
+        public static R raise<R>(Exception ex)
+        {
+            ExceptionDispatchInfo.Capture(ex).Throw();
+            return default;
+        }
 
         /// <summary>
         /// Identifies an exception as being of type E

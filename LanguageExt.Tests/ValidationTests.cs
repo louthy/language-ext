@@ -7,9 +7,9 @@ using Xunit;
 
 namespace LanguageExt.Tests
 {
-    public class Error : NewType<Error, string>
+    public class TestError : NewType<TestError, string>
     {
-        public Error(string e) : base(e) { }
+        public TestError(string e) : base(e) { }
     }
 
     public class ValidationTests
@@ -185,61 +185,61 @@ namespace LanguageExt.Tests
         /// <summary>
         /// Validates the string has only ASCII characters
         /// </summary>
-        public static Validation<Error, string> AsciiOnly(string str) =>
+        public static Validation<TestError, string> AsciiOnly(string str) =>
             str.ForAll(c => c <= 0x7f)
-                ? Success<Error, string>(str)
-                : Fail<Error, string>(Error.New("only ascii characters are allowed"));
+                ? Success<TestError, string>(str)
+                : Fail<TestError, string>(TestError.New("only ascii characters are allowed"));
 
         /// <summary>
         /// Creates a delegate that when passed a string will validate that it's below
         /// a specific length
         /// </summary>
-        public static Func<string, Validation<Error, string>> MaxStrLength(int max) =>
+        public static Func<string, Validation<TestError, string>> MaxStrLength(int max) =>
             str =>
                 str.Length <= max
-                    ? Success<Error, string>(str)
-                    : Fail<Error, string>(Error.New($"can not exceed {max} characters"));
+                    ? Success<TestError, string>(str)
+                    : Fail<TestError, string>(TestError.New($"can not exceed {max} characters"));
 
         /// <summary>
         /// Validates that the string passed contains only digits
         /// </summary>
-        public static Validation<Error, string> DigitsOnly(string str) =>
+        public static Validation<TestError, string> DigitsOnly(string str) =>
             str.ForAll(Char.IsDigit)
-                ? Success<Error, string>(str)
-                : Fail<Error, string>(Error.New($"only numbers are allowed"));
+                ? Success<TestError, string>(str)
+                : Fail<TestError, string>(TestError.New($"only numbers are allowed"));
 
         /// <summary>
         /// Uses parseInt which returns an Option and converts it to a Validation
         /// value with a default Error if the parse fails
         /// </summary>
-        public static Validation<Error, int> ToInt(string str) =>
-            parseInt(str).ToValidation(Error.New("must be a number"));
+        public static Validation<TestError, int> ToInt(string str) =>
+            parseInt(str).ToValidation(TestError.New("must be a number"));
 
         /// <summary>
         /// Validates that the value passed is a month
         /// </summary>
-        public static Validation<Error, int> ValidMonth(int month) =>
+        public static Validation<TestError, int> ValidMonth(int month) =>
             month >= 1 && month <= 12
-                ? Success<Error, int>(month)
-                : Fail<Error, int>(Error.New($"invalid month"));
+                ? Success<TestError, int>(month)
+                : Fail<TestError, int>(TestError.New($"invalid month"));
 
         /// <summary>
         /// Validates that the value passed is a positive number
         /// </summary>
-        public static Validation<Error, int> PositiveNumber(int value) =>
+        public static Validation<TestError, int> PositiveNumber(int value) =>
             value > 0
-                ? Success<Error, int>(value)
-                : Fail<Error, int>(Error.New($"must be positive"));
+                ? Success<TestError, int>(value)
+                : Fail<TestError, int>(TestError.New($"must be positive"));
 
         /// <summary>
         /// Takes todays date and builds a delegate that can take a month and year
         /// to see if the credit card has expired.
         /// </summary>
-        public static Func<int, int, Validation<Error, (int month, int year)>> ValidExpiration(int currentMonth, int currentYear) =>
+        public static Func<int, int, Validation<TestError, (int month, int year)>> ValidExpiration(int currentMonth, int currentYear) =>
             (month, year) =>
                 year > currentYear || (year == currentYear && month >= currentMonth)
-                    ? Success<Error, (int, int)>((month, year))
-                    : Fail<Error, (int, int)>(Error.New($"card has expired"));
+                    ? Success<TestError, (int, int)>((month, year))
+                    : Fail<TestError, (int, int)>(TestError.New($"card has expired"));
 
         /// <summary>
         /// Validate that the card holder is ASCII and has a maximum of 30 characters
@@ -249,13 +249,13 @@ namespace LanguageExt.Tests
         /// all the operands are of the same type and you only care about the first
         /// success value.  Which in this case is cardHolder for both.
         /// </summary>
-        public static Validation<Error, string> ValidateCardHolder(string cardHolder) =>
+        public static Validation<TestError, string> ValidateCardHolder(string cardHolder) =>
             AsciiOnly(cardHolder) | MaxStrLength(30)(cardHolder);
 
         /// <summary>
         /// This is the main validation function for validating a credit card
         /// </summary>
-        public static Validation<Error, CreditCard> ValidateCreditCard(string cardHolder, string number, string expMonth, string expYear)
+        public static Validation<TestError, CreditCard> ValidateCreditCard(string cardHolder, string number, string expMonth, string expYear)
         {
             var fakeDateTime = new DateTime(year: 2019, month: 1, day: 1);
             var cardHolderV = ValidateCardHolder(cardHolder);

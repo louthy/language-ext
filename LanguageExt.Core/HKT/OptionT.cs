@@ -58,26 +58,26 @@ namespace LanguageExt
 
         public OuterType Plus(OuterType a, OuterType b)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public NewOuterType Sequence<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType>(OuterType ma)
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
             where NewInnerMonad : struct, Monad<NewInnerType, A>
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public NewOuterType Traverse<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(OuterType ma, Func<A, B> f)
             where NewOuterMonad : struct, Monad<NewOuterType, NewInnerType>
             where NewInnerMonad : struct, Monad<NewInnerType, B>
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public OuterType Zero()
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 }

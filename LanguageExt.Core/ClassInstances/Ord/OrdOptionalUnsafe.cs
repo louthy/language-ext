@@ -1,5 +1,7 @@
 ﻿using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
@@ -63,6 +65,21 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(OA x) =>
             x.IsNull() ? 0 : x.GetHashCode();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(OA x, OA y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(OA x) =>
+            GetHashCode(x).AsTask();
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(OA x, OA y) =>
+            Compare(x, y).AsTask();    
     }
 
     /// <summary>
@@ -107,5 +124,20 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(OA x) =>
             default(OrdOptionalUnsafe<OrdDefault<A>, OPTION, OA, A>).GetHashCode(x);
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<bool> EqualsAsync(OA x, OA y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(OA x) =>
+            GetHashCode(x).AsTask();       
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> CompareAsync(OA x, OA y) =>
+            Compare(x, y).AsTask();    
     }
 }

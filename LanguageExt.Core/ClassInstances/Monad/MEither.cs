@@ -33,9 +33,10 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Either<L, R> Fail(object err = null) =>
-            err != null && err is L
-                ? Either<L, R>.Left((L)err)
-                : Either<L, R>.Bottom;
+            Common.Error
+                  .Convert<L>(err)
+                  .Map(Either<L, R>.Left)
+                  .IfNone(Either<L, R>.Bottom);                
 
         [Pure]
         public Either<L, R> Plus(Either<L, R> ma, Either<L, R> mb) =>

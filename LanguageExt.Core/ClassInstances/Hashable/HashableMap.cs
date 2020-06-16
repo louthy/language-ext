@@ -1,6 +1,7 @@
 ﻿using LanguageExt;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -13,6 +14,15 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Map<K, V> x) =>
             x.GetHashCode();
+        
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        public Task<int> GetHashCodeAsync(Map<K, V> x) =>
+            GetHashCode(x).AsTask();
     }
 
     public struct HashableMap<OrdK, K, V> : Hashable<Map<OrdK, K, V>>
@@ -25,5 +35,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Map<OrdK, K, V> x) =>
             x.GetHashCode();
+        
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        public Task<int> GetHashCodeAsync(Map<OrdK, K, V> x) =>
+            GetHashCode(x).AsTask();
     }
 }

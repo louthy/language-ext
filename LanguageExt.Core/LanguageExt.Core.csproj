@@ -13,7 +13,7 @@
     <DefineConstants>NETCORE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageVersion>3.4.13</PackageVersion>
+    <PackageVersion>3.4.23-beta</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -26,6 +26,7 @@
     <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <OutputType>library</OutputType>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <FileVersion>3.0.0.0</FileVersion>
@@ -51,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Reflection.Emit" Version="[4.3.0,)" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.2" />
     <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
     <PackageReference Include="Microsoft.CSharp" Version="[4.5.0,)" />
       <PackageReference Include="System.Memory" Version="[4.5.3,)" />

@@ -1,0 +1,15 @@
+﻿
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OUTER_A`, traverses the inner
+        /// values of type `A`, and returns `FLIPPED_OUTER_A`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse<GENS, A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OUTER_A` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`FLIPPED_OUTER_A`</returns>
+        [Pure]
+        public static FLIPPED_OUTER_A Sequence<GENS, A>(this OUTER_A ma) =>
+            ma.Traverse(Prelude.identity);
+

@@ -539,6 +539,11 @@ namespace LanguageExt
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal A[] ToSystemArray() =>
+            Value.ToArray();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(Lst<A> other) =>
             Value.CompareTo(other.Value);
 

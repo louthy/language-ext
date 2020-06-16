@@ -799,7 +799,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<T> distinct<T, K>(Seq<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
-             Seq(list.Distinct(new EqCompare<T>((a, b) => compare.IfNone(EqualityComparer<K>.Default.Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0)));
+             Seq(list.Distinct(new EqCompare<T>((a, b) => compare.IfNone(default(EqDefault<K>).Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0)));
 
         /// <summary>
         /// Returns a new sequence with the first 'count' items from the sequence provided

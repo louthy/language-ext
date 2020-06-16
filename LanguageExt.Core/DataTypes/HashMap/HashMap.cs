@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
@@ -673,6 +674,14 @@ namespace LanguageExt
         [Pure]
         public IEnumerable<(K Key, V Value)> AsEnumerable() =>
             Value;
+
+        /// <summary>
+        /// Implicit conversion from an untyped empty list
+        /// </summary>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator HashMap<K, V>(SeqEmpty _) =>
+            Empty;
 
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values

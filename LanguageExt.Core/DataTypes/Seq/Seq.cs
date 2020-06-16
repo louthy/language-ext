@@ -148,6 +148,7 @@ namespace LanguageExt
         /// Forces evaluation of the entire lazy sequence so the item 
         /// can be appended
         /// </remarks>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Add(A value) =>
             new Seq<A>(Value.Add(value));
@@ -159,9 +160,110 @@ namespace LanguageExt
         /// Forces evaluation of the entire lazy sequence so the items
         /// can be appended.  
         /// </remarks>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Concat(IEnumerable<A> items) =>
-            new Seq<A>(EnumerableOptimal.ConcatFast(this, items));
+        public Seq<A> Concat(IEnumerable<A> items) => items switch
+        {
+            Lst<A> lst              => Concat(lst),
+            Set<A> set              => Concat(set),
+            HashSet<A> hset         => Concat(hset),
+            Arr<A> arr              => Concat(arr),
+            Stck<A> stck            => Concat(stck),
+            IReadOnlyList<A> rolist => Concat(rolist),
+            _                       => new Seq<A>(EnumerableOptimal.ConcatFast(this, items))
+        };
+                           
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
+        /// </remarks>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Concat(Lst<A> items)
+        {
+            if (items.Count == 0)
+            {
+                return this;
+            }
+            var arr = items.Value.ToArray();
+            return Concat(Seq.FromArray(arr));
+        }
+        
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
+        /// </remarks>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Concat(Set<A> items)
+        {
+            if (items.Count == 0)
+            {
+                return this;
+            }
+            var arr = items.Value.ToArray();
+            return Concat(Seq.FromArray(arr));
+        }
+                
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
+        /// </remarks>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Concat(HashSet<A> items)
+        {
+            if (items.Count == 0)
+            {
+                return this;
+            }
+            var arr = items.ToArray();
+            return Concat(Seq.FromArray(arr));
+        }
+                
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Concat(Arr<A> items)
+        {
+            if (items.Count == 0)
+            {
+                return this;
+            }
+            return Concat(Seq.FromArray(items.Value));
+        }
+        
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Concat(Stck<A> items)
+        {
+            if (items.Count == 0)
+            {
+                return this;
+            }
+            var arr = items.ToArray();
+            return Concat(Seq.FromArray(arr));
+        }
 
         /// <summary>
         /// Add a range of items to the end of the sequence
@@ -170,6 +272,26 @@ namespace LanguageExt
         /// Forces evaluation of the entire lazy sequence so the items
         /// can be appended.  
         /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Seq<A> Concat(IReadOnlyCollection<A> items)
+        {
+            if ((items?.Count ?? 0) == 0)
+            {
+                return this;
+            }
+
+            var arr = items.ToArray();
+            return Concat(Seq.FromArray(arr));
+        }
+        
+        /// <summary>
+        /// Add a range of items to the end of the sequence
+        /// </summary>
+        /// <remarks>
+        /// Forces evaluation of the entire lazy sequence so the items
+        /// can be appended.  
+        /// </remarks>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Concat(Seq<A> rhs)
         {
@@ -259,6 +381,7 @@ namespace LanguageExt
         /// <summary>
         /// Prepend an item to the sequence
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal Seq<A> Cons(A value) =>
             new Seq<A>(Value.Cons(value));
@@ -294,6 +417,7 @@ namespace LanguageExt
         /// <summary>
         /// Head of the sequence if this node isn't the empty node
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<A> HeadOrNone() =>
             IsEmpty
@@ -312,6 +436,7 @@ namespace LanguageExt
         /// <summary>
         /// Last item in sequence.
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<A> LastOrNone() =>
             IsEmpty
@@ -321,6 +446,7 @@ namespace LanguageExt
         /// <summary>
         /// Last item in sequence.
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Either<L, A> LastOrLeft<L>(L Left) =>
             IsEmpty
@@ -330,6 +456,7 @@ namespace LanguageExt
         /// <summary>
         /// Last item in sequence.
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Either<L, A> LastOrLeft<L>(Func<L> Left) =>
             IsEmpty
@@ -339,6 +466,7 @@ namespace LanguageExt
         /// <summary>
         /// Last item in sequence.
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<F, A> LastOrInvalid<F>(F Fail) =>
             IsEmpty
@@ -348,6 +476,7 @@ namespace LanguageExt
         /// <summary>
         /// Last item in sequence.
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<F, A> LastOrInvalid<F>(Func<F> Fail) =>
             IsEmpty
@@ -357,6 +486,7 @@ namespace LanguageExt
         /// <summary>
         /// Last item in sequence.
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(F Fail) where MonoidFail : struct, Monoid<F>, Eq<F> =>
             IsEmpty
@@ -366,6 +496,7 @@ namespace LanguageExt
         /// <summary>
         /// Last item in sequence.
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(Func<F> Fail) where MonoidFail : struct, Monoid<F>, Eq<F> =>
             IsEmpty
@@ -378,6 +509,7 @@ namespace LanguageExt
         /// <typeparam name="Fail"></typeparam>
         /// <param name="fail">Fail case</param>
         /// <returns>Head of the sequence or fail</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<Fail, A> HeadOrInvalid<Fail>(Fail fail) =>
             IsEmpty
@@ -387,6 +519,7 @@ namespace LanguageExt
         /// <summary>
         /// Head of the sequence
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<MonoidFail, Fail, A> HeadOrInvalid<MonoidFail, Fail>(Fail fail) where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
             IsEmpty
@@ -399,6 +532,7 @@ namespace LanguageExt
         /// <typeparam name="L"></typeparam>
         /// <param name="left">Left case</param>
         /// <returns>Head of the sequence or left</returns>
+        [Pure]
         public Either<L, A> HeadOrLeft<L>(L left) =>
             IsEmpty
                 ? Left<L, A>(left)
@@ -407,6 +541,7 @@ namespace LanguageExt
         /// <summary>
         /// Head of the sequence if this node isn't the empty node
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Either<L, A> HeadOrLeft<L>(Func<L> Left) =>
             IsEmpty
@@ -439,6 +574,7 @@ namespace LanguageExt
         /// <summary>
         /// Stream as an enumerable
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<A> AsEnumerable() => 
             Value;
@@ -450,6 +586,7 @@ namespace LanguageExt
         /// <param name="Empty">Match for an empty list</param>
         /// <param name="Tail">Match for a non-empty</param>
         /// <returns>Result of match function invoked</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B Match<B>(
             Func<B> Empty,
@@ -465,6 +602,7 @@ namespace LanguageExt
         /// <param name="Empty">Match for an empty list</param>
         /// <param name="Tail">Match for a non-empty</param>
         /// <returns>Result of match function invoked</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B Match<B>(
             Func<B> Empty,
@@ -483,6 +621,7 @@ namespace LanguageExt
         /// <param name="Empty">Match for an empty list</param>
         /// <param name="Sequence">Match for a non-empty</param>
         /// <returns>Result of match function invoked</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B Match<B>(
             Func<B> Empty,
@@ -498,6 +637,7 @@ namespace LanguageExt
         /// <param name="Empty">Match for an empty list</param>
         /// <param name="Tail">Match for a non-empty</param>
         /// <returns>Result of match function invoked</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B Match<B>(
             Func<B> Empty,
@@ -515,6 +655,7 @@ namespace LanguageExt
         /// <returns>
         /// Returns the original unmodified structure
         /// </returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Do(Action<A> f)
         {
@@ -528,6 +669,7 @@ namespace LanguageExt
         /// <returns>
         /// Returns the original unmodified structure
         /// </returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit Iter(Action<A> f) =>
             Value.Iter(f);
@@ -538,15 +680,26 @@ namespace LanguageExt
         /// <typeparam name="B"></typeparam>
         /// <param name="f">Mapping function</param>
         /// <returns>Mapped sequence</returns>
-        public Seq<B> Map<B>(Func<A, B> f) =>
-            new Seq<B>(Value.Map(f));
-
+        [Pure]
+        public Seq<B> Map<B>(Func<A, B> f)
+        {
+            return new Seq<B>(new SeqLazy<B>(Yield(this)));
+            IEnumerable<B> Yield(Seq<A> items)
+            {
+                foreach (var item in items)
+                {
+                    yield return f(item);
+                }
+            }
+        }
+        
         /// <summary>
         /// Map the sequence using the function provided
         /// </summary>
         /// <typeparam name="B"></typeparam>
         /// <param name="f">Mapping function</param>
         /// <returns>Mapped sequence</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<B> Select<B>(Func<A, B> f) =>
             Map(f);
@@ -557,6 +710,7 @@ namespace LanguageExt
         /// <typeparam name="B">Bound return value type</typeparam>
         /// <param name="f">Bind function</param>
         /// <returns>Flatmapped sequence</returns>
+        [Pure]
         public Seq<B> Bind<B>(Func<A, Seq<B>> f)
         {
             IEnumerable<B> Yield(Seq<A> ma, Func<A, Seq<B>> bnd)
@@ -578,6 +732,7 @@ namespace LanguageExt
         /// <typeparam name="B">Bound return value type</typeparam>
         /// <param name="bind">Bind function</param>
         /// <returns>Flatmapped sequence</returns>
+        [Pure]
         public Seq<C> SelectMany<B, C>(Func<A, Seq<B>> bind, Func<A, B, C> project)
         {
             IEnumerable<C> Yield(Seq<A> ma, Func<A, Seq<B>> bnd, Func<A, B, C> prj)
@@ -598,14 +753,28 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Predicate to apply to the items</param>
         /// <returns>Filtered sequence</returns>
-        public Seq<A> Filter(Func<A, bool> f) =>
-            new Seq<A>(Value.Filter(f));
-
+        [Pure]
+        public Seq<A> Filter(Func<A, bool> f)
+        {
+            return new Seq<A>(new SeqLazy<A>(Yield(this, f)));
+            IEnumerable<A> Yield(Seq<A> items, Func<A, bool> f)
+            {
+                foreach (var item in items)
+                {
+                    if (f(item))
+                    {
+                        yield return item;
+                    }
+                }
+            }
+        }
+        
         /// <summary>
         /// Filter the items in the sequence
         /// </summary>
         /// <param name="f">Predicate to apply to the items</param>
         /// <returns>Filtered sequence</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Where(Func<A, bool> f) =>
             Filter(f);
@@ -617,6 +786,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="f">Fold function</param>
         /// <returns>Aggregated state</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S Fold<S>(S state, Func<S, A, S> f) =>
             Value.Fold(state, f);
@@ -630,6 +800,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="f">Fold function</param>
         /// <returns>Aggregated state</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S FoldBack<S>(S state, Func<S, A, S> f) =>
             Value.FoldBack(state, f);
@@ -641,6 +812,7 @@ namespace LanguageExt
         /// <param name="f">Predicate to apply</param>
         /// <returns>True if the supplied predicate returns true for any
         /// item in the sequence.  False otherwise.</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Exists(Func<A, bool> f) =>
             Value.Exists(f);
@@ -654,6 +826,7 @@ namespace LanguageExt
         /// <returns>True if the supplied predicate returns true for all
         /// items in the sequence.  False otherwise.  If there is an 
         /// empty sequence then true is returned.</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ForAll(Func<A, bool> f) =>
             Value.ForAll(f);
@@ -662,6 +835,7 @@ namespace LanguageExt
         /// Returns true if the sequence has items in it
         /// </summary>
         /// <returns>True if the sequence has items in it</returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Any() =>
             !IsEmpty;
@@ -670,6 +844,7 @@ namespace LanguageExt
         /// Get the hash code for all of the items in the sequence, or 0 if empty
         /// </summary>
         /// <returns></returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() =>
             hash = hash == 0
@@ -761,6 +936,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality test
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Obsolete(ISeqObsolete.Message)]
         public bool Equals(ISeq<A> rhs) =>
@@ -769,6 +945,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality test
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(Seq<A> rhs) =>
             Equals<EqDefault<A>>(rhs);
@@ -776,6 +953,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality test
         /// </summary>
+        [Pure]
         public bool Equals<EqA>(Seq<A> rhs) where EqA : struct, Eq<A>
         {
             // Differing lengths?
@@ -804,6 +982,7 @@ namespace LanguageExt
         /// <summary>
         /// Skip count items
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Skip(int amount) =>
             amount < 1
@@ -813,6 +992,7 @@ namespace LanguageExt
         /// <summary>
         /// Take count items
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Take(int amount) =>
             amount < 1
@@ -825,6 +1005,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
+        [Pure]
         public Seq<A> TakeWhile(Func<A, bool> pred)
         {
             return new Seq<A>(new SeqLazy<A>(Yield(Value, pred)));
@@ -845,6 +1026,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
+        [Pure]
         public Seq<A> TakeWhile(Func<A, int, bool> pred)
         {
             return new Seq<A>(new SeqLazy<A>(Yield(Value, pred)));
@@ -863,6 +1045,7 @@ namespace LanguageExt
         /// <summary>
         /// Compare to another sequence
         /// </summary>
+        [Pure]
         [Obsolete(ISeqObsolete.Message)]
         public int CompareTo(ISeq<A> rhs) =>
             CompareTo<OrdDefault<A>>(rhs);
@@ -870,6 +1053,7 @@ namespace LanguageExt
         /// <summary>
         /// Compare to another sequence
         /// </summary>
+        [Pure]
         [Obsolete(ISeqObsolete.Message)]
         public int CompareTo<OrdA>(ISeq<A> rhs) where OrdA : struct, Ord<A>
         {
@@ -893,12 +1077,14 @@ namespace LanguageExt
         /// <summary>
         /// Compare to another sequence
         /// </summary>
+        [Pure]
         public int CompareTo(Seq<A> rhs) =>
             CompareTo<OrdDefault<A>>(rhs);
 
         /// <summary>
         /// Compare to another sequence
         /// </summary>
+        [Pure]
         public int CompareTo<OrdA>(Seq<A> rhs) where OrdA : struct, Ord<A>
         {
             if (rhs == null) return 1;
@@ -925,10 +1111,12 @@ namespace LanguageExt
         public Seq<A> Strict() => 
             new Seq<A>(Value.Strict());
 
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerator<A> GetEnumerator() =>
             Value.GetEnumerator();
 
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator() =>
             Value.GetEnumerator();
@@ -936,6 +1124,7 @@ namespace LanguageExt
         /// <summary>
         /// Implicit conversion from an untyped empty list
         /// </summary>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Seq<A>(SeqEmpty _) =>
             Empty;

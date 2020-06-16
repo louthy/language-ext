@@ -1,6 +1,7 @@
 ﻿using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -17,6 +18,15 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Lst<A> x) =>
             hash<HashA, A>(x);
+        
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        public Task<int> GetHashCodeAsync(Lst<A> x) =>
+            GetHashCode(x).AsTask();
     }
 
     /// <summary>
@@ -31,5 +41,14 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Lst<A> x) =>
             default(HashableLst<HashableDefault<A>, A>).GetHashCode(x);
+        
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        public Task<int> GetHashCodeAsync(Lst<A> x) =>
+            GetHashCode(x).AsTask();
     }
 }

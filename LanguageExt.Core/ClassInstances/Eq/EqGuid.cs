@@ -2,6 +2,7 @@
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
@@ -30,5 +31,13 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int GetHashCode(Guid x) =>
             default(HashableGuid).GetHashCode(x);
+  
+        [Pure]
+        public Task<bool> EqualsAsync(Guid x, Guid y) =>
+            Equals(x, y).AsTask();
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(Guid x) => 
+            GetHashCode(x).AsTask();      
     }
 }

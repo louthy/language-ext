@@ -60,10 +60,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryOptionAsync<A> Fail(object err = null) =>
-            err != null && err is Exception
-                ? TryOptionAsync<A>((Exception)err)
-                : TryOptionAsync(Option<A>.None);
-
+            Common.Error
+                  .Convert<Exception>(err)
+                  .Map(f => TryOptionAsync<A>(f))
+                  .IfNone(TryOptionAsync<A>(Option<A>.None));            
+        
         [Pure]
         public TryOptionAsync<A> Plus(TryOptionAsync<A> ma, TryOptionAsync<A> mb) => async () =>
         {

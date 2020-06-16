@@ -41,11 +41,37 @@ public static class TryOptionExtensions
         return (() =>
         {
             if (run) return result;
-            result = ma.Try();
-            run = true;
-            return result;
+            var ra = ma.Try();
+            if (ra.IsSome || ra.IsNone)
+            {
+                result = ra;
+                run = true;
+            }
+            return ra;
         });
     }
+        
+    /// <summary>
+    /// If the TryOption fails, retry `amount` times
+    /// </summary>
+    /// <param name="ma">TryOption</param>
+    /// <param name="amount">Amount of retries</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    /// <returns>TryOption</returns>
+    public static TryOption<A> Retry<A>(TryOption<A> ma, int amount = 3) => () =>
+    {
+        while (true)
+        {
+            var ra = ma.Try();
+            if (ra.IsSome || ra.IsNone)
+            {
+                return ra;
+            }
+
+            amount--;
+            if (amount <= 0) return ra;
+        }
+    };
 
     /// <summary>
     /// Forces evaluation of the lazy TryOption
@@ -575,7 +601,6 @@ public static class TryOptionExtensions
     /// <summary>
     /// Partial application map
     /// </summary>
-    /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
     public static TryOption<Func<B, R>> ParMap<A, B, R>(this TryOption<A> self, Func<A, B, R> func) =>
         self.Map(curry(func));
@@ -583,7 +608,6 @@ public static class TryOptionExtensions
     /// <summary>
     /// Partial application map
     /// </summary>
-    /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
     public static TryOption<Func<B, Func<C, R>>> ParMap<A, B, C, R>(this TryOption<A> self, Func<A, B, C, R> func) =>
         self.Map(curry(func));
@@ -746,7 +770,7 @@ public static class TryOptionExtensions
         {
             var selfRes = self().Value;
             var innerRes = inner().Value;
-            return selfRes.IsSome && innerRes.IsSome && EqualityComparer<K>.Default.Equals(outerKeyMap(selfRes.Value), innerKeyMap(innerRes.Value))
+            return selfRes.IsSome && innerRes.IsSome && default(EqDefault<K>).Equals(outerKeyMap(selfRes.Value), innerKeyMap(innerRes.Value))
                 ? project(selfRes.Value, innerRes.Value)
                 : raise<V>(new BottomException());
         });
