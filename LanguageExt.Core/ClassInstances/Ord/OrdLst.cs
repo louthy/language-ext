@@ -41,8 +41,8 @@ namespace LanguageExt.ClassInstances
             var cmp = mx.Count.CompareTo(my.Count);
             if (cmp == 0)
             {
-                var xiter = mx.GetEnumerator();
-                var yiter = my.GetEnumerator();
+                using var xiter = mx.GetEnumerator();
+                using var yiter = my.GetEnumerator();
                 while (xiter.MoveNext() && yiter.MoveNext())
                 {
                     cmp = default(OrdA).Compare(xiter.Current, yiter.Current);

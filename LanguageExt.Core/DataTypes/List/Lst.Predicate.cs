@@ -148,7 +148,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public IEnumerator<A> GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, false, 0);
+            new ListEnumerator<A>(Root, false, 0);
 
         /// <summary>
         /// Find the index of an item
@@ -235,11 +235,11 @@ namespace LanguageExt
 
         [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, false, 0);
+            new ListEnumerator<A>(Root, false, 0);
 
         [Pure]
         IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
-            new ListModule.ListEnumerator<A>(Root, false, 0);
+            new ListEnumerator<A>(Root, false, 0);
 
         [Pure]
         public Seq<A> ToSeq() =>

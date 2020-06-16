@@ -53,11 +53,14 @@ namespace LanguageExt
                 this.ms = ms;
             }
 
-            public IEnumerator<A> GetEnumerator() =>
+            public ConcatIter<A> GetEnumerator() =>
                 new ConcatIter<A>(ms);
 
             public ConcatEnum<A> Concat(IEnumerable<A> cb) =>
                 new ConcatEnum<A>(ms.Add(cb));
+
+            IEnumerator<A> IEnumerable<A>.GetEnumerator() =>
+                new ConcatIter<A>(ms);
 
             IEnumerator IEnumerable.GetEnumerator() =>
                 new ConcatIter<A>(ms);
@@ -74,14 +77,17 @@ namespace LanguageExt
                 this.f = f;
             }
 
-            public IEnumerator<B> GetEnumerator() =>
+            public BindIter<A, B> GetEnumerator() =>
+                new BindIter<A, B>(ma, f);
+
+            IEnumerator<B> IEnumerable<B>.GetEnumerator() =>
                 new BindIter<A, B>(ma, f);
 
             IEnumerator IEnumerable.GetEnumerator() =>
                 new BindIter<A, B>(ma, f);
         }
 
-        class ConcatIter<A> : IEnumerator<A>
+        internal struct ConcatIter<A> : IEnumerator<A>
         {
             Seq<IEnumerable<A>> ms;
             IEnumerator<A> iter;
@@ -93,12 +99,13 @@ namespace LanguageExt
                 this.ms = ms;
                 this.index = 0;
                 this.iter = ms[0].GetEnumerator();
+                current = default;
             }
 
-            public A Current => 
+            public readonly A Current => 
                 current;
 
-            object IEnumerator.Current => 
+            readonly object IEnumerator.Current => 
                 current;
 
             public void Dispose() =>
@@ -143,7 +150,7 @@ namespace LanguageExt
             }
         }
 
-        class BindIter<A, B> : IEnumerator<B>
+        internal struct BindIter<A, B> : IEnumerator<B>
         {
             readonly Func<A, IEnumerable<B>> f;
             readonly IEnumerable<A> ema;
@@ -155,7 +162,9 @@ namespace LanguageExt
             {
                 this.ema = ma;
                 this.ma = ema.GetEnumerator();
+                this.mb = default;
                 this.f = f;
+                current = default;
             }
 
             public B Current =>

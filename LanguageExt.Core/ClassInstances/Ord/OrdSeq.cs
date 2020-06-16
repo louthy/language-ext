@@ -44,8 +44,8 @@ namespace LanguageExt.ClassInstances
             if (ReferenceEquals(x, null)) return -1;
             if (ReferenceEquals(y, null)) return 1;
 
-            var enumx = x.GetEnumerator();
-            var enumy = y.GetEnumerator();
+            using var enumx = x.GetEnumerator();
+            using var enumy = y.GetEnumerator();
 
             while(true)
             {

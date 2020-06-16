@@ -52,8 +52,8 @@ namespace LanguageExt.ClassInstances
             int cmp = x.Value.Length.CompareTo(y.Value.Length);
             if (cmp != 0) return cmp;
 
-            var iterA = x.Value.AsEnumerable().GetEnumerator();
-            var iterB = y.Value.AsEnumerable().GetEnumerator();
+            using var iterA = x.Value.AsEnumerable().GetEnumerator();
+            using var iterB = y.Value.AsEnumerable().GetEnumerator();
             while(iterA.MoveNext() && iterB.MoveNext())
             {
                 cmp = default(OrdDefault<A>).Compare(iterA.Current, iterB.Current);

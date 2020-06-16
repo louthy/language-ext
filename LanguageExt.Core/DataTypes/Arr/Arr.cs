@@ -207,8 +207,24 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerator<A> GetEnumerator() =>
-            Value.AsEnumerable().GetEnumerator();
+        public Enumerator GetEnumerator() =>
+            new Enumerator(this);
+
+        public struct Enumerator
+        {
+            readonly A[] arr;
+            int index;
+
+            internal Enumerator(in Arr<A> arr)
+            {
+                this.arr = arr.Value;
+                index = -1;
+            }
+
+            public readonly A Current => arr[index];
+
+            public bool MoveNext() => ++index < arr.Length;
+        }
 
         /// <summary>
         /// Find the index of an item
