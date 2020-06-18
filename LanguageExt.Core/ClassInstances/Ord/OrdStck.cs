@@ -41,8 +41,8 @@ namespace LanguageExt.ClassInstances
             var cmp = x.Count.CompareTo(y.Count);
             if (cmp == 0)
             {
-                var enumx = x.GetEnumerator();
-                var enumy = y.GetEnumerator();
+                using var enumx = x.GetEnumerator();
+                using var enumy = y.GetEnumerator();
                 var count = x.Count;
 
                 for (int i = 0; i < count; i++)

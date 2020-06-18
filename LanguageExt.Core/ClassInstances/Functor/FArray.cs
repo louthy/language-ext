@@ -14,7 +14,7 @@ namespace LanguageExt.ClassInstances
         public B[] Map(A[] ma, Func<A, B> f)
         {
             var bs = new B[ma.Length];
-            var iter = ma.AsEnumerable().GetEnumerator();
+            using var iter = ma.AsEnumerable().GetEnumerator();
             for (int i = 0; iter.MoveNext(); i++)
             {
                 bs[i] = f(iter.Current);

@@ -84,8 +84,8 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int Compare(IEnumerable<A> x, IEnumerable<A> y)
         {
-            var iterA = x.GetEnumerator();
-            var iterB = y.GetEnumerator();
+            using var iterA = x.GetEnumerator();
+            using var iterB = y.GetEnumerator();
             while (true)
             {
                 var hasMovedA = iterA.MoveNext();

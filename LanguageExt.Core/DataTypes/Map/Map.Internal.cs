@@ -784,7 +784,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<(K Key, V Value)> Skip(int amount)
         {
-            var enumer = new MapEnumerator<K, V>(Root, Rev, amount);
+            using var enumer = new MapEnumerator<K, V>(Root, Rev, amount);
             while (enumer.MoveNext())
             {
                 yield return enumer.Current;
@@ -1134,7 +1134,7 @@ namespace LanguageExt
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                var iter = new MapKeyEnumerator<K, V>(Root, Rev, 0);
+                using var iter = new MapKeyEnumerator<K, V>(Root, Rev, 0);
                 while (iter.MoveNext())
                 {
                     yield return iter.Current;
@@ -1151,7 +1151,7 @@ namespace LanguageExt
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                var iter = new MapValueEnumerator<K, V>(Root, Rev, 0);
+                using var iter = new MapValueEnumerator<K, V>(Root, Rev, 0);
                 while (iter.MoveNext())
                 {
                     yield return iter.Current;
@@ -1200,7 +1200,15 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerator<(K Key, V Value)> GetEnumerator() =>
+        public MapEnumerator<K, V> GetEnumerator() =>
+            new MapEnumerator<K, V>(Root, Rev, 0);
+
+        /// <summary>
+        /// GetEnumerator - IEnumerable interface
+        /// </summary>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        IEnumerator<(K Key, V Value)> IEnumerable<(K Key, V Value)>.GetEnumerator() =>
             new MapEnumerator<K, V>(Root, Rev, 0);
 
         /// <summary>
@@ -1220,7 +1228,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<(K Key, V Value)> AsEnumerable()
         {
-            var iter = new MapEnumerator<K, V>(Root, Rev, 0);
+            using var iter = new MapEnumerator<K, V>(Root, Rev, 0);
             while (iter.MoveNext())
             {
                 yield return iter.Current;

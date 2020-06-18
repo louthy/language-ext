@@ -358,7 +358,11 @@ namespace LanguageExt
         public Option<A> Find(B value) => Right.Find(value);
 
         [Pure]
-        public IEnumerator<(A Left, B Right)> GetEnumerator() =>
+        public MapEnumerator<A, B> GetEnumerator() =>
+            Left.GetEnumerator();
+
+        [Pure]
+        IEnumerator<(A Left, B Right)> IEnumerable<(A Left, B Right)>.GetEnumerator() =>
             Left.GetEnumerator();
 
         [Pure]

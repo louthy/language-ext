@@ -749,7 +749,15 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerator<(K Key, V Value)> GetEnumerator() => 
+        public MapEnumerator<K, V> GetEnumerator() => 
+            Value.GetEnumerator();
+
+        /// <summary>
+        /// GetEnumerator - IEnumerable interface
+        /// </summary>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        IEnumerator<(K Key, V Value)> IEnumerable<(K Key, V Value)>.GetEnumerator() =>
             Value.GetEnumerator();
 
         /// <summary>
