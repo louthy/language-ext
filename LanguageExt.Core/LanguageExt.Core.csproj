@@ -19,7 +19,7 @@
     <Authors>Paul Louth</Authors>
     <Summary>Functional language extensions for C#</Summary>
     <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
-    <Description>This library uses and abuses the features of C# 6 and 7 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself.</Description>
+    <Description>This library uses and abuses the features of C# to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself.</Description>
     <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
     <PackageIcon>lang-ext-small.png</PackageIcon>
     <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
