@@ -381,20 +381,33 @@ namespace LanguageExt
                 for (var i = seqStart; i < end && seq.Get(i).Success; i++) ;
                 var seqLen = seq.Count - seqStart;
 
-                var len = DefaultCapacity;
-                while (len < amount) len = len << 1;
+                amount = Math.Min(seqLen + count, amount);
 
-                var ndata = new A[len];
-                var nstart = (len - amount) >> 1;
-                if (count > 0)
+                if (amount == 0)
                 {
-                    Array.Copy(data, data.Length - count, ndata, nstart, count);
+                    // Empty
+                    var edata = new A[DefaultCapacity];
+                    return new SeqStrict<A>(edata, DefaultCapacity >> 1, 0, 0, 0);
                 }
-                if (seq.Count - seqStart > 0)
+                else
                 {
-                    Array.Copy(seq.Data, seqStart, ndata, nstart + count, amount - count);
+                    var len = DefaultCapacity;
+                    while (len < amount) len = len << 1;
+
+                    var ndata = new A[len];
+                    var nstart = (len - amount) >> 1;
+                    if (count > 0)
+                    {
+                        Array.Copy(data, data.Length - count, ndata, nstart, count);
+                    }
+
+                    if (seq.Count - seqStart > 0)
+                    {
+                        Array.Copy(seq.Data, seqStart, ndata, nstart + count, amount - count);
+                    }
+
+                    return new SeqStrict<A>(ndata, nstart, amount, 0, 0);
                 }
-                return new SeqStrict<A>(ndata, nstart, amount, 0, 0);
             }
         }
 

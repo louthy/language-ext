@@ -362,5 +362,41 @@ namespace LanguageExt.Tests
             var str = "1234";
             Assert.Equal("1234", String.Join("", str.ToSeq().TakeWhile((ch, index) => true)));
         }
+        
+        [Fact]
+        public void GeneratingZeroGivesEmptySequence()
+        {
+            var actual = generate(0, _ => unit);
+            Assert.Equal(Seq<Unit>(), actual);
+        }
+
+        [Fact]
+        public void TakingOneAfterGeneratingZeroGivesEmptySequence()
+        {
+            var actual = generate(0, _ => unit).Take(1);
+            Assert.Equal(Seq<Unit>(), actual);
+        }
+
+        [Theory]
+        [InlineData(0, 1)]
+        [InlineData(1, 2)]
+        [InlineData(2, 3)]
+        [InlineData(3, 4)]
+        [InlineData(4, 5)]
+        [InlineData(5, 6)]
+        [InlineData(6, 7)]
+        [InlineData(7, 8)]
+        [InlineData(8, 9)]
+        [InlineData(9, 10)]
+        [InlineData(10, 20)]
+        [InlineData(100, 1000)]
+        [InlineData(1000, 10000)]
+        public void TakingNAfterGeneratingOneGivesOneSequence(int actualLength, int tryToTake)
+        {
+            var expect = Seq(generate(actualLength, identity)).Strict();
+            
+            var actual = generate(actualLength, identity).Take(tryToTake);
+            Assert.Equal(expect, actual);
+        }
     }
 }
