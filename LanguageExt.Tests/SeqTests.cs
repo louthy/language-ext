@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -391,7 +391,7 @@ namespace LanguageExt.Tests
         [InlineData(10, 20)]
         [InlineData(100, 1000)]
         [InlineData(1000, 10000)]
-        public void TakingNAfterGeneratingOneGivesOneSequence(int actualLength, int tryToTake)
+        public void TakingNAfterGeneratingMoreThanNGivesLengthNSequence(int actualLength, int tryToTake)
         {
             var expect = Seq(generate(actualLength, identity)).Strict();
             
