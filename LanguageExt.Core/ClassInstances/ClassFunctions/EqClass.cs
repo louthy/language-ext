@@ -20,9 +20,9 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly Option<Error> Error;
         public new static readonly Func<A, A, bool> Equals;
-        public static readonly Func<A, A, Task<bool>> EqualsAsync = (x, y) => Equals(x, y).AsTask();
-        public new static readonly Func<A, int> GetHashCode = HashableClass<A>.GetHashCode;
-        public static readonly Func<A, Task<int>> GetHashCodeAsync =HashableClass<A>.GetHashCodeAsync;
+        public static readonly Func<A, A, Task<bool>> EqualsAsync;
+        public new static readonly Func<A, int> GetHashCode;
+        public static readonly Func<A, Task<int>> GetHashCodeAsync;
         
         static EqClass()
         {
@@ -58,6 +58,12 @@ namespace LanguageExt.ClassInstances
             {
                 Error = Some(Common.Error.New(e));
                 Equals = (A x, A y) => throw e;
+            }
+            finally
+            {
+                GetHashCode = HashableClass<A>.GetHashCode;
+                GetHashCodeAsync = HashableClass<A>.GetHashCodeAsync;
+                EqualsAsync = (x, y) => Equals(x, y).AsTask();
             }
         }
 

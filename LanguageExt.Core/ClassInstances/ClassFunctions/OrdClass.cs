@@ -22,18 +22,18 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly Option<Error> Error;
         public static readonly Func<A, A, int> Compare;
-        public static readonly Func<A, A, Task<int>> CompareAsync = (x, y) => Compare(x, y).AsTask();
-        public new static readonly Func<A, A, bool> Equals = EqClass<A>.Equals;
-        public static readonly Func<A, A, Task<bool>> EqualsAsync = EqClass<A>.EqualsAsync;
-        public new static readonly Func<A, int> GetHashCode = HashableClass<A>.GetHashCode;
-        public static readonly Func<A, Task<int>> GetHashCodeAsync =HashableClass<A>.GetHashCodeAsync;
+        public static readonly Func<A, A, Task<int>> CompareAsync;
+        public new static readonly Func<A, A, bool> Equals;
+        public static readonly Func<A, A, Task<bool>> EqualsAsync;
+        public new static readonly Func<A, int> GetHashCode;
+        public static readonly Func<A, Task<int>> GetHashCodeAsync;
         
         static OrdClass()
         {
             try
             {
                 var (fullName, name, gens) = ClassFunctions.GetTypeInfo<A>();
-                
+
                 var primFun = MakePrimitiveCompare(fullName);
                 if (primFun == null)
                 {
@@ -61,6 +61,14 @@ namespace LanguageExt.ClassInstances
             {
                 Error = Some(Common.Error.New(e));
                 Compare = (A x, A y) => throw e;
+            }
+            finally
+            {
+                GetHashCode = HashableClass<A>.GetHashCode;
+                Equals = EqClass<A>.Equals;
+                GetHashCodeAsync =HashableClass<A>.GetHashCodeAsync;
+                EqualsAsync = EqClass<A>.EqualsAsync;
+                CompareAsync = (x, y) => Compare(x, y).AsTask();
             }
         }
 
