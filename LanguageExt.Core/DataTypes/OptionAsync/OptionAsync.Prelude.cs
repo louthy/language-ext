@@ -140,7 +140,7 @@ namespace LanguageExt
         /// <returns>If the value is null it will be None else Some(value)</returns>
         [Pure]
         public static OptionAsync<T> OptionalAsync<T>(Task<T> value) =>
-            default(MOptionAsync<T>).ReturnAsync(_ => value);
+            OptionAsync<T>.OptionalAsync(value);
 
         /// <summary>
         /// Create a lazy OptionAsync of T (OptionAsync<T>)
@@ -150,7 +150,7 @@ namespace LanguageExt
         /// <returns>A lazy OptionAsync<T></returns>
         [Pure]
         public static OptionAsync<T> OptionalAsync<T>(Func<Unit, Task<T>> f) =>
-            default(MOptionAsync<T>).ReturnAsync(f);
+            OptionAsync<T>.OptionalAsync(f(default));
 
         /// <summary>
         /// Create an OptionAsync
