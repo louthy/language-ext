@@ -150,7 +150,7 @@ namespace LanguageExt
         /// <returns>A lazy OptionAsync<T></returns>
         [Pure]
         public static OptionAsync<T> OptionalAsync<T>(Func<Unit, Task<T>> f) =>
-            OptionAsync<T>.OptionalAsync(f(default));
+            OptionAsync<T>.OptionalAsync(f(unit));
 
         /// <summary>
         /// Create an OptionAsync
