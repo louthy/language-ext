@@ -103,12 +103,21 @@ namespace LanguageExt.CodeGen
                 var compType = SyntaxFactory.ParseTypeName($"LanguageExt.RWS<{monoidWType}, {rType}, {wType}, {genS}, {genA}>");
                 var resultTypeA = SyntaxFactory.ParseTypeName($"LanguageExt.RWSResult<{monoidWType}, {rType}, {wType}, {genS}, {genA}>");
                 var resultTypeR = SyntaxFactory.ParseTypeName($"LanguageExt.RWSResult<{monoidWType}, {rType}, {wType}, {genS}, {rType}>");
-                var resultTypeS = SyntaxFactory.ParseTypeName($"LanguageExt.RWSResult<{monoidWType}, {rType}, {wType}, {genS}, {sType}>");
+                var resultTypeS = SyntaxFactory.ParseTypeName($"LanguageExt.RWSResult<{monoidWType}, {rType}, {wType}, {genS}, {genS}>");
                 var resultTypeUnit = SyntaxFactory.ParseTypeName($"LanguageExt.RWSResult<{monoidWType}, {rType}, {wType}, {genS}, LanguageExt.Unit>");
 
                 var rTypeSyntax = ParseTypeName(rType);
                 var wTypeSyntax = ParseTypeName(wType);
-                var sTypeSyntax = ParseTypeName(sType);
+                TypeSyntax sTypeSyntax = null;
+                try
+                {
+                    sTypeSyntax = ParseTypeName(genS);
+                }
+                catch (Exception e)
+                {
+                    CodeGenUtil.ReportError($"Type failed to parse: {genS} {e.Message}", "RWS Code-Gen", context.ProcessingNode, progress);
+                    throw;
+                }
 
                 const string compName = "computation";
 

@@ -193,6 +193,15 @@ namespace TestBed
     {
     }
 
+    public interface IEnv
+    {
+    }
+
+    [RWS(WriterMonoid: typeof(MSeq<string>), Env: typeof(IEnv))]
+    public partial struct XClientRws<S, A> 
+    { 
+    }
+
     [WithLens]
     public partial class TestWith2 : Record<TestWith2>
     {
