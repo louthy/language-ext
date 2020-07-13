@@ -197,8 +197,28 @@ namespace TestBed
     {
     }
 
-    [RWS(WriterMonoid: typeof(MSeq<string>), Env: typeof(IEnv))]
-    public partial struct XClientRws<S, A> 
+    public class MultiAccessFields
+    {
+        public MultiAccessFields(string publicString, string internalString, string privateString, string publicStringProp, string internalStringProp, string privateStringProp)
+        {
+            PublicString = publicString;
+            InternalString = internalString;
+            PrivateString = privateString;
+            PublicStringProp = publicStringProp;
+            InternalStringProp = internalStringProp;
+            PrivateStringProp = privateStringProp;
+        }
+
+        public string PublicString;
+        internal string InternalString;
+        private string PrivateString;
+        public string PublicStringProp { get; set; }
+        internal string InternalStringProp { get; set; }
+        private string PrivateStringProp { get; set; }
+    }
+
+    [RWS(WriterMonoid: typeof(MSeq<string>), Env: typeof(IEnv), State: typeof(MultiAccessFields))]
+    public partial struct XClientRws<A> 
     { 
     }
 
