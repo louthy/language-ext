@@ -401,18 +401,21 @@ namespace LanguageExt.CodeGen
         public static string NextGenName(string gen) =>
             $"{gen.Substring(0, gen.Length - 1)}{(char)((gen[gen.Length - 1] + 1))}";
 
+        
+        
         public static ClassDeclarationSyntax AddMembersToPrelude(ClassDeclarationSyntax prelude, StructDeclarationSyntax applyToStruct, string getter, ITypeSymbol symbol)
         {
             if (symbol == null) return prelude;
 
             var ask = MakeAsk(applyToStruct, getter);
 
-            foreach (var member in symbol.GetMembers())
+            foreach (var member in symbol.GetMembers().Where(m => m.DeclaredAccessibility == Accessibility.Public))
             {
                 switch (member.Kind)
                 {
                     case SymbolKind.Field:
                         var field = (IFieldSymbol)member;
+                        
                         if (applyToStruct.TypeParameterList.Parameters.Count < 2 && !field.IsStatic)
                         {
                             var fdecl = CreateFieldOrProperty(applyToStruct, getter, field.Name, field.Type);
