@@ -7,7 +7,7 @@
         <DefineConstants>CONTRACTS_FULL</DefineConstants>
     </PropertyGroup>
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+        <TargetFrameworks>netstandard2.1;net461</TargetFrameworks>
         <PackageVersion>3.4.27-beta</PackageVersion>
         <PackageId>LanguageExt.Parsec</PackageId>
         <Title>LanguageExt.Parsec</Title>
