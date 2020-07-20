@@ -25,7 +25,14 @@ namespace LanguageExt.LiveIO
         public async ValueTask<string> ReadToEnd(TextReader reader) =>
             await reader.ReadToEndAsync().ConfigureAwait(false);        
 
-#if NETFX
+#if NETSTANDARD21
+        /// <summary>
+        /// Read chars from the stream into the buffer
+        /// Returns the number of chars read
+        /// </summary>
+        public async ValueTask<int> Read(TextReader reader, Memory<char> buffer) =>
+            await reader.ReadAsync(buffer).ConfigureAwait(false);
+#else
         /// <summary>
         /// Read chars from the stream into the buffer
         /// Returns the number of chars read
@@ -34,13 +41,6 @@ namespace LanguageExt.LiveIO
             MemoryMarshal.TryGetArray(buffer, out ArraySegment<char> nbuffer)
                 ? await reader.ReadAsync(nbuffer.Array, nbuffer.Offset, nbuffer.Count).ConfigureAwait(false)
                 : throw new InvalidOperationException();
-#else
-        /// <summary>
-        /// Read chars from the stream into the buffer
-        /// Returns the number of chars read
-        /// </summary>
-        public async ValueTask<int> Read(TextReader reader, Memory<char> buffer) =>
-            await reader.ReadAsync(buffer).ConfigureAwait(false);
 #endif
 
         /// <summary>

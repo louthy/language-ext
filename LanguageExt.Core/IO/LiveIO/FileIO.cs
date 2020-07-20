@@ -22,16 +22,7 @@ namespace LanguageExt.LiveIO
             return default;
         }
 
-#if NETFX
-        /// <summary>
-        /// Append lines to the end of a file
-        /// </summary>
-        public ValueTask<Unit> AppendAllLines(string path, IEnumerable<string> lines, Encoding encoding, CancellationToken token)
-        {
-            File.AppendAllLines(path, lines, encoding);
-            return default;
-        }
-#else
+#if NETSTANDARD21
         /// <summary>
         /// Append lines to the end of a file
         /// </summary>
@@ -40,32 +31,32 @@ namespace LanguageExt.LiveIO
             await File.AppendAllLinesAsync(path, lines, encoding, token).ConfigureAwait(false);
             return default;
         }
+#else
+        /// <summary>
+        /// Append lines to the end of a file
+        /// </summary>
+        public ValueTask<Unit> AppendAllLines(string path, IEnumerable<string> lines, Encoding encoding, CancellationToken token)
+        {
+            File.AppendAllLines(path, lines, encoding);
+            return default;
+        }
 #endif
 
-#if NETFX
-        /// <summary>
-        /// Read all lines from a file
-        /// </summary>
-        public ValueTask<Seq<string>> ReadAllLines(string path, Encoding encoding, CancellationToken token) => 
-            File.ReadAllLines(path, encoding).ToSeq().AsValueTask();
-#else
+#if NETSTANDARD21
         /// <summary>
         /// Read all lines from a file
         /// </summary>
         public async ValueTask<Seq<string>> ReadAllLines(string path, Encoding encoding, CancellationToken token) => 
             (await File.ReadAllLinesAsync(path, encoding, token)).ToSeq();
+#else
+        /// <summary>
+        /// Read all lines from a file
+        /// </summary>
+        public ValueTask<Seq<string>> ReadAllLines(string path, Encoding encoding, CancellationToken token) => 
+            File.ReadAllLines(path, encoding).ToSeq().AsValueTask();
 #endif
 
-#if NETFX
-        /// <summary>
-        /// Write all lines to a file
-        /// </summary>
-        public ValueTask<Unit> WriteAllLines(string path, IEnumerable<string> lines, Encoding encoding, CancellationToken token)
-        {
-            File.WriteAllLines(path, lines, encoding);
-            return default;
-        }
-#else
+#if NETSTANDARD21
         /// <summary>
         /// Write all lines to a file
         /// </summary>
@@ -74,38 +65,47 @@ namespace LanguageExt.LiveIO
             await File.WriteAllLinesAsync(path, lines, encoding, token).ConfigureAwait(false);
             return default;
         }
+#else
+        /// <summary>
+        /// Write all lines to a file
+        /// </summary>
+        public ValueTask<Unit> WriteAllLines(string path, IEnumerable<string> lines, Encoding encoding, CancellationToken token)
+        {
+            File.WriteAllLines(path, lines, encoding);
+            return default;
+        }
 #endif
 
-#if NETFX
-        /// <summary>
-        /// Read text from a file
-        /// </summary>
-        public ValueTask<string> ReadAllText(string path, Encoding encoding, CancellationToken token) =>
-            File.ReadAllText(path, encoding).AsValueTask();
-#else
+#if NETSTANDARD21
         /// <summary>
         /// Read text from a file
         /// </summary>
         public async ValueTask<string> ReadAllText(string path, Encoding encoding, CancellationToken token) =>
             await File.ReadAllTextAsync(path, encoding, token).ConfigureAwait(false);
+#else
+        /// <summary>
+        /// Read text from a file
+        /// </summary>
+        public ValueTask<string> ReadAllText(string path, Encoding encoding, CancellationToken token) =>
+            File.ReadAllText(path, encoding).AsValueTask();
 #endif
 
-#if NETFX
-        /// <summary>
-        /// Write text to a file
-        /// </summary>
-        public ValueTask<Unit> WriteAllText(string path, string text, Encoding encoding, CancellationToken token)
-        {
-            File.WriteAllText(path, text, encoding);
-            return default;
-        }
-#else
+#if NETSTANDARD21
         /// <summary>
         /// Write text to a file
         /// </summary>
         public async ValueTask<Unit> WriteAllText(string path, string text, Encoding encoding, CancellationToken token)
         {
             await File.WriteAllTextAsync(path, text, encoding, token).ConfigureAwait(false);
+            return default;
+        }
+#else
+        /// <summary>
+        /// Write text to a file
+        /// </summary>
+        public ValueTask<Unit> WriteAllText(string path, string text, Encoding encoding, CancellationToken token)
+        {
+            File.WriteAllText(path, text, encoding);
             return default;
         }
 #endif

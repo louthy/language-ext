@@ -38,17 +38,6 @@ namespace LanguageExt
             ignore(thunk.Value(env ?? throw new ArgumentNullException(nameof(env))));
  
         /// <summary>
-        /// Lift an asynchronous effect into the IO monad
-        /// </summary>
-        [Pure, MethodImpl(IO.mops)]
-        public static SIO<Env, Unit> Effect(Func<Env, ValueTask> f) =>
-            new SIO<Env, Unit>(Thunk<Env, Unit>.Lazy(e =>
-            {
-                f(e);
-                return Fin<Unit>.Succ(default);
-            }));
-
-        /// <summary>
         /// Lift a synchronous effect into the IO monad
         /// </summary>
         [Pure, MethodImpl(IO.mops)]
@@ -105,6 +94,7 @@ namespace LanguageExt
                     ? ra
                     : mb.RunIO(e);
             }));
+        
 
         /// <summary>
         /// Clear the memoised value

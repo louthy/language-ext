@@ -34,10 +34,9 @@ namespace LanguageExt
     [Serializable]
     //[AsyncMethodBuilder(typeof(EitherAsyncBuilder<,>))]
     public struct EitherAsync<L, R> :
-// TODO: Re-add when we move to netstandard2.1
-//#if NETCORE
-//        IAsyncEnumerable<R>,
-//#endif
+#if NETSTANDARD21
+        IAsyncEnumerable<R>,
+#endif
         IEitherAsync
     {
         public readonly static EitherAsync<L, R> Bottom = new EitherAsync<L, R>();
@@ -1882,21 +1881,20 @@ namespace LanguageExt
             Bind(a => bind(a).Bind(b => EitherAsync<L, V>.Right(project(a, b))));
 
 
-// TODO: Re-add when we move to netstandard2.1
-//#if NETCORE
-//        /// <summary>
-//        /// Enumerate asynchronously
-//        /// </summary>
-//        [Pure]
-//        public async IAsyncEnumerator<R> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-//        {
-//            var data = await Data;
-//            if (data.State == EitherStatus.IsRight)
-//            {
-//                yield return data.Right;
-//            }
-//        }
-//#endif
+#if NETSTANDARD21
+        /// <summary>
+        /// Enumerate asynchronously
+        /// </summary>
+        [Pure]
+        public async IAsyncEnumerator<R> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+            var data = await Data;
+            if (data.State == EitherStatus.IsRight)
+            {
+                yield return data.Right;
+            }
+        }
+#endif
     }
 
     /// <summary>
