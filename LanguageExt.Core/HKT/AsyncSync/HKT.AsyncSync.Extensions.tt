@@ -12,6 +12,7 @@
         T("TransAsyncSync", "OptionAsync"),
         T("TransAsyncSync", "EitherAsync", "L"),
         T("TransAsyncSync", "Task"),
+        T("TransAsyncSync", "ValueTask"),
         T("TransAsyncSync", "TryAsync"),
         T("TransAsyncSync", "TryOptionAsync")
     };
