@@ -10,18 +10,17 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static class TaskExtensions
+    public static class ValueTaskExtensions
     {
-        public static bool CompletedSuccessfully<A>(this Task<A> ma) =>
+        public static bool CompletedSuccessfully<A>(this ValueTask<A> ma) =>
             ma.IsCompleted && !ma.IsFaulted && !ma.IsCanceled;
         
         /// <summary>
         /// Use for pattern-matching the case of the target
         /// </summary>
         [Pure]
-        public static async Task<TryCase<A>> Case<A>(this Task<A> ma)
+        public static async ValueTask<TryCase<A>> Case<A>(this ValueTask<A> ma)
         {
-            if (ma == null) return FailCase<A>.New(Common.Error.Bottom);
             try
             {
                 return SuccCase<A>.New(await ma.ConfigureAwait(false));
@@ -33,32 +32,28 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static Task<A> AsFailedTask<A>(this Exception ex)
-        {
-            var tcs = new TaskCompletionSource<A>();
-            tcs.SetException(ex);
-            return tcs.Task;
-        }
+        public static ValueTask<A> AsFailedValueTask<A>(this Exception ex) =>
+            new ValueTask<A>(ex.AsFailedTask<A>());
 
         /// <summary>
         /// Convert a value to a Task that completes immediately
         /// </summary>
         [Pure]
-        public static Task<A> AsTask<A>(this A self) =>
-            Task.FromResult(self);
+        public static ValueTask<A> AsValueTask<A>(this A self) =>
+            new ValueTask<A>(self);
 
         /// <summary>
-        /// Convert a ValueTask to a Task 
+        /// Convert a Task to a ValueTask 
         /// </summary>
         [Pure]
-        public static Task<A> ToRef<A>(this ValueTask<A> self) =>
-            self.AsTask();
-        
+        public static ValueTask<A> ToValue<A>(this Task<A> self) =>
+            new ValueTask<A>(self);
+
         /// <summary>
         /// Flatten the nested Task type
         /// </summary>
         [Pure]
-        public static async Task<A> Flatten<A>(this Task<Task<A>> self)
+        public static async ValueTask<A> Flatten<A>(this ValueTask<ValueTask<A>> self)
         {
             var t = await self.ConfigureAwait(false);
             var u = await t.ConfigureAwait(false);
@@ -69,7 +64,7 @@ namespace LanguageExt
         /// Flatten the nested Task type
         /// </summary>
         [Pure]
-        public static async Task<A> Flatten<A>(this Task<Task<Task<A>>> self)
+        public static async ValueTask<A> Flatten<A>(this ValueTask<ValueTask<ValueTask<A>>> self)
         {
             var t = await self.ConfigureAwait(false);
             var u = await t.ConfigureAwait(false);
@@ -81,14 +76,14 @@ namespace LanguageExt
         /// Standard LINQ Select implementation for Task
         /// </summary>
         [Pure]
-        public static async Task<U> Select<T, U>(this Task<T> self, Func<T, U> map) =>
+        public static async ValueTask<U> Select<T, U>(this ValueTask<T> self, Func<T, U> map) =>
             map(await self.ConfigureAwait(false));
 
         /// <summary>
         /// Standard LINQ Where implementation for Task
         /// </summary>
         [Pure]
-        public static async Task<T> Where<T>(this Task<T> self, Func<T, bool> pred)
+        public static async ValueTask<T> Where<T>(this ValueTask<T> self, Func<T, bool> pred)
         {
             var resT = await self.ConfigureAwait(false);
             var res = pred(resT);
@@ -104,16 +99,16 @@ namespace LanguageExt
         /// Standard LINQ SelectMany implementation for Task
         /// </summary>
         [Pure]
-        public async static Task<U> SelectMany<T, U>(this Task<T> self,
-            Func<T, Task<U>> bind) =>
+        public async static ValueTask<U> SelectMany<T, U>(this ValueTask<T> self,
+            Func<T, ValueTask<U>> bind) =>
             await bind(await self.ConfigureAwait(false)).ConfigureAwait(false);
 
         /// <summary>
         /// Standard LINQ SelectMany implementation for Task
         /// </summary>
         [Pure]
-        public static async Task<V> SelectMany<T, U, V>(this Task<T> self,
-            Func<T, Task<U>> bind,
+        public static async ValueTask<V> SelectMany<T, U, V>(this ValueTask<T> self,
+            Func<T, ValueTask<U>> bind,
             Func<T, U, V> project)
         {
             var resT = await self.ConfigureAwait(false);
@@ -125,7 +120,7 @@ namespace LanguageExt
         /// Get the Count of a Task T.  Returns either 1 or 0 if cancelled or faulted.
         /// </summary>
         [Pure]
-        public static async Task<int> Count<T>(this Task<T> self)
+        public static async ValueTask<int> Count<T>(this ValueTask<T> self)
         {
             try
             {
@@ -142,7 +137,7 @@ namespace LanguageExt
         /// Monadic bind operation for Task
         /// </summary>
         [Pure]
-        public static Task<U> Bind<T, U>(this Task<T> self, Func<T, Task<U>> bind) =>
+        public static ValueTask<U> Bind<T, U>(this ValueTask<T> self, Func<T, ValueTask<U>> bind) =>
             self.SelectMany(bind);
 
         /// <summary>
@@ -150,7 +145,7 @@ namespace LanguageExt
         /// it returns the result of pred(Result)
         /// </summary>
         [Pure]
-        public static async Task<bool> Exists<T>(this Task<T> self, Func<T, bool> pred) =>
+        public static async ValueTask<bool> Exists<T>(this ValueTask<T> self, Func<T, bool> pred) =>
             pred(await self.ConfigureAwait(false));
 
         /// <summary>
@@ -158,7 +153,7 @@ namespace LanguageExt
         /// it returns the result of pred(Result)
         /// </summary>
         [Pure]
-        public static async Task<bool> ExistsAsync<T>(this Task<T> self, Func<T, Task<bool>> pred) =>
+        public static async ValueTask<bool> ExistsAsync<T>(this ValueTask<T> self, Func<T, ValueTask<bool>> pred) =>
             await pred(await self.ConfigureAwait(false)).ConfigureAwait(false);
 
         /// <summary>
@@ -166,7 +161,7 @@ namespace LanguageExt
         /// it returns the result of pred(Result)
         /// </summary>
         [Pure]
-        public static async Task<bool> ForAll<T>(this Task<T> self, Func<T, bool> pred) =>
+        public static async ValueTask<bool> ForAll<T>(this ValueTask<T> self, Func<T, bool> pred) =>
             pred(await self.ConfigureAwait(false));
 
         /// <summary>
@@ -174,7 +169,7 @@ namespace LanguageExt
         /// it returns the result of pred(Result)
         /// </summary>
         [Pure]
-        public static async Task<bool> ForAllAsync<T>(this Task<T> self, Func<T, Task<bool>> pred) =>
+        public static async ValueTask<bool> ForAllAsync<T>(this ValueTask<T> self, Func<T, ValueTask<bool>> pred) =>
             await pred(await self.ConfigureAwait(false)).ConfigureAwait(false);
 
         /// <summary>
@@ -182,7 +177,7 @@ namespace LanguageExt
         /// returns false
         /// </summary>
         [Pure]
-        public static Task<T> Filter<T>(this Task<T> self, Func<T, bool> pred) =>
+        public static ValueTask<T> Filter<T>(this ValueTask<T> self, Func<T, bool> pred) =>
             self.Where(pred);
 
         /// <summary>
@@ -190,7 +185,7 @@ namespace LanguageExt
         /// cancelled.  Returns state otherwise.
         /// </summary>
         [Pure]
-        public static async Task<S> Fold<T, S>(this Task<T> self, S state, Func<S, T, S> folder) =>
+        public static async ValueTask<S> Fold<T, S>(this ValueTask<T> self, S state, Func<S, T, S> folder) =>
             folder(state, await self.ConfigureAwait(false));
 
         /// <summary>
@@ -198,13 +193,13 @@ namespace LanguageExt
         /// cancelled.  Returns state otherwise.
         /// </summary>
         [Pure]
-        public static async Task<S> FoldAsync<T, S>(this Task<T> self, S state, Func<S, T, Task<S>> folder) =>
+        public static async ValueTask<S> FoldAsync<T, S>(this ValueTask<T> self, S state, Func<S, T, ValueTask<S>> folder) =>
             await folder(state, await self.ConfigureAwait(false)).ConfigureAwait(false);
 
         /// <summary>
         /// Iterates the Task.  Invokes f(Result) if not faulted or cancelled
         /// </summary>
-        public static async Task<Unit> Iter<T>(this Task<T> self, Action<T> f)
+        public static async ValueTask<Unit> Iter<T>(this ValueTask<T> self, Action<T> f)
         {
             f(await self.ConfigureAwait(false));
             return unit;
@@ -216,7 +211,7 @@ namespace LanguageExt
         /// <returns>
         /// Returns the original unmodified structure
         /// </returns>
-        public static Task<A> Do<A>(this Task<A> ma, Action<A> f) =>
+        public static ValueTask<A> Do<A>(this ValueTask<A> ma, Action<A> f) =>
             ma.Map(x => {
                 f(x);
                 return x;
@@ -226,24 +221,24 @@ namespace LanguageExt
         /// Returns map(Result) if not faulted or cancelled.
         /// </summary>
         [Pure]
-        public static async Task<U> Map<T, U>(this Task<T> self, Func<T, U> map) =>
+        public static async ValueTask<U> Map<T, U>(this ValueTask<T> self, Func<T, U> map) =>
             map(await self.ConfigureAwait(false));
 
         /// <summary>
         /// Returns map(Result) if not faulted or cancelled.
         /// </summary>
         [Pure]
-        public static async Task<U> MapAsync<T, U>(this Task<T> self, Func<T, Task<U>> map) =>
+        public static async ValueTask<U> MapAsync<T, U>(this ValueTask<T> self, Func<T, ValueTask<U>> map) =>
             await map(await self.ConfigureAwait(false)).ConfigureAwait(false);
 
         [Pure]
-        public static async Task<V> Join<T, U, K, V>(this Task<T> source,
-            Task<U> inner,
+        public static async ValueTask<V> Join<T, U, K, V>(this ValueTask<T> source,
+            ValueTask<U> inner,
             Func<T, K> outerKeyMap,
             Func<U, K> innerKeyMap,
             Func<T, U, V> project)
         {
-            await Task.WhenAll(source, inner).ConfigureAwait(false);
+            await Task.WhenAll(source.AsTask(), inner.AsTask()).ConfigureAwait(false);
             if (!default(EqDefault<K>).Equals(outerKeyMap(source.Result), innerKeyMap(inner.Result)))
             {
                 throw new OperationCanceledException();
@@ -253,30 +248,26 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static async Task<V> GroupJoin<T, U, K, V>(this Task<T> source,
-            Task<U> inner,
+        public static async ValueTask<V> GroupJoin<T, U, K, V>(this ValueTask<T> source,
+            ValueTask<U> inner,
             Func<T, K> outerKeyMap,
             Func<U, K> innerKeyMap,
-            Func<T, Task<U>, V> project)
+            Func<T, ValueTask<U>, V> project)
         {
             T t = await source.ConfigureAwait(false);
             return project(t, inner.Where(u => default(EqDefault<K>).Equals(outerKeyMap(t), innerKeyMap(u))));
         }
 
         [Pure]
-        public static Task<A> Plus<A>(this Task<A> ma, Task<A> mb) =>
-            default(MTask<A>).Plus(ma, mb);
-
-        [Pure]
-        public static Task<A> PlusFirst<A>(this Task<A> ma, Task<A> mb) =>
-            default(MTaskFirst<A>).Plus(ma, mb);
+        public static ValueTask<A> Plus<A>(this ValueTask<A> ma, ValueTask<A> mb) =>
+            default(MValueTask<A>).Plus(ma, mb);
 
         class PropCache<T>
         {
             public static PropertyInfo Info = typeof(T).GetTypeInfo().DeclaredProperties.Where(p => p.Name == "Result").FirstOrDefault();
         }
 
-        public static async Task<A> Cast<A>(this Task source)
+        public static async ValueTask<A> Cast<A>(this ValueTask source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             await source.ConfigureAwait(false);
@@ -286,7 +277,7 @@ namespace LanguageExt
                 : default(A);
         }
 
-        public static async Task<Unit> ToUnit(this Task source)
+        public static async ValueTask<Unit> ToUnit(this ValueTask source)
         {
             await source.ConfigureAwait(false);
             return unit;
@@ -299,7 +290,7 @@ namespace LanguageExt
         /// task from the sequence, and on completion goes and gets the next task from the lazy sequence and
         /// awaits that too.  This continues until the end of the lazy sequence, or forever for infinite streams.
         /// </summary>
-        public static Task<Unit> WindowIter<A>(this IEnumerable<Task<A>> ma, Action<A> f) =>
+        public static ValueTask<Unit> WindowIter<A>(this IEnumerable<ValueTask<A>> ma, Action<A> f) =>
             WindowIter(ma, Sys.DefaultAsyncSequenceConcurrency, f);
 
         /// <summary>
@@ -309,13 +300,12 @@ namespace LanguageExt
         /// the lazy sequence and awaits that too.  This continues until the end of the lazy sequence, or forever 
         /// for infinite streams.  Therefore there are at most `windowSize` tasks running concurrently.
         /// </summary>
-        public static async Task<Unit> WindowIter<A>(this IEnumerable<Task<A>> ma, int windowSize, Action<A> f)
+        public static async ValueTask<Unit> WindowIter<A>(this IEnumerable<ValueTask<A>> ma, int windowSize, Action<A> f)
         {
             object sync = new object();
             using (var iter = ma.GetEnumerator())
             {
-
-                (bool Success, Task<A> Task) GetNext()
+                (bool Success, ValueTask<A> Task) GetNext()
                 {
                     lock (sync)
                     {
@@ -325,7 +315,7 @@ namespace LanguageExt
                     }
                 }
 
-                var tasks = new List<Task<Unit>>();
+                var tasks = new List<ValueTask<Unit>>();
                 for (var i = 0; i < windowSize; i++)
                 {
                     var (s, outerTask) = GetNext();
@@ -344,7 +334,7 @@ namespace LanguageExt
                     }));
                 }
 
-                await Task.WhenAll(tasks).ConfigureAwait(false);
+                await Task.WhenAll(tasks.Map(t => t.AsTask())).ConfigureAwait(false);
                 return unit;
             }
         }
@@ -356,7 +346,7 @@ namespace LanguageExt
         /// completion goes and gets the next task from the lazy sequence and awaits that too.  This continues until the
         /// end of the lazy sequence, or forever for infinite streams.
         /// </summary>
-        internal static Task<IList<B>> WindowMap<A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f) =>
+        internal static ValueTask<IList<B>> WindowMap<A, B>(this IEnumerable<ValueTask<A>> ma, Func<A, B> f) =>
             WindowMap(ma, Sys.DefaultAsyncSequenceConcurrency, f);
 
         /// <summary>
@@ -366,13 +356,13 @@ namespace LanguageExt
         /// the lazy sequence and awaits that too.  This continues until the end of the lazy sequence, or forever 
         /// for infinite streams.  Therefore there are at most `windowSize` tasks running concurrently.
         /// </summary>
-        internal static async Task<IList<B>> WindowMap<A, B>(this IEnumerable<Task<A>> ma, int windowSize, Func<A, B> f)
+        internal static async ValueTask<IList<B>> WindowMap<A, B>(this IEnumerable<ValueTask<A>> ma, int windowSize, Func<A, B> f)
         {
             object sync = new object();
             using (var iter = ma.GetEnumerator())
             {
 
-                (bool Success, Task<A> Task) GetNext()
+                (bool Success, ValueTask<A> Task) GetNext()
                 {
                     lock (sync)
                     {
@@ -382,7 +372,7 @@ namespace LanguageExt
                     }
                 }
 
-                var tasks = new List<Task<Unit>>();
+                var tasks = new List<ValueTask<Unit>>();
                 var results = new List<B>[windowSize];
                 var errors = new List<AggregateException>[windowSize];
 
@@ -410,7 +400,7 @@ namespace LanguageExt
                                 var a = await next.Task.ConfigureAwait(false);
                                 if (next.Task.IsFaulted)
                                 {
-                                    errors[ix].Add(next.Task.Exception);
+                                    errors[ix].Add(next.Task.AsTask().Exception);
                                     return unit;
                                 }
                                 else
@@ -427,7 +417,7 @@ namespace LanguageExt
                     }));
                 }
 
-                await Task.WhenAll(tasks).ConfigureAwait(false);
+                await Task.WhenAll(tasks.Map(t => t.AsTask())).ConfigureAwait(false);
 
                 // Move all errors into one list
                 for (var i = 1; i < windowSize; i++)

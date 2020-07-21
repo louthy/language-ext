@@ -266,6 +266,19 @@ namespace LanguageExt
             }
         }
 
+        public static TryOptionAsync<ValueTask<B>> Traverse<A, B>(this ValueTask<TryOptionAsync<A>> ma, Func<A, B> f)
+        {
+            return ToTry(() => Go(ma, f).AsTask());
+            async ValueTask<OptionalResult<ValueTask<B>>> Go(ValueTask<TryOptionAsync<A>> ma, Func<A, B> f)
+            {
+                var ra = await ma;
+                var rb = await ra.Try();
+                if (rb.IsFaulted) return new OptionalResult<ValueTask<B>>(rb.Exception);
+                if(rb.IsNone) return OptionalResult<ValueTask<B>>.None;
+                return new OptionalResult<ValueTask<B>>(f(rb.Value.Value).AsValueTask());
+            }
+        }
+
         //
         // Sync types
         // 

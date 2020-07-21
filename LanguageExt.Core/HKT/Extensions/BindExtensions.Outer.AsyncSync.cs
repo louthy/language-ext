@@ -45,6 +45,22 @@ namespace LanguageExt
                     return results.ToArr();
                 });
 
+        public static ValueTask<Arr<B>> BindT<A, B>(this ValueTask<Arr<A>> ma, Func<A, ValueTask<Arr<B>>> f) =>
+            ma.MapAsync(
+                async ima =>
+                {
+                    var results = new List<B>();
+                    foreach (var ia in ima)
+                    {
+                        var imb = await f(ia);
+                        foreach (var ib in imb)
+                        {
+                            results.Add(ib);
+                        }
+                    }
+                    return results.ToArr();
+                });
+
         public static EitherAsync<L, Arr<B>> BindT<L, A , B>(this EitherAsync<L, Arr<A>> ma, Func<A, EitherAsync<L, Arr<B>>> f) =>
             ma.BindAsync(
                 async ima =>
@@ -123,6 +139,22 @@ namespace LanguageExt
                 });
 
         public static Task<HashSet<B>> BindT<A, B>(this Task<HashSet<A>> ma, Func<A, Task<HashSet<B>>> f) =>
+            ma.MapAsync(
+                async ima =>
+                {
+                    var results = new List<B>();
+                    foreach (var ia in ima)
+                    {
+                        var imb = await f(ia);
+                        foreach (var ib in imb)
+                        {
+                            results.Add(ib);
+                        }
+                    }
+                    return new HashSet<B>(results);
+                });
+
+        public static ValueTask<HashSet<B>> BindT<A, B>(this ValueTask<HashSet<A>> ma, Func<A, ValueTask<HashSet<B>>> f) =>
             ma.MapAsync(
                 async ima =>
                 {
@@ -230,6 +262,22 @@ namespace LanguageExt
                     return new Lst<B>(results);
                 });
 
+        public static ValueTask<Lst<B>> BindT<A, B>(this ValueTask<Lst<A>> ma, Func<A, ValueTask<Lst<B>>> f) =>
+            ma.MapAsync(
+                async ima =>
+                {
+                    var results = new List<B>();
+                    foreach (var ia in ima)
+                    {
+                        var imb = await f(ia);
+                        foreach (var ib in imb)
+                        {
+                            results.Add(ib);
+                        }
+                    }
+                    return new Lst<B>(results);
+                });
+
         public static EitherAsync<L, Lst<B>> BindT<L, A, B>(this EitherAsync<L, Lst<A>> ma, Func<A, EitherAsync<L, Lst<B>>> f) =>
             ma.BindAsync(
                 async ima =>
@@ -303,6 +351,13 @@ namespace LanguageExt
                         Some: async x => await f(x),
                         None: () => Option<B>.None));
 
+        public static ValueTask<Option<B>> BindT<A, B>(this ValueTask<Option<A>> ma, Func<A, ValueTask<Option<B>>> f) =>
+            ma.MapAsync(
+                async ima =>
+                    await ima.MatchAsync(
+                        Some: async x => await f(x),
+                        None: () => Option<B>.None));
+
         public static EitherAsync<L, Option<B>> BindT<L, A, B>(this EitherAsync<L, Option<A>> ma, Func<A, EitherAsync<L, Option<B>>> f) =>
             ma.Bind(
                 ima => ima.Match(
@@ -331,6 +386,13 @@ namespace LanguageExt
                      None: () => OptionAsync<OptionUnsafe<B>>.Some(OptionUnsafe<B>.None)));
 
         public static Task<OptionUnsafe<B>> BindT<A, B>(this Task<OptionUnsafe<A>> ma, Func<A, Task<OptionUnsafe<B>>> f) =>
+            ma.MapAsync(
+                async ima =>
+                    await ima.MatchAsync(
+                        Some: async x => await f(x),
+                        None: () => OptionUnsafe<B>.None));
+
+        public static ValueTask<OptionUnsafe<B>> BindT<A, B>(this ValueTask<OptionUnsafe<A>> ma, Func<A, ValueTask<OptionUnsafe<B>>> f) =>
             ma.MapAsync(
                 async ima =>
                     await ima.MatchAsync(
@@ -370,6 +432,13 @@ namespace LanguageExt
                         RightAsync: async x => await f(x),
                         Left: e => Either<L, B>.Left(e)));
 
+        public static ValueTask<Either<L, B>> BindT<L, A, B>(this ValueTask<Either<L, A>> ma, Func<A, ValueTask<Either<L, B>>> f) =>
+            ma.MapAsync(
+                async ima =>
+                    await ima.ToAsync().MatchAsync(
+                        RightAsync: async x => await f(x),
+                        Left: e => Either<L, B>.Left(e)));
+
         public static EitherAsync<L, Either<L, B>> BindT<L, A, B>(this EitherAsync<L, Either<L, A>> ma, Func<A, EitherAsync<L, Either<L, B>>> f) =>
             ma.Bind(
                 ima => ima.Match(
@@ -403,6 +472,13 @@ namespace LanguageExt
                         Right: x => f(x),
                         Left: e => EitherUnsafe<L, B>.Left(e).AsTask()));
 
+        public static ValueTask<EitherUnsafe<L, B>> BindT<L, A, B>(this ValueTask<EitherUnsafe<L, A>> ma, Func<A, ValueTask<EitherUnsafe<L, B>>> f) =>
+            ma.MapAsync(
+                async ima =>
+                    await ima.MatchUnsafe(
+                        Right: x => f(x),
+                        Left: e => EitherUnsafe<L, B>.Left(e).AsValueTask()));
+
         public static EitherAsync<L, EitherUnsafe<L, B>> BindT<L, A, B>(this EitherAsync<L, EitherUnsafe<L, A>> ma, Func<A, EitherAsync<L, EitherUnsafe<L, B>>> f) =>
             ma.Bind(
                 ima => ima.MatchUnsafe(
@@ -430,6 +506,13 @@ namespace LanguageExt
                      Fail: e => OptionAsync<Try<B>>.Some(Try<B>(e))));
 
         public static Task<Try<B>> BindT<A, B>(this Task<Try<A>> ma, Func<A, Task<Try<B>>> f) =>
+            ma.MapAsync(
+                async ima =>
+                    await ima.MatchAsync(
+                        Succ: async x => await f(x),
+                        Fail: e => Try<B>(e)));
+
+        public static ValueTask<Try<B>> BindT<A, B>(this ValueTask<Try<A>> ma, Func<A, ValueTask<Try<B>>> f) =>
             ma.MapAsync(
                 async ima =>
                     await ima.MatchAsync(
@@ -465,6 +548,14 @@ namespace LanguageExt
                      Fail: e => OptionAsync<TryOption<B>>.Some(TryOption<B>(e))));
 
         public static Task<TryOption<B>> BindT<A, B>(this Task<TryOption<A>> ma, Func<A, Task<TryOption<B>>> f) =>
+            ma.MapAsync(
+                async ima =>
+                    await ima.MatchAsync(
+                        Some: async x => await f(x),
+                        None: () => TryOption(Option<B>.None),
+                        Fail: e => TryOption<B>(e)));
+
+        public static ValueTask<TryOption<B>> BindT<A, B>(this ValueTask<TryOption<A>> ma, Func<A, ValueTask<TryOption<B>>> f) =>
             ma.MapAsync(
                 async ima =>
                     await ima.MatchAsync(
@@ -511,6 +602,19 @@ namespace LanguageExt
                 });
 
         public static Task<IEnumerable<B>> BindT<A, B>(this Task<IEnumerable<A>> ma, Func<A, Task<IEnumerable<B>>> f) =>
+            ma.MapAsync(
+                async ima =>
+                {
+                    var results = Enumerable.Empty<B>();
+                    foreach (var ia in ima)
+                    {
+                        var imb = await f(ia);
+                        results = EnumerableOptimal.ConcatFast(results, imb);
+                    }
+                    return results.AsEnumerable();
+                });
+
+        public static ValueTask<IEnumerable<B>> BindT<A, B>(this ValueTask<IEnumerable<A>> ma, Func<A, ValueTask<IEnumerable<B>>> f) =>
             ma.MapAsync(
                 async ima =>
                 {
@@ -589,6 +693,19 @@ namespace LanguageExt
                 });
 
         public static Task<Seq<B>> BindT<A, B>(this Task<Seq<A>> ma, Func<A, Task<Seq<B>>> f) =>
+            ma.MapAsync(
+                async ima =>
+                {
+                    var results = Enumerable.Empty<B>();
+                    foreach (var ia in ima)
+                    {
+                        var imb = await f(ia);
+                        results = EnumerableOptimal.ConcatFast(results, imb);
+                    }
+                    return Seq(results);
+                });
+
+        public static ValueTask<Seq<B>> BindT<A, B>(this ValueTask<Seq<A>> ma, Func<A, ValueTask<Seq<B>>> f) =>
             ma.MapAsync(
                 async ima =>
                 {
@@ -684,6 +801,22 @@ namespace LanguageExt
                     return new Set<B>(results);
                 });
 
+        public static ValueTask<Set<B>> BindT<A, B>(this ValueTask<Set<A>> ma, Func<A, ValueTask<Set<B>>> f) =>
+            ma.MapAsync(
+                async ima =>
+                {
+                    var results = new List<B>();
+                    foreach (var ia in ima)
+                    {
+                        var imb = await f(ia);
+                        foreach (var ib in imb)
+                        {
+                            results.Add(ib);
+                        }
+                    }
+                    return new Set<B>(results);
+                });
+
         public static EitherAsync<L, Set<B>> BindT<L, A, B>(this EitherAsync<L, Set<A>> ma, Func<A, EitherAsync<L, Set<B>>> f) =>
             ma.BindAsync(
                 async ima =>
@@ -751,6 +884,13 @@ namespace LanguageExt
                      Fail: e => OptionAsync<Validation<L, B>>.Some(Validation<L, B>.Fail(e))));
 
         public static Task<Validation<L, B>> BindT<L, A, B>(this Task<Validation<L, A>> ma, Func<A, Task<Validation<L, B>>> f) =>
+            ma.MapAsync(
+                async ima =>
+                    await ima.MatchAsync(
+                        SuccAsync: async x => await f(x),
+                        Fail: e => Validation<L, B>.Fail(e)));
+
+        public static ValueTask<Validation<L, B>> BindT<L, A, B>(this ValueTask<Validation<L, A>> ma, Func<A, ValueTask<Validation<L, B>>> f) =>
             ma.MapAsync(
                 async ima =>
                     await ima.MatchAsync(

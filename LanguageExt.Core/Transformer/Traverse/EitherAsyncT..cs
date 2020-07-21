@@ -267,6 +267,19 @@ namespace LanguageExt
             }
         }
 
+        public static EitherAsync<L, ValueTask<B>> Traverse<L, A, B>(this ValueTask<EitherAsync<L, A>> ma, Func<A, B> f)
+        {
+            return new EitherAsync<L, ValueTask<B>>(Go(ma, f).AsTask());
+            async ValueTask<EitherData<L, ValueTask<B>>> Go(ValueTask<EitherAsync<L, A>> ma, Func<A, B> f)
+            {
+                var result = await ma;
+                var db = await result.Data;
+                if (db.State == EitherStatus.IsBottom) return EitherData<L, ValueTask<B>>.Bottom;
+                if (db.State == EitherStatus.IsLeft) return EitherData.Left<L, ValueTask<B>>(db.Left);
+                return EitherData.Right<L, ValueTask<B>>(f(db.Right).AsValueTask());
+            }
+        }
+
         //
         // Sync types
         // 

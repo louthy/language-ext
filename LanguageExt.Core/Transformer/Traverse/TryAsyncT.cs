@@ -258,6 +258,18 @@ namespace LanguageExt
             }
         }
 
+        public static TryAsync<ValueTask<B>> Traverse<A, B>(this ValueTask<TryAsync<A>> ma, Func<A, B> f)
+        {
+            return ToTry(() => Go(ma, f).AsTask());
+            async ValueTask<Result<ValueTask<B>>> Go(ValueTask<TryAsync<A>> ma, Func<A, B> f)
+            {
+                var ra = await ma;
+                var rb = await ra.Try();
+                if (rb.IsFaulted) return new Result<ValueTask<B>>(rb.Exception);
+                return new Result<ValueTask<B>>(f(rb.Value).AsValueTask());
+            }
+        }
+        
         //
         // Sync types
         // 

@@ -8,31 +8,31 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    internal static class Tasks
+    internal static class ValueTasks
     {
         [Pure]
-        public static async Task<bool> ForAll<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred)
+        public static async ValueTask<bool> ForAll<A>(IEnumerable<ValueTask<A>> fs, Func<A, bool> pred)
         {
             var ra = await fs.WindowMap(pred);
             return ra.ForAll(identity);
         }
 
         [Pure]
-        public static async Task<bool> ForAll<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred, int windowSize)
+        public static async ValueTask<bool> ForAll<A>(IEnumerable<ValueTask<A>> fs, Func<A, bool> pred, int windowSize)
         {
             var ra = await fs.WindowMap(windowSize, pred);
             return ra.ForAll(identity);
         }
 
         [Pure]
-        public static async Task<bool> Exists<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred)
+        public static async ValueTask<bool> Exists<A>(IEnumerable<ValueTask<A>> fs, Func<A, bool> pred)
         {
             var ra = await fs.WindowMap(pred);
             return ra.Exists(identity);
         }
 
         [Pure]
-        public static async Task<bool> Exists<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred, int windowSize)
+        public static async ValueTask<bool> Exists<A>(IEnumerable<ValueTask<A>> fs, Func<A, bool> pred, int windowSize)
         {
             var ra = await fs.WindowMap(windowSize, pred);
             return ra.Exists(identity);

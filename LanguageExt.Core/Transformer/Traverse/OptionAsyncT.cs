@@ -259,6 +259,18 @@ namespace LanguageExt
             }
         }
 
+        public static OptionAsync<ValueTask<B>> Traverse<A, B>(this ValueTask<OptionAsync<A>> ma, Func<A, B> f)
+        {
+            return new OptionAsync<ValueTask<B>>(Go(ma, f).AsTask());
+            async ValueTask<(bool, ValueTask<B>)> Go(ValueTask<OptionAsync<A>> ma, Func<A, B> f)
+            {
+                var result = await ma;
+                var (isSome, value) = await result.Data;
+                if (!isSome) return (false, default);
+                return (true, f(value).AsValueTask());
+            }
+        }
+
         //
         // Sync types
         // 
