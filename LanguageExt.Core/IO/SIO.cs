@@ -14,7 +14,7 @@ namespace LanguageExt
     /// </summary>
     public struct SIO<A>
     {
-        internal readonly Thunk<A> thunk;
+        internal Thunk<A> thunk;
 
         /// <summary>
         /// Constructor
@@ -111,7 +111,7 @@ namespace LanguageExt
         [MethodImpl(IO.mops)]
         public SIO<A> Clear()
         {
-            thunk.Flush();
+            thunk = thunk.Clone();
             return this;
         }
     }

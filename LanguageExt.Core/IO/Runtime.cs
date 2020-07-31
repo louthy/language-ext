@@ -116,7 +116,7 @@ namespace LanguageExt
             SIO.env<Runtime>().Map(e => e.CancelToken);
 
         /// <summary>
-        /// Cancel token from the runtime into the bound value
+        /// Text encoding from the runtime into the bound value
         /// </summary>
         public static readonly SIO<Runtime, Encoding> encodingEnv =
             SIO.env<Runtime>().Map(e => e.Encoding);

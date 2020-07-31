@@ -17,7 +17,7 @@ namespace LanguageExt
     {
         internal const MethodImplOptions mops = MethodImplOptions.AggressiveInlining;
 
-        internal readonly ThunkAsync<A> thunk;
+        internal ThunkAsync<A> thunk;
 
         /// <summary>
         /// Constructor
@@ -138,7 +138,7 @@ namespace LanguageExt
         [MethodImpl(IO.mops)]
         public IO<A> Clear()
         {
-            thunk.Flush();
+            thunk = thunk.Clone();
             return this;
         }
     }

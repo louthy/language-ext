@@ -49,21 +49,21 @@ namespace LanguageExt.Thunks
         /// <summary>
         /// Success ctor
         /// </summary>
-        [Pure, MethodImpl(Thunk.mops)]
+        [MethodImpl(Thunk.mops)]
         Thunk(A value) =>
             (this.state, this.value) = (Thunk.IsSuccess, value);
 
         /// <summary>
         /// Failed / Cancelled constructor
         /// </summary>
-        [Pure, MethodImpl(Thunk.mops)]
+        [MethodImpl(Thunk.mops)]
         Thunk(int state, Error error) =>
             (this.state, this.error) = (state, error);
 
         /// <summary>
         /// Lazy constructor
         /// </summary>
-        [Pure, MethodImpl(Thunk.mops)]
+        [MethodImpl(Thunk.mops)]
         Thunk(Func<Env, Fin<A>> fun) =>
             this.fun = fun ?? throw new ArgumentNullException(nameof(value));
 
@@ -74,20 +74,19 @@ namespace LanguageExt.Thunks
         public Fin<A> Value(Env env) =>
             Eval(env ?? throw new ArgumentNullException(nameof(value)));
 
-        [MethodImpl(Thunk.mops)]
-        public Unit Flush()
-        {
-            if (fun == null)
-            {
-                return default;
-            }
-            else
-            {
-                SpinIfEvaluating();
-                state = Thunk.NotEvaluated;
-                return default;
-            }
-        }
+        /// <summary>
+        /// Clone the thunk
+        /// </summary>
+        /// <remarks>For thunks that were created as pre-failed/pre-cancelled values (i.e. no delegate to run, just
+        /// in a pure error state), then the clone will copy that state exactly.  For thunks that have been evaluated
+        /// then a cloned thunk will reset the thunk to a non-evaluated state.  This also means any thunk that has been
+        /// evaluated and failed would lose the failed status</remarks>
+        /// <returns></returns>
+        [Pure, MethodImpl(Thunk.mops)]
+        public Thunk<Env, A> Clone() =>
+            fun == null
+                ? new Thunk<Env, A>(state, error)
+                : new Thunk<Env, A>(fun);
 
         /// <summary>
         /// Functor map

@@ -56,23 +56,37 @@ namespace LanguageExt.Thunks
         /// <summary>
         /// Success ctor
         /// </summary>
-        [Pure, MethodImpl(Thunk.mops)]
+        [MethodImpl(Thunk.mops)]
         ThunkAsync(A value) =>
             (this.state, this.value) = (Thunk.IsSuccess, value);
 
         /// <summary>
         /// Failed / Cancelled constructor
         /// </summary>
-        [Pure, MethodImpl(Thunk.mops)]
+        [MethodImpl(Thunk.mops)]
         ThunkAsync(int state, Error error) =>
             (this.state, this.error) = (state, error);
 
         /// <summary>
         /// Lazy constructor
         /// </summary>
-        [Pure, MethodImpl(Thunk.mops)]
+        [MethodImpl(Thunk.mops)]
         ThunkAsync(Func<ValueTask<Fin<A>>> fun) =>
             this.fun = fun ?? throw new ArgumentNullException(nameof(value));
+        
+        /// <summary>
+        /// Clone the thunk
+        /// </summary>
+        /// <remarks>For thunks that were created as pre-failed/pre-cancelled values (i.e. no delegate to run, just
+        /// in a pure error state), then the clone will copy that state exactly.  For thunks that have been evaluated
+        /// then a cloned thunk will reset the thunk to a non-evaluated state.  This also means any thunk that has been
+        /// evaluated and failed would lose the failed status</remarks>
+        /// <returns></returns>
+        [Pure, MethodImpl(Thunk.mops)]
+        public ThunkAsync<A> Clone() =>
+            fun == null
+                ? new ThunkAsync<A>(state, error)
+                : new ThunkAsync<A>(fun);        
 
         /// <summary>
         /// Value accessor
@@ -80,21 +94,6 @@ namespace LanguageExt.Thunks
         [Pure, MethodImpl(Thunk.mops)]
         public ValueTask<Fin<A>> Value() =>
             Eval();
-
-        [MethodImpl(Thunk.mops)]
-        public Unit Flush()
-        {
-            if (fun == null)
-            {
-                return default;
-            }
-            else
-            {
-                SpinIfEvaluating();
-                state = Thunk.NotEvaluated;
-                return default;
-            }
-        }
 
         /// <summary>
         /// Functor map

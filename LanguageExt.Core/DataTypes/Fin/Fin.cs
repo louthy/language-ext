@@ -10,7 +10,7 @@ namespace LanguageExt
 {
     /// <summary>
     /// Equivalent of `Either<Error, A>`
-    /// Called `Fin` because this should be used as the concrete result of a computation
+    /// Called `Fin` because it is expected to be used as the concrete result of a computation
     /// </summary>
     public struct Fin<A>
     {
@@ -19,7 +19,7 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        [Pure, MethodImpl(IO.mops)]
+        [MethodImpl(IO.mops)]
         Fin(EitherData<Error, A> data) =>
             this.data = data;
 

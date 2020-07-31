@@ -15,7 +15,7 @@ namespace LanguageExt
     /// </summary>
     public struct IO<Env, A> where Env : Cancellable
     {
-        internal readonly ThunkAsync<Env, A> thunk;
+        internal ThunkAsync<Env, A> thunk;
 
         /// <summary>
         /// Constructor
@@ -133,7 +133,7 @@ namespace LanguageExt
         [MethodImpl(IO.mops)]
         public IO<Env, A> Clear()
         {
-            thunk.Flush();
+            thunk = thunk.Clone();
             return this;
         }
     }

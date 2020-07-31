@@ -48,7 +48,7 @@ namespace LanguageExt.DataTypes.Serialisation
             default(EqDefault<R>).Equals(Right, other.Right);
 
         public override bool Equals(object obj) =>
-            obj is EitherData<L, R> && Equals((EitherData<L, R>)obj);
+            obj is EitherData<L, R> eobj && Equals(eobj);
 
         public override string ToString() =>
             State == EitherStatus.IsBottom
