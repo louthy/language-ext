@@ -22,6 +22,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public Task<int> GetHashCodeAsync(A x) =>
-            HashableClass<A>.GetHashCodeAsync(x);
+            HashableAsyncClass<A>.GetHashCodeAsync(x);
     }
 }

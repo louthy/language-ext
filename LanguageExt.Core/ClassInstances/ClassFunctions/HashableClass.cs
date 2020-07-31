@@ -18,7 +18,6 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly Option<Error> Error;
         public new static readonly Func<A, int> GetHashCode;
-        public static readonly Func<A, Task<int>> GetHashCodeAsync;
         
         static HashableClass()
         {
@@ -46,11 +45,10 @@ namespace LanguageExt.ClassInstances
                 Error = Some(Common.Error.New(e));
                 GetHashCode = (A x) => throw e;
             }
-            finally
-            {
-                GetHashCodeAsync = x => GetHashCode(x).AsTask();
-            }
         }
+        
+        public static Task<int> GetHashCodeAsync(A x) =>
+            GetHashCode(x).AsTask();             
 
         static Func<A, int> MakePrimitiveGetHashCode(string fullName) =>
             fullName switch
