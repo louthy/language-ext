@@ -76,7 +76,7 @@ namespace LanguageExt.ClassInstances
             fullName switch
             {
                 "LangaugeExt.bigint" => (Func<A, A, int>)(object)(Func<bigint, bigint, int>)default(OrdBigInt).Compare,
-                "System.intean" => (Func<A, A, int>)(object)(Func<bool, bool, int>)default(OrdBool).Compare,
+                "System.Boolean" => (Func<A, A, int>)(object)(Func<bool, bool, int>)default(OrdBool).Compare,
                 "System.DateTime" => (Func<A, A, int>)(object)(Func<DateTime, DateTime, int>)default(OrdDateTime).Compare,
                 "System.Decimal" => (Func<A, A, int>)(object)(Func<decimal, decimal, int>)default(OrdDecimal).Compare,
                 "System.Single" => (Func<A, A, int>)(object)(Func<float, float, int>)default(OrdFloat).Compare,

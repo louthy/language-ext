@@ -17,10 +17,6 @@ namespace LanguageExt.ClassInstances
     public struct EqDefaultAsync<A> : EqAsync<A>
     {
         public static readonly EqDefaultAsync<A> Inst = default(EqDefaultAsync<A>);
-        static readonly Func<A, A, Task<bool>> eq;
-
-        static EqDefaultAsync() =>
-            eq = EqAsyncClass<A>.EqualsAsync;
 
         /// <summary>
         /// Equality test
@@ -34,7 +30,7 @@ namespace LanguageExt.ClassInstances
             if (isnull(a)) return isnull(b);
             if (isnull(b)) return false;
             if (ReferenceEquals(a, b)) return true;
-            return await eq(a, b);
+            return await EqAsyncClass<A>.EqualsAsync(a, b);
         }
 
         /// <summary>

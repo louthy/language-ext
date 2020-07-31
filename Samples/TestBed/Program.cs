@@ -34,15 +34,12 @@ class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        var px = new Person("Joe", "Bloggs");
-        var py = new Person("Joe", "Bloggs");
+        Map<string, int> xs = (("w", 1), ("x", 2), ("y", 3), ("z", 4));
 
-        var eq = px.Equals(py);
-
-        //LoggedIn loggedIn = LoggedIn.New("user", DateTime.Now);
-        //State state = (State)loggedIn;
-        //var result = loggedIn.CompareTo(state);
-
+        var x1 = xs.ContainsKey("w");
+        var x2 = xs.ContainsKey("x");
+        var x3 = xs.ContainsKey("y");
+        var x4 = xs.ContainsKey("z");
     }
 }
 

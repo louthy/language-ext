@@ -15,11 +15,6 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     public struct HashableDefault<A> : Hashable<A>
     {
-        static readonly Func<A, int> hash;
-
-        static HashableDefault() =>
-            hash = HashableClass<A>.GetHashCode;
-
         /// <summary>
         /// Get hash code of the value
         /// </summary>
@@ -27,7 +22,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(A x) =>
-            hash(x);
+            HashableClass<A>.GetHashCode(x);
 
         [Pure]
         public Task<int> GetHashCodeAsync(A x) =>

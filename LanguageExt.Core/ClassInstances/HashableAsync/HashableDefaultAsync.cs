@@ -15,11 +15,6 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     public struct HashableDefaultAsync<A> : HashableAsync<A>
     {
-        static readonly Func<A, Task<int>> hash;
-
-        static HashableDefaultAsync() =>
-            hash = HashableClass<A>.GetHashCodeAsync;
-
         /// <summary>
         /// Get hash code of the value
         /// </summary>
@@ -27,6 +22,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public Task<int> GetHashCodeAsync(A x) =>
-            hash(x);
+            HashableClass<A>.GetHashCodeAsync(x);
     }
 }
