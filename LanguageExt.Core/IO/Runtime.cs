@@ -1,124 +1,144 @@
+using System;
 using System.Text;
 using System.Threading;
-using LanguageExt.ClassInstances;
 using LanguageExt.Interfaces;
-using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
     /// <summary>
-    /// Contains the common IO runtime.
-    /// Derive from this type to extend the runtime and then pass that to your
-    /// IO operations.
+    /// Live IO runtime
     /// </summary>
-    public partial class Runtime : Cancellable
+    public struct Runtime : 
+        HasCancel<Runtime>,
+        HasConsole<Runtime>,
+        HasFile<Runtime>,
+        HasEncoding<Runtime>,
+        HasTextRead<Runtime>,
+        HasTime<Runtime>
     {
-        public static readonly Runtime Live = 
-            new Runtime(
-                CancellationToken.None, 
-                Encoding.Default, 
-                default(LiveIO.FileIO),
-                default(LiveIO.TimeIO),
-                default(LiveIO.ConsoleIO),
-                default(LiveIO.TextReadIO));
-
-        public CancellationToken CancelToken { get; }
-        public readonly Encoding Encoding;
-        public readonly FileIO File;
-        public readonly TimeIO Time;
-        public readonly ConsoleIO Console;
-        public readonly TextReadIO TextRead;
-
-        public Runtime(
-            CancellationToken cancelToken,
-            Encoding encoding,
-            FileIO file,
-            TimeIO time,
-            ConsoleIO console,
-            TextReadIO textRead
-            )
-        {
-            CancelToken = cancelToken;
-            Encoding = encoding;
-            File = file;
-            Time = time;
-            Console = console;
-            TextRead = textRead;
-        }
+        readonly CancellationTokenSource source;
+        readonly CancellationToken token;
+        readonly Encoding encoding;
 
         /// <summary>
-        /// File environment from the runtime into the bound value
+        /// Ctor
         /// </summary>
-        public static readonly IO<Runtime, Runtime> env =
-            IO.env<Runtime>();
+        /// <param name="token">Optional cancellation token</param>
+        Runtime(Encoding encoding, CancellationTokenSource source) =>
+            (this.source, this.token, this.encoding) = (source, source.Token, encoding);
 
         /// <summary>
-        /// File environment from the runtime into the bound value
+        /// Ctor function
         /// </summary>
-        public static readonly SIO<Runtime, Runtime> senv =
-            SIO.env<Runtime>();
+        public static Runtime New() =>
+            new Runtime(System.Text.Encoding.Default, new CancellationTokenSource());
 
         /// <summary>
-        /// File environment from the runtime into the bound value
+        /// Ctor function
         /// </summary>
-        public static readonly IO<Runtime, FileIO> fileIO =
-            IO.env<Runtime>().Map(e => e.File);
+        /// <param name="token">Cancellation token source</param>
+        public static Runtime New(CancellationTokenSource source) =>
+            new Runtime(System.Text.Encoding.Default, source);
 
         /// <summary>
-        /// File environment from the runtime into the bound value
+        /// Ctor function
         /// </summary>
-        public static readonly SIO<Runtime, FileIO> fileSIO =
-            SIO.env<Runtime>().Map(e => e.File);
-
-       
-        /// <summary>
-        /// Time environment from the runtime into the bound value
-        /// </summary>
-        public static readonly IO<Runtime, TimeIO> timeIO =
-            IO.env<Runtime>().Map(e => e.Time);
+        /// <param name="encoding">Text encoding</param>
+        public static Runtime New(Encoding encoding) =>
+            new Runtime(encoding, new CancellationTokenSource());
 
         /// <summary>
-        /// Time environment from the runtime into the bound value
+        /// Ctor function
         /// </summary>
-        public static readonly SIO<Runtime, TimeIO> timeSIO =
-            SIO.env<Runtime>().Map(e => e.Time);
-        
+        /// <param name="encoding">Text encoding</param>
+        /// <param name="token">Cancellation token source</param>
+        public static Runtime New(Encoding encoding, CancellationTokenSource source) =>
+            new Runtime(encoding, source);
+
+        /// <summary>
+        /// Direct access to cancellation token
+        /// </summary>
+        public CancellationToken CancellationToken =>
+            token;
         
         /// <summary>
-        /// Console environment from the runtime into the bound value
+        /// Directly access the cancellation token source
         /// </summary>
-        public static readonly IO<Runtime, ConsoleIO> consoleIO =
-            IO.env<Runtime>().Map(e => e.Console);
+        /// <param name="runtime">Runtime</param>
+        /// <returns>CancellationTokenSource</returns>
+        public SIO<Runtime, CancellationTokenSource> CancellationTokenSource =>
+            SIO<Runtime, CancellationTokenSource>.Effect(env => env.source);
 
+#if !NETSTANDARD21
         /// <summary>
-        /// Console environment from the runtime into the bound value
+        /// Get the cancellation token
         /// </summary>
-        public static readonly SIO<Runtime, ConsoleIO> consoleSIO =
-            SIO.env<Runtime>().Map(e => e.Console);
-        
-        
-        /// <summary>
-        /// Stream reader 
-        /// </summary>
-        public static readonly IO<Runtime, TextReadIO> streamReadIO =
-            IO.env<Runtime>().Map(e => e.TextRead);
-
-        /// <summary>
-        /// Stream reader 
-        /// </summary>
-        public static readonly SIO<Runtime, TextReadIO> streamReadSIO =
-            SIO.env<Runtime>().Map(e => e.TextRead);
+        /// <returns>CancellationToken</returns>
+        public SIO<Runtime, CancellationToken> Token =>
+            SIO<Runtime, CancellationToken>.Effect(env => env.CancellationToken);
+#endif
         
         /// <summary>
-        /// Cancel token from the runtime into the bound value
+        /// Access the console IO environment
         /// </summary>
-        public static readonly SIO<Runtime, CancellationToken> cancelEnv =
-            SIO.env<Runtime>().Map(e => e.CancelToken);
+        /// <returns>Console IO environment</returns>
+        public IO<Runtime, ConsoleIO> ConsoleIO =>
+            IO<Runtime, ConsoleIO>.Success(new LiveIO.ConsoleIO());
 
         /// <summary>
-        /// Text encoding from the runtime into the bound value
+        /// Access the console SIO environment
         /// </summary>
-        public static readonly SIO<Runtime, Encoding> encodingEnv =
-            SIO.env<Runtime>().Map(e => e.Encoding);
+        /// <returns>Console SIO environment</returns>
+        public SIO<Runtime, ConsoleIO> ConsoleSIO =>
+            SIO<Runtime, ConsoleIO>.Success(new LiveIO.ConsoleIO());
+
+        /// <summary>
+        /// Access the file IO environment
+        /// </summary>
+        /// <returns>File IO environment</returns>
+        public IO<Runtime, FileIO> FileIO =>
+            IO<Runtime, FileIO>.Success(new LiveIO.FileIO());
+        
+        /// <summary>
+        /// Access the file SIO environment
+        /// </summary>
+        /// <returns>File SIO environment</returns>
+        public SIO<Runtime, FileIO> FileSIO =>
+            SIO<Runtime, FileIO>.Success(new LiveIO.FileIO());
+
+        /// <summary>
+        /// Access the TextReader IO environment
+        /// </summary>
+        /// <returns>TextReader IO environment</returns>
+        public IO<Runtime, TextReadIO> TextReadIO =>
+            IO<Runtime, TextReadIO>.Success(new LiveIO.TextReadIO());
+        
+        /// <summary>
+        /// Access the TextReader SIO environment
+        /// </summary>
+        /// <returns>TextReader SIO environment</returns>
+        public SIO<Runtime, TextReadIO> TextReadSIO =>
+            SIO<Runtime, TextReadIO>.Success(new LiveIO.TextReadIO());
+
+        /// <summary>
+        /// Access the time IO environment
+        /// </summary>
+        /// <returns>Time IO environment</returns>
+        public IO<Runtime, TimeIO> TimeIO =>
+            IO<Runtime, TimeIO>.Success(new LiveIO.TimeIO());
+
+        /// <summary>
+        /// Access the time SIO environment
+        /// </summary>
+        /// <returns>Time SIO environment</returns>
+        public SIO<Runtime, TimeIO> TimeSIO  =>
+            SIO<Runtime, TimeIO>.Success(new LiveIO.TimeIO());
+
+        /// <summary>
+        /// Get encoding
+        /// </summary>
+        /// <returns></returns>
+        public SIO<Runtime, Encoding> Encoding =>
+            SIO<Runtime, Encoding>.Effect(env => env.encoding);
     }
 }

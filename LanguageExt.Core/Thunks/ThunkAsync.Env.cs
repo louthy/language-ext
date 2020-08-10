@@ -13,7 +13,7 @@ namespace LanguageExt.Thunks
     /// Lazily evaluates an asynchronous function and then memoizes the value
     /// Runs at most once
     /// </summary>
-    public class ThunkAsync<Env, A> where Env : Cancellable
+    public class ThunkAsync<Env, A> where Env : struct, HasCancel<Env>
     {
         internal readonly Func<Env, ValueTask<Fin<A>>> fun;
         internal volatile int state;
@@ -81,7 +81,7 @@ namespace LanguageExt.Thunks
         /// </summary>
         [Pure, MethodImpl(Thunk.mops)]
         public ValueTask<Fin<A>> Value(Env env) =>
-            Eval(env ?? throw new ArgumentNullException(nameof(env)));
+            Eval(env);
         
         /// <summary>
         /// Clone the thunk
@@ -217,7 +217,8 @@ namespace LanguageExt.Thunks
                         var vt = fun(env);
 
                         var ex = await vt;
-                        if (env.CancelToken.IsCancellationRequested)
+                        
+                        if (env.CancellationToken.IsCancellationRequested)
                         {
                             error = Error.New(Thunk.CancelledText);
                             state = Thunk.IsCancelled; // state update must be last thing before return

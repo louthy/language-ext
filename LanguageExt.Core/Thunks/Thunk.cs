@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using LanguageExt.Interfaces;
 
 // TODO: Retrying
 // TODO: Folding
@@ -20,7 +21,7 @@ namespace LanguageExt.Thunks
         public const int IsCancelled = 4; 
         
         [Pure, MethodImpl(mops)]
-        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Env, ThunkAsync<Env, A>> mma) where Env : Cancellable =>
+        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Env, ThunkAsync<Env, A>> mma) where Env : struct, HasCancel<Env> =>
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
             ThunkAsync<Env, A>.Lazy(async env =>
             {
@@ -67,7 +68,7 @@ namespace LanguageExt.Thunks
             });      
         
         [Pure, MethodImpl(Thunk.mops)]
-        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<ThunkAsync<Env, A>> mma) where Env : Cancellable =>
+        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<ThunkAsync<Env, A>> mma) where Env : struct, HasCancel<Env> =>
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
                 ThunkAsync<Env, A>.Lazy(async env =>
                 {
@@ -115,7 +116,7 @@ namespace LanguageExt.Thunks
         
         
         [Pure, MethodImpl(Thunk.mops)]
-        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Thunk<Env, A>> mma) where Env : Cancellable =>
+        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Thunk<Env, A>> mma) where Env : struct, HasCancel<Env> =>
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
                 ThunkAsync<Env, A>.Lazy(async env =>
                 {
@@ -162,7 +163,7 @@ namespace LanguageExt.Thunks
                 });          
         
         [Pure, MethodImpl(Thunk.mops)]
-        public static ThunkAsync<Env, A> Flatten<Env, A>(this Thunk<ThunkAsync<Env, A>> mma) where Env : Cancellable =>
+        public static ThunkAsync<Env, A> Flatten<Env, A>(this Thunk<ThunkAsync<Env, A>> mma) where Env : struct, HasCancel<Env> =>
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
                 ThunkAsync<Env, A>.Lazy(async env =>
                 {
@@ -209,7 +210,7 @@ namespace LanguageExt.Thunks
                 });         
         
         [Pure, MethodImpl(Thunk.mops)]
-        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Env, ThunkAsync<A>> mma) where Env : Cancellable =>
+        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Env, ThunkAsync<A>> mma) where Env : struct, HasCancel<Env> =>
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
             ThunkAsync<Env, A>.Lazy(async env =>
             {
@@ -256,7 +257,7 @@ namespace LanguageExt.Thunks
             });             
         
         [Pure, MethodImpl(Thunk.mops)]
-        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Env, Thunk<Env, A>> mma) where Env : Cancellable =>
+        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Env, Thunk<Env, A>> mma) where Env : struct, HasCancel<Env> =>
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
             ThunkAsync<Env, A>.Lazy(async env =>
             {
@@ -304,7 +305,7 @@ namespace LanguageExt.Thunks
         
         
         [Pure, MethodImpl(Thunk.mops)]
-        public static ThunkAsync<Env, A> Flatten<Env, A>(this Thunk<Env, ThunkAsync<Env, A>> mma) where Env : Cancellable =>
+        public static ThunkAsync<Env, A> Flatten<Env, A>(this Thunk<Env, ThunkAsync<Env, A>> mma) where Env : struct, HasCancel<Env> =>
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
                 ThunkAsync<Env, A>.Lazy(async env =>
                 {
@@ -351,7 +352,7 @@ namespace LanguageExt.Thunks
                 });           
  
         [Pure]
-        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Env, Thunk<A>> mma) where Env : Cancellable =>
+        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Env, Thunk<A>> mma) where Env : struct, HasCancel<Env> =>
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
             ThunkAsync<Env, A>.Lazy(async env =>
             {
@@ -399,7 +400,7 @@ namespace LanguageExt.Thunks
         
          
         [Pure]
-        public static ThunkAsync<Env, A> Flatten<Env, A>(this Thunk<Env, ThunkAsync<A>> mma) where Env : Cancellable =>
+        public static ThunkAsync<Env, A> Flatten<Env, A>(this Thunk<Env, ThunkAsync<A>> mma) where Env : struct, HasCancel<Env> =>
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
                 ThunkAsync<Env, A>.Lazy(async env =>
                 {

@@ -36,7 +36,7 @@ namespace LanguageExt
             var rb = new List<B>();
             foreach (var a in ma)
             {
-                rb.Add(f(await a));
+                rb.Add(f(await a.ConfigureAwait(false)));
             }
             return rb;            
         }

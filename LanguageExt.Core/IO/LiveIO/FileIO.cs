@@ -47,7 +47,7 @@ namespace LanguageExt.LiveIO
         /// Read all lines from a file
         /// </summary>
         public async ValueTask<Seq<string>> ReadAllLines(string path, Encoding encoding, CancellationToken token) => 
-            (await File.ReadAllLinesAsync(path, encoding, token)).ToSeq();
+            (await File.ReadAllLinesAsync(path, encoding, token).ConfigureAwait(false)).ToSeq();
 #else
         /// <summary>
         /// Read all lines from a file

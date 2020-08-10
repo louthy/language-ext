@@ -13,7 +13,8 @@ namespace LanguageExt
     /// <summary>
     /// Asynchronous IO monad
     /// </summary>
-    public struct IO<Env, A> where Env : Cancellable
+    public struct IO<Env, A> 
+        where Env : struct, HasCancel<Env>
     {
         internal ThunkAsync<Env, A> thunk;
 
@@ -29,14 +30,14 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(IO.mops)]
         public ValueTask<Fin<A>> RunIO(in Env env) =>
-            thunk.Value(env ?? throw new ArgumentNullException(nameof(env)));
+            thunk.Value(env);
 
         /// <summary>
         /// Invoke the effect
         /// </summary>
         [MethodImpl(IO.mops)]
         public async ValueTask RunUnitIO(Env env) =>
-            await thunk.Value(env ?? throw new ArgumentNullException(nameof(env)));
+            await thunk.Value(env);
 
         /// <summary>
         /// Lift an asynchronous effect into the IO monad
@@ -141,98 +142,98 @@ namespace LanguageExt
     public static partial class IOExtensions
     {        
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> Map<Env, A, B>(this IO<Env, A> ma, Func<A, B> f) where Env : Cancellable =>
+        public static IO<Env, B> Map<Env, A, B>(this IO<Env, A> ma, Func<A, B> f) where Env : struct, HasCancel<Env> =>
             new IO<Env, B>(ma.thunk.Map(f));
 
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> MapAsync<Env, A, B>(this IO<Env, A> ma, Func<A, ValueTask<B>> f) where Env : Cancellable =>
+        public static IO<Env, B> MapAsync<Env, A, B>(this IO<Env, A> ma, Func<A, ValueTask<B>> f) where Env : struct, HasCancel<Env> =>
             new IO<Env, B>(ma.thunk.MapAsync(f));
 
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, A> Filter<Env, A>(this IO<Env, A> ma, Func<A, bool> f) where Env : Cancellable =>
-            ma.Bind(x => f(x) ? SIO.SuccessIO<A>(x) : SIO.FailIO<A>(Error.New(Thunk.CancelledText)));        
+        public static IO<Env, A> Filter<Env, A>(this IO<Env, A> ma, Func<A, bool> f) where Env : struct, HasCancel<Env> =>
+            ma.Bind(x => f(x) ? IO.SuccessIO<A>(x) : IO.FailIO<A>(Error.New(Thunk.CancelledText)));        
 
 
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> Bind<Env, A, B>(this IO<Env, A> ma, Func<A, IO<Env, B>> f)  where Env : Cancellable=>
+        public static IO<Env, B> Bind<Env, A, B>(this IO<Env, A> ma, Func<A, IO<Env, B>> f)  where Env : struct, HasCancel<Env> =>
             new IO<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> Bind<Env, A, B>(this IO<Env, A> ma, Func<A, IO<B>> f) where Env : Cancellable =>
+        public static IO<Env, B> Bind<Env, A, B>(this IO<Env, A> ma, Func<A, IO<B>> f) where Env : struct, HasCancel<Env> =>
             new IO<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> Bind<Env, A, B>(this IO<Env, A> ma, Func<A, SIO<Env, B>> f) where Env : Cancellable =>
+        public static IO<Env, B> Bind<Env, A, B>(this IO<Env, A> ma, Func<A, SIO<Env, B>> f) where Env : struct, HasCancel<Env> =>
             new IO<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> Bind<Env, A, B>(this IO<Env, A> ma, Func<A, SIO<B>> f)  where Env : Cancellable=>
+        public static IO<Env, B> Bind<Env, A, B>(this IO<Env, A> ma, Func<A, SIO<B>> f)  where Env : struct, HasCancel<Env> =>
             new IO<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, A> Flatten<Env, A>(this IO<Env, IO<Env, A>> ma) where Env : Cancellable =>
+        public static IO<Env, A> Flatten<Env, A>(this IO<Env, IO<Env, A>> ma) where Env : struct, HasCancel<Env> =>
             new IO<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, A> Flatten<Env, A>(this IO<Env, IO<A>> ma)  where Env : Cancellable =>
+        public static IO<Env, A> Flatten<Env, A>(this IO<Env, IO<A>> ma)  where Env : struct, HasCancel<Env> =>
             new IO<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, A> Flatten<Env, A>(this IO<Env, SIO<Env, A>> ma) where Env : Cancellable =>
+        public static IO<Env, A> Flatten<Env, A>(this IO<Env, SIO<Env, A>> ma) where Env : struct, HasCancel<Env> =>
             new IO<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, A> Flatten<Env, A>(this IO<Env, SIO<A>> ma) where Env : Cancellable =>
+        public static IO<Env, A> Flatten<Env, A>(this IO<Env, SIO<A>> ma) where Env : struct, HasCancel<Env> =>
             new IO<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
 
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> Select<Env, A, B>(this IO<Env, A> ma, Func<A, B> f) where Env : Cancellable =>
+        public static IO<Env, B> Select<Env, A, B>(this IO<Env, A> ma, Func<A, B> f) where Env : struct, HasCancel<Env> =>
             Map(ma, f);
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> SelectMany<Env, A, B>(this IO<Env, A> ma, Func<A, IO<Env, B>> f) where Env : Cancellable =>
+        public static IO<Env, B> SelectMany<Env, A, B>(this IO<Env, A> ma, Func<A, IO<Env, B>> f) where Env : struct, HasCancel<Env> =>
             Bind(ma, f);
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> SelectMany<Env, A, B>(this IO<Env, A> ma, Func<A, IO<B>> f) where Env : Cancellable =>
+        public static IO<Env, B> SelectMany<Env, A, B>(this IO<Env, A> ma, Func<A, IO<B>> f) where Env : struct, HasCancel<Env> =>
             Bind(ma, f);
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> SelectMany<Env, A, B>(this IO<Env, A> ma, Func<A, SIO<Env, B>> f) where Env : Cancellable =>
+        public static IO<Env, B> SelectMany<Env, A, B>(this IO<Env, A> ma, Func<A, SIO<Env, B>> f) where Env : struct, HasCancel<Env> =>
             Bind(ma, f);
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> SelectMany<Env, A, B>(this IO<Env, A> ma, Func<A, SIO<B>> f) where Env : Cancellable =>
+        public static IO<Env, B> SelectMany<Env, A, B>(this IO<Env, A> ma, Func<A, SIO<B>> f) where Env : struct, HasCancel<Env> =>
             Bind(ma, f);
 
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, C> SelectMany<Env, A, B, C>(this IO<Env, A> ma, Func<A, IO<Env, B>> bind, Func<A, B, C> project) where Env : Cancellable =>
+        public static IO<Env, C> SelectMany<Env, A, B, C>(this IO<Env, A> ma, Func<A, IO<Env, B>> bind, Func<A, B, C> project) where Env : struct, HasCancel<Env> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, C> SelectMany<Env, A, B, C>(this IO<Env, A> ma, Func<A, IO<B>> bind, Func<A, B, C> project) where Env : Cancellable =>
+        public static IO<Env, C> SelectMany<Env, A, B, C>(this IO<Env, A> ma, Func<A, IO<B>> bind, Func<A, B, C> project) where Env : struct, HasCancel<Env> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, C> SelectMany<Env, A, B, C>(this IO<Env, A> ma, Func<A, SIO<Env, B>> bind, Func<A, B, C> project) where Env : Cancellable=>
+        public static IO<Env, C> SelectMany<Env, A, B, C>(this IO<Env, A> ma, Func<A, SIO<Env, B>> bind, Func<A, B, C> project) where Env : struct, HasCancel<Env> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, C> SelectMany<Env, A, B, C>(this IO<Env, A> ma, Func<A, SIO<B>> bind, Func<A, B, C> project) where Env : Cancellable =>
+        public static IO<Env, C> SelectMany<Env, A, B, C>(this IO<Env, A> ma, Func<A, SIO<B>> bind, Func<A, B, C> project) where Env : struct, HasCancel<Env> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
  
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, A> Where<Env, A>(this IO<Env, A> ma, Func<A, bool> f) where Env : Cancellable =>
+        public static IO<Env, A> Where<Env, A>(this IO<Env, A> ma, Func<A, bool> f) where Env : struct, HasCancel<Env> =>
             Filter(ma, f);
         
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, (A, B)> Zip<Env, A, B>(this IO<Env, A> ma, IO<Env, B> mb) where Env : Cancellable =>
+        public static IO<Env, (A, B)> Zip<Env, A, B>(this IO<Env, A> ma, IO<Env, B> mb) where Env : struct, HasCancel<Env> =>
             new IO<Env, (A, B)>(ThunkAsync<Env, (A, B)>.Lazy(async e =>
             {
                 var ta = ma.RunIO(e).AsTask();
@@ -257,7 +258,7 @@ namespace LanguageExt
             }));
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, (A, B)> Zip<Env, A, B>(this IO<Env, A> ma, IO<B> mb) where Env : Cancellable =>
+        public static IO<Env, (A, B)> Zip<Env, A, B>(this IO<Env, A> ma, IO<B> mb) where Env : struct, HasCancel<Env> =>
             new IO<Env, (A, B)>(ThunkAsync<Env, (A, B)>.Lazy(async e =>
             {
                 var ta = ma.RunIO(e).AsTask();
@@ -283,7 +284,7 @@ namespace LanguageExt
         
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, (A, B)> Zip<Env, A, B>(this IO<A> ma, IO<Env, B> mb) where Env : Cancellable =>
+        public static IO<Env, (A, B)> Zip<Env, A, B>(this IO<A> ma, IO<Env, B> mb) where Env : struct, HasCancel<Env> =>
             new IO<Env, (A, B)>(ThunkAsync<Env, (A, B)>.Lazy(async e =>
             {
                 var ta = ma.RunIO().AsTask();
@@ -308,7 +309,7 @@ namespace LanguageExt
             }));         
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, (A, B)> Zip<Env, A, B>(this IO<Env, A> ma, SIO<B> mb) where Env : Cancellable =>
+        public static IO<Env, (A, B)> Zip<Env, A, B>(this IO<Env, A> ma, SIO<B> mb) where Env : struct, HasCancel<Env> =>
             new IO<Env, (A, B)>(ThunkAsync<Env, (A, B)>.Lazy(async e =>
             {
                 var ta = ma.RunIO(e).AsTask();
@@ -325,7 +326,7 @@ namespace LanguageExt
             }));  
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, (A, B)> Zip<Env, A, B>(this SIO<A> ma, IO<Env, B> mb) where Env : Cancellable =>
+        public static IO<Env, (A, B)> Zip<Env, A, B>(this SIO<A> ma, IO<Env, B> mb) where Env : struct, HasCancel<Env> =>
             new IO<Env, (A, B)>(ThunkAsync<Env, (A, B)>.Lazy(async e =>
             {
                 var ra = ma.RunIO();
@@ -343,7 +344,7 @@ namespace LanguageExt
         
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, (A, B)> Zip<Env, A, B>(this IO<Env, A> ma, SIO<Env, B> mb) where Env : Cancellable =>
+        public static IO<Env, (A, B)> Zip<Env, A, B>(this IO<Env, A> ma, SIO<Env, B> mb) where Env : struct, HasCancel<Env> =>
             new IO<Env, (A, B)>(ThunkAsync<Env, (A, B)>.Lazy(async e =>
             {
                 var ta = ma.RunIO(e).AsTask();
@@ -360,7 +361,7 @@ namespace LanguageExt
             }));  
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, (A, B)> Zip<Env, A, B>(this SIO<Env, A> ma, IO<Env, B> mb) where Env : Cancellable =>
+        public static IO<Env, (A, B)> Zip<Env, A, B>(this SIO<Env, A> ma, IO<Env, B> mb) where Env : struct, HasCancel<Env> =>
             new IO<Env, (A, B)>(ThunkAsync<Env, (A, B)>.Lazy(async e =>
             {
                 var ra = ma.RunIO(e);
@@ -377,7 +378,7 @@ namespace LanguageExt
             }));         
        
         [Pure, MethodImpl(IO.mops)]
-        static ThunkAsync<Env, A> ThunkFromIO<Env, A>(IO<Env, A> ma) where Env : Cancellable =>
+        static ThunkAsync<Env, A> ThunkFromIO<Env, A>(IO<Env, A> ma) where Env : struct, HasCancel<Env> =>
             ma.thunk;
     }       
 }

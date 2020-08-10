@@ -110,7 +110,7 @@ namespace LanguageExt
     public static partial class IOExtensions
     {
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, A> ToAsync<Env, A>(this SIO<Env, A> ma) where Env : Cancellable =>
+        public static IO<Env, A> ToAsync<Env, A>(this SIO<Env, A> ma) where Env : struct, HasCancel<Env> =>
             IO<Env, A>.EffectMaybe(e => new ValueTask<Fin<A>>(ma.RunIO(e)));
 
  
@@ -121,7 +121,7 @@ namespace LanguageExt
         
         [Pure, MethodImpl(IO.mops)]
         public static SIO<Env, A> Filter<Env, A>(this SIO<Env, A> ma, Func<A, bool> f) =>
-            ma.Bind(x => f(x) ? SIO.SuccessIO<A>(x) : SIO.FailIO<A>(Error.New(Thunk.CancelledText)));        
+            ma.Bind(x => f(x) ? IO.SuccessIO<A>(x) : IO.FailIO<A>(Error.New(Thunk.CancelledText)));        
 
 
         [Pure, MethodImpl(IO.mops)]
@@ -133,11 +133,11 @@ namespace LanguageExt
             new SIO<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> Bind<Env, A, B>(this SIO<Env, A> ma, Func<A, IO<Env, B>> f) where Env : Cancellable =>
+        public static IO<Env, B> Bind<Env, A, B>(this SIO<Env, A> ma, Func<A, IO<Env, B>> f) where Env : struct, HasCancel<Env> =>
             new IO<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> Bind<Env, A, B>(this SIO<Env, A> ma, Func<A, IO<B>> f) where Env : Cancellable =>
+        public static IO<Env, B> Bind<Env, A, B>(this SIO<Env, A> ma, Func<A, IO<B>> f) where Env : struct, HasCancel<Env> =>
             new IO<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         
@@ -150,11 +150,11 @@ namespace LanguageExt
             new SIO<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, A> Flatten<Env, A>(this SIO<Env, IO<Env, A>> ma) where Env : Cancellable =>
+        public static IO<Env, A> Flatten<Env, A>(this SIO<Env, IO<Env, A>> ma) where Env : struct, HasCancel<Env> =>
             new IO<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, A> Flatten<Env, A>(this SIO<Env, IO<A>> ma) where Env : Cancellable =>
+        public static IO<Env, A> Flatten<Env, A>(this SIO<Env, IO<A>> ma) where Env : struct, HasCancel<Env> =>
             new IO<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
 
         
@@ -171,11 +171,11 @@ namespace LanguageExt
             Bind(ma, f);
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> SelectMany<Env, A, B>(this SIO<Env, A> ma, Func<A, IO<Env, B>> f) where Env : Cancellable =>
+        public static IO<Env, B> SelectMany<Env, A, B>(this SIO<Env, A> ma, Func<A, IO<Env, B>> f) where Env : struct, HasCancel<Env> =>
             Bind(ma, f);
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> SelectMany<Env, A, B>(this SIO<Env, A> ma, Func<A, IO<B>> f) where Env : Cancellable =>
+        public static IO<Env, B> SelectMany<Env, A, B>(this SIO<Env, A> ma, Func<A, IO<B>> f) where Env : struct, HasCancel<Env> =>
             Bind(ma, f);
        
         
@@ -188,11 +188,11 @@ namespace LanguageExt
             Bind(ma, x => Map(bind(x), y => project(x, y)));
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, C> SelectMany<Env, A, B, C>(this SIO<Env, A> ma, Func<A, IO<Env, B>> bind, Func<A, B, C> project) where Env : Cancellable =>
+        public static IO<Env, C> SelectMany<Env, A, B, C>(this SIO<Env, A> ma, Func<A, IO<Env, B>> bind, Func<A, B, C> project) where Env : struct, HasCancel<Env> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, C> SelectMany<Env, A, B, C>(this SIO<Env, A> ma, Func<A, IO<B>> bind, Func<A, B, C> project) where Env : Cancellable =>
+        public static IO<Env, C> SelectMany<Env, A, B, C>(this SIO<Env, A> ma, Func<A, IO<B>> bind, Func<A, B, C> project) where Env : struct, HasCancel<Env> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
         
         

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.Interfaces
 {
@@ -58,5 +59,26 @@ namespace LanguageExt.Interfaces
         /// Return a stream to append text to
         /// </summary>
         TextWriter AppendText(string path);    
+    }
+    
+    /// <summary>
+    /// Type-class giving a struct the trait of supporting File IO
+    /// </summary>
+    /// <typeparam name="RT">Runtime</typeparam>
+    [Typeclass("*")]
+    public interface HasFile<RT> : HasCancel<RT>, HasEncoding<RT>
+        where RT : struct, HasCancel<RT>, HasEncoding<RT>
+    {
+        /// <summary>
+        /// Access the file IO environment
+        /// </summary>
+        /// <returns>File IO environment</returns>
+        IO<RT, FileIO> FileIO { get; }
+
+        /// <summary>
+        /// Access the file SIO environment
+        /// </summary>
+        /// <returns>File SIO environment</returns>
+        SIO<RT, FileIO> FileSIO { get; }
     }
 }

@@ -37,7 +37,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static IO<Env, R> use<Env, H, R>(IO<H> Acq, Func<H, IO<Env, R>> Use)
-            where Env : Cancellable
+            where Env : struct, HasCancel<Env>
             where H : IDisposable =>
             IO<Env, R>.EffectMaybe(async env => {
                 var h = await Acq.RunIO();
@@ -77,7 +77,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static IO<Env, R> use<Env, H, R>(IO<H> Acq, Func<H, SIO<Env, R>> Use)
-            where Env : Cancellable
+            where Env : struct, HasCancel<Env>
             where H : IDisposable =>
             IO<Env, R>.EffectMaybe(async env => {
                 var h = await Acq.RunIO();
@@ -99,7 +99,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static IO<Env, R> use<Env, H, R>(IO<Env, H> Acq, Func<H, IO<R>> Use) 
-            where Env : Cancellable
+            where Env : struct, HasCancel<Env>
             where H : IDisposable =>
             IO<Env, R>.EffectMaybe(async env => {
                 var h = await Acq.RunIO(env);
@@ -120,7 +120,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static IO<Env, R> use<Env, H, R>(IO<Env, H> Acq, Func<H, IO<Env, R>> Use)
-            where Env : Cancellable
+            where Env : struct, HasCancel<Env>
             where H : IDisposable =>
             IO<Env, R>.EffectMaybe(async env => {
                 var h = await Acq.RunIO(env);
@@ -141,7 +141,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static IO<Env, R> use<Env, H, R>(IO<Env, H> Acq, Func<H, SIO<R>> Use) 
-            where Env : Cancellable
+            where Env : struct, HasCancel<Env>
             where H : IDisposable =>
             IO<Env, R>.EffectMaybe(async env => {
                 var h = await Acq.RunIO(env);
@@ -162,7 +162,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static IO<Env, R> use<Env, H, R>(IO<Env, H> Acq, Func<H, SIO<Env, R>> Use)
-            where Env : Cancellable
+            where Env : struct, HasCancel<Env>
             where H : IDisposable =>
             IO<Env, R>.EffectMaybe(async env => {
                 var h = await Acq.RunIO(env);

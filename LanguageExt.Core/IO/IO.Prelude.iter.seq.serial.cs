@@ -17,7 +17,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<A>> ma, Func<A, IO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<A>> ma, Func<A, IO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -38,7 +38,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<A>> ma, Func<A, IO<Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<A>> ma, Func<A, IO<Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -59,7 +59,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<A>> ma, Func<A, SIO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<A>> ma, Func<A, SIO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -80,7 +80,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<A>> ma, Func<A, SIO<Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<A>> ma, Func<A, SIO<Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -101,7 +101,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Seq<A>> ma, Func<A, IO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Seq<A>> ma, Func<A, IO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO();
@@ -143,7 +143,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Seq<A>> ma, Func<A, SIO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Seq<A>> ma, Func<A, SIO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO();
@@ -188,7 +188,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<Env, A>>> ma, Func<A, IO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<Env, A>>> ma, Func<A, IO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -211,7 +211,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<Env, A>>> ma, Func<A, IO<Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<Env, A>>> ma, Func<A, IO<Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -234,7 +234,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<Env, A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<Env, A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -257,7 +257,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<Env, A>>> ma, Func<A, SIO<Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<Env, A>>> ma, Func<A, SIO<Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -280,7 +280,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Seq<IO<Env, A>>> ma, Func<A, IO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Seq<IO<Env, A>>> ma, Func<A, IO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO();
@@ -303,7 +303,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Seq<IO<Env, A>>> ma, Func<A, IO<Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Seq<IO<Env, A>>> ma, Func<A, IO<Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO();
@@ -326,7 +326,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Seq<IO<Env, A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Seq<IO<Env, A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO();
@@ -349,7 +349,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Seq<IO<Env, A>>> ma, Func<A, SIO<Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Seq<IO<Env, A>>> ma, Func<A, SIO<Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO();
@@ -375,7 +375,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<A>>> ma, Func<A, IO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<A>>> ma, Func<A, IO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -398,7 +398,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<A>>> ma, Func<A, IO<Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<A>>> ma, Func<A, IO<Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -421,7 +421,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -444,7 +444,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<A>>> ma, Func<A, SIO<Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<IO<A>>> ma, Func<A, SIO<Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -467,7 +467,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Seq<IO<A>>> ma, Func<A, IO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Seq<IO<A>>> ma, Func<A, IO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO();
@@ -513,7 +513,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Seq<IO<A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Seq<IO<A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO();
@@ -563,7 +563,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<Env, A>>> ma, Func<A, IO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<Env, A>>> ma, Func<A, IO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -586,7 +586,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<Env, A>>> ma, Func<A, IO<Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<Env, A>>> ma, Func<A, IO<Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -609,7 +609,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<Env, A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<Env, A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -632,7 +632,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<Env, A>>> ma, Func<A, SIO<Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<Env, A>>> ma, Func<A, SIO<Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -655,7 +655,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Seq<SIO<Env, A>>> ma, Func<A, IO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Seq<SIO<Env, A>>> ma, Func<A, IO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO();
@@ -678,7 +678,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Seq<SIO<Env, A>>> ma, Func<A, IO<Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Seq<SIO<Env, A>>> ma, Func<A, IO<Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO();
@@ -701,7 +701,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Seq<SIO<Env, A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Seq<SIO<Env, A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO();
@@ -724,7 +724,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Seq<SIO<Env, A>>> ma, Func<A, SIO<Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Seq<SIO<Env, A>>> ma, Func<A, SIO<Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO();
@@ -752,7 +752,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<A>>> ma, Func<A, IO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<A>>> ma, Func<A, IO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -775,7 +775,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<A>>> ma, Func<A, IO<Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<A>>> ma, Func<A, IO<Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -798,7 +798,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -821,7 +821,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<A>>> ma, Func<A, SIO<Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Env, Seq<SIO<A>>> ma, Func<A, SIO<Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO(env);
@@ -844,7 +844,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Seq<SIO<A>>> ma, Func<A, IO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Seq<SIO<A>>> ma, Func<A, IO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO();
@@ -890,7 +890,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static IO<Env, Unit> iter<Env, A>(IO<Seq<SIO<A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : Cancellable =>
+        public static IO<Env, Unit> iter<Env, A>(IO<Seq<SIO<A>>> ma, Func<A, SIO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             IO<Env,Unit>.EffectMaybe(async env =>
             {
                 var xs = await ma.RunIO();

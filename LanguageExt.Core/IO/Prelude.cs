@@ -20,7 +20,7 @@ namespace LanguageExt
         /// </summary>
         public static IO<Env, R> io<Env, A, R>(
             IO<Env, A> ma,
-            IO<Env, R> mr) where Env : Cancellable =>
+            IO<Env, R> mr) where Env : struct, HasCancel<Env> =>
             from a in ma
             from r in mr
             select r;
@@ -31,7 +31,7 @@ namespace LanguageExt
         public static IO<Env, R> io<Env, A, B, R>(
             IO<Env, A> ma,
             IO<Env, B> mb,
-            IO<Env, R> mr) where Env : Cancellable =>
+            IO<Env, R> mr) where Env : struct, HasCancel<Env> =>
             from a in ma
             from b in mb
             from r in mr
@@ -44,7 +44,7 @@ namespace LanguageExt
             IO<Env, A> ma,
             IO<Env, B> mb,
             IO<Env, C> mc,
-            IO<Env, R> mr) where Env : Cancellable =>
+            IO<Env, R> mr) where Env : struct, HasCancel<Env> =>
             from a in ma
             from b in mb
             from c in mc
@@ -59,7 +59,7 @@ namespace LanguageExt
             IO<Env, B> mb,
             IO<Env, C> mc,
             IO<Env, D> md,
-            IO<Env, R> mr) where Env : Cancellable =>
+            IO<Env, R> mr) where Env : struct, HasCancel<Env> =>
             from a in ma
             from b in mb
             from c in mc
@@ -76,7 +76,7 @@ namespace LanguageExt
             IO<Env, C> mc,
             IO<Env, D> md,
             IO<Env, E> me,
-            IO<Env, R> mr) where Env : Cancellable =>
+            IO<Env, R> mr) where Env : struct, HasCancel<Env> =>
             from a in ma
             from b in mb
             from c in mc
@@ -95,7 +95,7 @@ namespace LanguageExt
             IO<Env, D> md,
             IO<Env, E> me,
             IO<Env, F> mf,
-            IO<Env, R> mr) where Env : Cancellable =>
+            IO<Env, R> mr) where Env : struct, HasCancel<Env> =>
             from a in ma
             from b in mb
             from c in mc
@@ -116,7 +116,7 @@ namespace LanguageExt
             IO<Env, E> me,
             IO<Env, F> mf,
             IO<Env, G> mg,
-            IO<Env, R> mr) where Env : Cancellable =>
+            IO<Env, R> mr) where Env : struct, HasCancel<Env> =>
             from a in ma
             from b in mb
             from c in mc

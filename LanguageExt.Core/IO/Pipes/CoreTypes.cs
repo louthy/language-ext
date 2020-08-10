@@ -162,12 +162,12 @@ namespace LanguageExt.Pipes
     ///                           v
     ///                           () 
     /// </summary>
-    public interface Proxy<in Env, in A1, in A, in B1, in B, out R>  where Env : Cancellable
+    public interface Proxy<in Env, in A1, in A, in B1, in B, out R>  where Env : struct, HasCancel<Env>
     {
         Proxy<Env, A1, A, B1, B, R> ToProxy();
     }
 
-    public partial class Pure<Env, A1, A, B1, B, R> : Proxy<Env, A1, A, B1, B, R> where Env : Cancellable
+    public partial class Pure<Env, A1, A, B1, B, R> : Proxy<Env, A1, A, B1, B, R> where Env : struct, HasCancel<Env>
     {
         public readonly R Value;
 
@@ -182,7 +182,7 @@ namespace LanguageExt.Pipes
             value = Value;
     }
 
-    public partial class Request<Env, A1, A, B1, B, R> : Proxy<Env, A1, A, B1, B, R> where Env : Cancellable
+    public partial class Request<Env, A1, A, B1, B, R> : Proxy<Env, A1, A, B1, B, R> where Env : struct, HasCancel<Env>
     {
         public readonly A1 Value;
         public readonly Func<A, Proxy<Env, A1, A, B1, B, R>> Fun;
@@ -199,7 +199,7 @@ namespace LanguageExt.Pipes
             (value, fun) = (Value, Fun);
     }
 
-    public partial class Respond<Env, A1, A, B1, B, R> : Proxy<Env, A1, A, B1, B, R> where Env : Cancellable
+    public partial class Respond<Env, A1, A, B1, B, R> : Proxy<Env, A1, A, B1, B, R> where Env : struct, HasCancel<Env>
     {
         public readonly B Value;
         public readonly Func<B1, Proxy<Env, A1, A, B1, B, R>> Fun;
@@ -216,7 +216,7 @@ namespace LanguageExt.Pipes
             (value, fun) = (Value, Fun);
     }
 
-    public partial class M<Env, A1, A, B1, B, R> : Proxy<Env, A1, A, B1, B, R>  where Env : Cancellable
+    public partial class M<Env, A1, A, B1, B, R> : Proxy<Env, A1, A, B1, B, R>  where Env : struct, HasCancel<Env>
     {
         public readonly IO<Env, Proxy<Env, A1, A, B1, B, R>> Value;
         
@@ -238,7 +238,7 @@ namespace LanguageExt.Pipes
     /// This `yield` command lets you send output downstream to an anonymous handler,
     /// decoupling how you generate values from how you consume them.
     /// </summary>
-    public partial class Producer<Env, A, R> : Proxy<Env, Void, Unit, Unit, A, R> where Env : Cancellable
+    public partial class Producer<Env, A, R> : Proxy<Env, Void, Unit, Unit, A, R> where Env : struct, HasCancel<Env>
     {
         public readonly Proxy<Env, Void, Unit, Unit, A, R> Value;
         
@@ -263,7 +263,7 @@ namespace LanguageExt.Pipes
     /// <summary>
     /// Consumers only await
     /// </summary>
-    public partial class Consumer<Env, A, R> : Proxy<Env, Unit, A, Unit, Void, R>  where Env : Cancellable
+    public partial class Consumer<Env, A, R> : Proxy<Env, Unit, A, Unit, Void, R>  where Env : struct, HasCancel<Env>
     {
         public readonly Proxy<Env, Unit, A, Unit, Void, R> Value;
         
@@ -283,7 +283,7 @@ namespace LanguageExt.Pipes
     /// <summary>
     /// Pipes both await and yield
     /// </summary>
-    public partial class Pipe<Env, A, B, R> : Proxy<Env, Unit, A, Unit, B, R> where Env : Cancellable
+    public partial class Pipe<Env, A, B, R> : Proxy<Env, Unit, A, Unit, B, R> where Env : struct, HasCancel<Env>
     {
         public readonly Proxy<Env, Unit, A, Unit, B, R> Value;
         
@@ -323,7 +323,7 @@ namespace LanguageExt.Pipes
     /// <summary>
     /// Clients only request and never respond
     /// </summary>
-    public partial class Client<Env, A, B, R> : Proxy<Env, A, B, Unit, Unit, R> where Env : Cancellable
+    public partial class Client<Env, A, B, R> : Proxy<Env, A, B, Unit, Unit, R> where Env : struct, HasCancel<Env>
     {
         public readonly Proxy<Env, A, B, Unit, Unit, R> Value;
 
@@ -343,7 +343,7 @@ namespace LanguageExt.Pipes
     /// <summary>
     /// Servers only respond and never request
     /// </summary>
-    public partial class Server<Env, A, B, R> : Proxy<Env, Unit, Unit, A, B, R>  where Env : Cancellable
+    public partial class Server<Env, A, B, R> : Proxy<Env, Unit, Unit, A, B, R>  where Env : struct, HasCancel<Env>
     {
         public readonly Proxy<Env, Unit, Unit, A, B, R> Value;
     
@@ -364,7 +364,7 @@ namespace LanguageExt.Pipes
     /// Effects represent a 'fused' set of producer, pipes, and consumer into one type
     /// It neither yields nor awaits, but represents an entire effect system
     /// </summary>
-    public partial class Effect<Env, R> : Proxy<Env, Void, Unit, Unit, Void, R> where Env : Cancellable
+    public partial class Effect<Env, R> : Proxy<Env, Void, Unit, Unit, Void, R> where Env : struct, HasCancel<Env>
     {
         public readonly Proxy<Env, Void, Unit, Unit, Void, R> Value;
 

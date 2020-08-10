@@ -2,8 +2,8 @@ using System.Threading;
 
 namespace LanguageExt
 {
-    public interface Cancellable
-    {
-        CancellationToken CancelToken { get; }
-    }
+    // public interface struct, HasCancel<Env>
+    // {
+    //     CancellationToken CancelToken { get; }
+    // }
 }

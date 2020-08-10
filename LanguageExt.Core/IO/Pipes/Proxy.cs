@@ -20,86 +20,79 @@ namespace LanguageExt.Pipes
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(IO<R> ma) where Env : Cancellable =>
+        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(IO<R> ma) where Env : struct, HasCancel<Env> =>
             new M<Env, A1, A, B1, B, R>(ma.Map(Pure<Env, A1, A, B1, B, R>).WithEnv<Env>());
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(SIO<R> ma) where Env : Cancellable =>
+        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(SIO<R> ma) where Env : struct, HasCancel<Env> =>
             new M<Env, A1, A, B1, B, R>(ma.Map(Pure<Env, A1, A, B1, B, R>).ToAsyncWithEnv<Env>());
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(IO<Env, R> ma) where Env : Cancellable =>
+        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(IO<Env, R> ma) where Env : struct, HasCancel<Env> =>
             new M<Env, A1, A, B1, B, R>(ma.Map(Pure<Env, A1, A, B1, B, R>));
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(SIO<Env, R> ma) where Env : Cancellable =>
+        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(SIO<Env, R> ma) where Env : struct, HasCancel<Env> =>
             new M<Env, A1, A, B1, B, R>(ma.Map(Pure<Env, A1, A, B1, B, R>).ToAsync());
         /// <summary>
         /// Converts a `Proxy` with the correct _shape_ into an `Effect`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Env, R> ToEffect<Env, R>(this Proxy<Env, Void, Unit, Unit, Void, R> ma) where Env : Cancellable =>
+        public static Effect<Env, R> ToEffect<Env, R>(this Proxy<Env, Void, Unit, Unit, Void, R> ma) where Env : struct, HasCancel<Env> =>
             new Effect<Env, R>(ma);
         
         /// <summary>
         /// Converts a `Proxy` with the correct _shape_ into a `Producer`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<Env, A, R> ToProducer<Env, A, R>(this Proxy<Env, Void, Unit, Unit, A, R> ma) where Env : Cancellable =>
+        public static Producer<Env, A, R> ToProducer<Env, A, R>(this Proxy<Env, Void, Unit, Unit, A, R> ma) where Env : struct, HasCancel<Env> =>
             new Producer<Env, A, R>(ma);
         
         /// <summary>
         /// Converts a `Proxy` with the correct _shape_ into a `Consumer`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, R> ToConsumer<Env, A, R>(this Proxy<Env, Unit, A, Unit, Void, R> ma) where Env : Cancellable =>
+        public static Consumer<Env, A, R> ToConsumer<Env, A, R>(this Proxy<Env, Unit, A, Unit, Void, R> ma) where Env : struct, HasCancel<Env> =>
             new Consumer<Env, A, R>(ma);
         
         /// <summary>
         /// Converts a `Proxy` with the correct _shape_ into n `Pipe`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<Env, A, B, R> ToPipe<Env, A, B, R>(this Proxy<Env, Unit, A, Unit, B, R> ma) where Env : Cancellable =>
+        public static Pipe<Env, A, B, R> ToPipe<Env, A, B, R>(this Proxy<Env, Unit, A, Unit, B, R> ma) where Env : struct, HasCancel<Env> =>
             new Pipe<Env, A, B, R>(ma);
         
         /// <summary>
         /// Converts a `Proxy` with the correct _shape_ into a `Client`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Client<Env, A, B, R> ToClient<Env, A, B, R>(this Proxy<Env, A, B, Unit, Unit, R> ma) where Env : Cancellable =>
+        public static Client<Env, A, B, R> ToClient<Env, A, B, R>(this Proxy<Env, A, B, Unit, Unit, R> ma) where Env : struct, HasCancel<Env> =>
             new Client<Env, A, B, R>(ma);
         
         /// <summary>
         /// Converts a `Proxy` with the correct _shape_ into a `Server`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Server<Env, A, B, R> ToServer<Env, A, B, R>(this Proxy<Env, Unit, Unit, A, B, R> ma) where Env : Cancellable =>
+        public static Server<Env, A, B, R> ToServer<Env, A, B, R>(this Proxy<Env, Unit, Unit, A, B, R> ma) where Env : struct, HasCancel<Env> =>
             new Server<Env, A, B, R>(ma);
         
         /// <summary>
         /// The identity `Pipe`, simply replicates its upstream value and propagates it downstream 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<Env, A, A, R> cat<Env, A, R>() where Env : Cancellable =>
+        public static Pipe<Env, A, A, R> cat<Env, A, R>() where Env : struct, HasCancel<Env> =>
             pull<Env, Unit, A, R>(default).ToPipe();
         
         /// <summary>
-        /// The identity `Pipe`, simply replicates its upstream value and propagates it downstream 
-        /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<Runtime, A, A, R> cat<A, R>() =>
-            pull<Runtime, Unit, A, R>(default).ToPipe();
-        
-        /// <summary>
         /// Forward requests followed by responses
         ///
         ///    pull = request | respond | pull
@@ -109,21 +102,8 @@ namespace LanguageExt.Pipes
         /// `pull` is the identity of the pull category.
         /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, A1, A, R> pull<Env, A1, A, R>(A1 a1) where Env : Cancellable =>
+        public static Proxy<Env, A1, A, A1, A, R> pull<Env, A1, A, R>(A1 a1) where Env : struct, HasCancel<Env> =>
             new Request<Env, A1, A, A1, A, R>(a1, a => new Respond<Env, A1, A, A1, A, R>(a, pull<Env, A1, A, R>));
-        
-        /// <summary>
-        /// Forward requests followed by responses
-        ///
-        ///    pull = request | respond | pull
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// `pull` is the identity of the pull category.
-        /// </remarks>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Runtime, A1, A, A1, A, R> pull<A1, A, R>(A1 a1) =>
-            new Request<Runtime, A1, A, A1, A, R>(a1, a => new Respond<Runtime, A1, A, A1, A, R>(a, pull<Runtime, A1, A, R>));
 
         /// <summary>
         /// `push = respond | request | push`
@@ -132,17 +112,7 @@ namespace LanguageExt.Pipes
         /// `push` is the identity of the push category.
         /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Runtime, A1, A, A1, A, R> push<A1, A, R>(A a) =>
-            new Respond<Runtime, A1, A, A1, A, R>(a, a1 => new Request<Runtime, A1, A, A1, A, R>(a1, push<A1, A, R>));
-
-        /// <summary>
-        /// `push = respond | request | push`
-        /// </summary>
-        /// <remarks>
-        /// `push` is the identity of the push category.
-        /// </remarks>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, A1, A, R> push<Env, A1, A, R>(A a) where Env : Cancellable =>
+        public static Proxy<Env, A1, A, A1, A, R> push<Env, A1, A, R>(A a) where Env : struct, HasCancel<Env> =>
             new Respond<Env, A1, A, A1, A, R>(a, a1 => new Request<Env, A1, A, A1, A, R>(a1, push<Env, A1, A, R>));
         
         /// <summary>
@@ -152,19 +122,9 @@ namespace LanguageExt.Pipes
         /// `respond` is the identity of the respond category.
         /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, X1, X, A1, A, A1> respond<Env, X1, X, A1, A>(A value) where Env : Cancellable =>
+        public static Proxy<Env, X1, X, A1, A, A1> respond<Env, X1, X, A1, A>(A value) where Env : struct, HasCancel<Env> =>
             new Respond<Env, X1, X, A1, A, A1>(value, r => new Pure<Env, X1, X, A1, A, A1>(r));
-        
-        /// <summary>
-        /// Send a value of type `a` downstream and block waiting for a reply of type `a`
-        /// </summary>
-        /// <remarks>
-        /// `respond` is the identity of the respond category.
-        /// </remarks>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Runtime, X1, X, A1, A, A1> respond<X1, X, A1, A>(A value) =>
-            new Respond<Runtime, X1, X, A1, A, A1>(value, r => new Pure<Runtime, X1, X, A1, A, A1>(r));
-        
+
         /// <summary>
         /// Send a value of type `a` upstream and block waiting for a reply of type `a`
         /// </summary>
@@ -172,20 +132,10 @@ namespace LanguageExt.Pipes
         /// `request` is the identity of the request category.
         /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, Y1, Y, A> request<Env, A1, A, Y1, Y>(A1 value) where Env : Cancellable =>
+        public static Proxy<Env, A1, A, Y1, Y, A> request<Env, A1, A, Y1, Y>(A1 value) where Env : struct, HasCancel<Env> =>
             new Request<Env, A1, A, Y1, Y, A>(value, r => new Pure<Env, A1, A, Y1, Y, A>(r));
         
-        /// <summary>
-        /// Send a value of type `a` upstream and block waiting for a reply of type `a`
-        /// </summary>
-        /// <remarks>
-        /// `request` is the identity of the request category.
-        /// </remarks>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Runtime, A1, A, Y1, Y, A> request<A1, A, Y1, Y>(A1 value) =>
-            new Request<Runtime, A1, A, Y1, Y, A>(value, r => new Pure<Runtime, A1, A, Y1, Y, A>(r));
-     
-        
+       
         /// <summary>
         /// `reflect` transforms each streaming category into its dual:
         ///
@@ -205,7 +155,7 @@ namespace LanguageExt.Pipes
         ///
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, B, B1, A, A1, R> reflect<Env, A1, A, B1, B, R>(Proxy<Env, A1, A, B1, B, R> p) where Env : Cancellable
+        public static Proxy<Env, B, B1, A, A1, R> reflect<Env, A1, A, B1, B, R>(Proxy<Env, A1, A, B1, B, R> p) where Env : struct, HasCancel<Env>
         {
             return Go(p);
             Proxy<Env, B, B1, A, A1, R> Go(Proxy<Env, A1, A, B1, B, R> p) =>
@@ -225,7 +175,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<Env, X1, X, C1, C, R> For<Env, X1, X, B1, B, C1, C, R>(this
             Proxy<Env, X1, X, B1, B, R> p0,
-            Func<B, Proxy<Env, X1, X, C1, C, B1>> fb) where Env : Cancellable
+            Func<B, Proxy<Env, X1, X, C1, C, B1>> fb) where Env : struct, HasCancel<Env>
         {
             return Go(p0);
             Proxy<Env, X1, X, C1, C, R> Go(Proxy<Env, X1, X, B1, B, R> p) =>
@@ -247,7 +197,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<Env, C, R> For<Env, B, C, R>(this
             Producer<Env, B, R> p0,  
-            Func<B, Producer<Env, C, Unit>> fb) where Env : Cancellable =>
+            Func<B, Producer<Env, C, Unit>> fb) where Env : struct, HasCancel<Env> =>
             For<Env, Void, Unit, Unit, B, Unit, C, R>(p0, fb).ToProducer();
 
         /// <summary>
@@ -258,7 +208,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Effect<Env, R> For<Env, B, R>(this
             Producer<Env, B, R> p0,  
-            Func<B, Effect<Env, Unit>> fb) where Env : Cancellable =>
+            Func<B, Effect<Env, Unit>> fb) where Env : struct, HasCancel<Env> =>
             For<Env, Void, Unit, Unit, B, Unit, Void, R>(p0, fb).ToEffect();
 
         /// <summary>
@@ -269,7 +219,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<Env, X, R> For<Env, X, B, R>(this
             Pipe<Env, X, B, R> p0,
-            Func<B, Consumer<Env, X, Unit>> fb) where Env : Cancellable =>
+            Func<B, Consumer<Env, X, Unit>> fb) where Env : struct, HasCancel<Env> =>
             For<Env, Unit, X, Unit, B, Unit, Void, R>(p0, fb).ToConsumer();
 
         /// <summary>
@@ -280,7 +230,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<Env, X, C, R> For<Env, X, B, C, R>(this
             Pipe<Env, X, B, R> p0,
-            Func<B, Pipe<Env, X, C, Unit>> fb) where Env : Cancellable =>  
+            Func<B, Pipe<Env, X, C, Unit>> fb) where Env : struct, HasCancel<Env> =>  
             For<Env, Unit, X, Unit, B, Unit, C, R>(p0, fb).ToPipe(); 
 
         
@@ -290,7 +240,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<Env, A1, A, Y1, Y, C> compose<Env, A1, A, Y1, Y, B, C>(
             Proxy<Env, A1, A, Y1, Y, B> p1,
-            Proxy<Env, Unit, B, Y1, Y, C> p2) where Env : Cancellable =>
+            Proxy<Env, Unit, B, Y1, Y, C> p2) where Env : struct, HasCancel<Env> =>
             compose((Unit _) => p1, p2);
         
         /// <summary>
@@ -301,7 +251,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Effect<Env, C> compose<Env, B, C>(
             Effect<Env, B> p1,
-            Consumer<Env, B, C> p2) where Env : Cancellable =>
+            Consumer<Env, B, C> p2) where Env : struct, HasCancel<Env> =>
             compose((Unit _) => p1, p2).ToEffect();        
         
         /// <summary>
@@ -312,7 +262,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<Env, A, C> compose<Env, A, B, C>(
             Consumer<Env, A, B> p1,
-            Consumer<Env, B, C> p2) where Env : Cancellable =>
+            Consumer<Env, B, C> p2) where Env : struct, HasCancel<Env> =>
             compose((Unit _) => p1, p2).ToConsumer();
         
         /// <summary>
@@ -323,7 +273,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<Env, Y, C> compose<Env, Y, B, C>(
             Producer<Env, Y, B> p1,
-            Pipe<Env, B, Y, C> p2) where Env : Cancellable =>
+            Pipe<Env, B, Y, C> p2) where Env : struct, HasCancel<Env> =>
             compose((Unit _) => p1, p2).ToProducer();         
         
         /// <summary>
@@ -334,14 +284,14 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<Env, A, Y, C> compose<Env, Y, A, B, C>(
             Pipe<Env, A, Y, B> p1,
-            Pipe<Env, B, Y, C> p2) where Env : Cancellable =>
+            Pipe<Env, B, Y, C> p2) where Env : struct, HasCancel<Env> =>
             compose((Unit _) => p1, p2).ToPipe();         
         
         // fixAwaitDual
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<Env, A1, A, Y1, Y, C> compose<Env, A1, A, Y1, Y, B, C>(
             Proxy<Env, Unit, B, Y1, Y, C> p2,
-            Proxy<Env, A1, A, Y1, Y, B> p1) where Env : Cancellable =>
+            Proxy<Env, A1, A, Y1, Y, B> p1) where Env : struct, HasCancel<Env> =>
             compose(p1, p2);
 
         /// <summary>
@@ -350,7 +300,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<Env, A1, A, Y1, Y, C> compose<Env, A1, A, B1, B, Y1, Y, C>(
             Func<B1, Proxy<Env, A1, A, Y1, Y, B>> fb1,
-            Proxy<Env, B1, B, Y1, Y, C> p0) where Env : Cancellable 
+            Proxy<Env, B1, B, Y1, Y, C> p0) where Env : struct, HasCancel<Env> 
         {
             return Go(p0);
             Proxy<Env, A1, A, Y1, Y, C> Go(Proxy<Env, B1, B, Y1, Y, C> p) =>
@@ -372,7 +322,7 @@ namespace LanguageExt.Pipes
             Proxy<Env, A1, A, B1, B, R> p,
             Func<B, Proxy<Env, B1, B, C1, C, R>> fb
             )
-            where Env : Cancellable => 
+            where Env : struct, HasCancel<Env> => 
                 p.ToProxy() switch
                 {
                     Request<Env, A1, A, B1, B, R> (var a1, var fa) => new Request<Env, A1, A, C1, C, R>(a1, a => compose(fa(a), fb)),
@@ -389,7 +339,7 @@ namespace LanguageExt.Pipes
         public static Proxy<Env, A1, A, C1, C, R> compose<Env, A1, A, B1, B, C1, C, R>(
             Func<B1, Proxy<Env, A1, A, B1, B, R>> fb1,
             Proxy<Env, B1, B, C1, C, R> p) 
-            where Env : Cancellable => 
+            where Env : struct, HasCancel<Env> => 
                 p.ToProxy() switch
                 {
                     Request<Env, B1, B, C1, C, R> (var b1, var fb) => compose(fb1(b1), fb),
@@ -406,7 +356,7 @@ namespace LanguageExt.Pipes
         public static Proxy<Env, A1, A, C1, C, R> compose<Env, A1, A, B, C1, C, R>(
             Proxy<Env, A1, A, Unit, B, R> p1,
             Proxy<Env, Unit, B, C1, C, R> p2) 
-            where Env : Cancellable =>
+            where Env : struct, HasCancel<Env> =>
                 compose((Unit _) => p1, p2);
 
         /// <summary>
@@ -419,7 +369,7 @@ namespace LanguageExt.Pipes
         public static Effect<Env, R> compose<Env, B, R>(
             Producer<Env, B, R> p1,
             Consumer<Env, B, R> p2) 
-            where Env : Cancellable =>
+            where Env : struct, HasCancel<Env> =>
                 compose((Unit _) => p1.ToProxy(), p2).ToEffect();
 
         /// <summary>
@@ -432,7 +382,7 @@ namespace LanguageExt.Pipes
         public static Producer<Env, C, R> compose<Env, B, C, R>(
             Producer<Env, B, R> p1,
             Pipe<Env, B, C, R> p2) 
-            where Env : Cancellable =>
+            where Env : struct, HasCancel<Env> =>
             compose((Unit _) => p1.ToProxy(), p2).ToProducer();
 
         /// <summary>
@@ -445,7 +395,7 @@ namespace LanguageExt.Pipes
         public static Consumer<Env, A, R> compose<Env, A, B, R>(
             Pipe<Env, A, B, R> p1,
             Consumer<Env, B, R> p2) 
-            where Env : Cancellable =>
+            where Env : struct, HasCancel<Env> =>
             compose((Unit _) => p1.ToProxy(), p2).ToConsumer();
 
         /// <summary>
@@ -458,7 +408,7 @@ namespace LanguageExt.Pipes
         public static Pipe<Env, A, C, R> compose<Env, A, B, C, R>(
             Pipe<Env, A, B, R> p1,
             Pipe<Env, B, C, R> p2) 
-            where Env : Cancellable =>
+            where Env : struct, HasCancel<Env> =>
             compose((Unit _) => p1.ToProxy(), p2).ToPipe();
 
         /// <summary>
@@ -470,7 +420,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Func<A, Proxy<Env, X1, X, C1, C, A1>> compose<Env, X1, X, A1, A, B1, B, C1, C>(
             Func<A, Proxy<Env, X1, X, B1, B, A1>> fa,
-            Func<B, Proxy<Env, X1, X, C1, C, B1>> fb) where Env : Cancellable =>
+            Func<B, Proxy<Env, X1, X, C1, C, B1>> fb) where Env : struct, HasCancel<Env> =>
                 a => compose(fa(a), fb);
         
         /// <summary>
@@ -482,7 +432,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Func<A, Proxy<Env, X1, X, C1, C, A1>> Then<Env, X1, X, A1, A, B1, B, C1, C>(
             this Func<A, Proxy<Env, X1, X, B1, B, A1>> fa,
-            Func<B, Proxy<Env, X1, X, C1, C, B1>> fb) where Env : Cancellable =>
+            Func<B, Proxy<Env, X1, X, C1, C, B1>> fb) where Env : struct, HasCancel<Env> =>
             a => compose(fa(a), fb);
         
         /// <summary>
@@ -491,7 +441,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<Env, X1, X, C1, C, A1> compose<Env, X1, X, A1, B1, C1, C, B>(
             Proxy<Env, X1, X, B1, B, A1> p0, 
-            Func<B, Proxy<Env, X1, X, C1, C, B1>> fb) where Env : Cancellable
+            Func<B, Proxy<Env, X1, X, C1, C, B1>> fb) where Env : struct, HasCancel<Env>
         {
             return Go(p0);
             Proxy<Env, X1, X, C1, C, A1> Go(Proxy<Env, X1, X, B1, B, A1> p) =>
@@ -511,7 +461,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<Env, X1, X, C1, C, A1> Then<Env, X1, X, A1, B1, C1, C, B>(
             this Proxy<Env, X1, X, B1, B, A1> p0, 
-            Func<B, Proxy<Env, X1, X, C1, C, B1>> fb) where Env : Cancellable =>
+            Func<B, Proxy<Env, X1, X, C1, C, B1>> fb) where Env : struct, HasCancel<Env> =>
                 compose(p0, fb);
         
         
@@ -534,7 +484,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Func<C1, Proxy<Env, A1, A, Y1, Y, C>> compose<Env, A1, A, B1, B, Y1, Y, C1, C>(
             Func<B1, Proxy<Env, A1, A, Y1, Y, B>> fb1, 
-            Func<C1, Proxy<Env, B1, B, Y1, Y, C>> fc1) where Env : Cancellable =>
+            Func<C1, Proxy<Env, B1, B, Y1, Y, C>> fc1) where Env : struct, HasCancel<Env> =>
             c1 => compose(fb1, fc1(c1));
         
         /// <summary>
@@ -546,7 +496,7 @@ namespace LanguageExt.Pipes
         /// use observe if you stick to the safe API.        
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, R> observe<Env, A1, A, B1, B, R>(Proxy<Env, A1, A, B1, B, R> p0) where Env : Cancellable
+        public static Proxy<Env, A1, A, B1, B, R> observe<Env, A1, A, B1, B, R>(Proxy<Env, A1, A, B1, B, R> p0) where Env : struct, HasCancel<Env>
         {
             return new M<Env, A1, A, B1, B, R>(Go(p0));
             IO<Env, Proxy<Env, A1, A, B1, B, R>> Go(Proxy<Env, A1, A, B1, B, R> p) =>
@@ -573,7 +523,7 @@ namespace LanguageExt.Pipes
         /// Applicative apply
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, S> apply<Env, A1, A, B1, B, R, S>(Proxy<Env, A1, A, B1, B, Func<R, S>> pf, Proxy<Env, A1, A, B1, B, R> px) where Env : Cancellable
+        public static Proxy<Env, A1, A, B1, B, S> apply<Env, A1, A, B1, B, R, S>(Proxy<Env, A1, A, B1, B, Func<R, S>> pf, Proxy<Env, A1, A, B1, B, R> px) where Env : struct, HasCancel<Env>
         {
             return Go(pf);
             Proxy<Env, A1, A, B1, B, S> Go(Proxy<Env, A1, A, B1, B, Func<R, S>> p) =>
@@ -591,14 +541,14 @@ namespace LanguageExt.Pipes
         /// Applicative apply
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, S> Apply<Env, A1, A, B1, B, R, S>(this Proxy<Env, A1, A, B1, B, Func<R, S>> pf, Proxy<Env, A1, A, B1, B, R> px) where Env : Cancellable =>
+        public static Proxy<Env, A1, A, B1, B, S> Apply<Env, A1, A, B1, B, R, S>(this Proxy<Env, A1, A, B1, B, Func<R, S>> pf, Proxy<Env, A1, A, B1, B, R> px) where Env : struct, HasCancel<Env> =>
             apply(pf, px);
 
         /// <summary>
         /// Applicative action
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, S> action<Env, A1, A, B1, B, R, S>(Proxy<Env, A1, A, B1, B, R> l, Proxy<Env, A1, A, B1, B, S> r) where Env : Cancellable
+        public static Proxy<Env, A1, A, B1, B, S> action<Env, A1, A, B1, B, R, S>(Proxy<Env, A1, A, B1, B, R> l, Proxy<Env, A1, A, B1, B, S> r) where Env : struct, HasCancel<Env>
         {
             return Go(l);
             Proxy<Env, A1, A, B1, B, S> Go(Proxy<Env, A1, A, B1, B, R> p) =>
@@ -616,14 +566,14 @@ namespace LanguageExt.Pipes
         /// Applicative action
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, S> Action<Env, A1, A, B1, B, R, S>(this Proxy<Env, A1, A, B1, B, R> l, Proxy<Env, A1, A, B1, B, S> r) where Env : Cancellable =>
+        public static Proxy<Env, A1, A, B1, B, S> Action<Env, A1, A, B1, B, R, S>(this Proxy<Env, A1, A, B1, B, R> l, Proxy<Env, A1, A, B1, B, S> r) where Env : struct, HasCancel<Env> =>
             action(l, r);
 
         /// <summary>
         /// Monad return / pure
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, R> Pure<Env, A1, A, B1, B, R>(R value) where Env : Cancellable =>
+        public static Proxy<Env, A1, A, B1, B, R> Pure<Env, A1, A, B1, B, R>(R value) where Env : struct, HasCancel<Env> =>
             new Pure<Env, A1, A, B1, B, R>(value);
     }
 }

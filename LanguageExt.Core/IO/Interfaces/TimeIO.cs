@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using LanguageExt.Attributes;
 
 namespace LanguageExt.Interfaces
 {
@@ -24,5 +25,26 @@ namespace LanguageExt.Interfaces
         /// Pause a task until for a specified length of time
         /// </summary>
         ValueTask<Unit> SleepFor(TimeSpan ts);
+    }
+    
+    /// <summary>
+    /// Type-class giving a struct the trait of supporting time IO
+    /// </summary>
+    /// <typeparam name="RT">Runtime</typeparam>
+    [Typeclass("*")]
+    public interface HasTime<RT> : HasCancel<RT> 
+        where RT : struct, HasCancel<RT>
+    {
+        /// <summary>
+        /// Access the time IO environment
+        /// </summary>
+        /// <returns>Time IO environment</returns>
+        IO<RT, TimeIO> TimeIO { get; }
+
+        /// <summary>
+        /// Access the time SIO environment
+        /// </summary>
+        /// <returns>Time SIO environment</returns>
+        SIO<RT, TimeIO> TimeSIO { get; }
     }
 }

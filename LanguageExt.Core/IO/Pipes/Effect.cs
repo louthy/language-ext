@@ -9,7 +9,7 @@ namespace LanguageExt.Pipes
     public static class Effect
     {
         [Pure, MethodImpl(Proxy.mops)]
-        public static IO<Env, R> RunEffect<Env, R>(this Proxy<Env, Void, Unit, Unit, Void, R> ma) where Env : Cancellable {
+        public static IO<Env, R> RunEffect<Env, R>(this Proxy<Env, Void, Unit, Unit, Void, R> ma) where Env : struct, HasCancel<Env> {
             return Go(ma);
             IO<Env, R> Go(Proxy<Env, Void, Unit, Unit, Void, R> p) =>
                 p.ToProxy() switch
@@ -23,53 +23,19 @@ namespace LanguageExt.Pipes
         }
         
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Env, R> liftIO<Env, R>(IO<R> ma) where Env : Cancellable =>
+        public static Effect<Env, R> liftIO<Env, R>(IO<R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Void, Unit, Unit, Void, R>(ma).ToEffect();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Env, R> liftIO<Env, R>(SIO<R> ma) where Env : Cancellable =>
+        public static Effect<Env, R> liftIO<Env, R>(SIO<R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Void, Unit, Unit, Void, R>(ma).ToEffect();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Env, R> liftIO<Env, R>(IO<Env, R> ma) where Env : Cancellable =>
+        public static Effect<Env, R> liftIO<Env, R>(IO<Env, R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Void, Unit, Unit, Void, R>(ma).ToEffect();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Env, R> liftIO<Env, R>(SIO<Env, R> ma) where Env : Cancellable =>
+        public static Effect<Env, R> liftIO<Env, R>(SIO<Env, R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Void, Unit, Unit, Void, R>(ma).ToEffect();
-
-        
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Runtime, R> liftIO<R>(IO<R> ma) =>
-            liftIO<Runtime, Void, Unit, Unit, Void, R>(ma).ToEffect();
-
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Runtime, R> liftIO<R>(SIO<R> ma) =>
-            liftIO<Runtime, Void, Unit, Unit, Void, R>(ma).ToEffect();
-
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Runtime, R> liftIO<R>(IO<Runtime, R> ma) =>
-            liftIO<Runtime, Void, Unit, Unit, Void, R>(ma).ToEffect();
-
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Runtime, R> liftIO<R>(SIO<Runtime, R> ma) =>
-            liftIO<Runtime, Void, Unit, Unit, Void, R>(ma).ToEffect();
-
-        
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Runtime, Unit> liftIO(IO<Unit> ma) =>
-            liftIO<Runtime, Void, Unit, Unit, Void, Unit>(ma).ToEffect();
-
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Runtime, Unit> liftIO(SIO<Unit> ma) =>
-            liftIO<Runtime, Void, Unit, Unit, Void, Unit>(ma).ToEffect();
-
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Runtime, Unit> liftIO(IO<Runtime, Unit> ma) =>
-            liftIO<Runtime, Void, Unit, Unit, Void, Unit>(ma).ToEffect();
-
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Runtime, Unit> liftIO(SIO<Runtime, Unit> ma) =>
-            liftIO<Runtime, Void, Unit, Unit, Void, Unit>(ma).ToEffect();
     }
 }

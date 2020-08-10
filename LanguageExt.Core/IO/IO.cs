@@ -54,7 +54,7 @@ namespace LanguageExt
         public static IO<Unit> Effect(Func<ValueTask> f) =>
             new IO<Unit>(ThunkAsync<Unit>.Lazy(async () =>
             {
-                await f();
+                await f().ConfigureAwait(false);
                 return Fin<Unit>.Succ(default);
             }));
 
@@ -76,17 +76,17 @@ namespace LanguageExt
         public static IO<A> operator |(IO<A> ma, IO<A> mb) => new IO<A>(ThunkAsync<A>.Lazy(
             async () =>
             {
-                var ra = await ma.RunIO();
+                var ra = await ma.RunIO().ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
-                    : await mb.RunIO();
+                    : await mb.RunIO().ConfigureAwait(false);
             }));
 
         [Pure, MethodImpl(IO.mops)]
         public static IO<A> operator |(IO<A> ma, SIO<A> mb) => new IO<A>(ThunkAsync<A>.Lazy(
             async () =>
             {
-                var ra = await ma.RunIO();
+                var ra = await ma.RunIO().ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
                     : mb.RunIO();
@@ -99,11 +99,11 @@ namespace LanguageExt
                 var ra = ma.RunIO();
                 return ra.IsSucc
                     ? ra
-                    : await mb.RunIO();
+                    : await mb.RunIO().ConfigureAwait(false);
             }));
 
         [Pure, MethodImpl(IO.mops)]
-        public IO<Env, A> WithEnv<Env>() where Env : Cancellable
+        public IO<Env, A> WithEnv<Env>() where Env : struct, HasCancel<Env>
         {
             var self = this;
             return IO<Env, A>.EffectMaybe(e => self.RunIO());
@@ -156,11 +156,11 @@ namespace LanguageExt
         
         [Pure, MethodImpl(IO.mops)]
         public static IO<A> Filter<A>(this IO<A> ma, Func<A, bool> f) =>
-            ma.Bind(x => f(x) ? SIO.SuccessIO<A>(x) : SIO.FailIO<A>(Error.New(Thunk.CancelledText)));        
+            ma.Bind(x => f(x) ? IO.SuccessIO<A>(x) : IO.FailIO<A>(Error.New(Thunk.CancelledText)));        
 
 
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> Bind<Env, A, B>(this IO<A> ma, Func<A, IO<Env, B>> f) where Env : Cancellable =>
+        public static IO<Env, B> Bind<Env, A, B>(this IO<A> ma, Func<A, IO<Env, B>> f) where Env : struct, HasCancel<Env> =>
             new IO<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(IO.mops)]
@@ -168,7 +168,7 @@ namespace LanguageExt
             new IO<B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> Bind<Env, A, B>(this IO<A> ma, Func<A, SIO<Env, B>> f) where Env : Cancellable =>
+        public static IO<Env, B> Bind<Env, A, B>(this IO<A> ma, Func<A, SIO<Env, B>> f) where Env : struct, HasCancel<Env> =>
             new IO<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(IO.mops)]
@@ -181,7 +181,7 @@ namespace LanguageExt
             new IO<A>(ma.thunk.Map(ThunkFromIO).Flatten());
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, A> Flatten<Env, A>(this IO<IO<Env, A>> ma) where Env : Cancellable =>
+        public static IO<Env, A> Flatten<Env, A>(this IO<IO<Env, A>> ma) where Env : struct, HasCancel<Env> =>
             new IO<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
         
         [Pure, MethodImpl(IO.mops)]
@@ -189,7 +189,7 @@ namespace LanguageExt
             new IO<A>(ma.thunk.Map(ThunkFromIO).Flatten());
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, A> Flatten<Env, A>(this IO<SIO<Env, A>> ma) where Env : Cancellable =>
+        public static IO<Env, A> Flatten<Env, A>(this IO<SIO<Env, A>> ma) where Env : struct, HasCancel<Env> =>
             new IO<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
 
         
@@ -198,7 +198,7 @@ namespace LanguageExt
             Map(ma, f);
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> SelectMany<Env, A, B>(this IO<A> ma, Func<A, IO<Env, B>> f) where Env : Cancellable =>
+        public static IO<Env, B> SelectMany<Env, A, B>(this IO<A> ma, Func<A, IO<Env, B>> f) where Env : struct, HasCancel<Env> =>
             Bind(ma, f);
         
         [Pure, MethodImpl(IO.mops)]
@@ -206,7 +206,7 @@ namespace LanguageExt
             Bind(ma, f);
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, B> SelectMany<Env, A, B>(this IO<A> ma, Func<A, SIO<Env, B>> f) where Env : Cancellable =>
+        public static IO<Env, B> SelectMany<Env, A, B>(this IO<A> ma, Func<A, SIO<Env, B>> f) where Env : struct, HasCancel<Env> =>
             Bind(ma, f);
         
         [Pure, MethodImpl(IO.mops)]
@@ -215,7 +215,7 @@ namespace LanguageExt
 
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, C> SelectMany<Env, A, B, C>(this IO<A> ma, Func<A, IO<Env, B>> bind, Func<A, B, C> project) where Env : Cancellable =>
+        public static IO<Env, C> SelectMany<Env, A, B, C>(this IO<A> ma, Func<A, IO<Env, B>> bind, Func<A, B, C> project) where Env : struct, HasCancel<Env> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
         
         [Pure, MethodImpl(IO.mops)]
@@ -223,7 +223,7 @@ namespace LanguageExt
             Bind(ma, x => Map(bind(x), y => project(x, y)));
         
         [Pure, MethodImpl(IO.mops)]
-        public static IO<Env, C> SelectMany<Env, A, B, C>(this IO<A> ma, Func<A, SIO<Env, B>> bind, Func<A, B, C> project) where Env : Cancellable =>
+        public static IO<Env, C> SelectMany<Env, A, B, C>(this IO<A> ma, Func<A, SIO<Env, B>> bind, Func<A, B, C> project) where Env : struct, HasCancel<Env> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
         
         [Pure, MethodImpl(IO.mops)]
