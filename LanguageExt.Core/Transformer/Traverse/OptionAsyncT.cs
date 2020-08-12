@@ -52,7 +52,8 @@ namespace LanguageExt
                 var rb = new List<B>();
                 foreach (var a in ma)
                 {
-                    var b = await a;
+                    var (isSome, b) = await a.Data;
+                    if (!isSome) return (false, default);
                     rb.Add(f(b));
                 }
                 return (true, rb);
@@ -125,7 +126,8 @@ namespace LanguageExt
                 var ix = 0;
                 foreach (var a in ma)
                 {
-                    var b = await a;
+                    var (isSome, b) = await a.Data;
+                    if (!isSome) return (false, default);
                     rb[ix] = f(b);
                     ix++;
                 }
