@@ -78,7 +78,7 @@ namespace LanguageExt
             async Task<EitherData<A, B>> Do(CH mma) =>
                 await (await default(CHOICE).Match(mma,
                     Left: EitherAsync<A, B>.Left,
-                    Right: EitherAsync<A, B>.Right)).data;
+                    Right: EitherAsync<A, B>.Right)).data.ConfigureAwait(false);
 
             return new EitherAsync<A, B>(Do(ma));
         }
@@ -93,7 +93,7 @@ namespace LanguageExt
             async Task<(bool IsSome, B Value)> Do(CH mma) =>
                 await default(CHOICE).Match(mma,
                     Left: _ => (false, default),
-                    Right: x => (true, x));
+                    Right: x => (true, x)).ConfigureAwait(false);
 
             return new OptionAsync<B>(Do(ma));
         }
@@ -284,7 +284,7 @@ namespace LanguageExt
                     item,
                     Left: x => (true, x),
                     Right: y => (false, default(A)),
-                    Bottom: () => (false, default(A)))));
+                    Bottom: () => (false, default(A))))).ConfigureAwait(false);
 
             return res.Filter(x => x.Item1).Map(x => x.Item2);
         }
@@ -300,7 +300,7 @@ namespace LanguageExt
         [Pure]
         public static async Task<Seq<A>> leftsAsync<CHOICE, CH, A, B>(Seq<CH> ma)
             where CHOICE : struct, ChoiceAsync<CH, A, B> =>
-            Seq(await leftsAsync<CHOICE, CH, A, B>(ma.AsEnumerable()));
+            Seq(await leftsAsync<CHOICE, CH, A, B>(ma.AsEnumerable()).ConfigureAwait(false));
 
         /// <summary>
         /// Extracts from a list of 'Either' all the 'Right' elements.
@@ -319,7 +319,7 @@ namespace LanguageExt
                     item,
                     Left: x => (false, default(B)),
                     Right: y => (true, y),
-                    Bottom: () => (false, default(B)))));
+                    Bottom: () => (false, default(B))))).ConfigureAwait(false);
 
             return res.Filter(x => x.Item1).Map(x => x.Item2);
         }
@@ -335,7 +335,7 @@ namespace LanguageExt
         [Pure]
         public static async Task<Seq<B>> rightsAsync<CHOICE, CH, A, B>(Seq<CH> ma)
             where CHOICE : struct, ChoiceAsync<CH, A, B> =>
-            Seq(await rightsAsync<CHOICE, CH, A, B>(ma.AsEnumerable()));
+            Seq(await rightsAsync<CHOICE, CH, A, B>(ma.AsEnumerable()).ConfigureAwait(false));
 
         /// <summary>
         /// Partitions a list of 'Either' into two lists.
@@ -356,7 +356,7 @@ namespace LanguageExt
                     item,
                     Left: x => (1, x, default(B)),
                     Right: y => (2, default(A), y),
-                    Bottom: () => (0, default(A), default(B)))));
+                    Bottom: () => (0, default(A), default(B))))).ConfigureAwait(false);
 
             return (res.Filter(x => x.Item1 == 1).Map(x => x.Item2), res.Filter(x => x.Item1 == 2).Map(x => x.Item3));
         }

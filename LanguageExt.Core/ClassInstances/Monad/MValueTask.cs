@@ -31,11 +31,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public MB Bind<MONADB, MB, B>(ValueTask<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
-            default(MONADB).RunAsync(async _ => f(await ma));
+            default(MONADB).RunAsync(async _ => f(await ma.ConfigureAwait(false)));
 
         [Pure]
         public MB BindAsync<MONADB, MB, B>(ValueTask<A> ma, Func<A, Task<MB>> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
-            default(MONADB).RunAsync(async _ => await f(await ma));
+            default(MONADB).RunAsync(async _ => await f(await ma.ConfigureAwait(false)).ConfigureAwait(false));
 
         [Pure]
         public ValueTask<A> Fail(object err = null) =>
@@ -52,14 +52,14 @@ namespace LanguageExt.ClassInstances
         {
             try
             {
-                var ra = await ma;
+                var ra = await ma.ConfigureAwait(false);
                 return ma.IsFaulted || ma.IsCanceled
-                    ? await mb
+                    ? await mb.ConfigureAwait(false)
                     : ra;
             }
             catch
             {
-                return await mb;
+                return await mb.ConfigureAwait(false);
             }
         }
 
@@ -80,7 +80,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>Monad of A</returns>
         [Pure]
         public async ValueTask<A> ReturnAsync(Func<Unit, Task<A>> f) =>
-            await f(unit);
+            await f(unit).ConfigureAwait(false);
 
         [Pure]
         public ValueTask<A> Zero() => 
@@ -104,7 +104,7 @@ namespace LanguageExt.ClassInstances
             }
             try
             {
-                var a = await ma;
+                var a = await ma.ConfigureAwait(false);
                 return Check.NullReturn(Some(a));
             }
             catch (Exception)
@@ -163,7 +163,7 @@ namespace LanguageExt.ClassInstances
             {
                 try
                 {
-                    var a = await fa;
+                    var a = await fa.ConfigureAwait(false);
                     return fa.IsFaulted || fa.IsCanceled
                         ? 0
                         : 1;
@@ -177,7 +177,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public async ValueTask<A> Apply(Func<A, A, A> f, ValueTask<A> fa, ValueTask<A> fb) 
         {
-            await Task.WhenAll(fa.AsTask(), fb.AsTask());
+            await Task.WhenAll(fa.AsTask(), fb.AsTask()).ConfigureAwait(false);
             return f(fa.Result, fb.Result);
         }
 
@@ -189,8 +189,8 @@ namespace LanguageExt.ClassInstances
             }
             try
             {
-                var a = await ma;
-                return Check.NullReturn(await SomeAsync(a));
+                var a = await ma.ConfigureAwait(false);
+                return Check.NullReturn(await SomeAsync(a).ConfigureAwait(false));
             }
             catch (Exception)
             {
@@ -202,16 +202,16 @@ namespace LanguageExt.ClassInstances
         {
             if (ma.IsCanceled || ma.IsFaulted)
             {
-                return Check.NullReturn(await NoneAsync());
+                return Check.NullReturn(await NoneAsync().ConfigureAwait(false));
             }
             try
             {
-                var a = await ma;
+                var a = await ma.ConfigureAwait(false);
                 return Check.NullReturn(Some(a));
             }
             catch (Exception)
             {
-                return Check.NullReturn(await NoneAsync());
+                return Check.NullReturn(await NoneAsync().ConfigureAwait(false));
             }
         }
 
@@ -219,16 +219,16 @@ namespace LanguageExt.ClassInstances
         {
             if (ma.IsCanceled || ma.IsFaulted)
             {
-                return Check.NullReturn(await NoneAsync());
+                return Check.NullReturn(await NoneAsync().ConfigureAwait(false));
             }
             try
             {
-                var a = await ma;
-                return Check.NullReturn(await SomeAsync(a));
+                var a = await ma.ConfigureAwait(false);
+                return Check.NullReturn(await SomeAsync(a).ConfigureAwait(false));
             }
             catch (Exception)
             {
-                return Check.NullReturn(await NoneAsync());
+                return Check.NullReturn(await NoneAsync().ConfigureAwait(false));
             }
         }
 
@@ -236,7 +236,7 @@ namespace LanguageExt.ClassInstances
         {
             try
             {
-                var a = await ma;
+                var a = await ma.ConfigureAwait(false);
                 Some(a);
             }
             catch (Exception)
@@ -250,8 +250,8 @@ namespace LanguageExt.ClassInstances
         {
             try
             {
-                var a = await ma;
-                await SomeAsync(a);
+                var a = await ma.ConfigureAwait(false);
+                await SomeAsync(a).ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -264,12 +264,12 @@ namespace LanguageExt.ClassInstances
         {
             try
             {
-                var a = await ma;
+                var a = await ma.ConfigureAwait(false);
                 Some(a);
             }
             catch (Exception)
             {
-                await None();
+                await None().ConfigureAwait(false);
             }
             return unit;
         }
@@ -278,12 +278,12 @@ namespace LanguageExt.ClassInstances
         {
             try
             {
-                var a = await ma;
-                await SomeAsync(a);
+                var a = await ma.ConfigureAwait(false);
+                await SomeAsync(a).ConfigureAwait(false);
             }
             catch (Exception)
             {
-                await NoneAsync();
+                await NoneAsync().ConfigureAwait(false);
             }
             return unit;
         }
@@ -342,7 +342,7 @@ namespace LanguageExt.ClassInstances
             }
             try
             {
-                var a = await ma;
+                var a = await ma.ConfigureAwait(false);
                 return Some(a);
             }
             catch (Exception)
@@ -359,8 +359,8 @@ namespace LanguageExt.ClassInstances
             }
             try
             {
-                var a = await ma;
-                return await SomeAsync(a);
+                var a = await ma.ConfigureAwait(false);
+                return await SomeAsync(a).ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -372,16 +372,16 @@ namespace LanguageExt.ClassInstances
         {
             if (ma.IsCanceled || ma.IsFaulted)
             {
-                return await NoneAsync();
+                return await NoneAsync().ConfigureAwait(false);
             }
             try
             {
-                var a = await ma;
+                var a = await ma.ConfigureAwait(false);
                 return Some(a);
             }
             catch (Exception)
             {
-                return await NoneAsync();
+                return await NoneAsync().ConfigureAwait(false);
             }
         }
 
@@ -389,16 +389,16 @@ namespace LanguageExt.ClassInstances
         {
             if (ma.IsCanceled || ma.IsFaulted)
             {
-                return await NoneAsync();
+                return await NoneAsync().ConfigureAwait(false);
             }
             try
             {
-                var a = await ma;
-                return await SomeAsync(a);
+                var a = await ma.ConfigureAwait(false);
+                return await SomeAsync(a).ConfigureAwait(false);
             }
             catch (Exception)
             {
-                return await NoneAsync();
+                return await NoneAsync().ConfigureAwait(false);
             }
         }
     }

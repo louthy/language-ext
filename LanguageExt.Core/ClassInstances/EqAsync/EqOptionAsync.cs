@@ -11,11 +11,11 @@ namespace LanguageExt.ClassInstances
     {
         public async Task<bool> EqualsAsync(OptionAsync<A> x, OptionAsync<A> y)
         {
-            var (sx, dx) = await x.Data;
-            var (sy, dy) = await y.Data;
+            var (sx, dx) = await x.Data.ConfigureAwait(false);
+            var (sy, dy) = await y.Data.ConfigureAwait(false);
             if (!sx && !sy) return true;
             if (sx != sy) return false;
-            return await default(EqA).EqualsAsync(dx, dy);
+            return await default(EqA).EqualsAsync(dx, dy).ConfigureAwait(false);
         }
 
         public Task<int> GetHashCodeAsync(OptionAsync<A> x) =>

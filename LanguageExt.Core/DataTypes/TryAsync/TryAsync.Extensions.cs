@@ -24,7 +24,7 @@ public static class TryAsyncExtensions
     public static async Task<TryCase<A>> Case<A>(this TryAsync<A> ma)
     {
         if (ma == null) return FailCase<A>.New(Error.Bottom);
-        var res = await ma.Try();
+        var res = await ma.Try().ConfigureAwait(false);
         return res.IsSuccess
             ? SuccCase<A>.New(res.Value)
             : FailCase<A>.New(res.Exception);
@@ -41,7 +41,7 @@ public static class TryAsyncExtensions
         {
             if (run) return result;
             var tra = ma.Try();
-            var ra = await tra;
+            var ra = await tra.ConfigureAwait(false);
             if (ra.IsSuccess)
             {
                 result = ra;
@@ -62,7 +62,7 @@ public static class TryAsyncExtensions
     {
         while (true)
         {
-            var ra = await ma.Try();
+            var ra = await ma.Try().ConfigureAwait(false);
             if (ra.IsSuccess)
             {
                 return ra;
@@ -86,14 +86,14 @@ public static class TryAsyncExtensions
     {
         while (true)
         {
-            var ra = await ma.Try();
+            var ra = await ma.Try().ConfigureAwait(false);
             if (ra.IsSuccess)
             {
                 return ra;
             }
             amount--;
             if (amount <= 0) return ra;
-            await Task.Delay(backOffMilliSeconds);
+            await Task.Delay(backOffMilliSeconds).ConfigureAwait(false);
             backOffMilliSeconds += backOffMilliSeconds;
         }
     };      
@@ -125,7 +125,7 @@ public static class TryAsyncExtensions
     /// <param name="ma">Computation to evaluate</param>
     /// <returns>True if computation has succeeded</returns>
     public static async Task<bool> IsSucc<A>(this TryAsync<A> ma) =>
-        (await ma.Try()).IsSuccess;
+        (await ma.Try().ConfigureAwait(false)).IsSuccess;
 
     /// <summary>
     /// Test if the TryAsync is in a faulted state
@@ -134,7 +134,7 @@ public static class TryAsyncExtensions
     /// <param name="ma">Computation to evaluate</param>
     /// <returns>True if computation is faulted</returns>
     public static async Task<bool> IsFail<A>(this TryAsync<A> ma) =>
-        (await ma.Try()).IsFaulted;
+        (await ma.Try().ConfigureAwait(false)).IsFaulted;
 
     /// <summary>
     /// Invoke a delegate if the Try returns a value successfully
@@ -147,7 +147,7 @@ public static class TryAsyncExtensions
 
         try
         {
-            var res = await self.Try();
+            var res = await self.Try().ConfigureAwait(false);
             if (!res.IsFaulted)
             {
                 Succ(res.Value);
@@ -174,7 +174,7 @@ public static class TryAsyncExtensions
 
         try
         {
-            var res = await self.Try();
+            var res = await self.Try().ConfigureAwait(false);
             if (res.IsFaulted)
                 return failValue;
             else
@@ -200,16 +200,16 @@ public static class TryAsyncExtensions
 
         try
         {
-            var res = await self.Try();
+            var res = await self.Try().ConfigureAwait(false);
             if (res.IsFaulted)
-                return await Fail();
+                return await Fail().ConfigureAwait(false);
             else
                 return res.Value;
         }
         catch (Exception e)
         {
             TryConfig.ErrorLogger(e);
-            return await Fail();
+            return await Fail().ConfigureAwait(false);
         }
     }
 
@@ -226,7 +226,7 @@ public static class TryAsyncExtensions
 
         try
         {
-            var res = await self.Try();
+            var res = await self.Try().ConfigureAwait(false);
             if (res.IsFaulted)
                 return Fail();
             else
@@ -250,16 +250,16 @@ public static class TryAsyncExtensions
 
         try
         {
-            var res = await self.Try();
+            var res = await self.Try().ConfigureAwait(false);
             if (res.IsFaulted)
-                return await Fail(res.Exception);
+                return await Fail(res.Exception).ConfigureAwait(false);
             else
                 return res.Value;
         }
         catch (Exception e)
         {
             TryConfig.ErrorLogger(e);
-            return await Fail(e);
+            return await Fail(e).ConfigureAwait(false);
         }
     }
 
@@ -274,7 +274,7 @@ public static class TryAsyncExtensions
 
         try
         {
-            var res = await self.Try();
+            var res = await self.Try().ConfigureAwait(false);
             if (res.IsFaulted)
                 return Fail(res.Exception);
             else
@@ -309,7 +309,7 @@ public static class TryAsyncExtensions
         if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
             ? Fail(res.Exception)
             : Succ(res.Value);
@@ -328,10 +328,10 @@ public static class TryAsyncExtensions
         if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
             ? Fail(res.Exception)
-            : await Succ(res.Value);
+            : await Succ(res.Value).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -347,9 +347,9 @@ public static class TryAsyncExtensions
         if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
-            ? await Fail(res.Exception)
+            ? await Fail(res.Exception).ConfigureAwait(false)
             : Succ(res.Value);
     }
 
@@ -366,10 +366,10 @@ public static class TryAsyncExtensions
         if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
-            ? await Fail(res.Exception)
-            : await Succ(res.Value);
+            ? await Fail(res.Exception).ConfigureAwait(false)
+            : await Succ(res.Value).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -385,7 +385,7 @@ public static class TryAsyncExtensions
         if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
             ? Fail
             : Succ(res.Value);
@@ -404,10 +404,10 @@ public static class TryAsyncExtensions
         if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
             ? Fail
-            : await Succ(res.Value);
+            : await Succ(res.Value).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -420,7 +420,7 @@ public static class TryAsyncExtensions
         if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
 
         if (res.IsFaulted)
             Fail(res.Exception);
@@ -451,7 +451,7 @@ public static class TryAsyncExtensions
 
     [Pure]
     public static TryOptionAsync<A> ToTryOption<A>(this TryAsync<A> self) =>
-        async () => (await self.Try()).ToOptional();
+        async () => (await self.Try().ConfigureAwait(false)).ToOptional();
 
     [Pure]
     public static Task<EitherUnsafe<Error, A>> ToEitherUnsafe<A>(this TryAsync<A> self) =>
@@ -482,7 +482,7 @@ public static class TryAsyncExtensions
     {
         try
         {
-            var res = await self.Try();
+            var res = await self.Try().ConfigureAwait(false);
             if (res.IsBottom) throw new BottomException();
             if (res.IsFaulted) throw new InnerException(res.Exception);
             return res.Value;
@@ -678,7 +678,7 @@ public static class TryAsyncExtensions
     /// </returns>
     public static TryAsync<A> Do<A>(this TryAsync<A> ma, Action<A> f) => new TryAsync<A>(async () =>
     {
-        var r = await ma.Try();
+        var r = await ma.Try().ConfigureAwait(false);
         if (!r.IsFaulted)
         {
             f(r.Value);
@@ -696,7 +696,7 @@ public static class TryAsyncExtensions
     /// <returns>Mapped Try computation</returns>
     [Pure]
     public static TryAsync<B> Map<A, B>(this TryAsync<A> self, Func<A, B> f) =>
-        Memo(async () => (await self.Try()).Map(f));
+        Memo(async () => (await self.Try().ConfigureAwait(false)).Map(f));
 
     /// <summary>
     /// Maps the bound value
@@ -708,7 +708,7 @@ public static class TryAsyncExtensions
     /// <returns>Mapped Try computation</returns>
     [Pure]
     public static TryAsync<B> MapAsync<A, B>(this TryAsync<A> self, Func<A, Task<B>> f)  =>
-        Memo(async () => await (await self.Try()).MapAsync(f));
+        Memo(async () => await (await self.Try().ConfigureAwait(false)).MapAsync(f));
 
     /// <summary>
     /// Maps the bound value
@@ -722,7 +722,7 @@ public static class TryAsyncExtensions
     [Pure]
     public static TryAsync<B> BiMap<A, B>(this TryAsync<A> self, Func<A, B> Succ, Func<Exception, B> Fail) => Memo<B>(async () =>
     {
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
             ? Fail(res.Exception)
             : Succ(res.Value);
@@ -740,10 +740,10 @@ public static class TryAsyncExtensions
     [Pure]
     public static TryAsync<B> BiMap<A, B>(this TryAsync<A> self, Func<A, Task<B>> Succ, Func<Exception, B> Fail) => Memo<B>(async () =>
     {
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
             ? Fail(res.Exception)
-            : await Succ(res.Value);
+            : await Succ(res.Value).ConfigureAwait(false);
     });
 
     /// <summary>
@@ -758,9 +758,9 @@ public static class TryAsyncExtensions
     [Pure]
     public static TryAsync<B> BiMap<A, B>(this TryAsync<A> self, Func<A, B> Succ, Func<Exception, Task<B>> Fail) => Memo<B>(async () =>
     {
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
-            ? await Fail(res.Exception)
+            ? await Fail(res.Exception).ConfigureAwait(false)
             : Succ(res.Value);
     });
 
@@ -776,10 +776,10 @@ public static class TryAsyncExtensions
     [Pure]
     public static TryAsync<B> BiMap<A, B>(this TryAsync<A> self, Func<A, Task<B>> Succ, Func<Exception, Task<B>> Fail) => Memo<B>(async () =>
     {
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
-            ? await Fail(res.Exception)
-            : await Succ(res.Value);
+            ? await Fail(res.Exception).ConfigureAwait(false)
+            : await Succ(res.Value).ConfigureAwait(false);
     });
 
     /// <summary>
@@ -799,7 +799,7 @@ public static class TryAsyncExtensions
     [Pure]
     public static TryAsync<A> Filter<A>(this TryAsync<A> self, Func<A, bool> pred) => Memo<A>(async () =>
     {
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         if (res.IsFaulted) return res;
         return pred(res.Value)
             ? res
@@ -809,9 +809,9 @@ public static class TryAsyncExtensions
     [Pure]
     public static TryAsync<A> Filter<A>(this TryAsync<A> self, Func<A, Task<bool>> pred) => Memo(async () =>
     {
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         if (res.IsFaulted) return res;
-        return await pred(res.Value)
+        return await pred(res.Value).ConfigureAwait(false)
             ? res
             : raise<A>(new BottomException());
     });
@@ -819,7 +819,7 @@ public static class TryAsyncExtensions
     [Pure]
     public static TryAsync<A> BiFilter<A>(this TryAsync<A> self, Func<A, bool> Succ, Func<Exception, bool> Fail) => Memo<A>(async () =>
     {
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
             ? Fail(res.Exception)
                 ? res.Value
@@ -832,12 +832,12 @@ public static class TryAsyncExtensions
     [Pure]
     public static TryAsync<A> BiFilter<A>(this TryAsync<A> self, Func<A, Task<bool>> Succ, Func<Exception, bool> Fail) => Memo<A>(async () =>
     {
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
             ? Fail(res.Exception)
                 ? res.Value
                 : raise<A>(new BottomException())
-            : await Succ(res.Value)
+            : await Succ(res.Value).ConfigureAwait(false)
                 ? res.Value
                 : raise<A>(new BottomException());
     });
@@ -846,9 +846,9 @@ public static class TryAsyncExtensions
     [Pure]
     public static TryAsync<A> BiFilter<A>(this TryAsync<A> self, Func<A, bool> Succ, Func<Exception, Task<bool>> Fail) => Memo<A>(async () =>
     {
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
-            ? await Fail(res.Exception)
+            ? await Fail(res.Exception).ConfigureAwait(false)
                 ? res.Value
                 : raise<A>(new BottomException())
             : Succ(res.Value)
@@ -859,12 +859,12 @@ public static class TryAsyncExtensions
     [Pure]
     public static TryAsync<A> BiFilter<A>(this TryAsync<A> self, Func<A, Task<bool>> Succ, Func<Exception, Task<bool>> Fail) => Memo<A>(async () =>
     {
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
-            ? await Fail(res.Exception)
+            ? await Fail(res.Exception).ConfigureAwait(false)
                 ? res.Value
                 : raise<A>(new BottomException())
-            : await Succ(res.Value)
+            : await Succ(res.Value).ConfigureAwait(false)
                 ? res.Value
                 : raise<A>(new BottomException());
     });
@@ -882,10 +882,10 @@ public static class TryAsyncExtensions
     {
         try
         {
-            var ra = await ma();
+            var ra = await ma().ConfigureAwait(false);
             if(ra.IsSuccess)
             {
-                return await f(ra.Value)();
+                return await f(ra.Value)().ConfigureAwait(false);
             }
             else
             {
@@ -903,10 +903,10 @@ public static class TryAsyncExtensions
     {
         try
         {
-            var ra = await ma();
+            var ra = await ma().ConfigureAwait(false);
             if (ra.IsSuccess)
             {
-                return await (await f(ra.Value))();
+                return await (await f(ra.Value).ConfigureAwait(false))().ConfigureAwait(false);
             }
             else
             {
@@ -923,10 +923,10 @@ public static class TryAsyncExtensions
     [Pure]
     public static TryAsync<R> BiBind<A, R>(this TryAsync<A> self, Func<A, TryAsync<R>> Succ, Func<Exception, TryAsync<R>> Fail) => Memo(async () =>
     {
-        var res = await self.Try();
+        var res = await self.Try().ConfigureAwait(false);
         return res.IsFaulted
-            ? await Fail(res.Exception).Try()
-            : await Succ(res.Value).Try();
+            ? await Fail(res.Exception).Try().ConfigureAwait(false)
+            : await Succ(res.Value).Try().ConfigureAwait(false);
     });
 
     [Pure]
@@ -951,11 +951,11 @@ public static class TryAsyncExtensions
 
     [Pure]
     public static async Task<Lst<A>> ToList<A>(this TryAsync<A> self) =>
-        toList(await self.AsEnumerable());
+        toList(await self.AsEnumerable().ConfigureAwait(false));
 
     [Pure]
     public static async Task<Arr<A>> ToArray<A>(this TryAsync<A> self) =>
-        toArray(await self.AsEnumerable());
+        toArray(await self.AsEnumerable().ConfigureAwait(false));
 
     [Pure]
     public static TryAsyncSuccContext<A, R> Succ<A,R>(this TryAsync<A> self, Func<A, R> succHandler) =>
@@ -981,11 +981,11 @@ public static class TryAsyncExtensions
         {
             try
             {
-                var ra = await ma();
+                var ra = await ma().ConfigureAwait(false);
                 if (ra.IsSuccess)
                 {
                     var mb = bind(ra.Value);
-                    var rb = await mb();
+                    var rb = await mb().ConfigureAwait(false);
 
                     if (rb.IsSuccess)
                     {
@@ -1015,11 +1015,11 @@ public static class TryAsyncExtensions
         {
             try
             {
-                var ra = await ma();
+                var ra = await ma().ConfigureAwait(false);
                 if (ra.IsSuccess)
                 {
-                    var mb = await bind(ra.Value);
-                    var rb = await mb();
+                    var mb = await bind(ra.Value).ConfigureAwait(false);
+                    var rb = await mb().ConfigureAwait(false);
 
                     if (rb.IsSuccess)
                     {
@@ -1049,15 +1049,15 @@ public static class TryAsyncExtensions
         {
             try
             {
-                var ra = await ma();
+                var ra = await ma().ConfigureAwait(false);
                 if (ra.IsSuccess)
                 {
-                    var mb = await bind(ra.Value);
-                    var rb = await mb();
+                    var mb = await bind(ra.Value).ConfigureAwait(false);
+                    var rb = await mb().ConfigureAwait(false);
 
                     if (rb.IsSuccess)
                     {
-                        return new Result<C>(await project(ra.Value, rb.Value));
+                        return new Result<C>(await project(ra.Value, rb.Value).ConfigureAwait(false));
                     }
                     else
                     {
@@ -1083,15 +1083,15 @@ public static class TryAsyncExtensions
         {
             try
             {
-                var ra = await ma();
+                var ra = await ma().ConfigureAwait(false);
                 if (ra.IsSuccess)
                 {
                     var mb = bind(ra.Value);
-                    var rb = await mb();
+                    var rb = await mb().ConfigureAwait(false);
 
                     if (rb.IsSuccess)
                     {
-                        return new Result<C>(await project(ra.Value, rb.Value));
+                        return new Result<C>(await project(ra.Value, rb.Value).ConfigureAwait(false));
                     }
                     else
                     {
@@ -1120,13 +1120,13 @@ public static class TryAsyncExtensions
             {
                 var selfTask = self.Try();
                 var innerTask = inner.Try();
-                await Task.WhenAll(selfTask, innerTask);
+                await Task.WhenAll(selfTask, innerTask).ConfigureAwait(false);
 
                 if (selfTask.IsFaulted) return new Result<V>(selfTask.Exception);
                 if (selfTask.Result.IsFaulted) return new Result<V>(selfTask.Result.Exception);
                 if (innerTask.IsFaulted) return new Result<V>(innerTask.Exception);
                 if (innerTask.Result.IsFaulted) return new Result<V>(innerTask.Result.Exception);
-                return await default(EqDefaultAsync<K>).EqualsAsync(outerKeyMap(selfTask.Result.Value), innerKeyMap(innerTask.Result.Value))
+                return await default(EqDefaultAsync<K>).EqualsAsync(outerKeyMap(selfTask.Result.Value), innerKeyMap(innerTask.Result.Value)).ConfigureAwait(false)
                     ? project(selfTask.Result.Value, innerTask.Result.Value)
                     : throw new BottomException();
             });
@@ -1142,7 +1142,7 @@ public static class TryAsyncExtensions
             }
             try
             {
-                return await self();
+                return await self().ConfigureAwait(false);
             }
             catch(Exception e)
             {
@@ -1164,7 +1164,7 @@ public static class TryAsyncExtensions
                 var t = default(T);
                 try
                 {
-                    var res = await self.Try();
+                    var res = await self.Try().ConfigureAwait(false);
                     if (res.IsFaulted) return new Result<U>(res.Exception);
                     t = res.Value;
                     return select(t);
@@ -1182,10 +1182,10 @@ public static class TryAsyncExtensions
             var t = default(T);
             try
             {
-                var res = await self.Try();
+                var res = await self.Try().ConfigureAwait(false);
                 if (res.IsFaulted) return default(U);
                 t = res.Value;
-                return await select(t).Try();
+                return await select(t).Try().ConfigureAwait(false);
             }
             finally
             {
@@ -1322,7 +1322,7 @@ public static class TryAsyncExtensions
     {
         var x = lhs.Try();
         var y = rhs.Try();
-        await Task.WhenAll(x, y);
+        await Task.WhenAll(x, y).ConfigureAwait(false);
 
         if (x.IsFaulted && y.IsFaulted) return 0;
         if (x.IsFaulted && !y.IsFaulted) return -1;
@@ -1345,7 +1345,7 @@ public static class TryAsyncExtensions
     {
         var x = lhs.Try();
         var y = rhs.Try();
-        await Task.WhenAll(x, y);
+        await Task.WhenAll(x, y).ConfigureAwait(false);
         if (x.IsFaulted || x.Result.IsFaulted) return x.Result;
         if (y.IsFaulted || y.Result.IsFaulted) return y.Result;
         return append<SEMI, A>(x.Result.Value, y.Result.Value);
@@ -1363,7 +1363,7 @@ public static class TryAsyncExtensions
     {
         var x = lhs.Try();
         var y = rhs.Try();
-        await Task.WhenAll(x, y);
+        await Task.WhenAll(x, y).ConfigureAwait(false);
         if (x.IsFaulted || x.Result.IsFaulted) return x.Result;
         if (y.IsFaulted || y.Result.IsFaulted) return y.Result;
         return plus<NUM, A>(x.Result.Value, y.Result.Value);
@@ -1381,7 +1381,7 @@ public static class TryAsyncExtensions
     {
         var x = lhs.Try();
         var y = rhs.Try();
-        await Task.WhenAll(x, y);
+        await Task.WhenAll(x, y).ConfigureAwait(false);
         if (x.IsFaulted || x.Result.IsFaulted) return x.Result;
         if (y.IsFaulted || y.Result.IsFaulted) return y.Result;
         return subtract<NUM, A>(x.Result.Value, y.Result.Value);
@@ -1399,7 +1399,7 @@ public static class TryAsyncExtensions
     {
         var x = lhs.Try();
         var y = rhs.Try();
-        await Task.WhenAll(x, y);
+        await Task.WhenAll(x, y).ConfigureAwait(false);
         if (x.IsFaulted || x.Result.IsFaulted) return x.Result;
         if (y.IsFaulted || y.Result.IsFaulted) return y.Result;
         return product<NUM, A>(x.Result.Value, y.Result.Value);
@@ -1417,7 +1417,7 @@ public static class TryAsyncExtensions
     {
         var x = lhs.Try();
         var y = rhs.Try();
-        await Task.WhenAll(x, y);
+        await Task.WhenAll(x, y).ConfigureAwait(false);
         if (x.IsFaulted || x.Result.IsFaulted) return x.Result;
         if (y.IsFaulted || y.Result.IsFaulted) return y.Result;
         return divide<NUM, A>(x.Result.Value, y.Result.Value);
@@ -1432,7 +1432,7 @@ public static class TryAsyncExtensions
     [Pure]
     public static async Task<A?> ToNullable<A>(this TryAsync<A> ma) where A : struct
     {
-        var x = await ma.Try();
+        var x = await ma.Try().ConfigureAwait(false);
         return x.IsFaulted
             ? (A?)null
             : x.Value;

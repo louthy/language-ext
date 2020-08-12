@@ -18,7 +18,7 @@ namespace LanguageExt.ClassInstances
             async Task<(bool IsSome, B Value)> Do(OptionAsync<A> mma, Func<A, B> ffa, Func<Unit, B> ffb) =>
                 await mma.Match(
                     Some: x  => (true, ffa(x)),
-                    None: () => (true, ffb(unit)));
+                    None: () => (true, ffb(unit))).ConfigureAwait(false);
 
             return new OptionAsync<B>(Do(ma, fa, fb));
         }
@@ -29,7 +29,7 @@ namespace LanguageExt.ClassInstances
             async Task<(bool IsSome, B Value)> Do(OptionAsync<A> mma, Func<A, Task<B>> ffa, Func<Unit, B> ffb) =>
                 await mma.MatchAsync(
                     Some: async x => (true, await ffa(x)),
-                    None: ()      => (true, ffb(unit)));
+                    None: ()      => (true, ffb(unit))).ConfigureAwait(false);
 
             return new OptionAsync<B>(Do(ma, fa, fb));
         }
@@ -40,7 +40,7 @@ namespace LanguageExt.ClassInstances
             async Task<(bool IsSome, B Value)> Do(OptionAsync<A> mma, Func<A, B> ffa, Func<Unit, Task<B>> ffb) =>
                 await mma.MatchAsync(
                     Some: x        => (true, ffa(x)),
-                    None: async () => (true, await ffb(unit)));
+                    None: async () => (true, await ffb(unit))).ConfigureAwait(false);
 
             return new OptionAsync<B>(Do(ma, fa, fb));
         }
@@ -51,7 +51,7 @@ namespace LanguageExt.ClassInstances
             async Task<(bool IsSome, B Value)> Do(OptionAsync<A> mma, Func<A, Task<B>> ffa, Func<Unit, Task<B>> ffb) =>
                 await mma.MatchAsync(
                     Some: async x  => (true, await ffa(x)),
-                    None: async () => (true, await ffb(unit)));
+                    None: async () => (true, await ffb(unit))).ConfigureAwait(false);
 
             return new OptionAsync<B>(Do(ma, fa, fb));
         }

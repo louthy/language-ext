@@ -51,8 +51,8 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public async Task<A> Plus(Task<A> ma, Task<A> mb)
         {
-            await ma;
-            return await mb;
+            await ma.ConfigureAwait(false);
+            return await mb.ConfigureAwait(false);
         }
 
         /// <summary>

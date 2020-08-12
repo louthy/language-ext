@@ -38,15 +38,15 @@ namespace LanguageExt.Interfaces
         where RT : struct, HasCancel<RT>
     {
         /// <summary>
-        /// Access the TextReader IO environment
+        /// Access the TextReader asynchronous effect environment
         /// </summary>
-        /// <returns>TextReader IO environment</returns>
-        IO<RT, TextReadIO> TextReadIO { get; }
+        /// <returns>TextReader asynchronous effect environment</returns>
+        Aff<RT, TextReadIO> TextReadAff { get; }
 
         /// <summary>
-        /// Access the TextReader SIO environment
+        /// Access the TextReader synchronous effect environment
         /// </summary>
-        /// <returns>TextReader SIO environment</returns>
-        SIO<RT, TextReadIO> TextReadSIO { get; }
+        /// <returns>TextReader synchronous effect environment</returns>
+        Eff<RT, TextReadIO> TextReadEff { get; }
     }
 }

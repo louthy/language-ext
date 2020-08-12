@@ -1,5 +1,9 @@
 namespace LanguageExt.Interfaces
 {
+    /// <summary>
+    /// Convenience trait - captures the BCL IO behaviour
+    /// </summary>
+    /// <typeparam name="RT">Runtime</typeparam>
     public interface HasSystem<RT> : 
         HasCancel<RT>, 
         HasConsole<RT>, 

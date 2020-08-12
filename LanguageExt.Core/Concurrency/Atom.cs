@@ -117,7 +117,7 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValueA = await f(Box<A>.GetValue(value));
+                var newValueA = await f(Box<A>.GetValue(value)).ConfigureAwait(false);
                 var newValue = Box<A>.New(newValueA);
                 if (!validator(newValueA))
                 {
@@ -187,7 +187,7 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValueA = await f(x, Box<A>.GetValue(value));
+                var newValueA = await f(x, Box<A>.GetValue(value)).ConfigureAwait(false);
                 var newValue = Box<A>.New(newValueA);
                 if (!validator(newValueA))
                 {
@@ -259,7 +259,7 @@ namespace LanguageExt
             {
                 retries--;
                 var current = value;
-                var newValueA = await f(x, y, Box<A>.GetValue(value));
+                var newValueA = await f(x, y, Box<A>.GetValue(value)).ConfigureAwait(false);
                 var newValue = Box<A>.New(newValueA);
                 if (!validator(Box<A>.GetValue(newValue)))
                 {

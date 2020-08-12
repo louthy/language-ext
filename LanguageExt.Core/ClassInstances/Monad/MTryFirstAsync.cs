@@ -28,7 +28,7 @@ namespace LanguageExt.ClassInstances
             {
                 try
                 {
-                    var ra = await ma.Try();
+                    var ra = await ma.Try().ConfigureAwait(false);
                     if (ra.IsBottom) return default(MONADB).Fail(new TaskCanceledException());
                     if (ra.IsFaulted) return default(MONADB).Fail(ra.Exception);
                     return f(ra.Value);
@@ -45,10 +45,10 @@ namespace LanguageExt.ClassInstances
             {
                 try
                 {
-                    var ra = await ma.Try();
+                    var ra = await ma.Try().ConfigureAwait(false);
                     if (ra.IsBottom) return default(MONADB).Fail(new TaskCanceledException());
                     if (ra.IsFaulted) return default(MONADB).Fail(ra.Exception);
-                    return await f(ra.Value);
+                    return await f(ra.Value).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -58,7 +58,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryAsync<A> RunAsync(Func<Unit, Task<TryAsync<A>>> ma) =>
-            new TryAsync<A>(async () => await (await ma(unit)).Try());
+            new TryAsync<A>(async () => await (await ma(unit).ConfigureAwait(false)).Try().ConfigureAwait(false));
 
         [Pure]
         public TryAsync<A> BindReturn(Unit _, TryAsync<A> mb) =>
@@ -83,7 +83,7 @@ namespace LanguageExt.ClassInstances
             while (tasks.Count > 0)
             {
                 // Return first one that completes
-                var completed = await Task.WhenAny(tasks);
+                var completed = await Task.WhenAny(tasks).ConfigureAwait(false);
                 if (!completed.IsFaulted && !completed.Result.IsFaulted) return completed.Result;
                 tasks = tasks.Remove(completed);
             }
@@ -101,7 +101,7 @@ namespace LanguageExt.ClassInstances
         public TryAsync<A> ReturnAsync(Func<Unit, Task<A>> f) =>
             new TryAsync<A>(async () =>
             {
-                var a = await f(unit);
+                var a = await f(unit).ConfigureAwait(false);
                 return new Result<A>(a);
             });
 
@@ -115,7 +115,7 @@ namespace LanguageExt.ClassInstances
         public TryAsync<A> ReturnAsync(Task<A> x) =>
             new TryAsync<A>(async () =>
             {
-                var a = await x;
+                var a = await x.ConfigureAwait(false);
                 return new Result<A>(a);
             });
 
@@ -128,7 +128,7 @@ namespace LanguageExt.ClassInstances
         {
             try
             {
-                var res = await opt.Try();
+                var res = await opt.Try().ConfigureAwait(false);
                 if (res.IsFaulted)
                     return Check.NullReturn(None());
                 else
@@ -145,11 +145,11 @@ namespace LanguageExt.ClassInstances
         {
             try
             {
-                var res = await opt.Try();
+                var res = await opt.Try().ConfigureAwait(false);
                 if (res.IsFaulted)
                     return Check.NullReturn(None());
                 else
-                    return Check.NullReturn(await SomeAsync(res.Value));
+                    return Check.NullReturn(await SomeAsync(res.Value).ConfigureAwait(false));
             }
             catch
             {
@@ -162,15 +162,15 @@ namespace LanguageExt.ClassInstances
         {
             try
             {
-                var res = await opt.Try();
+                var res = await opt.Try().ConfigureAwait(false);
                 if (res.IsFaulted)
-                    return Check.NullReturn(await NoneAsync());
+                    return Check.NullReturn(await NoneAsync().ConfigureAwait(false));
                 else
                     return Check.NullReturn(Some(res.Value));
             }
             catch
             {
-                return Check.NullReturn(await NoneAsync());
+                return Check.NullReturn(await NoneAsync().ConfigureAwait(false));
             }
         }
 
@@ -179,15 +179,15 @@ namespace LanguageExt.ClassInstances
         {
             try
             {
-                var res = await opt.Try();
+                var res = await opt.Try().ConfigureAwait(false);
                 if (res.IsFaulted)
-                    return Check.NullReturn(await NoneAsync());
+                    return Check.NullReturn(await NoneAsync().ConfigureAwait(false));
                 else
-                    return Check.NullReturn(await SomeAsync(res.Value));
+                    return Check.NullReturn(await SomeAsync(res.Value).ConfigureAwait(false));
             }
             catch
             {
-                return Check.NullReturn(await NoneAsync());
+                return Check.NullReturn(await NoneAsync().ConfigureAwait(false));
             }
         }
 
@@ -198,25 +198,25 @@ namespace LanguageExt.ClassInstances
 
         public Task<Unit> MatchAsync(TryAsync<A> opt, Func<A, Task> SomeAsync, Action None) =>
             MatchAsync(opt,
-                async x => { await SomeAsync(x); return unit; },
+                async x => { await SomeAsync(x).ConfigureAwait(false); return unit; },
                 () => { None(); return unit; });
 
         public Task<Unit> MatchAsync(TryAsync<A> opt, Action<A> Some, Func<Task> NoneAsync) =>
             MatchAsync(opt,
                 x => { Some(x); return unit; },
-                async () => { await NoneAsync(); return unit; });
+                async () => { await NoneAsync().ConfigureAwait(false); return unit; });
 
         public Task<Unit> MatchAsync(TryAsync<A> opt, Func<A, Task> SomeAsync, Func<Task> NoneAsync) =>
             MatchAsync(opt,
-                async x => { await SomeAsync(x); return unit; },
-                async () => { await NoneAsync(); return unit; });
+                async x => { await SomeAsync(x).ConfigureAwait(false); return unit; },
+                async () => { await NoneAsync().ConfigureAwait(false); return unit; });
 
         [Pure]
         public async Task<B> MatchUnsafe<B>(TryAsync<A> opt, Func<A, B> Some, Func<B> None)
         {
             try
             {
-                var res = await opt.Try();
+                var res = await opt.Try().ConfigureAwait(false);
                 if (res.IsFaulted)
                     return None();
                 else
@@ -233,11 +233,11 @@ namespace LanguageExt.ClassInstances
         {
             try
             {
-                var res = await opt.Try();
+                var res = await opt.Try().ConfigureAwait(false);
                 if (res.IsFaulted)
                     return None();
                 else
-                    return await SomeAsync(res.Value);
+                    return await SomeAsync(res.Value).ConfigureAwait(false);
             }
             catch
             {
@@ -250,15 +250,15 @@ namespace LanguageExt.ClassInstances
         {
             try
             {
-                var res = await opt.Try();
+                var res = await opt.Try().ConfigureAwait(false);
                 if (res.IsFaulted)
-                    return await NoneAsync();
+                    return await NoneAsync().ConfigureAwait(false);
                 else
                     return Some(res.Value);
             }
             catch
             {
-                return await NoneAsync();
+                return await NoneAsync().ConfigureAwait(false);
             }
         }
 
@@ -267,15 +267,15 @@ namespace LanguageExt.ClassInstances
         {
             try
             {
-                var res = await opt.Try();
+                var res = await opt.Try().ConfigureAwait(false);
                 if (res.IsFaulted)
-                    return await NoneAsync();
+                    return await NoneAsync().ConfigureAwait(false);
                 else
-                    return await SomeAsync(res.Value);
+                    return await SomeAsync(res.Value).ConfigureAwait(false);
             }
             catch
             {
-                return await NoneAsync();
+                return await NoneAsync().ConfigureAwait(false);
             }
         }
 
@@ -313,7 +313,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryAsync<A> SomeAsync(Task<A> value) =>
-            new TryAsync<A>(async () => new Result<A>(await value));
+            new TryAsync<A>(async () => new Result<A>(await value.ConfigureAwait(false)));
 
         [Pure]
         public TryAsync<A> Optional(A value) =>
@@ -321,7 +321,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryAsync<A> OptionalAsync(Task<A> value) =>
-            new TryAsync<A>(async () => new Result<A>(await value));
+            new TryAsync<A>(async () => new Result<A>(await value.ConfigureAwait(false)));
 
         [Pure]
         public TryAsync<A> Empty() =>
@@ -393,7 +393,7 @@ namespace LanguageExt.ClassInstances
             // Run in parallel
             var resA = fa.Try();
             var resB = fb.Try();
-            var completed = await Task.WhenAll(resA, resB);
+            var completed = await Task.WhenAll(resA, resB).ConfigureAwait(false);
 
             return !completed[0].IsFaulted && !completed[1].IsFaulted
                 ? f(completed[0].Value, completed[1].Value)

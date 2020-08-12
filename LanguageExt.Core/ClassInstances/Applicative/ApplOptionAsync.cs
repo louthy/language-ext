@@ -41,7 +41,7 @@ namespace LanguageExt.ClassInstances
         {
             async Task<(bool IsSome, B Value)> Do()
             {
-                await Task.WhenAll(fab.Data, fa.Data);
+                await Task.WhenAll(fab.Data, fa.Data).ConfigureAwait(false);
                 return fab.Data.Result.IsSome && fa.Data.Result.IsSome
                     ? (true, fab.Data.Result.Value(fa.Data.Result.Value))
                     : (false, default);
@@ -54,7 +54,7 @@ namespace LanguageExt.ClassInstances
         {
             async Task<(bool IsSome, B Value)> Do()
             {
-                var adata = await fa.Data;
+                var adata = await fa.Data.ConfigureAwait(false);
                 return adata.IsSome
                     ? (true, fab(adata.Value))
                     : (false, default);
@@ -67,7 +67,7 @@ namespace LanguageExt.ClassInstances
         {
             async Task<(bool IsSome, B Value)> Do()
             {
-                await Task.WhenAll(fa.Data, fb.Data);
+                await Task.WhenAll(fa.Data, fb.Data).ConfigureAwait(false);
                 return fa.Data.Result.IsSome && fb.Data.Result.IsSome
                     ? (true, fab(fa.Data.Result.Value, fb.Data.Result.Value))
                     : (false, default);
@@ -96,7 +96,7 @@ namespace LanguageExt.ClassInstances
         {
             async Task<(bool IsSome, Func<B, C> Value)> Do()
             {
-                await Task.WhenAll(fab.Data, fa.Data);
+                await Task.WhenAll(fab.Data, fa.Data).ConfigureAwait(false);
                 return fab.Data.Result.IsSome && fa.Data.Result.IsSome
                     ? (true, fab.Data.Result.Value(fa.Data.Result.Value))
                     : (false, default);
@@ -109,7 +109,7 @@ namespace LanguageExt.ClassInstances
         {
             async Task<(bool IsSome, C Value)> Do()
             {
-                await Task.WhenAll(fab.Data, fa.Data, fb.Data);
+                await Task.WhenAll(fab.Data, fa.Data, fb.Data).ConfigureAwait(false);
                 return fab.Data.Result.IsSome && fa.Data.Result.IsSome && fb.Data.Result.IsSome
                     ? (true, fab.Data.Result.Value(fa.Data.Result.Value)(fb.Data.Result.Value))
                     : (false, default);
@@ -123,7 +123,7 @@ namespace LanguageExt.ClassInstances
         {
             async Task<(bool IsSome, Func<B, C> Value)> Do()
             {
-                var adata = await fa.Data;
+                var adata = await fa.Data.ConfigureAwait(false);
                 return adata.IsSome
                     ? (true, fab(adata.Value))
                     : (false, default);
@@ -136,7 +136,7 @@ namespace LanguageExt.ClassInstances
         {
             async Task<(bool IsSome, C Value)> Do()
             {
-                await Task.WhenAll(fa.Data, fb.Data);
+                await Task.WhenAll(fa.Data, fb.Data).ConfigureAwait(false);
                 return fa.Data.Result.IsSome && fb.Data.Result.IsSome
                     ? (true, fab(fa.Data.Result.Value)(fb.Data.Result.Value))
                     : (false, default);

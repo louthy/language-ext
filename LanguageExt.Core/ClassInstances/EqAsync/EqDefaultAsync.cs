@@ -30,7 +30,7 @@ namespace LanguageExt.ClassInstances
             if (isnull(a)) return isnull(b);
             if (isnull(b)) return false;
             if (ReferenceEquals(a, b)) return true;
-            return await EqAsyncClass<A>.EqualsAsync(a, b);
+            return await EqAsyncClass<A>.EqualsAsync(a, b).ConfigureAwait(false);
         }
 
         /// <summary>

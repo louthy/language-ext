@@ -36,15 +36,15 @@ namespace LanguageExt.Interfaces
         where RT : struct, HasCancel<RT>
     {
         /// <summary>
-        /// Access the time IO environment
+        /// Access the time asynchronous effect environment
         /// </summary>
-        /// <returns>Time IO environment</returns>
-        IO<RT, TimeIO> TimeIO { get; }
+        /// <returns>Time asynchronous effect environment</returns>
+        Aff<RT, TimeIO> TimeAff { get; }
 
         /// <summary>
-        /// Access the time SIO environment
+        /// Access the time synchronous effect environment
         /// </summary>
-        /// <returns>Time SIO environment</returns>
-        SIO<RT, TimeIO> TimeSIO { get; }
+        /// <returns>Time synchronous effect environment</returns>
+        Eff<RT, TimeIO> TimeEff { get; }
     }
 }

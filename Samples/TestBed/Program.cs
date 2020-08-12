@@ -20,11 +20,14 @@ using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.IO;
+using LanguageExt.Interfaces;
+using static LanguageExt.IO.File;
 using TestBed;
 
 class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                                                                                    //
@@ -34,49 +37,82 @@ class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        Map<string, int> xs = (("w", 1), ("x", 2), ("y", 3), ("z", 4));
-
-        var x1 = xs.ContainsKey("w");
-        var x2 = xs.ContainsKey("x");
-        var x3 = xs.ContainsKey("y");
-        var x4 = xs.ContainsKey("z");
+        await AsyncTests();
     }
-}
 
-[Record]
-public partial class Person
-{
-    public readonly string Name;
-    public readonly string Surname;
-}
+    static async Task<Unit> AsyncTests()
+    {
+        // Setup
+        MkIO.Setup(Runtime.New());
+        var tmp1 = Path.GetTempFileName();
+        var tmp2 = Path.GetTempFileName();
+        var tmp3 = "//**--";
+        File.WriteAllLines(tmp1, new[] {"Hello", "World"});
+        File.WriteAllLines(tmp2, new[] {"Hello", "World", "Again"});
 
-public struct OrdPerson : Ord<Person>
-{
-    public bool Equals(Person x, Person y) => default(EqDefault<Person>).Equals(x, y);
+        // Run with environment
+        var res1 = await AddLines<Runtime>(tmp1, tmp2).RunIO(Runtime.New());
+        
+        // Run with wrapped environment
+        var res2 = await AddLines(tmp1, tmp2);
 
-    public Task<bool> EqualsAsync(Person x, Person y) =>
-        Equals(x, y).AsTask();
-    
-    public int GetHashCode(Person x) => default(EqDefault<Person>).GetHashCode(x);
+        // Run with environment
+        var fail1 = await AddLines<Runtime>(tmp1, tmp3).RunIO(Runtime.New());
+        
+        // Run with wrapped environment
+        var fail2 = await AddLines(tmp1, tmp3);
 
-    public Task<int> GetHashCodeAsync(Person x) =>
-        GetHashCode(x).AsTask();
-    
-    private int? CompareHelper(int comparisonResult) => comparisonResult == 0 ? null : (int?) comparisonResult;
+        await OptionAsyncTest();
 
-    public int Compare(Person x, Person y) =>
-        CompareHelper(x.Name.CompareTo(y.Name)) ??
-        CompareHelper(x.Surname.CompareTo(y.Surname)) ??
-        0;
-    
-    public Task<int> CompareAsync(Person x, Person y) =>
-        Compare(x, y).AsTask();
-}
+        return unit;
+    }
 
-[Union]
-public interface State
-{
-    State Idle();
-    State LoggingIn(DateTime expiresAt);
-    State LoggedIn(string nonce, DateTime expiresAt);
+    static Aff<RT, int> AddLines<RT>(string path1, string path2) where RT : struct, HasFile<RT> =>
+        from lines1 in readAllLines<RT>(path1)
+        from lines2 in readAllLines<RT>(path2)
+        select lines1.Count + lines2.Count;
+
+    static async AffPure<int> AddLines(string path1, string path2)
+    {
+        var lines1 = await MkIO.readAllLines(path1);
+        var lines2 = await MkIO.readAllLines(path2);
+        return lines1.Count + lines2.Count;
+    }
+
+    static async AffPure<int> Add(AffPure<int> ma, AffPure<int> mb)
+    {
+        var a = await ma;
+        Console.WriteLine("HEll");
+        var b = await mb;
+        return a + b;
+    }
+
+    static async Task OptionAsyncTest()
+    {
+        var r1 = await Add(SomeAsync(100), SomeAsync(200)).IfNone(-1);
+        Console.WriteLine(r1);
+
+        var r2 = await Add(SomeAsync(100), None).IfNone(-1);
+        Console.WriteLine(r2);
+
+        var r3 = await Add(SomeAsync<int>(async _ => (await System.IO.File.ReadAllTextAsync("")).Length), SomeAsync(100)).IfNone(-1);
+        Console.WriteLine(r2);
+    }
+
+    static async OptionAsync<int> Add(OptionAsync<int> ma, OptionAsync<int> mb)
+    {
+        var a = await ma;
+        var b = await mb;
+        return a + b;
+    }
+
+    static class MkIO
+    {
+        public static Func<string, AffPure<Seq<string>>> readAllLines;
+
+        public static void Setup<RT>(RT runtime) where RT : struct, HasFile<RT>
+        {
+            readAllLines = path => AffMaybe<Seq<string>>(async () => await IO.File.readAllLines<RT>(path).RunIO(runtime));
+        }
+    }
 }

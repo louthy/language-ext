@@ -3,6 +3,8 @@ using System.Text;
 using System.Threading;
 using LanguageExt.Interfaces;
 
+using static LanguageExt.Prelude;
+
 namespace LanguageExt
 {
     /// <summary>
@@ -66,79 +68,79 @@ namespace LanguageExt
         /// </summary>
         /// <param name="runtime">Runtime</param>
         /// <returns>CancellationTokenSource</returns>
-        public SIO<Runtime, CancellationTokenSource> CancellationTokenSource =>
-            SIO<Runtime, CancellationTokenSource>.Effect(env => env.source);
+        public Eff<Runtime, CancellationTokenSource> CancellationTokenSource =>
+            Eff<Runtime, CancellationTokenSource>(env => env.source);
 
 #if !NETSTANDARD21
         /// <summary>
         /// Get the cancellation token
         /// </summary>
         /// <returns>CancellationToken</returns>
-        public SIO<Runtime, CancellationToken> Token =>
-            SIO<Runtime, CancellationToken>.Effect(env => env.CancellationToken);
+        public Eff<Runtime, CancellationToken> Token =>
+            Eff<Runtime, CancellationToken>(env => env.CancellationToken);
 #endif
         
         /// <summary>
         /// Access the console IO environment
         /// </summary>
         /// <returns>Console IO environment</returns>
-        public IO<Runtime, ConsoleIO> ConsoleIO =>
-            IO<Runtime, ConsoleIO>.Success(new LiveIO.ConsoleIO());
+        public Aff<Runtime, ConsoleIO> ConsoleAff =>
+            SuccessAff(LiveIO.ConsoleIO.Default);
 
         /// <summary>
         /// Access the console SIO environment
         /// </summary>
         /// <returns>Console SIO environment</returns>
-        public SIO<Runtime, ConsoleIO> ConsoleSIO =>
-            SIO<Runtime, ConsoleIO>.Success(new LiveIO.ConsoleIO());
+        public Eff<Runtime, ConsoleIO> ConsoleEff =>
+            SuccessEff(LiveIO.ConsoleIO.Default);
 
         /// <summary>
         /// Access the file IO environment
         /// </summary>
         /// <returns>File IO environment</returns>
-        public IO<Runtime, FileIO> FileIO =>
-            IO<Runtime, FileIO>.Success(new LiveIO.FileIO());
+        public Aff<Runtime, FileIO> FileAff =>
+            SuccessAff(LiveIO.FileIO.Default);
         
         /// <summary>
         /// Access the file SIO environment
         /// </summary>
         /// <returns>File SIO environment</returns>
-        public SIO<Runtime, FileIO> FileSIO =>
-            SIO<Runtime, FileIO>.Success(new LiveIO.FileIO());
+        public Eff<Runtime, FileIO> FileEff =>
+            SuccessEff(LiveIO.FileIO.Default);
 
         /// <summary>
         /// Access the TextReader IO environment
         /// </summary>
         /// <returns>TextReader IO environment</returns>
-        public IO<Runtime, TextReadIO> TextReadIO =>
-            IO<Runtime, TextReadIO>.Success(new LiveIO.TextReadIO());
+        public Aff<Runtime, TextReadIO> TextReadAff =>
+            SuccessAff(LiveIO.TextReadIO.Default);
         
         /// <summary>
         /// Access the TextReader SIO environment
         /// </summary>
         /// <returns>TextReader SIO environment</returns>
-        public SIO<Runtime, TextReadIO> TextReadSIO =>
-            SIO<Runtime, TextReadIO>.Success(new LiveIO.TextReadIO());
+        public Eff<Runtime, TextReadIO> TextReadEff =>
+            SuccessEff(LiveIO.TextReadIO.Default);
 
         /// <summary>
         /// Access the time IO environment
         /// </summary>
         /// <returns>Time IO environment</returns>
-        public IO<Runtime, TimeIO> TimeIO =>
-            IO<Runtime, TimeIO>.Success(new LiveIO.TimeIO());
+        public Aff<Runtime, TimeIO> TimeAff =>
+            SuccessAff(LiveIO.TimeIO.Default);
 
         /// <summary>
         /// Access the time SIO environment
         /// </summary>
         /// <returns>Time SIO environment</returns>
-        public SIO<Runtime, TimeIO> TimeSIO  =>
-            SIO<Runtime, TimeIO>.Success(new LiveIO.TimeIO());
+        public Eff<Runtime, TimeIO> TimeEff  =>
+            SuccessEff(LiveIO.TimeIO.Default);
 
         /// <summary>
         /// Get encoding
         /// </summary>
         /// <returns></returns>
-        public SIO<Runtime, Encoding> Encoding =>
-            SIO<Runtime, Encoding>.Effect(env => env.encoding);
+        public Eff<Runtime, Encoding> Encoding =>
+            Eff<Runtime, Encoding>(env => env.encoding);
     }
 }

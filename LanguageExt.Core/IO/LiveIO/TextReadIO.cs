@@ -8,6 +8,9 @@ namespace LanguageExt.LiveIO
 {
     public struct TextReadIO : Interfaces.TextReadIO
     {
+        public static Interfaces.TextReadIO Default =
+            new TextReadIO();
+ 
         /// <summary>
         /// Read a line of text from the stream
         /// </summary>

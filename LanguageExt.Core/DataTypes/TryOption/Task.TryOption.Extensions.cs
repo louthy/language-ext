@@ -16,7 +16,7 @@ public static class TaskTryOptionExtensions
         {
             try
             {
-                var resT = await self;
+                var resT = await self.ConfigureAwait(false);
                 return resT.Try();
             }
             catch (Exception e)
@@ -36,7 +36,7 @@ public static class TaskTryOptionExtensions
             {
                 var task = self.Try();
                 if (task.IsFaultedOrNone) return new OptionalResult<A>(task.Exception);
-                return await task.Value.Value;
+                return await task.Value.Value.ConfigureAwait(false);
             }
             catch (Exception e)
             {

@@ -218,17 +218,17 @@ namespace LanguageExt.Pipes
 
     public partial class M<Env, A1, A, B1, B, R> : Proxy<Env, A1, A, B1, B, R>  where Env : struct, HasCancel<Env>
     {
-        public readonly IO<Env, Proxy<Env, A1, A, B1, B, R>> Value;
+        public readonly Aff<Env, Proxy<Env, A1, A, B1, B, R>> Value;
         
         [MethodImpl(Proxy.mops)]
-        public M(IO<Env, Proxy<Env, A1, A, B1, B, R>> value) =>
+        public M(Aff<Env, Proxy<Env, A1, A, B1, B, R>> value) =>
             Value = value;
         
         [Pure, MethodImpl(Proxy.mops)]
         public Proxy<Env, A1, A, B1, B, R> ToProxy() => this;
 
         [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out IO<Env, Proxy<Env, A1, A, B1, B, R>> value) =>
+        public void Deconstruct(out Aff<Env, Proxy<Env, A1, A, B1, B, R>> value) =>
             value = Value;
     }
     

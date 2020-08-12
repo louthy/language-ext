@@ -51,7 +51,7 @@ namespace LanguageExt
             where NewInnerMonadC : struct, MonadAsync<NewInnerC, C> =>
             default(TransSyncAsync<OuterMonad, OuterType, InnerMonad, InnerType, A>).BindAsync<NewOuterMonadC, NewOuterC, NewInnerMonadC, NewInnerC, C>(ma, async a =>
             {
-                return default(NewInnerMonadB).Bind<NewInnerMonadC, NewInnerC, C>(await bind(a), b =>
+                return default(NewInnerMonadB).Bind<NewInnerMonadC, NewInnerC, C>(await bind(a).ConfigureAwait(false), b =>
                 {
                     return default(NewInnerMonadC).ReturnAsync(project(a, b).AsTask());
                 });
@@ -83,7 +83,7 @@ namespace LanguageExt
             where NewInnerMonadC : struct, MonadAsync<NewInnerC, C> =>
             default(TransSyncAsync<OuterMonad, OuterType, InnerMonad, InnerType, A>).BindAsync<NewOuterMonadC, NewOuterC, NewInnerMonadC, NewInnerC, C>(ma, async a =>
             {
-                return default(NewInnerMonadB).Bind<NewInnerMonadC, NewInnerC, C>(await bind(a), b =>
+                return default(NewInnerMonadB).Bind<NewInnerMonadC, NewInnerC, C>(await bind(a).ConfigureAwait(false), b =>
                 {
                     return default(NewInnerMonadC).ReturnAsync(project(a, b));
                 });
@@ -123,7 +123,7 @@ namespace LanguageExt
             MOuter.Fold(ma, state.AsTask(), (s, inner) =>
                 MInner.Fold(inner, s, async (ts, a) =>
                     {
-                        var rs = await ts;
+                        var rs = await ts.ConfigureAwait(false);
                         var ns = f(rs, a);
                         return ns;
                     })(unit).Flatten())(unit);
@@ -132,7 +132,7 @@ namespace LanguageExt
             MOuter.FoldBack(ma, state.AsTask(), (s, inner) =>
                 MInner.FoldBack(inner, s, async (ts, a) =>
                 {
-                    var rs = await ts;
+                    var rs = await ts.ConfigureAwait(false);
                     var ns = f(rs, a);
                     return ns;
                 })(unit).Flatten())(unit);
@@ -141,8 +141,8 @@ namespace LanguageExt
             MOuter.Fold(ma, state.AsTask(), (s, inner) =>
                 MInner.Fold(inner, s, async (ts, a) =>
                 {
-                    var rs = await ts;
-                    var ns = await f(rs, a);
+                    var rs = await ts.ConfigureAwait(false);
+                    var ns = await f(rs, a).ConfigureAwait(false);
                     return ns;
                 })(unit).Flatten())(unit);
 
@@ -150,8 +150,8 @@ namespace LanguageExt
             MOuter.FoldBack(ma, state.AsTask(), (s, inner) =>
                 MInner.FoldBack(inner, s, async (ts, a) =>
                 {
-                    var rs = await ts;
-                    var ns = await f(rs, a);
+                    var rs = await ts.ConfigureAwait(false);
+                    var ns = await f(rs, a).ConfigureAwait(false);
                     return ns;
                 })(unit).Flatten())(unit);
 
@@ -178,7 +178,7 @@ namespace LanguageExt
                 MOuter.Fold(ma, default(NewOuterMonad).ReturnAsync(default(NewInnerMonad).Zero().AsTask()), (outerState, innerA) =>
                     TransAsyncSync<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>.Inst.Plus(outerState,
                         MInner.Bind<NewOuterMonad, NewOuterType, NewInnerType>(innerA, a =>
-                            default(NewOuterMonad).ReturnAsync(async _ => default(NewInnerMonad).Return(await f(a))))))(unit);
+                            default(NewOuterMonad).ReturnAsync(async _ => default(NewInnerMonad).Return(await f(a).ConfigureAwait(false))))))(unit);
 
         public OuterType Plus(OuterType ma, OuterType mb) =>
             MOuter.Apply(MInner.Plus, ma, mb);

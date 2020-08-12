@@ -29,7 +29,7 @@ namespace LanguageExt.Pipes
         /// <returns>Consumer</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<Env, A, R> use<Env, A, H, R>(
-            IO<H> Acq,
+            AffPure<H> Acq,
             Func<H, Unit> Rel,
             Func<H, Consumer<Env, A, R>> Use) where Env : struct, HasCancel<Env> =>
                 PipesInternal.Use(Acq, Use, Rel);
@@ -46,7 +46,7 @@ namespace LanguageExt.Pipes
         /// <returns>Consumer</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<Env, A, R> use<Env, A, H, R>(
-            IO<H> Acq,
+            AffPure<H> Acq,
             Func<H, Consumer<Env, A, R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
@@ -64,7 +64,7 @@ namespace LanguageExt.Pipes
         /// <returns>Consumer</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<Env, A, R> use<Env, A, H, R>(
-            SIO<H> Acq,
+            EffPure<H> Acq,
             Func<H, Consumer<Env, A, R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
@@ -82,7 +82,7 @@ namespace LanguageExt.Pipes
         /// <returns>Consumer</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<Env, A, R> use<Env, A, H, R>(
-            IO<Env, H> Acq,
+            Aff<Env, H> Acq,
             Func<H, Consumer<Env, A, R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
@@ -100,7 +100,7 @@ namespace LanguageExt.Pipes
         /// <returns>Consumer</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<Env, A, R> use<Env, A, H, R>(
-            SIO<Env, H> Acq,
+            Eff<Env, H> Acq,
             Func<H, Consumer<Env, A, R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
@@ -128,28 +128,28 @@ namespace LanguageExt.Pipes
         /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, R> liftIO<Env, A, R>(IO<R> ma) where Env : struct, HasCancel<Env> =>
+        public static Consumer<Env, A, R> liftIO<Env, A, R>(AffPure<R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Unit, A, Unit, Void, R>(ma).ToConsumer();
 
         /// <summary>
         /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, R> liftIO<Env, A, R>(SIO<R> ma) where Env : struct, HasCancel<Env> =>
+        public static Consumer<Env, A, R> liftIO<Env, A, R>(EffPure<R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Unit, A, Unit, Void, R>(ma).ToConsumer();
 
         /// <summary>
         /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, R> liftIO<Env, A, R>(IO<Env, R> ma) where Env : struct, HasCancel<Env> =>
+        public static Consumer<Env, A, R> liftIO<Env, A, R>(Aff<Env, R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Unit, A, Unit, Void, R>(ma).ToConsumer();
 
         /// <summary>
         /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, R> liftIO<Env, A, R>(SIO<Env, R> ma) where Env : struct, HasCancel<Env> =>
+        public static Consumer<Env, A, R> liftIO<Env, A, R>(Eff<Env, R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Unit, A, Unit, Void, R>(ma).ToConsumer();
 
 
@@ -157,14 +157,14 @@ namespace LanguageExt.Pipes
         /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, Unit> liftIO<Env, A>(IO<Env, Unit> ma) where Env : struct, HasCancel<Env> =>
+        public static Consumer<Env, A, Unit> liftIO<Env, A>(Aff<Env, Unit> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Unit, A, Unit, Void, Unit>(ma).ToConsumer();
 
         /// <summary>
         /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, Unit> liftIO<Env, A>(SIO<Env, Unit> ma) where Env : struct, HasCancel<Env> =>
+        public static Consumer<Env, A, Unit> liftIO<Env, A>(Eff<Env, Unit> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Unit, A, Unit, Void, Unit>(ma).ToConsumer();
 
         [Pure, MethodImpl(Proxy.mops)]
@@ -178,7 +178,7 @@ namespace LanguageExt.Pipes
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, R> mapM<Env, A, R>(Func<A, IO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Consumer<Env, A, R> mapM<Env, A, R>(Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             Proxy.cat<Env, A, R>()
                  .For<Env, A, A, R>(a => liftIO<Env, A>(f(a)));
 
@@ -186,7 +186,7 @@ namespace LanguageExt.Pipes
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, Unit> mapM<Env, A>(Func<A, IO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Consumer<Env, A, Unit> mapM<Env, A>(Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             Proxy.cat<Env, A, Unit>()
                  .For<Env, A, A, Unit>(a => liftIO<Env, A>(f(a)));
 
@@ -194,7 +194,7 @@ namespace LanguageExt.Pipes
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, R> mapM<Env, A, R>(Func<A, SIO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Consumer<Env, A, R> mapM<Env, A, R>(Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             Proxy.cat<Env, A, R>()
                  .For<Env, A, A, R>(a => liftIO<Env, A>(f(a)));
         
@@ -202,7 +202,7 @@ namespace LanguageExt.Pipes
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, Unit> mapM<Env, A>(Func<A, SIO<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Consumer<Env, A, Unit> mapM<Env, A>(Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             Proxy.cat<Env, A, Unit>()
                  .For<Env, A, A, Unit>(a => liftIO<Env, A>(f(a)));
         
@@ -212,7 +212,7 @@ namespace LanguageExt.Pipes
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, R> mapM<Env, A, R>(Func<A, IO<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Consumer<Env, A, R> mapM<Env, A, R>(Func<A, AffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
             Proxy.cat<Env, A, R>()
                  .For<Env, A, A, R>(a => liftIO<Env, A, Unit>(f(a)));
 
@@ -220,7 +220,7 @@ namespace LanguageExt.Pipes
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, Unit> mapM<Env, A>(Func<A, IO<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Consumer<Env, A, Unit> mapM<Env, A>(Func<A, AffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
             Proxy.cat<Env, A, Unit>()
                  .For<Env, A, A, Unit>(a => liftIO<Env, A, Unit>(f(a)));
 
@@ -228,7 +228,7 @@ namespace LanguageExt.Pipes
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, R> mapM<Env, A, R>(Func<A, SIO<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Consumer<Env, A, R> mapM<Env, A, R>(Func<A, EffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
             Proxy.cat<Env, A, R>()
                  .For<Env, A, A, R>(a => liftIO<Env, A, Unit>(f(a)));
 
@@ -236,7 +236,7 @@ namespace LanguageExt.Pipes
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, Unit> mapM<Env, A>(Func<A, SIO<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Consumer<Env, A, Unit> mapM<Env, A>(Func<A, EffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
             Proxy.cat<Env, A, Unit>()
                  .For<Env, A, A, Unit>(a => liftIO<Env, A, Unit>(f(a)));        
     }

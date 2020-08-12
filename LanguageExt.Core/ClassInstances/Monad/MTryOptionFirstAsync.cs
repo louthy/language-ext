@@ -28,7 +28,7 @@ namespace LanguageExt.ClassInstances
             {
                 try
                 {
-                    var ra = await ma.Try();
+                    var ra = await ma.Try().ConfigureAwait(false);
                     if (ra.IsBottom) return default(MONADB).Fail(new TaskCanceledException());
                     if (ra.IsFaulted) return default(MONADB).Fail(ra.Exception);
                     if (ra.IsFaultedOrNone) return default(MONADB).Zero();
@@ -46,11 +46,11 @@ namespace LanguageExt.ClassInstances
             {
                 try
                 {
-                    var ra = await ma.Try();
+                    var ra = await ma.Try().ConfigureAwait(false);
                     if (ra.IsBottom) return default(MONADB).Fail(new TaskCanceledException());
                     if (ra.IsFaulted) return default(MONADB).Fail(ra.Exception);
                     if (ra.IsFaultedOrNone) return default(MONADB).Zero();
-                    return await f(ra.Value.Value);
+                    return await f(ra.Value.Value).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -77,7 +77,7 @@ namespace LanguageExt.ClassInstances
             while (tasks.Count > 0)
             {
                 // Return first one that completes
-                var completed = await Task.WhenAny(tasks);
+                var completed = await Task.WhenAny(tasks).ConfigureAwait(false);
                 if (!completed.IsFaulted && !completed.Result.IsFaulted) return completed.Result;
                 tasks = tasks.Remove(completed);
             }
@@ -94,7 +94,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>Monad of A</returns>
         [Pure]
         public TryOptionAsync<A> ReturnAsync(Task<A> x) =>
-            new TryOptionAsync<A>(async () => new OptionalResult<A>(await x));
+            new TryOptionAsync<A>(async () => new OptionalResult<A>(await x.ConfigureAwait(false)));
 
         /// <summary>
         /// Monad return
@@ -103,7 +103,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>Monad of A</returns>
         [Pure]
         public TryOptionAsync<A> ReturnAsync(Func<Unit, Task<A>> f) =>
-            new TryOptionAsync<A>(async () => new OptionalResult<A>(await f(unit)));
+            new TryOptionAsync<A>(async () => new OptionalResult<A>(await f(unit).ConfigureAwait(false)));
 
         [Pure]
         public TryOptionAsync<A> Zero() =>
@@ -111,7 +111,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryOptionAsync<A> RunAsync(Func<Unit, Task<TryOptionAsync<A>>> ma) =>
-            new TryOptionAsync<A>(async () => await (await ma(unit)).Try());
+            new TryOptionAsync<A>(async () => await (await ma(unit).ConfigureAwait(false)).Try().ConfigureAwait(false));
 
         [Pure]
         public TryOptionAsync<A> BindReturn(Unit _, TryOptionAsync<A> mb) =>
@@ -204,7 +204,7 @@ namespace LanguageExt.ClassInstances
             opt.MatchAsync(
                 Succ,
                 NoneAsync: FailAsync,
-                FailAsync: async _ => await FailAsync());
+                FailAsync: async _ => await FailAsync().ConfigureAwait(false));
 
         [Pure]
         public Task<B> MatchAsync<B>(TryOptionAsync<A> opt, Func<A, Task<B>> SuccAsync, Func<Task<B>> FailAsync) =>
@@ -288,7 +288,7 @@ namespace LanguageExt.ClassInstances
             // Run in parallel
             var resA = fa.Try();
             var resB = fb.Try();
-            var completed = await Task.WhenAll(resA, resB);
+            var completed = await Task.WhenAll(resA, resB).ConfigureAwait(false);
 
             return !completed[0].IsFaulted && !completed[1].IsFaulted && completed[0].Value.IsSome && completed[1].Value.IsSome
                 ? Option<A>.Some(f(completed[0].Value.Value, completed[1].Value.Value))

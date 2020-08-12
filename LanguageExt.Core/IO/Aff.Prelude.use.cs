@@ -10,20 +10,20 @@ using LanguageExt.Thunks;
 
 namespace LanguageExt
 {
-    public static partial class IO
+    public static partial class Prelude
     {
         /// <summary>
         /// Safely use a disposable resource
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static IO<R> use<H, R>(SIO<H> Acq, Func<H, IO<R>> Use) where H : IDisposable =>
-            IO<R>.EffectMaybe(async () => {
-                var h = Acq.RunIO();
+        public static AffPure<R> use<H, R>(AffPure<H> Acq, Func<H, AffPure<R>> Use) where H : IDisposable =>
+            AffMaybe<R>(async () => {
+                var h = await Acq.RunIO().ConfigureAwait(false);
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();
-                    return await Use(h.Value).RunIO();
+                    return await Use(h.Value).RunIO().ConfigureAwait(false);
                 }
                 finally
                 {
@@ -36,15 +36,15 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static IO<Env, R> use<Env, H, R>(SIO<H> Acq, Func<H, IO<Env, R>> Use)
+        public static Aff<Env, R> use<Env, H, R>(AffPure<H> Acq, Func<H, Aff<Env, R>> Use)
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
-            IO<Env, R>.EffectMaybe(async env => {
-                var h = Acq.RunIO();
+            AffMaybe<Env, R>(async env => {
+                var h = await Acq.RunIO().ConfigureAwait(false);
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();
-                    return await Use(h.Value).RunIO(env);
+                    return await Use(h.Value).RunIO(env).ConfigureAwait(false);
                 }
                 finally
                 {
@@ -57,9 +57,9 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static SIO<R> use<H, R>(SIO<H> Acq, Func<H, SIO<R>> Use) where H : IDisposable =>
-            SIO<R>.EffectMaybe(() => {
-                var h = Acq.RunIO();
+        public static AffPure<R> use<H, R>(AffPure<H> Acq, Func<H, EffPure<R>> Use) where H : IDisposable =>
+            AffMaybe(async () => {
+                var h = await Acq.RunIO().ConfigureAwait(false);
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();
@@ -76,11 +76,11 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static SIO<Env, R> use<Env, H, R>(SIO<H> Acq, Func<H, SIO<Env, R>> Use)
+        public static Aff<Env, R> use<Env, H, R>(AffPure<H> Acq, Func<H, Eff<Env, R>> Use)
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
-            SIO<Env, R>.EffectMaybe(env => {
-                var h = Acq.RunIO();
+            AffMaybe<Env, R>(async env => {
+                var h = await Acq.RunIO().ConfigureAwait(false);
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();
@@ -98,15 +98,15 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static IO<Env, R> use<Env, H, R>(SIO<Env, H> Acq, Func<H, IO<R>> Use) 
+        public static Aff<Env, R> use<Env, H, R>(Aff<Env, H> Acq, Func<H, AffPure<R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
-            IO<Env, R>.EffectMaybe(async env => {
-                var h = Acq.RunIO(env);
+            AffMaybe<Env, R>(async env => {
+                var h = await Acq.RunIO(env).ConfigureAwait(false);
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();
-                    return await Use(h.Value).RunIO();
+                    return await Use(h.Value).RunIO().ConfigureAwait(false);
                 }
                 finally
                 {
@@ -119,15 +119,15 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static IO<Env, R> use<Env, H, R>(SIO<Env, H> Acq, Func<H, IO<Env, R>> Use)
+        public static Aff<Env, R> use<Env, H, R>(Aff<Env, H> Acq, Func<H, Aff<Env, R>> Use)
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
-            IO<Env, R>.EffectMaybe(async env => {
-                var h = Acq.RunIO(env);
+            AffMaybe<Env, R>(async env => {
+                var h = await Acq.RunIO(env).ConfigureAwait(false);
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();
-                    return await Use(h.Value).RunIO(env);
+                    return await Use(h.Value).RunIO(env).ConfigureAwait(false);
                 }
                 finally
                 {
@@ -140,11 +140,11 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static SIO<Env, R> use<Env, H, R>(SIO<Env, H> Acq, Func<H, SIO<R>> Use) 
+        public static Aff<Env, R> use<Env, H, R>(Aff<Env, H> Acq, Func<H, EffPure<R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
-            SIO<Env, R>.EffectMaybe(env => {
-                var h = Acq.RunIO(env);
+            AffMaybe<Env, R>(async env => {
+                var h = await Acq.RunIO(env).ConfigureAwait(false);
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();
@@ -161,11 +161,11 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static SIO<Env, R> use<Env, H, R>(SIO<Env, H> Acq, Func<H, SIO<Env, R>> Use)
+        public static Aff<Env, R> use<Env, H, R>(Aff<Env, H> Acq, Func<H, Eff<Env, R>> Use)
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
-            SIO<Env, R>.EffectMaybe(env => {
-                var h = Acq.RunIO(env);
+            AffMaybe<Env, R>(async env => {
+                var h = await Acq.RunIO(env).ConfigureAwait(false);
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();

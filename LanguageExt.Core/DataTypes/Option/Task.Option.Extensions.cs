@@ -46,7 +46,7 @@ public static class TaskOptionAsyncExtensions
     /// </summary>
     [Pure]
     public static OptionAsync<B> BindAsync<A, B>(this Task<Option<A>> self, Func<A, Task<Option<B>>> f) =>
-        default(MOptionAsync<A>).BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), async a => (await f(a)).ToAsync());
+        default(MOptionAsync<A>).BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(self.ToAsync(), async a => (await f(a).ConfigureAwait(false)).ToAsync());
 
     /// <summary>
     /// Monad bind operation
@@ -774,7 +774,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, Task<B>> Some, Func<Task<B>> None) =>
-        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, async _ => await None());
+        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, async _ => await None().ConfigureAwait(false));
 
     /// <summary>
     /// Projection from one value to another
@@ -785,7 +785,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<Task<B>> None) =>
-        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, async _ => await None());
+        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, async _ => await None().ConfigureAwait(false));
 
     /// <summary>
     /// <para>

@@ -45,15 +45,15 @@ namespace LanguageExt.ClassInstances
                 var f = fab.Try();
                 var a = fa.Try();
 
-                await Task.WhenAll(f, a);
+                await Task.WhenAll(f, a).ConfigureAwait(false);
 
                 if (f.IsFaulted) return new Result<B>(f.Exception);
                 if (a.IsFaulted) return new Result<B>(a.Exception);
 
-                var rf = await f;
+                var rf = await f.ConfigureAwait(false);
                 if (rf.IsFaulted) return new Result<B>(rf.Exception);
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new Result<B>(ra.Exception);
 
                 return new Result<B>(rf.Value(ra.Value));
@@ -70,15 +70,15 @@ namespace LanguageExt.ClassInstances
                 var a = fa.Try();
                 var b = fb.Try();
 
-                await Task.WhenAll(a, b);
+                await Task.WhenAll(a, b).ConfigureAwait(false);
 
                 if (a.IsFaulted) return new Result<B>(a.Exception);
                 if (b.IsFaulted) return new Result<B>(b.Exception);
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new Result<B>(ra.Exception);
 
-                var rb = await b;
+                var rb = await b.ConfigureAwait(false);
                 if (rb.IsFaulted) return new Result<B>(rb.Exception);
 
                 return new Result<B>(rb.Value);
@@ -97,15 +97,15 @@ namespace LanguageExt.ClassInstances
                 var f = fabc.Try();
                 var a = fa.Try();
 
-                await Task.WhenAll(f, a);
+                await Task.WhenAll(f, a).ConfigureAwait(false);
 
                 if (f.IsFaulted) return new Result<Func<B, C>>(f.Exception);
                 if (a.IsFaulted) return new Result<Func<B, C>>(a.Exception);
 
-                var rf = await f;
+                var rf = await f.ConfigureAwait(false);
                 if (rf.IsFaulted) return new Result<Func<B, C>>(rf.Exception);
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new Result<Func<B, C>>(ra.Exception);
 
                 return new Result<Func<B, C>>(rf.Value(ra.Value));
@@ -119,19 +119,19 @@ namespace LanguageExt.ClassInstances
                 var a = fa.Try();
                 var b = fb.Try();
 
-                await Task.WhenAll(f, a, b);
+                await Task.WhenAll(f, a, b).ConfigureAwait(false);
 
                 if (f.IsFaulted) return new Result<C>(f.Exception);
                 if (a.IsFaulted) return new Result<C>(a.Exception);
                 if (b.IsFaulted) return new Result<C>(b.Exception);
 
-                var rf = await f;
+                var rf = await f.ConfigureAwait(false);
                 if (rf.IsFaulted) return new Result<C>(rf.Exception);
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new Result<C>(ra.Exception);
 
-                var rb = await b;
+                var rb = await b.ConfigureAwait(false);
                 if (rb.IsFaulted) return new Result<C>(rb.Exception);
 
                 return new Result<C>(rf.Value(ra.Value)(rb.Value));
@@ -160,20 +160,20 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public TryAsync<A> BiMapAsync(TryAsync<A> ma, Func<A, Task<A>> fa, Func<Unit, A> fb) => () =>
             ma.Match(
-                Succ: async a => new Result<A>(await fa(a)),
+                Succ: async a => new Result<A>(await fa(a).ConfigureAwait(false)),
                 Fail: _ => new Result<A>(fb(unit)));
 
         [Pure]
         public TryAsync<A> BiMapAsync(TryAsync<A> ma, Func<A, A> fa, Func<Unit, Task<A>> fb) => () =>
             ma.Match(
                 Succ: a => new Result<A>(fa(a)),
-                Fail: async _ => new Result<A>(await fb(unit)));
+                Fail: async _ => new Result<A>(await fb(unit).ConfigureAwait(false)));
 
         [Pure]
         public TryAsync<A> BiMapAsync(TryAsync<A> ma, Func<A, Task<A>> fa, Func<Unit, Task<A>> fb) => () =>
             ma.Match(
-                Succ: async a => new Result<A>(await fa(a)),
-                Fail: async _ => new Result<A>(await fb(unit)));
+                Succ: async a => new Result<A>(await fa(a).ConfigureAwait(false)),
+                Fail: async _ => new Result<A>(await fb(unit).ConfigureAwait(false)));
 
         [Pure]
         public TryAsync<A> Map(TryAsync<A> ma, Func<A, A> f) => () =>
@@ -184,7 +184,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public TryAsync<A> MapAsync(TryAsync<A> ma, Func<A, Task<A>> f) => () =>
             ma.Match(
-                Succ: async a => new Result<A>(await f(a)),
+                Succ: async a => new Result<A>(await f(a).ConfigureAwait(false)),
                 Fail: e => new Result<A>(e));
 
         [Pure]
@@ -194,15 +194,15 @@ namespace LanguageExt.ClassInstances
                 var f = fab.Try();
                 var a = fa.Try();
 
-                await Task.WhenAll(f, a);
+                await Task.WhenAll(f, a).ConfigureAwait(false);
 
                 if (f.IsFaulted) return new Result<A>(f.Exception);
                 if (a.IsFaulted) return new Result<A>(a.Exception);
 
-                var rf = await f;
+                var rf = await f.ConfigureAwait(false);
                 if (rf.IsFaulted) return new Result<A>(rf.Exception);
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new Result<A>(ra.Exception);
 
                 return new Result<A>(rf.Value(ra.Value));
@@ -219,15 +219,15 @@ namespace LanguageExt.ClassInstances
                 var a = fa.Try();
                 var b = fb.Try();
 
-                await Task.WhenAll(a, b);
+                await Task.WhenAll(a, b).ConfigureAwait(false);
 
                 if (a.IsFaulted) return new Result<A>(a.Exception);
                 if (b.IsFaulted) return new Result<A>(b.Exception);
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new Result<A>(ra.Exception);
 
-                var rb = await b;
+                var rb = await b.ConfigureAwait(false);
                 if (rb.IsFaulted) return new Result<A>(rb.Exception);
 
                 return new Result<A>(rb.Value);
@@ -240,15 +240,15 @@ namespace LanguageExt.ClassInstances
                 var f = fabc.Try();
                 var a = fa.Try();
 
-                await Task.WhenAll(f, a);
+                await Task.WhenAll(f, a).ConfigureAwait(false);
 
                 if (f.IsFaulted) return new Result<Func<A, A>>(f.Exception);
                 if (a.IsFaulted) return new Result<Func<A, A>>(a.Exception);
 
-                var rf = await f;
+                var rf = await f.ConfigureAwait(false);
                 if (rf.IsFaulted) return new Result<Func<A, A>>(rf.Exception);
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new Result<Func<A, A>>(ra.Exception);
 
                 return new Result<Func<A, A>>(rf.Value(ra.Value));
@@ -262,19 +262,19 @@ namespace LanguageExt.ClassInstances
                 var a = fa.Try();
                 var b = fb.Try();
 
-                await Task.WhenAll(f, a, b);
+                await Task.WhenAll(f, a, b).ConfigureAwait(false);
 
                 if (f.IsFaulted) return new Result<A>(f.Exception);
                 if (a.IsFaulted) return new Result<A>(a.Exception);
                 if (b.IsFaulted) return new Result<A>(b.Exception);
 
-                var rf = await f;
+                var rf = await f.ConfigureAwait(false);
                 if (rf.IsFaulted) return new Result<A>(rf.Exception);
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new Result<A>(ra.Exception);
 
-                var rb = await b;
+                var rb = await b.ConfigureAwait(false);
                 if (rb.IsFaulted) return new Result<A>(rb.Exception);
 
                 return new Result<A>(rf.Value(ra.Value)(rb.Value));

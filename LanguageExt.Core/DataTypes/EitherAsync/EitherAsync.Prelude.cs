@@ -954,7 +954,7 @@ namespace LanguageExt
         public async static Task<IEnumerable<Ret>> match<L, R, Ret>(IEnumerable<EitherAsync<L, R>> list,
             Func<R, Ret> Right,
             Func<L, Ret> Left) =>
-            (await Task.WhenAll(list.Map(item => item.Match(Right, Left)))).AsEnumerable();
+            (await Task.WhenAll(list.Map(item => item.Match(Right, Left))).ConfigureAwait(false)).AsEnumerable();
 
         /// <summary>
         /// Project the Either into a Lst R

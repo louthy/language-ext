@@ -30,10 +30,10 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public async ValueTask<B> Map(ValueTask<A> ma, Func<A, B> f) =>
-            f(await ma);
+            f(await ma.ConfigureAwait(false));
 
         [Pure]
         public async ValueTask<B> MapAsync(ValueTask<A> ma, Func<A, Task<B>> f) =>
-            await f(await ma);
+            await f(await ma.ConfigureAwait(false)).ConfigureAwait(false);
     }
 }

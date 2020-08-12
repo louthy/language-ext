@@ -6,6 +6,9 @@ namespace LanguageExt.LiveIO
 {
     public struct TimeIO : Interfaces.TimeIO
     {
+        public static Interfaces.TimeIO Default =
+            new TimeIO();
+ 
         /// <summary>
         /// Current date time
         /// </summary>

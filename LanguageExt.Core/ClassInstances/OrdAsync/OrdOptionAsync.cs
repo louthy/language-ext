@@ -25,12 +25,12 @@ namespace LanguageExt.ClassInstances
     {
         public async Task<int> CompareAsync(OptionAsync<A> x, OptionAsync<A> y)
         {
-            var (sx, dx) = await x.Data;
-            var (sy, dy) = await y.Data;
+            var (sx, dx) = await x.Data.ConfigureAwait(false);
+            var (sy, dy) = await y.Data.ConfigureAwait(false);
             if (!sx && !sy) return 0;
             if (sx && !sy) return 1;
             if (!sx && sy) return -1;
-            return await default(OrdA).CompareAsync(dx, dy);
+            return await default(OrdA).CompareAsync(dx, dy).ConfigureAwait(false);
         }
 
         public Task<bool> EqualsAsync(OptionAsync<A> x, OptionAsync<A> y) =>

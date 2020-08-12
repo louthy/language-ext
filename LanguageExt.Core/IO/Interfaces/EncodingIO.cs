@@ -9,11 +9,12 @@ namespace LanguageExt.Interfaces
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
     [Typeclass("*")]
-    public interface HasEncoding<RT>
+    public interface HasEncoding<RT> : HasCancel<RT>
+        where RT : struct, HasCancel<RT>
     {
         /// <summary>
         /// Access the text encoding
         /// </summary>
-        SIO<RT, Encoding> Encoding { get; }
+        Eff<RT, Encoding> Encoding { get; }
     }
 }

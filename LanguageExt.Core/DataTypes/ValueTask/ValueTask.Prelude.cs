@@ -151,11 +151,12 @@ namespace LanguageExt
         [Pure]
         public static async ValueTask<A> choice<A>(Seq<ValueTask<A>> xs) =>
             xs.IsEmpty
-                ? await BottomException.Default.AsFailedTask<A>()
+                ? await BottomException.Default.AsFailedTask<A>().ConfigureAwait(false)
                 : await default(MValueTask<A>).MatchAsync(
                     xs.Head,
                     SomeAsync: async x  => await xs.Head,
-                    NoneAsync: async () => await choice(xs.Tail));
+                    NoneAsync: async () => await choice(xs.Tail))
+                    .ConfigureAwait(false);
         /// <summary>
         /// Apply
         /// </summary>

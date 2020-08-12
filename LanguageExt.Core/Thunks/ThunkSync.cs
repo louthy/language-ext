@@ -132,7 +132,47 @@ namespace LanguageExt.Thunks
                 return Thunk<B>.Fail(e);
             }
         }
+        
+        /// <summary>
+        /// Functor map
+        /// </summary>
+        [Pure, MethodImpl(Thunk.mops)]
+        public Thunk<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail)
+        {
+            try
+            {
+                while (true)
+                {
+                    SpinIfEvaluating();
 
+                    switch (state)
+                    {
+                        case Thunk.IsSuccess:
+                            return Thunk<B>.Success(Succ(value));
+
+                        case Thunk.NotEvaluated:
+                            return Thunk<B>.Lazy(() =>
+                            {
+                                var ev = fun();
+                                return ev.IsFail
+                                    ? Fin<B>.Fail(Fail(ev.Error))
+                                    : Fin<B>.Succ(Succ(ev.data.Right));
+                            });
+
+                        case Thunk.IsCancelled:
+                            return Thunk<B>.Fail(Fail(Error.New(Thunk.CancelledText)));
+
+                        case Thunk.IsFailed:
+                            return Thunk<B>.Fail(Fail(error));
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                return Thunk<B>.Fail(Fail(e));
+            }
+        }
+        
         /// <summary>
         /// Evaluates the lazy function if necessary, returns the result if it's previously been evaluated
         /// The thread goes into a spin-loop if more than one thread tries to access the lazy value at once.

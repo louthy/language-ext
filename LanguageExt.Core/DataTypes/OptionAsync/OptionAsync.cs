@@ -30,6 +30,7 @@ namespace LanguageExt
     ///     
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
+    [AsyncMethodBuilder(typeof(OptionAsyncMethodBuilder<>))]
     public struct OptionAsync<A> :
 #if NETSTANDARD21
         IAsyncEnumerable<A>,
@@ -100,7 +101,6 @@ namespace LanguageExt
         /// </summary>
         /// </summary>
         /// <param name="option">None or Some A.</param>
-        [Pure]
         public OptionAsync(IEnumerable<A> option)
         {
             var first = option.Take(1).ToArray();
@@ -119,7 +119,7 @@ namespace LanguageExt
         [Pure]
         async Task<OptionCase<A>> GetCase()
         {
-            var (isSome, value) = await data;
+            var (isSome, value) = await data.ConfigureAwait(false);
             return isSome
                 ? SomeCase<A>.New(value)
                 : NoneCase<A>.Default;
@@ -164,11 +164,11 @@ namespace LanguageExt
         [Pure]
         public async Task<bool> Equals<EqA>(OptionAsync<A> rhs) where EqA : struct, EqAsync<A>
         {
-            var a = await Data;
-            var b = await rhs.Data;
+            var a = await Data.ConfigureAwait(false);
+            var b = await rhs.Data.ConfigureAwait(false);
             if(a.IsSome != b.IsSome) return false; 
             if(!a.IsSome && !b.IsSome) return true; 
-            return await default(EqA).EqualsAsync(a.Value, b.Value);
+            return await default(EqA).EqualsAsync(a.Value, b.Value).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -207,8 +207,8 @@ namespace LanguageExt
         [Pure]
         public async Task<int> CompareTo<OrdA>(OptionAsync<A> rhs) where OrdA : struct, Ord<A>
         {
-            var a = await Data;
-            var b = await rhs.Data;
+            var a = await Data.ConfigureAwait(false);
+            var b = await rhs.Data.ConfigureAwait(false);
             var c = default(OrdBool).Compare(a.IsSome, b.IsSome);
             if (c != 0) return c;
             return default(OrdA).Compare(a.Value, b.Value);
@@ -284,7 +284,7 @@ namespace LanguageExt
         [Pure]
         public async Task<string> ToStringAsync()
         {
-            var (isSome, value) = await data;
+            var (isSome, value) = await data.ConfigureAwait(false);
             return isSome
                 ? $"Some({value})"
                 : "None";
@@ -311,10 +311,10 @@ namespace LanguageExt
             Data.Map(a => a.Value);
 
         /// <summary>
-        /// Custom awaiter that turns an OptionAsync into an Option
+        /// Custom awaiter so OptionAsync can be used with async/await 
         /// </summary>
-        public TaskAwaiter<Option<A>> GetAwaiter() =>
-            Data.Map(d => d.IsSome ? Option<A>.Some(d.Value) : Option<A>.None).GetAwaiter();
+        public OptionAsyncAwaiter<A> GetAwaiter() =>
+            new OptionAsyncAwaiter<A>(this);
         
         /// <summary>
         /// Impure iteration of the bound value in the structure
@@ -356,7 +356,7 @@ namespace LanguageExt
         [Pure]
         public OptionAsync<B> MapAsync<B>(Func<A, Task<B>> f) =>
             default(MOptionAsync<A>)
-                .BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(this, async x => OptionAsync<B>.Some(await f(x)));
+                .BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(this, async x => OptionAsync<B>.Some(await f(x).ConfigureAwait(false)));
 
         /// <summary>
         /// Monad bind operation
@@ -1350,7 +1350,7 @@ namespace LanguageExt
         [Pure]
         public async IAsyncEnumerator<A> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         {
-            var (isSome, value) = await Data;
+            var (isSome, value) = await Data.ConfigureAwait(false);
             if(isSome)
             {
                 yield return value;

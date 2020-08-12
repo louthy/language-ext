@@ -70,15 +70,15 @@ namespace LanguageExt.Interfaces
         where RT : struct, HasCancel<RT>, HasEncoding<RT>
     {
         /// <summary>
-        /// Access the file IO environment
+        /// Access the file asynchronous effect environment
         /// </summary>
-        /// <returns>File IO environment</returns>
-        IO<RT, FileIO> FileIO { get; }
+        /// <returns>File asynchronous effect environment</returns>
+        Aff<RT, FileIO> FileAff { get; }
 
         /// <summary>
-        /// Access the file SIO environment
+        /// Access the file synchronous effect environment
         /// </summary>
-        /// <returns>File SIO environment</returns>
-        SIO<RT, FileIO> FileSIO { get; }
+        /// <returns>File synchronous effect environment</returns>
+        Eff<RT, FileIO> FileEff { get; }
     }
 }

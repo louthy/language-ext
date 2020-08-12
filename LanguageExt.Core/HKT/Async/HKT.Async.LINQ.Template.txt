@@ -63,7 +63,7 @@
         [Pure]
         public static OUTER_A Where<GENS, A>(this OUTER_A ma, Func<A, Task<bool>> pred) =>
             default(TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>).BindAsync<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(M_INNER_A).ReturnAsync(a.AsTask())
                     : default(M_INNER_A).Zero());
 

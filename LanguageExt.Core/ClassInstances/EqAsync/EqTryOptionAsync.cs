@@ -7,14 +7,14 @@ namespace LanguageExt.ClassInstances
     {
         public async Task<bool> EqualsAsync(TryOptionAsync<A> x, TryOptionAsync<A> y)
         {
-            var dx = await x.Try();
-            var dy = await y.Try();
+            var dx = await x.Try().ConfigureAwait(false);
+            var dy = await y.Try().ConfigureAwait(false);
             if (dx.IsBottom && dy.IsBottom) return true;
             if (dx.IsFaulted && dy.IsFaulted) return true;
             if (dx.IsNone && dy.IsNone) return true;
             if (dx.IsSome && dy.IsSome)
             {
-                return await default(EqA).EqualsAsync(dx.Value.Value, dy.Value.Value);
+                return await default(EqA).EqualsAsync(dx.Value.Value, dy.Value.Value).ConfigureAwait(false);
             }
             else
             {

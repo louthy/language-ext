@@ -20,28 +20,28 @@ namespace LanguageExt.Pipes
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(IO<R> ma) where Env : struct, HasCancel<Env> =>
+        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(AffPure<R> ma) where Env : struct, HasCancel<Env> =>
             new M<Env, A1, A, B1, B, R>(ma.Map(Pure<Env, A1, A, B1, B, R>).WithEnv<Env>());
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(SIO<R> ma) where Env : struct, HasCancel<Env> =>
+        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(EffPure<R> ma) where Env : struct, HasCancel<Env> =>
             new M<Env, A1, A, B1, B, R>(ma.Map(Pure<Env, A1, A, B1, B, R>).ToAsyncWithEnv<Env>());
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(IO<Env, R> ma) where Env : struct, HasCancel<Env> =>
+        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(Aff<Env, R> ma) where Env : struct, HasCancel<Env> =>
             new M<Env, A1, A, B1, B, R>(ma.Map(Pure<Env, A1, A, B1, B, R>));
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(SIO<Env, R> ma) where Env : struct, HasCancel<Env> =>
+        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(Eff<Env, R> ma) where Env : struct, HasCancel<Env> =>
             new M<Env, A1, A, B1, B, R>(ma.Map(Pure<Env, A1, A, B1, B, R>).ToAsync());
         /// <summary>
         /// Converts a `Proxy` with the correct _shape_ into an `Effect`
@@ -499,13 +499,13 @@ namespace LanguageExt.Pipes
         public static Proxy<Env, A1, A, B1, B, R> observe<Env, A1, A, B1, B, R>(Proxy<Env, A1, A, B1, B, R> p0) where Env : struct, HasCancel<Env>
         {
             return new M<Env, A1, A, B1, B, R>(Go(p0));
-            IO<Env, Proxy<Env, A1, A, B1, B, R>> Go(Proxy<Env, A1, A, B1, B, R> p) =>
+            Aff<Env, Proxy<Env, A1, A, B1, B, R>> Go(Proxy<Env, A1, A, B1, B, R> p) =>
                 p.ToProxy() switch
                 {
-                    Request<Env, A1, A, B1, B, R> (var a1, var fa) => IO<Env, Proxy<Env, A1, A, B1, B, R>>.Success(new Request<Env, A1, A, B1, B, R>(a1, a => observe(fa(a)))),
-                    Respond<Env, A1, A, B1, B, R> (var b, var fb1) => IO<Env, Proxy<Env, A1, A, B1, B, R>>.Success(new Respond<Env, A1, A, B1, B, R>(b, b1 => observe(fb1(b1)))),
+                    Request<Env, A1, A, B1, B, R> (var a1, var fa) => Aff<Env, Proxy<Env, A1, A, B1, B, R>>.Success(new Request<Env, A1, A, B1, B, R>(a1, a => observe(fa(a)))),
+                    Respond<Env, A1, A, B1, B, R> (var b, var fb1) => Aff<Env, Proxy<Env, A1, A, B1, B, R>>.Success(new Respond<Env, A1, A, B1, B, R>(b, b1 => observe(fb1(b1)))),
                     M<Env, A1, A, B1, B, R> (var m1)               => m1.Bind(Go),
-                    Pure<Env, A1, A, B1, B, R> (var r)             => IO<Env, Proxy<Env, A1, A, B1, B, R>>.Success(new Pure<Env, A1, A, B1, B, R>(r)),                                                                                
+                    Pure<Env, A1, A, B1, B, R> (var r)             => Aff<Env, Proxy<Env, A1, A, B1, B, R>>.Success(new Pure<Env, A1, A, B1, B, R>(r)),                                                                                
                     _                                              => throw new NotSupportedException()
                 };
         }

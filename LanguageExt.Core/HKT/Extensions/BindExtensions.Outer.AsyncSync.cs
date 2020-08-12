@@ -19,7 +19,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Arr<B>.Empty));
+                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Arr<B>.Empty)).ConfigureAwait(false);
                         if (!success) return OptionAsync<Arr<B>>.None;
                         foreach (var ib in imb)
                         {
@@ -36,7 +36,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var imb = await f(ia);
+                        var imb = await f(ia).ConfigureAwait(false);
                         foreach (var ib in imb)
                         {
                             results.Add(ib);
@@ -52,7 +52,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var imb = await f(ia);
+                        var imb = await f(ia).ConfigureAwait(false);
                         foreach (var ib in imb)
                         {
                             results.Add(ib);
@@ -68,7 +68,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb, left) = await f(ia).Map(b => (succ: true, fail: b, left: default(L))).IfLeft(l => (false, Arr<B>.Empty, l));
+                        var (success, imb, left) = await f(ia).Map(b => (succ: true, fail: b, left: default(L))).IfLeft(l => (false, Arr<B>.Empty, l)).ConfigureAwait(false);
                         if (!success) return EitherAsync<L, Arr<B>>.Left(left);
                         foreach (var ib in imb)
                         {
@@ -86,7 +86,7 @@ namespace LanguageExt
                     foreach (var ia in ima)
                     {
                         var (success, imb, e) = await f(ia).Match(Succ: b => (true, b, default(Exception)),
-                                                                  Fail: ex => (false, Arr<B>.Empty, ex));
+                                                                  Fail: ex => (false, Arr<B>.Empty, ex)).ConfigureAwait(false);
 
                         if (!success) return TryAsync<Arr<B>>(e);
                         foreach (var ib in imb)
@@ -106,7 +106,7 @@ namespace LanguageExt
                     {
                         var (success, imb, e) = await f(ia).Match(Some: b => (true, b, default(Exception)),
                                                                   None: () => (true, Arr<B>.Empty, default(Exception)),
-                                                                  Fail: ex => (false, Arr<B>.Empty, ex));
+                                                                  Fail: ex => (false, Arr<B>.Empty, ex)).ConfigureAwait(false);
 
                         if (!success && e == null) return TryOptionAsync(Option<Arr<B>>.None);
                         if (!success && e != null) return TryOptionAsync<Arr<B>>(e);
@@ -128,7 +128,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, HashSet<B>.Empty));
+                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, HashSet<B>.Empty)).ConfigureAwait(false);
                         if (!success) return OptionAsync<HashSet<B>>.None;
                         foreach (var ib in imb)
                         {
@@ -145,7 +145,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var imb = await f(ia);
+                        var imb = await f(ia).ConfigureAwait(false);
                         foreach (var ib in imb)
                         {
                             results.Add(ib);
@@ -161,7 +161,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var imb = await f(ia);
+                        var imb = await f(ia).ConfigureAwait(false);
                         foreach (var ib in imb)
                         {
                             results.Add(ib);
@@ -177,7 +177,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left:default(L))).IfLeft(l => (false, HashSet<B>.Empty, l));
+                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left:default(L))).IfLeft(l => (false, HashSet<B>.Empty, l)).ConfigureAwait(false);
                         if (!success) return EitherAsync<L, HashSet<B>>.Left(left);
                         foreach (var ib in imb)
                         {
@@ -195,7 +195,7 @@ namespace LanguageExt
                     foreach (var ia in ima)
                     {
                         var (success, imb, e) = await f(ia).Match(Succ: b => (true, b, default(Exception)),
-                                                                  Fail: ex => (false, HashSet<B>.Empty, ex));
+                                                                  Fail: ex => (false, HashSet<B>.Empty, ex)).ConfigureAwait(false);
 
                         if (!success) return TryAsync<HashSet<B>>(e);
                         foreach (var ib in imb)
@@ -215,7 +215,7 @@ namespace LanguageExt
                     {
                         var (success, imb, e) = await f(ia).Match(Some: b => (true, b, default(Exception)),
                                                                   None: () => (true, HashSet<B>.Empty, default(Exception)),
-                                                                  Fail: ex => (false, HashSet<B>.Empty, ex));
+                                                                  Fail: ex => (false, HashSet<B>.Empty, ex)).ConfigureAwait(false);
 
                         if (!success && e == null) return TryOptionAsync(Option<HashSet<B>>.None);
                         if (!success && e != null) return TryOptionAsync<HashSet<B>>(e);
@@ -236,7 +236,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Lst<B>.Empty));
+                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Lst<B>.Empty)).ConfigureAwait(false);
                         if (!success) return OptionAsync<Lst<B>>.None;
                         foreach (var ib in imb)
                         {
@@ -253,7 +253,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var imb = await f(ia);
+                        var imb = await f(ia).ConfigureAwait(false);
                         foreach (var ib in imb)
                         {
                             results.Add(ib);
@@ -269,7 +269,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var imb = await f(ia);
+                        var imb = await f(ia).ConfigureAwait(false);
                         foreach (var ib in imb)
                         {
                             results.Add(ib);
@@ -285,7 +285,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left: default(L))).IfLeft(l => (false, Lst<B>.Empty, l));
+                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left: default(L))).IfLeft(l => (false, Lst<B>.Empty, l)).ConfigureAwait(false);
                         if (!success) return EitherAsync<L, Lst<B>>.Left(left);
                         foreach (var ib in imb)
                         {
@@ -303,7 +303,7 @@ namespace LanguageExt
                     foreach (var ia in ima)
                     {
                         var (success, imb, e) = await f(ia).Match(Succ: b => (true, b, default(Exception)),
-                                                                  Fail: ex => (false, Lst<B>.Empty, ex));
+                                                                  Fail: ex => (false, Lst<B>.Empty, ex)).ConfigureAwait(false);
 
                         if (!success) return TryAsync<Lst<B>>(e);
                         foreach (var ib in imb)
@@ -323,7 +323,7 @@ namespace LanguageExt
                     {
                         var (success, imb, e) = await f(ia).Match(Some: b => (true, b, default(Exception)),
                                                                   None: () => (true, Lst<B>.Empty, default(Exception)),
-                                                                  Fail: ex => (false, Lst<B>.Empty, ex));
+                                                                  Fail: ex => (false, Lst<B>.Empty, ex)).ConfigureAwait(false);
 
                         if (!success && e == null) return TryOptionAsync(Option<Lst<B>>.None);
                         if (!success && e != null) return TryOptionAsync<Lst<B>>(e);
@@ -349,14 +349,14 @@ namespace LanguageExt
                 async ima =>
                     await ima.MatchAsync(
                         Some: async x => await f(x),
-                        None: () => Option<B>.None));
+                        None: () => Option<B>.None).ConfigureAwait(false));
 
         public static ValueTask<Option<B>> BindT<A, B>(this ValueTask<Option<A>> ma, Func<A, ValueTask<Option<B>>> f) =>
             ma.MapAsync(
                 async ima =>
                     await ima.MatchAsync(
                         Some: async x => await f(x),
-                        None: () => Option<B>.None));
+                        None: () => Option<B>.None).ConfigureAwait(false));
 
         public static EitherAsync<L, Option<B>> BindT<L, A, B>(this EitherAsync<L, Option<A>> ma, Func<A, EitherAsync<L, Option<B>>> f) =>
             ma.Bind(
@@ -390,14 +390,14 @@ namespace LanguageExt
                 async ima =>
                     await ima.MatchAsync(
                         Some: async x => await f(x),
-                        None: () => OptionUnsafe<B>.None));
+                        None: () => OptionUnsafe<B>.None).ConfigureAwait(false));
 
         public static ValueTask<OptionUnsafe<B>> BindT<A, B>(this ValueTask<OptionUnsafe<A>> ma, Func<A, ValueTask<OptionUnsafe<B>>> f) =>
             ma.MapAsync(
                 async ima =>
                     await ima.MatchAsync(
                         Some: async x => await f(x),
-                        None: () => OptionUnsafe<B>.None));
+                        None: () => OptionUnsafe<B>.None).ConfigureAwait(false));
 
         public static EitherAsync<L, OptionUnsafe<B>> BindT<L, A, B>(this EitherAsync<L, OptionUnsafe<A>> ma, Func<A, EitherAsync<L, OptionUnsafe<B>>> f) =>
             ma.Bind(
@@ -430,14 +430,14 @@ namespace LanguageExt
                 async ima =>
                     await ima.ToAsync().MatchAsync(
                         RightAsync: async x => await f(x),
-                        Left: e => Either<L, B>.Left(e)));
+                        Left: e => Either<L, B>.Left(e)).ConfigureAwait(false));
 
         public static ValueTask<Either<L, B>> BindT<L, A, B>(this ValueTask<Either<L, A>> ma, Func<A, ValueTask<Either<L, B>>> f) =>
             ma.MapAsync(
                 async ima =>
                     await ima.ToAsync().MatchAsync(
                         RightAsync: async x => await f(x),
-                        Left: e => Either<L, B>.Left(e)));
+                        Left: e => Either<L, B>.Left(e)).ConfigureAwait(false));
 
         public static EitherAsync<L, Either<L, B>> BindT<L, A, B>(this EitherAsync<L, Either<L, A>> ma, Func<A, EitherAsync<L, Either<L, B>>> f) =>
             ma.Bind(
@@ -470,14 +470,14 @@ namespace LanguageExt
                 async ima =>
                     await ima.MatchUnsafe(
                         Right: x => f(x),
-                        Left: e => EitherUnsafe<L, B>.Left(e).AsTask()));
+                        Left: e => EitherUnsafe<L, B>.Left(e).AsTask()).ConfigureAwait(false));
 
         public static ValueTask<EitherUnsafe<L, B>> BindT<L, A, B>(this ValueTask<EitherUnsafe<L, A>> ma, Func<A, ValueTask<EitherUnsafe<L, B>>> f) =>
             ma.MapAsync(
                 async ima =>
                     await ima.MatchUnsafe(
                         Right: x => f(x),
-                        Left: e => EitherUnsafe<L, B>.Left(e).AsValueTask()));
+                        Left: e => EitherUnsafe<L, B>.Left(e).AsValueTask()).ConfigureAwait(false));
 
         public static EitherAsync<L, EitherUnsafe<L, B>> BindT<L, A, B>(this EitherAsync<L, EitherUnsafe<L, A>> ma, Func<A, EitherAsync<L, EitherUnsafe<L, B>>> f) =>
             ma.Bind(
@@ -510,14 +510,14 @@ namespace LanguageExt
                 async ima =>
                     await ima.MatchAsync(
                         Succ: async x => await f(x),
-                        Fail: e => Try<B>(e)));
+                        Fail: e => Try<B>(e)).ConfigureAwait(false));
 
         public static ValueTask<Try<B>> BindT<A, B>(this ValueTask<Try<A>> ma, Func<A, ValueTask<Try<B>>> f) =>
             ma.MapAsync(
                 async ima =>
                     await ima.MatchAsync(
                         Succ: async x => await f(x),
-                        Fail: e => Try<B>(e)));
+                        Fail: e => Try<B>(e)).ConfigureAwait(false));
 
         public static EitherAsync<L, Try<B>> BindT<L, A, B>(this EitherAsync<L, Try<A>> ma, Func<A, EitherAsync<L, Try<B>>> f) =>
             ma.Bind(
@@ -553,7 +553,7 @@ namespace LanguageExt
                     await ima.MatchAsync(
                         Some: async x => await f(x),
                         None: () => TryOption(Option<B>.None),
-                        Fail: e => TryOption<B>(e)));
+                        Fail: e => TryOption<B>(e)).ConfigureAwait(false));
 
         public static ValueTask<TryOption<B>> BindT<A, B>(this ValueTask<TryOption<A>> ma, Func<A, ValueTask<TryOption<B>>> f) =>
             ma.MapAsync(
@@ -561,7 +561,7 @@ namespace LanguageExt
                     await ima.MatchAsync(
                         Some: async x => await f(x),
                         None: () => TryOption(Option<B>.None),
-                        Fail: e => TryOption<B>(e)));
+                        Fail: e => TryOption<B>(e)).ConfigureAwait(false));
 
         public static EitherAsync<L, TryOption<B>> BindT<L, A, B>(this EitherAsync<L, TryOption<A>> ma, Func<A, EitherAsync<L, TryOption<B>>> f) =>
             ma.Bind(
@@ -594,7 +594,7 @@ namespace LanguageExt
                     var results = Enumerable.Empty<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Enumerable.Empty<B>()));
+                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Enumerable.Empty<B>())).ConfigureAwait(false);
                         if (!success) return OptionAsync<IEnumerable<B>>.None;
                         results = EnumerableOptimal.ConcatFast(results, imb);
                     }
@@ -608,7 +608,7 @@ namespace LanguageExt
                     var results = Enumerable.Empty<B>();
                     foreach (var ia in ima)
                     {
-                        var imb = await f(ia);
+                        var imb = await f(ia).ConfigureAwait(false);
                         results = EnumerableOptimal.ConcatFast(results, imb);
                     }
                     return results.AsEnumerable();
@@ -621,7 +621,7 @@ namespace LanguageExt
                     var results = Enumerable.Empty<B>();
                     foreach (var ia in ima)
                     {
-                        var imb = await f(ia);
+                        var imb = await f(ia).ConfigureAwait(false);
                         results = EnumerableOptimal.ConcatFast(results, imb);
                     }
                     return results.AsEnumerable();
@@ -634,7 +634,7 @@ namespace LanguageExt
                     var results = Enumerable.Empty<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left: default(L))).IfLeft(l => (false, Enumerable.Empty<B>(), l));
+                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left: default(L))).IfLeft(l => (false, Enumerable.Empty<B>(), l)).ConfigureAwait(false);
                         if (!success) return EitherAsync<L, IEnumerable<B>>.Left(left);
                         results = EnumerableOptimal.ConcatFast(results, imb);
                     }
@@ -649,7 +649,7 @@ namespace LanguageExt
                     foreach (var ia in ima)
                     {
                         var (success, imb, e) = await f(ia).Match(Succ: b => (true, b, default(Exception)),
-                                                                  Fail: ex => (false, Enumerable.Empty<B>(), ex));
+                                                                  Fail: ex => (false, Enumerable.Empty<B>(), ex)).ConfigureAwait(false);
 
                         if (!success) return TryAsync<IEnumerable<B>>(e);
                         results = EnumerableOptimal.ConcatFast(results, imb);
@@ -666,7 +666,7 @@ namespace LanguageExt
                     {
                         var (success, imb, e) = await f(ia).Match(Some: b => (true, b, default(Exception)),
                                                                   None: () => (true, Enumerable.Empty<B>(), default(Exception)),
-                                                                  Fail: ex => (false, Enumerable.Empty<B>(), ex));
+                                                                  Fail: ex => (false, Enumerable.Empty<B>(), ex)).ConfigureAwait(false);
 
                         if (!success && e == null) return TryOptionAsync(Option<IEnumerable<B>>.None);
                         if (!success && e != null) return TryOptionAsync<IEnumerable<B>>(e);
@@ -685,7 +685,7 @@ namespace LanguageExt
                     var results = Enumerable.Empty<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Seq<B>()));
+                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Seq<B>())).ConfigureAwait(false);
                         if (!success) return OptionAsync<Seq<B>>.None;
                         results = EnumerableOptimal.ConcatFast(results, imb);
                     }
@@ -699,7 +699,7 @@ namespace LanguageExt
                     var results = Enumerable.Empty<B>();
                     foreach (var ia in ima)
                     {
-                        var imb = await f(ia);
+                        var imb = await f(ia).ConfigureAwait(false);
                         results = EnumerableOptimal.ConcatFast(results, imb);
                     }
                     return Seq(results);
@@ -712,7 +712,7 @@ namespace LanguageExt
                     var results = Enumerable.Empty<B>();
                     foreach (var ia in ima)
                     {
-                        var imb = await f(ia);
+                        var imb = await f(ia).ConfigureAwait(false);
                         results = EnumerableOptimal.ConcatFast(results, imb);
                     }
                     return Seq(results);
@@ -725,7 +725,7 @@ namespace LanguageExt
                     var results = Enumerable.Empty<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left: default(L))).IfLeft(l => (false, Seq<B>(), l));
+                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left: default(L))).IfLeft(l => (false, Seq<B>(), l)).ConfigureAwait(false);
                         if (!success) return EitherAsync<L, Seq<B>>.Left(left);
                         results = EnumerableOptimal.ConcatFast(results, imb);
                     }
@@ -740,7 +740,7 @@ namespace LanguageExt
                     foreach (var ia in ima)
                     {
                         var (success, imb, e) = await f(ia).Match(Succ: b => (succ: true, res: b, left: default(Exception)),
-                                                                  Fail: ex => (succ: false, res: Enumerable.Empty<B>(), left: ex));
+                                                                  Fail: ex => (succ: false, res: Enumerable.Empty<B>(), left: ex)).ConfigureAwait(false);
 
                         if (!success) return TryAsync<Seq<B>>(e);
                         results = EnumerableOptimal.ConcatFast(results, imb);
@@ -757,7 +757,7 @@ namespace LanguageExt
                     {
                         var (success, imb, e) = await f(ia).Match(Some: b => (true, b, default(Exception)),
                                                                   None: () => (true, Enumerable.Empty<B>(), default(Exception)),
-                                                                  Fail: ex => (false, Enumerable.Empty<B>(), ex));
+                                                                  Fail: ex => (false, Enumerable.Empty<B>(), ex)).ConfigureAwait(false);
 
                         if (!success && e == null) return TryOptionAsync(Option<Seq<B>>.None);
                         if (!success && e != null) return TryOptionAsync<Seq<B>>(e);
@@ -775,7 +775,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Set<B>.Empty));
+                        var (success, imb) = await f(ia).Map(b => (succ: true, res: b)).IfNone(() => (false, Set<B>.Empty)).ConfigureAwait(false);
                         if (!success) return OptionAsync<Set<B>>.None;
                         foreach (var ib in imb)
                         {
@@ -792,7 +792,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var imb = await f(ia);
+                        var imb = await f(ia).ConfigureAwait(false);
                         foreach (var ib in imb)
                         {
                             results.Add(ib);
@@ -808,7 +808,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var imb = await f(ia);
+                        var imb = await f(ia).ConfigureAwait(false);
                         foreach (var ib in imb)
                         {
                             results.Add(ib);
@@ -824,7 +824,7 @@ namespace LanguageExt
                     var results = new List<B>();
                     foreach (var ia in ima)
                     {
-                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left: default(L))).IfLeft(l => (false, Set<B>.Empty, l));
+                        var (success, imb, left) = await f(ia).Map(b => (succ: true, res: b, left: default(L))).IfLeft(l => (false, Set<B>.Empty, l)).ConfigureAwait(false);
                         if (!success) return EitherAsync<L, Set<B>>.Left(left);
                         foreach (var ib in imb)
                         {
@@ -842,7 +842,7 @@ namespace LanguageExt
                     foreach (var ia in ima)
                     {
                         var (success, imb, e) = await f(ia).Match(Succ: b => (true, b, default(Exception)),
-                                                                  Fail: ex => (false, Set<B>.Empty, ex));
+                                                                  Fail: ex => (false, Set<B>.Empty, ex)).ConfigureAwait(false);
 
                         if (!success) return TryAsync<Set<B>>(e);
                         foreach (var ib in imb)
@@ -862,7 +862,7 @@ namespace LanguageExt
                     {
                         var (success, imb, e) = await f(ia).Match(Some: b => (true, b, default(Exception)),
                                                                   None: () => (true, Set<B>.Empty, default(Exception)),
-                                                                  Fail: ex => (false, Set<B>.Empty, ex));
+                                                                  Fail: ex => (false, Set<B>.Empty, ex)).ConfigureAwait(false);
 
                         if (!success && e == null) return TryOptionAsync(Option<Set<B>>.None);
                         if (!success && e != null) return TryOptionAsync<Set<B>>(e);
@@ -888,14 +888,14 @@ namespace LanguageExt
                 async ima =>
                     await ima.MatchAsync(
                         SuccAsync: async x => await f(x),
-                        Fail: e => Validation<L, B>.Fail(e)));
+                        Fail: Validation<L, B>.Fail).ConfigureAwait(false));
 
         public static ValueTask<Validation<L, B>> BindT<L, A, B>(this ValueTask<Validation<L, A>> ma, Func<A, ValueTask<Validation<L, B>>> f) =>
             ma.MapAsync(
                 async ima =>
                     await ima.MatchAsync(
                         SuccAsync: async x => await f(x),
-                        Fail: e => Validation<L, B>.Fail(e)));
+                        Fail: Validation<L, B>.Fail).ConfigureAwait(false));
 
         public static EitherAsync<L, Validation<FAIL, B>> BindT<L, FAIL, A, B>(this EitherAsync<L, Validation<FAIL, A>> ma, Func<A, EitherAsync<L, Validation<FAIL, B>>> f) =>
             ma.Bind(

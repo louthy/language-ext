@@ -16,7 +16,7 @@ public static class TaskTryExtensions
         {
             try
             {
-                var resT = await self;
+                var resT = await self.ConfigureAwait(false);
                 return resT.Try();
             }
             catch (Exception e)
@@ -35,7 +35,7 @@ public static class TaskTryExtensions
             try
             {
                 var task = self.Try();
-                await task.Value;
+                await task.Value.ConfigureAwait(false);
                 return new Result<Unit>(Unit.Default);
             }
             catch (Exception e)
@@ -54,7 +54,7 @@ public static class TaskTryExtensions
             try
             {
                 var task = self.Try();
-                return await task.Value;
+                return await task.Value.ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -498,11 +498,11 @@ public static class TaskTryExtensions
     {
         try
         {
-            var resA = await self;
+            var resA = await self.ConfigureAwait(false);
             var a = resA.Try();
             return a.IsFaulted
                 ? new Try<B>(() => new Result<B>(a.Exception))
-                : await binder(a.Value);
+                : await binder(a.Value).ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -518,10 +518,10 @@ public static class TaskTryExtensions
         {
             try
             {
-                var resA = await self;
+                var resA = await self.ConfigureAwait(false);
                 var a = resA.Try();
                 if (a.IsFaulted) return new Try<C>(() => new Result<C>(a.Exception));
-                var resB = await bind(a.Value);
+                var resB = await bind(a.Value).ConfigureAwait(false);
                 var b = resB.Try();
                 if (b.IsFaulted) return new Try<C>(() => new Result<C>(b.Exception));
                 return new Try<C>(() => project(a.Value, b.Value));

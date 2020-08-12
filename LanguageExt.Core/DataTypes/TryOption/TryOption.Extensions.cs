@@ -828,7 +828,7 @@ public static class TryOptionExtensions
             return res.IsFaulted ? Fail(res.Exception)
                  : res.Value.IsSome ? Some(res.Value.Value)
                  : None();
-        });
+        }).ConfigureAwait(false);
 
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, R> Some, Func<R> Fail) =>
         await self.ContinueWith(trySelf =>
@@ -837,7 +837,7 @@ public static class TryOptionExtensions
             return res.IsFaulted || res.Value.IsNone
             ? Fail()
             : Some(res.Value.Value);
-        });
+        }).ConfigureAwait(false);
 
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Some, Func<R> None, Func<Exception, R> Fail) =>
         await (from tt in self.ContinueWith(trySelf =>
@@ -851,7 +851,8 @@ public static class TryOptionExtensions
                     : None().AsTask();
         })
         from t in tt
-        select t);
+        select t)
+       .ConfigureAwait(false);
 
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Some, Func<R> Fail) =>
         await (from tt in self.ContinueWith(trySelf =>
@@ -862,7 +863,8 @@ public static class TryOptionExtensions
                 : Some(res.Value.Value);
         })
         from t in tt
-        select t);
+        select t)
+       .ConfigureAwait(false);
 
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Some, Func<Task<R>> Fail) =>
         await (from tt in self.ContinueWith(trySelf =>
@@ -873,7 +875,8 @@ public static class TryOptionExtensions
                 : Some(res.Value.Value);
         })
         from t in tt
-        select t);
+        select t)
+       .ConfigureAwait(false);
 
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
         await (from tt in self.ContinueWith(trySelf =>
@@ -887,7 +890,7 @@ public static class TryOptionExtensions
                     : None();
         })
         from t in tt
-        select t);
+        select t).ConfigureAwait(false);
 
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, R> Some, Func<Task<R>> Fail) =>
         await (from tt in self.ContinueWith(trySelf =>
@@ -898,7 +901,7 @@ public static class TryOptionExtensions
                 : Some(res.Value.Value).AsTask();
         })
         from t in tt
-        select t);
+        select t).ConfigureAwait(false);
 
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, R> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
         await (from tt in self.ContinueWith(trySelf =>
@@ -912,7 +915,7 @@ public static class TryOptionExtensions
                     : None();
         })
         from t in tt
-        select t);
+        select t).ConfigureAwait(false);
 
     [Pure]
     public static TryOption<T> Flatten<T>(this TryOption<TryOption<T>> self) =>

@@ -66,35 +66,6 @@ namespace LanguageExt
                 Right: y => new [] {y},
                 Bottom: () => Enumerable.Empty<B>());
 
-        ///// <summary>
-        ///// Convert the structure to an Either
-        ///// </summary>
-        //[Pure]
-        //public static EitherUnsafeAsync<A, B> toEitherUnsafeAsync<CHOICE, CH, A, B>(CH ma)
-        //    where CHOICE : struct, ChoiceUnsafeAsync<CH, A, B>
-        //{
-        //    async Task<EitherData<A, B>> Do(CH mma) =>
-        //        await (await default(CHOICE).MatchUnsafe(mma,
-        //            Left: EitherAsync<A, B>.Left,
-        //            Right: EitherAsync<A, B>.Right)).data;
-
-        //    return new EitherUnsafeAsync<A, B>(Do(ma));
-        //}
-
-        ///// <summary>
-        ///// Convert the structure to a Option
-        ///// </summary>
-        //[Pure]
-        //public static OptionAsync<B> toOptionUnsafeAsync<CHOICE, CH, A, B>(CH ma)
-        //    where CHOICE : struct, ChoiceUnsafeAsync<CH, A, B>
-        //{
-        //    async Task<OptionData<B>> Do(CH mma) =>
-        //        await (await default(CHOICE).MatchUnsafe(mma,
-        //            Left: _ => OptionAsync<B>.None,
-        //            Right: OptionAsync<B>.Some)).data;
-
-        //    return new OptionUnsafeAsync<B>(Do(ma));
-        //}
 
         [Pure]
         public static Task<R> matchUnsafeAsync<CHOICE, CH, A, B, R>(CH ma, Func<A, Task<R>> LeftAsync, Func<B, R> Right)
@@ -282,7 +253,7 @@ namespace LanguageExt
                     item,
                     Left: x => (true, x),
                     Right: y => (false, default(A)),
-                    Bottom: () => (false, default(A)))));
+                    Bottom: () => (false, default(A))))).ConfigureAwait(false);
 
             return res.Filter(x => x.Item1).Map(x => x.Item2);
         }
@@ -298,7 +269,7 @@ namespace LanguageExt
         [Pure]
         public static async Task<Seq<A>> leftsUnsafeAsync<CHOICE, CH, A, B>(Seq<CH> ma)
             where CHOICE : struct, ChoiceUnsafeAsync<CH, A, B> =>
-            Seq(await leftsUnsafeAsync<CHOICE, CH, A, B>(ma.AsEnumerable()));
+            Seq(await leftsUnsafeAsync<CHOICE, CH, A, B>(ma.AsEnumerable()).ConfigureAwait(false));
 
         /// <summary>
         /// Extracts from a list of 'Either' all the 'Right' elements.
@@ -317,7 +288,7 @@ namespace LanguageExt
                     item,
                     Left: x => (false, default(B)),
                     Right: y => (true, y),
-                    Bottom: () => (false, default(B)))));
+                    Bottom: () => (false, default(B))))).ConfigureAwait(false);
 
             return res.Filter(x => x.Item1).Map(x => x.Item2);
         }
@@ -333,7 +304,7 @@ namespace LanguageExt
         [Pure]
         public static async Task<Seq<B>> rightsUnsafeAsync<CHOICE, CH, A, B>(Seq<CH> ma)
             where CHOICE : struct, ChoiceUnsafeAsync<CH, A, B> =>
-            Seq(await rightsUnsafeAsync<CHOICE, CH, A, B>(ma.AsEnumerable()));
+            Seq(await rightsUnsafeAsync<CHOICE, CH, A, B>(ma.AsEnumerable()).ConfigureAwait(false));
 
         /// <summary>
         /// Partitions a list of 'Either' into two lists.
@@ -354,7 +325,7 @@ namespace LanguageExt
                     item,
                     Left: x => (1, x, default(B)),
                     Right: y => (2, default(A), y),
-                    Bottom: () => (0, default(A), default(B)))));
+                    Bottom: () => (0, default(A), default(B))))).ConfigureAwait(false);
 
             return (res.Filter(x => x.Item1 == 1).Map(x => x.Item2), res.Filter(x => x.Item1 == 2).Map(x => x.Item3));
         }

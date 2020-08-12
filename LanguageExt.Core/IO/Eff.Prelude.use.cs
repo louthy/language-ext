@@ -10,16 +10,16 @@ using LanguageExt.Thunks;
 
 namespace LanguageExt
 {
-    public static partial class IO
+    public static partial class Prelude
     {
         /// <summary>
         /// Safely use a disposable resource
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static IO<R> use<H, R>(IO<H> Acq, Func<H, IO<R>> Use) where H : IDisposable =>
-            IO<R>.EffectMaybe(async () => {
-                var h = await Acq.RunIO();
+        public static AffPure<R> use<H, R>(EffPure<H> Acq, Func<H, AffPure<R>> Use) where H : IDisposable =>
+            AffMaybe(async () => {
+                var h = Acq.RunIO();
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();
@@ -36,11 +36,11 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static IO<Env, R> use<Env, H, R>(IO<H> Acq, Func<H, IO<Env, R>> Use)
+        public static Aff<Env, R> use<Env, H, R>(EffPure<H> Acq, Func<H, Aff<Env, R>> Use)
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
-            IO<Env, R>.EffectMaybe(async env => {
-                var h = await Acq.RunIO();
+            AffMaybe<Env, R>(async env => {
+                var h = Acq.RunIO();
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();
@@ -57,9 +57,9 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static IO<R> use<H, R>(IO<H> Acq, Func<H, SIO<R>> Use) where H : IDisposable =>
-            IO<R>.EffectMaybe(async () => {
-                var h = await Acq.RunIO();
+        public static EffPure<R> use<H, R>(EffPure<H> Acq, Func<H, EffPure<R>> Use) where H : IDisposable =>
+            EffMaybe(() => {
+                var h = Acq.RunIO();
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();
@@ -76,11 +76,11 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static IO<Env, R> use<Env, H, R>(IO<H> Acq, Func<H, SIO<Env, R>> Use)
+        public static Eff<Env, R> use<Env, H, R>(EffPure<H> Acq, Func<H, Eff<Env, R>> Use)
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
-            IO<Env, R>.EffectMaybe(async env => {
-                var h = await Acq.RunIO();
+            EffMaybe<Env, R>(env => {
+                var h = Acq.RunIO();
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();
@@ -98,11 +98,11 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static IO<Env, R> use<Env, H, R>(IO<Env, H> Acq, Func<H, IO<R>> Use) 
+        public static Aff<Env, R> use<Env, H, R>(Eff<Env, H> Acq, Func<H, AffPure<R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
-            IO<Env, R>.EffectMaybe(async env => {
-                var h = await Acq.RunIO(env);
+            AffMaybe<Env, R>(async env => {
+                var h = Acq.RunIO(env);
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();
@@ -119,11 +119,11 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static IO<Env, R> use<Env, H, R>(IO<Env, H> Acq, Func<H, IO<Env, R>> Use)
+        public static Aff<Env, R> use<Env, H, R>(Eff<Env, H> Acq, Func<H, Aff<Env, R>> Use)
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
-            IO<Env, R>.EffectMaybe(async env => {
-                var h = await Acq.RunIO(env);
+            AffMaybe<Env, R>(async env => {
+                var h = Acq.RunIO(env);
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();
@@ -140,11 +140,11 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static IO<Env, R> use<Env, H, R>(IO<Env, H> Acq, Func<H, SIO<R>> Use) 
+        public static Eff<Env, R> use<Env, H, R>(Eff<Env, H> Acq, Func<H, EffPure<R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
-            IO<Env, R>.EffectMaybe(async env => {
-                var h = await Acq.RunIO(env);
+            EffMaybe<Env, R>(env => {
+                var h = Acq.RunIO(env);
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();
@@ -161,11 +161,11 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static IO<Env, R> use<Env, H, R>(IO<Env, H> Acq, Func<H, SIO<Env, R>> Use)
+        public static Eff<Env, R> use<Env, H, R>(Eff<Env, H> Acq, Func<H, Eff<Env, R>> Use)
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
-            IO<Env, R>.EffectMaybe(async env => {
-                var h = await Acq.RunIO(env);
+            EffMaybe<Env, R>(env => {
+                var h = Acq.RunIO(env);
                 try
                 {
                     if (h.IsFail) return h.Cast<R>();

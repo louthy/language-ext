@@ -13,6 +13,9 @@ namespace LanguageExt.LiveIO
     /// </summary>
     public struct FileIO : Interfaces.FileIO
     {
+        public static Interfaces.FileIO Default =
+            new FileIO();
+ 
         /// <summary>
         /// Copy file from one place to another
         /// </summary>

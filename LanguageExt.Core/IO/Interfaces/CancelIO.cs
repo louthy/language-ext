@@ -21,21 +21,21 @@ namespace LanguageExt.Interfaces
         /// Directly access the cancellation token source
         /// </summary>
         /// <returns>CancellationTokenSource</returns>
-        SIO<RT, CancellationTokenSource> CancellationTokenSource { get; }
+        Eff<RT, CancellationTokenSource> CancellationTokenSource { get; }
 
 #if NETSTANDARD21
         /// <summary>
         /// Get the cancellation token
         /// </summary>
         /// <returns>CancellationToken</returns>
-        public SIO<RT, CancellationToken> Token =>
-            SIO<RT, CancellationToken>.Effect(env => env.CancellationToken);
+        public Eff<RT, CancellationToken> Token =>
+            Eff<RT, CancellationToken>.Effect(env => env.CancellationToken);
 #else
         /// <summary>
         /// Get the cancellation token
         /// </summary>
         /// <returns></returns>
-        SIO<RT, CancellationToken> Token { get; }
+        Eff<RT, CancellationToken> Token { get; }
 #endif
     }
 }

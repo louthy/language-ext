@@ -45,13 +45,13 @@ namespace LanguageExt.ClassInstances
                 var f = fab.Try();
                 var a = fa.Try();
 
-                await Task.WhenAll(f, a);
+                await Task.WhenAll(f, a).ConfigureAwait(false);
 
-                var rf = await f;
+                var rf = await f.ConfigureAwait(false);
                 if (rf.IsFaulted) return new OptionalResult<B>(rf.Exception);
                 if (rf.IsFaultedOrNone) return OptionalResult<B>.None;
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new OptionalResult<B>(ra.Exception);
                 if (ra.IsFaultedOrNone) return OptionalResult<B>.None;
 
@@ -64,7 +64,7 @@ namespace LanguageExt.ClassInstances
             {
                 var a = fa.Try();
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new OptionalResult<B>(ra.Exception);
                 if (ra.IsFaultedOrNone) return OptionalResult<B>.None;
 
@@ -79,17 +79,17 @@ namespace LanguageExt.ClassInstances
                 var a = fa.Try();
                 var b = fb.Try();
 
-                await Task.WhenAll(f, a, b);
+                await Task.WhenAll(f, a, b).ConfigureAwait(false);
 
-                var rf = await f;
+                var rf = await f.ConfigureAwait(false);
                 if (rf.IsFaulted) return new OptionalResult<B>(rf.Exception);
                 if (rf.IsFaultedOrNone) return OptionalResult<B>.None;
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new OptionalResult<B>(ra.Exception);
                 if (ra.IsFaultedOrNone) return OptionalResult<B>.None;
 
-                var rb = await b;
+                var rb = await b.ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<B>(rb.Exception);
                 if (rb.IsFaultedOrNone) return OptionalResult<B>.None;
 
@@ -103,13 +103,13 @@ namespace LanguageExt.ClassInstances
                 var a = fa.Try();
                 var b = fb.Try();
 
-                await Task.WhenAll(a, b);
+                await Task.WhenAll(a, b).ConfigureAwait(false);
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new OptionalResult<B>(ra.Exception);
                 if (ra.IsFaultedOrNone) return OptionalResult<B>.None;
 
-                var rb = await b;
+                var rb = await b.ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<B>(rb.Exception);
                 if (rb.IsFaultedOrNone) return OptionalResult<B>.None;
 
@@ -123,12 +123,12 @@ namespace LanguageExt.ClassInstances
                 var a = fa.Try();
                 var b = fb.Try();
 
-                await Task.WhenAll(a, b);
+                await Task.WhenAll(a, b).ConfigureAwait(false);
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new OptionalResult<B>(ra.Exception);
 
-                var rb = await b;
+                var rb = await b.ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<B>(rb.Exception);
 
                 return new OptionalResult<B>(fab(ra.Value, rb.Value));
@@ -142,16 +142,16 @@ namespace LanguageExt.ClassInstances
                 var a = fa.Try();
                 var b = fb.Try();
 
-                await Task.WhenAll(f, a, b);
+                await Task.WhenAll(f, a, b).ConfigureAwait(false);
 
-                var rf = await f;
+                var rf = await f.ConfigureAwait(false);
                 if (rf.IsFaulted) return new OptionalResult<B>(rf.Exception);
                 if (rf.IsFaultedOrNone) return OptionalResult<B>.None;
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new OptionalResult<B>(ra.Exception);
 
-                var rb = await b;
+                var rb = await b.ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<B>(rb.Exception);
 
                 return new OptionalResult<B>(rf.Value.Value(ra.Value, rb.Value));
@@ -168,13 +168,13 @@ namespace LanguageExt.ClassInstances
                 var a = fa.Try();
                 var b = fb.Try();
 
-                await Task.WhenAll(a, b);
+                await Task.WhenAll(a, b).ConfigureAwait(false);
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new OptionalResult<B>(ra.Exception);
                 if (ra.IsFaultedOrNone) return OptionalResult<B>.None;
 
-                var rb = await b;
+                var rb = await b.ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<B>(rb.Exception);
                 if (rb.IsFaultedOrNone) return OptionalResult<B>.None;
 
@@ -194,13 +194,13 @@ namespace LanguageExt.ClassInstances
                 var f = fabc.Try();
                 var a = fa.Try();
 
-                await Task.WhenAll(f, a);
+                await Task.WhenAll(f, a).ConfigureAwait(false);
 
-                var rf = await f;
+                var rf = await f.ConfigureAwait(false);
                 if (rf.IsFaulted) return new OptionalResult<Func<B, C>>(rf.Exception);
                 if (rf.IsFaultedOrNone) return OptionalResult<Func<B, C>>.None;
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new OptionalResult<Func<B, C>>(ra.Exception);
                 if (ra.IsFaultedOrNone) return OptionalResult<Func<B, C>>.None;
 
@@ -215,17 +215,17 @@ namespace LanguageExt.ClassInstances
                 var a = fa.Try();
                 var b = fb.Try();
 
-                await Task.WhenAll(f, a, b);
+                await Task.WhenAll(f, a, b).ConfigureAwait(false);
 
-                var rf = await f;
+                var rf = await f.ConfigureAwait(false);
                 if (rf.IsFaulted) return new OptionalResult<C>(rf.Exception);
                 if (rf.IsFaultedOrNone) return OptionalResult<C>.None;
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new OptionalResult<C>(ra.Exception);
                 if (ra.IsFaultedOrNone) return OptionalResult<C>.None;
 
-                var rb = await b;
+                var rb = await b.ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<C>(rb.Exception);
                 if (rb.IsFaultedOrNone) return OptionalResult<C>.None;
 
@@ -277,13 +277,13 @@ namespace LanguageExt.ClassInstances
                 var f = fab.Try();
                 var a = fa.Try();
 
-                await Task.WhenAll(f, a);
+                await Task.WhenAll(f, a).ConfigureAwait(false);
 
-                var rf = await f;
+                var rf = await f.ConfigureAwait(false);
                 if (rf.IsFaulted) return new OptionalResult<A>(rf.Exception);
                 if (rf.IsFaultedOrNone) return OptionalResult<A>.None;
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new OptionalResult<A>(ra.Exception);
                 if (ra.IsFaultedOrNone) return OptionalResult<A>.None;
 
@@ -301,13 +301,13 @@ namespace LanguageExt.ClassInstances
                 var a = fa.Try();
                 var b = fb.Try();
 
-                await Task.WhenAll(a, b);
+                await Task.WhenAll(a, b).ConfigureAwait(false);
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new OptionalResult<A>(ra.Exception);
                 if (ra.IsFaultedOrNone) return OptionalResult<A>.None;
 
-                var rb = await b;
+                var rb = await b.ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<A>(rb.Exception);
                 if (rb.IsFaultedOrNone) return OptionalResult<A>.None;
 
@@ -321,13 +321,13 @@ namespace LanguageExt.ClassInstances
                 var f = fabc.Try();
                 var a = fa.Try();
 
-                await Task.WhenAll(f, a);
+                await Task.WhenAll(f, a).ConfigureAwait(false);
 
-                var rf = await f;
+                var rf = await f.ConfigureAwait(false);
                 if (rf.IsFaulted) return new OptionalResult<Func<A, A>>(rf.Exception);
                 if (rf.IsFaultedOrNone) return OptionalResult<Func<A, A>>.None;
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new OptionalResult<Func<A, A>>(ra.Exception);
                 if (ra.IsFaultedOrNone) return OptionalResult<Func<A, A>>.None;
 
@@ -342,17 +342,17 @@ namespace LanguageExt.ClassInstances
                 var a = fa.Try();
                 var b = fb.Try();
 
-                await Task.WhenAll(f, a, b);
+                await Task.WhenAll(f, a, b).ConfigureAwait(false);
 
-                var rf = await f;
+                var rf = await f.ConfigureAwait(false);
                 if (rf.IsFaulted) return new OptionalResult<A>(rf.Exception);
                 if (rf.IsFaultedOrNone) return OptionalResult<A>.None;
 
-                var ra = await a;
+                var ra = await a.ConfigureAwait(false);
                 if (ra.IsFaulted) return new OptionalResult<A>(ra.Exception);
                 if (ra.IsFaultedOrNone) return OptionalResult<A>.None;
 
-                var rb = await b;
+                var rb = await b.ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<A>(rb.Exception);
                 if (rb.IsFaultedOrNone) return OptionalResult<A>.None;
 

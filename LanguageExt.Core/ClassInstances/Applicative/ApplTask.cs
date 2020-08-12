@@ -40,21 +40,21 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public async Task<B> Apply(Task<Func<A, B>> fab, Task<A> fa)
         {
-            await Task.WhenAll(fab, fa);
+            await Task.WhenAll(fab, fa).ConfigureAwait(false);
             return fab.Result(fa.Result);
         }
 
         [Pure]
         public async Task<B> Apply(Task<Func<A, A, B>> fab, Task<A> fa, Task<A> fb)
         {
-            await Task.WhenAll(fab, fa, fb);
+            await Task.WhenAll(fab, fa, fb).ConfigureAwait(false);
             return fab.Result(fa.Result, fb.Result);
         }
 
         [Pure]
         public async Task<B> Apply(Func<A, A, B> fab, Task<A> fa, Task<A> fb)
         {
-            await Task.WhenAll(fa, fb);
+            await Task.WhenAll(fa, fb).ConfigureAwait(false);
             return fab(fa.Result, fb.Result);
         }
 
@@ -65,8 +65,8 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public async Task<B> Action(Task<A> fa, Task<B> fb)
         {
-            await Task.WhenAll(fa, fb);
-            return await fb;
+            await Task.WhenAll(fa, fb).ConfigureAwait(false);
+            return await fb.ConfigureAwait(false);
         }
     }
 
@@ -78,15 +78,15 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public async Task<Func<B, C>> Apply(Task<Func<A, Func<B, C>>> fabc, Task<A> fa)
         {
-            await Task.WhenAll(fabc, fa);
-            return (await fabc)(await fa);
+            await Task.WhenAll(fabc, fa).ConfigureAwait(false);
+            return (await fabc.ConfigureAwait(false))(await fa.ConfigureAwait(false));
         }
 
         [Pure]
         public async Task<C> Apply(Task<Func<A, Func<B, C>>> fabc, Task<A> fa, Task<B> fb)
         {
-            await Task.WhenAll(fabc, fa, fb);
-            return (await fabc)(await fa)(await fb);
+            await Task.WhenAll(fabc, fa, fb).ConfigureAwait(false);
+            return (await fabc.ConfigureAwait(false))(await fa.ConfigureAwait(false))(await fb.ConfigureAwait(false));
         }
 
         [Pure]
@@ -130,8 +130,8 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public async Task<A> Apply(Task<Func<A, A>> fab, Task<A> fa)
         {
-            await Task.WhenAll(fab, fa);
-            return (await fab)(await fa);
+            await Task.WhenAll(fab, fa).ConfigureAwait(false);
+            return (await fab.ConfigureAwait(false))(await fa.ConfigureAwait(false));
         }
 
         [Pure]
@@ -141,22 +141,22 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public async Task<A> Action(Task<A> fa, Task<A> fb)
         {
-            await Task.WhenAll(fa, fb);
-            return await fb;
+            await Task.WhenAll(fa, fb).ConfigureAwait(false);
+            return await fb.ConfigureAwait(false);
         }
 
         [Pure]
         public async Task<Func<A, A>> Apply(Task<Func<A, Func<A, A>>> fabc, Task<A> fa)
         {
-            await Task.WhenAll(fabc, fa);
-            return (await fabc)(await fa);
+            await Task.WhenAll(fabc, fa).ConfigureAwait(false);
+            return (await fabc.ConfigureAwait(false))(await fa.ConfigureAwait(false));
         }
 
         [Pure]
         public async Task<A> Apply(Task<Func<A, Func<A, A>>> fabc, Task<A> fa, Task<A> fb)
         {
-            await Task.WhenAll(fabc, fa, fb);
-            return (await fabc)(await fa)(await fb);
+            await Task.WhenAll(fabc, fa, fb).ConfigureAwait(false);
+            return (await fabc.ConfigureAwait(false))(await fa.ConfigureAwait(false))(await fb.ConfigureAwait(false));
         }
     }
 }

@@ -27,15 +27,15 @@ namespace LanguageExt.Interfaces
         where RT : struct, HasCancel<RT>
     {
         /// <summary>
-        /// Access the console IO environment
+        /// Access the console asynchronous effect environment
         /// </summary>
-        /// <returns>Console IO environment</returns>
-        IO<RT, ConsoleIO> ConsoleIO { get; }
+        /// <returns>Console asynchronous effect environment</returns>
+        Aff<RT, ConsoleIO> ConsoleAff { get; }
 
         /// <summary>
-        /// Access the console SIO environment
+        /// Access the console synchronous effect environment
         /// </summary>
-        /// <returns>Console SIO environment</returns>
-        SIO<RT, ConsoleIO> ConsoleSIO { get; }
+        /// <returns>Console synchronous effect environment</returns>
+        Eff<RT, ConsoleIO> ConsoleEff { get; }
     }
 }

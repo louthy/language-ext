@@ -73,23 +73,23 @@ namespace LanguageExt
 
         public Task<S> Fold<S>(OuterType ma, S state, Func<S, A, S> f) =>
             MOuter.FoldAsync(ma, state, async (s, inner) =>
-                await MInner.Fold(inner, s, f)(unit))(unit);
+                await MInner.Fold(inner, s, f)(unit).ConfigureAwait(false))(unit);
 
         public Task<S> FoldBack<S>(OuterType ma, S state, Func<S, A, S> f) =>
             MOuter.FoldBackAsync(ma, state, async (s, inner) =>
-                await MInner.FoldBack(inner, s, f)(unit))(unit);
+                await MInner.FoldBack(inner, s, f)(unit).ConfigureAwait(false))(unit);
 
         public Task<S> FoldAsync<S>(OuterType ma, S state, Func<S, A, Task<S>> f) =>
             MOuter.FoldAsync(ma, state, async (s, inner) =>
-                await MInner.FoldAsync(inner, s, f)(unit))(unit);
+                await MInner.FoldAsync(inner, s, f)(unit).ConfigureAwait(false))(unit);
 
         public Task<S> FoldBackAsync<S>(OuterType ma, S state, Func<S, A, Task<S>> f) =>
             MOuter.FoldBackAsync(ma, state, async (s, inner) =>
-                await MInner.FoldBackAsync(inner, s, f)(unit))(unit);
+                await MInner.FoldBackAsync(inner, s, f)(unit).ConfigureAwait(false))(unit);
 
         public Task<int> CountAsync(OuterType ma) =>
             MOuter.FoldAsync(ma, 0, async (s, inner) =>
-                s + (await MInner.Count(inner)(unit)))(unit);
+                s + (await MInner.Count(inner)(unit).ConfigureAwait(false)))(unit);
 
         public NewOuterType Sequence<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType>(OuterType ma)
             where NewOuterMonad : struct, MonadAsync<NewOuterType, NewInnerType>

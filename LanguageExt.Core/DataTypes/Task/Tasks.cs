@@ -13,28 +13,28 @@ namespace LanguageExt
         [Pure]
         public static async Task<bool> ForAll<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred)
         {
-            var ra = await fs.WindowMap(pred);
+            var ra = await fs.WindowMap(pred).ConfigureAwait(false);
             return ra.ForAll(identity);
         }
 
         [Pure]
         public static async Task<bool> ForAll<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred, int windowSize)
         {
-            var ra = await fs.WindowMap(windowSize, pred);
+            var ra = await fs.WindowMap(windowSize, pred).ConfigureAwait(false);
             return ra.ForAll(identity);
         }
 
         [Pure]
         public static async Task<bool> Exists<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred)
         {
-            var ra = await fs.WindowMap(pred);
+            var ra = await fs.WindowMap(pred).ConfigureAwait(false);
             return ra.Exists(identity);
         }
 
         [Pure]
         public static async Task<bool> Exists<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred, int windowSize)
         {
-            var ra = await fs.WindowMap(windowSize, pred);
+            var ra = await fs.WindowMap(windowSize, pred).ConfigureAwait(false);
             return ra.Exists(identity);
         }    
     }

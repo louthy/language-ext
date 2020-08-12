@@ -19,49 +19,56 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        [MethodImpl(IO.mops)]
+        [MethodImpl(AffOpt.mops)]
         Fin(EitherData<Error, A> data) =>
             this.data = data;
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         public static Fin<A> Succ(A value) => 
             value is null
                 ? throw new ValueIsNullException(nameof(value))
                 : new Fin<A>(EitherData.Right<Error, A>(value));
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         public static Fin<A> Fail(Error error) => 
             new Fin<A>(EitherData.Left<Error, A>(error));
 
         [Pure]
         public bool IsSucc
         {
-            [MethodImpl(IO.mops)]
+            [MethodImpl(AffOpt.mops)]
             get => data.State == EitherStatus.IsRight;
         }
 
         [Pure]
         public bool IsFail
         {
-            [MethodImpl(IO.mops)]
+            [MethodImpl(AffOpt.mops)]
             get => data.State == EitherStatus.IsLeft || data.State == EitherStatus.IsBottom;
         }
+
+        [Pure]
+        public bool IsBottom
+        {
+            [MethodImpl(AffOpt.mops)]
+            get => data.State == EitherStatus.IsBottom;
+        }
         
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         public static implicit operator Fin<A>(A value) =>
             Fin<A>.Succ(value);
         
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         public static implicit operator Fin<A>(Error error) =>
             Fin<A>.Fail(error);
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         public static explicit operator A(Fin<A> ma) =>
             ma.IsSucc
                 ? ma.Value
                 : throw new EitherIsNotRightException();
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         public static explicit operator Error(Fin<A> ma) =>
             ma.IsFail
                 ? ma.Error
@@ -69,7 +76,7 @@ namespace LanguageExt
 
         internal A Value 
         { 
-            [MethodImpl(IO.mops)]
+            [MethodImpl(AffOpt.mops)]
             get => data.State == EitherStatus.IsBottom
                 ? throw new BottomException()
                 : data.Right;  
@@ -77,13 +84,13 @@ namespace LanguageExt
 
         internal Error Error 
         { 
-            [MethodImpl(IO.mops)]
+            [MethodImpl(AffOpt.mops)]
             get => data.State == EitherStatus.IsBottom 
                 ? Error.Bottom 
                 : data.Left;  
         }
         
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         static Option<T> convert<T>(object value)
         {
             if (value == null)
@@ -101,7 +108,7 @@ namespace LanguageExt
             }
         }
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         internal Fin<B> Cast<B>() =>
             new Fin<B>(
                 IsSucc
@@ -110,25 +117,46 @@ namespace LanguageExt
                         .IfNone(() => EitherData.Left<Error, B>(Error.New($"Can't cast success value of `Err<{nameof(A)}>` to `Err<{nameof(B)}>` ")))
                     : EitherData.Left<Error, B>(Error));
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         public override string ToString() =>
             IsSucc
                 ? $"Succ({Value})"
                 : $"Fail({Error})";
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         public B Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
             IsSucc
                 ? Succ(Value)
                 : Fail(Error);
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Unit Match(Action<A> Succ, Action<Error> Fail)
+        {
+            if (IsSucc)
+            {
+                Succ(Value);
+            }
+            else
+            {
+                Fail(Error);
+            }
+
+            return default;
+        }
+
+        [Pure, MethodImpl(AffOpt.mops)]
         public A IfFail(Func<Error, A> Fail) =>
             IsSucc
                 ? Value
                 : Fail(Error);
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
+        public A IfFail(A alternative) =>
+            IsSucc
+                ? Value
+                : alternative;
+
+        [Pure, MethodImpl(AffOpt.mops)]
         public Unit IfFail(Action<Error> Fail)
         {
             if (IsFail)
@@ -138,7 +166,7 @@ namespace LanguageExt
             return default;
         }
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         public Unit IfSucc(Action<A> Succ)
         {
             if (IsSucc)
@@ -148,7 +176,7 @@ namespace LanguageExt
             return default;
         }
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         public Unit Iter(Action<A> Succ)
         {
             if (IsSucc)
@@ -158,7 +186,7 @@ namespace LanguageExt
             return default;
         }
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         public Fin<A> Do(Action<A> Succ)
         {
             if (IsSucc)
@@ -168,20 +196,109 @@ namespace LanguageExt
             return this;
         }
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         public S Fold<S>(S state, Func<S, A, S> f) =>
             IsSucc
                 ? f(state, Value)
                 : state;
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
+        public S BiFold<S>(S state, Func<S, A, S> Succ, Func<S, Error, S> Fail) =>
+            IsSucc
+                ? Succ(state, Value)
+                : Fail(state, Error);
+
+        [Pure, MethodImpl(AffOpt.mops)]
         public bool Exists(Func<A, bool> f) =>
             IsSucc && f(Value);
 
-        [Pure, MethodImpl(IO.mops)]
+        [Pure, MethodImpl(AffOpt.mops)]
         public bool ForAll(Func<A, bool> f) =>
             IsFail || (IsSucc && f(Value));
 
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Fin<B> Map<B>(Func<A, B> f) =>
+            IsSucc
+                ? Fin<B>.Succ(f(Value))
+                : Fin<B>.Fail(Error);
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Fin<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) =>
+            IsSucc
+                ? Fin<B>.Succ(Succ(Value))
+                : Fin<B>.Fail(Fail(Error));
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Fin<B> Select<B>(Func<A, B> f) =>
+            IsSucc
+                ? Fin<B>.Succ(f(Value))
+                : Fin<B>.Fail(Error);
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Fin<B> Bind<B>(Func<A, Fin<B>> f) =>
+            IsSucc
+                ? f(Value)
+                : Fin<B>.Fail(Error);
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Fin<B> BiBind<B>(Func<A, Fin<B>> Succ, Func<Error, Fin<B>> Fail) =>
+            IsSucc
+                ? Succ(Value)
+                : Fail(Error);
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Fin<B> SelectMany<B>(Func<A, Fin<B>> f) =>
+            IsSucc
+                ? f(Value)
+                : Fin<B>.Fail(Error);
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Fin<C> SelectMany<B, C>(Func<A, Fin<B>> bind, Func<A, B, C> project)
+        {
+            var a = data.Right;
+            if(IsSucc)
+            {
+                var mb = bind(Value);
+                return mb.IsSucc
+                    ? project(a, mb.Value)
+                    : Fin<C>.Fail(mb.Error);
+            }
+            else
+            {
+                return Fin<C>.Fail(Error);
+            }
+        }
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public System.Collections.Generic.List<A> ToList() =>
+            IsSucc
+                ? new System.Collections.Generic.List<A>() { Value }
+                : new System.Collections.Generic.List<A>();
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Lst<A> ToLst() =>
+            IsSucc
+                ? List(Value)
+                : Empty;
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Seq<A> ToSeq() =>
+            IsSucc
+                ? Seq1(Value)
+                : Empty;
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Arr<A> ToArr() =>
+            IsSucc
+                ? Array(Value)
+                : Empty;
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public A[] ToArray() =>
+            IsSucc
+                ? new A[] {Value}
+                : new A[0];
+        
         public Unit ThrowIfFail()
         {
             if (IsFail)

@@ -9,7 +9,7 @@ using LanguageExt.Thunks;
 
 namespace LanguageExt
 {
-    public static partial class IO
+    public static partial class Prelude
     {
         /// <summary>
         /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
@@ -24,21 +24,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, IO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO(env);
+                var cont = await ioCont.RunIO(env).ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -57,21 +57,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, IO<S>> f, Func<S, IO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO(env);
+                var cont = await ioCont.RunIO(env).ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -90,19 +90,19 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, SIO<Env, S>> f, Func<S, IO<Env, bool>> pred) where Env : struct, HasCancel<Env> =>
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO(env);
+                var cont = await ioCont.RunIO(env).ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO(env);
                 if (iostate.IsFail) return iostate;
@@ -123,19 +123,19 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, SIO<S>> f, Func<S, IO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO(env);
+                var cont = await ioCont.RunIO(env).ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO();
                 if (iostate.IsFail) return iostate;
@@ -156,21 +156,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, IO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO(env);
+                var cont = await ioCont.RunIO(env).ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -189,21 +189,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, IO<S>> f, Func<S, IO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO(env);
+                var cont = await ioCont.RunIO(env).ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -222,19 +222,19 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, SIO<Env, S>> f, Func<S, IO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO(env);
+                var cont = await ioCont.RunIO(env).ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO(env);
                 if (iostate.IsFail) return iostate;
@@ -255,19 +255,19 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, SIO<S>> f, Func<S, IO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO(env);
+                var cont = await ioCont.RunIO(env).ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO();
                 if (iostate.IsFail) return iostate;
@@ -288,21 +288,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<Env, A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, IO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO(env);
+                var cont = await ioCont.RunIO(env).ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
                 var a = ma.RunIO(env);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -321,21 +321,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<Env, A> ma, S state, Func<S, A, IO<S>> f, Func<S, IO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO(env);
+                var cont = await ioCont.RunIO(env).ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
                 var a = ma.RunIO(env);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -354,21 +354,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, IO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO(env);
+                var cont = await ioCont.RunIO(env).ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
                 var a = ma.RunIO();
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -387,21 +387,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<A> ma, S state, Func<S, A, IO<S>> f, Func<S, IO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO(env);
+                var cont = await ioCont.RunIO(env).ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
                 var a = ma.RunIO();
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -421,8 +421,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, SIO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -433,9 +433,9 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -454,8 +454,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, IO<S>> f, Func<S, SIO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -466,9 +466,9 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -487,8 +487,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, SIO<Env, S>> f, Func<S, SIO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -499,7 +499,7 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO(env);
                 if (iostate.IsFail) return iostate;
@@ -520,8 +520,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, SIO<S>> f, Func<S, SIO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -532,7 +532,7 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO();
                 if (iostate.IsFail) return iostate;
@@ -553,8 +553,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, SIO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -565,9 +565,9 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -586,8 +586,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, IO<S>> f, Func<S, SIO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -598,9 +598,9 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -619,8 +619,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, SIO<Env, S>> f, Func<S, SIO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -631,7 +631,7 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO(env);
                 if (iostate.IsFail) return iostate;
@@ -652,8 +652,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, SIO<S>> f, Func<S, SIO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -664,7 +664,7 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO();
                 if (iostate.IsFail) return iostate;
@@ -685,8 +685,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<Env, A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, SIO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -699,7 +699,7 @@ namespace LanguageExt
                 ma.Clear();
                 var a = ma.RunIO(env);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -718,8 +718,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<Env, A> ma, S state, Func<S, A, IO<S>> f, Func<S, SIO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -732,7 +732,7 @@ namespace LanguageExt
                 ma.Clear();
                 var a = ma.RunIO(env);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -751,8 +751,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, SIO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -765,7 +765,7 @@ namespace LanguageExt
                 ma.Clear();
                 var a = ma.RunIO();
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -784,8 +784,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<A> ma, S state, Func<S, A, IO<S>> f, Func<S, SIO<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -798,7 +798,7 @@ namespace LanguageExt
                 ma.Clear();
                 var a = ma.RunIO();
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -817,21 +817,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, IO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO();
+                var cont = await ioCont.RunIO().ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -850,21 +850,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, IO<S>> f, Func<S, IO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO();
+                var cont = await ioCont.RunIO().ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -883,19 +883,19 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, SIO<Env, S>> f, Func<S, IO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO();
+                var cont = await ioCont.RunIO().ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO(env);
                 if (iostate.IsFail) return iostate;
@@ -916,19 +916,19 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, SIO<S>> f, Func<S, IO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO();
+                var cont = await ioCont.RunIO().ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO();
                 if (iostate.IsFail) return iostate;
@@ -949,21 +949,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, IO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO();
+                var cont = await ioCont.RunIO().ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -982,21 +982,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, IO<S>> f, Func<S, IO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO();
+                var cont = await ioCont.RunIO().ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1015,19 +1015,19 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, SIO<Env, S>> f, Func<S, IO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO();
+                var cont = await ioCont.RunIO().ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO(env);
                 if (iostate.IsFail) return iostate;
@@ -1048,19 +1048,19 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, SIO<S>> f, Func<S, IO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO();
+                var cont = await ioCont.RunIO().ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO();
                 if (iostate.IsFail) return iostate;
@@ -1081,21 +1081,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<Env, A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, IO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO();
+                var cont = await ioCont.RunIO().ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
                 var a = ma.RunIO(env);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1114,21 +1114,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<Env, A> ma, S state, Func<S, A, IO<S>> f, Func<S, IO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO();
+                var cont = await ioCont.RunIO().ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
                 var a = ma.RunIO(env);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1147,21 +1147,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, IO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO();
+                var cont = await ioCont.RunIO().ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
                 var a = ma.RunIO();
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1180,21 +1180,21 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<A> ma, S state, Func<S, A, IO<S>> f, Func<S, IO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 var ioCont = pred(state);
                 ioCont.Clear();
-                var cont = await ioCont.RunIO();
+                var cont = await ioCont.RunIO().ConfigureAwait(false);
                 if (cont.IsFail) return cont.Cast<S>();
                 if (!cont.Value) return state;
                 
                 ma.Clear();
                 var a = ma.RunIO();
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1213,8 +1213,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, SIO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1225,9 +1225,9 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1246,8 +1246,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, IO<S>> f, Func<S, SIO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1258,9 +1258,9 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1279,8 +1279,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, SIO<Env, S>> f, Func<S, SIO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1291,7 +1291,7 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO(env);
                 if (iostate.IsFail) return iostate;
@@ -1312,8 +1312,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, SIO<S>> f, Func<S, SIO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1324,7 +1324,7 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO();
                 if (iostate.IsFail) return iostate;
@@ -1345,8 +1345,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, SIO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1357,9 +1357,9 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1378,8 +1378,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, IO<S>> f, Func<S, SIO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1390,9 +1390,9 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1411,8 +1411,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, SIO<Env, S>> f, Func<S, SIO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1423,7 +1423,7 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO(env);
                 if (iostate.IsFail) return iostate;
@@ -1444,8 +1444,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, SIO<S>> f, Func<S, SIO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1456,7 +1456,7 @@ namespace LanguageExt
                 if (!cont.Value) return state;
                 
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO();
                 if (iostate.IsFail) return iostate;
@@ -1477,8 +1477,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<Env, A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, SIO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1491,7 +1491,7 @@ namespace LanguageExt
                 ma.Clear();
                 var a = ma.RunIO(env);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1510,8 +1510,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<Env, A> ma, S state, Func<S, A, IO<S>> f, Func<S, SIO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1524,7 +1524,7 @@ namespace LanguageExt
                 ma.Clear();
                 var a = ma.RunIO(env);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1543,8 +1543,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, SIO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1557,7 +1557,7 @@ namespace LanguageExt
                 ma.Clear();
                 var a = ma.RunIO();
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1576,8 +1576,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<A> ma, S state, Func<S, A, IO<S>> f, Func<S, SIO<bool>> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1590,7 +1590,7 @@ namespace LanguageExt
                 ma.Clear();
                 var a = ma.RunIO();
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1610,16 +1610,16 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 if (!pred(state)) return state;
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1638,16 +1638,16 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, IO<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 if (!pred(state)) return state;
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1666,14 +1666,14 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, SIO<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> =>
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 if (!pred(state)) return state;
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO(env);
                 if (iostate.IsFail) return iostate;
@@ -1694,14 +1694,14 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<Env, A> ma, S state, Func<S, A, SIO<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 if (!pred(state)) return state;
                 ma.Clear();
-                var a = await ma.RunIO(env);
+                var a = await ma.RunIO(env).ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
                 var iostate = f(state, a.Value).RunIO();
                 if (iostate.IsFail) return iostate;
@@ -1722,16 +1722,16 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 if (!pred(state)) return state;
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1750,16 +1750,16 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(IO<A> ma, S state, Func<S, A, IO<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
                 if (!pred(state)) return state;
                 ma.Clear();
-                var a = await ma.RunIO();
+                var a = await ma.RunIO().ConfigureAwait(false);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1778,8 +1778,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<Env, A> ma, S state, Func<S, A, IO<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1787,7 +1787,7 @@ namespace LanguageExt
                 ma.Clear();
                 var a = ma.RunIO(env);
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1806,8 +1806,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<A> ma, S state, Func<S, A, IO<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1815,7 +1815,7 @@ namespace LanguageExt
                 ma.Clear();
                 var a = ma.RunIO();
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO(env);
+                var iostate = await f(state, a.Value).RunIO(env).ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }
@@ -1834,8 +1834,8 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static IO<Env, S> foldWhile<Env, S, A>(SIO<A> ma, S state, Func<S, A, IO<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            EffectMaybe<Env, S>(async env =>
+        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+            AffMaybe<Env, S>(async env =>
         {
             while (true)
             {
@@ -1843,7 +1843,7 @@ namespace LanguageExt
                 ma.Clear();
                 var a = ma.RunIO();
                 if (a.IsFail) return a.Cast<S>();
-                var iostate = await f(state, a.Value).RunIO();
+                var iostate = await f(state, a.Value).RunIO().ConfigureAwait(false);
                 if (iostate.IsFail) return iostate;
                 state = iostate.Value;
             }

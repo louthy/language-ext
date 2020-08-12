@@ -5,6 +5,9 @@ namespace LanguageExt.LiveIO
 {
     public struct ConsoleIO : Interfaces.ConsoleIO
     {
+        public static Interfaces.ConsoleIO Default =
+            new ConsoleIO();
+        
         public ConsoleKeyInfo ReadKey() =>
             Console.ReadKey();
         

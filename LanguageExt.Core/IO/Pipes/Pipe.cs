@@ -50,7 +50,7 @@ namespace LanguageExt
         /// <returns>Producer</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<Env, A, B, R> use<Env, A, B, H, R>(
-            IO<H> Acq,
+            AffPure<H> Acq,
             Func<H, Unit> Rel,
             Func<H, Pipe<Env, A, B, R>> Use) where Env : struct, HasCancel<Env> =>
                 PipesInternal.Use(Acq, Use, Rel);
@@ -67,7 +67,7 @@ namespace LanguageExt
         /// <returns>Producer</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<Env, A, B, R> use<Env, A, B, H, R>(
-            IO<H> Acq,
+            AffPure<H> Acq,
             Func<H, Pipe<Env, A, B, R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
@@ -85,7 +85,7 @@ namespace LanguageExt
         /// <returns>Producer</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<Env, A, B, R> use<Env, A, B, H, R>(
-            SIO<H> Acq,
+            EffPure<H> Acq,
             Func<H, Pipe<Env, A, B, R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
@@ -103,7 +103,7 @@ namespace LanguageExt
         /// <returns>Producer</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<Env, A, B, R> use<Env, A, B, H, R>(
-            IO<Env, H> Acq,
+            Aff<Env, H> Acq,
             Func<H, Pipe<Env, A, B, R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
@@ -121,7 +121,7 @@ namespace LanguageExt
         /// <returns>Producer</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<Env, A, B, R> use<Env, A, B, H, R>(
-            SIO<Env, H> Acq,
+            Eff<Env, H> Acq,
             Func<H, Pipe<Env, A, B, R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
@@ -152,7 +152,7 @@ namespace LanguageExt
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<Env, A, B, R> mapM<Env, A, B, R>(Func<A, IO<Env, B>> f) where Env : struct, HasCancel<Env> =>
+        public static Pipe<Env, A, B, R> mapM<Env, A, B, R>(Func<A, Aff<Env, B>> f) where Env : struct, HasCancel<Env> =>
             Proxy.cat<Env, A, R>()
                  .For<Env, A, A, B, R>(a => Pipe.liftIO<Env, A, B, B>(f(a))
                                                 .Bind(Pipe.yield<Env, A, B>)
@@ -162,7 +162,7 @@ namespace LanguageExt
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<Env, A, A, Unit> mapM<Env, A>(Func<A, IO<Env, A>> f) where Env : struct, HasCancel<Env> =>
+        public static Pipe<Env, A, A, Unit> mapM<Env, A>(Func<A, Aff<Env, A>> f) where Env : struct, HasCancel<Env> =>
             Proxy.cat<Env, A, Unit>()
                 .For<Env, A, A, A, Unit>(a => Pipe.liftIO<Env, A, A, A>(f(a))
                     .Bind(Pipe.yield<Env, A, A>)
@@ -172,7 +172,7 @@ namespace LanguageExt
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<Env, A, B, R> mapM<Env, A, B, R>(Func<A, IO<B>> f) where Env : struct, HasCancel<Env> =>
+        public static Pipe<Env, A, B, R> mapM<Env, A, B, R>(Func<A, AffPure<B>> f) where Env : struct, HasCancel<Env> =>
             Proxy.cat<Env, A, R>()
                  .For<Env, A, A, B, R>(a => Pipe.liftIO<Env, A, B, B>(f(a))
                                                 .Bind(Pipe.yield<Env, A, B>)
@@ -182,7 +182,7 @@ namespace LanguageExt
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<Env, A, B, R> mapM<Env, A, B, R>(Func<A, SIO<Env, B>> f) where Env : struct, HasCancel<Env> =>
+        public static Pipe<Env, A, B, R> mapM<Env, A, B, R>(Func<A, Eff<Env, B>> f) where Env : struct, HasCancel<Env> =>
             Proxy.cat<Env, A, R>()
                 .For<Env, A, A, B, R>(a => Pipe.liftIO<Env, A, B, B>(f(a))
                     .Bind(Pipe.yield<Env, A, B>)
@@ -192,7 +192,7 @@ namespace LanguageExt
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<Env, A, A, Unit> mapM<Env, A>(Func<A, SIO<Env, A>> f) where Env : struct, HasCancel<Env> =>
+        public static Pipe<Env, A, A, Unit> mapM<Env, A>(Func<A, Eff<Env, A>> f) where Env : struct, HasCancel<Env> =>
             Proxy.cat<Env, A, Unit>()
                 .For<Env, A, A, A, Unit>(a => Pipe.liftIO<Env, A, A, A>(f(a))
                     .Bind(Pipe.yield<Env, A, A>)
@@ -202,7 +202,7 @@ namespace LanguageExt
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<Env, A, B, R> mapM<Env, A, B, R>(Func<A, SIO<B>> f) where Env : struct, HasCancel<Env> =>
+        public static Pipe<Env, A, B, R> mapM<Env, A, B, R>(Func<A, EffPure<B>> f) where Env : struct, HasCancel<Env> =>
             Proxy.cat<Env, A, R>()
                 .For<Env, A, A, B, R>(a => Pipe.liftIO<Env, A, B, B>(f(a))
                     .Bind(Pipe.yield<Env, A, B>)
@@ -212,28 +212,28 @@ namespace LanguageExt
         /// Lift the IO monad into the Pipe monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<Env, A, B, R> liftIO<Env, A, B, R>(IO<R> ma) where Env : struct, HasCancel<Env> =>
+        public static Pipe<Env, A, B, R> liftIO<Env, A, B, R>(AffPure<R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Unit, A, Unit, B, R>(ma).ToPipe(); 
  
         /// <summary>
         /// Lift the IO monad into the Pipe monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<Env, A, B, R> liftIO<Env, A, B, R>(SIO<R> ma) where Env : struct, HasCancel<Env> =>
+        public static Pipe<Env, A, B, R> liftIO<Env, A, B, R>(EffPure<R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Unit, A, Unit, B, R>(ma).ToPipe(); 
  
         /// <summary>
         /// Lift the IO monad into the Pipe monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<Env, A, B, R> liftIO<Env, A, B, R>(IO<Env, R> ma) where Env : struct, HasCancel<Env> =>
+        public static Pipe<Env, A, B, R> liftIO<Env, A, B, R>(Aff<Env, R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Unit, A, Unit, B, R>(ma).ToPipe(); 
  
         /// <summary>
         /// Lift the IO monad into the Pipe monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<Env, A, B, R> liftIO<Env, A, B, R>(SIO<Env, R> ma) where Env : struct, HasCancel<Env> =>
+        public static Pipe<Env, A, B, R> liftIO<Env, A, B, R>(Eff<Env, R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Unit, A, Unit, B, R>(ma).ToPipe(); 
     }
 }
