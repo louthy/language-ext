@@ -10,8 +10,8 @@ namespace LanguageExt.ClassInstances
     {
         public async Task<int> GetHashCodeAsync(OptionAsync<A> x)
         {
-            var (s, d) = await x.Data;
-            return s ? await default(HashableDefaultAsync<A>).GetHashCodeAsync(d) : 0;
+            var (s, d) = await x.Data.ConfigureAwait(false);
+            return s ? await default(HashableDefaultAsync<A>).GetHashCodeAsync(d).ConfigureAwait(false) : 0;
         }
     }
 
@@ -23,8 +23,8 @@ namespace LanguageExt.ClassInstances
     {
         public async Task<int> GetHashCodeAsync(OptionAsync<A> x)
         {
-            var (s, d) = await x.Data;
-            return s ? await default(HashA).GetHashCodeAsync(d) : 0;
+            var (s, d) = await x.Data.ConfigureAwait(false);
+            return s ? await default(HashA).GetHashCodeAsync(d).ConfigureAwait(false) : 0;
         }
     }
 }

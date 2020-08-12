@@ -43,7 +43,7 @@ namespace LanguageExt.Thunks
                                         return Fin<A>.Succ(sma.value);
 
                                     case NotEvaluated:
-                                        return await sma.Value(env);
+                                        return await sma.Value(env).ConfigureAwait(false);
 
                                     default:
                                         return Fin<A>.Fail(sma.error);
@@ -51,10 +51,10 @@ namespace LanguageExt.Thunks
                             }
 
                         case NotEvaluated:
-                            var ema = await mma.fun(env);
+                            var ema = await mma.fun(env).ConfigureAwait(false);
                             if (ema.IsSucc)
                             {
-                                return await ema.Value.Value(env);
+                                return await ema.Value.Value(env).ConfigureAwait(false);
                             }
                             else
                             {
@@ -90,7 +90,7 @@ namespace LanguageExt.Thunks
                                             return Fin<A>.Succ(sma.value);
 
                                         case NotEvaluated:
-                                            return await sma.Value(env);
+                                            return await sma.Value(env).ConfigureAwait(false);
 
                                         default:
                                             return Fin<A>.Fail(sma.error);
@@ -98,10 +98,10 @@ namespace LanguageExt.Thunks
                                 }
 
                             case NotEvaluated:
-                                var ema = await mma.fun();
+                                var ema = await mma.fun().ConfigureAwait(false);
                                 if (ema.IsSucc)
                                 {
-                                    return await ema.Value.Value(env);
+                                    return await ema.Value.Value(env).ConfigureAwait(false);
                                 }
                                 else
                                 {
@@ -146,7 +146,7 @@ namespace LanguageExt.Thunks
                                 }
 
                             case NotEvaluated:
-                                var ema = await mma.fun();
+                                var ema = await mma.fun().ConfigureAwait(false);
                                 if (ema.IsSucc)
                                 {
                                     return ema.Value.Value(env);
@@ -185,7 +185,7 @@ namespace LanguageExt.Thunks
                                             return Fin<A>.Succ(sma.value);
 
                                         case NotEvaluated:
-                                            return await sma.Value(env);
+                                            return await sma.Value(env).ConfigureAwait(false);
 
                                         default:
                                             return Fin<A>.Fail(sma.error);
@@ -196,7 +196,7 @@ namespace LanguageExt.Thunks
                                 var ema = mma.fun();
                                 if (ema.IsSucc)
                                 {
-                                    return await ema.Value.Value(env);
+                                    return await ema.Value.Value(env).ConfigureAwait(false);
                                 }
                                 else
                                 {
@@ -232,7 +232,7 @@ namespace LanguageExt.Thunks
                                         return Fin<A>.Succ(sma.value);
 
                                     case NotEvaluated:
-                                        return await sma.Value();
+                                        return await sma.Value().ConfigureAwait(false);
 
                                     default:
                                         return Fin<A>.Fail(sma.error);
@@ -240,10 +240,10 @@ namespace LanguageExt.Thunks
                             }
 
                         case NotEvaluated:
-                            var ema = await mma.fun(env);
+                            var ema = await mma.fun(env).ConfigureAwait(false);
                             if (ema.IsSucc)
                             {
-                                return await ema.Value.Value();
+                                return await ema.Value.Value().ConfigureAwait(false);
                             }
                             else
                             {
@@ -287,7 +287,7 @@ namespace LanguageExt.Thunks
                             }
 
                         case NotEvaluated:
-                            var ema = await mma.fun(env);
+                            var ema = await mma.fun(env).ConfigureAwait(false);
                             if (ema.IsSucc)
                             {
                                 return ema.Value.Value(env);
@@ -327,7 +327,7 @@ namespace LanguageExt.Thunks
                                             return Fin<A>.Succ(sma.value);
 
                                         case NotEvaluated:
-                                            return await sma.Value(env);
+                                            return await sma.Value(env).ConfigureAwait(false);
 
                                         default:
                                             return Fin<A>.Fail(sma.error);
@@ -338,7 +338,7 @@ namespace LanguageExt.Thunks
                                 var ema = mma.fun(env);
                                 if (ema.IsSucc)
                                 {
-                                    return await ema.Value.Value(env);
+                                    return await ema.Value.Value(env).ConfigureAwait(false);
                                 }
                                 else
                                 {
@@ -382,7 +382,7 @@ namespace LanguageExt.Thunks
                             }
 
                         case NotEvaluated:
-                            var ema = await mma.fun(env);
+                            var ema = await mma.fun(env).ConfigureAwait(false);
                             if (ema.IsSucc)
                             {
                                 return ema.Value.Value();
@@ -422,7 +422,7 @@ namespace LanguageExt.Thunks
                                             return Fin<A>.Succ(sma.value);
 
                                         case NotEvaluated:
-                                            return await sma.Value();
+                                            return await sma.Value().ConfigureAwait(false);
 
                                         default:
                                             return Fin<A>.Fail(sma.error);
@@ -433,7 +433,7 @@ namespace LanguageExt.Thunks
                                 var ema = mma.fun(env);
                                 if (ema.IsSucc)
                                 {
-                                    return await ema.Value.Value();
+                                    return await ema.Value.Value().ConfigureAwait(false);
                                 }
                                 else
                                 {
@@ -469,7 +469,7 @@ namespace LanguageExt.Thunks
                                         return Fin<A>.Succ(sma.value);
 
                                     case NotEvaluated:
-                                        return await sma.Value();
+                                        return await sma.Value().ConfigureAwait(false);
 
                                     default:
                                         return Fin<A>.Fail(sma.error);
@@ -477,10 +477,10 @@ namespace LanguageExt.Thunks
                             }
 
                         case NotEvaluated:
-                            var ema = await mma.fun();
+                            var ema = await mma.fun().ConfigureAwait(false);
                             if (ema.IsSucc)
                             {
-                                return await ema.Value.Value();
+                                return await ema.Value.Value().ConfigureAwait(false);
                             }
                             else
                             {
@@ -524,7 +524,7 @@ namespace LanguageExt.Thunks
                             }
 
                         case NotEvaluated:
-                            var ema = await mma.fun();
+                            var ema = await mma.fun().ConfigureAwait(false);
                             if (ema.IsSucc)
                             {
                                 return ema.Value.Value();
@@ -564,7 +564,7 @@ namespace LanguageExt.Thunks
                                             return Fin<A>.Succ(sma.value);
 
                                         case NotEvaluated:
-                                            return await sma.Value();
+                                            return await sma.Value().ConfigureAwait(false);
 
                                         default:
                                             return Fin<A>.Fail(sma.error);
@@ -575,7 +575,7 @@ namespace LanguageExt.Thunks
                                 var ema = mma.fun();
                                 if (ema.IsSucc)
                                 {
-                                    return await ema.Value.Value();
+                                    return await ema.Value.Value().ConfigureAwait(false);
                                 }
                                 else
                                 {

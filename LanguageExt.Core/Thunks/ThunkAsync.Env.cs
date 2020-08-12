@@ -32,7 +32,7 @@ namespace LanguageExt.Thunks
         /// </summary>
         [Pure, MethodImpl(Thunk.mops)]
         public static ThunkAsync<Env, A> Lazy(Func<Env, ValueTask<A>> fun) =>
-            new ThunkAsync<Env, A>(async e => Fin<A>.Succ(await fun(e)));
+            new ThunkAsync<Env, A>(async e => Fin<A>.Succ(await fun(e).ConfigureAwait(false)));
 
         /// <summary>
         /// Construct an error ThunkAsync
@@ -113,7 +113,7 @@ namespace LanguageExt.Thunks
                     case Thunk.Evaluating:
                         return ThunkAsync<Env, B>.Lazy(async env =>
                         {
-                            var fa = await Value(env);
+                            var fa = await Value(env).ConfigureAwait(false);
                             if (fa.IsFail) return fa.Cast<B>();
                             return f(fa.Value);
                         });
@@ -121,7 +121,7 @@ namespace LanguageExt.Thunks
                     case Thunk.NotEvaluated:
                         return ThunkAsync<Env, B>.Lazy(async env =>
                         {
-                            var ev = await fun(env);
+                            var ev = await fun(env).ConfigureAwait(false);
                             if (ev.IsFail)
                             {
                                 return ev.Cast<B>();
@@ -147,6 +147,53 @@ namespace LanguageExt.Thunks
                 return ThunkAsync<Env, B>.Fail(e);
             }
         }
+
+        /// <summary>
+        /// Functor map
+        /// </summary>
+        [Pure, MethodImpl(Thunk.mops)]
+        public ThunkAsync<Env, B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail)
+        {
+            try
+            {
+                switch (state)
+                {
+                    case Thunk.IsSuccess:
+                        return ThunkAsync<Env, B>.Success(Succ(value));
+                    
+                    case Thunk.Evaluating:
+                        return ThunkAsync<Env, B>.Lazy(async env =>
+                        {
+                            var fa = await Value(env).ConfigureAwait(false);
+                            return fa.IsFail
+                                ? Fin<B>.Fail(Fail(fa.Error))
+                                : Succ(fa.Value);
+                        });
+
+                    case Thunk.NotEvaluated:
+                        return ThunkAsync<Env, B>.Lazy(async env =>
+                        {
+                            var ev = await fun(env).ConfigureAwait(false);
+                            return ev.IsFail
+                                ? Fin<B>.Fail(Fail(ev.Error))
+                                : Fin<B>.Succ(Succ(ev.data.Right));
+                        });
+
+                    case Thunk.IsCancelled:
+                        return ThunkAsync<Env, B>.Fail(Fail(Error.New(Thunk.CancelledText)));
+
+                    case Thunk.IsFailed:
+                        return ThunkAsync<Env, B>.Fail(Fail(error));
+                    
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+            catch (Exception e)
+            {
+                return ThunkAsync<Env, B>.Fail(Fail(e));
+            }
+        }        
         
         /// <summary>
         /// Functor map
@@ -159,19 +206,19 @@ namespace LanguageExt.Thunks
                 switch (state)
                 {
                     case Thunk.IsSuccess:
-                        return ThunkAsync<Env, B>.Lazy(async _ => await f(value));
+                        return ThunkAsync<Env, B>.Lazy(async _ => await f(value).ConfigureAwait(false));
                     
                     case Thunk.NotEvaluated:
                         return ThunkAsync<Env, B>.Lazy(async env =>
                         {
-                            var ev = await fun(env);
+                            var ev = await fun(env).ConfigureAwait(false);
                             if (ev.IsFail)
                             {
                                 return ev.Cast<B>();
                             }
                             else
                             {
-                                return Fin<B>.Succ(await f(ev.data.Right));
+                                return Fin<B>.Succ(await f(ev.data.Right).ConfigureAwait(false));
                             }
                         });
 
@@ -184,9 +231,9 @@ namespace LanguageExt.Thunks
                     case Thunk.Evaluating:
                         return ThunkAsync<Env, B>.Lazy(async env =>
                         {
-                            var fa = await Value(env);
+                            var fa = await Value(env).ConfigureAwait(false);
                             if (fa.IsFail) return fa.Cast<B>();
-                            return await f(fa.Value);
+                            return await f(fa.Value).ConfigureAwait(false);
                         }); 
                     
                     default:
@@ -196,6 +243,53 @@ namespace LanguageExt.Thunks
             catch (Exception e)
             {
                 return ThunkAsync<Env, B>.Fail(e);
+            }
+        }
+                
+        /// <summary>
+        /// Functor map
+        /// </summary>
+        [Pure]
+        public ThunkAsync<Env, B> BiMapAsync<B>(Func<A, ValueTask<B>> Succ, Func<Error, ValueTask<Error>> Fail)
+        {
+            try
+            {
+                switch (state)
+                {
+                    case Thunk.IsSuccess:
+                        return ThunkAsync<Env, B>.Lazy(async _ => await Succ(value).ConfigureAwait(false));
+                    
+                    case Thunk.NotEvaluated:
+                        return ThunkAsync<Env, B>.Lazy(async env =>
+                        {
+                            var ev = await fun(env).ConfigureAwait(false);
+                            return ev.IsFail
+                                ? Fin<B>.Fail(await Fail(ev.Error).ConfigureAwait(false))
+                                : Fin<B>.Succ(await Succ(ev.Value).ConfigureAwait(false));
+                        });
+
+                    case Thunk.IsCancelled:
+                        return ThunkAsync<Env, B>.Lazy(async env => Fin<B>.Fail(await Fail(Error.New(Thunk.CancelledText)).ConfigureAwait(false)));
+
+                    case Thunk.IsFailed:
+                        return ThunkAsync<Env, B>.Lazy(async env => Fin<B>.Fail(await Fail(error).ConfigureAwait(false)));
+
+                    case Thunk.Evaluating:
+                        return ThunkAsync<Env, B>.Lazy(async env =>
+                        {
+                            var fa = await Value(env).ConfigureAwait(false);
+                            return fa.IsFail
+                                ? Fin<B>.Fail(await Fail(fa.Error).ConfigureAwait(false))
+                                : Fin<B>.Succ(await Succ(fa.Value).ConfigureAwait(false));
+                        }); 
+                    
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+            catch (Exception e)
+            {
+                return ThunkAsync<Env, B>.Lazy(async env => Fin<B>.Fail(await Fail(e).ConfigureAwait(false)));
             }
         }
 
@@ -216,7 +310,7 @@ namespace LanguageExt.Thunks
                     {
                         var vt = fun(env);
 
-                        var ex = await vt;
+                        var ex = await vt.ConfigureAwait(false);
                         
                         if (env.CancellationToken.IsCancellationRequested)
                         {

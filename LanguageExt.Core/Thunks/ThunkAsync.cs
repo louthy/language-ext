@@ -30,7 +30,7 @@ namespace LanguageExt.Thunks
         /// </summary>
         [Pure, MethodImpl(Thunk.mops)]
         public static ThunkAsync<A> Lazy(Func<ValueTask<A>> fun) =>
-            new ThunkAsync<A>(async () => Fin<A>.Succ(await fun()));
+            new ThunkAsync<A>(async () => Fin<A>.Succ(await fun().ConfigureAwait(false)));
 
         /// <summary>
         /// Construct an error ThunkAsync
@@ -115,7 +115,7 @@ namespace LanguageExt.Thunks
                         case Thunk.NotEvaluated:
                             return ThunkAsync<B>.Lazy(async () =>
                             {
-                                var ev = await fun();
+                                var ev = await fun().ConfigureAwait(false);
                                 if (ev.IsFail)
                                 {
                                     return ev.Cast<B>();
@@ -143,6 +143,51 @@ namespace LanguageExt.Thunks
         /// <summary>
         /// Functor map
         /// </summary>
+        [Pure, MethodImpl(Thunk.mops)]
+        public ThunkAsync<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail)
+        {
+            try
+            {
+                while (true)
+                {
+                    SpinIfEvaluating();
+
+                    switch (state)
+                    {
+                        case Thunk.IsSuccess:
+                            return ThunkAsync<B>.Success(Succ(value));
+
+                        case Thunk.NotEvaluated:
+                            return ThunkAsync<B>.Lazy(async () =>
+                            {
+                                var ev = await fun().ConfigureAwait(false);
+                                if (ev.IsFail)
+                                {
+                                    return Fail(ev.Error);
+                                }
+                                else
+                                {
+                                    return Fin<B>.Succ(Succ(ev.data.Right));
+                                }
+                            });
+
+                        case Thunk.IsCancelled:
+                            return ThunkAsync<B>.Fail(Error.New(Thunk.CancelledText));
+
+                        case Thunk.IsFailed:
+                            return ThunkAsync<B>.Fail(Fail(error));
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                return ThunkAsync<B>.Fail(Fail(e));
+            }
+        }
+        
+        /// <summary>
+        /// Functor map
+        /// </summary>
         [Pure]
         public ThunkAsync<B> MapAsync<B>(Func<A, ValueTask<B>> f)
         {
@@ -155,19 +200,19 @@ namespace LanguageExt.Thunks
                     switch (state)
                     {
                         case Thunk.IsSuccess:
-                            return ThunkAsync<B>.Lazy(async () => await f(value));
+                            return ThunkAsync<B>.Lazy(async () => await f(value).ConfigureAwait(false));
 
                         case Thunk.NotEvaluated:
                             return ThunkAsync<B>.Lazy(async () =>
                             {
-                                var ev = await fun();
+                                var ev = await fun().ConfigureAwait(false);
                                 if (ev.IsFail)
                                 {
                                     return ev.Cast<B>();
                                 }
                                 else
                                 {
-                                    return Fin<B>.Succ(await f(ev.data.Right));
+                                    return Fin<B>.Succ(await f(ev.data.Right).ConfigureAwait(false));
                                 }
                             });
 
@@ -182,6 +227,51 @@ namespace LanguageExt.Thunks
             catch (Exception e)
             {
                 return ThunkAsync<B>.Fail(e);
+            }
+        }
+                
+        /// <summary>
+        /// Functor map
+        /// </summary>
+        [Pure]
+        public ThunkAsync<B> BiMapAsync<B>(Func<A, ValueTask<B>> Succ, Func<Error, ValueTask<Error>> Fail)
+        {
+            try
+            {
+                while (true)
+                {
+                    SpinIfEvaluating();
+
+                    switch (state)
+                    {
+                        case Thunk.IsSuccess:
+                            return ThunkAsync<B>.Lazy(async () => await Succ(value).ConfigureAwait(false));
+
+                        case Thunk.NotEvaluated:
+                            return ThunkAsync<B>.Lazy(async () =>
+                            {
+                                var ev = await fun().ConfigureAwait(false);
+                                if (ev.IsFail)
+                                {
+                                    return Fin<B>.Fail(await Fail(ev.Error).ConfigureAwait(false));
+                                }
+                                else
+                                {
+                                    return Fin<B>.Succ(await Succ(ev.data.Right).ConfigureAwait(false));
+                                }
+                            });
+
+                        case Thunk.IsCancelled:
+                            return ThunkAsync<B>.Lazy(async () => await Fail(Error.New(Thunk.CancelledText)).ConfigureAwait(false));
+
+                        case Thunk.IsFailed:
+                            return ThunkAsync<B>.Lazy(async () => await Fail(error).ConfigureAwait(false));
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                return ThunkAsync<B>.Lazy(async () => await Fail(e).ConfigureAwait(false));
             }
         }
 
@@ -201,7 +291,7 @@ namespace LanguageExt.Thunks
                     try
                     {
                         var vt = fun();
-                        var ex = await vt;
+                        var ex = await vt.ConfigureAwait(false);
                         if (vt.CompletedSuccessfully())
                         {
                             if (ex.IsFail)
