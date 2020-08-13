@@ -9,8 +9,15 @@ namespace LanguageExt.Interfaces
     /// <typeparam name="RT">Runtime</typeparam>
     [Typeclass("*")]
     public interface HasCancel<RT>
-        where RT : HasCancel<RT> 
+        where RT : struct, HasCancel<RT>
     {
+        /// <summary>
+        /// Creates a new runtime from this with a new CancellationTokenSource and token
+        /// </summary>
+        /// <remarks>This is for sub-systems to run in their own local cancellation contexts</remarks>
+        /// <returns>New runtime</returns>
+        RT LocalCancel { get; }
+
         /// <summary>
         /// Directly access the cancellation token
         /// </summary>

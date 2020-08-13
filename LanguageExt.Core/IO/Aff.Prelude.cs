@@ -133,6 +133,16 @@ namespace LanguageExt
             });
 
         /// <summary>
+        /// Create a new cancellation context and run the provided Aff in that context
+        /// </summary>
+        /// <param name="ma">Operation to run in the next context</param>
+        /// <typeparam name="Env">Runtime environment</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>An asynchronous effect that captures the operation running in context</returns>
+        public static Aff<Env, A> localCancel<Env, A>(Aff<Env, A> ma) where Env : struct, HasCancel<Env> =>
+            localAff<Env, Env, A>(env => env.LocalCancel, ma);
+
+        /// <summary>
         /// Cancel the asynchronous operation
         /// </summary>
         /// <typeparam name="Env">Environment</typeparam>
