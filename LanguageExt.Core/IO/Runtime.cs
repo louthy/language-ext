@@ -58,6 +58,15 @@ namespace LanguageExt
             new Runtime(encoding, source);
 
         /// <summary>
+        /// Run the provided Aff in a local context that has a new CancellationTokenSource and token
+        /// </summary>
+        /// <remarks>This is for sub-systems to run in their own local cancellation contexts</remarks>
+        /// <param name="ma">Operation to run in context</param>
+        /// <returns>New runtime</returns>
+        public Runtime LocalCancel =>
+            new Runtime(encoding, new CancellationTokenSource());
+        
+        /// <summary>
         /// Direct access to cancellation token
         /// </summary>
         public CancellationToken CancellationToken =>
