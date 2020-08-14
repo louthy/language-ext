@@ -44,6 +44,11 @@ namespace LanguageExt.Interfaces
         /// Delete a file
         /// </summary>
         Unit Delete(string path);
+        
+        /// <summary>
+        /// True if a file at the path exists
+        /// </summary>
+        bool Exists(string path);
 
         /// <summary>
         /// Open a text file

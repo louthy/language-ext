@@ -123,6 +123,12 @@ namespace LanguageExt.LiveIO
         }
 
         /// <summary>
+        /// True if a file at the path exists
+        /// </summary>
+        public bool Exists(string path) =>
+            File.Exists(path);
+
+        /// <summary>
         /// Open a text file
         /// </summary>
         public TextReader OpenText(string path) =>

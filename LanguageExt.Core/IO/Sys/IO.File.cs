@@ -97,6 +97,14 @@ namespace LanguageExt
                 default(RT).FileEff.Map(e => e.Delete(path));
 
             /// <summary>
+            /// True if a file exists at the path
+            /// </summary>
+            [Pure, MethodImpl(AffOpt.mops)]
+            public static Eff<RT, bool> exists<RT>(string path)
+                where RT : struct, HasFile<RT> =>
+                default(RT).FileEff.Map(e => e.Exists(path));
+
+            /// <summary>
             /// Open a text file
             /// </summary>
             [Pure, MethodImpl(AffOpt.mops)]

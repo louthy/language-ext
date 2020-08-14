@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using LanguageExt.Interfaces;
 using static LanguageExt.IO.File;
 using TestBed;
@@ -40,8 +41,67 @@ class Program
         await AsyncTests();
     }
 
+    public interface ILogging
+    {
+        ValueTask<Unit> Log(string text);
+    }
+
+    public interface HasLogging<RT> : HasCancel<RT>
+        where RT : struct, HasCancel<RT>
+    {
+        Aff<RT, ILogging> Logging { get; }
+    }
+    
+    public struct LiveLogging : ILogging
+    {
+        public static ILogging Default = new LiveLogging();
+        
+        public ValueTask<Unit> Log(string text)
+        {
+            Console.WriteLine(text);
+            return default;
+        }
+    }
+    
+    public struct MyRuntime : HasCancel<MyRuntime>, HasLogging<MyRuntime>
+    {
+        readonly CancellationTokenSource source;
+
+        public MyRuntime(CancellationTokenSource source) =>
+            this.source = source;
+
+        public MyRuntime LocalCancel =>
+            new MyRuntime(new CancellationTokenSource());
+
+        public CancellationToken CancellationToken =>
+            source.Token;
+
+        public Eff<MyRuntime, CancellationTokenSource> CancellationTokenSource =>
+            Eff<MyRuntime, CancellationTokenSource>(env => env.source);
+
+        public Aff<MyRuntime, ILogging> Logging =>
+            SuccessAff(LiveLogging.Default);
+    }
+
+    public static class LogIO
+    {
+        public static Aff<RT, Unit> log<RT>(string text) where RT : struct, HasLogging<RT> =>
+            default(RT).Logging.MapAsync(e => e.Log(text));
+
+    }
+
+    static Aff<RT, Unit> Foo<RT>() where RT : struct, HasLogging<RT> =>
+        from _1 in LogIO.log<RT>("Hello")
+        from _2 in LogIO.log<RT>("World")
+        select unit;
+
+    static Aff<RT, Unit> Bar<RT>() where RT : struct, HasLogging<RT> =>
+        Foo<RT>();
+
     static async Task<Unit> AsyncTests()
     {
+        var res = await Bar<MyRuntime>().RunIO(new MyRuntime(new CancellationTokenSource()));
+        
         // Setup
         MkIO.Setup(Runtime.New());
         var tmp1 = Path.GetTempFileName();

@@ -92,5 +92,23 @@ namespace LanguageExt
         public static Eff<Env, Encoding> encoding<Env>()
             where Env : struct, HasEncoding<Env> =>
             default(Env).Encoding;
+
+        /// <summary>
+        /// Unit effect
+        /// </summary>
+        /// <remarks>Always succeeds with a Unit value</remarks>
+        public static readonly EffPure<Unit> unitEff = SuccessEff(unit);
+
+        /// <summary>
+        /// True effect
+        /// </summary>
+        /// <remarks>Always succeeds with a boolean true value</remarks>
+        public static readonly EffPure<bool> trueEff = SuccessEff(true);
+
+        /// <summary>
+        /// False effect
+        /// </summary>
+        /// <remarks>Always succeeds with a boolean false value</remarks>
+        public static readonly EffPure<bool> falseEff = SuccessEff(false);
     }
 }
