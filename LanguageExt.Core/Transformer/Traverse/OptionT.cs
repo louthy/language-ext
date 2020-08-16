@@ -262,5 +262,27 @@ namespace LanguageExt
                 return Some(Validation<MonoidFail, Fail, B>.Success(f(ma.SuccessValue.Value)));
             }
         }
+                
+        public static Option<EffPure<B>> Traverse<A, B>(this EffPure<Option<A>> ma, Func<A, B> f)
+        {
+            var tres = ma.RunIO();
+
+            if (tres.IsBottom)
+            {
+                return None;
+            }
+            else if (tres.IsFail)
+            {
+                return Some(FailEff<B>(tres.Error));
+            }
+            else if (tres.Value.IsNone)
+            {
+                return None;
+            }
+            else
+            {
+                return Some(SuccessEff(f(tres.Value.Value)));
+            }
+        }
     }
 }

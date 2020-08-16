@@ -147,5 +147,11 @@ namespace LanguageExt
             ma.Match(
                 Succ: x => new Identity<Validation<MonoidFail, Fail, B>>(f(x.Value)),
                 Fail: e => new Identity<Validation<MonoidFail, Fail, B>>(Validation<MonoidFail, Fail, B>.Fail(e)));
+
+        public static Identity<EffPure<B>> Traverse<A, B>(this EffPure<Identity<A>> ma, Func<A, B> f) =>
+            ma.Match(
+                Succ: x => new Identity<EffPure<B>>(SuccessEff(f(x.Value))),
+                Fail: e => new Identity<EffPure<B>>(FailEff<B>(e)))
+                .RunIO().Value;
     }
 }

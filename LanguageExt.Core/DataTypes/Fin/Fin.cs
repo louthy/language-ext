@@ -20,7 +20,7 @@ namespace LanguageExt
         /// Ctor
         /// </summary>
         [MethodImpl(AffOpt.mops)]
-        Fin(EitherData<Error, A> data) =>
+        internal Fin(EitherData<Error, A> data) =>
             this.data = data;
 
         [Pure, MethodImpl(AffOpt.mops)]

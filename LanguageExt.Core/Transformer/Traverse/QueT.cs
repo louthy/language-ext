@@ -37,12 +37,12 @@ namespace LanguageExt
         public static Que<Option<B>> Traverse<A, B>(this Option<Que<A>> ma, Func<A, B> f) =>
             ma.Match(
                 None: () => Queue(Option<B>.None),
-                Some: xs => toQueue(xs.Map(x => Some(f(x)))));
+                Some: xs => xs.Map(x => Some(f(x))));
 
         public static Que<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<Que<A>> ma, Func<A, B> f) =>
             ma.MatchUnsafe(
                 None: () => Queue(OptionUnsafe<B>.None),
-                Some: xs => toQueue(xs.Map(x => SomeUnsafe(f(x)))));
+                Some: xs => xs.Map(x => SomeUnsafe(f(x))));
 
         public static Que<Que<B>> Traverse<A, B>(this Que<Que<A>> ma, Func<A, B> f) =>
             toQueue(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
@@ -67,23 +67,28 @@ namespace LanguageExt
         public static Que<Try<B>> Traverse<A, B>(this Try<Que<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: ex => Queue(TryFail<B>(ex)),
-                Succ: xs => toQueue(xs.Map(x => Try<B>(f(x)))));
+                Succ: xs => xs.Map(x => Try<B>(f(x))));
 
         public static Que<TryOption<B>> Traverse<A, B>(this TryOption<Que<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: ex => Queue(TryOptionFail<B>(ex)),
                 None: () => Queue(TryOptional<B>(None)),
-                Some: xs => toQueue(xs.Map(x => TryOption<B>(f(x)))));
+                Some: xs => xs.Map(x => TryOption<B>(f(x))));
 
         public static Que<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Que<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: ex => Queue(Validation<Fail, B>.Fail(ex)),
-                Succ: xs => toQueue(xs.Map(x => Success<Fail, B>(f(x)))));
+                Succ: xs => xs.Map(x => Success<Fail, B>(f(x))));
 
         public static Que<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Que<A>> ma, Func<A, B> f) 
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
             ma.Match(
                 Fail: ex => Queue(Validation<MonoidFail, Fail, B>.Fail(ex)),
-                Succ: xs => toQueue(xs.Map(x => Success<MonoidFail, Fail, B>(f(x)))));
+                Succ: xs => xs.Map(x => Success<MonoidFail, Fail, B>(f(x))));
+
+        public static Que<EffPure<B>> Traverse<A, B>(this EffPure<Que<A>> ma, Func<A, B> f) =>
+            ma.Match(
+                Fail: ex => Queue(FailEff<B>(ex)),
+                Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).RunIO().Value;    
     }
 }

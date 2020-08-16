@@ -2,6 +2,8 @@
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.Common;
+using LanguageExt.Interfaces;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -30,7 +32,7 @@ namespace LanguageExt
     {
         const int maxRetries = 500;
         volatile object value;
-        Func<A, bool> validator;
+        readonly Func<A, bool> validator;
 
         public event AtomChangedEvent<A> Change;
 
@@ -72,9 +74,9 @@ namespace LanguageExt
         /// should be free of side-effects.
         /// </summary>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        public bool Swap(Func<A, A> f)
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public Option<A> Swap(Func<A, A> f)
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -87,18 +89,101 @@ namespace LanguageExt
                 var newValue = Box<A>.New(newValueA);
                 if (!validator(newValueA))
                 {
-                    return false;
+                    return default;
                 }
                 if(Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
                     Change?.Invoke(newValueA);
-                    return true;
+                    return Optional(newValueA);
                 }
                 SpinWait sw = default;
                 sw.SpinOnce();
             }
             throw new DeadlockException();
         }
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public EffPure<A> SwapEff(Func<A, EffPure<A>> f) =>
+            EffMaybe<A>(() =>
+            {
+                f = f ?? throw new ArgumentNullException(nameof(f));
+
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    retries--;
+                    var current = value;
+                    var newValueFinA = f(Box<A>.GetValue(value)).RunIO();
+                    if (newValueFinA.IsFail)
+                    {
+                        return newValueFinA;
+                    }
+
+                    var newValueA = newValueFinA.Value;
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+                    if(Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newValueFinA;
+                    }
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+                throw new DeadlockException();
+            }); 
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) =>
+            EffMaybe<RT, A>(env =>
+        {
+            f = f ?? throw new ArgumentNullException(nameof(f));
+
+            var retries = maxRetries;
+            while (retries > 0)
+            {
+                retries--;
+                var current = value;
+                var newValueFinA = f(Box<A>.GetValue(value)).RunIO(env);
+                if (newValueFinA.IsFail)
+                {
+                    return newValueFinA;
+                }
+
+                var newValueA = newValueFinA.Value;
+                var newValue = Box<A>.New(newValueA);
+                if (!validator(newValueA))
+                {
+                    return FinFail<A>(Error.New("Validation failed for swap"));
+                }
+                if(Interlocked.CompareExchange(ref value, newValue, current) == current)
+                {
+                    Change?.Invoke(newValueA);
+                    return newValueFinA;
+                }
+                SpinWait sw = default;
+                sw.SpinOnce();
+            }
+            throw new DeadlockException();
+        });
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -106,9 +191,9 @@ namespace LanguageExt
         /// should be free of side-effects.
         /// </summary>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        public async Task<bool> SwapAsync(Func<A, Task<A>> f)
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public async ValueTask<Option<A>> SwapAsync(Func<A, ValueTask<A>> f)
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -121,18 +206,147 @@ namespace LanguageExt
                 var newValue = Box<A>.New(newValueA);
                 if (!validator(newValueA))
                 {
-                    return false;
+                    return default;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
                     Change?.Invoke(newValueA);
-                    return true;
+                    return Optional(newValueA);
                 }
                 SpinWait sw = default;
                 sw.SpinOnce();
             }
             throw new DeadlockException();
         }
+        
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public AffPure<A> SwapAff(Func<A, AffPure<A>> f) =>
+            AffMaybe<A>(async () =>
+            {
+                f = f ?? throw new ArgumentNullException(nameof(f));
+
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    retries--;
+                    var current = value;
+                    var newValueFinA = await f(Box<A>.GetValue(value)).RunIO().ConfigureAwait(false);
+                    if (newValueFinA.IsFail)
+                    {
+                        return newValueFinA;
+                    }
+
+                    var newValueA = newValueFinA.Value;
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+
+                    if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newValueFinA;
+                    }
+
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+
+                throw new DeadlockException();
+            });         
+                
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public AffPure<A> SwapAff(Func<A, ValueTask<A>> f) =>
+            AffMaybe<A>(async () =>
+            {
+                f = f ?? throw new ArgumentNullException(nameof(f));
+
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    retries--;
+                    var current = value;
+                    var newValueA = await f(Box<A>.GetValue(value)).ConfigureAwait(false);
+
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+
+                    if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return FinSucc<A>(newValueA);
+                    }
+
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+
+                throw new DeadlockException();
+            });            
+
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public Aff<RT, A> SwapAff<RT>(Func<A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            AffMaybe<RT, A>(async env =>
+            {
+                f = f ?? throw new ArgumentNullException(nameof(f));
+
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    retries--;
+                    var current = value;
+                    var newFinValueA = await f(Box<A>.GetValue(value)).RunIO(env).ConfigureAwait(false);
+                    if (newFinValueA.IsFail)
+                    {
+                        return newFinValueA;
+                    }
+
+                    var newValueA = newFinValueA.Value; 
+
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+
+                    if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newFinValueA;
+                    }
+
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+
+                throw new DeadlockException();
+            });
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -141,9 +355,9 @@ namespace LanguageExt
         /// </summary>
         /// <param name="x">Additional value to pass to `f`</param>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        public bool Swap<X>(X x, Func<X, A, A> f)
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public Option<A> Swap<X>(X x, Func<X, A, A> f)
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -156,18 +370,102 @@ namespace LanguageExt
                 var newValue = Box<A>.New(newValueA);
                 if (!validator(newValueA))
                 {
-                    return false;
+                    return default;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
                     Change?.Invoke(newValueA);
-                    return true;
+                    return Optional(newValueA);
                 }
                 SpinWait sw = default;
                 sw.SpinOnce();
             }
             throw new DeadlockException();
         }
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public EffPure<A> SwapEff<X>(X x, Func<X, A, EffPure<A>> f) =>
+            EffMaybe<A>(() =>
+            {
+                f = f ?? throw new ArgumentNullException(nameof(f));
+
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    retries--;
+                    var current = value;
+                    var newValueFinA = f(x, Box<A>.GetValue(value)).RunIO();
+                    if (newValueFinA.IsFail)
+                    {
+                        return newValueFinA;
+                    }
+
+                    var newValueA = newValueFinA.Value;
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+                    if(Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newValueFinA;
+                    }
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+                throw new DeadlockException();
+            }); 
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public Eff<RT, A> SwapEff<RT, X>(X x, Func<X, A, Eff<RT, A>> f) =>
+            EffMaybe<RT, A>(env =>
+            {
+                f = f ?? throw new ArgumentNullException(nameof(f));
+
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    retries--;
+                    var current = value;
+                    var newValueFinA = f(x, Box<A>.GetValue(value)).RunIO(env);
+                    if (newValueFinA.IsFail)
+                    {
+                        return newValueFinA;
+                    }
+
+                    var newValueA = newValueFinA.Value;
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+                    if(Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newValueFinA;
+                    }
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+                throw new DeadlockException();
+            });
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -176,9 +474,9 @@ namespace LanguageExt
         /// </summary>
         /// <param name="x">Additional value to pass to `f`</param>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        public async Task<bool> SwapAsync<X>(X x, Func<X, A, Task<A>> f)
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public async ValueTask<Option<A>> SwapAsync<X>(X x, Func<X, A, ValueTask<A>> f)
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -191,18 +489,149 @@ namespace LanguageExt
                 var newValue = Box<A>.New(newValueA);
                 if (!validator(newValueA))
                 {
-                    return false;
+                    return default;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
                     Change?.Invoke(newValueA);
-                    return true;
+                    return Optional(newValueA);
                 }
                 SpinWait sw = default;
                 sw.SpinOnce();
             }
             throw new DeadlockException();
         }
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public AffPure<A> SwapAff<X>(X x, Func<X, A, AffPure<A>> f) =>
+            AffMaybe<A>(async () =>
+            {
+                f = f ?? throw new ArgumentNullException(nameof(f));
+
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    retries--;
+                    var current = value;
+                    var newValueFinA = await f(x, Box<A>.GetValue(value)).RunIO().ConfigureAwait(false);
+                    if (newValueFinA.IsFail)
+                    {
+                        return newValueFinA;
+                    }
+
+                    var newValueA = newValueFinA.Value;
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+
+                    if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newValueFinA;
+                    }
+
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+
+                throw new DeadlockException();
+            });         
+                
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public AffPure<A> SwapAff<X>(X x, Func<X, A, ValueTask<A>> f) =>
+            AffMaybe<A>(async () =>
+            {
+                f = f ?? throw new ArgumentNullException(nameof(f));
+
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    retries--;
+                    var current = value;
+                    var newValueA = await f(x, Box<A>.GetValue(value)).ConfigureAwait(false);
+
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+
+                    if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return FinSucc<A>(newValueA);
+                    }
+
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+
+                throw new DeadlockException();
+            });            
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public Aff<RT, A> SwapAff<RT, X>(X x, Func<X, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            AffMaybe<RT, A>(async env =>
+            {
+                f = f ?? throw new ArgumentNullException(nameof(f));
+
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    retries--;
+                    var current = value;
+                    var newFinValueA = await f(x, Box<A>.GetValue(value)).RunIO(env).ConfigureAwait(false);
+                    if (newFinValueA.IsFail)
+                    {
+                        return newFinValueA;
+                    }
+
+                    var newValueA = newFinValueA.Value; 
+
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+
+                    if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newFinValueA;
+                    }
+
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+
+                throw new DeadlockException();
+            });
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -212,9 +641,9 @@ namespace LanguageExt
         /// <param name="x">Additional value to pass to `f`</param>
         /// <param name="y">Additional value to pass to `f`</param>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        public bool Swap<X, Y>(X x, Y y, Func<X, Y, A, A> f)
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public Option<A> Swap<X, Y>(X x, Y y, Func<X, Y, A, A> f)
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -227,18 +656,104 @@ namespace LanguageExt
                 var newValue = Box<A>.New(newValueA);
                 if (!validator(newValueA))
                 {
-                    return false;
+                    return default;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
                     Change?.Invoke(newValueA);
-                    return true;
+                    return Optional(newValueA);
                 }
                 SpinWait sw = default;
                 sw.SpinOnce();
             }
             throw new DeadlockException();
         }
+                
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public EffPure<A> SwapEff<X, Y>(X x, Y y, Func<X, Y, A, EffPure<A>> f) =>
+            EffMaybe<A>(() =>
+            {
+                f = f ?? throw new ArgumentNullException(nameof(f));
+
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    retries--;
+                    var current = value;
+                    var newValueFinA = f(x, y, Box<A>.GetValue(value)).RunIO();
+                    if (newValueFinA.IsFail)
+                    {
+                        return newValueFinA;
+                    }
+
+                    var newValueA = newValueFinA.Value;
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+                    if(Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newValueFinA;
+                    }
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+                throw new DeadlockException();
+            }); 
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public Eff<RT, A> SwapEff<RT, X, Y>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
+            EffMaybe<RT, A>(env =>
+            {
+                f = f ?? throw new ArgumentNullException(nameof(f));
+
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    retries--;
+                    var current = value;
+                    var newValueFinA = f(x, y, Box<A>.GetValue(value)).RunIO(env);
+                    if (newValueFinA.IsFail)
+                    {
+                        return newValueFinA;
+                    }
+
+                    var newValueA = newValueFinA.Value;
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+                    if(Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newValueFinA;
+                    }
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+                throw new DeadlockException();
+            });
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -248,9 +763,9 @@ namespace LanguageExt
         /// <param name="x">Additional value to pass to `f`</param>
         /// <param name="y">Additional value to pass to `f`</param>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        public async Task<bool> SwapAsync<X, Y>(X x, Y y, Func<X, Y, A, Task<A>> f)
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public async ValueTask<Option<A>> SwapAsync<X, Y>(X x, Y y, Func<X, Y, A, ValueTask<A>> f)
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -263,19 +778,153 @@ namespace LanguageExt
                 var newValue = Box<A>.New(newValueA);
                 if (!validator(Box<A>.GetValue(newValue)))
                 {
-                    return false;
+                    return default;
                 }
                 if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                 {
                     Change?.Invoke(newValueA);
-                    return true;
+                    return Optional(newValueA);
                 }
                 SpinWait sw = default;
                 sw.SpinOnce();
             }
             throw new DeadlockException();
         }
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public AffPure<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, AffPure<A>> f) =>
+            AffMaybe<A>(async () =>
+            {
+                f = f ?? throw new ArgumentNullException(nameof(f));
 
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    retries--;
+                    var current = value;
+                    var newValueFinA = await f(x, y, Box<A>.GetValue(value)).RunIO().ConfigureAwait(false);
+                    if (newValueFinA.IsFail)
+                    {
+                        return newValueFinA;
+                    }
+
+                    var newValueA = newValueFinA.Value;
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+
+                    if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newValueFinA;
+                    }
+
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+
+                throw new DeadlockException();
+            });         
+                
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public AffPure<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, ValueTask<A>> f) =>
+            AffMaybe<A>(async () =>
+            {
+                f = f ?? throw new ArgumentNullException(nameof(f));
+
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    retries--;
+                    var current = value;
+                    var newValueA = await f(x, y, Box<A>.GetValue(value)).ConfigureAwait(false);
+
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+
+                    if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return FinSucc<A>(newValueA);
+                    }
+
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+
+                throw new DeadlockException();
+            });         
+
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public Aff<RT, A> SwapAff<RT, X, Y>(X x, Y y, Func<X, Y, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            AffMaybe<RT, A>(async env =>
+            {
+                f = f ?? throw new ArgumentNullException(nameof(f));
+
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    retries--;
+                    var current = value;
+                    var newFinValueA = await f(x, y, Box<A>.GetValue(value)).RunIO(env).ConfigureAwait(false);
+                    if (newFinValueA.IsFail)
+                    {
+                        return newFinValueA;
+                    }
+
+                    var newValueA = newFinValueA.Value; 
+
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+
+                    if (Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newFinValueA;
+                    }
+
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+
+                throw new DeadlockException();
+            });
+        
         /// <summary>
         /// Current state
         /// </summary>

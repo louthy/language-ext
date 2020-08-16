@@ -170,62 +170,6 @@ namespace LanguageExt
         /// <summary>
         /// Run the two effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
         /// </summary>
-        public static Aff<Env, IEnumerable<A>> SequenceParallel<Env, A>(this IEnumerable<Aff<Env, A>> ms, int windowSize) where Env : struct, HasCancel<Env> => 
-            AffMaybe<Env, IEnumerable<A>>(async env =>
-            {
-                var rs = await ms.Map(m => m.RunIO(env).AsTask()).SequenceParallel(windowSize);
-
-                var (f, s) = rs.Partition();
-                return f.Any()
-                    ? FinFail<IEnumerable<A>>(f.Head())
-                    : FinSucc<IEnumerable<A>>(s);
-            });
-
-        /// <summary>
-        /// Run the two effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
-        /// </summary>
-        public static Aff<Env, Seq<A>> SequenceParallel<Env, A>(this Seq<Aff<Env, A>> ms, int windowSize) where Env : struct, HasCancel<Env> => 
-            AffMaybe<Env, Seq<A>>(async env =>
-            {
-                var rs = await ms.Map(m => m.RunIO(env).AsTask()).SequenceParallel(windowSize);
-
-                var (f, s) = rs.Partition();
-                return f.Any()
-                    ? FinFail<Seq<A>>(f.Head())
-                    : FinSucc<Seq<A>>(s);
-            });
-
-        /// <summary>
-        /// Run the two effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
-        /// </summary>
-        public static Aff<Env, IEnumerable<A>> SequenceParallel<Env, A>(this IEnumerable<Aff<Env, A>> ms) where Env : struct, HasCancel<Env> => 
-            AffMaybe<Env, IEnumerable<A>>(async env =>
-            {
-                var rs = await ms.Map(m => m.RunIO(env).AsTask()).SequenceParallel();
-
-                var (f, s) = rs.Partition();
-                return f.Any()
-                    ? FinFail<IEnumerable<A>>(f.Head())
-                    : FinSucc<IEnumerable<A>>(s);
-            });
-
-        /// <summary>
-        /// Run the two effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
-        /// </summary>
-        public static Aff<Env, Seq<A>> SequenceParallel<Env, A>(this Seq<Aff<Env, A>> ms) where Env : struct, HasCancel<Env> => 
-            AffMaybe<Env, Seq<A>>(async env =>
-            {
-                var rs = await ms.Map(m => m.RunIO(env).AsTask()).SequenceParallel();
-
-                var (f, s) = rs.Partition();
-                return f.Any()
-                    ? FinFail<Seq<A>>(f.Head())
-                    : FinSucc<Seq<A>>(s);
-            });
-
-        /// <summary>
-        /// Run the two effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
-        /// </summary>
         public static Aff<Env, (A, B)> Sequence<Env, A, B>(this (Aff<Env, A>, Aff<Env, B>) ms) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env,(A, B)>(async env =>
             {
@@ -289,7 +233,7 @@ namespace LanguageExt
                 var t4 = ms.Item4.RunIO(env).AsTask();
                 var t5 = ms.Item5.RunIO(env).AsTask();
                 
-                var tasks = new Task[] {t1, t2, t3, t4};
+                var tasks = new Task[] {t1, t2, t3, t4, t5};
                 await Task.WhenAll(tasks);
                 return from r1 in t1.Result
                        from r2 in t2.Result

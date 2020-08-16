@@ -72,5 +72,12 @@ namespace LanguageExt
             ta.Map(f).Sequence();
         
         public static Task<EitherAsync<L, B>> Sequence<L, A, B>(this EitherAsync<L, A> ta, Func<A, Task<B>> f) =>
-            ta.Map(f).Sequence();    }
+            ta.Map(f).Sequence();    
+
+        public static Task<AffPure<B>> Sequence<A, B>(this AffPure<A> ta, Func<A, Task<B>> f) =>
+            ta.Map(f).Traverse(Prelude.identity);
+
+        public static Task<EffPure<B>> Sequence<A, B>(this EffPure<A> ta, Func<A, Task<B>> f) =>
+            ta.Map(f).Traverse(Prelude.identity);
+    }
 }

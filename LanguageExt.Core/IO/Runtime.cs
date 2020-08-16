@@ -16,8 +16,7 @@ namespace LanguageExt
         HasFile<Runtime>,
         HasEncoding<Runtime>,
         HasTextRead<Runtime>,
-        HasTime<Runtime>,
-        HasAtom<Runtime>
+        HasTime<Runtime>
     {
         readonly CancellationTokenSource source;
         readonly CancellationToken token;
@@ -117,20 +116,6 @@ namespace LanguageExt
         /// <returns>File eff environment</returns>
         public Eff<Runtime, FileIO> FileEff =>
             SuccessEff(LiveIO.FileIO.Default);
-
-        /// <summary>
-        /// Access the atom aff environment
-        /// </summary>
-        /// <returns>File IO environment</returns>
-        public Aff<Runtime, AtomIO> AtomAff =>
-            SuccessAff(LiveIO.AtomIO.Default);
-        
-        /// <summary>
-        /// Access the atom eff environment
-        /// </summary>
-        /// <returns>File eff environment</returns>
-        public Eff<Runtime, AtomIO> AtomEff =>
-            SuccessEff(LiveIO.AtomIO.Default);
 
         /// <summary>
         /// Access the TextReader IO environment

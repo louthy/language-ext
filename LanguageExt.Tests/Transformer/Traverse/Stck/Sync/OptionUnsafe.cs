@@ -20,7 +20,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Stck.Sync
         {
             var ma = SomeUnsafe(Stack(1, 2, 3, 4));
             var mb = ma.Traverse(identity);
-            var mc = Stack(SomeUnsafe(4), SomeUnsafe(3), SomeUnsafe(2), SomeUnsafe(1));
+            var mc = Stack(SomeUnsafe(1), SomeUnsafe(2), SomeUnsafe(3), SomeUnsafe(4));
 
             Assert.Equal(mc, mb);
         }

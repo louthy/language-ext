@@ -270,6 +270,20 @@ namespace LanguageExt
                 return (true, f(value).AsValueTask());
             }
         }
+                
+        public static OptionAsync<AffPure<B>> Traverse<A, B>(this AffPure<OptionAsync<A>> ma, Func<A, B> f)
+        {
+            return new OptionAsync<AffPure<B>>(Go(ma, f));
+            async Task<(bool, AffPure<B>)> Go(AffPure<OptionAsync<A>> ma, Func<A, B> f)
+            {
+                var resultA = await ma.RunIO().ConfigureAwait(false);
+                if (resultA.IsBottom) return (false, default);
+                if (resultA.IsFail) return (true, FailAff<B>(resultA.Error));
+                var (isSome, value) = await resultA.Value.Data.ConfigureAwait(false);
+                if (!isSome) return (false, default);
+                return (true, SuccessAff<B>(f(value)));
+            }
+        }
 
         //
         // Sync types
@@ -404,5 +418,26 @@ namespace LanguageExt
                 return (true, f(value));
             }
         }
+        
+        public static OptionAsync<EffPure<B>> Traverse<A, B>(this EffPure<OptionAsync<A>> ma, Func<A, B> f)
+        {
+            try
+            {
+                return new OptionAsync<EffPure<B>>(Go(ma, f));
+                async Task<(bool, EffPure<B>)> Go(EffPure<OptionAsync<A>> ma, Func<A, B> f)
+                {
+                    var ra = ma.RunIO();
+                    if(ra.IsBottom) return (false, default);
+                    if (ra.IsFail) return (true, FailEff<B>(ra.Error));
+                    var (isSome, value) = await ra.Value.Data.ConfigureAwait(false);
+                    if(!isSome) return (false, default);
+                    return (true, SuccessEff<B>(f(value)));
+                }
+            }
+            catch (Exception e)
+            {
+                return FailEff<B>(e);
+            }
+        }        
     }
 }

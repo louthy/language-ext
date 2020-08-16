@@ -270,6 +270,19 @@ namespace LanguageExt
             }
         }
         
+        public static TryAsync<AffPure<B>> Traverse<A, B>(this AffPure<TryAsync<A>> ma, Func<A, B> f)
+        {
+            return ToTry(() => Go(ma, f));
+            async Task<Result<AffPure<B>>> Go(AffPure<TryAsync<A>> ma, Func<A, B> f)
+            {
+                var ra = await ma.RunIO().ConfigureAwait(false);
+                if (ra.IsFail) return new Result<AffPure<B>>(FailAff<B>(ra.Error));
+                var rb = await ra.Value.Try().ConfigureAwait(false);
+                if (rb.IsFaulted) return new Result<AffPure<B>>(rb.Exception);
+                return new Result<AffPure<B>>(SuccessAff<B>(f(rb.Value)));
+            }
+        }
+        
         //
         // Sync types
         // 
@@ -386,6 +399,19 @@ namespace LanguageExt
                 var rb = await ma.SuccessValue.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new Result<Validation<MonoidFail, Fail, B>>(rb.Exception);
                 return new Result<Validation<MonoidFail, Fail, B>>(f(rb.Value));
+            }
+        }
+        
+        public static TryAsync<EffPure<B>> Traverse<A, B>(this EffPure<TryAsync<A>> ma, Func<A, B> f)
+        {
+            return ToTry(() => Go(ma, f));
+            async Task<Result<EffPure<B>>> Go(EffPure<TryAsync<A>> ma, Func<A, B> f)
+            {
+                var ra = ma.RunIO();
+                if (ra.IsFail) return new Result<EffPure<B>>(FailEff<B>(ra.Error));
+                var rb = await ra.Value.Try().ConfigureAwait(false);
+                if (rb.IsFaulted) return new Result<EffPure<B>>(rb.Exception);
+                return new Result<EffPure<B>>(SuccessEff<B>(f(rb.Value)));
             }
         }
     }

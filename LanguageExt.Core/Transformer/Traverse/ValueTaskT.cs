@@ -178,6 +178,17 @@ namespace LanguageExt
             if (da.IsFaulted) ExceptionDispatchInfo.Capture(da.AsTask().Exception.InnerException).Throw();
             return ValueTaskSucc(f(a));
         }
+                
+        public static async ValueTask<AffPure<B>> Traverse<A, B>(this AffPure<ValueTask<A>> ma, Func<A, B> f)
+        {
+            var da = await ma.RunIO().ConfigureAwait(false);
+            if (da.IsBottom) throw new BottomException();
+            if (da.IsFail) return FailAff<B>(da.Error);
+            var a = await da.Value.ConfigureAwait(false);
+            if(da.Value.IsFaulted) ExceptionDispatchInfo.Capture(da.Value.AsTask().Exception.InnerException).Throw();
+            return SuccessAff(f(a));
+        }
+
 
         //
         // Sync types
@@ -240,6 +251,14 @@ namespace LanguageExt
         {
             if (ma.IsFail) return Validation<MonoidFail, Fail, B>.Fail(ma.FailValue);
             return Validation<MonoidFail, Fail, B>.Success(f(await ma.SuccessValue.ConfigureAwait(false)));
+        }
+        
+        public static async ValueTask<EffPure<B>> Traverse<A, B>(this EffPure<ValueTask<A>> ma, Func<A, B> f)
+        {
+            var mr = ma.RunIO();
+            if (mr.IsBottom) return FailEff<B>(BottomException.Default);
+            else if (mr.IsFail) return FailEff<B>(mr.Error);
+            return SuccessEff<B>(f(await mr.Value.ConfigureAwait(false)));
         }
     }
 }

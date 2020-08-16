@@ -131,8 +131,8 @@ namespace LanguageExt
         /// <param name="map">Map function</param>
         /// <returns>Mapped enumerable</returns>
         [Pure]
-        public static IEnumerable<R> map<T, R>(Stck<T> stack, Func<T, R> map) =>
-            List.map(stack, map);
+        public static Stck<R> map<T, R>(Stck<T> stack, Func<T, R> map) =>
+            toStackRev(List.map(stack, map));
 
         /// <summary>
         /// Projects the values in the stack using a map function into a new enumerable (Select in LINQ).
@@ -143,8 +143,8 @@ namespace LanguageExt
         /// <param name="map">Map function</param>
         /// <returns>Mapped enumerable</returns>
         [Pure]
-        public static IEnumerable<R> map<T, R>(Stck<T> stack, Func<int, T, R> map) =>
-            List.map(stack, map);
+        public static Stck<R> map<T, R>(Stck<T> stack, Func<int, T, R> map) =>
+            toStackRev(List.map(stack, map));
 
         /// <summary>
         /// Removes items from the stack that do not match the given predicate (Where in LINQ)
@@ -154,8 +154,8 @@ namespace LanguageExt
         /// <param name="predicate">Predicate function</param>
         /// <returns>Filtered stack</returns>
         [Pure]
-        public static IEnumerable<T> filter<T>(Stck<T> stack, Func<T, bool> predicate) =>
-            List.filter(stack, predicate);
+        public static Stck<T> filter<T>(Stck<T> stack, Func<T, bool> predicate) =>
+            toStackRev(List.filter(stack, predicate));
 
         /// <summary>
         /// Applies the given function 'selector' to each element of the stack. Returns an enumerable comprised of 
@@ -166,8 +166,8 @@ namespace LanguageExt
         /// <param name="selector">Selector function</param>
         /// <returns>Mapped and filtered enumerable</returns>
         [Pure]
-        public static IEnumerable<U> choose<T, U>(Stck<T> stack, Func<T, Option<U>> selector) =>
-            List.choose(stack, selector);
+        public static Stck<U> choose<T, U>(Stck<T> stack, Func<T, Option<U>> selector) =>
+            toStackRev(List.choose(stack, selector));
 
         /// <summary>
         /// Applies the given function 'selector' to each element of the stack. Returns an enumerable comprised of 
@@ -179,8 +179,8 @@ namespace LanguageExt
         /// <param name="selector">Selector function</param>
         /// <returns>Mapped and filtered enumerable</returns>
         [Pure]
-        public static IEnumerable<U> choose<T, U>(Stck<T> stack, Func<int, T, Option<U>> selector) =>
-            List.choose(stack, selector);
+        public static Stck<U> choose<T, U>(Stck<T> stack, Func<int, T, Option<U>> selector) =>
+            toStackRev(List.choose(stack, selector));
 
         /// <summary>
         /// For each element of the stack, applies the given function. Concatenates all the results and 
@@ -192,8 +192,8 @@ namespace LanguageExt
         /// <param name="map">Map function</param>
         /// <returns>Mapped enumerable</returns>
         [Pure]
-        public static IEnumerable<R> collect<T, R>(Stck<T> stack, Func<T, IEnumerable<R>> map) =>
-            List.collect(stack, map);
+        public static Stck<R> collect<T, R>(Stck<T> stack, Func<T, IEnumerable<R>> map) =>
+            toStackRev(List.collect(stack, map));
 
         /// <summary>
         /// Append another stack to the top of this stack
@@ -205,8 +205,8 @@ namespace LanguageExt
         /// <param name="rhs">Stack to append</param>
         /// <returns>Appended stacks</returns>
         [Pure]
-        public static IEnumerable<T> append<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) =>
-            List.append(lhs, rhs);
+        public static Stck<T> append<T>(Stck<T> lhs, IEnumerable<T> rhs) =>
+            toStackRev(List.append(lhs, rhs));
 
         /// <summary>
         /// Applies a function 'folder' to each element of the collection, threading an accumulator 
@@ -358,8 +358,8 @@ namespace LanguageExt
         /// <param name="folder">Folding function</param>
         /// <returns>Aggregate state</returns>
         [Pure]
-        public static IEnumerable<S> scan<S, T>(Stck<T> stack, S state, Func<S, T, S> folder) =>
-            List.scan(stack, state, folder);
+        public static Stck<S> scan<S, T>(Stck<T> stack, S state, Func<S, T, S> folder) =>
+            toStackRev(List.scan(stack, state, folder));
 
         /// <summary>
         /// Applies a function to each element of the collection (from last element to first), 
@@ -375,8 +375,8 @@ namespace LanguageExt
         /// <param name="folder">Folding function</param>
         /// <returns>Aggregate state</returns>
         [Pure]
-        public static IEnumerable<S> scanBack<S, T>(Stck<T> stack, S state, Func<S, T, S> folder) =>
-            List.scanBack(stack, state, folder);
+        public static Stck<S> scanBack<S, T>(Stck<T> stack, S state, Func<S, T, S> folder) =>
+            toStackRev(List.scanBack(stack, state, folder));
 
         /// <summary>
         /// Returns Some(x) for the first item in the stack that matches the predicate 
@@ -400,8 +400,8 @@ namespace LanguageExt
         /// <param name="zipper">Join function</param>
         /// <returns>Joined enumerable</returns>
         [Pure]
-        public static IEnumerable<V> zip<T, U, V>(Stck<T> stack, IEnumerable<U> other, Func<T, U, V> zipper) =>
-            List.zip(stack, other, zipper);
+        public static Stck<V> zip<T, U, V>(Stck<T> stack, IEnumerable<U> other, Func<T, U, V> zipper) =>
+            toStackRev(List.zip(stack, other, zipper));
 
         /// <summary>
         /// Returns the number of items in the stack
@@ -452,8 +452,8 @@ namespace LanguageExt
         /// <param name="stack">Stack</param>
         /// <returns>An enumerable with all duplicate values removed</returns>
         [Pure]
-        public static IEnumerable<T> distinct<T>(Stck<T> stack) =>
-            List.distinct(stack);
+        public static Stck<T> distinct<T>(Stck<T> stack) =>
+            toStackRev(List.distinct(stack));
 
         /// <summary>
         /// Return an enumerable with all duplicate values removed
@@ -462,8 +462,8 @@ namespace LanguageExt
         /// <param name="stack">Stack</param>
         /// <returns>An enumerable with all duplicate values removed</returns>
         [Pure]
-        public static IEnumerable<T> distinct<EQ, T>(Stck<T> stack) where EQ : struct, Eq<T> =>
-            List.distinct<EQ,T>(stack);
+        public static Stck<T> distinct<EQ, T>(Stck<T> stack) where EQ : struct, Eq<T> =>
+            toStackRev(List.distinct<EQ,T>(stack));
 
         /// <summary>
         /// Return an enumerable with all duplicate values removed
@@ -472,8 +472,8 @@ namespace LanguageExt
         /// <param name="stack">Stack</param>
         /// <returns>An enumerable with all duplicate values removed</returns>
         [Pure]
-        public static IEnumerable<T> distinct<T, K>(Stck<T> stack, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
-            List.distinct(stack, keySelector, compare);
+        public static Stck<T> distinct<T, K>(Stck<T> stack, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
+            toStackRev(List.distinct(stack, keySelector, compare));
 
         /// <summary>
         /// Returns a new enumerable with the first 'count' items from the stack
@@ -483,8 +483,8 @@ namespace LanguageExt
         /// <param name="count">Number of items to take</param>
         /// <returns>A new enumerable with the first 'count' items from the enumerable provided</returns>
         [Pure]
-        public static IEnumerable<T> take<T>(Stck<T> stack, int count) =>
-            List.take(stack, count);
+        public static Stck<T> take<T>(Stck<T> stack, int count) =>
+            toStackRev(List.take(stack, count));
 
         /// <summary>
         /// Iterate the stack, yielding items if they match the predicate provided, and stopping 
@@ -495,8 +495,8 @@ namespace LanguageExt
         /// <param name="count">Number of items to take</param>
         /// <returns>A new enumerable with the first items that match the predicate</returns>
         [Pure]
-        public static IEnumerable<T> takeWhile<T>(Stck<T> stack, Func<T, bool> pred) =>
-            List.takeWhile(stack, pred);
+        public static Stck<T> takeWhile<T>(Stck<T> stack, Func<T, bool> pred) =>
+            toStackRev(List.takeWhile(stack, pred));
 
         /// <summary>
         /// Iterate the stack, yielding items if they match the predicate provided, and stopping 
@@ -507,8 +507,8 @@ namespace LanguageExt
         /// <param name="count">Number of items to take</param>
         /// <returns>A new enumerable with the first items that match the predicate</returns>
         [Pure]
-        public static IEnumerable<T> takeWhile<T>(Stck<T> stack, Func<T, int, bool> pred) =>
-            List.takeWhile(stack, pred);
+        public static Stck<T> takeWhile<T>(Stck<T> stack, Func<T, int, bool> pred) =>
+            toStackRev(List.takeWhile(stack, pred));
 
         /// <summary>
         /// Returns true if any item in the stack matches the predicate provided
@@ -534,8 +534,8 @@ public static class StackExtensions
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
     [Pure]
-    public static IEnumerable<R> Map<T, R>(this Stck<T> stack, Func<T, R> map) =>
-        LanguageExt.List.map(stack, map);
+    public static Stck<R> Map<T, R>(this Stck<T> stack, Func<T, R> map) =>
+        toStackRev(LanguageExt.List.map(stack, map));
 
     /// <summary>
     /// Projects the values in the stack using a map function into a new enumerable (Select in LINQ).
@@ -546,8 +546,8 @@ public static class StackExtensions
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
     [Pure]
-    public static IEnumerable<R> Map<T, R>(this Stck<T> stack, Func<int, T, R> map) =>
-        LanguageExt.List.map(stack, map);
+    public static Stck<R> Map<T, R>(this Stck<T> stack, Func<int, T, R> map) =>
+        toStackRev(LanguageExt.List.map(stack, map));
 
     /// <summary>
     /// Removes items from the stack that do not match the given predicate (Where in LINQ)
@@ -557,8 +557,8 @@ public static class StackExtensions
     /// <param name="predicate">Predicate function</param>
     /// <returns>Filtered stack</returns>
     [Pure]
-    public static IEnumerable<T> Filter<T>(this Stck<T> stack, Func<T, bool> predicate) =>
-        LanguageExt.List.filter(stack, predicate);
+    public static Stck<T> Filter<T>(this Stck<T> stack, Func<T, bool> predicate) =>
+        toStackRev(LanguageExt.List.filter(stack, predicate));
 
     /// <summary>
     /// Applies the given function 'selector' to each element of the stack. Returns an enumerable comprised of 
@@ -569,8 +569,8 @@ public static class StackExtensions
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered enumerable</returns>
     [Pure]
-    public static IEnumerable<U> Choose<T, U>(this Stck<T> stack, Func<T, Option<U>> selector) =>
-        LanguageExt.List.choose(stack, selector);
+    public static Stck<U> Choose<T, U>(this Stck<T> stack, Func<T, Option<U>> selector) =>
+        toStackRev(LanguageExt.List.choose(stack, selector));
 
     /// <summary>
     /// Applies the given function 'selector' to each element of the stack. Returns an enumerable comprised of 
@@ -582,8 +582,8 @@ public static class StackExtensions
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered enumerable</returns>
     [Pure]
-    public static IEnumerable<U> Choose<T, U>(this Stck<T> stack, Func<int, T, Option<U>> selector) =>
-        LanguageExt.List.choose(stack, selector);
+    public static Stck<U> Choose<T, U>(this Stck<T> stack, Func<int, T, Option<U>> selector) =>
+        toStackRev(LanguageExt.List.choose(stack, selector));
 
     /// <summary>
     /// For each element of the stack, applies the given function. Concatenates all the results and 
@@ -595,16 +595,16 @@ public static class StackExtensions
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
     [Pure]
-    public static IEnumerable<R> Collect<T, R>(this Stck<T> stack, Func<T, IEnumerable<R>> map) =>
-        LanguageExt.List.collect(stack, map);
+    public static Stck<R> Collect<T, R>(this Stck<T> stack, Func<T, IEnumerable<R>> map) =>
+        toStackRev(LanguageExt.List.collect(stack, map));
 
     /// <summary>
     /// Reverses the order of the items in the stack
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public static IEnumerable<T> Rev<T>(this Stck<T> stack) =>
-        LanguageExt.List.rev(stack);
+    public static Stck<T> Rev<T>(this Stck<T> stack) =>
+        toStackRev(LanguageExt.List.rev(stack));
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection, threading an accumulator 
@@ -756,8 +756,8 @@ public static class StackExtensions
     /// <param name="folder">Folding function</param>
     /// <returns>Aggregate state</returns>
     [Pure]
-    public static IEnumerable<S> Scan<S, T>(this Stck<T> stack, S state, Func<S, T, S> folder) =>
-        LanguageExt.List.scan(stack, state, folder);
+    public static Stck<S> Scan<S, T>(this Stck<T> stack, S state, Func<S, T, S> folder) =>
+        toStackRev(LanguageExt.List.scan(stack, state, folder));
 
     /// <summary>
     /// Applies a function to each element of the collection (from last element to first), 
@@ -773,8 +773,8 @@ public static class StackExtensions
     /// <param name="folder">Folding function</param>
     /// <returns>Aggregate state</returns>
     [Pure]
-    public static IEnumerable<S> ScanBack<S, T>(this Stck<T> stack, S state, Func<S, T, S> folder) =>
-        LanguageExt.List.scanBack(stack, state, folder);
+    public static Stck<S> ScanBack<S, T>(this Stck<T> stack, S state, Func<S, T, S> folder) =>
+        toStackRev(LanguageExt.List.scanBack(stack, state, folder));
 
     /// <summary>
     /// Returns Some(x) for the first item in the stack that matches the predicate 
@@ -837,8 +837,8 @@ public static class StackExtensions
     /// <param name="stack">Stack</param>
     /// <returns>An enumerable with all duplicate values removed</returns>
     [Pure]
-    public static IEnumerable<T> Distinct<T>(this Stck<T> stack) =>
-        LanguageExt.List.distinct(stack);
+    public static Stck<T> Distinct<T>(this Stck<T> stack) =>
+        toStackRev(LanguageExt.List.distinct(stack));
 
     /// <summary>
     /// Return an enumerable with all duplicate values removed
@@ -847,8 +847,8 @@ public static class StackExtensions
     /// <param name="stack">Stack</param>
     /// <returns>An enumerable with all duplicate values removed</returns>
     [Pure]
-    public static IEnumerable<T> Distinct<EQ,T>(this Stck<T> stack) where EQ : struct, Eq<T> =>
-        LanguageExt.List.distinct<EQ,T>(stack);
+    public static Stck<T> Distinct<EQ,T>(this Stck<T> stack) where EQ : struct, Eq<T> =>
+        toStackRev(LanguageExt.List.distinct<EQ,T>(stack));
 
     /// <summary>
     /// Return an enumerable with all duplicate values removed
@@ -857,8 +857,8 @@ public static class StackExtensions
     /// <param name="stack">Stack</param>
     /// <returns>An enumerable with all duplicate values removed</returns>
     [Pure]
-    public static IEnumerable<T> Distinct<T, K>(this Stck<T> stack, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
-        LanguageExt.List.distinct(stack, keySelector, compare);
+    public static Stck<T> Distinct<T, K>(this Stck<T> stack, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
+        toStackRev(LanguageExt.List.distinct(stack, keySelector, compare));
 
     /// <summary>
     /// Returns a new enumerable with the first 'count' items from the stack
@@ -868,8 +868,8 @@ public static class StackExtensions
     /// <param name="count">Number of items to take</param>
     /// <returns>A new enumerable with the first 'count' items from the enumerable provided</returns>
     [Pure]
-    public static IEnumerable<T> Take<T>(this Stck<T> stack, int count) =>
-        LanguageExt.List.take(stack, count);
+    public static Stck<T> Take<T>(this Stck<T> stack, int count) =>
+        toStackRev(LanguageExt.List.take(stack, count));
 
     /// <summary>
     /// Iterate the stack, yielding items if they match the predicate provided, and stopping 
@@ -880,8 +880,8 @@ public static class StackExtensions
     /// <param name="count">Number of items to take</param>
     /// <returns>A new enumerable with the first items that match the predicate</returns>
     [Pure]
-    public static IEnumerable<T> TakeWhile<T>(this Stck<T> stack, Func<T, bool> pred) =>
-        LanguageExt.List.takeWhile(stack, pred);
+    public static Stck<T> TakeWhile<T>(this Stck<T> stack, Func<T, bool> pred) =>
+        toStackRev(LanguageExt.List.takeWhile(stack, pred));
 
     /// <summary>
     /// Iterate the stack, yielding items if they match the predicate provided, and stopping 
@@ -892,8 +892,8 @@ public static class StackExtensions
     /// <param name="count">Number of items to take</param>
     /// <returns>A new enumerable with the first items that match the predicate</returns>
     [Pure]
-    public static IEnumerable<T> TakeWhile<T>(this Stck<T> stack, Func<T, int, bool> pred) =>
-        LanguageExt.List.takeWhile(stack, pred);
+    public static Stck<T> TakeWhile<T>(this Stck<T> stack, Func<T, int, bool> pred) =>
+        toStackRev(LanguageExt.List.takeWhile(stack, pred));
 
     /// <summary>
     /// Returns true if any item in the stack matches the predicate provided

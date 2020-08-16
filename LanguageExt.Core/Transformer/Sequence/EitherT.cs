@@ -51,5 +51,8 @@ namespace LanguageExt
         public static Either<FAIL, Validation<MonoidFail, FAIL, B>> Sequence<MonoidFail, FAIL, A, B>(this Validation<MonoidFail, FAIL, A> ta, Func<A, Either<FAIL, B>> f)
             where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
             ta.Map(f).Traverse(Prelude.identity);
+         
+        public static Either<L, EffPure<B>> Sequence<L, A, B>(this EffPure<A> ta, Func<A, Either<L, B>> f) =>
+            ta.Map(f).Traverse(Prelude.identity);
     }
 }

@@ -93,5 +93,10 @@ namespace LanguageExt
             ma.Match(
                 Fail: ex => Seq1(Validation<MonoidFail, Fail, B>.Fail(ex)),
                 Succ: xs => xs.Map(x => Success<MonoidFail, Fail, B>(f(x))));
+
+        public static Seq<EffPure<B>> Traverse<A, B>(this EffPure<Seq<A>> ma, Func<A, B> f) =>
+            ma.Match(
+                Fail: ex => Seq1(FailEff<B>(ex)),
+                Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).RunIO().Value;    
     }
 }
