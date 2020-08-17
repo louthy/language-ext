@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.Interfaces;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -13,7 +14,7 @@ namespace LanguageExt
         const int maxRetries = 500;
         static long refIdNext;
         volatile static Atom<HashMap<long, RefState>> state = Atom(HashMap<long, RefState>());
-        static AsyncLocal<Transaction> transaction = new AsyncLocal<Transaction>();
+        static readonly AsyncLocal<Transaction> transaction = new AsyncLocal<Transaction>();
 
         /// <summary>
         /// Generates a new reference that can be used within a sync transaction
@@ -43,6 +44,51 @@ namespace LanguageExt
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
+        internal static ValueTask<R> DoTransaction<R>(Func<ValueTask<R>> op, Isolation isolation) =>
+            transaction.Value == null
+                ? RunTransaction(op, isolation)
+                : op();
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        internal static AffPure<R> DoTransaction<R>(AffPure<R> op, Isolation isolation) =>
+            transaction.Value == null
+                ? RunTransaction(op, isolation)
+                : op;
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        internal static Aff<RT, R> DoTransaction<RT, R>(Aff<RT, R> op, Isolation isolation) where RT : struct, HasCancel<RT> =>
+            transaction.Value == null
+                ? RunTransaction(op, isolation)
+                : op;
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        internal static EffPure<R> DoTransaction<R>(EffPure<R> op, Isolation isolation) =>
+            transaction.Value == null
+                ? RunTransaction(op, isolation)
+                : op;
+        
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        internal static Eff<RT, R> DoTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) =>
+            transaction.Value == null
+                ? RunTransaction(op, isolation)
+                : op;
+        
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
         internal static R DoTransaction<R>(Func<CommuteRef<R>> op, Isolation isolation) =>
             transaction.Value == null
                 ? RunTransaction(op, isolation)
@@ -63,6 +109,211 @@ namespace LanguageExt
                 {
                     // Try to do the operations of the transaction
                     return ValidateAndCommit(t, isolation, op(), Int64.MinValue);
+                }
+                catch (ConflictException)
+                {
+                    // Conflict found, so retry
+                    retries--;
+                }
+                finally
+                {
+                    // Clear the current transaction on the way out
+                    transaction.Value = null;
+                }
+                // Wait one tick before trying again
+                SpinWait sw = default;
+                sw.SpinOnce();
+            }
+            throw new DeadlockException();
+        }
+        
+        /// <summary>
+        /// Runs the transaction
+        /// </summary>
+        static Aff<RT, R> RunTransaction<RT, R>(Aff<RT, R> op, Isolation isolation) where RT : struct, HasCancel<RT> =>
+            AffMaybe<RT, R>(async env =>
+            {
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    // Create a new transaction with a snapshot of the current state
+                    var t = new Transaction(state.Value);
+                    transaction.Value = t;
+                    try
+                    {
+                        // Try to do the operations of the transaction
+                        var res = await op.RunIO(env).ConfigureAwait(false);
+                        if (res.IsFail)
+                        {
+                            return res;
+                        }
+
+                        return ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
+                    }
+                    catch (ConflictException)
+                    {
+                        // Conflict found, so retry
+                        retries--;
+                        op.Clear();
+                    }
+                    finally
+                    {
+                        // Clear the current transaction on the way out
+                        transaction.Value = null;
+                    }
+
+                    // Wait one tick before trying again
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+
+                throw new DeadlockException();
+            });
+                
+        /// <summary>
+        /// Runs the transaction
+        /// </summary>
+        static Eff<RT, R> RunTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) =>
+            EffMaybe<RT, R>(env =>
+            {
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    // Create a new transaction with a snapshot of the current state
+                    var t = new Transaction(state.Value);
+                    transaction.Value = t;
+                    try
+                    {
+                        // Try to do the operations of the transaction
+                        var res = op.RunIO(env);
+                        if (res.IsFail)
+                        {
+                            return res;
+                        }
+
+                        return ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
+                    }
+                    catch (ConflictException)
+                    {
+                        // Conflict found, so retry
+                        retries--;
+                        op.Clear();
+                    }
+                    finally
+                    {
+                        // Clear the current transaction on the way out
+                        transaction.Value = null;
+                    }
+
+                    // Wait one tick before trying again
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+
+                throw new DeadlockException();
+            });
+
+        /// <summary>
+        /// Runs the transaction
+        /// </summary>
+        static AffPure<R> RunTransaction<R>(AffPure<R> op, Isolation isolation) =>
+            AffMaybe(async () =>
+            {
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    // Create a new transaction with a snapshot of the current state
+                    var t = new Transaction(state.Value);
+                    transaction.Value = t;
+                    try
+                    {
+                        // Try to do the operations of the transaction
+                        var res = await op.RunIO().ConfigureAwait(false);
+                        if (res.IsFail)
+                        {
+                            return res;
+                        }
+
+                        return ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
+                    }
+                    catch (ConflictException)
+                    {
+                        // Conflict found, so retry
+                        retries--;
+                        op.Clear();
+                    }
+                    finally
+                    {
+                        // Clear the current transaction on the way out
+                        transaction.Value = null;
+                    }
+
+                    // Wait one tick before trying again
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+
+                throw new DeadlockException();
+            });
+
+        /// <summary>
+        /// Runs the transaction
+        /// </summary>
+        static EffPure<R> RunTransaction<R>(EffPure<R> op, Isolation isolation) =>
+            EffMaybe(() =>
+            {
+                var retries = maxRetries;
+                while (retries > 0)
+                {
+                    // Create a new transaction with a snapshot of the current state
+                    var t = new Transaction(state.Value);
+                    transaction.Value = t;
+                    try
+                    {
+                        // Try to do the operations of the transaction
+                        var res = op.RunIO();
+                        if (res.IsFail)
+                        {
+                            return res;
+                        }
+
+                        return ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
+                    }
+                    catch (ConflictException)
+                    {
+                        // Conflict found, so retry
+                        retries--;
+                        op.Clear();
+                    }
+                    finally
+                    {
+                        // Clear the current transaction on the way out
+                        transaction.Value = null;
+                    }
+
+                    // Wait one tick before trying again
+                    SpinWait sw = default;
+                    sw.SpinOnce();
+                }
+
+                throw new DeadlockException();
+            });
+        
+        /// <summary>
+        /// Runs the transaction
+        /// </summary>
+        static async ValueTask<R> RunTransaction<R>(Func<ValueTask<R>> op, Isolation isolation)
+        {
+            var retries = maxRetries;
+            while (retries > 0)
+            {
+                // Create a new transaction with a snapshot of the current state
+                var t = new Transaction(state.Value);
+                transaction.Value = t;
+                try
+                {
+                    // Try to do the operations of the transaction
+                    return ValidateAndCommit(t, isolation, await op().ConfigureAwait(false), Int64.MinValue);
                 }
                 catch (ConflictException)
                 {

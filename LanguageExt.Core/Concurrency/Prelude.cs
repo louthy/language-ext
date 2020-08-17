@@ -81,6 +81,70 @@ namespace LanguageExt
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EffPure<R> sync<R>(EffPure<R> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Eff<RT, R> sync<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AffPure<R> sync<R>(AffPure<R> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<RT, R> sync<RT, R>(Aff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct, HasCancel<RT> =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValueTask<R> sync<R>(Func<ValueTask<R>> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValueTask<Unit> sync(Func<ValueTask> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<R> sync<R>(Func<Task<R>> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(async () => await op().ConfigureAwait(false), isolation).AsTask();
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<Unit> sync(Func<Task> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, isolation).AsTask();
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Unit sync(Action op, Isolation isolation = Isolation.Snapshot) =>
             STM.DoTransaction(() => { op(); return unit; }, isolation);
 
@@ -103,6 +167,61 @@ namespace LanguageExt
         /// <param name="f">Function to update the `Ref`</param>
         /// <returns>The value returned from `f`</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValueTask<A> swapAsync<A>(Ref<A> r, Func<A, ValueTask<A>> f) =>
+            r.SwapAsync(f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AffPure<A> swapAff<A>(Ref<A> r, Func<A, AffPure<A>> f) =>
+            r.SwapAff(f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EffPure<A> swapEff<A>(Ref<A> r, Func<A, EffPure<A>> f) =>
+            r.SwapEff(f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<RT, A> swapAff<RT, A>(Ref<A> r, Func<A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            r.SwapAff(f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Eff<RT, A> swapEff<RT, A>(Ref<A> r, Func<A, Eff<RT, A>> f) =>
+            r.SwapEff(f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static A swap<A, X>(Ref<A> r, X x, Func<X, A, A> f) =>
             r.Swap(x, f);
 
@@ -114,9 +233,119 @@ namespace LanguageExt
         /// <param name="f">Function to update the `Ref`</param>
         /// <returns>The value returned from `f`</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static A swap<A, X, Y >(Ref<A> r, X x, Y y, Func<X, Y, A, A> f) =>
+        public static ValueTask<A> swapAsync<X, A>(Ref<A> r, X x, Func<X, A, ValueTask<A>> f) =>
+            r.SwapAsync(x, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AffPure<A> swapAff<X, A>(Ref<A> r, X x, Func<X, A, AffPure<A>> f) =>
+            r.SwapAff(x, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EffPure<A> swapEff<X, A>(Ref<A> r, X x, Func<X, A, EffPure<A>> f) =>
+            r.SwapEff(x, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<RT, A> swapAff<RT, X, A>(Ref<A> r, X x, Func<X, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            r.SwapAff(x, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Eff<RT, A> swapEff<RT, X, A>(Ref<A> r, X x, Func<X, A, Eff<RT, A>> f) =>
+            r.SwapEff(x, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static A swap<A, X, Y>(Ref<A> r, X x, Y y, Func<X, Y, A, A> f) =>
             r.Swap(x, y, f);
 
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValueTask<A> swapAsync<X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, ValueTask<A>> f) =>
+            r.SwapAsync(x, y, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AffPure<A> swapAff<X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, AffPure<A>> f) =>
+            r.SwapAff(x, y, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EffPure<A> swapEff<X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, EffPure<A>> f) =>
+            r.SwapEff(x, y, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<RT, A> swapAff<RT, X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            r.SwapAff(x, y, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Eff<RT, A> swapEff<RT, X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
+            r.SwapEff(x, y, f);        
+        
         /// <summary>
         /// Must be called in a transaction. Sets the in-transaction-value of
         /// ref to:  

@@ -3,7 +3,7 @@
 namespace LanguageExt
 {
     /// <summary>
-    /// `dosync` transaction isolation level.  Used to enforce ACI properties
+    /// `sync` transaction isolation level.  Used to enforce ACI properties
     /// of ACID on `Ref`s.
     /// </summary>
     public enum Isolation
